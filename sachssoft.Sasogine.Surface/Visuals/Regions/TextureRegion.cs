@@ -1,0 +1,68 @@
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
+
+namespace sachssoft.Sasogine.Surface.Visuals.Regions;
+
+public class TextureRegion : IImage
+{
+    private readonly Rectangle _bounds;
+
+    private readonly Texture2D _texture;
+    public Texture2D Texture
+    {
+        get { return _texture; }
+    }
+
+    public Rectangle Bounds
+    {
+        get { return _bounds; }
+    }
+
+    public Point Size
+    {
+        get
+        {
+            return new Point(Bounds.Width, Bounds.Height);
+        }
+    }
+
+#if MONOGAME || FNA || STRIDE
+    /// <summary>
+    /// Covers the whole texture
+    /// </summary>
+    /// <param name="texture"></param>
+    public TextureRegion(Texture2D texture) : this(texture, new Rectangle(0, 0, texture.Width, texture.Height))
+    {
+    }
+
+#endif
+
+    public TextureRegion(Texture2D texture, Rectangle bounds)
+    {
+        if (texture == null)
+        {
+            throw new ArgumentNullException("texture");
+        }
+
+        _texture = texture;
+        _bounds = bounds;
+    }
+
+    public TextureRegion(TextureRegion region, Rectangle bounds)
+    {
+        if (region == null)
+        {
+            throw new ArgumentNullException("region");
+        }
+
+        _texture = region.Texture;
+        bounds.Offset(region.Bounds.Location);
+        _bounds = bounds;
+    }
+
+    public virtual void Draw(RenderContext context, Rectangle dest, Color color)
+    {
+        context.Draw(Texture, dest, Bounds, color);
+    }
+}

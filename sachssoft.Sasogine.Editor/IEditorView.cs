@@ -1,0 +1,17 @@
+﻿using sachssoft.Sasogine.Editor.Tiling.Tools;
+using System.Collections.Generic;
+
+namespace sachssoft.Sasogine.Editor;
+
+public interface IEditorView
+{
+    IEnumerable<EditorToolCursor> Tools
+    {
+        get;
+    }
+
+    IEnumerable<EditorToolMetadata> ToolMetadata
+    {
+        get;
+    }
+}

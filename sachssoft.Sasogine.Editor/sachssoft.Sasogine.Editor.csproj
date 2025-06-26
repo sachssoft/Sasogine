@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>sachssoft.Sasogine.Editor</RootNamespace>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<Title>Sasogine Editor</Title>
+		<Copyright>© Tobias Sachs (Sachssoft)</Copyright>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<IsTrimmable>True</IsTrimmable>
+		<IsAotCompatible>True</IsAotCompatible>
+		<PublishAot>True</PublishAot>
+		<SelfContained>True</SelfContained>
+		<RuntimeIdentifiers>win-x64;win-x86;linux-x64;osx-x64</RuntimeIdentifiers>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>embedded</DebugType>
+		<DefineConstants>$(DefineConstants);SASOGINE</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>embedded</DebugType>
+		<DefineConstants>$(DefineConstants);SASOGINE</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\sachssoft.Sasogine\sachssoft.Sasogine.csproj" />
+	</ItemGroup>
+
+</Project>

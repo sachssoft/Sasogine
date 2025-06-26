@@ -1,0 +1,63 @@
+﻿using AssetManagementBase;
+using sachssoft.Sasogine.Surface.Visuals.Styles;
+
+namespace sachssoft.Sasogine.Surface;
+
+public static class DefaultAssets
+{
+    private static AssetManager _assetManager;
+    private static Stylesheet _defaultStylesheet, _defaultStylesheet2x;
+
+    private static AssetManager AssetManager
+    {
+        get
+        {
+            if (_assetManager == null)
+            {
+                _assetManager = AssetManager.CreateResourceAssetManager(typeof(DefaultAssets).Assembly, "sachssoft.Sasogine.Surface.Resources.", false);
+            }
+
+            return _assetManager;
+        }
+    }
+
+    public static Stylesheet DefaultStylesheet
+    {
+        get
+        {
+            if (_defaultStylesheet != null)
+            {
+                return _defaultStylesheet;
+            }
+
+            _defaultStylesheet = AssetManager.LoadStylesheet("default_ui_skin.xmms");
+            return _defaultStylesheet;
+        }
+    }
+
+    public static Stylesheet DefaultStylesheet2X
+    {
+        get
+        {
+            if (_defaultStylesheet2x != null)
+            {
+                return _defaultStylesheet2x;
+            }
+
+            _defaultStylesheet2x = AssetManager.LoadStylesheet("default_ui_skin_2x.xmms");
+            return _defaultStylesheet2x;
+        }
+    }
+
+    internal static void Dispose()
+    {
+        _defaultStylesheet = null;
+        _defaultStylesheet2x = null;
+
+        if (_assetManager != null)
+        {
+            _assetManager.Cache.Clear();
+            _assetManager = null;
+        }
+    }
+}
