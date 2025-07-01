@@ -4,6 +4,7 @@ using sachssoft.Graphics.Renderer;
 using sachssoft.Sasogine.Tiling;
 using sachssoft.Sasogine;
 using sachssoft.Sasogine.Tiling.Composite;
+using sachssoft.Sasogine.Graphics.Renderer;
 
 // Später (Performance-Kritisch) --> ref
 

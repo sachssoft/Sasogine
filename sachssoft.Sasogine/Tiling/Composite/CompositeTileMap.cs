@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using sachssoft.Graphics.Primitives;
 using sachssoft.Graphics.Renderer;
+using sachssoft.Sasogine.Graphics.Renderer;
 using System;
 
 namespace sachssoft.Sasogine.Tiling.Composite;
@@ -100,32 +101,6 @@ public class CompositeTileMap<T> : ITileMap where T : CompositeTileBase
             throw new IndexOutOfRangeException($"Index {index} out of bounds (0..{_count - 1})");
     }
 
-    public CompositeTileMap<T> Resize(int new_columns, int new_rows)
-    {
-        var new_map = new CompositeTileMap<T>(new_columns, new_rows);
-
-        int min_columns = Math.Min(_columns, new_columns);
-        int min_rows = Math.Min(_rows, new_rows);
-
-        for (int row = 0; row < min_rows; row++)
-        {
-            for (int column = 0; column < min_columns; column++)
-            {
-                var tile = this[column, row];
-
-                if (tile != null)
-                {
-                    var cloned_tile = (T?)tile.Clone();
-                    if (cloned_tile != null)
-                        new_map[column, row] = cloned_tile;
-
-                }
-            }
-        }
-
-        return new_map;
-    }
-
     public virtual void Update(GameContext context)
     {
     }
@@ -165,6 +140,8 @@ public class CompositeTileMap<T> : ITileMap where T : CompositeTileBase
                     //// Ref struct wird *hier* direkt erzeugt – pro Aufruf temporär
                     //var args = new CompositeTileRenderArgs(context, renderer, primitive, new Coordinate(column, row));
                     args._coordinate = new Coordinate(column, row);
+
+                    options.Reset();
                     tile.Draw(args, options); // ← Übergabe als ref struct
                     _rendered_tile_count++;
                 }

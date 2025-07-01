@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
+using System;
 
-namespace sachssoft.Graphics.Renderer
+namespace sachssoft.Sasogine.Graphics.Renderer
 {
     /// <summary>
     /// Optionen zur Steuerung des Tile-Zeichnens,
@@ -66,6 +67,36 @@ namespace sachssoft.Graphics.Renderer
         /// Skalierungsfaktor (X,Y) für das Tile.
         /// </summary>
         public Vector2 Scale { get; set; } = Vector2.One;
+        public TileDrawingOptions Clone()
+        {
+            return new TileDrawingOptions
+            {
+                Color = this.Color,
+                Opacity = this.Opacity,
+                Scale = this.Scale,
+                Rotation = this.Rotation,
+                Origin = this.Origin,
+                Offset = this.Offset,
+                LayerDepth = this.LayerDepth,
+                TransformMatrix = this.TransformMatrix
+                // ggf. alle Felder kopieren
+            };
+        }
+
+        public void Reset()
+        {
+            TileSize = new Vector2(10f);
+            LayerDepth = 0f;
+
+            Color = Color.White;
+            Opacity = 1f;
+
+            TransformMatrix = Matrix.Identity;
+            Origin = new Vector2(0.5f);
+            Offset = Vector2.Zero;
+            Rotation = 0f;
+            Scale = Vector2.One;
+        }
 
         #endregion
     }

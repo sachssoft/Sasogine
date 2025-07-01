@@ -1,28 +1,35 @@
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
-using sachssoft.Sasogine.Graphics;
-using sachssoft.Sasogine.Tiling;
-using sachssoft.Sasogine;
-using System;
+using Microsoft.Xna.Framework.Graphics;
 using sachssoft.Graphics.Primitives;
+using sachssoft.Graphics.Renderer;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace sachssoft.Graphics.Renderer;
+namespace sachssoft.Sasogine.Graphics.Renderer;
 
 public sealed class TileRenderer : RendererBase
 {
     private CameraBase? _camera;
     private BoundingBox _screen_bounds;
-    private Vector2 _tile_size;  // tile_size als Feld speichern
+    private Vector2 _tile_size;
+    private DrawBatchMode _draw_mode = DrawBatchMode.Immediate;
 
-    public TileRenderer(RuntimeBase runtime, Vector2? tile_size = null)
-        : this(runtime.Camera!, runtime.Effect!, tile_size)
+    private readonly List<DrawRequest> _deferred_draws = new();
+    private readonly object _lock = new();
+
+    private record struct DrawRequest(TilePrimitive primitive, Texture2D texture, Coordinate coordinate, TileDrawingOptions options);
+
+    public TileRenderer(RuntimeBase runtime, Vector2? tile_size = null, DrawBatchMode mode = DrawBatchMode.Immediate)
+        : this(runtime.Camera!, runtime.Effect!, tile_size, mode)
     {
     }
 
-    public TileRenderer(CameraBase camera, IEffect effect, Vector2? tile_size = null)
+    public TileRenderer(CameraBase camera, IEffect effect, Vector2? tile_size = null, DrawBatchMode mode = DrawBatchMode.Immediate)
         : base(IMyGameApp.Current.GraphicsDevice, effect, camera)
     {
         _tile_size = tile_size ?? Vector2.One;
+        _draw_mode = mode;
 
         if (camera is Camera2D cam2d)
         {
@@ -30,7 +37,19 @@ public sealed class TileRenderer : RendererBase
         }
     }
 
-    public Vector2 TileSize { get => _tile_size; set => _tile_size = value; }
+    public Vector2 TileSize
+    {
+        get => _tile_size;
+        set => _tile_size = value;
+    }
+
+    public DrawBatchMode DrawMode
+    {
+        get => _draw_mode;
+        private set => _draw_mode = value;
+    }
+
+    public CameraBase Camera => _camera!;
 
     protected override void OnInitialize(object[] args)
     {
@@ -50,9 +69,8 @@ public sealed class TileRenderer : RendererBase
     protected override void OnUninitialize()
     {
         Effect.Texture = null;
+        _deferred_draws.Clear();
     }
-
-    public CameraBase Camera => _camera!;
 
     public void SetTransform(Matrix matrix)
     {
@@ -88,12 +106,28 @@ public sealed class TileRenderer : RendererBase
     public void DrawTile(TilePrimitive primitive, Texture2D texture, Coordinate coordinate, TileDrawingOptions? options = null)
     {
         options ??= new TileDrawingOptions();
+        var optionsCopy = options.Clone(); // Clone oder Copy-Methode, muss in TileDrawingOptions implementiert sein
 
-        var transform = Matrix.Identity
-            * Matrix.CreateTranslation(-options.Origin.X, -options.Origin.Y, options.LayerDepth)
-            * Matrix.CreateScale(_tile_size.X * options.Scale.X, _tile_size.Y * options.Scale.Y, 1f)
-            * Matrix.CreateRotationZ(options.Rotation)
-            * Matrix.CreateTranslation(_tile_size.X * coordinate.X + options.Offset.X, _tile_size.Y * coordinate.Y + options.Offset.Y, options.LayerDepth);
+        if (_draw_mode == DrawBatchMode.Immediate)
+        {
+            DrawTileInternal(primitive, texture, coordinate, optionsCopy);
+        }
+        else
+        {
+            lock (_lock)
+            {
+                _deferred_draws.Add(new DrawRequest(primitive, texture, coordinate, optionsCopy));
+            }
+        }
+    }
+
+    private void DrawTileInternal(TilePrimitive primitive, Texture2D texture, Coordinate coordinate, TileDrawingOptions options)
+    {
+        var transform =
+            Matrix.CreateTranslation(-options.Origin.X, -options.Origin.Y, options.LayerDepth) *
+            Matrix.CreateScale(_tile_size.X * options.Scale.X, _tile_size.Y * options.Scale.Y, 1f) *
+            Matrix.CreateRotationZ(options.Rotation) *
+            Matrix.CreateTranslation(_tile_size.X * coordinate.X + options.Offset.X, _tile_size.Y * coordinate.Y + options.Offset.Y, options.LayerDepth);
 
         if (options.TransformMatrix is Matrix user_transform)
             transform *= user_transform;
@@ -107,5 +141,37 @@ public sealed class TileRenderer : RendererBase
 
         Effect.Color = default_color;
         Effect.Opacity = default_opacity;
+    }
+
+    public override void Flush()
+    {
+        List<DrawRequest> items_copy;
+
+        lock (_lock)
+        {
+            if (_draw_mode == DrawBatchMode.Immediate || _deferred_draws.Count == 0)
+                return;
+
+            items_copy = new List<DrawRequest>(_deferred_draws);
+            _deferred_draws.Clear();
+        }
+
+        IEnumerable<DrawRequest> sorted = _draw_mode switch
+        {
+            DrawBatchMode.BackToFront => items_copy.OrderBy(d => d.options.LayerDepth),
+            DrawBatchMode.FrontToBack => items_copy.OrderByDescending(d => d.options.LayerDepth),
+            _ => items_copy
+        };
+
+        foreach (var request in sorted)
+        {
+            DrawTileInternal(request.primitive, request.texture, request.coordinate, request.options);
+        }
+    }
+
+
+    protected override void OnRenderCompleted()
+    {
+        Flush();
     }
 }

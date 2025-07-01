@@ -44,7 +44,13 @@ public abstract class RendererBase : IDisposable
         _graphics_device.BlendState = _blend_state ??= BlendState.AlphaBlend;
     }
 
+    public virtual void Flush() { }
+
     protected virtual void OnInitialize(object[] args)
+    {
+    }
+
+    protected virtual void OnRenderCompleted()
     {
     }
 
@@ -95,6 +101,8 @@ public abstract class RendererBase : IDisposable
     {
         if (_disposed) return;
         _disposed = true;
+
+        OnRenderCompleted();
 
         _graphics_device.RasterizerState = _default_rasterizer;
         _graphics_device.DepthStencilState = _default_depth_stencil_state;
