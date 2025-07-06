@@ -30,10 +30,22 @@ public unsafe sealed class Interaction<TEnum> where TEnum : unmanaged, Enum
             _bitmask[group] |= (1UL << bit);
     }
 
+    public void Press(params TEnum[] interactions)
+    {
+        for (int i = 0; i < interactions.Length; i++)
+            Press(interactions[i]);
+    }
+
     public void Release(TEnum interaction)
     {
         if (TryGetIndexAndBit(interaction, _max_enum_value, out int group, out int bit))
             _bitmask[group] &= ~(1UL << bit);
+    }
+
+    public void Release(params TEnum[] interactions)
+    {
+        for (int i = 0; i < interactions.Length; i++)
+            Release(interactions[i]);
     }
 
     public bool IsPressed(TEnum interaction)
@@ -156,7 +168,7 @@ public unsafe sealed class Interaction<TEnum> where TEnum : unmanaged, Enum
     private static bool TryGetIndexAndBit(TEnum interaction, int max_enum_value, out int group, out int bit)
     {
         int index = UnsafeIndex(interaction);
-        if ((uint)index > max_enum_value)
+        if (index < 0 || index > max_enum_value)
         {
 #if DEBUG
             Debug.WriteLine($"[Interaction] WARN: Enum-Wert {interaction} ({index}) außerhalb des gültigen Bereichs 0..{max_enum_value}");

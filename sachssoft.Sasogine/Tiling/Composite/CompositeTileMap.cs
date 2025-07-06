@@ -30,6 +30,8 @@ public class CompositeTileMap<T> : ITileMap where T : CompositeTileBase
 
     public int RenderedTileCount => _rendered_tile_count;
 
+    public T[] Tiles => _tiles;
+
     object ITileMap.this[int column, int row]
     {
         get => this[column, row];

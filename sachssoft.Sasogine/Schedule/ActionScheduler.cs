@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Security.Cryptography;
@@ -14,12 +15,12 @@ public sealed class ActionScheduler
         public TimeSpan delay;
         public TimeSpan remaining_time;
         public object? parameter;
-        public Action<object?, CancelEventArgs>? action;
+        public Action<object?, SchedulerEventArgs>? action;
         public ActionSchedulerMode mode;
         public bool executed_once;
     }
 
-    public void Add<T>(TimeSpan delay, T? parameter, Action<T?, CancelEventArgs> action, ActionSchedulerMode mode = ActionSchedulerMode.Once)
+    public void Add<T>(TimeSpan delay, T? parameter, Action<T?, SchedulerEventArgs> action, ActionSchedulerMode mode = ActionSchedulerMode.Once)
     {
         if (delay < TimeSpan.Zero)
             delay = TimeSpan.Zero;
@@ -35,7 +36,7 @@ public sealed class ActionScheduler
         });
     }
 
-    public void Add(TimeSpan delay, Action<object?, CancelEventArgs> action, ActionSchedulerMode mode = ActionSchedulerMode.Once)
+    public void Add(TimeSpan delay, Action<object?, SchedulerEventArgs> action, ActionSchedulerMode mode = ActionSchedulerMode.Once)
     {
         if (delay < TimeSpan.Zero)
             delay = TimeSpan.Zero;
@@ -52,19 +53,19 @@ public sealed class ActionScheduler
     }
 
     public void Update(GameContext context) 
-        => Update(context.GameTime.ElapsedGameTime);
+        => Update(context.GameTime);
 
-    public void Update(TimeSpan elapsed)
+    public void Update(GameTime time)
     {
         for (int i = _schedule.Count - 1; i >= 0; i--)
         {
             var schedule = _schedule[i];
-            schedule.remaining_time -= elapsed;
+            schedule.remaining_time -= time.ElapsedGameTime;
 
             if (schedule.remaining_time > TimeSpan.Zero)
                 continue;
 
-            var event_args = new CancelEventArgs();
+            var event_args = new SchedulerEventArgs(time);
             schedule.action?.Invoke(schedule.parameter, event_args);
             schedule.executed_once = true;
 

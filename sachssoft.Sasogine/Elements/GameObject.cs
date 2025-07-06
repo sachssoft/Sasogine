@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
@@ -31,7 +32,7 @@ public abstract class GameObject : IGameObject, INotifyPropertyChanged, INotifyP
         _lastPropertyName = propertyName;
 
         OnPropertyChanging(new PropertyChangingEventArgs(propertyName));
-        field = value;
+        field = value!;
         OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
 
         return true;
@@ -43,7 +44,6 @@ public abstract class GameObject : IGameObject, INotifyPropertyChanged, INotifyP
     protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
         => PropertyChanged?.Invoke(this, e);
 
-    // Letzte Änderung
     internal string? LastPropertyName => _lastPropertyName;
     internal object? LastOldValue => _last_old_value;
     internal object? LastNewValue => _last_new_value;
@@ -131,5 +131,73 @@ public abstract class GameObject : IGameObject, INotifyPropertyChanged, INotifyP
     {
         get => _data_context;
         set => RaiseAndSetIfChanged(ref _data_context, value);
+    }
+
+    // === Dynamisches Property-System ===
+
+    private readonly Dictionary<string, PropertyEntry> _properties = new();
+
+    protected void AddProperty<T>(
+        string name,
+        Func<T> getter,
+        Action<T> setter,
+        string? displayName = null,
+        string? category = null,
+        bool browsable = true)
+    {
+        _properties[name] = new PropertyEntry
+        {
+            Name = name,
+            DisplayName = displayName ?? name,
+            Category = category ?? "Default",
+            PropertyType = typeof(T),
+            Getter = () => getter()!,
+            Setter = v => setter((T)v!),
+            Browsable = browsable
+        };
+    }
+
+    public bool HasProperty(string name) => _properties.ContainsKey(name);
+
+    public object? GetValue(string name)
+        => _properties.TryGetValue(name, out var entry) ? entry.Getter?.Invoke() : null;
+
+    public bool SetValue(string name, object? value)
+    {
+        if (_properties.TryGetValue(name, out var entry))
+        {
+            entry.Setter?.Invoke(value!);
+            return true;
+        }
+        return false;
+    }
+
+    public IEnumerable<string> GetPropertyNames(bool onlyBrowsable = true)
+    {
+        foreach (var kv in _properties)
+        {
+            if (!onlyBrowsable || kv.Value.Browsable)
+                yield return kv.Key;
+        }
+    }
+
+    public IEnumerable<PropertyEntry> GetPropertyEntries(bool onlyBrowsable = true)
+    {
+        foreach (var kv in _properties)
+        {
+            if (!onlyBrowsable || kv.Value.Browsable)
+                yield return kv.Value;
+        }
+    }
+
+    public class PropertyEntry
+    {
+        public string Name = "";
+        public string DisplayName = "";
+        public string Category = "";
+        public bool Browsable = true;
+        public Type PropertyType = typeof(object);
+        public Func<object>? Getter;
+        public Action<object>? Setter;
     }
 }

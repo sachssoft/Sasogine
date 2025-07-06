@@ -5,9 +5,11 @@
 */
 
 using System;
+using System.ComponentModel.Design;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using sachssoft.Sasogine.Diagnostics;
+using sachssoft.Sasogine.Features;
 using sachssoft.Sasogine.Providers;
 
 namespace sachssoft.Sasogine.Surface;
@@ -26,6 +28,8 @@ public abstract class ViewBase /*Panel,*/
     {
         _frame_counter = new();
         _view_switch_mode = view_switch_mode;
+
+        OnInitialize();
         _container = CreateContainer();
     }
 
@@ -128,6 +132,10 @@ public abstract class ViewBase /*Panel,*/
     public TimeSpan ElapsedGameTime => _elapsed_game_time;
 
     internal virtual void OnLoadPrepareInternal()
+    {
+    }
+
+    internal protected virtual void OnInitialize()
     {
     }
 

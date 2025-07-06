@@ -35,12 +35,6 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
 
     public static GameDispatcher Dispatcher = new GameDispatcher();
 
-    public readonly static bool IsMobile = OperatingSystem.IsAndroid() || OperatingSystem.IsIOS();
-
-    public readonly static bool IsDesktop = OperatingSystem.IsMacOS() || OperatingSystem.IsLinux() || OperatingSystem.IsWindows();
-
-    public static bool IsDebugMode { get; set; } = true; // 
-
     private class ViewItem
     {
         public Type Type;
@@ -73,6 +67,28 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
 
         IMyGameApp.Current = this;
     }
+
+    /// <summary>
+    /// Indicates whether the application is running on a mobile platform (Android or iOS),
+    /// or if mobile simulation is enabled for testing purposes.
+    /// </summary>
+    public static bool IsMobile => OperatingSystem.IsAndroid() || OperatingSystem.IsIOS() || MobileSimulation;
+
+    /// <summary>
+    /// Indicates whether the application is running on a desktop platform (Windows, Linux, or macOS).
+    /// </summary>
+    public static bool IsDesktop => OperatingSystem.IsMacOS() || OperatingSystem.IsLinux() || OperatingSystem.IsWindows();
+
+    /// <summary>
+    /// Enables simulation of a mobile environment on desktop for testing purposes only.
+    /// </summary>
+    protected static bool MobileSimulation { get; set; }
+
+    /// <summary>
+    /// Indicates whether the application is running in debug mode. This can be used to enable
+    /// developer-specific features or diagnostics.
+    /// </summary>
+    public static bool IsDebugMode { get; set; } = true;
 
     protected override void Initialize()
     {
@@ -263,6 +279,14 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
         };
     }
 
+    public void ChangeResolution(int width, int height, bool fullscreen = false)
+    {
+        _graphics_device_manager.PreferredBackBufferWidth = width;
+        _graphics_device_manager.PreferredBackBufferHeight = height;
+        _graphics_device_manager.IsFullScreen = fullscreen;
+        _graphics_device_manager.ApplyChanges();
+    }
+
     public TAssetManager Assets => _assets;
 
     GameAssetManager IMyGameApp.Assets => _assets;
@@ -306,125 +330,6 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
 
         return default_value;
     }
-
-    // Für AOT Umgestellt
-
-    //#region View Manager
-
-    ////private readonly Dictionary<Type, ViewBase> _views = new();
-    //private readonly Dictionary<Type, (Func<ViewBase> Factory, ViewBase? Instance)> _views = new();
-
-    //public void RegisterView<TView>() where TView : ViewBase, new()
-    //    => RegisterView(() => new TView());
-
-    //public void RegisterView<TView>(Func<TView> factory) where TView : ViewBase
-    //{
-    //    var type = typeof(TView);
-
-    //    if (_views.ContainsKey(type))
-    //        throw new InvalidOperationException("ViewOwner already registered.");
-
-    //    //var instance = factory();
-    //    //_views.Add(type, instance);
-
-    //    _views.Add(type, (() => factory(), null));
-    //}
-
-    ////public void SetDefaultView<TView>(Action<TView>? init = null) where TView : ViewBase
-    ////{
-    ////    if (!_views.ContainsKey(typeof(TView)))
-    ////        throw new InvalidOperationException("ViewOwner type not registered.");
-
-    ////    _default_view_type = typeof(TView);
-    ////    _default_view_init_action = init != null ? v => init((TView)v) : null;
-    ////}
-
-    //public void SwitchView<TView>(Action<TView>? init = null) where TView : ViewBase
-    //{
-    //    if (!_views.ContainsKey(typeof(TView)))
-    //        throw new InvalidOperationException("ViewOwner type not registered.");
-
-    //    SwitchViewImpl(typeof(TView), init != null ? v => init((TView)v!) : null);
-    //}
-
-    ////public void GoBackView(Action<ViewBase>? init = null)
-    ////{
-    ////    if (_default_view_type == null)
-    ////        throw new InvalidOperationException("No default new_view defined.");
-
-    ////    SwitchViewImpl(_default_view_type, init ?? _default_view_init_action);
-    ////}
-
-    //public void OpenView<TView>(Action<TView>? init = null) where TView : ViewBase
-    //{
-    //    if (!_views.TryGetValue(typeof(TView), out var item))
-    //        throw new InvalidOperationException("ViewOwner item not found.");
-
-    //    if (item.Instance != null)
-    //        throw new InvalidOperationException("View already open.");
-
-    //    var new_view = item.Factory();
-    //    SurfaceHost!.View = new_view;
-
-    //    if (!new_view.IsLoaded && new_view.ViewSwitchMode == ViewSwitchMode.Restart)
-    //    {
-    //        new_view.OnLoadPrepareInternal();
-    //        new_view.OnLoad();
-    //        new_view.IsLoaded = true;
-    //    }
-
-    //    init?.Invoke((TView)new_view);
-    //    new_view.IsActive = true;
-    //}
-
-    //public void CloseView<TView>() where TView : ViewBase
-    //{
-    //}
-
-    //private void SwitchViewImpl(Type type, Action<ViewBase>? init = null)
-    //{
-    //    if (SurfaceHost == null)
-    //        throw new InvalidOperationException("No surface host set.");
-
-    //    if (!_views.TryGetValue(type, out var item))
-    //        throw new InvalidOperationException("ViewOwner item not found.");
-
-    //    var new_view = item.Instance;
-
-    //    if (new_view == null)
-    //        throw new InvalidOperationException("View was not open.");
-
-    //    var old_view = SurfaceHost.View;
-
-    //    if (old_view != null)
-    //    {
-    //        old_view.IsActive = false;
-
-    //        if (old_view.ViewSwitchMode == ViewSwitchMode.Restart && old_view.IsLoaded)
-    //        {
-    //            old_view.OnUnload();
-    //            old_view.IsLoaded = false;
-    //        }
-    //    }
-
-    //    SurfaceHost.View = new_view;
-
-    //    if (!new_view.IsLoaded && new_view.ViewSwitchMode == ViewSwitchMode.Restart)
-    //    {
-    //        new_view.OnLoadPrepareInternal();
-    //        new_view.OnLoad();
-    //        new_view.IsLoaded = true;
-    //    }
-
-    //    init?.Invoke(new_view);
-    //    new_view.IsActive = true;
-    //}
-
-    //public ViewBase? View => SurfaceHost?.View;
-
-    //ViewBase? IMyGameApp.GetCurrentView() => View;
-
-    //#endregion
 
     protected void AddSettings(GameSettings settings) => _settings.Add(settings);
 

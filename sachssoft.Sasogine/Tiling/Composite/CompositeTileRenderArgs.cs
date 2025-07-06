@@ -28,4 +28,9 @@ public /*readonly ref*/ class CompositeTileRenderArgs
     {
         Renderer.DrawTile(Primitive, texture, _coordinate, options);
     }
+
+    public void Draw(Texture2D texture, Coordinate coordinate, TileDrawingOptions? options = null)
+    {
+        Renderer.DrawTile(Primitive, texture, coordinate, options);
+    }
 }

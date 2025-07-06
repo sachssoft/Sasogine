@@ -8,6 +8,7 @@ using System;
 using Microsoft.Xna.Framework;
 using System.Buffers;
 using sachssoft.Sasogine.Tiling.Stacked;
+using sachssoft.Sasogine.Graphics.Renderer;
 
 namespace sachssoft.Sasogine.Tiling.Stacked;
 
