@@ -515,7 +515,7 @@ public class SpinButton : Widget
             value = 0;
         }
 
-        if (delta < 0 && _downButton.Visible && _downButton.IsEnabled)
+        if (delta < 0 && _downButton.IsVisible && _downButton.IsEnabled)
         {
             value -= _increment * Mul_Increment;
             if (InRange(value))
@@ -530,7 +530,7 @@ public class SpinButton : Widget
                 }
             }
         }
-        else if (delta > 0 && _upButton.Visible && _upButton.IsEnabled)
+        else if (delta > 0 && _upButton.IsVisible && _upButton.IsEnabled)
         {
             value += _increment * Mul_Increment;
             if (InRange(value))

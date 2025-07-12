@@ -239,7 +239,7 @@ public class Window : ContentControl
 
     private void InternalShow(Desktop desktop, Point? position = null)
     {
-        Visible = true;
+        IsVisible = true;
         Desktop = desktop;
         Desktop.Widgets.Add(this);
 

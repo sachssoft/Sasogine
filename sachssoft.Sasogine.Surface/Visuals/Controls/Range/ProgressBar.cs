@@ -23,6 +23,8 @@ public abstract class ProgressBar : Widget
     [DefaultValue(100.0f)]
     public float Maximum { get; set; }
 
+    public bool IsValueVisible { get; set; }
+
     [Category("Behavior")]
     [DefaultValue(0.0f)]
     public float Value
@@ -104,6 +106,11 @@ public abstract class ProgressBar : Widget
             Filler.Draw(context,
                 new Rectangle(bounds.X, bounds.Y, (int)(filledPart * bounds.Width), bounds.Height),
                 Color.White);
+
+            //if (IsValueVisible)
+            //{
+
+            //}
         }
         else
         {

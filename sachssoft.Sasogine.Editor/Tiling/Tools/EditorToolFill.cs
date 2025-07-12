@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using sachssoft.Graphics.Primitives;
 using sachssoft.Graphics.Renderer;
+using sachssoft.Sasogine.Graphics.Renderer;
 using sachssoft.Sasogine.Tiling;
 using sachssoft.Sasogine.Tiling.Composite;
 using System.Collections.Generic;

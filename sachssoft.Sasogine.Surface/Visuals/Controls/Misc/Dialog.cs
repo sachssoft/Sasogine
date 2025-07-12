@@ -37,8 +37,8 @@ public class Dialog : Window
     [Browsable(false)]
     public bool ShowOKButton
     {
-        get => ButtonOk.Visible;
-        set => ButtonOk.Visible = value;
+        get => ButtonOk.IsVisible;
+        set => ButtonOk.IsVisible = value;
     }
 
     // By Tobias Sachs
@@ -46,8 +46,8 @@ public class Dialog : Window
     [Browsable(false)]
     public bool ShowCancelButton
     {
-        get => ButtonCancel.Visible;
-        set => ButtonCancel.Visible = value;
+        get => ButtonCancel.IsVisible;
+        set => ButtonCancel.IsVisible = value;
     }
 
     public Dialog(string styleName = Stylesheet.DefaultStyleName) : base(styleName)

@@ -6,6 +6,14 @@ using sachssoft.Sasogine.Surface.Attributes;
 using sachssoft.Sasogine.Surface.Utility;
 using sachssoft.Sasogine.Surface.Visuals.Styles;
 
+//
+// Sasogine Surface (Myra-basiert)
+// Update von Tobias Sachs am 10.07.2025
+// Fix: Finger-Scrolling funktioniert jetzt korrekt.
+//      Ursprünglich war Scrollen nur über den Thumb möglich –
+//      direkte Fingerbewegung über den Content hatte keine oder invertierte Wirkung.
+//      Die Prüfung auf Thumb wurde überarbeitet und unnötige Bedingungen entfernt.
+//
 namespace sachssoft.Sasogine.Surface.Visuals.Controls;
 
 public class ScrollViewer : ContentControl
@@ -18,6 +26,9 @@ public class ScrollViewer : ContentControl
     internal Rectangle _verticalScrollbarFrame, _verticalScrollbarThumb;
     private int? _startBoundsPos;
     private int _thumbMaximumX, _thumbMaximumY;
+    private bool _on_thumb;
+
+    //private Point? _startContentBounds;
 
     [Browsable(false)]
     [XmlIgnore]
@@ -348,6 +359,7 @@ public class ScrollViewer : ContentControl
         base.OnTouchUp();
 
         _startBoundsPos = null;
+        //_startContentBounds = null;
     }
 
     public override void OnTouchDown()
@@ -361,22 +373,62 @@ public class ScrollViewer : ContentControl
 
         var touchPosition = ToLocal(Desktop.TouchPosition.Value);
 
-        var r = _verticalScrollbarThumb;
+        var thumb_area = _verticalScrollbarThumb;
         var thumbPosition = ThumbPosition;
-        r.Y += thumbPosition.Y;
-        if (ShowVerticalScrollBar && _verticalScrollingOn && r.Contains(touchPosition))
+        thumb_area.Y += thumbPosition.Y;
+
+
+        _on_thumb = thumb_area.Contains(touchPosition);
+
+        if (ShowVerticalScrollBar && _verticalScrollingOn )
         {
             _startBoundsPos = Desktop.TouchPosition.Value.Y;
             _scrollbarOrientation = Orientation.Vertical;
         }
 
-        r = _horizontalScrollbarThumb;
-        r.X += thumbPosition.X;
-        if (ShowHorizontalScrollBar && _horizontalScrollingOn && r.Contains(touchPosition))
+        thumb_area = _horizontalScrollbarThumb;
+        thumb_area.X += thumbPosition.X;
+        if (ShowHorizontalScrollBar && _horizontalScrollingOn )
         {
             _startBoundsPos = Desktop.TouchPosition.Value.X;
             _scrollbarOrientation = Orientation.Horizontal;
         }
+    }
+
+    public override void OnMouseEntered()
+    {
+        base.OnMouseEntered();
+    }
+
+    public override void OnMouseLeft()
+    {
+        base.OnMouseLeft();
+    }
+
+    public override void OnMouseMoved()
+    {
+        base.OnMouseMoved();
+    }
+
+    public override void OnTouchEntered()
+    {
+
+
+    }
+
+    public override void OnTouchLeft()
+    {
+        base.OnTouchLeft();
+    }
+
+    public override void OnTouchMoved()
+    {
+        base.OnTouchMoved();
+    }
+
+    public override void OnTouchDoubleClick()
+    {
+        base.OnTouchDoubleClick();
     }
 
     public override void OnMouseWheel(float delta)
@@ -403,7 +455,7 @@ public class ScrollViewer : ContentControl
 
     public override void InternalRender(RenderContext context)
     {
-        if (Content == null || !Content.Visible)
+        if (Content == null || !Content.IsVisible)
         {
             return;
         }
@@ -606,25 +658,49 @@ public class ScrollViewer : ContentControl
 
     private void DesktopTouchMoved(object sender, EventArgs args)
     {
-        if (!_startBoundsPos.HasValue || Desktop == null)
+        if (/*!_startBoundsPos.HasValue ||*/ Desktop == null)
             return;
 
-        var touchPosition = Desktop.TouchPosition;
-
-        int delta;
-        if (_scrollbarOrientation == Orientation.Horizontal)
+        if (_startBoundsPos.HasValue)
         {
-            delta = (touchPosition.Value.X - _startBoundsPos.Value) * ScrollMaximum.X / _thumbMaximumX;
-            _startBoundsPos = touchPosition.Value.X;
-        }
-        else
-        {
-            delta = (touchPosition.Value.Y - _startBoundsPos.Value) * ScrollMaximum.Y / _thumbMaximumY;
-            _startBoundsPos = touchPosition.Value.Y;
-        }
+
+            var touchPosition = Desktop.TouchPosition;
+
+            int delta;
+            if (_scrollbarOrientation == Orientation.Horizontal)
+            {
+                delta = (touchPosition.Value.X - _startBoundsPos.Value);
+                if (!_on_thumb)
+                    delta = -delta;
+
+                delta = delta * ScrollMaximum.X / _thumbMaximumX;
+                _startBoundsPos = touchPosition.Value.X;
+            }
+            else
+            {
+                delta = (touchPosition.Value.Y - _startBoundsPos.Value);
+                if (!_on_thumb)
+                    delta = -delta;
+
+                delta = delta * ScrollMaximum.Y / _thumbMaximumY;
+                _startBoundsPos = touchPosition.Value.Y;
+            }
+
+            //int delta;
+            //if (_scrollbarOrientation == Orientation.Horizontal)
+            //{
+            //    delta = (touchPosition.Value.X - _startBoundsPos.Value) * ScrollMaximum.X / _thumbMaximumX;
+            //    _startBoundsPos = touchPosition.Value.X;
+            //}
+            //else
+            //{
+            //    delta = (touchPosition.Value.Y - _startBoundsPos.Value) * ScrollMaximum.Y / _thumbMaximumY;
+            //    _startBoundsPos = touchPosition.Value.Y;
+            //}
 
 
-        MoveThumb(delta);
+            MoveThumb(delta);
+        }
     }
 
     private void DesktopTouchUp(object sender, EventArgs args)

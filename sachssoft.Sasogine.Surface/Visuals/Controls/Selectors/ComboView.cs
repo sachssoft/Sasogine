@@ -10,7 +10,7 @@ using sachssoft.Sasogine.Surface.Visuals.Styles;
 
 namespace sachssoft.Sasogine.Surface.Visuals.Controls;
 
-public class ComboView : Widget
+public class ComboBox : Widget
 {
     private readonly ToggleButton _button;
     private readonly ListView _listView = new ListView(null);
@@ -103,7 +103,7 @@ public class ComboView : Widget
         }
     }
 
-    public ComboView(string styleName = Stylesheet.DefaultStyleName)
+    public ComboBox(string styleName = Stylesheet.DefaultStyleName)
     {
         _button = new ToggleButton(null)
         {
@@ -190,8 +190,8 @@ public class ComboView : Widget
         _listView.Width = null;
 
         // Make visible, otherwise Measure will return zero
-        var wasVisible = _listView.Visible;
-        _listView.Visible = true;
+        var wasVisible = _listView.IsVisible;
+        _listView.IsVisible = true;
 
         var listResult = _listView.Measure(new Point(10000, 10000));
         if (listResult.X > result.X)
@@ -201,7 +201,7 @@ public class ComboView : Widget
 
         // Revert ListBox settings
         _listView.Width = oldWidth;
-        _listView.Visible = wasVisible;
+        _listView.IsVisible = wasVisible;
 
         // Add some x space
         result.X += 32;
@@ -232,7 +232,7 @@ public class ComboView : Widget
     {
         base.CopyFrom(w);
 
-        var comboView = (ComboView)w;
+        var comboView = (ComboBox)w;
         SelectionMode = comboView.SelectionMode;
         DropdownMaximumHeight = comboView.DropdownMaximumHeight;
 

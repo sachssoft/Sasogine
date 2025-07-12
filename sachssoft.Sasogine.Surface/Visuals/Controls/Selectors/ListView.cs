@@ -249,7 +249,7 @@ public class ListView : Widget
     private readonly WidgetsCollection _widgets;
     private Widget _selectedItem;
 
-    internal ComboView _parentCombo;
+    internal ComboBox _parentCombo;
 
     [Browsable(false)]
     [XmlIgnore]

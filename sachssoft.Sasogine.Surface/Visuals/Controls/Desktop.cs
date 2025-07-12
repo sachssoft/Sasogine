@@ -290,7 +290,7 @@ public partial class Desktop : SurfaceHost, ITransformable, IDisposable
             for (var i = childrenCopy.Count - 1; i >= 0; --i)
             {
                 var w = childrenCopy[i];
-                if (w.Visible && w.IsEnabled && w.IsModal)
+                if (w.IsVisible && w.IsEnabled && w.IsModal)
                 {
                     return true;
                 }
@@ -373,7 +373,7 @@ public partial class Desktop : SurfaceHost, ITransformable, IDisposable
         }
 
         Widgets.Remove(ContextMenu);
-        ContextMenu.Visible = false;
+        ContextMenu.IsVisible = false;
 
         ContextMenuClosed.Invoke(ContextMenu);
         ContextMenu = null;
@@ -419,7 +419,7 @@ public partial class Desktop : SurfaceHost, ITransformable, IDisposable
 
         FixOverWidgetPosition(menu, position);
 
-        ContextMenu.Visible = true;
+        ContextMenu.IsVisible = true;
         Widgets.Add(ContextMenu);
 
         if (ContextMenu.AcceptsKeyboardFocus)
@@ -437,7 +437,7 @@ public partial class Desktop : SurfaceHost, ITransformable, IDisposable
         }
 
         Widgets.Remove(Tooltip);
-        Tooltip.Visible = false;
+        Tooltip.IsVisible = false;
         Tooltip = null;
     }
 
@@ -457,7 +457,7 @@ public partial class Desktop : SurfaceHost, ITransformable, IDisposable
 
         FixOverWidgetPosition(Tooltip, position);
 
-        Tooltip.Visible = true;
+        Tooltip.IsVisible = true;
         Widgets.Add(Tooltip);
     }
 
@@ -509,7 +509,7 @@ public partial class Desktop : SurfaceHost, ITransformable, IDisposable
 
         foreach (var widget in ChildrenCopy)
         {
-            if (widget.Visible)
+            if (widget.IsVisible)
             {
 
                 if (UIEnvironment.EnableModalDarkening && widget.IsModal)
@@ -621,7 +621,7 @@ public partial class Desktop : SurfaceHost, ITransformable, IDisposable
 
         foreach (var child in ChildrenCopy)
         {
-            if (child.Visible)
+            if (child.IsVisible)
             {
                 child.Arrange(LayoutBounds);
             }
@@ -634,7 +634,7 @@ public partial class Desktop : SurfaceHost, ITransformable, IDisposable
         for (var i = childrenCopy.Count - 1; i >= 0; --i)
         {
             var w = childrenCopy[i];
-            if (!w.Visible)
+            if (!w.IsVisible)
             {
                 continue;
             }
@@ -669,7 +669,8 @@ public partial class Desktop : SurfaceHost, ITransformable, IDisposable
         {
             if (!i.Layout2d.Nullable)
             {
-                ExpressionParser.Parse(i, ChildrenCopy);
+                //ExpressionParser.Parse(i, ChildrenCopy);
+                throw new NotImplementedException();
             }
 
             UpdateRecursiveLayout(i.ChildrenCopy);
@@ -719,7 +720,7 @@ public partial class Desktop : SurfaceHost, ITransformable, IDisposable
         var result = 0;
         foreach (var w in Widgets)
         {
-            if (visibleOnly && !w.Visible)
+            if (visibleOnly && !w.IsVisible)
             {
                 continue;
             }
@@ -781,7 +782,7 @@ public partial class Desktop : SurfaceHost, ITransformable, IDisposable
     }
 
     private static bool CanFocusWidget(Widget widget) =>
-        widget != null && widget.Visible &&
+        widget != null && widget.IsVisible &&
         widget.IsEnabled && widget.AcceptsKeyboardFocus;
 
     public void OnKeyDown(Keys key)

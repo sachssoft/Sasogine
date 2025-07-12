@@ -8,53 +8,12 @@ namespace sachssoft.Sasogine.Surface.Design;
 public class EnumEditor : PropertyEditorBase
 {
     private List<(string Label, Enum Field)> _items = new();
+    private ComboBox _combo_box;
 
     public EnumEditor(params (string Label, Enum Field)[] items)
     {
         _items.AddRange(items);
     }
-
-    //public override bool ForType(Type type)
-    //{
-    //    return type.IsEnum;
-    //}
-
-    //public override Widget CreateControl()
-    //{
-    //    var cbo = new ComboView()
-    //    {
-    //        HorizontalAlignment = HorizontalAlignment.Stretch
-    //    };
-
-    //    var type = PropertyType;
-    //    var value = Value!;
-    //    var enum_field = Enum.GetName(type, value);
-    //    var index = 0;
-
-    //    foreach (var name in Enum.GetNames(type))
-    //    {
-    //        var field = type.GetField(name);
-
-    //        cbo.Widgets.Add(new Label()
-    //        {
-    //            Text = name,
-    //            Tag = field!.GetValue(value)
-    //        });
-
-    //        if (enum_field == name)
-    //            cbo.SelectedIndex = index;
-
-    //        index++;
-    //    }
-
-    //    cbo.SelectedIndexChanged += (s, e) =>
-    //    {
-    //        var w = cbo.SelectedItem;
-    //        Value = w.Tag;
-    //    };
-
-    //    return cbo;
-    //}
 
     public void AddItem<TEnum>(string label, TEnum field) where TEnum : struct, Enum
     {
@@ -67,37 +26,43 @@ public class EnumEditor : PropertyEditorBase
         Action<T, object?> setter)
     {
         if (_items.Count == 0)
-            throw new InvalidOperationException("No fields");
+            throw new InvalidOperationException("No enum fields defined.");
 
-        var cbo = new ComboView()
+        _combo_box = new ComboBox
         {
             HorizontalAlignment = HorizontalAlignment.Stretch
         };
 
-        var index = 0;
+        var selected = -1;
+        var current = getter((T)Source);
 
-        foreach (var item in _items)
+        for (int i = 0; i < _items.Count; i++)
         {
-            cbo.Widgets.Add(new Label()
+            var item = _items[i];
+
+            var label = new Label
             {
                 Text = item.Label,
                 Tag = item.Field
-            });
+            };
 
-            if (getter((T)Source) == item.Field)
-                cbo.SelectedIndex = index;
+            _combo_box.Widgets.Add(label);
 
-            index++;
+            if (Equals(item.Field, current))
+                selected = i;
         }
 
-        cbo.SelectedIndexChanged += (s, e) =>
+        _combo_box.SelectedIndex = selected >= 0 ? selected : 0;
+
+        _combo_box.SelectedIndexChanged += (s, e) =>
         {
-            var sender = ((ListView)s);
-            setter((T)Source, (Enum)sender.SelectedItem.Tag);
+            if (_combo_box.SelectedItem is Label selectedLabel && selectedLabel.Tag is Enum enumValue)
+            {
+                setter((T)Source, enumValue);
+            }
         };
 
-        cbo.SelectedIndex = index;
-
-        return cbo;
+        return _combo_box;
     }
+
 }

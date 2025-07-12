@@ -7,6 +7,7 @@ using sachssoft.Sasogine;
 using System;
 using Microsoft.Xna.Framework;
 using System.Xml.XPath;
+using sachssoft.Sasogine.Graphics.Renderer;
 
 namespace sachssoft.Sasogine.Editor.Tiling.Tools;
 

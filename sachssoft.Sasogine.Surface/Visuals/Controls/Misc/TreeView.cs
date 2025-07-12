@@ -168,7 +168,7 @@ public class TreeView : Widget, ITreeViewNode
                 return;
             }
 
-            if (HoverRow.Mark.Visible && !HoverRow.Mark.IsTouchInside)
+            if (HoverRow.Mark.IsVisible && !HoverRow.Mark.IsTouchInside)
             {
                 HoverRow.Mark.DoClick();
             }

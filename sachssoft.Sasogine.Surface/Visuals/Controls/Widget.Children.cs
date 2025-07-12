@@ -104,7 +104,7 @@ partial class Widget
 
         foreach (var child in ChildrenCopy)
         {
-            if (visibleOnly && !child.Visible)
+            if (visibleOnly && !child.IsVisible)
             {
                 continue;
             }

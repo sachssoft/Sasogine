@@ -6,6 +6,7 @@ using sachssoft.Graphics.Renderer;
 using sachssoft.Sasogine.Diagnostics;
 using sachssoft.Sasogine.Editor.Tiling.Tools;
 using sachssoft.Sasogine.Graphics;
+using sachssoft.Sasogine.Graphics.Renderer;
 using sachssoft.Sasogine.Interactions;
 using sachssoft.Sasogine.Tiling;
 using sachssoft.Sasogine.Tiling.Stacked;
@@ -54,7 +55,8 @@ public abstract class TileEditorRuntimeBase : RuntimeBase
         {
             if (_map != value)
             {
-                _map?.Dispose();
+                if (_map is IDisposable d)
+                    d.Dispose();
                 _map = value;
                 _map?.Initialize();
                 UpdateGridFromMap();
@@ -125,7 +127,10 @@ public abstract class TileEditorRuntimeBase : RuntimeBase
     {
         _tile_primitive?.Dispose();
         _grid_primitive?.Dispose();
-        Map?.Dispose();
+
+        if (Map is IDisposable d)
+            d.Dispose();
+
         base.Unload();
     }
 

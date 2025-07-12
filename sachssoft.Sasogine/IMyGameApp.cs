@@ -12,6 +12,7 @@ using System.Diagnostics.CodeAnalysis;
 using sachssoft.Sasogine.Graphics;
 using sachssoft.Sasogine.Surface;
 using Microsoft.Xna.Framework;
+using System.ComponentModel.Design;
 
 namespace sachssoft.Sasogine;
 
@@ -40,6 +41,8 @@ public interface IMyGameApp
     bool IsActive { get; }
 
     GameSettings GetSettings(int index);
+
+    GameServiceContainer Services { get; }
 
     //ViewBase? GetCurrentView(); 
     

@@ -343,7 +343,7 @@ public partial class Widget : BaseObject, ITransformable, ISurfaceElement
 
     [Category("Behavior")]
     [DefaultValue(true)]
-    public bool Visible
+    public bool IsVisible
     {
         get { return _visible; }
 
@@ -714,7 +714,7 @@ public partial class Widget : BaseObject, ITransformable, ISurfaceElement
 
     public Widget()
     {
-        Visible = true;
+        IsVisible = true;
         IsEnabled = true;
         DragHandle = this;
 
@@ -783,7 +783,7 @@ public partial class Widget : BaseObject, ITransformable, ISurfaceElement
 
     public void Render(RenderContext context)
     {
-        if (!Visible)
+        if (!IsVisible)
         {
             return;
         }
@@ -1340,7 +1340,7 @@ public partial class Widget : BaseObject, ITransformable, ISurfaceElement
 
     public virtual Widget HitTest(Point p)
     {
-        if (Desktop == null || !Visible || !ContainsGlobalPoint(p) || !IsHitTestVisible)
+        if (Desktop == null || !IsVisible || !ContainsGlobalPoint(p) || !IsHitTestVisible)
         {
             return null;
         }
@@ -1415,7 +1415,7 @@ public partial class Widget : BaseObject, ITransformable, ISurfaceElement
         HorizontalAlignment = w.HorizontalAlignment;
         VerticalAlignment = w.VerticalAlignment;
         IsEnabled = w.IsEnabled;
-        Visible = w.Visible;
+        IsVisible = w.IsVisible;
         DragDirection = w.DragDirection;
         ZIndex = w.ZIndex;
         MouseCursor = w.MouseCursor;

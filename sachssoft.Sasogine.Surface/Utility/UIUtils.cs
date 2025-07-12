@@ -8,7 +8,7 @@ internal static class UIUtils
 {
     public static bool ProcessWidgets(this Widget root, Func<Widget, bool> operation)
     {
-        if (!root.Visible)
+        if (!root.IsVisible)
         {
             return true;
         }

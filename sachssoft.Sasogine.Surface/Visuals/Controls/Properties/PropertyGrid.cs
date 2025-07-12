@@ -404,12 +404,12 @@ public class PropertyGrid : Widget
         record.SetValue(obj, value);
     }
 
-    private ComboView CreateCustomValuesEditor(Record record, object[] customValues, bool hasSetter)
+    private ComboBox CreateCustomValuesEditor(Record record, object[] customValues, bool hasSetter)
     {
         var propertyType = record.Type;
         var value = record.GetValue(_object);
 
-        var cv = new ComboView();
+        var cv = new ComboBox();
         foreach (var v in customValues)
         {
             var label = new Label
@@ -633,7 +633,7 @@ public class PropertyGrid : Widget
         return subGrid;
     }
 
-    private ComboView CreateEnumEditor(Record record, bool hasSetter)
+    private ComboBox CreateEnumEditor(Record record, bool hasSetter)
     {
         var propertyType = record.Type;
         var value = record.GetValue(_object);
@@ -642,7 +642,7 @@ public class PropertyGrid : Widget
         var enumType = isNullable ? propertyType.GetNullableType() : propertyType;
         var values = Enum.GetValues(enumType);
 
-        var cv = new ComboView();
+        var cv = new ComboBox();
 
         if (isNullable)
         {

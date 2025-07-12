@@ -265,6 +265,11 @@ public abstract unsafe class EditorTileMapBase<TTileInstance> : StackedTileMap<T
         LayerCount--;
     }
 
+    public ITileMap Resize(int new_columns, int new_rows)
+    {
+        throw new NotImplementedException();
+    }
+
     ~EditorTileMapBase()
     {
         if (!IsDisposed)

@@ -9,7 +9,7 @@ public class Panel : Container
     {
         foreach (var control in ChildrenCopy)
         {
-            if (!control.Visible)
+            if (!control.IsVisible)
             {
                 continue;
             }
@@ -29,7 +29,7 @@ public class Panel : Container
 
         foreach (var control in ChildrenCopy)
         {
-            if (!control.Visible)
+            if (!control.IsVisible)
             {
                 continue;
             }

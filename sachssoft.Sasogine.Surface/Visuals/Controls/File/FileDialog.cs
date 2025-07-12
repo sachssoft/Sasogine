@@ -126,8 +126,8 @@ public partial class FileDialog
 
         if (mode == FileDialogMode.ChooseFolder)
         {
-            _textBlockFileName.Visible = false;
-            _textFieldFileName.Visible = false;
+            _textBlockFileName.IsVisible = false;
+            _textFieldFileName.IsVisible = false;
         }
 
         _splitPane.SetSplitterPosition(0, 0.3f);

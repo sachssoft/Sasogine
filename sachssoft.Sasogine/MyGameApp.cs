@@ -11,12 +11,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using sachssoft.Sasogine.Graphics;
-using sachssoft.Sasogine.Providers;
 using sachssoft.Localization;
 using System.Globalization;
 using sachssoft.Sasogine.Features;
 using sachssoft.Sasogine.Surface;
 using sachssoft.Sasogine.Elements;
+using sachssoft.Sasogine.Services;
 
 namespace sachssoft.Sasogine;
 
@@ -48,7 +48,7 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
 
     public MyGameApp(params string[] args)
     {
-        if (IMyGameApp.Current != null)
+                if (IMyGameApp.Current != null)
         {
             throw new GameException("Game already was started");
         }
@@ -136,18 +136,6 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
     public SurfaceHost? SurfaceHost
     {
         get => _surface_host;
-    }
-
-    public IWebBrowserProvider? WebBrowser
-    {
-        get;
-        set;
-    }
-
-    public IFileExplorerProvider? FileExplorer
-    {
-        get;
-        set;
     }
 
     protected abstract TAssetManager CreateAssetManager();

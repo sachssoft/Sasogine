@@ -159,7 +159,7 @@ partial class Widget : IInputEventsProcessor
 
     protected internal virtual void ProcessInput(InputContext inputContext)
     {
-        if (!Visible || Desktop == null)
+        if (!IsVisible || Desktop == null)
         {
             return;
         }

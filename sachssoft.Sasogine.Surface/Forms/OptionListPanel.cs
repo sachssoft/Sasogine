@@ -54,9 +54,9 @@ public class OptionListPanel : VerticalStackPanel
         AddSetter(label, txt, vertical);
     }
 
-    public void AddDropDownList(string label, string[] items, int selected_index, out ComboView cbo, bool vertical = false, Action<int>? selected_event = null)
+    public void AddDropDownList(string label, string[] items, int selected_index, out ComboBox cbo, bool vertical = false, Action<int>? selected_event = null)
     {
-        cbo = new ComboView()
+        cbo = new ComboBox()
         {
             Width = 200
         };
@@ -81,12 +81,12 @@ public class OptionListPanel : VerticalStackPanel
         AddSetter(label, cbo, vertical);
     }
 
-    public void AddOption<TEnum>(string label, int value, out ComboView cbo, bool vertical = false, Action<int>? selected_event = null) where TEnum : struct, Enum =>
+    public void AddOption<TEnum>(string label, int value, out ComboBox cbo, bool vertical = false, Action<int>? selected_event = null) where TEnum : struct, Enum =>
         AddOption(label, typeof(TEnum), value, out cbo, vertical, selected_event);
 
-    public void AddOption(string label, Type enum_type, int value, out ComboView cbo, bool vertical = false, Action<int>? selected_event = null)
+    public void AddOption(string label, Type enum_type, int value, out ComboBox cbo, bool vertical = false, Action<int>? selected_event = null)
     {
-        cbo = new ComboView()
+        cbo = new ComboBox()
         {
             Width = 200
         };
@@ -253,7 +253,7 @@ public class OptionListPanel : VerticalStackPanel
 
         var chk = new CheckButton()
         {
-            Visible = allow_null == true,
+            IsVisible = allow_null == true,
             VerticalAlignment = VerticalAlignment.Center,
             IsChecked = color.HasValue,
             Tag = new Tuple<Label, Label>(view, txhex)

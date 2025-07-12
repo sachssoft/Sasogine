@@ -56,7 +56,7 @@ public partial class DebugOptionsWindow
             IsEnabled = true,
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Top,
-            Visible = true,
+            IsVisible = true,
             Content = new Label
             {
                 HorizontalAlignment = HorizontalAlignment.Stretch,

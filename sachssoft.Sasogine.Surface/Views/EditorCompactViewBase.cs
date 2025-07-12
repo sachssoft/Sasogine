@@ -364,8 +364,8 @@ public abstract class EditorCompactViewBase<TRuntime> : SurfaceViewBase where TR
 
         public bool IsVisible
         {
-            get => _panel.Visible;
-            set => _panel.Visible = value;
+            get => _panel.IsVisible;
+            set => _panel.IsVisible = value;
         }
 
         public EditorViewIconSizes IconSize
@@ -599,8 +599,8 @@ public abstract class EditorCompactViewBase<TRuntime> : SurfaceViewBase where TR
 
         public bool IsVisible
         {
-            get => _panel.Visible;
-            set => _panel.Visible = value;
+            get => _panel.IsVisible;
+            set => _panel.IsVisible = value;
         }
 
         public short Columns
@@ -997,8 +997,8 @@ public abstract class EditorCompactViewBase<TRuntime> : SurfaceViewBase where TR
             set
             {
                 _is_visible = value;
-                _container.Visible = _is_visible;
-                _panel.Visible = _is_tab_visible;
+                _container.IsVisible = _is_visible;
+                _panel.IsVisible = _is_tab_visible;
             }
         }
 
@@ -1008,7 +1008,7 @@ public abstract class EditorCompactViewBase<TRuntime> : SurfaceViewBase where TR
             set
             {
                 _is_tab_visible = value;
-                _panel.Visible = _is_tab_visible;
+                _panel.IsVisible = _is_tab_visible;
                 _container.Background = new SolidBrush(_is_tab_visible ? COLOR_SIDE : COLOR_CONTENT);
             }
         }

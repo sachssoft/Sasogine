@@ -45,7 +45,7 @@ public class SingleItemLayout<T> : ILayout where T : Widget
 
     public void Arrange(IEnumerable<Widget> widgets, Rectangle bounds)
     {
-        if (Child != null && Child.Visible)
+        if (Child != null && Child.IsVisible)
         {
             Child.Arrange(bounds);
         }

@@ -184,7 +184,7 @@ public class GridLayout : ILayout
         _visibleWidgets.Clear();
         foreach (var child in widgets)
         {
-            if (child.Visible)
+            if (child.IsVisible)
             {
                 _visibleWidgets.Add(child);
 

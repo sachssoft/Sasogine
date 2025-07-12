@@ -5,59 +5,18 @@ namespace sachssoft.Sasogine.Surface.Design;
 
 public class BooleanEditor : PropertyEditorBase
 {
+    private CheckButton _check_button;
+
     public BooleanEditor()
     {
     }
 
     public override bool IsDisplayLabelVisibilty => false;
 
-    //public override bool ForType(Type type)
-    //{
-    //    return type == typeof(bool);
-    //}
-
-    //public override Widget CreateControl()
-    //{
-    //    var p = new HorizontalStackPanel()
-    //    {
-    //        Spacing = 5
-    //    };
-
-    //    var on_rb = new RadioButton()
-    //    {
-    //        Content = new Label() { Text = "On" },
-    //        IsPressed = (bool)Value!
-    //    };
-
-    //    var off_rb = new RadioButton()
-    //    {
-    //        Content = new Label() { Text = "Off" },
-    //        IsPressed = !(bool)Value!
-    //    };
-
-    //    on_rb.PressedChanged += (s, e) =>
-    //    {
-    //        if (on_rb.IsPressed)
-    //        {
-    //            off_rb.IsPressed = false;
-    //            Value = true;
-    //        }
-    //    };
-
-    //    off_rb.PressedChanged += (s, e) =>
-    //    {
-    //        if (off_rb.IsPressed)
-    //        {
-    //            on_rb.IsPressed = false;
-    //            Value = false;
-    //        }
-    //    };
-
-    //    p.Widgets.Add(on_rb);
-    //    p.Widgets.Add(off_rb);
-
-    //    return p;
-    //}
+    public override void Update(object? new_value)
+    {
+        _check_button.IsChecked = (bool)new_value;
+    }
 
     public override Widget CreateControl<T>(
         Action<T, string> changed,
@@ -69,9 +28,15 @@ public class BooleanEditor : PropertyEditorBase
             Spacing = 5
         };
 
-        var chk = new CheckButton();
-        chk.Content = new Label() { Text = DisplayLabel, Margin = new Visuals.Thickness(10, 0, 0, 0) };
-        p.Widgets.Add(chk);
+        _check_button = new CheckButton();
+        _check_button.IsChecked = (bool)getter.Invoke((T)Source);
+        _check_button.IsCheckedChanged += (s, e) =>
+        {
+            setter.Invoke((T)Source, _check_button.IsChecked);
+        };
+
+        _check_button.Content = new Label() { Text = DisplayLabel, Margin = new Visuals.Thickness(10, 0, 0, 0) };
+        p.Widgets.Add(_check_button);
 
         return p;
     }

@@ -10,7 +10,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using sachssoft.Sasogine.Diagnostics;
 using sachssoft.Sasogine.Features;
-using sachssoft.Sasogine.Providers;
+using sachssoft.Sasogine.Services;
 
 namespace sachssoft.Sasogine.Surface;
 
@@ -49,7 +49,7 @@ public abstract class ViewBase /*Panel,*/
         }
     }
 
-    public IGameDebugProvider? Debug
+    public IGameDebugService? Debug
     {
         get;
         protected set;

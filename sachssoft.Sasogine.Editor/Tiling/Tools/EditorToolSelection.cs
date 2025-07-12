@@ -8,6 +8,7 @@ using sachssoft.Sasogine.Tiling;
 using sachssoft.Sasogine;
 using Microsoft.Xna.Framework;
 using System;
+using sachssoft.Sasogine.Graphics.Renderer;
 
 public class EditorToolSelection : EditorToolCursor
 {

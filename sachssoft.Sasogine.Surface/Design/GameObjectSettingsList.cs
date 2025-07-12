@@ -7,6 +7,8 @@ using sachssoft.Sasogine.Elements;
 using sachssoft.Sasogine.Graphics.Colors;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
+using System.ComponentModel;
+using System.Xml;
 
 namespace sachssoft.Sasogine.Surface.Design;
 
@@ -26,8 +28,23 @@ public sealed class GameObjectSettingsList<T> : VerticalStackPanel where T : Gam
         get => _source;
         set
         {
+            if (_source is INotifyPropertyChanged npc0)
+                npc0.PropertyChanged -= SourcePropertyChanged;
+
             _source = value;
+
+            if (_source is INotifyPropertyChanged npc1)
+                npc1.PropertyChanged += SourcePropertyChanged;
+
             Rebuild();
+        }
+    }
+
+    private void SourcePropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (_editors.TryGetValue(e.PropertyName, out var entry))
+        {
+            UpdateProperty(e.PropertyName, entry.Getter(_source));
         }
     }
 
@@ -51,6 +68,18 @@ public sealed class GameObjectSettingsList<T> : VerticalStackPanel where T : Gam
     public void Reset()
     {
         _editors.Clear();
+    }
+
+    public void UpdateProperties()
+    {
+        foreach (var entry in _editors.Values)
+        {
+            if (entry.Editor != null)
+            {
+                entry.Editor.Update(entry.Getter(_source));
+                return;
+            }
+        }
     }
 
     public void UpdateProperty(string property_name, object? new_value)
@@ -101,33 +130,64 @@ public sealed class GameObjectSettingsList<T> : VerticalStackPanel where T : Gam
         {
             entry.Control = _source == null ? null : entry.Editor.CreateControl((s, p) => { }, entry.Getter, entry.Setter);
 
+            if (entry.Editor != null)
+            {
+                entry.Editor.Update(entry.Getter(_source));
+                return;
+            }
+
             AddSetter(entry);
         }
     }
 
     private void AddSetter(Entry entry)
     {
-        if (entry.Type == EntryType.Property && _source == null)
-            return;
-
-        var panel = new VerticalStackPanel() { Spacing = 5 };
-
-        if (entry.Type == EntryType.Property && entry.Control == null)
-            entry.Control = entry.Editor!.CreateControl((s, p) => { }, entry.Getter!, entry.Setter!);
-
-        if (entry.Editor != null)
+        switch (entry.Type)
         {
-            if (entry.Editor.IsDisplayLabelVisibilty)
-                panel.Widgets.Add(new Label() { Text = entry.Label, HorizontalAlignment = HorizontalAlignment.Stretch });
+            case EntryType.Caption:
+                var row = new VerticalStackPanel()
+                {
+                    Background = new SolidBrush(Color.Gray),
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    Padding = new Thickness(5)
+                };
+                var label = new Label()
+                {
+                    Text = entry.Label,
+                    HorizontalAlignment = HorizontalAlignment.Left
+                };
+                row.Widgets.Add(label);
+                Widgets.Add(row);
+                break;
+            case EntryType.Property:
+                if (_source == null)
+                    return;
 
-            if (entry.Control != null)
-            {
-                entry.Control.HorizontalAlignment = HorizontalAlignment.Stretch;
-                panel.Widgets.Add(entry.Control);
-            }
+                var panel = new VerticalStackPanel() { Spacing = 5 };
+
+                if (entry.Control == null)
+                    entry.Control = entry.Editor!.CreateControl((s, p) => { }, entry.Getter!, entry.Setter!);
+
+                if (entry.Editor != null)
+                {
+                    if (entry.Editor.IsDisplayLabelVisibilty)
+                        panel.Widgets.Add(new Label() { Text = entry.Label, HorizontalAlignment = HorizontalAlignment.Stretch });
+
+                    if (entry.Control != null)
+                    {
+                        entry.Control.HorizontalAlignment = HorizontalAlignment.Stretch;
+                        panel.Widgets.Add(entry.Control);
+                    }
+                }
+
+                Widgets.Add(panel);
+                break;
+            case EntryType.Separator:
+                var separator = new HorizontalStackPanel();
+                separator.Margin = new Thickness(0, 0, 0, 20);
+                Widgets.Add(separator);
+                break;
         }
-
-        Widgets.Add(panel);
     }
 
     //[Obsolete]

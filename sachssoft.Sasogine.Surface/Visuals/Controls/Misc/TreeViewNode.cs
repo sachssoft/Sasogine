@@ -79,7 +79,7 @@ public class TreeViewNode : ContentControl, ITreeViewNode
 
         _mark.PressedChanged += (s, a) =>
         {
-            _childNodesStackPanel.Visible = _mark.IsPressed;
+            _childNodesStackPanel.IsVisible = _mark.IsPressed;
         };
 
         Children.Add(_mark);
@@ -96,7 +96,7 @@ public class TreeViewNode : ContentControl, ITreeViewNode
         // Second is yet another grid holding child nodes
         _childNodesStackPanel = new VerticalStackPanel
         {
-            Visible = false,
+            IsVisible = false,
         };
         Grid.SetColumn(_childNodesStackPanel, 1);
         Grid.SetRow(_childNodesStackPanel, 1);
@@ -110,12 +110,12 @@ public class TreeViewNode : ContentControl, ITreeViewNode
 
     private void MarkOnUp(object sender, EventArgs args)
     {
-        _childNodesStackPanel.Visible = false;
+        _childNodesStackPanel.IsVisible = false;
     }
 
     protected virtual void UpdateMark()
     {
-        _mark.Visible = _childNodesStackPanel.Children.Count > 0;
+        _mark.IsVisible = _childNodesStackPanel.Children.Count > 0;
     }
 
     public virtual void RemoveAllSubNodes()

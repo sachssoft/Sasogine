@@ -109,6 +109,30 @@ public static class Texture2DExtensions
         return new_texture;
     }
 
+    public static Texture2D Blend<T>(this Texture2D texture, Color color, float amount)
+        where T : IColorBlender, new()
+        => Blend<T>(texture, color, amount, IMyGameApp.Current.GraphicsDevice);
+
+    public static Texture2D Blend<T>(this Texture2D texture, Color color, float amount, GraphicsDevice graphics_device)
+       where T : IColorBlender, new()
+    {
+        var blender = new T();
+        int width = texture.Width;
+        int height = texture.Height;
+        var colors = new Color[width * height];
+
+        texture.GetData(colors);
+
+        for (int i = 0; i < colors.Length; i++)
+        {
+            colors[i] = blender.Blend(colors[i], color, new ColorRange(amount));
+        }
+
+        var new_texture = new Texture2D(graphics_device, width, height);
+        new_texture.SetData(colors);
+        return new_texture;
+    }
+
     public static Texture2D Adjust<T>(this Texture2D texture, float amount)
         where T : IColorTransformer, new()
         => Adjust<T>(texture, amount, IMyGameApp.Current.GraphicsDevice);
