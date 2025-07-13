@@ -5,10 +5,9 @@ namespace sachssoft.Sasogine.Schedule;
 
 public class DataLoaderSequence<TKey> where TKey : notnull
 {
-    // Statt Wrapper: direkt IDataLoader (nicht generisch)
     private readonly Dictionary<TKey, IDataLoader> _loaders = new();
     private readonly List<TKey> _keysInOrder = new();
-
+    private Action? _allCompletedCallback;
     private int _currentIndex = -1;
     private bool _isActivated = false;
 
@@ -16,21 +15,20 @@ public class DataLoaderSequence<TKey> where TKey : notnull
     public bool IsLoading { get; private set; }
     public Exception? Error { get; private set; }
     public bool HasError => Error != null;
+    public TKey CurrentKey => _keysInOrder[_currentIndex];
 
     private readonly Dictionary<TKey, object?> _results = new();
     private readonly Dictionary<TKey, Action<object?>> _completedCallbacks = new();
     private readonly Dictionary<TKey, Action<Exception?, object?>> _failedCallbacks = new();
 
-    // Fügt einen DataLoader<T> hinzu, aber speichert als IDataLoader Interface
-
     public void Add<T>(TKey key, DataLoader<T> loader)
     {
-        Add(key, loader, (obj) => { }, (ex, obj) => { /* default: nichts tun */ });
+        Add(key, loader, (obj) => { }, (ex, obj) => { });
     }
 
     public void Add<T>(TKey key, DataLoader<T> loader, Action<T> completed)
     {
-        Add(key, loader, completed, (ex, obj) => { /* default: nichts tun */ });
+        Add(key, loader, completed, (ex, obj) => { });
     }
 
     public void Add<T>(TKey key, DataLoader<T> loader, Action<T> completed, Action<Exception?, T?> failed)
@@ -55,6 +53,21 @@ public class DataLoaderSequence<TKey> where TKey : notnull
         _keysInOrder.Add(key);
     }
 
+    public void Add(TKey key, IDataLoader loader)
+    {
+        Add(key, loader, (obj) => { }, (ex, obj) => { });
+    }
+
+    public void Add(TKey key, IDataLoader loader, Action<IDataLoader> completed)
+    {
+        Add(key, loader, completed, (ex, obj) => { });
+    }
+
+    public void SetAllCompletedCallback(Action callback)
+    {
+        _allCompletedCallback = callback;
+    }
+
     public void Activate()
     {
         if (_isActivated) return;
@@ -71,6 +84,7 @@ public class DataLoaderSequence<TKey> where TKey : notnull
         {
             IsLoading = false;
             IsCompleted = true;
+            _allCompletedCallback?.Invoke();
             return;
         }
 
@@ -82,12 +96,30 @@ public class DataLoaderSequence<TKey> where TKey : notnull
 
     public void Update()
     {
-        if (!IsLoading || IsCompleted || HasError) return;
+        if (!IsLoading || IsCompleted || HasError)
+        {
+            return;
+        }
 
         var key = _keysInOrder[_currentIndex];
         var loader = _loaders[key];
 
-        loader.Update();
+        try
+        {
+            loader.Update();
+        }
+        catch (Exception ex)
+        {
+            Error = ex;
+
+            if (_failedCallbacks.TryGetValue(key, out var failedCallback))
+            {
+                failedCallback(ex, loader.Result);
+            }
+
+            IsLoading = false;
+            return;
+        }
 
         if (loader.HasError)
         {
@@ -97,6 +129,10 @@ public class DataLoaderSequence<TKey> where TKey : notnull
             {
                 failedCallback(Error, loader.Result);
             }
+            else
+            {
+                throw Error!;
+            }
 
             IsLoading = false;
             return;
@@ -105,7 +141,7 @@ public class DataLoaderSequence<TKey> where TKey : notnull
         if (loader.IsCompleted)
         {
             var result = loader.Result;
-            _results[key] = result;
+            _results[_keysInOrder[_currentIndex]] = result;
 
             if (_completedCallbacks.TryGetValue(key, out var callback))
                 callback(result);

@@ -9,10 +9,12 @@ public class DataLoader<T> : IDataLoader
     private bool _isActivated = false;
     private int _retryCount = 0;
     private readonly int _maxRetries;
+    private bool _isCompleted = false;
 
     public T? Result { get; private set; }
     public Exception? Error { get; private set; }
-    public bool IsCompleted => _loadTask?.IsCompleted ?? false;
+    public bool IsCompleted => _isCompleted;
+
     public bool IsLoading => _loadTask != null && !_loadTask.IsCompleted;
     public bool HasError => Error != null;
 
@@ -41,7 +43,7 @@ public class DataLoader<T> : IDataLoader
 
     public void Update()
     {
-        if (!_isActivated || _loadTask == null)
+        if (!_isActivated || _loadTask == null || _isCompleted)
             return;
 
         if (_loadTask.IsCompleted)
@@ -54,11 +56,15 @@ public class DataLoader<T> : IDataLoader
                 {
                     _retryCount++;
                     StartLoad(); // Retry
+                    return;
                 }
+
+                _isCompleted = true; // Fehlerhafter Abschluss nach max. Versuchen
             }
             else
             {
                 Result = _loadTask.Result;
+                _isCompleted = true; // Erfolgreich abgeschlossen
             }
         }
     }
