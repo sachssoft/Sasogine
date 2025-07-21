@@ -18,6 +18,10 @@ public class DataLoader<T> : IDataLoader
     public bool IsLoading => _loadTask != null && !_loadTask.IsCompleted;
     public bool HasError => Error != null;
 
+    public Action? Completed { get; set; }
+
+    public Action? Failed { get; set; }
+
     // Explizite Implementierung für die nicht-generische Schnittstelle:
     object? IDataLoader.Result => Result;
 
@@ -36,6 +40,7 @@ public class DataLoader<T> : IDataLoader
 
     private void StartLoad()
     {
+        _loadTask?.Dispose();
         _loadTask = _loadFunc();
         Error = null;
         Result = default;
@@ -60,11 +65,13 @@ public class DataLoader<T> : IDataLoader
                 }
 
                 _isCompleted = true; // Fehlerhafter Abschluss nach max. Versuchen
+                Failed?.Invoke();
             }
             else
             {
                 Result = _loadTask.Result;
                 _isCompleted = true; // Erfolgreich abgeschlossen
+                Completed?.Invoke();
             }
         }
     }

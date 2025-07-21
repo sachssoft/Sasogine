@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using sachssoft.Sasogine.Graphics.Colors;
+using System;
 
 namespace sachssoft.Sasogine.Graphics;
 
@@ -71,7 +72,7 @@ public static class Texture2DExtensions
     }
 
     public static Texture2D TileCrop(this Texture2D texture, Point cell, Point size)
-        => Crop(texture, new Point(cell.X * size.X, cell.Y * size.Y), size, IMyGameApp.Current.GraphicsDevice);
+        => TileCrop(texture, cell, size, IMyGameApp.Current.GraphicsDevice);
 
     public static Texture2D TileCrop(this Texture2D texture, Point cell, Point size, GraphicsDevice graphics_device)
         => Crop(texture, new Point(cell.X * size.X, cell.Y * size.Y), size, graphics_device);
@@ -79,18 +80,36 @@ public static class Texture2DExtensions
     public static Texture2D Crop(this Texture2D texture, Point position, Point size)
         => Crop(texture, position, size, IMyGameApp.Current.GraphicsDevice);
 
+    public static Texture2D Crop(this Texture2D texture, Rectangle sourceRectangle)
+        => Crop(texture, new Point(sourceRectangle.X, sourceRectangle.Y), new Point(sourceRectangle.Width, sourceRectangle.Height), IMyGameApp.Current.GraphicsDevice);
+
     public static Texture2D Crop(this Texture2D texture, Point position, Point size, GraphicsDevice graphics_device)
     {
-        var crop = new Texture2D(graphics_device, size.X, size.Y);
-        var source_rect = new Rectangle(position.X, position.Y, size.X, size.Y);
-        var data = new Color[size.X * size.Y];
+        if (texture == null)
+            throw new ArgumentNullException(nameof(texture));
+        if (graphics_device == null)
+            throw new ArgumentNullException(nameof(graphics_device));
+        if (size.X <= 0 || size.Y <= 0)
+            throw new ArgumentException("Crop size must be greater than zero.");
 
-        // Überträgt ein ausgewählter Kachel zum neuen Textur
-        texture.GetData<Color>(0, source_rect, data, 0, data.Length);
-        crop.SetData(data);
+        // Sicherstellen, dass das Rechteck innerhalb der Textur liegt
+        var sourceRect = new Rectangle(position.X, position.Y, size.X, size.Y);
+        var textureRect = new Rectangle(0, 0, texture.Width, texture.Height);
+        if (!textureRect.Intersects(sourceRect))
+            throw new ArgumentException("Crop rectangle is outside the bounds of the texture.");
 
-        return crop;
+        // Intersection erzeugen, um Überlappung sicherzustellen (clamping)
+        sourceRect = Rectangle.Intersect(sourceRect, textureRect);
+
+        var data = new Color[sourceRect.Width * sourceRect.Height];
+        texture.GetData(0, sourceRect, data, 0, data.Length);
+
+        var croppedTexture = new Texture2D(graphics_device, sourceRect.Width, sourceRect.Height);
+        croppedTexture.SetData(data);
+
+        return croppedTexture;
     }
+
 
     public static Texture2D Clone(this Texture2D texture)
         => Clone(texture, IMyGameApp.Current.GraphicsDevice);

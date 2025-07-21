@@ -11,12 +11,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using sachssoft.Sasogine.Graphics;
-using sachssoft.Localization;
 using System.Globalization;
 using sachssoft.Sasogine.Features;
 using sachssoft.Sasogine.Surface;
 using sachssoft.Sasogine.Elements;
 using sachssoft.Sasogine.Services;
+using sachssoft.Sasogine.Resources;
 
 namespace sachssoft.Sasogine;
 
@@ -48,7 +48,7 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
 
     public MyGameApp(params string[] args)
     {
-                if (IMyGameApp.Current != null)
+        if (IMyGameApp.Current != null)
         {
             throw new GameException("Game already was started");
         }
@@ -94,6 +94,8 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
     {
         base.Initialize();
 
+        if (Window != null)
+            Window.ClientSizeChanged += (s, e) => SurfaceHost?.View?.OnClientSizeChanged();
 
         // Load supported languages and set the default language.
         List<CultureInfo> cultures = LocalizationManager.GetSupportedCultures();

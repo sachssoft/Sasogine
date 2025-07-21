@@ -68,5 +68,7 @@ public enum ApiErrorCode
     /// <summary>
     /// API rate limit exceeded.
     /// </summary>
-    RateLimitExceeded = -7
+    RateLimitExceeded = -7,
+    Timeout = 501,
+    Cancelled = 502
 }

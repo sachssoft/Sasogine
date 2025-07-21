@@ -49,11 +49,11 @@ public abstract class ViewBase /*Panel,*/
         }
     }
 
-    public IGameDebugService? Debug
-    {
-        get;
-        protected set;
-    }
+    //public IGameDebugService? Debug
+    //{
+    //    get;
+    //    protected set;
+    //}
 
     public RuntimeBase? Runtime
     {
@@ -147,6 +147,10 @@ public abstract class ViewBase /*Panel,*/
     internal protected virtual void OnUnload()
     {
         Runtime?.Unload();
+    }
+
+    internal protected virtual void OnClientSizeChanged()
+    {
     }
 
     internal virtual bool CanRender(GameContext context)

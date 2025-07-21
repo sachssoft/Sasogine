@@ -116,7 +116,7 @@ public static class DisplayExtensions
 
         double compact = number / divisor;
         string formatted = compact.ToString("0.#", culture);
-        return $"{formatted} {suffix}".Trim();
+        return $"{formatted}{suffix}".Trim();
     }
 
     private static string LocalSuffix(string fallback, string german, CultureInfo culture)
