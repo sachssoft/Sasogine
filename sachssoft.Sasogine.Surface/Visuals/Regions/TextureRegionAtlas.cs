@@ -7,6 +7,7 @@ using sachssoft.Sasogine.Surface.MML;
 
 namespace sachssoft.Sasogine.Surface.Visuals.Regions;
 
+[Obsolete]
 public partial class TextureRegionAtlas
 {
     private const string TextureAtlasName = "TextureAtlas";

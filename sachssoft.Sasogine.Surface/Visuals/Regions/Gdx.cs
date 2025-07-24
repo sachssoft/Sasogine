@@ -6,6 +6,7 @@ using System.IO;
 
 namespace sachssoft.Sasogine.Surface.Visuals.Regions;
 
+[Obsolete("Use RenderContext instead of Gdx.", true)]
 public static class Gdx
 {
     private enum GDXMode

@@ -2,239 +2,144 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Regions;
-
-public class NinePatchRegion : TextureRegion
+namespace sachssoft.Sasogine.Surface.Visuals.Regions
 {
-    private readonly Thickness _info;
-
-    private readonly TextureRegion _topLeft,
-        _topCenter,
-        _topRight,
-        _centerLeft,
-        _center,
-        _centerRight,
-        _bottomLeft,
-        _bottomCenter,
-        _bottomRight;
-
-    public Thickness Info
+    /// <summary>
+    /// Represents a nine-patch texture region, which allows scaling a texture while preserving its borders.
+    /// </summary>
+    /// <remarks>
+    /// A nine-patch texture is divided into 9 regions:
+    /// - 4 corners remain fixed.
+    /// - 4 edges stretch only in one direction.
+    /// - The center stretches both horizontally and vertically.
+    /// </remarks>
+    public class NinePatchRegion : TextureRegion
     {
-        get { return _info; }
-    }
+        private readonly Thickness _info;
 
-    public NinePatchRegion(Texture2D texture, Rectangle bounds, Thickness info) : base(texture, bounds)
-    {
-        _info = info;
+        // Sub-regions of the nine-patch
+        private readonly TextureRegion? _topLeft;
+        private readonly TextureRegion? _topCenter;
+        private readonly TextureRegion? _topRight;
+        private readonly TextureRegion? _centerLeft;
+        private readonly TextureRegion? _center;
+        private readonly TextureRegion? _centerRight;
+        private readonly TextureRegion? _bottomLeft;
+        private readonly TextureRegion? _bottomCenter;
+        private readonly TextureRegion? _bottomRight;
 
-        var centerWidth = bounds.Width - info.Left - info.Right;
-        var centerHeight = bounds.Height - info.Top - info.Bottom;
+        /// <summary>
+        /// Gets the thickness information that defines the fixed border sizes.
+        /// </summary>
+        public Thickness Info => _info;
 
-        var y = bounds.Y;
-        if (info.Top > 0)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NinePatchRegion"/> class.
+        /// </summary>
+        /// <param name="texture">The texture containing the nine-patch graphic.</param>
+        /// <param name="bounds">The full rectangle of the nine-patch texture.</param>
+        /// <param name="info">The border thickness defining the nine-patch scaling areas.</param>
+        public NinePatchRegion(Texture2D texture, Rectangle bounds, Thickness info)
+            : base(texture, bounds)
         {
-            if (info.Left > 0)
+            _info = info;
+
+            int centerWidth = Math.Max(0, bounds.Width - info.Left - info.Right);
+            int centerHeight = Math.Max(0, bounds.Height - info.Top - info.Bottom);
+
+            int xLeft = bounds.X;
+            int xCenter = bounds.X + info.Left;
+            int xRight = bounds.X + info.Left + centerWidth;
+
+            int yTop = bounds.Y;
+            int yCenter = bounds.Y + info.Top;
+            int yBottom = bounds.Y + info.Top + centerHeight;
+
+            // Top row
+            if (info.Top > 0)
             {
-                _topLeft = new TextureRegion(texture,
-                    new Rectangle(bounds.X,
-                        y,
-                        info.Left,
-                        info.Top));
+                if (info.Left > 0)
+                    _topLeft = new TextureRegion(texture, new Rectangle(xLeft, yTop, info.Left, info.Top));
+
+                if (centerWidth > 0)
+                    _topCenter = new TextureRegion(texture, new Rectangle(xCenter, yTop, centerWidth, info.Top));
+
+                if (info.Right > 0)
+                    _topRight = new TextureRegion(texture, new Rectangle(xRight, yTop, info.Right, info.Top));
             }
 
+            // Middle row
+            if (centerHeight > 0)
+            {
+                if (info.Left > 0)
+                    _centerLeft = new TextureRegion(texture, new Rectangle(xLeft, yCenter, info.Left, centerHeight));
+
+                if (centerWidth > 0)
+                    _center = new TextureRegion(texture, new Rectangle(xCenter, yCenter, centerWidth, centerHeight));
+
+                if (info.Right > 0)
+                    _centerRight = new TextureRegion(texture, new Rectangle(xRight, yCenter, info.Right, centerHeight));
+            }
+
+            // Bottom row
+            if (info.Bottom > 0)
+            {
+                if (info.Left > 0)
+                    _bottomLeft = new TextureRegion(texture, new Rectangle(xLeft, yBottom, info.Left, info.Bottom));
+
+                if (centerWidth > 0)
+                    _bottomCenter = new TextureRegion(texture, new Rectangle(xCenter, yBottom, centerWidth, info.Bottom));
+
+                if (info.Right > 0)
+                    _bottomRight = new TextureRegion(texture, new Rectangle(xRight, yBottom, info.Right, info.Bottom));
+            }
+        }
+
+        /// <summary>
+        /// Draws the nine-patch texture to a destination rectangle, scaling the center and edges while preserving the corners.
+        /// </summary>
+        /// <param name="context">The render context used for drawing.</param>
+        /// <param name="dest">The destination rectangle.</param>
+        /// <param name="color">The tint color to apply.</param>
+        public override void Draw(RenderContext context, Rectangle dest, Color color)
+        {
+            // Clamp patch sizes to destination bounds
+            int left = Math.Min(_info.Left, dest.Width);
+            int right = Math.Min(_info.Right, dest.Width);
+            int top = Math.Min(_info.Top, dest.Height);
+            int bottom = Math.Min(_info.Bottom, dest.Height);
+
+            int centerWidth = Math.Max(0, dest.Width - left - right);
+            int centerHeight = Math.Max(0, dest.Height - top - bottom);
+
+            int xLeft = dest.X;
+            int xCenter = dest.X + left;
+            int xRight = dest.X + left + centerWidth;
+
+            int yTop = dest.Y;
+            int yCenter = dest.Y + top;
+            int yBottom = dest.Y + top + centerHeight;
+
+            // Top row
+            _topLeft?.Draw(context, new Rectangle(xLeft, yTop, left, top), color);
             if (centerWidth > 0)
+                _topCenter?.Draw(context, new Rectangle(xCenter, yTop, centerWidth, top), color);
+            _topRight?.Draw(context, new Rectangle(xRight, yTop, right, top), color);
+
+            // Middle row
+            if (centerHeight > 0)
             {
-                _topCenter = new TextureRegion(texture,
-                    new Rectangle(bounds.X + info.Left,
-                        y,
-                        centerWidth,
-                        info.Top));
+                _centerLeft?.Draw(context, new Rectangle(xLeft, yCenter, left, centerHeight), color);
+                if (centerWidth > 0)
+                    _center?.Draw(context, new Rectangle(xCenter, yCenter, centerWidth, centerHeight), color);
+                _centerRight?.Draw(context, new Rectangle(xRight, yCenter, right, centerHeight), color);
             }
 
-            if (info.Right > 0)
-            {
-                _topRight = new TextureRegion(texture,
-                    new Rectangle(bounds.X + info.Left + centerWidth,
-                        y,
-                        info.Right,
-                        info.Top));
-            }
-        }
-
-        y += info.Top;
-        if (centerHeight > 0)
-        {
-            if (info.Left > 0)
-            {
-                _centerLeft = new TextureRegion(texture,
-                    new Rectangle(bounds.X,
-                        y,
-                        info.Left,
-                        centerHeight));
-            }
-
+            // Bottom row
+            _bottomLeft?.Draw(context, new Rectangle(xLeft, yBottom, left, bottom), color);
             if (centerWidth > 0)
-            {
-                _center = new TextureRegion(texture,
-                    new Rectangle(bounds.X + info.Left,
-                        y,
-                        centerWidth,
-                        centerHeight));
-            }
-
-            if (info.Right > 0)
-            {
-                _centerRight = new TextureRegion(texture,
-                    new Rectangle(bounds.X + info.Left + centerWidth,
-                        y,
-                        info.Right,
-                        centerHeight));
-            }
-        }
-
-        y += centerHeight;
-        if (info.Bottom > 0)
-        {
-            if (info.Left > 0)
-            {
-                _bottomLeft = new TextureRegion(texture,
-                    new Rectangle(bounds.X,
-                        y,
-                        info.Left,
-                        info.Bottom));
-            }
-
-            if (centerWidth > 0)
-            {
-                _bottomCenter = new TextureRegion(texture,
-                    new Rectangle(bounds.X + info.Left,
-                        y,
-                        centerWidth,
-                        info.Bottom));
-            }
-
-            if (info.Right > 0)
-            {
-                _bottomRight = new TextureRegion(texture,
-                    new Rectangle(bounds.X + info.Left + centerWidth,
-                        y,
-                        info.Right,
-                        info.Bottom));
-            }
-        }
-    }
-
-    public override void Draw(RenderContext context, Rectangle dest, Color color)
-    {
-        var y = dest.Y;
-
-        var left = Math.Min(_info.Left, dest.Width);
-        var top = Math.Min(_info.Top, dest.Height);
-        var right = Math.Min(_info.Right, dest.Width);
-        var bottom = Math.Min(_info.Bottom, dest.Height);
-
-        var centerWidth = dest.Width - left - right;
-        if (centerWidth < 0)
-        {
-            centerWidth = 0;
-        }
-
-        var centerHeight = dest.Height - top - bottom;
-        if (centerHeight < 0)
-        {
-            centerHeight = 0;
-        }
-
-        if (_topLeft != null)
-        {
-            _topLeft.Draw(context,
-                new Rectangle(dest.X,
-                    y,
-                    left,
-                    top),
-                color);
-        }
-
-        if (_topCenter != null && centerWidth > 0)
-        {
-            _topCenter.Draw(context,
-                new Rectangle(dest.X + left,
-                    y,
-                    centerWidth,
-                    top),
-                color);
-        }
-
-        if (_topRight != null)
-        {
-            _topRight.Draw(context,
-                new Rectangle(dest.X + Info.Left + centerWidth,
-                    y,
-                    right,
-                    top),
-                color);
-        }
-
-        y += top;
-        if (_centerLeft != null && centerHeight > 0)
-        {
-            _centerLeft.Draw(context,
-                new Rectangle(dest.X,
-                    y,
-                    left,
-                    centerHeight),
-                color);
-        }
-
-        if (_center != null && centerWidth > 0 && centerHeight > 0)
-        {
-            _center.Draw(context,
-                new Rectangle(dest.X + left,
-                    y,
-                    centerWidth,
-                    centerHeight),
-                color);
-        }
-
-        if (_centerRight != null && centerHeight > 0)
-        {
-            _centerRight.Draw(context,
-                new Rectangle(dest.X + Info.Left + centerWidth,
-                    y,
-                    right,
-                    centerHeight),
-                color);
-        }
-
-        y += centerHeight;
-        if (_bottomLeft != null)
-        {
-            _bottomLeft.Draw(context,
-                new Rectangle(dest.X,
-                    y,
-                    left,
-                    bottom),
-                color);
-        }
-
-        if (_bottomCenter != null && centerWidth > 0)
-        {
-            _bottomCenter.Draw(context,
-                new Rectangle(dest.X + left,
-                    y,
-                    centerWidth,
-                    bottom),
-                color);
-        }
-
-        if (_bottomRight != null)
-        {
-            _bottomRight.Draw(context,
-                new Rectangle(dest.X + Info.Left + centerWidth,
-                    y,
-                    right,
-                    bottom),
-                color);
+                _bottomCenter?.Draw(context, new Rectangle(xCenter, yBottom, centerWidth, bottom), color);
+            _bottomRight?.Draw(context, new Rectangle(xRight, yBottom, right, bottom), color);
         }
     }
 }

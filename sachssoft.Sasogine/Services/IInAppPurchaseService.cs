@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+namespace sachssoft.Sasogine.Services;
+
 public interface IInAppPurchaseService
 {
     /// <summary>

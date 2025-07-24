@@ -62,7 +62,7 @@ partial class FileDialog: Dialog
 		_gridFiles.Id = "_gridFiles";
 
 		_scrollPane = new ScrollViewer();
-		_scrollPane.ShowHorizontalScrollBar = false;
+		_scrollPane.IsHorizontalScrollBarVisible = false;
 		_scrollPane.Id = "_scrollPane";
 		_scrollPane.Content = _gridFiles;
 

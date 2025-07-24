@@ -21,22 +21,24 @@ public class ScrollViewer : ContentControl
     private readonly SingleItemLayout<Widget> _layout;
     private Orientation _scrollbarOrientation;
     internal bool _horizontalScrollingOn, _verticalScrollingOn;
-    private bool _showHorizontalScrollBar, _showVerticalScrollBar;
+    private bool _isHorizontalScrollBarVisible, _isVerticalScrollBarVisible;
     internal Rectangle _horizontalScrollbarFrame, _horizontalScrollbarThumb;
     internal Rectangle _verticalScrollbarFrame, _verticalScrollbarThumb;
     private int? _startBoundsPos;
     private int _thumbMaximumX, _thumbMaximumY;
     private bool _on_thumb;
+    private bool _canScrollHorizontal;
+    private bool _canScrollVertical;
 
     //private Point? _startContentBounds;
 
     [Browsable(false)]
     [XmlIgnore]
-    internal int VerticalThumbWidth => (_verticalScrollingOn && ShowVerticalScrollBar) ? _verticalScrollbarThumb.Width : 0;
+    internal int VerticalThumbWidth => (_verticalScrollingOn && IsVerticalScrollBarVisible) ? _verticalScrollbarThumb.Width : 0;
 
     [Browsable(false)]
     [XmlIgnore]
-    internal int HorizontalThumbHeight => (_horizontalScrollingOn && ShowHorizontalScrollBar) ? _horizontalScrollbarThumb.Height : 0;
+    internal int HorizontalThumbHeight => (_horizontalScrollingOn && IsHorizontalScrollBarVisible) ? _horizontalScrollbarThumb.Height : 0;
 
     [Browsable(false)]
     [XmlIgnore]
@@ -154,42 +156,86 @@ public class ScrollViewer : ContentControl
 
     [Category("Behavior")]
     [DefaultValue(true)]
-    public bool ShowHorizontalScrollBar
+    // Früher ShowHorizontalScrollBar von Myra
+    public bool IsHorizontalScrollBarVisible
     {
         get
         {
-            return _showHorizontalScrollBar;
+            return _isHorizontalScrollBarVisible;
         }
 
         set
         {
-            if (value == _showHorizontalScrollBar)
+            if (value == _isHorizontalScrollBarVisible)
             {
                 return;
             }
 
-            _showHorizontalScrollBar = value;
+            _isHorizontalScrollBarVisible = value;
             InvalidateMeasure();
         }
     }
 
     [Category("Behavior")]
     [DefaultValue(true)]
-    public bool ShowVerticalScrollBar
+    public bool CanScrollHorizontal
     {
         get
         {
-            return _showVerticalScrollBar;
+            return _canScrollHorizontal;
         }
 
         set
         {
-            if (value == _showVerticalScrollBar)
+            if (value == _canScrollHorizontal)
             {
                 return;
             }
 
-            _showVerticalScrollBar = value;
+            _canScrollHorizontal = value;
+            InvalidateMeasure();
+        }
+    }
+
+    [Category("Behavior")]
+    [DefaultValue(true)]
+    // Früher ShowVerticalScrollBar von Myra
+    public bool IsVerticalScrollBarVisible
+    {
+        get
+        {
+            return _isVerticalScrollBarVisible;
+        }
+
+        set
+        {
+            if (value == _isVerticalScrollBarVisible)
+            {
+                return;
+            }
+
+            _isVerticalScrollBarVisible = value;
+            InvalidateMeasure();
+        }
+    }
+
+    [Category("Behavior")]
+    [DefaultValue(true)]
+    public bool CanScrollVertical
+    {
+        get
+        {
+            return _canScrollVertical;
+        }
+
+        set
+        {
+            if (value == _canScrollVertical)
+            {
+                return;
+            }
+
+            _canScrollVertical = value;
             InvalidateMeasure();
         }
     }
@@ -306,7 +352,9 @@ public class ScrollViewer : ContentControl
         ClipToBounds = true;
         _horizontalScrollingOn = _verticalScrollingOn = false;
 
-        ShowVerticalScrollBar = ShowHorizontalScrollBar = true;
+        //ShowVerticalScrollBar = ShowHorizontalScrollBar = true;
+        _canScrollVertical = _canScrollHorizontal = true;
+        _isVerticalScrollBarVisible = _isHorizontalScrollBarVisible = true;
 
         HorizontalAlignment = HorizontalAlignment.Stretch;
         VerticalAlignment = VerticalAlignment.Stretch;
@@ -377,10 +425,28 @@ public class ScrollViewer : ContentControl
         var thumbPosition = ThumbPosition;
         thumb_area.Y += thumbPosition.Y;
 
+        // Myra Unverständlich!!!
 
+        //_on_thumb = thumb_area.Contains(touchPosition);
+
+        //if (ShowVerticalScrollBar && _verticalScrollingOn )
+        //{
+        //    _startBoundsPos = Desktop.TouchPosition.Value.Y;
+        //    _scrollbarOrientation = Orientation.Vertical;
+        //}
+
+        //thumb_area = _horizontalScrollbarThumb;
+        //thumb_area.X += thumbPosition.X;
+        //if (ShowHorizontalScrollBar && _horizontalScrollingOn )
+        //{
+        //    _startBoundsPos = Desktop.TouchPosition.Value.X;
+        //    _scrollbarOrientation = Orientation.Horizontal;
+        //}
+
+        // Korrektur von mir
         _on_thumb = thumb_area.Contains(touchPosition);
 
-        if (ShowVerticalScrollBar && _verticalScrollingOn )
+        if (_canScrollVertical && _verticalScrollingOn)
         {
             _startBoundsPos = Desktop.TouchPosition.Value.Y;
             _scrollbarOrientation = Orientation.Vertical;
@@ -388,7 +454,7 @@ public class ScrollViewer : ContentControl
 
         thumb_area = _horizontalScrollbarThumb;
         thumb_area.X += thumbPosition.X;
-        if (ShowHorizontalScrollBar && _horizontalScrollingOn )
+        if (_canScrollHorizontal && _horizontalScrollingOn)
         {
             _startBoundsPos = Desktop.TouchPosition.Value.X;
             _scrollbarOrientation = Orientation.Horizontal;
@@ -464,7 +530,7 @@ public class ScrollViewer : ContentControl
         base.InternalRender(context);
 
         var thumbPosition = ThumbPosition;
-        if (_horizontalScrollingOn && ShowHorizontalScrollBar)
+        if (_horizontalScrollingOn && IsHorizontalScrollBarVisible)
         {
             if (HorizontalScrollBackground != null)
             {
@@ -476,7 +542,7 @@ public class ScrollViewer : ContentControl
             HorizontalScrollKnob.Draw(context, r);
         }
 
-        if (_verticalScrollingOn && ShowVerticalScrollBar)
+        if (_verticalScrollingOn && IsVerticalScrollBarVisible)
         {
             if (VerticalScrollBackground != null)
             {
@@ -508,8 +574,8 @@ public class ScrollViewer : ContentControl
 
         var measureSize = Content.Measure(availableSize);
 
-        var horizontalScrollbarVisible = ShowHorizontalScrollBar && measureSize.X > availableSize.X;
-        var verticalScrollbarVisible = ShowVerticalScrollBar && measureSize.Y > availableSize.Y;
+        var horizontalScrollbarVisible = IsHorizontalScrollBarVisible && measureSize.X > availableSize.X;
+        var verticalScrollbarVisible = IsVerticalScrollBarVisible && measureSize.Y > availableSize.Y;
         if (horizontalScrollbarVisible || verticalScrollbarVisible)
         {
             if (horizontalScrollbarVisible)
@@ -544,7 +610,7 @@ public class ScrollViewer : ContentControl
             var vsWidth = VerticalScrollbarWidth;
             var hsHeight = HorizontalScrollbarHeight;
 
-            if (_horizontalScrollingOn && ShowHorizontalScrollBar)
+            if (_horizontalScrollingOn && IsHorizontalScrollBarVisible)
             {
                 availableSize.Y -= hsHeight;
 
@@ -554,7 +620,7 @@ public class ScrollViewer : ContentControl
                 }
             }
 
-            if (_verticalScrollingOn && ShowVerticalScrollBar)
+            if (_verticalScrollingOn && IsVerticalScrollBarVisible)
             {
                 availableSize.X -= vsWidth;
 
@@ -566,7 +632,7 @@ public class ScrollViewer : ContentControl
 
             // Remeasure with scrollbars
             var measureSize = Content.Measure(availableSize);
-            var bw = bounds.Width - (_verticalScrollingOn && ShowVerticalScrollBar ? vsWidth : 0);
+            var bw = bounds.Width - (_verticalScrollingOn && IsVerticalScrollBarVisible ? vsWidth : 0);
 
             _horizontalScrollbarFrame = new Rectangle(bounds.Left,
                 bounds.Bottom - hsHeight,
@@ -739,7 +805,9 @@ public class ScrollViewer : ContentControl
         HorizontalScrollKnob = scrollViewer.HorizontalScrollKnob;
         VerticalScrollBackground = scrollViewer.VerticalScrollBackground;
         VerticalScrollKnob = scrollViewer.VerticalScrollKnob;
-        ShowHorizontalScrollBar = scrollViewer.ShowHorizontalScrollBar;
-        ShowVerticalScrollBar = scrollViewer.ShowVerticalScrollBar;
+        CanScrollHorizontal = scrollViewer.CanScrollHorizontal;
+        CanScrollVertical = scrollViewer.CanScrollVertical;
+        IsHorizontalScrollBarVisible = scrollViewer.IsHorizontalScrollBarVisible;
+        IsVerticalScrollBarVisible = scrollViewer.IsVerticalScrollBarVisible;
     }
 }

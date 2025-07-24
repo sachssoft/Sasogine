@@ -1,0 +1,14 @@
+﻿ColoredRegion -> Von Myra bereits 
+
+TextureRegion → Von Myra bereits, Einfacher Ausschnitt
+
+TiledRegion → Wiederholt sich
+
+NinePatchRegion → Von Myra bereits, Intelligentes Stretching
+
+ThreePatchRegion → Nur horizontal/vertikal stretch
+
+AtlasRegion → Ausschnitt aus SpriteAtlas
+
+AnimatedRegion → Animation aus mehreren Frames
+

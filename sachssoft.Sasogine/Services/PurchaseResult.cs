@@ -1,6 +1,6 @@
 ﻿namespace sachssoft.Sasogine.Services;
 
-public class PurchaseResult
+public record PurchaseResult
 {
     public bool Success { get; set; }
     public bool AlreadyOwned { get; set; }

@@ -1,60 +1,82 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Regions;
-
-public class ColoredRegion : IImage
+namespace sachssoft.Sasogine.Surface.Visuals.Regions
 {
-    private Color _color = Color.White;
-
-    public TextureRegion TextureRegion { get; set; }
-
-    public Point Size
+    /// <summary>
+    /// Represents a texture region that can be drawn with a base tint color.
+    /// </summary>
+    /// <remarks>
+    /// A <see cref="ColoredRegion"/> is a simple wrapper around a <see cref="TextureRegion"/> 
+    /// that allows applying a base color tint. When drawing, an additional tint can be supplied, 
+    /// which will be multiplied with the base color.
+    /// </remarks>
+    public class ColoredRegion : IImage
     {
-        get
-        {
-            return new Point(TextureRegion.Bounds.Width, TextureRegion.Bounds.Height);
-        }
-    }
+        private Color _baseColor;
 
-    public Color Color
-    {
-        get
-        {
-            return _color;
-        }
+        /// <summary>
+        /// Gets the wrapped <see cref="TextureRegion"/>.
+        /// </summary>
+        public TextureRegion TextureRegion { get; }
 
-        set
-        {
-            _color = value;
-        }
-    }
+        /// <summary>
+        /// Gets the original size of the region in pixels.
+        /// </summary>
+        public Point Size => new Point(TextureRegion.Bounds.Width, TextureRegion.Bounds.Height);
 
-    public ColoredRegion(TextureRegion textureRegion, Color color)
-    {
-        if (textureRegion == null)
+        /// <summary>
+        /// Gets or sets the base tint color of this region.
+        /// </summary>
+        public Color Color
         {
-            throw new ArgumentNullException("textureRegion");
+            get => _baseColor;
+            set => _baseColor = value;
         }
 
-        TextureRegion = textureRegion;
-        Color = color;
-    }
-
-    public void Draw(RenderContext context, Rectangle dest, Color color)
-    {
-        if (color == Color.White)
+        /// <summary>
+        /// Creates a new <see cref="ColoredRegion"/> instance.
+        /// </summary>
+        /// <param name="textureRegion">The underlying texture region to be drawn.</param>
+        /// <param name="color">The base color tint to apply when drawing.</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="textureRegion"/> is null.</exception>
+        public ColoredRegion(TextureRegion textureRegion, Color color)
         {
-            TextureRegion.Draw(context, dest, Color);
+            TextureRegion = textureRegion ?? throw new ArgumentNullException(nameof(textureRegion));
+            _baseColor = color;
         }
-        else
-        {
-            var c = new Color((int)(Color.R * color.R / 255.0f),
-                (int)(Color.G * color.G / 255.0f),
-                (int)(Color.B * color.B / 255.0f),
-                (int)(Color.A * color.A / 255.0f));
 
-            TextureRegion.Draw(context, dest, c);
+        /// <summary>
+        /// Draws the region inside the specified destination rectangle with a given additional tint.
+        /// </summary>
+        /// <param name="context">The current render context.</param>
+        /// <param name="dest">The destination rectangle where the region should be drawn.</param>
+        /// <param name="tint">An additional tint color to multiply with the base <see cref="Color"/>.</param>
+        public void Draw(RenderContext context, Rectangle dest, Color tint)
+        {
+            // If no additional tint is given, use the base color directly
+            if (tint == Color.White)
+            {
+                TextureRegion.Draw(context, dest, _baseColor);
+                return;
+            }
+
+            // Multiply base color with the given tint
+            var finalColor = MultiplyColors(_baseColor, tint);
+            TextureRegion.Draw(context, dest, finalColor);
+        }
+
+        /// <summary>
+        /// Multiplies two colors by their normalized RGBA values.
+        /// </summary>
+        private static Color MultiplyColors(in Color a, in Color b)
+        {
+            return new Color(
+                (byte)((a.R * b.R) / 255),
+                (byte)((a.G * b.G) / 255),
+                (byte)((a.B * b.B) / 255),
+                (byte)((a.A * b.A) / 255)
+            );
         }
     }
 }

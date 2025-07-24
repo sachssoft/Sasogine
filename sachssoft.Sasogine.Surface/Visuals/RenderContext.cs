@@ -182,6 +182,25 @@ public partial class RenderContext : IDisposable
         _renderer.Draw(texture, position, sourceRectangle, color, rotation, Vector2.Zero, scale, SpriteEffects.None, depth);
     }
 
+    // Neu!!
+    public void Draw(Texture2D texture, Rectangle destinationRectangle, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, float depth = 0f)
+    {
+        Vector2 sz;
+        if (sourceRectangle != null)
+        {
+            sz = new Vector2(sourceRectangle.Value.Width, sourceRectangle.Value.Height);
+        }
+        else
+        {
+            sz = new Vector2(texture.Width, texture.Height);
+        }
+
+        var pos = new Vector2(destinationRectangle.X, destinationRectangle.Y);
+        var scale = new Vector2(destinationRectangle.Width / sz.X, destinationRectangle.Height / sz.Y);
+
+        Draw(texture, pos, sourceRectangle, color, rotation, scale, depth);
+    }
+
     /// <summary>
     /// Draws a texture
     /// </summary>
