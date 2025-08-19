@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Sasogine.Graphics;
 
 public interface ITransformProvider
 {

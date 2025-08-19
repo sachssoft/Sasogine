@@ -5,7 +5,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace sachssoft.Sasogine.Surface.Utility.Clipboard
+namespace Sachssoft.Sasogine.Surface.Utility.Clipboard
 {
     internal enum OS
     {

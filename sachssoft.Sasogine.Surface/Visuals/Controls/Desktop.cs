@@ -4,11 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using sachssoft.Sasogine.Surface.Events;
-using sachssoft.Sasogine.Surface.Utility;
-using sachssoft.Sasogine.Surface.Visuals.Styles;
+using Sachssoft.Sasogine.Surface.Events;
+using Sachssoft.Sasogine.Surface.Utility;
+using Sachssoft.Sasogine.Surface.Visuals.Styles;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 public partial class Desktop : SurfaceHost, ITransformable, IDisposable
 {
@@ -511,7 +511,6 @@ public partial class Desktop : SurfaceHost, ITransformable, IDisposable
         {
             if (widget.IsVisible)
             {
-
                 if (UIEnvironment.EnableModalDarkening && widget.IsModal)
                 {
                     _renderContext.FillRectangle(bounds, UIEnvironment.DarkeningColor);

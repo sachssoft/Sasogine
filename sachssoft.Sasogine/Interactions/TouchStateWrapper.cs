@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Input.Touch;
 using System.Linq;
 
-namespace sachssoft.Sasogine.Interactions;
+namespace Sachssoft.Sasogine.Interactions;
 
 public class TouchStateWrapper : IInputState<TouchButton>
 {

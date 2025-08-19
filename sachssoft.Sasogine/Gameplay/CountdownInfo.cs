@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace sachssoft.Sasogine.Gameplay;
+namespace Sachssoft.Sasogine.Gameplay;
 
 /// <summary>
 /// Represents a countdown timer based on elapsed time.

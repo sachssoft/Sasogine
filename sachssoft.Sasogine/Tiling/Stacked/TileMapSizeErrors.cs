@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Tiling.Stacked;
+﻿namespace Sachssoft.Sasogine.Tiling.Stacked;
 
 public enum TileMapSizeErrors
 {

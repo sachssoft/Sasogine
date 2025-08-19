@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace sachssoft.Sasogine.Surface.Attributes;
+namespace Sachssoft.Sasogine.Surface.Attributes;
 
 public class ContentAttribute : Attribute
 {

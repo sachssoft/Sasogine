@@ -1,9 +1,9 @@
-﻿using sachssoft.Sasogine.Surface;
-using sachssoft.Sasogine.Surface.Forms;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
-using sachssoft.Sasogine.Views;
+﻿using Sachssoft.Sasogine.Surface;
+using Sachssoft.Sasogine.Surface.Forms;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Views;
 
-namespace sachssoft.Sasogine.Views.Dialogs;
+namespace Sachssoft.Sasogine.Views.Dialogs;
 
 public abstract class EditorDialogBase : Dialog
 {

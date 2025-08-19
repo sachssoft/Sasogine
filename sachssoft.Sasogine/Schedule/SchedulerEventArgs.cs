@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System.ComponentModel;
 
-namespace sachssoft.Sasogine.Schedule;
+namespace Sachssoft.Sasogine.Schedule;
 
 public class SchedulerEventArgs : CancelEventArgs
 {

@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 // By Tobias Sachs
 public class WidgetCollection : ObservableCollection<Widget>

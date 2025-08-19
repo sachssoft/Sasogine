@@ -6,20 +6,20 @@
 */
 
 using System;
-using sachssoft.Sasogine.Surface.Visuals.Brushes;
-using sachssoft.Sasogine.Surface.Visuals;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Surface.Visuals.Brushes;
+using Sachssoft.Sasogine.Surface.Visuals;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
 using Microsoft.Xna.Framework.Graphics;
-using sachssoft.Sasogine.Surface.Visuals.Regions;
+using Sachssoft.Sasogine.Surface.Visuals.Regions;
 using System.Collections.Generic;
-using sachssoft.Sasogine.Surface.Views.Editor;
-using sachssoft.Sasogine.Interactions;
+using Sachssoft.Sasogine.Surface.Views.Editor;
+using Sachssoft.Sasogine.Interactions;
 using System.Collections.ObjectModel;
 using Microsoft.Xna.Framework;
 using System.Linq;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace sachssoft.Sasogine.Surface.Views;
+namespace Sachssoft.Sasogine.Surface.Views;
 
 public abstract class EditorCompactViewBase<TRuntime> : SurfaceViewBase where TRuntime : RuntimeBase
 {

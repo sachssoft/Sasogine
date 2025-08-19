@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Input;
 
-namespace sachssoft.Sasogine.Interactions;
+namespace Sachssoft.Sasogine.Interactions;
 
 public class MouseStateWrapper : IInputState<MouseButton>
 {

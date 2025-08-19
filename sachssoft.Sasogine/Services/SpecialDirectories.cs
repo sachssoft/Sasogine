@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Services;
+﻿namespace Sachssoft.Sasogine.Services;
 
 public enum SpecialDirectories
 {

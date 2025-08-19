@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace sachssoft.Sasogine.Animation;
+namespace Sachssoft.Sasogine.Animation;
 
 [DataContract]
 public class RotationAnimation : AnimationBase

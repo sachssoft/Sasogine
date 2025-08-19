@@ -1,10 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
-using sachssoft.Graphics.Primitives;
-using sachssoft.Graphics.Renderer;
-using sachssoft.Sasogine.Graphics.Renderer;
+using Sachssoft.Graphics.Primitives;
+using Sachssoft.Graphics.Renderer;
+using Sachssoft.Sasogine.Graphics.Renderer;
 using System;
 
-namespace sachssoft.Sasogine.Tiling.Composite;
+namespace Sachssoft.Sasogine.Tiling.Composite;
 
 public class CompositeTileMap<T> : ITileMap where T : CompositeTileBase
 {

@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine.Graphics;
 using System;
 
-namespace sachssoft.Sasogine;
+namespace Sachssoft.Sasogine;
 
 // Die RuntimeBase bildet die zentrale Zeichen- und Steuerlogik für alle Backends des Frameworks ab. 
 // Sie verwaltet Kamera-Updates, das Rendern auf einen internen Zwischenspeicher (RenderTarget) sowie das finale 

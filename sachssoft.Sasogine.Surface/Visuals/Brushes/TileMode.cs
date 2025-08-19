@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Brushes
+namespace Sachssoft.Sasogine.Surface.Visuals.Brushes
 {
     [Flags]
     public enum TileMode

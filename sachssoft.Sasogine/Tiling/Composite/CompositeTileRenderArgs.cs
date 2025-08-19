@@ -1,10 +1,10 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using sachssoft.Graphics.Primitives;
-using sachssoft.Graphics.Renderer;
-using sachssoft.Sasogine.Tiling;
-using sachssoft.Sasogine;
-using sachssoft.Sasogine.Tiling.Composite;
-using sachssoft.Sasogine.Graphics.Renderer;
+using Sachssoft.Graphics.Primitives;
+using Sachssoft.Graphics.Renderer;
+using Sachssoft.Sasogine.Tiling;
+using Sachssoft.Sasogine;
+using Sachssoft.Sasogine.Tiling.Composite;
+using Sachssoft.Sasogine.Graphics.Renderer;
 
 // Später (Performance-Kritisch) --> ref
 

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace sachssoft.Sasogine.Tiling;
+namespace Sachssoft.Sasogine.Tiling;
 
 public interface ITileMap
 {

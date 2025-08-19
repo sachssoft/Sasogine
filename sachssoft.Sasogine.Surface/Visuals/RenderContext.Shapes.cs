@@ -3,11 +3,11 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Runtime.CompilerServices;
-using sachssoft.Sasogine.Surface.Utility;
-using sachssoft.Sasogine.Surface.Visuals.Regions;
-using sachssoft.Sasogine.Surface.Visuals.Styles;
+using Sachssoft.Sasogine.Surface.Utility;
+using Sachssoft.Sasogine.Surface.Visuals.Regions;
+using Sachssoft.Sasogine.Surface.Visuals.Styles;
 
-namespace sachssoft.Sasogine.Surface.Visuals;
+namespace Sachssoft.Sasogine.Surface.Visuals;
 
 partial class RenderContext
 {
@@ -105,7 +105,7 @@ partial class RenderContext
             return;
         }
 
-        var whiteRegion = Stylesheet.Current.WhiteRegion;
+        var whiteRegion = (TextureRegion)Stylesheet.Current.WhiteRegion;
 
         for (var i = 0; i < points.Length - 1; i++)
             DrawPolygonEdge(whiteRegion, points[i] + offset, points[i + 1] + offset, color, thickness);
@@ -170,7 +170,7 @@ partial class RenderContext
 
         point.Y -= (int)(thickness * Math.Cos(angle) / 2.0f);
 
-        var whiteRegion = Stylesheet.Current.WhiteRegion;
+        var whiteRegion = (TextureRegion)Stylesheet.Current.WhiteRegion;
         Draw(whiteRegion.Texture, point, whiteRegion.Bounds, color, angle, scale, 0);
     }
 
@@ -190,7 +190,7 @@ partial class RenderContext
         var scale = Vector2.One * size;
         var offset = new Vector2(0.5f) - new Vector2(size * 0.5f);
 
-        var whiteRegion = Stylesheet.Current.WhiteRegion;
+        var whiteRegion = (TextureRegion)Stylesheet.Current.WhiteRegion;
         Draw(whiteRegion.Texture, position + offset, whiteRegion.Bounds, color, 0.0f, scale);
     }
 

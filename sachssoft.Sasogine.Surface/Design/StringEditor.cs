@@ -1,7 +1,7 @@
 ﻿using System;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
 
-namespace sachssoft.Sasogine.Surface.Design;
+namespace Sachssoft.Sasogine.Surface.Design;
 
 public class StringEditor : PropertyEditorBase
 {

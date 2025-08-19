@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace sachssoft.Sasogine.Interactions;
+namespace Sachssoft.Sasogine.Interactions;
 
 /// <summary>
 /// Interface für Eingabestatus (Buttons gedrückt oder nicht).

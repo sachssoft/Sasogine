@@ -1,7 +1,7 @@
 ﻿using System.Xml;
-using sachssoft.Sasogine.Elements;
+using Sachssoft.Sasogine.Elements;
 
-namespace sachssoft.Sasogine.Resources;
+namespace Sachssoft.Sasogine.Resources;
 
 public static class AssetsExtension
 {

@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Surface.Views.Editor;
+﻿namespace Sachssoft.Sasogine.Surface.Views.Editor;
 
 public enum EditorViewIconSizes
 {

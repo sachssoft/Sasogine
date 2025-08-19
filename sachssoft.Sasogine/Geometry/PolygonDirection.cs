@@ -1,5 +1,5 @@
 ﻿
-namespace sachssoft.Sasogine.Geometry;
+namespace Sachssoft.Sasogine.Geometry;
 
 public enum PolygonDirection
 {

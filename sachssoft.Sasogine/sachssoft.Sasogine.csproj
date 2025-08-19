@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
-		<RootNamespace>sachssoft.Sasogine</RootNamespace>
+		<RootNamespace>Sachssoft.Sasogine</RootNamespace>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>Sasogine</Title>
@@ -69,5 +69,9 @@
 
 	<ItemGroup>
 		<Folder Include="Graphics\Colors\List\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Sasolib\sasosoft.Sasolib\Sachssoft.Sasolib.csproj" />
 	</ItemGroup>
 </Project>

@@ -7,7 +7,7 @@
 using System;
 using System.IO;
 
-namespace sachssoft.Sasogine;
+namespace Sachssoft.Sasogine;
 
 public class GameException : Exception
 {

@@ -1,8 +1,8 @@
-﻿using sachssoft.Graphics.Renderer;
-using sachssoft.Sasogine.Graphics.Renderer;
-using sachssoft.Sasogine.Tiling.Stacked;
+﻿using Sachssoft.Graphics.Renderer;
+using Sachssoft.Sasogine.Graphics.Renderer;
+using Sachssoft.Sasogine.Tiling.Stacked;
 
-namespace sachssoft.Sasogine.Tiling;
+namespace Sachssoft.Sasogine.Tiling;
 
 public unsafe interface ITileElement
 {    

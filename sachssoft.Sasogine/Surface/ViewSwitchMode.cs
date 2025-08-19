@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Surface;
+﻿namespace Sachssoft.Sasogine.Surface;
 
 public enum ViewSwitchMode
 {

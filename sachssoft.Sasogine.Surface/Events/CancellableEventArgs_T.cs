@@ -1,6 +1,6 @@
 using System;
 
-namespace sachssoft.Sasogine.Surface.Events;
+namespace Sachssoft.Sasogine.Surface.Events;
 public class CancellableEventArgs<T> : EventArgs
 {
     public T Data { get; private set; }

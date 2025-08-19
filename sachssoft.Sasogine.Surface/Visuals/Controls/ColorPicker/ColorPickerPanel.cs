@@ -2,11 +2,11 @@ using FontStashSharp.RichText;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using sachssoft.Sasogine.Surface.Events;
-using sachssoft.Sasogine.Surface.Visuals.Styles;
-using ColorHSV = sachssoft.Sasogine.Surface.Utility.ColorHSV;
+using Sachssoft.Sasogine.Surface.Events;
+using Sachssoft.Sasogine.Surface.Visuals.Styles;
+using ColorHSV = Sachssoft.Sasogine.Surface.Utility.ColorHSV;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 public partial class ColorPickerPanel
 {

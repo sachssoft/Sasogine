@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Surface.Visuals;
+﻿namespace Sachssoft.Sasogine.Surface.Visuals;
 
 public interface IEnableable
 {

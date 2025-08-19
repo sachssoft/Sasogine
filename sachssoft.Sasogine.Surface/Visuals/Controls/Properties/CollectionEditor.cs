@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 public class CollectionEditor : Widget
 {

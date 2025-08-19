@@ -1,6 +1,6 @@
 using System;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 public partial class DebugOptionsWindow
 {

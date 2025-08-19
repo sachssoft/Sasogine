@@ -5,16 +5,16 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using sachssoft.Sasogine.Surface.Utility;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
-using sachssoft.Sasogine.Surface.Visuals.Styles;
+using Sachssoft.Sasogine.Surface.Utility;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Surface.Visuals.Styles;
 
 #if FNA
 using static SDL2.SDL;
 using MouseCursor = System.Nullable<System.IntPtr>;
 #endif
 
-namespace sachssoft.Sasogine.Surface;
+namespace Sachssoft.Sasogine.Surface;
 
 public static class UIEnvironment
 {

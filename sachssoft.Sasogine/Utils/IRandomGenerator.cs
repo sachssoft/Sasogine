@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Utils;
+﻿namespace Sachssoft.Sasogine.Utils;
 
 public interface IRandomGenerator
 {

@@ -1,10 +1,10 @@
 ﻿using Microsoft.Xna.Framework.Input;
 using System.ComponentModel;
 using System.Xml.Serialization;
-using sachssoft.Sasogine.Surface.Attributes;
-using sachssoft.Sasogine.Surface.Visuals.Styles;
+using Sachssoft.Sasogine.Surface.Attributes;
+using Sachssoft.Sasogine.Surface.Visuals.Styles;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 public enum CheckPosition
 {

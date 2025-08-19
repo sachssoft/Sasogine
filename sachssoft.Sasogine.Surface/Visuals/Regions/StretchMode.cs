@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Regions
+namespace Sachssoft.Sasogine.Surface.Visuals.Regions
 {
     /// <summary>
     /// Wie die Texturregion in das Ziel-Rechteck eingepasst wird.

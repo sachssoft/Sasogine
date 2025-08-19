@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace sachssoft.Sasogine.Animation.Timings;
+namespace Sachssoft.Sasogine.Animation.Timings;
 
 public sealed class EaseOutBack : AnimationTimingBase
 {

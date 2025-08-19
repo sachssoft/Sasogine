@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
 
-namespace sachssoft.Sasogine.Surface.Views.Editor;
+namespace Sachssoft.Sasogine.Surface.Views.Editor;
 
 public interface IEditorTabContainer
 {

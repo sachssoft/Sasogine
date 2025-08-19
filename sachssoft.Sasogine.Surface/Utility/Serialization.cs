@@ -4,10 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
-using sachssoft.Sasogine.Surface.MML;
-using sachssoft.Sasogine.Surface.Visuals;
+using Sachssoft.Sasogine.Surface.MML;
+using Sachssoft.Sasogine.Surface.Visuals;
 
-namespace sachssoft.Sasogine.Surface.Utility;
+namespace Sachssoft.Sasogine.Surface.Utility;
 
 internal static class Serialization
 {

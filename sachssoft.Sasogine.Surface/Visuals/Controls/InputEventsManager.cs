@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 internal enum InputEventType
 {

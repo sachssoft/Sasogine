@@ -1,5 +1,5 @@
 ﻿
-namespace sachssoft.Sasogine.Surface.Events;
+namespace Sachssoft.Sasogine.Surface.Events;
 
 public class ValueChangingEventArgs<T> : CancellableEventArgs
 {

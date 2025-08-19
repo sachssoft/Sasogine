@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Globalization;
-using sachssoft.Sasogine.Surface.Visuals;
+using Sachssoft.Sasogine.Surface.Visuals;
 
-namespace sachssoft.Sasogine.Surface.MML;
+namespace Sachssoft.Sasogine.Surface.MML;
 
 public interface ITypeSerializer
 {

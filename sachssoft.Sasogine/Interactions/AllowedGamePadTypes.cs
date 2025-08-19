@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Interactions;
+﻿namespace Sachssoft.Sasogine.Interactions;
 
 public enum AllowedGamePadTypes
 {

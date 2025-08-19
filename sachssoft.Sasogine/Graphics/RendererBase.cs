@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Sasogine.Graphics;
 
 public abstract class RendererBase : IDisposable
 {

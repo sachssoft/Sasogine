@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace sachssoft.Sasogine.Elements;
+namespace Sachssoft.Sasogine.Elements;
 
 // Veraltetes Interface zur Rückwärtskompatibilität beibehalten
 [Obsolete("Use IActiveGameObjectElement instead.")]

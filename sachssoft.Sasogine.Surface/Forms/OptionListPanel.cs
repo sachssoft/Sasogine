@@ -1,11 +1,11 @@
 ﻿using FontStashSharp.RichText;
 using Microsoft.Xna.Framework;
 using System;
-using sachssoft.Sasogine.Surface.Visuals;
-using sachssoft.Sasogine.Surface.Visuals.Brushes;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Surface.Visuals;
+using Sachssoft.Sasogine.Surface.Visuals.Brushes;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
 
-namespace sachssoft.Sasogine.Surface.Forms;
+namespace Sachssoft.Sasogine.Surface.Forms;
 
 public class OptionListPanel : VerticalStackPanel
 {

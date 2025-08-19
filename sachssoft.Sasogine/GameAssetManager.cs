@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace sachssoft.Sasogine;
+namespace Sachssoft.Sasogine;
 
 public enum AssetSourceType
 {

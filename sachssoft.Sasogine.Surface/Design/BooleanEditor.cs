@@ -1,7 +1,7 @@
 ﻿using System;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
 
-namespace sachssoft.Sasogine.Surface.Design;
+namespace Sachssoft.Sasogine.Surface.Design;
 
 public class BooleanEditor : PropertyEditorBase
 {
@@ -35,7 +35,7 @@ public class BooleanEditor : PropertyEditorBase
             setter.Invoke((T)Source, _check_button.IsChecked);
         };
 
-        _check_button.Content = new Label() { Text = DisplayLabel, Margin = new Visuals.Thickness(10, 0, 0, 0) };
+        _check_button.Content = new Label() { Text = DisplayLabel, Margin = new Thickness(10, 0, 0, 0) };
         p.Widgets.Add(_check_button);
 
         return p;

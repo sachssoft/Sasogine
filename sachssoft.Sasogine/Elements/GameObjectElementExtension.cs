@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace sachssoft.Sasogine.Elements;
+namespace Sachssoft.Sasogine.Elements;
 
 public static class GameObjectElementExtension
 {

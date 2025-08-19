@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace sachssoft.Sasogine.Graphics.Tile;
+namespace Sachssoft.Sasogine.Graphics.Tile;
 
 public class TileEffect : Effect
 {

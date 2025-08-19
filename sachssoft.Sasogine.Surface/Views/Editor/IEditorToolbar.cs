@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using sachssoft.Sasogine.Interactions;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Interactions;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
 
-namespace sachssoft.Sasogine.Surface.Views.Editor;
+namespace Sachssoft.Sasogine.Surface.Views.Editor;
 
 public interface IEditorToolbar
 {

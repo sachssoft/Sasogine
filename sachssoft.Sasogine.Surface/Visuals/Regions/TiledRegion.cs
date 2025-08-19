@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Regions
+namespace Sachssoft.Sasogine.Surface.Visuals.Regions
 {
     /// <summary>
     /// Represents a texture region that is drawn repeatedly (tiled) to fill a destination area.
@@ -11,7 +11,7 @@ namespace sachssoft.Sasogine.Surface.Visuals.Regions
     /// The tiling can occur horizontally, vertically, or in both directions.
     /// You can also apply an offset to shift the tile pattern for scrolling effects.
     /// </remarks>
-    public class TiledRegion : IImage
+    public class TiledRegion : ITextureRegion
     {
         private readonly TextureRegion _region;
         private readonly TileMode _mode;

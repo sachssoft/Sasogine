@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
-using sachssoft.Sasogine.Interactions;
+using Sachssoft.Sasogine.Interactions;
 using System;
 using System.Collections.Generic;
 
-namespace sachssoft.Sasogine.Surface;
+namespace Sachssoft.Sasogine.Surface;
 
 public sealed class ViewManager
 {

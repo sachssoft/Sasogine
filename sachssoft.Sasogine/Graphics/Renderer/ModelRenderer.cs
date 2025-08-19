@@ -1,10 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using sachssoft.Sasogine;
-using sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine;
+using Sachssoft.Sasogine.Graphics;
 using System;
 
-namespace sachssoft.Graphics.Renderer;
+namespace Sachssoft.Graphics.Renderer;
 
 public sealed class ModelRenderer : RendererBase
 {

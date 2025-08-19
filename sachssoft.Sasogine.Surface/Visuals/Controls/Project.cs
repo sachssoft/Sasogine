@@ -8,13 +8,13 @@ using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
 using System.Xml.Serialization;
-using sachssoft.Sasogine.Surface.Attributes;
-using sachssoft.Sasogine.Surface.MML;
-using sachssoft.Sasogine.Surface.Utility;
-using sachssoft.Sasogine.Surface.Visuals.Brushes;
-using sachssoft.Sasogine.Surface.Visuals.Styles;
+using Sachssoft.Sasogine.Surface.Attributes;
+using Sachssoft.Sasogine.Surface.MML;
+using Sachssoft.Sasogine.Surface.Utility;
+using Sachssoft.Sasogine.Surface.Visuals.Brushes;
+using Sachssoft.Sasogine.Surface.Visuals.Styles;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 public class ExportOptions
 {

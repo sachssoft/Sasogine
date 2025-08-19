@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace sachssoft.Sasogine.Surface.Visuals;
+namespace Sachssoft.Sasogine.Surface.Visuals;
 
 public interface ICheckable
 {

@@ -1,7 +1,7 @@
 using System.IO;
 
 
-namespace sachssoft.Sasogine.Surface.Utility.Clipboard;
+namespace Sachssoft.Sasogine.Surface.Utility.Clipboard;
 
 static class LinuxClipboard
 {

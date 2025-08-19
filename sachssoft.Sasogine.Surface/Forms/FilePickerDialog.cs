@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
-using sachssoft.Sasogine.Views;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Views;
+using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Surface.Visuals;
 
-namespace sachssoft.Sasogine.Surface.Forms;
+namespace Sachssoft.Sasogine.Surface.Forms;
 
 public static class FilePickerDialog
 {
@@ -15,11 +17,12 @@ public static class FilePickerDialog
         {
             Title = title,
             Folder = path,
-            Filter = string.Join(";", filter.Select(x => $"*." + x))
+            Filter = string.Join(";", filter.Select(x => $"*." + x)),
+            Background = Color.Red.ToBrush()
         };
 
-        dlg.ButtonOk.Width = 100;
-        dlg.ButtonOk.Content.HorizontalAlignment = HorizontalAlignment.Center;
+        dlg.ButtonConfirm.Width = 100;
+        dlg.ButtonConfirm.Content.HorizontalAlignment = HorizontalAlignment.Center;
         dlg.ButtonCancel.Width = 100;
         dlg.ButtonCancel.Content.HorizontalAlignment = HorizontalAlignment.Center;
 
@@ -67,8 +70,8 @@ public static class FilePickerDialog
             Filter = string.Join(",", filter.Select(x => $"*." + x))
         };
 
-        dlg.ButtonOk.Width = 100;
-        dlg.ButtonOk.Content.HorizontalAlignment = HorizontalAlignment.Center;
+        dlg.ButtonConfirm.Width = 100;
+        dlg.ButtonConfirm.Content.HorizontalAlignment = HorizontalAlignment.Center;
         dlg.ButtonCancel.Width = 100;
         dlg.ButtonCancel.Content.HorizontalAlignment = HorizontalAlignment.Center;
 

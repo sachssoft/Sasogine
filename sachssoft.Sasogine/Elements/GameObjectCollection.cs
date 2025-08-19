@@ -1,16 +1,10 @@
-﻿/* 
- * © 2024 Tobias Sachs
- * GameObjectCollection
- * 11.07.2024 
-*/
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 
-namespace sachssoft.Sasogine.Elements;
+namespace Sachssoft.Sasogine.Elements;
 
 public class GameObjectCollection<T> : ObservableCollection<T> where T : IIdentifiable
 {
@@ -31,11 +25,7 @@ public class GameObjectCollection<T> : ObservableCollection<T> where T : IIdenti
         _id_generator_prefix = id_generator_prefix;
     }
 
-    public GameObject? Owner
-    {
-        get => _owner;
-        set => _owner = value;
-    }
+    public GameObject? Owner => _owner;
 
     public bool IDGenerationAllowed => _id_generator_prefix != null;
 
@@ -45,20 +35,27 @@ public class GameObjectCollection<T> : ObservableCollection<T> where T : IIdenti
     {
         if (string.IsNullOrWhiteSpace(obj.ID))
         {
-            obj.ID = GetNewID(prefix);
-        }
-    }
+            // Alle existierenden IDs mit dem Präfix sammeln
+            var existingNumbers = this
+                .Where(x => !string.IsNullOrWhiteSpace(x.ID) && x.ID.StartsWith(prefix))
+                .Select(x =>
+                {
+                    var suffix = x.ID?.Substring(prefix.Length);
+                    return int.TryParse(suffix, out var n) ? n : 0;
+                })
+                .ToHashSet();
 
-    public string GetNewID(string prefix)
-    {
-        var existingIDs = new HashSet<string>(this.Select(x => x.ID).Where(id => id != null)!);
-        int n = 1;
-        string newId;
-        do
-        {
-            newId = $"{prefix}{n++}";
-        } while (existingIDs.Contains(newId));
-        return newId;
+            // Startnummer
+            int number = 1;
+
+            // Solange hochzählen, bis freie Nummer gefunden ist
+            while (existingNumbers.Contains(number))
+            {
+                number++;
+            }
+
+            obj.ID = $"{prefix}{number}";
+        }
     }
 
     private void Item_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -103,9 +100,7 @@ public class GameObjectCollection<T> : ObservableCollection<T> where T : IIdenti
     protected override sealed void ClearItems()
     {
         foreach (var item in this)
-        {
             ResetItem(item);
-        }
         base.ClearItems();
     }
 
@@ -159,41 +154,35 @@ public class GameObjectCollection<T> : ObservableCollection<T> where T : IIdenti
     private void CheckHasParent(IIdentifiable item)
     {
         if (item is GameObject obj && obj.Parent != null && obj.Parent != _owner)
-            throw new InvalidOperationException("Item already contains in collection");
+            throw new InvalidOperationException("Item is already assigned to a different collection.");
     }
 
     public void ForEach(Action<T> a)
     {
         foreach (var item in this)
-        {
             a.Invoke(item);
-        }
     }
 
-    public IEnumerable<T> GetByID(string? id)
-    {
-        return this.Where(item => item.ID == id);
-    }
+    public IEnumerable<T> GetByID(string? id) =>
+        this.Where(item => item.ID == id);
 
-    public IEnumerable<T> GetByClass(string? name)
-    {
-        return this.Where(item => (item is IGameObject obj) && obj.Class == name);
-    }
+    public IEnumerable<T> GetByClass(string? name) =>
+        this.Where(item => (item is IGameObject obj) && obj.Class == name);
 
     public bool ContainsAmbiguousID(out string[] ids)
     {
-        var seen = new HashSet<string?>();
-        var duplicates = new HashSet<string>();
-        foreach (var item in this)
-        {
-            if (item.ID != null && !seen.Add(item.ID))
-                duplicates.Add(item.ID);
-        }
-        ids = duplicates.ToArray();
-        return duplicates.Count > 0;
+        // Bei Weglassen der Eindeutigkeit kann man alle IDs zurückgeben, die mehrfach vorkommen
+        var duplicates = this.GroupBy(i => i.ID)
+                             .Where(g => g.Count() > 1 && g.Key != null)
+                             .Select(g => g.Key!)
+                             .ToArray();
+        ids = duplicates;
+        return ids.Length > 0;
     }
 
-    public T[] FindByID(string? id) => this.Where(item => item.ID == id).ToArray();
+    public T[] FindByID(string? id) =>
+        GetByID(id).ToArray();
 
-    public T[] FindByClass(string? name) => this.Where(item => (item is IGameObject obj) && obj.Class == name).ToArray();
+    public T[] FindByClass(string? name) =>
+        GetByClass(name).ToArray();
 }

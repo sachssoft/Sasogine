@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace sachssoft.Sasogine.Surface;
+namespace Sachssoft.Sasogine.Surface;
 
 public static class DisplayExtensions
 {

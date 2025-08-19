@@ -1,7 +1,7 @@
-﻿using sachssoft.Sasogine.Surface.Visuals.Controls;
+﻿using Sachssoft.Sasogine.Surface.Visuals.Controls;
 using System.Collections.Generic;
 
-namespace sachssoft.Sasogine.Surface.Views;
+namespace Sachssoft.Sasogine.Surface.Views;
 
 public abstract class SurfaceViewBase : ViewBase
 {

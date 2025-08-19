@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System;
 using Microsoft.Xna.Framework;
 
-namespace sachssoft.Sasogine.Interactions;
+namespace Sachssoft.Sasogine.Interactions;
 
 public class MouseInteractionManager : InputInteractionManager<MouseButton>
 {

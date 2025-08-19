@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace sachssoft.Sasogine.Views.Dialogs;
+namespace Sachssoft.Sasogine.Views.Dialogs;
 
 public class ColorPickerDialog
 {

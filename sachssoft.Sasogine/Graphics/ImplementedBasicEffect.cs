@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.ComponentModel;
 
-namespace sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Sasogine.Graphics;
 
 public class ImplementedBasicEffect : BasicEffect, IEffect
 {

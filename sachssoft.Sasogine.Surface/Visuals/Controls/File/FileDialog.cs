@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using sachssoft.Sasogine.Surface.Utility;
-using sachssoft.Sasogine.Surface.Visuals.Styles;
+using Sachssoft.Sasogine.Surface.Utility;
+using Sachssoft.Sasogine.Surface.Visuals.Styles;
 
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 public partial class FileDialog
 {
@@ -246,7 +246,7 @@ public partial class FileDialog
                 break;
         }
 
-        ButtonOk.IsEnabled = enabled;
+        ButtonConfirm.IsEnabled = enabled;
     }
 
     private void OnButtonParent(object sender, EventArgs args)

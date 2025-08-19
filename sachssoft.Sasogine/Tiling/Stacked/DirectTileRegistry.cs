@@ -1,4 +1,4 @@
-﻿using sachssoft.Sasogine.Tiling;
+﻿using Sachssoft.Sasogine.Tiling;
 using System;
 using System.Runtime.CompilerServices;
 

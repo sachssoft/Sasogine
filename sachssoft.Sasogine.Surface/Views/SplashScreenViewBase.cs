@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Surface.Views;
+﻿namespace Sachssoft.Sasogine.Surface.Views;
 
 public abstract class SplashScreenViewBase : SurfaceViewBase
 {

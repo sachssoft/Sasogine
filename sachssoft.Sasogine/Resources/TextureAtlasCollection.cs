@@ -1,13 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace sachssoft.Sasogine.Resources;
+namespace Sachssoft.Sasogine.Resources;
 
 public class TextureAtlasCollection
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace sachssoft.Sasogine.Schedule;
+namespace Sachssoft.Sasogine.Schedule;
 
 public interface IDataLoader
 {

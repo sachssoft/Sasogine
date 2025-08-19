@@ -9,7 +9,7 @@ using Stride.Core.Mathematics;
 using Color = FontStashSharp.FSColor;
 #endif
 
-namespace sachssoft.Sasogine.Surface.Visuals.Styles
+namespace Sachssoft.Sasogine.Surface.Visuals.Styles
 {
     public class LabelStyle : WidgetStyle
     {

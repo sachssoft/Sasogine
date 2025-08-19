@@ -1,8 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
-using sachssoft.Sasogine.Surface.Utility;
+using Sachssoft.Sasogine.Surface.Utility;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 public enum ProportionType
 {

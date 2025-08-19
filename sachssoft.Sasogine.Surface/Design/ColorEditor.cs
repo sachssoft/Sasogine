@@ -1,10 +1,10 @@
 ﻿using FontStashSharp.RichText;
 using Microsoft.Xna.Framework;
 using System;
-using sachssoft.Sasogine.Surface.Visuals.Brushes;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Surface.Visuals.Brushes;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
 
-namespace sachssoft.Sasogine.Surface.Design;
+namespace Sachssoft.Sasogine.Surface.Design;
 
 public class ColorEditor : PropertyEditorBase
 {

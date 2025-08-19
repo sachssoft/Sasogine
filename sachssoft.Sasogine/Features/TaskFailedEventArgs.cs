@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace sachssoft.Sasogine.Features;
+namespace Sachssoft.Sasogine.Features;
 
 public class TaskFailedEventArgs : EventArgs
 {

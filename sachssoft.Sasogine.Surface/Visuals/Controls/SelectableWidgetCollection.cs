@@ -1,4 +1,4 @@
-﻿using sachssoft.Sasogine.Surface.Visuals.Controls;
+﻿using Sachssoft.Sasogine.Surface.Visuals.Controls;
 using System;
 
 public class SelectableWidgetCollection : WidgetCollection

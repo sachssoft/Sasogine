@@ -7,7 +7,7 @@
 using System;
 using System.Collections;
 
-namespace sachssoft.Sasogine.Elements;
+namespace Sachssoft.Sasogine.Elements;
 
 public interface IAssociation
 {

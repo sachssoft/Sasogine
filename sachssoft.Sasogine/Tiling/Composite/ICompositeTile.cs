@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Tiling.Composite;
+﻿namespace Sachssoft.Sasogine.Tiling.Composite;
 
 public interface ICompositeTile : IOutputTile
 {

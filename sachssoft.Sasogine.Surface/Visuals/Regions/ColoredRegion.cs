@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Regions
+namespace Sachssoft.Sasogine.Surface.Visuals.Regions
 {
     /// <summary>
     /// Represents a texture region that can be drawn with a base tint color.
@@ -11,7 +11,7 @@ namespace sachssoft.Sasogine.Surface.Visuals.Regions
     /// that allows applying a base color tint. When drawing, an additional tint can be supplied, 
     /// which will be multiplied with the base color.
     /// </remarks>
-    public class ColoredRegion : IImage
+    public class ColoredRegion : ITextureRegion
     {
         private Color _baseColor;
 

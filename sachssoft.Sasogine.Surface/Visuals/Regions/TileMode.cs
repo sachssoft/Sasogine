@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Surface.Visuals.Regions
+﻿namespace Sachssoft.Sasogine.Surface.Visuals.Regions
 {
     /// <summary>
     /// Defines how a <see cref="TiledRegion"/> repeats its texture.

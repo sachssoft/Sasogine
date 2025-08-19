@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace sachssoft.Sasogine.Schedule;
+namespace Sachssoft.Sasogine.Schedule;
 
 public class DataLoaderSequence<TKey> where TKey : notnull
 {

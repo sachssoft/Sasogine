@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace sachssoft.Sasogine.Services;
+namespace Sachssoft.Sasogine.Services;
 
 /// <summary>
 /// Provides functionality to check for and apply application updates.

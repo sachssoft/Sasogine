@@ -1,7 +1,7 @@
 ﻿using System;
-using sachssoft.Sasogine.Surface.Utility.Clipboard;
+using Sachssoft.Sasogine.Surface.Utility.Clipboard;
 
-namespace sachssoft.Sasogine.Tools;
+namespace Sachssoft.Sasogine.Tools;
 
 public static class Clipboard
 {

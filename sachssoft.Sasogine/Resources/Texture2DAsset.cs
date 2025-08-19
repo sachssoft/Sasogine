@@ -2,9 +2,9 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.ComponentModel;
-using sachssoft.Sasogine.Elements;
+using Sachssoft.Sasogine.Elements;
 
-namespace sachssoft.Sasogine.Resources;
+namespace Sachssoft.Sasogine.Resources;
 
 public class Texture2DAsset : AssetProvider<Texture2D>
 {

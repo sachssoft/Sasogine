@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace sachssoft.Sasogine.Tiling.Stacked;
+namespace Sachssoft.Sasogine.Tiling.Stacked;
 
 public unsafe struct FixedTileData128<TFlags> : ITileInstanceWithFlags<TFlags>, ITileInstanceWithData
     where TFlags : unmanaged, Enum

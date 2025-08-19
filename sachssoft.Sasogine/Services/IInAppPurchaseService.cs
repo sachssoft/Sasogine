@@ -1,9 +1,9 @@
-﻿using sachssoft.Sasogine.Services;
+﻿using Sachssoft.Sasogine.Services;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace sachssoft.Sasogine.Services;
+namespace Sachssoft.Sasogine.Services;
 
 public interface IInAppPurchaseService
 {

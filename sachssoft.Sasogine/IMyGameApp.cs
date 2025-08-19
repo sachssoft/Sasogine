@@ -9,12 +9,12 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using sachssoft.Sasogine.Graphics;
-using sachssoft.Sasogine.Surface;
+using Sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine.Surface;
 using Microsoft.Xna.Framework;
 using System.ComponentModel.Design;
 
-namespace sachssoft.Sasogine;
+namespace Sachssoft.Sasogine;
 
 public interface IMyGameApp
 {

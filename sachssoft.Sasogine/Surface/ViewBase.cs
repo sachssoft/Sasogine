@@ -8,11 +8,11 @@ using System;
 using System.ComponentModel.Design;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
-using sachssoft.Sasogine.Diagnostics;
-using sachssoft.Sasogine.Features;
-using sachssoft.Sasogine.Services;
+using Sachssoft.Sasogine.Diagnostics;
+using Sachssoft.Sasogine.Features;
+using Sachssoft.Sasogine.Services;
 
-namespace sachssoft.Sasogine.Surface;
+namespace Sachssoft.Sasogine.Surface;
 
 public abstract class ViewBase /*Panel,*/
 {

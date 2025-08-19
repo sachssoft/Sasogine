@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Resources;
+﻿namespace Sachssoft.Sasogine.Resources;
 
 public interface IAssetCollectionProvider
 {

@@ -4,7 +4,7 @@
  * 11.07.2024 
 */
 
-namespace sachssoft.Sasogine.Resources
+namespace Sachssoft.Sasogine.Resources
 {
     // Stichwort
     public readonly struct Keyword

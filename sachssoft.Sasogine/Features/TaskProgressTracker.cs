@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace sachssoft.Sasogine.Features;
+namespace Sachssoft.Sasogine.Features;
 
 public class TaskProgressTracker
 {

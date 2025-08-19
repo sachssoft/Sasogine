@@ -1,7 +1,7 @@
-﻿using sachssoft.Sasogine.Resources;
+﻿using Sachssoft.Sasogine.Resources;
 using System.Text.Json;
 
-namespace sachssoft.Sasogine.Network;
+namespace Sachssoft.Sasogine.Network;
 
 public static class ApiReaderHelper
 {

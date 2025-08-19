@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace sachssoft.Sasogine.Schedule;
+namespace Sachssoft.Sasogine.Schedule;
 
 /// <summary>
 /// Simuliert einen DataLoader mit vorgegebenem Ergebnis und künstlicher Verzögerung.

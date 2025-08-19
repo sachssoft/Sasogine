@@ -1,5 +1,5 @@
-﻿using sachssoft.Graphics.Primitives;
-using sachssoft.Graphics.Renderer;
+﻿using Sachssoft.Graphics.Primitives;
+using Sachssoft.Graphics.Renderer;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -7,10 +7,10 @@ using System.Runtime.InteropServices;
 using System;
 using Microsoft.Xna.Framework;
 using System.Buffers;
-using sachssoft.Sasogine.Tiling.Stacked;
-using sachssoft.Sasogine.Graphics.Renderer;
+using Sachssoft.Sasogine.Tiling.Stacked;
+using Sachssoft.Sasogine.Graphics.Renderer;
 
-namespace sachssoft.Sasogine.Tiling.Stacked;
+namespace Sachssoft.Sasogine.Tiling.Stacked;
 
 public unsafe class StackedTileMap<TTileInstance> : IDisposable, ITileMap
     where TTileInstance : unmanaged, ITileInstance

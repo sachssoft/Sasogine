@@ -1,10 +1,10 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using System;
-using sachssoft.Sasogine.Graphics;
-using sachssoft.Sasogine;
+using Sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine;
 
-namespace sachssoft.Graphics.Primitives;
+namespace Sachssoft.Graphics.Primitives;
 
 public sealed class TilePrimitive : IDisposable
 {

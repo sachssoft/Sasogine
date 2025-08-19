@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace sachssoft.Sasogine.Resource;
+namespace Sachssoft.Sasogine.Resource;
 
 public abstract class GameResource
 {

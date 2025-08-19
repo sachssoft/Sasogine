@@ -5,12 +5,12 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
-using sachssoft.Sasogine.Surface.MML;
-using sachssoft.Sasogine.Surface.Utility;
-using sachssoft.Sasogine.Surface.Visuals.Regions;
-using sachssoft.Sasogine.Surface.Visuals.Styles;
+using Sachssoft.Sasogine.Surface.MML;
+using Sachssoft.Sasogine.Surface.Utility;
+using Sachssoft.Sasogine.Surface.Visuals.Regions;
+using Sachssoft.Sasogine.Surface.Visuals.Styles;
 
-namespace sachssoft.Sasogine.Surface;
+namespace Sachssoft.Sasogine.Surface;
 
 public static class UIAssetManagerExtensions
 {
@@ -22,11 +22,12 @@ public static class UIAssetManagerExtensions
 
         public string BuildKey() => string.Empty;
     }
-
-    private static AssetLoader<TextureRegionAtlas> _atlasLoader = (manager, assetName, settings, tag) =>
+    
+    private static AssetLoader<TextureSheet> _atlasLoader = (manager, assetName, settings, tag) =>
     {
-        var data = manager.ReadAsString(assetName);
-        return TextureRegionAtlas.Load(data, name => manager.LoadTexture2D(UIEnvironment.GraphicsDevice, name, true));
+        var output = new TextureSheet();
+        output.LoadXml(manager.Open(assetName), (filePath) => manager.LoadTexture2D(UIEnvironment.GraphicsDevice, filePath, true));
+        return output;
     };
 
     private static AssetLoader<FontSystem> _fontSystemLoader = (manager, assetName, settings, tag) =>
@@ -62,7 +63,7 @@ public static class UIAssetManagerExtensions
         return StaticSpriteFont.FromBMFont(fontData,
                     name =>
                     {
-                        var region = LoadTextureRegion(manager, name);
+                        var region = (TextureRegion)LoadTextureRegion(manager, name);
                         return new TextureWithOffset(region.Texture, region.Bounds.Location);
                     });
     };
@@ -91,7 +92,8 @@ public static class UIAssetManagerExtensions
         {
             var usedSpace = usedSpaceAttr.Value.ParseRectangle();
 
-            existingTexture = textureRegionAtlas.Texture;
+            //existingTexture = textureRegionAtlas.Texture;
+            existingTexture = textureRegionAtlas.Source;
             existingTextureUsedSpace = usedSpace;
         }
 
@@ -140,7 +142,7 @@ public static class UIAssetManagerExtensions
         return Stylesheet.LoadFromSource(xml, textureRegionAtlas, fonts);
     };
 
-    public static TextureRegionAtlas LoadTextureRegionAtlas(this AssetManager assetManager, string assetName) => assetManager.UseLoader(_atlasLoader, assetName);
+    public static TextureSheet LoadTextureRegionAtlas(this AssetManager assetManager, string assetName) => assetManager.UseLoader(_atlasLoader, assetName);
 
     /// <summary>
     /// Loads texture region by either image name(i.e. 'image.png') or atlas name/id(i.e. 'atlas.xmat:id')
@@ -148,7 +150,7 @@ public static class UIAssetManagerExtensions
     /// <param name="assetManager"></param>
     /// <param name="assetName"></param>
     /// <returns></returns>
-    public static TextureRegion LoadTextureRegion(this AssetManager assetManager, string assetName)
+    public static ITextureRegion LoadTextureRegion(this AssetManager assetManager, string assetName)
     {
         if (assetName.Contains(":"))
         {
@@ -156,7 +158,8 @@ public static class UIAssetManagerExtensions
             // Second part is texture region name
             var parts = assetName.Split(':');
             var textureRegionAtlas = assetManager.LoadTextureRegionAtlas(parts[0]);
-            return textureRegionAtlas[parts[1]];
+            //return textureRegionAtlas[parts[1]];
+            return textureRegionAtlas.Regions[parts[1]];
         }
 
         // Ordinary texture

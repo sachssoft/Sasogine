@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 
-namespace sachssoft.Sasogine;
+namespace Sachssoft.Sasogine;
 
 public static class GameService
 {

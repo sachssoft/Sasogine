@@ -1,12 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
-using sachssoft.Sasogine.Features;
+using Sachssoft.Sasogine.Features;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace sachssoft.Sasogine;
+namespace Sachssoft.Sasogine;
 
 public class DeviceSettings : GameSettings
 {

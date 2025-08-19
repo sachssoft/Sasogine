@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Gameplay;
+﻿namespace Sachssoft.Sasogine.Gameplay;
 
 /// <summary>
 /// Represents the progress of a collectible goal, such as collecting gems or keys.

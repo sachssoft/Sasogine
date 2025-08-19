@@ -1,10 +1,10 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine.Graphics;
 using System;
 using Microsoft.Xna.Framework;
 using System.ComponentModel.DataAnnotations;
 
-namespace sachssoft.Sasogine;
+namespace Sachssoft.Sasogine;
 
 public abstract class SplitScreenRuntime : RuntimeBase
 {

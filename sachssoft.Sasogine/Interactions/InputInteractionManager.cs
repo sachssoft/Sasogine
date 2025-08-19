@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace sachssoft.Sasogine.Interactions;
+namespace Sachssoft.Sasogine.Interactions;
 
 public abstract class InputInteractionManager<TButton> where TButton : struct, Enum
 {

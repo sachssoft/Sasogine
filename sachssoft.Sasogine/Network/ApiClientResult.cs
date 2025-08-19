@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace sachssoft.Sasogine.Network
+namespace Sachssoft.Sasogine.Network
 {
     /// <summary>
     /// Represents the result of an API call with a value of type <typeparamref name="T"/>.

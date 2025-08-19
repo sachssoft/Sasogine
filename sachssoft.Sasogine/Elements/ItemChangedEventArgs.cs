@@ -7,7 +7,7 @@
 
 using System;
 
-namespace sachssoft.Sasogine.Elements;
+namespace Sachssoft.Sasogine.Elements;
 
 public class ItemChangedEventArgs : EventArgs
 {

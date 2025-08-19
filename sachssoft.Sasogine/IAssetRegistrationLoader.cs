@@ -1,5 +1,5 @@
 ﻿
-namespace sachssoft.Sasogine;
+namespace Sachssoft.Sasogine;
 
 public interface IAssetRegistrationLoader
 {

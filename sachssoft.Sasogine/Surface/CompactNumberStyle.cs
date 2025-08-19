@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Surface
+﻿namespace Sachssoft.Sasogine.Surface
 {
     /// <summary>
     /// Defines formatting styles for compact number display,

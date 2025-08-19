@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace sachssoft.Sasogine.Services;
+namespace Sachssoft.Sasogine.Services;
 
 public interface IAdService
 {

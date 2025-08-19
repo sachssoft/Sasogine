@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace sachssoft.Sasogine.Features;
+namespace Sachssoft.Sasogine.Features;
 
 public class GameDispatcher
 {

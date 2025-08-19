@@ -1,6 +1,6 @@
-﻿using sachssoft.Sasogine.Surface.Visuals.Controls;
+﻿using Sachssoft.Sasogine.Surface.Visuals.Controls;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Styles
+namespace Sachssoft.Sasogine.Surface.Visuals.Styles
 {
     public class TabControlStyle : WidgetStyle
     {

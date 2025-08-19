@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace sachssoft.Sasogine.Tiling.Stacked;
+namespace Sachssoft.Sasogine.Tiling.Stacked;
 
 public class TileLayerRegistry : IReadOnlyList<ITileLayer>
 {

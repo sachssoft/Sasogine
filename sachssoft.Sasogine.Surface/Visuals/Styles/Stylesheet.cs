@@ -7,11 +7,11 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Xml.Linq;
 using System.Xml.Serialization;
-using sachssoft.Sasogine.Surface.MML;
-using sachssoft.Sasogine.Surface.Visuals.Brushes;
-using sachssoft.Sasogine.Surface.Visuals.Regions;
+using Sachssoft.Sasogine.Surface.MML;
+using Sachssoft.Sasogine.Surface.Visuals.Brushes;
+using Sachssoft.Sasogine.Surface.Visuals.Regions;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Styles
+namespace Sachssoft.Sasogine.Surface.Visuals.Styles
 {
     public class Stylesheet
     {
@@ -72,17 +72,18 @@ namespace sachssoft.Sasogine.Surface.Visuals.Styles
         private readonly Dictionary<string, FileDialogStyle> _fileDialogStyles = new Dictionary<string, FileDialogStyle>();
         private readonly Dictionary<string, ColorPickerDialogStyle> _colorPickerDialogStyles = new Dictionary<string, ColorPickerDialogStyle>();
 
-        private TextureRegion _whiteRegion;
+        private ITextureRegion _whiteRegion;
 
-        public TextureRegionAtlas Atlas { get; private set; }
-
-        public TextureRegion WhiteRegion
+        //public TextureRegionAtlas Atlas { get; private set; }
+        public TextureSheet Atlas { get; private set; }
+        public ITextureRegion WhiteRegion
         {
             get
             {
                 if (_whiteRegion == null)
                 {
-                    _whiteRegion = Atlas["white"];
+                    //_whiteRegion = Atlas["white"];
+                    _whiteRegion = Atlas.Regions["white"];
                 }
 
                 return _whiteRegion;
@@ -346,8 +347,11 @@ namespace sachssoft.Sasogine.Surface.Visuals.Styles
             styles[DefaultStyleName] = value;
         }
 
+        //public static Stylesheet LoadFromSource(string stylesheetXml,
+        //    TextureRegionAtlas textureRegionAtlas,
+        //    Dictionary<string, SpriteFontBase> fonts)
         public static Stylesheet LoadFromSource(string stylesheetXml,
-            TextureRegionAtlas textureRegionAtlas,
+            TextureSheet textureRegionAtlas,
             Dictionary<string, SpriteFontBase> fonts)
         {
             var xDoc = XDocument.Parse(stylesheetXml);
@@ -370,7 +374,7 @@ namespace sachssoft.Sasogine.Surface.Visuals.Styles
             {
                 if (typeof(IBrush).IsAssignableFrom(t))
                 {
-                    TextureRegion region;
+                    ITextureRegion region;
 
                     if (!textureRegionAtlas.Regions.TryGetValue(name, out region))
                     {

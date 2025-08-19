@@ -1,6 +1,6 @@
-﻿using sachssoft.Sasogine.Surface.Visuals.Styles;
+﻿using Sachssoft.Sasogine.Surface.Visuals.Styles;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 public class HorizontalSplitPane : SplitPane
 {
     public override Orientation Orientation => Orientation.Horizontal;

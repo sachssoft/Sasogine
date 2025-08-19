@@ -3,11 +3,11 @@ using System;
 using System.ComponentModel;
 using System.Text;
 using System.Xml.Serialization;
-using sachssoft.Sasogine.Surface.Attributes;
-using sachssoft.Sasogine.Surface.MML;
-using sachssoft.Sasogine.Surface.Utility;
+using Sachssoft.Sasogine.Surface.Attributes;
+using Sachssoft.Sasogine.Surface.MML;
+using Sachssoft.Sasogine.Surface.Utility;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 public class TabItem : BaseObject, ISelectorItem, IContent
 {

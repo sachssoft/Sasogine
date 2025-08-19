@@ -7,7 +7,7 @@
 
 using System;
 
-namespace sachssoft.Sasogine.Elements;
+namespace Sachssoft.Sasogine.Elements;
 
 /// <summary>
 /// Represents a type-based constraint between a parent type and a child type.

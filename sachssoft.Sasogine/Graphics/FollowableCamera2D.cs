@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Sasogine.Graphics;
 
 /// <summary>
 /// Kamera, die einem Zielpunkt oder -objekt folgen kann, mit optionaler Dämpfung.

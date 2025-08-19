@@ -1,11 +1,11 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using sachssoft.Sasogine.Graphics.Colors;
-using System.IO;
+﻿using System.IO;
 using System;
-using System.Threading;
+using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Graphics.Colors;
+using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Resources.Wrappers;
 
-namespace sachssoft.Sasogine.Document;
+namespace Sachssoft.Documents;
 
 public static class ObjectSerializerExtensions
 {
@@ -260,37 +260,51 @@ public static class ObjectSerializerExtensions
     public static Texture2D? ReadTexture2D<TReader>(this TReader reader, string property, GraphicsDevice graphics_device, Texture2D? fallback = default, SerializationFormat format = SerializationFormat.Base64) where TReader : FormatReaderBase
     {
         _ = property ?? throw new ArgumentNullException(nameof(property));
-        return ReadTexture2D(reader: reader, context: property, fallback: fallback, graphics_device: graphics_device);
+        return ReadTexture2D(reader: reader, context: property, fallback: fallback, graphicsDevice: graphics_device);
     }
 
-    public static Texture2D? ReadTexture2D<TReader>(this TReader reader, object? context, GraphicsDevice graphics_device, Texture2D? fallback = default, SerializationFormat format = SerializationFormat.Base64) where TReader : FormatReaderBase
+    public static Texture2D? ReadTexture2D<TReader>(this TReader reader, object? context, GraphicsDevice graphicsDevice, Texture2D? fallback = default, SerializationFormat format = SerializationFormat.Base64) where TReader : FormatReaderBase
     {
+        var wrapper = FetchTexture2D<TReader>(reader, context, format);
+
+        if (wrapper == null)
+            return fallback;
+
+        wrapper.GraphicsDevice = graphicsDevice;
+        wrapper.Open();
+
+        if (wrapper.Result == null)
+            return fallback;
+        return wrapper.Result;
+    }
+
+    public static Texture2DWrapper? FetchTexture2D<TReader>(this TReader reader, object? context, SerializationFormat format = SerializationFormat.Base64) where TReader : FormatReaderBase
+    {
+        byte[] texture_bytes;
+
         switch (format)
         {
             case SerializationFormat.Base64:
                 {
                     var base64_string = reader.ReadString(context, string.Empty);
                     if (string.IsNullOrEmpty(base64_string))
-                        return fallback;
+                        return null;
 
-                    var texture_bytes = Convert.FromBase64String(base64_string);
-                    using var ms = new MemoryStream(texture_bytes);
-                    return Texture2D.FromStream(graphics_device, ms);
+                    texture_bytes = Convert.FromBase64String(base64_string);
                 }
-
+                break;
             case SerializationFormat.ByteArray:
                 {
-                    var texture_bytes = reader.ReadByteArray(context, null);
-                    if (texture_bytes == null || texture_bytes.Length == 0)
-                        return fallback;
-
-                    using var ms = new MemoryStream(texture_bytes);
-                    return Texture2D.FromStream(graphics_device, ms);
+                    texture_bytes = reader.ReadByteArray(context, null);
                 }
-
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(format), format, null);
         }
+
+        if (texture_bytes == null || texture_bytes.Length == 0)
+            return null;
+        return new Texture2DWrapper(texture_bytes);
     }
 
     public static void WritePoint<TWriter>(this TWriter writer, object? context, Point value) where TWriter : FormatWriterBase

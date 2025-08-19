@@ -1,5 +1,5 @@
 ﻿
-namespace sachssoft.Sasogine.Surface.MML;
+namespace Sachssoft.Sasogine.Surface.MML;
 
 public interface IItemWithId
 {

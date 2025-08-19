@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 
-namespace sachssoft.Sasogine.Graphics3D;
+namespace Sachssoft.Sasogine.Graphics3D;
 
 public class SphericPrimitive
 {

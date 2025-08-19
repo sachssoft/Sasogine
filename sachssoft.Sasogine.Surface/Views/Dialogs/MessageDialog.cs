@@ -1,9 +1,9 @@
 ﻿using System;
-using sachssoft.Sasogine.Surface;
-using sachssoft.Sasogine.Surface.Visuals;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Surface;
+using Sachssoft.Sasogine.Surface.Visuals;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
 
-namespace sachssoft.Sasogine.Views.Dialogs;
+namespace Sachssoft.Sasogine.Views.Dialogs;
 
 public sealed class MessageDialog : Window
 {

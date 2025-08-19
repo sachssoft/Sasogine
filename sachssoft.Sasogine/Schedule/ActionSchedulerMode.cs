@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Schedule;
+﻿namespace Sachssoft.Sasogine.Schedule;
 
 /// <summary>
 /// Gibt an, wie eine geplante Aktion im <see cref="ActionScheduler"/> ausgeführt wird.

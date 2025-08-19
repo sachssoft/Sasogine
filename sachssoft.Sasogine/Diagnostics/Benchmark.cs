@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace sachssoft.Sasogine.Diagnostics;
+namespace Sachssoft.Sasogine.Diagnostics;
 
 public class Benchmark
 {

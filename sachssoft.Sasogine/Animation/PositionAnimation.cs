@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Runtime.Serialization;
 
-namespace sachssoft.Sasogine.Animation;
+namespace Sachssoft.Sasogine.Animation;
 
 public class PositionAnimation : AnimationBase
 {

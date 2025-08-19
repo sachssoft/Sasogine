@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Features;
+﻿namespace Sachssoft.Sasogine.Features;
 
 public enum TaskProgressTrackerErrorBehavior
 {

@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace sachssoft.Sasogine.Surface.Utility;
+namespace Sachssoft.Sasogine.Surface.Utility;
 
 internal static class Reflection
 {

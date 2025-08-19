@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace sachssoft.Sasogine.Tiling;
+namespace Sachssoft.Sasogine.Tiling;
 
 public class TileMatrix<TTile> : ITileMatrix
 {

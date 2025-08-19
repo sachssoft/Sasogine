@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Xml.Serialization;
 
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 public class MenuSeparator : IMenuItem
 {

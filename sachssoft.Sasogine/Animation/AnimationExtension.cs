@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace sachssoft.Sasogine.Animation;
+namespace Sachssoft.Sasogine.Animation;
 
 public static class AnimationExtension
 {

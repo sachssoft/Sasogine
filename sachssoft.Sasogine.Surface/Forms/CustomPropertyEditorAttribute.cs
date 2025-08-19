@@ -1,7 +1,7 @@
 ﻿using System;
-using sachssoft.Sasogine.Surface.Design;
+using Sachssoft.Sasogine.Surface.Design;
 
-namespace sachssoft.Sasogine.Surface.Forms;
+namespace Sachssoft.Sasogine.Surface.Forms;
 [Obsolete("Remove!!")]
 
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]

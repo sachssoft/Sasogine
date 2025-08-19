@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using sachssoft.Sasogine.Interactions;
+using Sachssoft.Sasogine.Interactions;
 
-namespace sachssoft.Sasogine.Surface.Views.Editor;
+namespace Sachssoft.Sasogine.Surface.Views.Editor;
 
 public interface IEditorMenu
 {

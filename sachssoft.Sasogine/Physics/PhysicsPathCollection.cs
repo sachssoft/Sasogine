@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using Path = sachssoft.Sasogine.Geometry.Path;
+using Path = Sachssoft.Sasogine.Geometry.Path;
 
-namespace sachssoft.Sasogine.Physics;
+namespace Sachssoft.Sasogine.Physics;
 
 public sealed class PhysicsPathCollection
 {

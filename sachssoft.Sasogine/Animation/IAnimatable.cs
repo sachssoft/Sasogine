@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using sachssoft.Sasogine.Elements;
+using Sachssoft.Sasogine.Elements;
 
-namespace sachssoft.Sasogine.Animation;
+namespace Sachssoft.Sasogine.Animation;
 
 public interface IAnimatable
 {

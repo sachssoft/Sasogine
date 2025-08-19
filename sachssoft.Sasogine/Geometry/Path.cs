@@ -14,7 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace sachssoft.Sasogine.Geometry;
+namespace Sachssoft.Sasogine.Geometry;
 
 public struct Path
 {

@@ -4,9 +4,8 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
-namespace sachssoft.Sasogine.Elements;
+namespace Sachssoft.Sasogine.Elements;
 
-[DataContract]
 public abstract class GameObject : IGameObject, INotifyPropertyChanged, INotifyPropertyChanging, ICloneable
 {
     private bool _locked;
@@ -96,37 +95,32 @@ public abstract class GameObject : IGameObject, INotifyPropertyChanged, INotifyP
         return copy;
     }
 
-    [IgnoreDataMember]
-    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public GameObject? Parent
     {
         get => _parent;
         internal set => RaiseAndSetIfChanged(ref _parent, value);
     }
 
-    [DataMember]
     public virtual string? ID
     {
         get => _id;
         set => RaiseAndSetIfChanged(ref _id, value);
     }
 
-    [DataMember]
     public virtual string? Name
     {
         get => _name;
         set => RaiseAndSetIfChanged(ref _name, value);
     }
 
-    [DataMember]
     public virtual string? Class
     {
         get => _class;
         set => RaiseAndSetIfChanged(ref _class, value);
     }
 
-    [IgnoreDataMember]
-    [Browsable(false)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public virtual object? DataContext
     {
         get => _data_context;

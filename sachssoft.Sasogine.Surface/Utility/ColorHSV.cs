@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 
-namespace sachssoft.Sasogine.Surface.Utility;
+namespace Sachssoft.Sasogine.Surface.Utility;
 
 internal struct ColorHSV
 {

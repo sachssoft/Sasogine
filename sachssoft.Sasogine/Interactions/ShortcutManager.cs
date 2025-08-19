@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Input;
 
-namespace sachssoft.Sasogine.Interactions;
+namespace Sachssoft.Sasogine.Interactions;
 
 public class ShortcutManager
 {

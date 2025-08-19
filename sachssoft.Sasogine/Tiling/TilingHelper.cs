@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine.Graphics;
 using System;
 
-namespace sachssoft.Sasogine.Tiling;
+namespace Sachssoft.Sasogine.Tiling;
 
 public static class TilingHelper
 {

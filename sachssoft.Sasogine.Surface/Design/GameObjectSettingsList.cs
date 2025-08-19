@@ -1,16 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
-using sachssoft.Sasogine.Surface.Visuals;
-using sachssoft.Sasogine.Surface.Visuals.Brushes;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
-using sachssoft.Sasogine.Elements;
-using sachssoft.Sasogine.Graphics.Colors;
+using Sachssoft.Sasogine.Surface.Visuals;
+using Sachssoft.Sasogine.Surface.Visuals.Brushes;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Elements;
+using Sachssoft.Sasogine.Graphics.Colors;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
 using System.ComponentModel;
 using System.Xml;
 
-namespace sachssoft.Sasogine.Surface.Design;
+namespace Sachssoft.Sasogine.Surface.Design;
 
 public sealed class GameObjectSettingsList<T> : VerticalStackPanel where T : GameObject
 {

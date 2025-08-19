@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework;
-using sachssoft.Sasogine.Surface.Visuals.Styles;
+using Sachssoft.Sasogine.Surface.Visuals.Styles;
 using System;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 [Obsolete("See Sasogine ColorPicker")]
 public class ColorPickerDialog : Dialog

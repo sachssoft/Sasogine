@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
-using sachssoft.Sasogine.Surface.Utility;
+using Sachssoft.Sasogine.Surface.Utility;
 
-namespace sachssoft.Sasogine.Surface.Visuals;
+namespace Sachssoft.Sasogine.Surface.Visuals;
 
 public struct Transform
 {

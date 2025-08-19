@@ -1,5 +1,5 @@
 ﻿
-namespace sachssoft.Sasogine.Resource;
+namespace Sachssoft.Sasogine.Resource;
 
 public interface IResource
 {

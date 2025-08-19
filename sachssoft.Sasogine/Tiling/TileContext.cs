@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Tiling;
+﻿namespace Sachssoft.Sasogine.Tiling;
 
 public class TileContext : GameContext
 {

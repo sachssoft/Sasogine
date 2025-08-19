@@ -8,7 +8,7 @@
 using System;
 using System.Collections;
 
-namespace sachssoft.Sasogine.Elements;
+namespace Sachssoft.Sasogine.Elements;
 
 /// <summary>
 /// Repräsentiert eine ID-basierte Assoziation zu einem <see cref="GameObject"/> eines bestimmten Typs.

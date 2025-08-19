@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace sachssoft.Sasogine.Interactions;
+namespace Sachssoft.Sasogine.Interactions;
 
 [DebuggerDisplay("Interaction[{EnumTypeName}]")]
 public unsafe sealed class Interaction<TEnum> where TEnum : unmanaged, Enum

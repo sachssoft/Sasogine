@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Runtime.Serialization;
 using System.Text.Json.Nodes;
-using sachssoft.Sasogine.Elements;
+using Sachssoft.Sasogine.Elements;
 
-namespace sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Sasogine.Graphics;
 
 public class RenderTransform : GameObject, ITransform
 {

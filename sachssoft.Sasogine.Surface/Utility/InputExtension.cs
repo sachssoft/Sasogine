@@ -1,7 +1,7 @@
 ﻿// This code had been borrowed from the MonoGame.Extended project: https://github.com/craftworkgames/MonoGame.Extended
 
 using Microsoft.Xna.Framework.Input;
-namespace sachssoft.Sasogine.Surface.Utility;
+namespace Sachssoft.Sasogine.Surface.Utility;
 
 internal static class InputExtension
 {

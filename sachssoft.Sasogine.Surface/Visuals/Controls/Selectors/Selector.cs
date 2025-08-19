@@ -3,10 +3,10 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Xml.Serialization;
-using sachssoft.Sasogine.Surface.Attributes;
-using sachssoft.Sasogine.Surface.Utility;
+using Sachssoft.Sasogine.Surface.Attributes;
+using Sachssoft.Sasogine.Surface.Utility;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 public abstract class SelectorBase<WidgetType, ItemType> : Widget, ISelectorT<ItemType>
     where WidgetType : Widget

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 // Developed by Tobias Sachs.
 public abstract class ItemsWidget<TCollection> : Widget, IItemsWidgetProvider where TCollection : WidgetCollection, new()

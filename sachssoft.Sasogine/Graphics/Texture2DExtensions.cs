@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using sachssoft.Sasogine.Graphics.Colors;
+using Sachssoft.Sasogine.Graphics.Colors;
 using System;
 
-namespace sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Sasogine.Graphics;
 
 public static class Texture2DExtensions
 {

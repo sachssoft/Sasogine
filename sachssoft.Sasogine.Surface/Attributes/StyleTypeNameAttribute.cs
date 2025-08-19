@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace sachssoft.Sasogine.Surface.Attributes;
+namespace Sachssoft.Sasogine.Surface.Attributes;
 
 [AttributeUsage(AttributeTargets.Class)]
 public class StyleTypeNameAttribute : Attribute

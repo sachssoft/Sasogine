@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace sachssoft.Sasogine.Surface.Design;
+namespace Sachssoft.Sasogine.Surface.Design;
 
 public class EnumEditor : PropertyEditorBase
 {

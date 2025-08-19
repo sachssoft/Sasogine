@@ -1,9 +1,9 @@
-﻿using sachssoft.Sasogine.Surface;
+﻿using Sachssoft.Sasogine.Surface;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace sachssoft.Sasogine.Interactions;
+namespace Sachssoft.Sasogine.Interactions;
 
 public class CommandManager
 {

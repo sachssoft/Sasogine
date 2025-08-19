@@ -3,9 +3,9 @@ using FontStashSharp.RichText;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using sachssoft.Sasogine.Surface.Utility;
+using Sachssoft.Sasogine.Surface.Utility;
 
-namespace sachssoft.Sasogine.Surface.Visuals;
+namespace Sachssoft.Sasogine.Surface.Visuals;
 
 public enum TextureFiltering
 {

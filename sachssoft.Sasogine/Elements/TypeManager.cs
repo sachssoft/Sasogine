@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.AccessControl;
 
-namespace sachssoft.Sasogine.Elements;
+namespace Sachssoft.Sasogine.Elements;
 
 // AOT-freundliches Typenmanagement: keine Reflection, explizite Registrierung
 public static class TypeManager
@@ -46,7 +46,7 @@ public static class TypeManager
     public static void Register<T>(string name, Func<T> factory) where T : GameObject
     {
         if (factory == null) throw new ArgumentNullException(nameof(factory));
-        if (string.IsNullOrEmpty(name)) throw new ArgumentException("Name cannot be null or empty.", nameof(name));
+        if (string.IsNullOrEmpty(name)) throw new ArgumentException("PropertyName cannot be null or empty.", nameof(name));
 
         var type = typeof(T);
 
@@ -93,7 +93,7 @@ public static class TypeManager
     public static void Register<T>(string name, int identifier, Func<T> factory) where T : GameObject
     {
         if (factory == null) throw new ArgumentNullException(nameof(factory));
-        if (string.IsNullOrEmpty(name)) throw new ArgumentException("Name cannot be null or empty.", nameof(name));
+        if (string.IsNullOrEmpty(name)) throw new ArgumentException("PropertyName cannot be null or empty.", nameof(name));
 
         var type = typeof(T);
 

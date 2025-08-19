@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
 using System;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Regions
+namespace Sachssoft.Sasogine.Surface.Visuals.Regions
 {
     /// <summary>
     /// Represents a simplified "three-patch" texture region that stretches in one direction (horizontal or vertical).
@@ -18,7 +18,7 @@ namespace sachssoft.Sasogine.Surface.Visuals.Regions
     /// It is a simpler alternative to the "nine-patch" technique,
     /// useful for UI elements like buttons, panels, or progress bars.
     /// </remarks>
-    public class ThreePatchRegion : IImage
+    public class ThreePatchRegion : ITextureRegion
     {
         private readonly Orientation _orientation;
         private readonly int _fixedA;

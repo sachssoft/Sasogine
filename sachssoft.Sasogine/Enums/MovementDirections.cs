@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Enums;
+﻿namespace Sachssoft.Sasogine.Enums;
 
 public enum MovementDirections
 {

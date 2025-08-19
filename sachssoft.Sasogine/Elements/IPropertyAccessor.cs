@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Elements;
+﻿namespace Sachssoft.Sasogine.Elements;
 
 public interface IPropertyAccessor<TObject>
 {

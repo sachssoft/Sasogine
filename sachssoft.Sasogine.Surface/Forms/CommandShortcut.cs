@@ -7,7 +7,7 @@
 using Microsoft.Xna.Framework.Input;
 using System;
 
-namespace sachssoft.Sasogine.Surface.Forms;
+namespace Sachssoft.Sasogine.Surface.Forms;
 
 [Obsolete("Remove!!")]
 public class CommandShortcut

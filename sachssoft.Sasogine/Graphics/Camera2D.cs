@@ -1,11 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using sachssoft.Sasogine.Animation;
-using sachssoft.Sasogine.Animation.Timings;
+using Sachssoft.Sasogine.Animation;
+using Sachssoft.Sasogine.Animation.Timings;
 using System;
 using System.Net.Http.Headers;
 
-namespace sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Sasogine.Graphics;
 
 public abstract class Camera2D : CameraBase
 {

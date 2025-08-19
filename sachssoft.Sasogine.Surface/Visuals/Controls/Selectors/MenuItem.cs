@@ -4,12 +4,12 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Xml.Serialization;
-using sachssoft.Sasogine.Surface.Attributes;
-using sachssoft.Sasogine.Surface.MML;
-using sachssoft.Sasogine.Interactions;
-using sachssoft.Sasogine.Surface.Utility;
+using Sachssoft.Sasogine.Surface.Attributes;
+using Sachssoft.Sasogine.Surface.MML;
+using Sachssoft.Sasogine.Interactions;
+using Sachssoft.Sasogine.Surface.Utility;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 public class MenuItem : BaseObject, IMenuItem, ICommandSource, ICheckable, IEnableable
 {

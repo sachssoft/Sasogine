@@ -4,7 +4,7 @@
  * 11.07.2024 
 */
 
-namespace sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Sasogine.Graphics;
 
 public enum PlatformProfiles
 {

@@ -2,7 +2,7 @@
 using System.IO;
 using System.Reflection;
 
-namespace sachssoft.Sasogine.Surface.Utility;
+namespace Sachssoft.Sasogine.Surface.Utility;
 
 /// <summary>
 /// Resource utility

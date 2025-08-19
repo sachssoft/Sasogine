@@ -1,12 +1,12 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using sachssoft.Graphics.Primitives;
-using sachssoft.Graphics.Renderer;
+using Sachssoft.Graphics.Primitives;
+using Sachssoft.Graphics.Renderer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace sachssoft.Sasogine.Graphics.Renderer;
+namespace Sachssoft.Sasogine.Graphics.Renderer;
 
 public sealed class TileRenderer : RendererBase
 {

@@ -4,58 +4,34 @@ using System.ComponentModel;
 using System.Linq;
 using System.Xml.Serialization;
 
-namespace sachssoft.Sasogine.Surface.Visuals;
-
 public struct Thickness
 {
     public static readonly Thickness Zero = new Thickness();
 
-    public int Left
-    {
-        get; set;
-    }
-    public int Right
-    {
-        get; set;
-    }
-    public int Top
-    {
-        get; set;
-    }
-    public int Bottom
-    {
-        get; set;
-    }
+    public int Left { get; set; }
+    public int Right { get; set; }
+    public int Top { get; set; }
+    public int Bottom { get; set; }
 
     [Browsable(false)]
     [XmlIgnore]
-    public int Width
-    {
-        get
-        {
-            return Left + Right;
-        }
-    }
+    public int Width => Left + Right;
 
     [Browsable(false)]
     [XmlIgnore]
-    public int Height
-    {
-        get
-        {
-            return Top + Bottom;
-        }
-    }
+    public int Height => Top + Bottom;
 
     [Browsable(false)]
     [XmlIgnore]
-    public bool SameSize
-    {
-        get
-        {
-            return (Left == Top && Top == Right && Right == Bottom);
-        }
-    }
+    public int Horizontal => Width;  // oder Left + Right
+
+    [Browsable(false)]
+    [XmlIgnore]
+    public int Vertical => Height;  // oder Top + Bottom
+
+    [Browsable(false)]
+    [XmlIgnore]
+    public bool SameSize => (Left == Top && Top == Right && Right == Bottom);
 
     public Thickness(int left, int top, int right, int bottom)
     {
@@ -65,67 +41,49 @@ public struct Thickness
         Bottom = bottom;
     }
 
-    public Thickness(int horizontalValue, int verticalValue) : this(horizontalValue, verticalValue, horizontalValue, verticalValue)
+    public Thickness(int horizontalValue, int verticalValue)
+        : this(horizontalValue, verticalValue, horizontalValue, verticalValue)
     {
     }
 
-    public Thickness(int value) : this(value, value, value, value)
+    public Thickness(int value)
+        : this(value, value, value, value)
     {
     }
 
     public override string ToString()
     {
         if (SameSize)
-        {
             return Left.ToString();
-        }
 
         if (Left == Right && Top == Bottom)
-        {
-            return string.Format("{0}, {1}", Left, Top);
-        }
+            return $"{Left}, {Top}";
 
-        return string.Format("{0}, {1}, {2}, {3}", Left, Top, Right, Bottom);
+        return $"{Left}, {Top}, {Right}, {Bottom}";
     }
 
     public static Thickness FromString(string s)
     {
         if (string.IsNullOrEmpty(s))
-        {
             return Zero;
-        }
 
-        var parts = (from p in s.Split(',') select p.Trim()).ToArray();
+        var parts = s.Split(',').Select(p => p.Trim()).ToArray();
         if (parts.Length != 1 && parts.Length != 2 && parts.Length != 4)
-        {
-            throw new ArgumentException(string.Format("Could not convert string '{0}' to Thickness", s));
-        }
+            throw new ArgumentException($"Could not convert string '{s}' to Thickness");
 
         if (parts.Length == 1)
-        {
             return new Thickness(int.Parse(parts[0]));
-        }
 
         if (parts.Length == 2)
-        {
             return new Thickness(int.Parse(parts[0]), int.Parse(parts[1]));
-        }
 
-        return new Thickness(int.Parse(parts[0]),
-            int.Parse(parts[1]),
-            int.Parse(parts[2]),
-            int.Parse(parts[3]));
+        return new Thickness(int.Parse(parts[0]), int.Parse(parts[1]), int.Parse(parts[2]), int.Parse(parts[3]));
     }
 
     public override bool Equals(object obj)
     {
-        if (!(obj is Thickness))
-        {
-            return false;
-        }
-
-        var thickness = (Thickness)obj;
-        return Left == thickness.Left &&
+        return obj is Thickness thickness &&
+               Left == thickness.Left &&
                Right == thickness.Right &&
                Top == thickness.Top &&
                Bottom == thickness.Bottom;
@@ -141,15 +99,9 @@ public struct Thickness
         return hashCode;
     }
 
-    public static bool operator ==(Thickness a, Thickness b)
-    {
-        return a.Equals(b);
-    }
+    public static bool operator ==(Thickness a, Thickness b) => a.Equals(b);
 
-    public static bool operator !=(Thickness a, Thickness b)
-    {
-        return !(a == b);
-    }
+    public static bool operator !=(Thickness a, Thickness b) => !(a == b);
 
     public static Rectangle operator -(Rectangle a, Thickness b)
     {
@@ -158,16 +110,10 @@ public struct Thickness
         result.Y += b.Top;
 
         result.Width -= b.Width;
-        if (result.Width < 0)
-        {
-            result.Width = 0;
-        }
+        if (result.Width < 0) result.Width = 0;
 
         result.Height -= b.Height;
-        if (result.Height < 0)
-        {
-            result.Height = 0;
-        }
+        if (result.Height < 0) result.Height = 0;
 
         return result;
     }

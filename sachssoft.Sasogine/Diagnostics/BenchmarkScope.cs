@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace sachssoft.Sasogine.Diagnostics;
+namespace Sachssoft.Sasogine.Diagnostics;
 
 public class BenchmarkScope : IDisposable
 {

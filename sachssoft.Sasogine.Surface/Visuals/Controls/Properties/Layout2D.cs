@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 /*
      Знак для разделения условий :

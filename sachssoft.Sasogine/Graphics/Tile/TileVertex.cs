@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System.Runtime.InteropServices;
 
-namespace sachssoft.Sasogine.Graphics.Tile;
+namespace Sachssoft.Sasogine.Graphics.Tile;
 
 
 [StructLayout(LayoutKind.Sequential)]

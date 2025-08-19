@@ -5,11 +5,11 @@ using Microsoft.Xna.Framework.Input.Touch;
 
 #if MONOGAME
 using MonoGame.Framework.Utilities;
-using sachssoft.Sasogine.Surface.Events;
-using sachssoft.Sasogine.Surface.Utility;
+using Sachssoft.Sasogine.Surface.Events;
+using Sachssoft.Sasogine.Surface.Utility;
 #endif
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 public struct MouseInfo
 {

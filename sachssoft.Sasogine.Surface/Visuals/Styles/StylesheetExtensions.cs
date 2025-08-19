@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Styles
+namespace Sachssoft.Sasogine.Surface.Visuals.Styles
 {
     public static class StylesheetExtensions
     {

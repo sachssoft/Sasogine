@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<DefineConstants>$(DefineConstans);MONOGAME</DefineConstants>
 		<TargetFramework>net8.0</TargetFramework>
-		<RootNamespace>sachssoft.Sasogine.Surface</RootNamespace>
+		<RootNamespace>Sachssoft.Sasogine.Surface</RootNamespace>
 		<AssemblyName>$(MSBuildProjectName)</AssemblyName>
 		<PackageId>GameUI</PackageId>
 		<Nullable>enable</Nullable>
@@ -44,6 +44,6 @@
 		<Folder Include="Changes\" />
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\sachssoft.Sasogine\sachssoft.Sasogine.csproj" />
+	  <ProjectReference Include="..\Sachssoft.Sasogine\Sachssoft.Sasogine.csproj" />
 	</ItemGroup>
 </Project>

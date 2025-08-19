@@ -1,10 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
-using sachssoft.Sasogine.Surface.Events;
-using sachssoft.Sasogine.Surface.Visuals.Styles;
+using Sachssoft.Sasogine.Surface.Events;
+using Sachssoft.Sasogine.Surface.Visuals.Styles;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 public abstract class Slider : Widget
 {

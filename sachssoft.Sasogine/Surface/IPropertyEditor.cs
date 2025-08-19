@@ -2,7 +2,7 @@
 
 using System.Collections.Specialized;
 
-namespace sachssoft.Sasogine.Surface;
+namespace Sachssoft.Sasogine.Surface;
 
 public interface IPropertyEditor
 {

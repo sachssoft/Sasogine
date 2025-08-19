@@ -4,7 +4,7 @@
  * 11.07.2024 
 */
 
-namespace sachssoft.Sasogine;
+namespace Sachssoft.Sasogine;
 
 public readonly struct Region
 {

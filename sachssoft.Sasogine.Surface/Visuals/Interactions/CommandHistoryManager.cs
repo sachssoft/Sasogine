@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Interactions;
+namespace Sachssoft.Sasogine.Surface.Visuals.Interactions;
 
 public class CommandHistoryManager
 {

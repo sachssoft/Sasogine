@@ -1,4 +1,4 @@
-﻿using sachssoft.Sasogine.Schedule;
+﻿using Sachssoft.Sasogine.Schedule;
 using System;
 using System.Threading.Tasks;
 

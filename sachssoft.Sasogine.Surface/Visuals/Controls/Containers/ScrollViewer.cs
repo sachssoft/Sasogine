@@ -2,9 +2,9 @@
 using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
-using sachssoft.Sasogine.Surface.Attributes;
-using sachssoft.Sasogine.Surface.Utility;
-using sachssoft.Sasogine.Surface.Visuals.Styles;
+using Sachssoft.Sasogine.Surface.Attributes;
+using Sachssoft.Sasogine.Surface.Utility;
+using Sachssoft.Sasogine.Surface.Visuals.Styles;
 
 //
 // Sasogine Surface (Myra-basiert)
@@ -14,7 +14,7 @@ using sachssoft.Sasogine.Surface.Visuals.Styles;
 //      direkte Fingerbewegung über den Content hatte keine oder invertierte Wirkung.
 //      Die Prüfung auf Thumb wurde überarbeitet und unnötige Bedingungen entfernt.
 //
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 public class ScrollViewer : ContentControl
 {

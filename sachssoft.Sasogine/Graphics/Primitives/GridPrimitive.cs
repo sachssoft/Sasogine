@@ -1,11 +1,11 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
-using sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine.Graphics;
 using System;
 using System.Collections.Generic;
-using sachssoft.Sasogine;
+using Sachssoft.Sasogine;
 
-namespace sachssoft.Graphics.Primitives;
+namespace Sachssoft.Graphics.Primitives;
 
 public sealed class GridPrimitive : IDisposable
 {

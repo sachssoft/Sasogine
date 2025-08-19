@@ -1,7 +1,7 @@
 ﻿using AssetManagementBase;
-using sachssoft.Sasogine.Surface.Visuals.Styles;
+using Sachssoft.Sasogine.Surface.Visuals.Styles;
 
-namespace sachssoft.Sasogine.Surface;
+namespace Sachssoft.Sasogine.Surface;
 
 public static class DefaultAssets
 {
@@ -14,7 +14,7 @@ public static class DefaultAssets
         {
             if (_assetManager == null)
             {
-                _assetManager = AssetManager.CreateResourceAssetManager(typeof(DefaultAssets).Assembly, "sachssoft.Sasogine.Surface.Resources.", false);
+                _assetManager = AssetManager.CreateResourceAssetManager(typeof(DefaultAssets).Assembly, "Sachssoft.Sasogine.Surface.Resources.", false);
             }
 
             return _assetManager;

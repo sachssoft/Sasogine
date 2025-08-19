@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Animation;
+﻿namespace Sachssoft.Sasogine.Animation;
 
 public abstract class AnimationTimingBase
 {

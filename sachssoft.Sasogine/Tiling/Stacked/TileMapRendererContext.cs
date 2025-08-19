@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using sachssoft.Graphics.Primitives;
-using sachssoft.Graphics.Renderer;
-using sachssoft.Sasogine.Graphics.Renderer;
+using Sachssoft.Graphics.Primitives;
+using Sachssoft.Graphics.Renderer;
+using Sachssoft.Sasogine.Graphics.Renderer;
 
-namespace sachssoft.Sasogine.Tiling.Stacked;
+namespace Sachssoft.Sasogine.Tiling.Stacked;
 
 public class TileMapRendererContext : TileContext
 {

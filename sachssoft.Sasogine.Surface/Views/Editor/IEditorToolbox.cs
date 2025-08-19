@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using sachssoft.Sasogine.Interactions;
+using Sachssoft.Sasogine.Interactions;
 using System;
 
-namespace sachssoft.Sasogine.Surface.Views.Editor;
+namespace Sachssoft.Sasogine.Surface.Views.Editor;
 
 public interface IEditorToolbox
 {

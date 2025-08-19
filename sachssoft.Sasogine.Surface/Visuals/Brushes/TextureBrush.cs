@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using sachssoft.Sasogine.Surface.Visuals.Regions;
+using Sachssoft.Sasogine.Surface.Visuals.Regions;
 using System;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Brushes
+namespace Sachssoft.Sasogine.Surface.Visuals.Brushes
 {
     public class TextureBrush : IBrush
     {

@@ -1,9 +1,9 @@
-﻿using sachssoft.Graphics.Renderer;
-using sachssoft.Sasogine.Features;
-using sachssoft.Sasogine.Graphics.Renderer;
+﻿using Sachssoft.Graphics.Renderer;
+using Sachssoft.Sasogine.Features;
+using Sachssoft.Sasogine.Graphics.Renderer;
 using System;
 
-namespace sachssoft.Sasogine.Tiling.Composite;
+namespace Sachssoft.Sasogine.Tiling.Composite;
 
 public abstract class CompositeTileBase : ICloneable
 {

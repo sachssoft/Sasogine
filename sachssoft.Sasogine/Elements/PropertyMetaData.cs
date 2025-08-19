@@ -1,7 +1,7 @@
-﻿using sachssoft.Sasogine.Surface;
+﻿using Sachssoft.Sasogine.Surface;
 using System;
 
-namespace sachssoft.Sasogine.Elements;
+namespace Sachssoft.Sasogine.Elements;
 
 public class PropertyMetadata
 {

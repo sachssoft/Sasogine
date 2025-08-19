@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace sachssoft.Sasogine.Surface.Attributes;
+namespace Sachssoft.Sasogine.Surface.Attributes;
 
 /// <summary>
 /// Determines that property shouldn't be saved during MML serialization

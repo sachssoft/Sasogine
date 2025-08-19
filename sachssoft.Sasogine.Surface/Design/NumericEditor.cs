@@ -1,5 +1,5 @@
-﻿using sachssoft.Sasogine.Surface.Design;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
+﻿using Sachssoft.Sasogine.Surface.Design;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
 using System;
 using System.Globalization;
 

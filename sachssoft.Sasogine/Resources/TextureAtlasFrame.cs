@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Resources;
+﻿namespace Sachssoft.Sasogine.Resources;
 
 using Microsoft.Xna.Framework;
 

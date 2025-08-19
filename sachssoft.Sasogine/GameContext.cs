@@ -7,12 +7,12 @@
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using sachssoft.Sasogine.Diagnostics;
-using sachssoft.Sasogine.Interactions;
-using sachssoft.Sasogine.Surface;
+using Sachssoft.Sasogine.Diagnostics;
+using Sachssoft.Sasogine.Interactions;
+using Sachssoft.Sasogine.Surface;
 using System;
 
-namespace sachssoft.Sasogine;
+namespace Sachssoft.Sasogine;
 
 public class GameContext : IDisposable
 {

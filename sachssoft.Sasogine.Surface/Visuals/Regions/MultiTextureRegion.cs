@@ -2,13 +2,13 @@
 using System;
 using System.Collections.Generic;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Regions
+namespace Sachssoft.Sasogine.Surface.Visuals.Regions
 {
     /// <summary>
     /// Represents a composite image consisting of multiple layered <see cref="IImage"/> instances.
     /// Each layer can have its own offset and color tint.
     /// </summary>
-    public class MultiTextureRegion : IImage
+    public class MultiTextureRegion : ITextureRegion
     {
         /// <summary>
         /// Holds all layers in this multi-texture region.

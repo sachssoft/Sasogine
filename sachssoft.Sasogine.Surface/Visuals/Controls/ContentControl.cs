@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
-using sachssoft.Sasogine.Surface.Attributes;
+using Sachssoft.Sasogine.Surface.Attributes;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Controls;
+namespace Sachssoft.Sasogine.Surface.Visuals.Controls;
 
 public abstract class ContentControl : Widget, IContent
 {

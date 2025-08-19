@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
 
-namespace sachssoft.Sasogine.Surface.Utility;
+namespace Sachssoft.Sasogine.Surface.Utility;
 
 internal static class UIUtils
 {

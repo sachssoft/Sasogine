@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace sachssoft.Sasogine;
+namespace Sachssoft.Sasogine;
 
 public class ExceptionThrownEventArgs : EventArgs
 {

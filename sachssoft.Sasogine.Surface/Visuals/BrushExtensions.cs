@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using sachssoft.Sasogine.Surface.Visuals.Brushes;
+using Sachssoft.Sasogine.Surface.Visuals.Brushes;
 
-namespace sachssoft.Sasogine.Surface.Visuals
+namespace Sachssoft.Sasogine.Surface.Visuals
 {
     public static class BrushExtensions
     {

@@ -1,7 +1,7 @@
-﻿using sachssoft.Sasogine.Surface;
+﻿using Sachssoft.Sasogine.Surface;
 using System;
 
-namespace sachssoft.Sasogine.Interactions;
+namespace Sachssoft.Sasogine.Interactions;
 
 public interface ICommand
 {

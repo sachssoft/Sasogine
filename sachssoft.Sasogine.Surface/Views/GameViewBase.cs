@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-using sachssoft.Sasogine.Features;
-using sachssoft.Sasogine.Surface;
-using sachssoft.Sasogine.Surface.Views;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
-using sachssoft.Sasogine.Utils;
+using Sachssoft.Sasogine.Features;
+using Sachssoft.Sasogine.Surface;
+using Sachssoft.Sasogine.Surface.Views;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Utils;
 
-namespace sachssoft.Sasogine.Surface.Views;
+namespace Sachssoft.Sasogine.Surface.Views;
 
 public abstract class GameViewBase<TRuntime> : SurfaceViewBase where TRuntime : RuntimeBase
 {

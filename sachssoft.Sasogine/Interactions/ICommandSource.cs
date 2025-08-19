@@ -1,6 +1,6 @@
-﻿using sachssoft.Sasogine.Surface;
+﻿using Sachssoft.Sasogine.Surface;
 
-namespace sachssoft.Sasogine.Interactions;
+namespace Sachssoft.Sasogine.Interactions;
 
 public interface ICommandSource
 {

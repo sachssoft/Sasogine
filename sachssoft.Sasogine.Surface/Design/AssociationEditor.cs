@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using sachssoft.Sasogine.Elements;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Elements;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
 
-namespace sachssoft.Sasogine.Surface.Design;
+namespace Sachssoft.Sasogine.Surface.Design;
 
 public class AssociationEditor : PropertyEditorBase
 {

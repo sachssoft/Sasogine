@@ -6,7 +6,7 @@
 
 using System;
 
-namespace sachssoft.Sasogine.Services;
+namespace Sachssoft.Sasogine.Services;
 
 public interface ILocalFileOpenerService
 {

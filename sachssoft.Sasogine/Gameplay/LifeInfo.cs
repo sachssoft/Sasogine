@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Gameplay;
+﻿namespace Sachssoft.Sasogine.Gameplay;
 
 /// <summary>
 /// Represents the life status of a game actor.

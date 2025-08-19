@@ -1,13 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
-using sachssoft.Sasogine.Graphics.Colors;
+using Sachssoft.Sasogine.Graphics.Colors;
 using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
-using sachssoft.Sasogine.Surface.Visuals;
-using sachssoft.Sasogine.Surface.Visuals.Brushes;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Surface.Visuals;
+using Sachssoft.Sasogine.Surface.Visuals.Brushes;
 
-namespace sachssoft.Sasogine.Surface.Views;
+namespace Sachssoft.Sasogine.Surface.Views;
 
 internal class FadeOverlay : Container
 {

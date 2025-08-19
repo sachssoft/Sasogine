@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Xml.Serialization;
-using sachssoft.Sasogine.Surface.Utility;
+using Sachssoft.Sasogine.Surface.Utility;
 
-namespace sachssoft.Sasogine.Surface.MML;
+namespace Sachssoft.Sasogine.Surface.MML;
 
 public class BaseObject : IItemWithId, INotifyAttachedPropertyChanged
 {

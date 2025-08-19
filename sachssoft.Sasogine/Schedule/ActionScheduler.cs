@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Security.Cryptography;
 
-namespace sachssoft.Sasogine.Schedule;
+namespace Sachssoft.Sasogine.Schedule;
 
 public sealed class ActionScheduler
 {

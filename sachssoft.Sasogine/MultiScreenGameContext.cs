@@ -6,9 +6,9 @@
 */
 
 using Microsoft.Xna.Framework;
-using sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine.Graphics;
 
-namespace sachssoft.Sasogine;
+namespace Sachssoft.Sasogine;
 
 public class MultiScreenGameContext : GameContext
 {

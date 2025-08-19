@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace sachssoft.Sasogine.Diagnostics;
+namespace Sachssoft.Sasogine.Diagnostics;
 
 public class FrameCounter
 {

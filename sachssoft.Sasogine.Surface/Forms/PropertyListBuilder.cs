@@ -5,11 +5,11 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using sachssoft.Sasogine.Surface.Visuals.Brushes;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
-using sachssoft.Sasogine.Surface.Design;
+using Sachssoft.Sasogine.Surface.Visuals.Brushes;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Surface.Design;
 
-namespace sachssoft.Sasogine.Surface.Forms;
+namespace Sachssoft.Sasogine.Surface.Forms;
 
 public class PropertyListBuilder : IContentBuilder<ContentControl>
 {

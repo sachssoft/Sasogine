@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace sachssoft.Sasogine.Surface.Utility;
+namespace Sachssoft.Sasogine.Surface.Utility;
 
 internal static class GraphicsExtension
 {

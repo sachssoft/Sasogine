@@ -10,15 +10,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine.Graphics;
 using System.Globalization;
-using sachssoft.Sasogine.Features;
-using sachssoft.Sasogine.Surface;
-using sachssoft.Sasogine.Elements;
-using sachssoft.Sasogine.Services;
-using sachssoft.Sasogine.Resources;
+using Sachssoft.Sasogine.Features;
+using Sachssoft.Sasogine.Surface;
+using Sachssoft.Sasogine.Elements;
+using Sachssoft.Sasogine.Services;
+using Sachssoft.Sasogine.Resources;
 
-namespace sachssoft.Sasogine;
+namespace Sachssoft.Sasogine;
 
 public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetManager : GameAssetManager
 {

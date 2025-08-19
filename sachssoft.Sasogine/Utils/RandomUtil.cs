@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace sachssoft.Sasogine.Utils;
+namespace Sachssoft.Sasogine.Utils;
 
 public static class RandomUtil
 {

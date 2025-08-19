@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Surface.Visuals.Interactions;
+﻿namespace Sachssoft.Sasogine.Surface.Visuals.Interactions;
 
 public interface IActivatableCommand
 {

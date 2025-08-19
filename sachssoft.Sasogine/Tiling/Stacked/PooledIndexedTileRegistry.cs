@@ -1,10 +1,10 @@
-﻿using sachssoft.Sasogine.Tiling;
+﻿using Sachssoft.Sasogine.Tiling;
 using System.Buffers;
 using System.Collections.Generic;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using sachssoft.Sasogine.Tiling.Stacked;
+using Sachssoft.Sasogine.Tiling.Stacked;
 
 /// <summary>
 /// Tile-Registry mit fester Kapazität, die intern ein gepooltes Array zur Speicherung nutzt

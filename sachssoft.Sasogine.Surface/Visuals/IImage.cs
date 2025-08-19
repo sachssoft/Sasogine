@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace sachssoft.Sasogine.Surface.Visuals;
+namespace Sachssoft.Sasogine.Surface.Visuals;
 
 public interface IImage : IBrush
 {

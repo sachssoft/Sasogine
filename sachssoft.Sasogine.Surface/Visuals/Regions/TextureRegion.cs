@@ -2,13 +2,13 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Regions
+namespace Sachssoft.Sasogine.Surface.Visuals.Regions
 {
     /// <summary>
     /// Represents a rectangular sub-region of a <see cref="Texture2D"/>.
     /// Used for rendering parts of a larger texture (e.g., from an atlas).
     /// </summary>
-    public class TextureRegion : IImage
+    public class TextureRegion : ITextureRegion
     {
         private readonly Texture2D _texture;
         private readonly Rectangle _bounds;

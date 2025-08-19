@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace sachssoft.Sasogine.Surface.Events;
+namespace Sachssoft.Sasogine.Surface.Events;
 
 public sealed class GenericEventArgs<T> : EventArgs
 {

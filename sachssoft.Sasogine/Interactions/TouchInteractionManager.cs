@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Input.Touch;
 
-namespace sachssoft.Sasogine.Interactions;
+namespace Sachssoft.Sasogine.Interactions;
 
 public class TouchInteractionManager : InputInteractionManager<TouchButton>
 {

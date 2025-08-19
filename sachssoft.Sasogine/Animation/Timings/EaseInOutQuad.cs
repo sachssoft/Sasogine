@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Animation.Timings;
+﻿namespace Sachssoft.Sasogine.Animation.Timings;
 
 public sealed class EaseInOutQuad : AnimationTimingBase
 {

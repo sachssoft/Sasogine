@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
-using sachssoft.Sasogine.Elements;
+using Sachssoft.Sasogine.Elements;
 
-namespace sachssoft.Sasogine.Animation;
+namespace Sachssoft.Sasogine.Animation;
 
 public abstract class AnimationBase : GameObject
 {

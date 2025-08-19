@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace sachssoft.Sasogine;
+namespace Sachssoft.Sasogine;
 
 public static class GameAppMetadata
 {

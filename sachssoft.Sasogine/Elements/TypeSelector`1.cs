@@ -7,7 +7,7 @@
 
 using System;
 
-namespace sachssoft.Sasogine.Elements;
+namespace Sachssoft.Sasogine.Elements;
 
 /// <summary>
 /// Repräsentiert eine Typpaarung zwischen einem Eltern- und einem Kindtyp,

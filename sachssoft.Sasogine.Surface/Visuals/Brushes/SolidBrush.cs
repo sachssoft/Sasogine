@@ -1,9 +1,9 @@
 ﻿using FontStashSharp.RichText;
 using Microsoft.Xna.Framework;
 using System;
-using sachssoft.Sasogine.Surface.Visuals.Styles;
+using Sachssoft.Sasogine.Surface.Visuals.Styles;
 
-namespace sachssoft.Sasogine.Surface.Visuals.Brushes
+namespace Sachssoft.Sasogine.Surface.Visuals.Brushes
 {
     /// <summary>
     /// Represents a solid-color brush that can fill a rectangular area

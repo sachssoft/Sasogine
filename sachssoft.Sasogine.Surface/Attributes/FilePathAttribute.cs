@@ -1,7 +1,7 @@
 ﻿using System;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
 
-namespace sachssoft.Sasogine.Surface.Attributes;
+namespace Sachssoft.Sasogine.Surface.Attributes;
 
 [AttributeUsage(AttributeTargets.Property)]
 public class FilePathAttribute : Attribute

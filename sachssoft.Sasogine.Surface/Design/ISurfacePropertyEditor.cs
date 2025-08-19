@@ -1,7 +1,7 @@
-﻿using sachssoft.Sasogine.Surface.Visuals.Controls;
+﻿using Sachssoft.Sasogine.Surface.Visuals.Controls;
 using System;
 
-namespace sachssoft.Sasogine.Surface.Design;
+namespace Sachssoft.Sasogine.Surface.Design;
 
 public interface ISurfacePropertyEditor : IPropertyEditor
 {

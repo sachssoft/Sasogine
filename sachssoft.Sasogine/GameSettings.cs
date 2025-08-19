@@ -6,9 +6,9 @@ using System.IO;
 using System.IO.IsolatedStorage;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using sachssoft.Sasogine.Elements;
+using Sachssoft.Sasogine.Elements;
 
-namespace sachssoft.Sasogine;
+namespace Sachssoft.Sasogine;
 
 public class GameSettings : GameObject 
 {

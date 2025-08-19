@@ -1,8 +1,8 @@
-﻿using sachssoft.Sasogine.Tiling;
+﻿using Sachssoft.Sasogine.Tiling;
 using System.Collections.Generic;
 
 using System;
-using sachssoft.Sasogine.Tiling.Stacked;
+using Sachssoft.Sasogine.Tiling.Stacked;
 
 /// <summary>
 /// Registry für Tile-Elemente mit fester, vorgegebener Größe und direktem Indexzugriff.

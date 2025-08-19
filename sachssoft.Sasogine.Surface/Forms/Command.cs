@@ -6,9 +6,9 @@
 
 using System.Windows.Input;
 using System;
-using sachssoft.Sasogine.Elements;
+using Sachssoft.Sasogine.Elements;
 
-namespace sachssoft.Sasogine.Surface.Forms;
+namespace Sachssoft.Sasogine.Surface.Forms;
 
 [Obsolete("Use Relay Command")]
 public class Command : GameObject, ICommand

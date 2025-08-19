@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Network;
+﻿namespace Sachssoft.Sasogine.Network;
 
 /// <summary>
 /// Defines error codes that can occur during API calls.

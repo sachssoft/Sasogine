@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 
-namespace sachssoft.Sasogine.Resources;
+namespace Sachssoft.Sasogine.Resources;
 
 /// <summary>
 /// Represents a multilingual value with versions for multiple languages.

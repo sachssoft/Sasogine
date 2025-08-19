@@ -6,7 +6,7 @@
 
 using System;
 
-namespace sachssoft.Sasogine.Surface.Forms;
+namespace Sachssoft.Sasogine.Surface.Forms;
 
 public interface IContentBuilder<T>
 {

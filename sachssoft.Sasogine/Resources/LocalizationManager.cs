@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Resources;
 using System.Threading;
 
-namespace sachssoft.Sasogine.Resources
+namespace Sachssoft.Sasogine.Resources
 {
     /// <summary>
     /// Manages localization settings for the game, including retrieving supported cultures and setting the current culture for localization.
@@ -36,7 +36,7 @@ namespace sachssoft.Sasogine.Resources
             Assembly assembly = Assembly.GetExecutingAssembly();
 
             // Resource manager for your Resources.resx
-            ResourceManager resourceManager = new ResourceManager("sachssoft.BenBall.Core.Localization.Resources", assembly);
+            ResourceManager resourceManager = new ResourceManager("Sachssoft.BenBall.Core.Localization.Resources", assembly);
 
             // Get all cultures defined in the satellite assemblies
             CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);

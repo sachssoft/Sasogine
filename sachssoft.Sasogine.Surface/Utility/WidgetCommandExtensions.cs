@@ -1,7 +1,7 @@
-﻿using sachssoft.Sasogine.Interactions;
-using sachssoft.Sasogine.Surface.Visuals;
+﻿using Sachssoft.Sasogine.Interactions;
+using Sachssoft.Sasogine.Surface.Visuals;
 
-namespace sachssoft.Sasogine.Surface.Utility;
+namespace Sachssoft.Sasogine.Surface.Utility;
 
 public static class WidgetCommandExtensions
 {

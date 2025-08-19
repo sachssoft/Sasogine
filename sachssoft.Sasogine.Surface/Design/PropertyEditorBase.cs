@@ -1,9 +1,9 @@
-﻿using sachssoft.Sasogine.Surface.Forms;
-using sachssoft.Sasogine.Surface.Visuals.Controls;
+﻿using Sachssoft.Sasogine.Surface.Forms;
+using Sachssoft.Sasogine.Surface.Visuals.Controls;
 using System;
 using System.ComponentModel;
 
-namespace sachssoft.Sasogine.Surface.Design;
+namespace Sachssoft.Sasogine.Surface.Design;
 
 public abstract class PropertyEditorBase
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace sachssoft.Sasogine.Resources
+namespace Sachssoft.Sasogine.Resources
 {
     /// <summary>
     /// Represents a texture atlas with frames indexed by an enum key.
