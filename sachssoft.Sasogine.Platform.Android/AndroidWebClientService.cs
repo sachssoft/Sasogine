@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Platform.Android;
+﻿namespace Sachssoft.Sasogine.Platform.Android;
 
 public class AndroidWebClientService : IWebClientService
 {

@@ -1,11 +1,11 @@
-﻿using sachssoft.Sasogine.Services;
+﻿using Sachssoft.Sasogine.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace sachssoft.Sasogine.Platform
+namespace Sachssoft.Sasogine.Platform
 {
     public class DesktopPurchaseService : IInAppPurchaseService
     {

@@ -7,52 +7,83 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Runtime.CompilerServices;
 
-public class ProjectedPackage : PackageBase
+public class ProjectedPackage : PackageBase, IPackage
 {
     private readonly ProjectedPackageLevelCollection _levels;
     private readonly ProjectedPackageAssetCollection _assets;
+    private string _filePath;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ProjectedPackage"/> class.
+    /// </summary>
+    /// <param name="filePath">The path to the package file.</param>
+    /// <param name="manifest">Optional manifest for the package.</param>
+    public ProjectedPackage(string filePath, PackageManifest? manifest = null)
+        : base(() => File.Open(filePath, FileMode.Open, FileAccess.ReadWrite), false, manifest)
+    {
+        _filePath = filePath;
+        _assets = new ProjectedPackageAssetCollection(this);
+        _levels = new ProjectedPackageLevelCollection(this);
+    }
+
+    /// <summary>
+    /// Gets the file path of the package.
+    /// </summary>
+    public string FilePath => _filePath;
+
+    /// <summary>
+    /// Gets the asset collection of the package.
+    /// </summary>
     public ProjectedPackageAssetCollection Assets => _assets;
 
-    public override IReadOnlyCollection<PackageLevelBase> Levels => throw new System.NotImplementedException();
+    /// <summary>
+    /// Gets the level collection of the package.
+    /// </summary>
+    public ProjectedPackageLevelCollection Levels => _levels;
 
-    public ProjectedPackage(Stream stream, PackageManifest? manifest = null)
-        : base(stream, false, manifest)
-    {
-        _assets = new ProjectedPackageAssetCollection(this);
-    }
+    /// <summary>
+    /// Gets or sets the index of the currently selected level.
+    /// </summary>
+    public int SelectedLevelIndex { get; set; }
 
-    public ProjectedPackage(string filePath, PackageManifest? manifest = null)
-        : base(File.Open(filePath, FileMode.Open, FileAccess.ReadWrite), false, manifest)
-    {
-        _assets = new ProjectedPackageAssetCollection(this);
-    }
+    IReadOnlyDictionary<string, IPackageAsset> IPackage.Assets => (IReadOnlyDictionary<string, IPackageAsset>)_manifest._assets;
 
+    IReadOnlyCollection<PackageLevelBase> IPackage.Levels => (IReadOnlyCollection<PackageLevelBase>)_manifest._levels;
+
+    /// <summary>
+    /// Creates a new package file.
+    /// </summary>
+    /// <param name="filePath">The path where the new package will be created.</param>
+    /// <param name="manifest">Optional manifest to initialize the package.</param>
+    /// <param name="formatter">Optional document formatter for the manifest.</param>
+    /// <returns>The created <see cref="ProjectedPackage"/>.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the file already exists.</exception>
     public static ProjectedPackage Create(string filePath, PackageManifest? manifest = null, IDocumentFormatter formatter = null)
     {
         if (File.Exists(filePath))
             throw new InvalidOperationException("File already exists");
 
-        // 1. Leere ZIP anlegen
+        // 1. Create empty ZIP archive
         using (var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write))
         using (var archive = new ZipArchive(fs, ZipArchiveMode.Create))
         {
-            // ZIP-Struktur schreiben
+            // Initialize empty ZIP structure
         }
 
-        // 2. Neu öffnen im Update-Modus (kein using!)
-        var fs2 = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
-        var package = Open(fs2, manifest);
+        // 2. Open package in update mode
+        var package = Open(filePath, manifest);
         package.Manifest.Save();
 
         return package;
     }
 
+    /// <summary>
+    /// Creates a new package using a factory method for custom types.
+    /// </summary>
     public static TPackage Create<TPackage, TManifest>(
         string filePath,
-        Func<Stream, TManifest?, TPackage> createInstance,
+        Func<string, TManifest?, TPackage> createInstance,
         TManifest? manifest = null,
         IDocumentFormatter? formatter = null)
         where TPackage : ProjectedPackage
@@ -69,10 +100,10 @@ public class ProjectedPackage : PackageBase
         }
 
         // 2. Stream öffnen für Update
-        var fs2 = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
+        //var fs2 = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
 
         // 3. Instanz durch Factory erzeugen
-        var package = createInstance(fs2, manifest);
+        var package = createInstance(filePath, manifest);
         if (package == null)
             throw new InvalidOperationException("createInstance returned null");
 
@@ -84,15 +115,50 @@ public class ProjectedPackage : PackageBase
         return package;
     }
 
+    /// <summary>
+    /// Opens an existing package.
+    /// </summary>
+    /// <param name="filePath">The path to the package file.</param>
+    /// <param name="manifest">Optional manifest to load with the package.</param>
+    /// <returns>The opened <see cref="ProjectedPackage"/>.</returns>
+    public static ProjectedPackage Open(string filePath, PackageManifest? manifest = null)
+    {
+        var package = new ProjectedPackage(filePath, manifest);
+        package.Open();
+        return package;
+    }
 
+    /// <summary>
+    /// Opens an existing package using a factory method for custom types.
+    /// </summary>
+    public static TPackage Open<TPackage, TManifest>(
+        string filePath,
+        Func<string, TManifest?, TPackage> createInstance,
+        TManifest? manifest = null)
+        where TPackage : ProjectedPackage
+        where TManifest : PackageManifest
+    {
+        var package = createInstance(filePath, manifest);
+        if (package == null)
+            throw new InvalidOperationException("createInstance returned null");
+        package.Open();
+        return package;
+    }
+
+    /// <summary>
+    /// Creates a new package with the specified manifest document type.
+    /// </summary>
     public static ProjectedPackage Create(string filePath, PackageManifest? manifest = null, PackageManifestDocumentType type = PackageManifestDocumentType.Json)
     {
         return Create(filePath, manifest, TypeToFormatter(type));
     }
 
+    /// <summary>
+    /// Creates a new package using a factory method and specified manifest document type.
+    /// </summary>
     public static TPackage Create<TPackage, TManifest>(
        string filePath,
-       Func<Stream, TManifest?, TPackage> createInstance,
+       Func<string, TManifest?, TPackage> createInstance,
        TManifest? manifest = null,
        PackageManifestDocumentType type = PackageManifestDocumentType.Json)
        where TPackage : ProjectedPackage
@@ -109,25 +175,5 @@ public class ProjectedPackage : PackageBase
             PackageManifestDocumentType.XML => new XmlDocumentFormatter(),
             _ => throw new NotSupportedException("Unknown document type is not supported")
         };
-    }
-
-    public override IPackageAsset? GetAsset(string filePath)
-    {
-        return _assets[filePath]!;
-    }
-
-
-    public static ProjectedPackage Open(Stream stream, PackageManifest? manifest = null)
-    {
-        var package = new ProjectedPackage(stream, manifest);
-        package.Open();
-        return package;
-    }
-
-    public static ProjectedPackage Open(string filePath, PackageManifest? manifest = null)
-    {
-        var package = new ProjectedPackage(filePath, manifest);
-        package.Open();
-        return package;
     }
 }

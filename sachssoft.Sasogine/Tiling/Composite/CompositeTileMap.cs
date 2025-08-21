@@ -1,18 +1,20 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Graphics.Primitives;
-using Sachssoft.Graphics.Renderer;
 using Sachssoft.Sasogine.Graphics.Renderer;
 using System;
+using System.Threading;
 
 namespace Sachssoft.Sasogine.Tiling.Composite;
 
-public class CompositeTileMap<T> : ITileMap where T : CompositeTileBase
+public class CompositeTileMap<T> : ITileMap, INotifyMapChanged where T : CompositeTileBase
 {
     private readonly T[] _tiles;
     private readonly int _columns;
     private readonly int _rows;
     private readonly int _count;
     private int _rendered_tile_count;
+
+    public event NotifyMapChangedEventHandler? MapChanged;
 
     public CompositeTileMap(int columns, int rows)
     {
@@ -57,9 +59,13 @@ public class CompositeTileMap<T> : ITileMap where T : CompositeTileBase
                 previous?.OnLeave();
                 previous?.SetMapSource(null);
 
+                var oldTile = _tiles[index];
                 _tiles[index] = value;
+
                 value?.SetMapSource(this);
                 value?.OnEnter(new Coordinate(column, row));
+
+                MapChanged?.Invoke(this, new NotifyMapChangedEventArgs(index, oldTile, value));
             }
         }
     }
@@ -82,11 +88,15 @@ public class CompositeTileMap<T> : ITileMap where T : CompositeTileBase
                 previous?.OnLeave();
                 previous?.SetMapSource(null);
 
+                var oldTile = _tiles[index];
                 _tiles[index] = value;
                 int row = index / _columns;
                 int column = index % _columns;
+
                 value?.SetMapSource(this);
                 value?.OnEnter(new Coordinate(column, row));
+
+                MapChanged?.Invoke(this, new NotifyMapChangedEventArgs(index, oldTile, value));
             }
         }
     }

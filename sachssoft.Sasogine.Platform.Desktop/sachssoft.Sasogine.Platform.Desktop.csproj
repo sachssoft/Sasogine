@@ -32,7 +32,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\sachssoft.Sasogine\sachssoft.Sasogine.csproj" />
+		<ProjectReference Include="..\sachssoft.Sasogine\Sachssoft.Sasogine.csproj" />
 	</ItemGroup>
 
 </Project>

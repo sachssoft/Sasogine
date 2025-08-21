@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
-using sachssoft.Sasogine.Services;
+using Sachssoft.Sasogine.Services;
 
-namespace sachssoft.Sasogine.Platform.Desktop;
+namespace Sachssoft.Sasogine.Platform.Desktop;
 
 public class DesktopFileSystemService : IFileSystemService
 {

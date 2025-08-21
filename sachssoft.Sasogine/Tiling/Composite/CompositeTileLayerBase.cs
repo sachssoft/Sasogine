@@ -5,7 +5,7 @@ using System;
 
 namespace Sachssoft.Sasogine.Tiling.Composite;
 
-public abstract class CompositeTileBase : ICloneable
+public abstract class CompositeTileBase : ICloneable, IOutputTile
 {
     internal object? _map_source = null;
 
@@ -42,5 +42,10 @@ public abstract class CompositeTileBase : ICloneable
     public virtual void Draw(in CompositeTileRenderArgs args, TileDrawingOptions options)
     {
         // Logik für das Zeichnen – args enthält Context, Renderer, Primitive, Coordinate
+    }
+
+    bool IOutputTile.Equals(IOutputTile other)
+    {
+        return Equals(other);
     }
 }

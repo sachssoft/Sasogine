@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using sachssoft.Sasogine.Services;
+using Sachssoft.Sasogine.Services;
 
-namespace sachssoft.Sasogine.Platform.Desktop;
+namespace Sachssoft.Sasogine.Platform.Desktop;
 
 public class DesktopWebClientService : IWebClientService
 {

@@ -2,7 +2,7 @@
 using StoreKit;
 using Foundation;
 
-namespace sachssoft.Sasogine.Platform.iOS;
+namespace Sachssoft.Sasogine.Platform.iOS;
 
 using System.Collections.Generic;
 using System.Threading.Tasks;

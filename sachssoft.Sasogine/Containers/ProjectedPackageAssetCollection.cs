@@ -296,53 +296,53 @@ namespace Sachssoft.Sasogine.Containers
         }
 
         // Erstelle ein veröffentliches Package
-        public PublishedPackage Publish(PublishOptions? options = null)
-        {
-            options ??= new PublishOptions(); // Standardoptionen
+        //public PublishedPackage Publish(PublishOptions? options = null)
+        //{
+        //    options ??= new PublishOptions(); // Standardoptionen
 
-            //_package.ThrowIfNotOpened();
+        //    //_package.ThrowIfNotOpened();
 
-            //// Temporärer Stream für das Paket
-            //using var ms = new MemoryStream();
+        //    //// Temporärer Stream für das Paket
+        //    //using var ms = new MemoryStream();
 
-            //// 1. Optional: Assets komprimieren
-            //Stream targetStream = ms;
-            //if (options.Compress)
-            //{
-            //    targetStream = new System.IO.Compression.GZipStream(ms, System.IO.Compression.CompressionLevel.Optimal, leaveOpen: true);
-            //}
+        //    //// 1. Optional: Assets komprimieren
+        //    //Stream targetStream = ms;
+        //    //if (options.Compress)
+        //    //{
+        //    //    targetStream = new System.IO.Compression.GZipStream(ms, System.IO.Compression.CompressionLevel.Optimal, leaveOpen: true);
+        //    //}
 
-            //// 2. Alle Assets ins Stream schreiben
-            //foreach (var asset in GetAll())
-            //{
-            //    using var assetStream = _package.Source.GetEntry(ProjectedPackageAssetCollection.FILE_PATH + asset.FileName)?.Open();
-            //    if (assetStream == null) continue;
+        //    //// 2. Alle Assets ins Stream schreiben
+        //    //foreach (var asset in GetAll())
+        //    //{
+        //    //    using var assetStream = _package.Source.GetEntry(ProjectedPackageAssetCollection.FILE_PATH + asset.FileName)?.Open();
+        //    //    if (assetStream == null) continue;
 
-            //    // Metadaten + Inhalt schreiben
-            //    WriteAssetToStream(asset, assetStream, targetStream);
-            //}
+        //    //    // Metadaten + Inhalt schreiben
+        //    //    WriteAssetToStream(asset, assetStream, targetStream);
+        //    //}
 
-            //// 3. Verschlüsselung optional
-            //if (options.Encrypt)
-            //{
-            //    if (string.IsNullOrEmpty(options.Password))
-            //        throw new InvalidOperationException("Password must be provided for encryption.");
+        //    //// 3. Verschlüsselung optional
+        //    //if (options.Encrypt)
+        //    //{
+        //    //    if (string.IsNullOrEmpty(options.Password))
+        //    //        throw new InvalidOperationException("Password must be provided for encryption.");
 
-            //    ms.Position = 0;
-            //    var encryptedStream = new MemoryStream();
-            //    EncryptStream(ms, encryptedStream, options.Password);
-            //    ms.SetLength(0);
-            //    encryptedStream.Position = 0;
-            //    encryptedStream.CopyTo(ms);
-            //}
+        //    //    ms.Position = 0;
+        //    //    var encryptedStream = new MemoryStream();
+        //    //    EncryptStream(ms, encryptedStream, options.Password);
+        //    //    ms.SetLength(0);
+        //    //    encryptedStream.Position = 0;
+        //    //    encryptedStream.CopyTo(ms);
+        //    //}
 
-            //// 4. In Datei schreiben
-            //using var fs = File.OpenWrite(options.OutputFilePath);
-            //ms.Position = 0;
-            //ms.CopyTo(fs);
+        //    //// 4. In Datei schreiben
+        //    //using var fs = File.OpenWrite(options.OutputFilePath);
+        //    //ms.Position = 0;
+        //    //ms.CopyTo(fs);
 
-            return new PublishedPackage(options.OutputFilePath);
-        }
+        //    return new PublishedPackage(options.OutputFilePath);
+        //}
 
 
         private AssetCategory InferCategoryFromPath(string fileName)

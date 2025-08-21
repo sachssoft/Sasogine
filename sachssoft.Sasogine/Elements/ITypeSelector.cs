@@ -31,7 +31,7 @@ public interface ITypeSelector
     /// This method uses reflection and is not compatible with AOT environments.
     /// Use <c>Create&lt;T&gt;(Func&lt;TypeSelector&lt;T&gt;&gt;)</c> instead for AOT-safe usage.
     /// </remarks>
-    [Obsolete("This method uses reflection and is not AOT-compatible. Use Create<TTile>(Func<TypeSelector<TTile>>) instead.", DiagnosticId = "SAS0001")]
+    [Obsolete("This method uses reflection and is not AOT-compatible. Use CreateIfNotExists<TTile>(Func<TypeSelector<TTile>>) instead.", DiagnosticId = "SAS0001")]
     public static ITypeSelector Create(Type parentType, Type childType)
     {
         if (parentType == null)

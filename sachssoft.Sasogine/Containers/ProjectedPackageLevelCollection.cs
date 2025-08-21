@@ -1,5 +1,7 @@
 ﻿using Sachssoft.Sasogine.Elements;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -7,7 +9,7 @@ using System.Xml;
 
 namespace Sachssoft.Sasogine.Containers
 {
-    public sealed class ProjectedPackageLevelCollection
+    public sealed class ProjectedPackageLevelCollection : IEnumerable<PackageLevelBase>
     {
         internal const string FILE_PATH = "levels/";
 
@@ -25,32 +27,47 @@ namespace Sachssoft.Sasogine.Containers
             _readOnlyEntries = new ReadOnlyObservableCollection<PackageLevelBase>(_package.Manifest._levels);
         }
 
-        public void Add(PackageLevelBase level)
+        public void Add(PackageLevelBase level, bool create = false)
         {
-            AddOrReplace(level, overwrite: false);
+            AddOrReplace(level, create ? PackageEntryFlags.CreateIfNotExists : PackageEntryFlags.None);
         }
 
-        public void AddOrReplace(PackageLevelBase level, bool overwrite)
+        public void AddOrReplace(PackageLevelBase level, PackageEntryFlags flags = PackageEntryFlags.None)
         {
+            if (level == null)
+                throw new ArgumentNullException(nameof(level));
+
             _package.ThrowIfNotOpened();
 
-            string filePath = level.FilePath ?? throw new ArgumentException("FilePath must be set.", nameof(level));
-            string fullPath = FILE_PATH + filePath;
+            if (string.IsNullOrWhiteSpace(level.RelativeFilePath))
+                throw new ArgumentException("RelativeFilePath must be set.", nameof(level));
+
+            string fullPath = Path.Combine(FILE_PATH, level.RelativeFilePath);
+
+            bool overwrite = (flags & PackageEntryFlags.OverwriteExisting) != 0;
+            bool create = (flags & PackageEntryFlags.CreateIfNotExists) != 0;
 
             if (_package.IsFileExists(fullPath) && !overwrite)
-                throw new InvalidOperationException($"Level '{filePath}' already exists.");
+                throw new InvalidOperationException($"Level '{level.RelativeFilePath}' already exists.");
 
-            using var sourceStream = level.Open();
-            using var entryStream = _package.Source.CreateEntry(fullPath).Open();
-            sourceStream.CopyTo(entryStream);
+            if (create) 
+                level.Create();
+
+            // Es kann auch passieren, dass trotz Erstellen keine Datei angelegt wurde.
+            if (!level.IsExists && ((flags & PackageEntryFlags.CreateEmptyEntryIfMissing) != 0))
+            {
+                // Lege eine leere Datei
+                level.Write(new MemoryStream());
+            }
 
             // Existierendes Level entfernen
-            var existing = _package.Manifest._levels.FirstOrDefault(l => l.FilePath == filePath);
+            var existing = _package.Manifest._levels.FirstOrDefault(l => l.RelativeFilePath == level.RelativeFilePath);
             if (existing != null)
                 _package.Manifest._levels.Remove(existing);
 
             _package.Manifest._levels.Add(level);
 
+            level.Save();
             UpdateManifest();
         }
 
@@ -58,11 +75,11 @@ namespace Sachssoft.Sasogine.Containers
         {
             foreach (var level in levels)
             {
-                if (level.FilePath == null)
-                    throw new ArgumentException("FilePath must be set.", nameof(level));
+                if (level.RelativeFilePath == null)
+                    throw new ArgumentException("RelativeFilePath must be set.", nameof(level));
 
-                if (Contains(level.FilePath))
-                    throw new InvalidOperationException($"Level '{level.FilePath}' already exists.");
+                if (Contains(level.RelativeFilePath))
+                    throw new InvalidOperationException($"Level '{level.RelativeFilePath}' already exists.");
             }
 
             foreach (var level in levels)
@@ -72,14 +89,27 @@ namespace Sachssoft.Sasogine.Containers
         }
 
         public bool Contains(string fileName) =>
-            _package.Manifest._levels.Any(l => l.FilePath == fileName);
+            _package.Manifest._levels.Any(l => l.RelativeFilePath == fileName);
+
+        public void MoveTo(string oldFileName, string newFileName)
+        {
+            string oldFullFilePath = FILE_PATH + oldFileName;
+            string newFullFilePath = FILE_PATH + newFileName;
+            _package.MoveFileTo(oldFullFilePath, newFullFilePath);
+
+            var level = GetEntry(newFileName);
+            level.RelativeFilePath = newFileName;
+        }
 
         public PackageLevelBase GetEntry(string fileName) =>
-            _package.Manifest._levels.FirstOrDefault(l => l.FilePath == fileName)
+            _package.Manifest._levels.FirstOrDefault(l => l.RelativeFilePath == fileName)
                 ?? throw new InvalidOperationException($"Level '{fileName}' does not exist.");
 
         public PackageLevelBase? FindEntry(string fileName) =>
-            _package.Manifest._levels.FirstOrDefault(l => l.FilePath == fileName);
+            _package.Manifest._levels.FirstOrDefault(l => l.RelativeFilePath == fileName);
+
+        public bool IsEntryExists(string fileName) =>
+            _package.Manifest._levels.Where(x => x.RelativeFilePath.Equals(fileName, StringComparison.CurrentCultureIgnoreCase)).Any();
 
         public void SynchronizeToManifest(Func<PackageBase, PackageLevelBase> createInstanceFunc)
         {
@@ -96,14 +126,14 @@ namespace Sachssoft.Sasogine.Containers
                 if (!Contains(fileName))
                 {
                     var newLevel = createInstanceFunc(_package);
-                    newLevel.FilePath = fileName;
+                    newLevel.RelativeFilePath = fileName;
 
-                    using var stream = entry.Open();
-                    using var tempStream = new MemoryStream();
-                    stream.CopyTo(tempStream);
-                    tempStream.Position = 0;
+                    //using var stream = entry.Open();
+                    //using var tempStream = new MemoryStream();
+                    //stream.CopyTo(tempStream);
+                    //tempStream.Position = 0;
 
-                    newLevel.Save(tempStream); // Stream temporär speichern
+                    //newLevel.Save(tempStream); // Stream temporär speichern
 
                     _package.Manifest._levels.Add(newLevel);
                 }
@@ -111,7 +141,7 @@ namespace Sachssoft.Sasogine.Containers
 
             // Lösche Level aus Manifest, die nicht mehr existieren
             var toRemove = _package.Manifest._levels
-                .Where(l => !_package.IsFileExists(FILE_PATH + l.FilePath))
+                .Where(l => !_package.IsFileExists(FILE_PATH + l.RelativeFilePath))
                 .ToList();
 
             foreach (var level in toRemove)
@@ -139,5 +169,11 @@ namespace Sachssoft.Sasogine.Containers
         {
             _package.Manifest.Save();
         }
+
+        IEnumerator<PackageLevelBase> IEnumerable<PackageLevelBase>.GetEnumerator()
+            => _readOnlyEntries.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator()
+            => _readOnlyEntries.GetEnumerator();
     }
 }
