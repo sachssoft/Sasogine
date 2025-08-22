@@ -18,6 +18,8 @@ namespace Sachssoft.Sasogine.Containers
 
         public ReadOnlyObservableCollection<PackageLevelBase> Entries => _readOnlyEntries;
 
+        public IEnumerable<PackageLevelBase> SortedEntries => _readOnlyEntries.OrderBy(x => x.Index);
+
         public PackageLevelBase this[int index] => _readOnlyEntries[index];
 
         internal ProjectedPackageLevelCollection(PackageBase package)
@@ -50,7 +52,7 @@ namespace Sachssoft.Sasogine.Containers
             if (_package.IsFileExists(fullPath) && !overwrite)
                 throw new InvalidOperationException($"Level '{level.RelativeFilePath}' already exists.");
 
-            if (create) 
+            if (create)
                 level.Create();
 
             // Es kann auch passieren, dass trotz Erstellen keine Datei angelegt wurde.
@@ -65,6 +67,7 @@ namespace Sachssoft.Sasogine.Containers
             if (existing != null)
                 _package.Manifest._levels.Remove(existing);
 
+            level.Index = _package.Manifest._levels.Count;
             _package.Manifest._levels.Add(level);
 
             level.Save();
@@ -167,6 +170,15 @@ namespace Sachssoft.Sasogine.Containers
 
         private void UpdateManifest()
         {
+            var sortedLevelList = _package.Manifest._levels.OrderBy(l => l.Index)
+                                                           .ToArray();
+
+            for (int i = 0; i < sortedLevelList.Length; i++)
+            {
+                var level = sortedLevelList[i];
+                level.Index = i;
+            }
+
             _package.Manifest.Save();
         }
 

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO.Compression;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Principal;
 
@@ -108,6 +109,7 @@ namespace Sachssoft.Sasogine.Containers
             }
 
             var entries = new List<FormatReaderBase>(sectionReader.ReadArray("entries"));
+            var unsortedLevelList = new List<PackageLevelBase>();
 
             foreach (var readerItem in entries)
             {
@@ -125,6 +127,15 @@ namespace Sachssoft.Sasogine.Containers
                 levelEntry.Title = entryReader.ReadString(GetNamingValue(nameof(PackageLevelBase.Title)));
                 levelEntry.Description = entryReader.ReadString(GetNamingValue(nameof(PackageLevelBase.Description)));
 
+                unsortedLevelList.Add(levelEntry);
+            }
+
+            var sortedLevelList = unsortedLevelList.OrderBy(x => x.Index)
+                                                   .ToArray();
+            for(int i = 0;  i < sortedLevelList.Length; i++)
+            {
+                var levelEntry = sortedLevelList[i];
+                levelEntry.Index = i;
                 _levels.Add(levelEntry);
             }
         }

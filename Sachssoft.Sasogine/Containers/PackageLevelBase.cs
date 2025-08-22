@@ -10,7 +10,7 @@ namespace Sachssoft.Sasogine.Containers
 
         protected override sealed string RootPath => ProjectedPackageLevelCollection.FILE_PATH;
 
-        public int Index { get; internal set; }
+        public int Index { get; set; }
 
         public Guid Guid { get; set; } = Guid.NewGuid();
 

@@ -25,6 +25,8 @@ namespace Sachssoft.Sasogine.Containers
             RelativeFilePath = filePath?.Trim() ?? throw new ArgumentNullException(nameof(filePath));
         }
 
+        protected PackageBase Package => _package;
+
         public string RelativeFilePath { get; internal set; }
 
         protected virtual string RootPath => string.Empty;
