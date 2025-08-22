@@ -1,0 +1,14 @@
+﻿using System;
+
+namespace Sachssoft.Sasogine.Animation.Timings;
+
+public sealed class EaseInOutCirc : AnimationTimingBase
+{
+    public override float GetValue(float percent)
+    {
+        if (percent < 0.5f)
+            return 0.5f * (1 - (float)Math.Sqrt(1 - 4 * percent * percent));
+        percent = percent * 2 - 1;
+        return 0.5f * ((float)Math.Sqrt(1 - percent * percent) + 1);
+    }
+}
