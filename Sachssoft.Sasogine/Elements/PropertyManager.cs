@@ -16,7 +16,7 @@ public static class PropertyManager
         // Prüfen, ob die Property schon irgendwo in der Hierarchie registriert ist
         if (ExistsPropertyInHierarchy(type, propertyName))
         {
-            throw new InvalidOperationException($"Property '{propertyName}' ist in der Typ-Hierarchie von {type.Name} bereits registriert.");
+            throw new InvalidOperationException($"PropertyDescriptor '{propertyName}' ist in der Typ-Hierarchie von {type.Name} bereits registriert.");
         }
 
         if (!_properties.TryGetValue(type, out var list))

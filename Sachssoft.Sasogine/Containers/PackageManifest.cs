@@ -126,6 +126,7 @@ namespace Sachssoft.Sasogine.Containers
                 levelEntry.Guid = entryReader.ReadGuid(GetNamingValue(nameof(PackageLevelBase.Guid)), Guid.NewGuid());
                 levelEntry.Title = entryReader.ReadString(GetNamingValue(nameof(PackageLevelBase.Title)));
                 levelEntry.Description = entryReader.ReadString(GetNamingValue(nameof(PackageLevelBase.Description)));
+                levelEntry.RelativeFilePath = filePath;
 
                 unsortedLevelList.Add(levelEntry);
             }

@@ -149,19 +149,20 @@ namespace Sachssoft.Sasogine.Containers
             ThrowsIfDeleted();
             EnsurePackage(writable: true);
 
-            var absoluteFilePath = RootPath + "/" + newFilePath;
+            var rootPath = RootPath.TrimEnd('/');
+            var absoluteFilePath = rootPath + "/" + newFilePath;
 
             if (_package.IsFileExists(absoluteFilePath))
                 throw new InvalidOperationException($"File '{newFilePath}' already exists.");
 
             var copyEntry = _package.Source.CreateEntry(absoluteFilePath);
 
-            using (var originalStream = _packageEntry.Open())
+            //using (var originalStream = _packageEntry.Open())
             using (var copyStream = copyEntry.Open())
             {
                 byte[] buffer = new byte[81920]; // 80 KB buffer
                 int bytesRead;
-                while ((bytesRead = originalStream.Read(buffer, 0, buffer.Length)) > 0)
+                while ((bytesRead = _stream.Read(buffer, 0, buffer.Length)) > 0)
                 {
                     copyStream.Write(buffer, 0, bytesRead);
                 }

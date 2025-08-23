@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Net;
+﻿namespace Sachssoft.Sasogine.Net;
 
 public interface IDataConnectionStringProvider
 {

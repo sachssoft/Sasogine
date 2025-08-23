@@ -4,7 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
 
-namespace sachssoft.Sasogine.Net;
+namespace Sachssoft.Sasogine.Net;
 
 public class GameDatabase : IDisposable
 {

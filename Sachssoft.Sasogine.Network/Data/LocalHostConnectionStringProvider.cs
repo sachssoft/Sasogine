@@ -1,4 +1,4 @@
-﻿namespace sachssoft.Sasogine.Net;
+﻿namespace Sachssoft.Sasogine.Net;
 
 public class LocalHostConnectionStringProvider : IDataConnectionStringProvider
 {
