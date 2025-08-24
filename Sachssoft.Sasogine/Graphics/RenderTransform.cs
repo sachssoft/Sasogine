@@ -1,11 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Observables;
+using Sachssoft.Sasogine.Elements;
 using System.Runtime.Serialization;
 using System.Text.Json.Nodes;
-using Sachssoft.Sasogine.Elements;
 
 namespace Sachssoft.Sasogine.Graphics;
 
-public class RenderTransform : GameObject, ITransform
+public class RenderTransform : NotifyingObject, ITransform
 {
     private Vector2 _translation = Vector2.Zero;
     private float _rotation = 0f;

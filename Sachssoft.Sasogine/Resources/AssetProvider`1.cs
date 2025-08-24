@@ -1,10 +1,12 @@
-﻿using System;
-using System.ComponentModel;
+﻿using Sachssoft.Observables;
+using Sachssoft.Runtime;
 using Sachssoft.Sasogine.Elements;
+using System;
+using System.ComponentModel;
 
 namespace Sachssoft.Sasogine.Resources;
 
-public abstract class AssetProvider<T> : GameObject, IAssetProvider
+public abstract class AssetProvider<T> : NotifyingElement, IAssetProvider
 {
     public AssetProvider()
     {

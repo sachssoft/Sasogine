@@ -17,6 +17,7 @@ using Sachssoft.Sasogine.Surface;
 using Sachssoft.Sasogine.Elements;
 using Sachssoft.Sasogine.Services;
 using Sachssoft.Sasogine.Resources;
+using Sachssoft.Runtime;
 
 namespace Sachssoft.Sasogine;
 
@@ -43,7 +44,7 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
 
     static MyGameApp()
     {
-        TypeManager.EnsureInitialized();
+        TypeFactoryManager.EnsureInitialized();
     }
 
     public MyGameApp(params string[] args)
@@ -97,18 +98,18 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
         if (Window != null)
             Window.ClientSizeChanged += (s, e) => SurfaceHost?.View?.OnClientSizeChanged();
 
-        // Load supported languages and set the default language.
-        List<CultureInfo> cultures = LocalizationManager.GetSupportedCultures();
-        var languages = new List<CultureInfo>();
-        for (int i = 0; i < cultures.Count; i++)
-        {
-            languages.Add(cultures[i]);
-        }
+        //// Load supported languages and set the default language.
+        //List<CultureInfo> cultures = LocalizationManager.GetSupportedCultures();
+        //var languages = new List<CultureInfo>();
+        //for (int i = 0; i < cultures.Count; i++)
+        //{
+        //    languages.Add(cultures[i]);
+        //}
 
-        // TODO You should load this from a settings file or similar,
-        // based on what the user or operating system selected.
-        var selectedLanguage = LocalizationManager.DEFAULT_CULTURE_CODE;
-        LocalizationManager.SetCulture(selectedLanguage);
+        //// TODO You should load this from a settings file or similar,
+        //// based on what the user or operating system selected.
+        //var selectedLanguage = LocalizationManager.DEFAULT_CULTURE_CODE;
+        //LocalizationManager.SetCulture(selectedLanguage);
     }
 
     protected virtual GraphicsDeviceManager ConfigureGraphicsDevice()
@@ -154,7 +155,7 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
         //_assets = (TAssetManager)Activator.CreateInstance(typeof(TAssetManager), this); // AOT-Problem!
         _assets = CreateAssetManager();
         _assets.OnLoad();
-        TypeManager.InvokeAssetRegistrations();
+        //TypeFactoryManager.InvokeAssetRegistrations();
 
         // ## UI
         //UIEnvironment.Game = this;

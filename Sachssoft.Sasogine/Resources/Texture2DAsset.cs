@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.ComponentModel;
 using Sachssoft.Sasogine.Elements;
+using Sachssoft.Runtime;
 
 namespace Sachssoft.Sasogine.Resources;
 

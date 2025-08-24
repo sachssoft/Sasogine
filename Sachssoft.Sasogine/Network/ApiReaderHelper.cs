@@ -1,11 +1,12 @@
-﻿using Sachssoft.Sasogine.Resources;
+﻿using Sachssoft.Globalization;
+using Sachssoft.Sasogine.Resources;
 using System.Text.Json;
 
 namespace Sachssoft.Sasogine.Network;
 
 public static class ApiReaderHelper
 {
-    public static LocalizedValue<string>? ReadLocalizedFromJson(string jsonString, string propertyName)
+    public static LocalizedValue<string>? ReadLocalizedFromJson(string jsonString, string propertyName, string defaultValue)
     {
         if (string.IsNullOrWhiteSpace(jsonString))
             return null;
@@ -14,10 +15,10 @@ public static class ApiReaderHelper
         var root = doc.RootElement;
 
         // Die vorhandene Methode wiederverwenden
-        return ReadLocalizedFromJson(root, propertyName);
+        return ReadLocalizedFromJson(root, propertyName, defaultValue);
     }
 
-    public static LocalizedValue<string>? ReadLocalizedFromJson(JsonElement item, string propertyName)
+    public static LocalizedValue<string>? ReadLocalizedFromJson(JsonElement item, string propertyName, string defaultValue)
     {
         LocalizedValue<string>? output = null;
         if (item.TryGetProperty(propertyName, out var descriptionJson))
@@ -31,7 +32,7 @@ public static class ApiReaderHelper
 
                 case JsonValueKind.Object:
                     {
-                        var localizedDescription = new LocalizedValue<string>();
+                        var localizedDescription = new LocalizedValue<string>(defaultValue);
                         foreach (var lang in descriptionJson.EnumerateObject())
                             localizedDescription.TryAdd(lang.Name, lang.Value.GetString());
                         output = localizedDescription;
@@ -48,7 +49,7 @@ public static class ApiReaderHelper
                         using var innerDoc = JsonDocument.Parse(innerJson);
                         if (innerDoc.RootElement.ValueKind == JsonValueKind.Object)
                         {
-                            var localizedDescription = new LocalizedValue<string>();
+                            var localizedDescription = new LocalizedValue<string>(defaultValue);
                             foreach (var lang in innerDoc.RootElement.EnumerateObject())
                                 localizedDescription.TryAdd(lang.Name, lang.Value.GetString());
                             output = localizedDescription;

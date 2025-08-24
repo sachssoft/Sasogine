@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Sachssoft.Observables;
+using Sachssoft.Sasogine.Elements;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -6,11 +8,10 @@ using System.IO;
 using System.IO.IsolatedStorage;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using Sachssoft.Sasogine.Elements;
 
 namespace Sachssoft.Sasogine;
 
-public class GameSettings : GameObject 
+public class GameSettings : NotifyingObject
 {
     private Dictionary<string, object?> _settings;
 

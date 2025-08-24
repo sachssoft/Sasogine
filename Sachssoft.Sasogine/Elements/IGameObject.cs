@@ -1,10 +1,8 @@
-﻿namespace Sachssoft.Sasogine.Elements;
+﻿using Sachssoft.Observables;
 
-public interface IGameObject : IIdentifiable
+namespace Sachssoft.Sasogine.Elements;
+
+public interface IGameObject : IIdentifiable, INamed, IClassifiable
 {
-    string? Name { get; set; }
-
-    string? Class { get; set; }
-
     object? DataContext { get; set; }
 }

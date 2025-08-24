@@ -1,10 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using Sachssoft.Sasogine.Elements;
+using Sachssoft.Observables;
 
 namespace Sachssoft.Sasogine.Animation;
 
-public abstract class AnimationBase : GameObject
+public abstract class AnimationBase : NotifyingElement
 {
     private Vector2 _start_position;
     private float _start_rotation;

@@ -1,4 +1,5 @@
-﻿using Sachssoft.Sasogine.Elements;
+﻿using Sachssoft.Observables;
+using Sachssoft.Sasogine.Elements;
 using Sachssoft.Sasogine.Features;
 using System;
 using System.IO;
@@ -12,7 +13,7 @@ namespace Sachssoft.Sasogine.Containers
     /// Represents a single entry within a package.
     /// Provides methods to create, duplicate, read, write, and delete the entry.
     /// </summary>
-    public abstract class PackageEntryBase : GameObject, IDisposable
+    public abstract class PackageEntryBase : NotifyingElement, IDisposable
     {
         private bool _isDeleted;
         private bool _isOpen;

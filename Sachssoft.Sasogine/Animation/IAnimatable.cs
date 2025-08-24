@@ -1,11 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Observables;
 using Sachssoft.Sasogine.Elements;
 
 namespace Sachssoft.Sasogine.Animation;
 
 public interface IAnimatable
 {
-    GameObjectCollection<AnimationBase> Animations { get; }
+    ElementCollection<AnimationBase> Animations { get; }
 
     Vector2 StartPosition { get; }
 
