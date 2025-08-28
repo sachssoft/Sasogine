@@ -11,6 +11,10 @@ using System.Linq;
 
 namespace Sachssoft.Sasogine.Containers
 {
+    /// <summary>
+    /// Represents a base implementation of a package containing assets, levels, and metadata.
+    /// Provides functionality to open, close, save, and manage package files.
+    /// </summary>
     public abstract class PackageBase : IDisposable, IPackage
     {
         protected private ZipArchive? _source;
@@ -25,6 +29,12 @@ namespace Sachssoft.Sasogine.Containers
         private IDocumentFormatter _manifestFormat = new JsonDocumentFormatter();
         private readonly Func<Stream> _openFunc;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PackageBase"/> class.
+        /// </summary>
+        /// <param name="streamFactory">A factory function that provides the package stream.</param>
+        /// <param name="isReadOnly">Indicates whether the package should be opened in read-only mode.</param>
+        /// <param name="manifest">Optional manifest to initialize the package with.</param>
         internal PackageBase(Func<Stream> streamFactory, bool isReadOnly, PackageManifest? manifest = null)
         {
             _openFunc = streamFactory ?? throw new ArgumentNullException(nameof(streamFactory));
@@ -38,25 +48,28 @@ namespace Sachssoft.Sasogine.Containers
             _previews = new PackagePreviews(this);
         }
 
+        /// <summary>
+        /// Gets the underlying ZIP archive. May be null if the package is not opened.
+        /// </summary>
         internal ZipArchive? Source => _source;
 
         /// <summary>
-        /// Gets whether the package is currently open.
+        /// Gets a value indicating whether the package is currently open.
         /// </summary>
         public bool IsOpen => _source != null;
 
         /// <summary>
-        /// Gets whether the package is read-only.
+        /// Gets a value indicating whether the package is read-only.
         /// </summary>
         public bool IsReadOnly => _isReadOnly;
 
         /// <summary>
-        /// Gets the package manifest.
+        /// Gets the package manifest, containing metadata and configuration.
         /// </summary>
         public PackageManifest Manifest => _manifest;
 
         /// <summary>
-        /// Gets or sets the formatter used for the manifest.
+        /// Gets or sets the document formatter used for reading and writing the manifest.
         /// </summary>
         [AllowNull]
         public IDocumentFormatter ManifestFormat
@@ -66,7 +79,7 @@ namespace Sachssoft.Sasogine.Containers
         }
 
         /// <summary>
-        /// Gets the package license.
+        /// Gets the package license information.
         /// </summary>
         public PackageLicense License => _license;
 
@@ -85,10 +98,10 @@ namespace Sachssoft.Sasogine.Containers
         IReadOnlyCollection<PackageLevelBase> IPackage.Levels => Array.Empty<PackageLevelBase>();
 
         /// <summary>
-        /// Opens the package safely, throwing detailed exceptions if the operation fails.
+        /// Opens the package safely, loading the manifest and ZIP archive.
         /// </summary>
-        /// <exception cref="InvalidOperationException">Thrown if package is already open or stream is invalid.</exception>
-        /// <exception cref="IOException">Thrown if stream cannot be accessed.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the package is already open or the archive is invalid.</exception>
+        /// <exception cref="IOException">Thrown if the package stream cannot be accessed.</exception>
         public void Open()
         {
             ThrowIfDisposed();
@@ -122,7 +135,7 @@ namespace Sachssoft.Sasogine.Containers
         }
 
         /// <summary>
-        /// Closes the package and releases all underlying resources.
+        /// Closes the package, saves changes if necessary, and releases all resources.
         /// </summary>
         public void Close()
         {
@@ -152,8 +165,8 @@ namespace Sachssoft.Sasogine.Containers
         /// </summary>
         public void Save()
         {
-            Close();                      // Schließt das Package/Zip-Archiv komplett
-            Open();                       // Öffnet es wieder neu (z. B. um später weiter zu arbeiten)
+            Close();
+            Open();
         }
 
         /// <summary>
@@ -176,12 +189,22 @@ namespace Sachssoft.Sasogine.Containers
             _isDisposed = true;
         }
 
+        /// <summary>
+        /// Checks whether a file exists in the package by its path.
+        /// </summary>
+        /// <param name="filePath">The file path inside the package.</param>
+        /// <returns>True if the file exists; otherwise, false.</returns>
         internal bool IsFileExists(string filePath)
         {
             return Source?.Entries.Any(e =>
                 e.FullName.Equals(filePath, StringComparison.InvariantCultureIgnoreCase)) ?? false;
         }
 
+        /// <summary>
+        /// Opens a file from the package as a stream.
+        /// </summary>
+        /// <param name="filePath">The file path inside the package.</param>
+        /// <returns>A stream of the file, or null if not found.</returns>
         internal Stream? OpenFile(string filePath)
         {
             return Source?.Entries
@@ -189,6 +212,13 @@ namespace Sachssoft.Sasogine.Containers
                 ?.Open();
         }
 
+        /// <summary>
+        /// Moves a file within the package to a new path.
+        /// </summary>
+        /// <param name="oldFilePath">The current file path.</param>
+        /// <param name="newFilePath">The target file path.</param>
+        /// <exception cref="ArgumentException">If the target path is invalid.</exception>
+        /// <exception cref="PackageException">If the move fails.</exception>
         internal void MoveFileTo(string oldFilePath, string newFilePath)
         {
             ThrowIfDisposed();
@@ -224,13 +254,18 @@ namespace Sachssoft.Sasogine.Containers
             }
         }
 
-
+        /// <summary>
+        /// Throws if the package has been disposed.
+        /// </summary>
         internal void ThrowIfDisposed()
         {
             if (_isDisposed)
                 throw new ObjectDisposedException(nameof(PackageBase));
         }
 
+        /// <summary>
+        /// Throws if the package is not opened.
+        /// </summary>
         [MemberNotNull(nameof(Source))]
         [MemberNotNull(nameof(_source))]
         internal void ThrowIfNotOpened()
@@ -239,6 +274,9 @@ namespace Sachssoft.Sasogine.Containers
                 throw new PackageException("Package is not opened.");
         }
 
+        /// <summary>
+        /// Throws if the package is read-only.
+        /// </summary>
         internal void ThrowIfIsReadOnly()
         {
             if (IsReadOnly)

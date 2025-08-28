@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Observables;
+using Sachssoft.Runtime;
 using System;
 using System.ComponentModel;
-using Sachssoft.Sasogine.Elements;
-using Sachssoft.Runtime;
 
 namespace Sachssoft.Sasogine.Resources;
 
@@ -64,43 +64,70 @@ public class Texture2DAsset : AssetProvider<Texture2D>
         RaiseChange<Texture2DAsset, Texture2D>(provider, ref asset, ref field, value, changed_event, load, unload);
     }
 
+    public readonly static IProperty FilenameProperty =
+        new StoredProperty<Texture2DAsset, string?>(
+            nameof(Filename),
+            category: Sachssoft.Observables.PropertyCategories.General);
+
     public string? Filename
     {
-        get => _filename;
-        set => RaiseAndSetIfChanged(ref _filename, value);
+        get => GetValue<string?>(FilenameProperty);
+        set => SetValue(FilenameProperty, value);
     }
+
+    public readonly static IProperty PatternProperty =
+        new StoredProperty<Texture2DAsset, Texture2DPatterns>(
+            nameof(Pattern),
+            category: Sachssoft.Sasogine.Observables.PropertyCategories.Animation);
 
     public Texture2DPatterns Pattern
     {
-        get => _pattern;
-        set => RaiseAndSetIfChanged(ref _pattern, value);
+        get => GetValue<Texture2DPatterns>(PatternProperty);
+        set => SetValue(PatternProperty, value);
     }
+
+    public readonly static IProperty TranslationProperty =
+        new StoredProperty<Texture2DAsset, Vector2>(
+            nameof(Translation),
+            category: Sachssoft.Sasogine.Observables.PropertyCategories.Transform);
 
     public Vector2 Translation
     {
-        get => _translation;
-        set => RaiseAndSetIfChanged(ref _translation, value);
+        get => GetValue<Vector2>(TranslationProperty);
+        set => SetValue(TranslationProperty, value);
     }
 
-    /// <summary>
-    /// Rotation in Grad (intern wird Radiant gespeichert)
-    /// </summary>
+    public readonly static IProperty RotationProperty =
+        new StoredProperty<Texture2DAsset, float>(
+            nameof(Rotation),
+            category: Sachssoft.Sasogine.Observables.PropertyCategories.Transform);
+
     public float Rotation
     {
-        get => MathHelper.ToDegrees(_rotation);
-        set => RaiseAndSetIfChanged(ref _rotation, MathHelper.ToRadians(value));
+        get => GetValue<float>(RotationProperty);
+        set => SetValue(RotationProperty, value);
     }
+
+    public readonly static IProperty ScaleProperty =
+        new StoredProperty<Texture2DAsset, Vector2>(
+            nameof(Scale),
+            category: Sachssoft.Sasogine.Observables.PropertyCategories.Transform);
 
     public Vector2 Scale
     {
-        get => _scale;
-        set => RaiseAndSetIfChanged(ref _scale, value);
+        get => GetValue<Vector2>(ScaleProperty);
+        set => SetValue(ScaleProperty, value);
     }
+
+    public readonly static IProperty DiffuseColorProperty =
+        new StoredProperty<Texture2DAsset, Color?>(
+            nameof(DiffuseColor),
+            category: Sachssoft.Sasogine.Observables.PropertyCategories.Transform);
 
     public Color? DiffuseColor
     {
-        get => _diffuse_color;
-        set => RaiseAndSetIfChanged(ref _diffuse_color, value);
+        get => GetValue<Color?>(ScaleProperty);
+        set => SetValue(ScaleProperty, value);
     }
 
     public void Load(GraphicsDevice graphics_device, string path)

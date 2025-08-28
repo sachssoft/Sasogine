@@ -17,7 +17,7 @@ using Sachssoft.Sasogine.Surface;
 using Sachssoft.Sasogine.Elements;
 using Sachssoft.Sasogine.Services;
 using Sachssoft.Sasogine.Resources;
-using Sachssoft.Runtime;
+using Sachssoft.Observables;
 
 namespace Sachssoft.Sasogine;
 
@@ -44,7 +44,7 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
 
     static MyGameApp()
     {
-        TypeFactoryManager.EnsureInitialized();
+        TypeFactoryManager.Active();
     }
 
     public MyGameApp(params string[] args)

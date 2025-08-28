@@ -1,28 +1,36 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
 
-namespace Sachssoft.Sasogine.Animation;
-
-[DataContract]
-public class RotationAnimation : AnimationBase
+namespace Sachssoft.Sasogine.Animation
 {
-    private float _currentRotation;
-
-    // Die Rotation in Grad wird aufgerufen, basierend auf der verstrichenen Zeit
-    protected override float AddRotationDegreeOverride(float elapsed_time)
+    /// <summary>
+    /// Animates a rotation over time in degrees.
+    /// </summary>
+    public class RotationAnimation : AnimationBase
     {
-        // Berechnet die Rotationsänderung basierend auf der verstrichenen Zeit
-        _currentRotation += elapsed_time * -Speed;
+        private float _currentRotation;
 
-        // Hier könnte man eine Modulo-Operation hinzufügen, um den Wert innerhalb des Bereichs [0, 360] zu halten
-        if (_currentRotation >= 360f)
+        /// <summary>
+        /// Calculates the current rotation based on elapsed time and speed.
+        /// The rotation loops continuously within the range [0, 360) degrees.
+        /// </summary>
+        /// <param name="elapsedTime">Elapsed time since the last update in milliseconds.</param>
+        /// <returns>Current rotation in degrees.</returns>
+        protected override float AddRotationDegreeOverride(float elapsedTime)
         {
-            _currentRotation -= 360f;
-        }
-        else if (_currentRotation < 0f)
-        {
-            _currentRotation += 360f;
-        }
+            // Update rotation based on elapsed time and speed
+            _currentRotation += elapsedTime * -Speed;
 
-        return _currentRotation;
+            // Keep rotation in range [0, 360)
+            if (_currentRotation >= 360f)
+            {
+                _currentRotation -= 360f;
+            }
+            else if (_currentRotation < 0f)
+            {
+                _currentRotation += 360f;
+            }
+
+            return _currentRotation;
+        }
     }
 }

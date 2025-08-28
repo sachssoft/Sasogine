@@ -3,31 +3,52 @@ using Sachssoft.Documents.Json;
 using Sachssoft.Sasogine.Resources;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Containers
 {
+    /// <summary>
+    /// Represents a game package containing assets, levels, and metadata.
+    /// </summary>
     public interface IPackage
     {
-        public PackageManifest Manifest { get; }
+        /// <summary>
+        /// Gets the manifest of the package, containing metadata and configuration.
+        /// </summary>
+        PackageManifest Manifest { get; }
 
-        [AllowNull]
-        public IDocumentFormatter ManifestFormat { get; set; }
+        /// <summary>
+        /// Gets or sets the document formatter used to read or write the manifest.
+        /// </summary>
+        IDocumentFormatter ManifestFormat { get; set; }
 
-        public PackageIcon Icon { get; }
+        /// <summary>
+        /// Gets the icon representing this package.
+        /// </summary>
+        PackageIcon Icon { get; }
 
-        public PackagePreviews Previews { get; }
+        /// <summary>
+        /// Gets the collection of preview images for this package.
+        /// </summary>
+        PackagePreviews Previews { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether this package is read-only.
+        /// </summary>
         bool IsReadOnly { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether this package is currently open.
+        /// </summary>
         bool IsOpen { get; }
 
+        /// <summary>
+        /// Gets a read-only dictionary of assets contained in this package, keyed by their names.
+        /// </summary>
         IReadOnlyDictionary<string, IPackageAsset> Assets { get; }
 
+        /// <summary>
+        /// Gets a read-only collection of levels included in this package.
+        /// </summary>
         IReadOnlyCollection<PackageLevelBase> Levels { get; }
-
     }
 }

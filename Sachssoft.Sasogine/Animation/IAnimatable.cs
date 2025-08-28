@@ -2,19 +2,45 @@
 using Sachssoft.Observables;
 using Sachssoft.Sasogine.Elements;
 
-namespace Sachssoft.Sasogine.Animation;
-
-public interface IAnimatable
+namespace Sachssoft.Sasogine.Animation
 {
-    ElementCollection<AnimationBase> Animations { get; }
+    /// <summary>
+    /// Represents an object that supports animations.
+    /// </summary>
+    public interface IAnimatable
+    {
+        /// <summary>
+        /// Gets the collection of animations applied to this object.
+        /// </summary>
+        ElementCollection<AnimationBase> Animations { get; }
 
-    Vector2 StartPosition { get; }
+        /// <summary>
+        /// Gets the initial position of the object when animations start.
+        /// </summary>
+        Vector2 StartPosition { get; }
 
-    Vector2 Position { get; }
+        /// <summary>
+        /// Gets the current position of the object after animation updates.
+        /// </summary>
+        Vector2 Position { get; }
 
-    float StartRotation { get; }
+        /// <summary>
+        /// Gets the initial rotation in degrees when animations start.
+        /// </summary>
+        float StartRotation { get; }
 
-    float Rotation { get; }
+        /// <summary>
+        /// Gets the current rotation in degrees after animation updates.
+        /// </summary>
+        float Rotation { get; }
 
-    void OnAnimated(Vector2 start_position, Vector2 position, float start_rotation, float rotation);
+        /// <summary>
+        /// Called after animations are applied to update the object state.
+        /// </summary>
+        /// <param name="startPosition">The starting position of the animation.</param>
+        /// <param name="position">The current position after animation.</param>
+        /// <param name="startRotation">The starting rotation in degrees.</param>
+        /// <param name="rotation">The current rotation in degrees after animation.</param>
+        void OnAnimated(Vector2 startPosition, Vector2 position, float startRotation, float rotation);
+    }
 }

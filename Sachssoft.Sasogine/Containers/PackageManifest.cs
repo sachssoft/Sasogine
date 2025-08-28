@@ -1,4 +1,5 @@
 ﻿using Sachssoft.Documents;
+using Sachssoft.Documents.Json;
 using Sachssoft.Sasogine.Resources;
 using System;
 using System.Collections.Generic;
@@ -19,11 +20,6 @@ namespace Sachssoft.Sasogine.Containers
         internal readonly Dictionary<string, PackageAssetEntry> _assets = new(StringComparer.InvariantCultureIgnoreCase);
         internal readonly ObservableCollection<PackageLevelBase> _levels = new();
         internal PackageBase _package;
-
-        public PackageManifest()
-        {
-
-        }
 
         public Func<PackageBase, PackageAssetEntry> AssetFactory { get; set; }
 

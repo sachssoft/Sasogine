@@ -1,7 +1,20 @@
-﻿namespace Sachssoft.Sasogine.Animation;
-
-public abstract class AnimationTimingBase
+﻿namespace Sachssoft.Sasogine.Animation
 {
-    // Berechnet den Animationswert basierend auf dem Prozentsatz der verstrichenen Zeit (0.0 bis 1.0)
-    public abstract float GetValue(float percent);
+    /// <summary>
+    /// Base class for defining timing functions for animations.
+    /// Provides a way to map a normalized progress (0.0 to 1.0) to a modified value.
+    /// </summary>
+    public abstract class AnimationTimingBase
+    {
+        /// <summary>
+        /// Calculates the animation value based on the normalized progress.
+        /// </summary>
+        /// <param name="percent">
+        /// The normalized progress of the animation, typically between 0.0 (start) and 1.0 (end).
+        /// </param>
+        /// <returns>
+        /// The calculated value after applying the timing function.
+        /// </returns>
+        public abstract float GetValue(float percent);
+    }
 }
