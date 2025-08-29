@@ -1,6 +1,6 @@
 ﻿namespace Sachssoft.Sasogine.Enums;
 
-public enum MovementDirections
+public enum MovementDirection
 {
     Forwards,
     Backwards

@@ -1,6 +1,6 @@
 ﻿namespace Sachssoft.Sasogine.Enums;
 
-public enum PositionDirections
+public enum PositionDirection
 {
     Horizontal,
     Vertical,

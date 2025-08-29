@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Xml.Linq;
 
@@ -117,7 +118,7 @@ public class TextureAtlas
         return _texture.Crop(frame.SourceRectangle);
     }
 
-    public bool TryCrop(string name, out Texture2D croppedTexture)
+    public bool TryCrop(string name, [MaybeNullWhen(false)] out Texture2D croppedTexture)
     {
         croppedTexture = null;
 

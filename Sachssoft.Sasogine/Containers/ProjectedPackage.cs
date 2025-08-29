@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 
 namespace Sachssoft.Sasogine.Containers
 {
@@ -47,6 +48,27 @@ namespace Sachssoft.Sasogine.Containers
         /// Gets or sets the index of the currently selected level.
         /// </summary>
         public int SelectedLevelIndex { get; set; }
+
+        /// <summary>
+        /// Gets the currently selected level in the package.
+        /// </summary>
+        /// <remarks>
+        /// The selected level is determined by the <see cref="SelectedLevelIndex"/> property.
+        /// If the index is out of range or the level collection is empty, this property returns <c>null</c>.
+        /// </remarks>
+        public PackageLevelBase? SelectedLevel
+        {
+            get
+            {
+                if (_levels == null || _levels.Entries.Count == 0)
+                    return null;
+
+                if (SelectedLevelIndex < 0 || SelectedLevelIndex >= _levels.Entries.Count)
+                    throw new IndexOutOfRangeException($"{nameof(SelectedLevelIndex)} is out of the valid range.");
+
+                return _levels[SelectedLevelIndex];
+            }
+        }
 
         IReadOnlyDictionary<string, IPackageAsset> IPackage.Assets => (IReadOnlyDictionary<string, IPackageAsset>)_manifest._assets;
 
