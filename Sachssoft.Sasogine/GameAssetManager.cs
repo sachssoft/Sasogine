@@ -12,6 +12,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace Sachssoft.Sasogine;
 
@@ -31,11 +32,11 @@ public class GameAssetManager
     private Dictionary<string, AssetEntry<Stream>> _data = new();
 
     public GameAssetManager(IMyGameApp app) => _app = app;
-    
+
     public IMyGameApp App => _app;
 
     internal protected virtual void OnLoad() { }
-    
+
     internal protected virtual void OnUnload() => UnloadAll();
 
     public void AddTexture(string key, string path, AssetSourceType type = AssetSourceType.ContentXnb) =>
@@ -297,19 +298,47 @@ public class GameAssetManager
         return fs;
     }
 
-    private Stream GetResourceStream(string file_path)
+    private Stream GetResourceStream(string filePath)
     {
-        var name = (_app.Content.RootDirectory + "/" + file_path).Replace("/", ".").ToLower();
+        var name = (_app.Content.RootDirectory + "/" + filePath).Replace("/", ".").ToLower();
         var assembly = _app.GetType().Assembly;
 
         foreach (var resource in assembly.GetManifestResourceNames())
         {
-            if (resource.ToLower().EndsWith(name))
+            if (resource.ToLower().EndsWith(name, StringComparison.InvariantCultureIgnoreCase))
                 return assembly.GetManifestResourceStream(resource) ?? throw new Exception("Stream null");
         }
 
-        throw new Exception("Embedded resource not found: " + file_path);
+        throw new Exception("Embedded resource not found: " + filePath);
     }
+
+    public IEnumerable<string> GetResourceEntries()
+    {
+        var assembly = _app.GetType().Assembly;
+
+        foreach (var resource in assembly.GetManifestResourceNames())
+        {
+            // RootNamespace entfernen
+            string name = resource;
+            string root = _app.GetType().Namespace ?? "";
+            if (name.StartsWith(root + "."))
+                name = name.Substring(root.Length + 1);
+
+            // Punkte in Pfad-Slashes umwandeln, **letzten Punkt vor Extension ignorieren**
+            int lastDot = name.LastIndexOf('.');
+            if (lastDot > 0)
+            {
+                string path = name.Substring(0, lastDot).Replace('.', '/');
+                string fileName = name.Substring(lastDot + 1);
+                yield return path + "." + fileName;
+            }
+            else
+            {
+                yield return name.Replace('.', '/');
+            }
+        }
+    }
+
 
     private byte[] ReadStreamFully(Stream stream)
     {

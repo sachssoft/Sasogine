@@ -183,10 +183,21 @@ namespace Sachssoft.Sasogine.Containers
             _source?.Dispose();
             _stream?.Dispose();
 
+            Disposing();
+
             _source = null;
             _stream = null;
             _isClosed = true;
             _isDisposed = true;
+        }
+
+        /// <summary>
+        /// Called when the instance is being disposed.
+        /// Override this method in derived classes
+        /// to implement custom cleanup logic for managed resources.
+        /// </summary>
+        protected virtual void Disposing()
+        {
         }
 
         /// <summary>
