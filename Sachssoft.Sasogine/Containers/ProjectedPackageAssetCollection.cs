@@ -1,4 +1,4 @@
-﻿using Sachssoft.Sasogine.Resources;
+﻿using Sachssoft.Sasogine.Assets;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,24 +20,61 @@ namespace Sachssoft.Sasogine.Containers
             _package = package;
         }
 
-        public void Add(byte[] data, string filePath, AssetCategory category)
+        public void AddFromFile(
+            string sourceFilePath, 
+            string filePath,
+            AssetCategory category = AssetCategory.Other,
+            bool saveManifest = true,
+            string? typeFactoryKey = null)
+        {
+            if (string.IsNullOrWhiteSpace(sourceFilePath))
+                throw new ArgumentException("Source file path must be specified", nameof(sourceFilePath));
+
+            if (!File.Exists(sourceFilePath))
+                throw new FileNotFoundException("Source file does not exist", sourceFilePath);
+
+            using var fs = File.OpenRead(sourceFilePath);
+            DoAdd(fs, filePath, category, saveManifest: true);
+        }
+
+        public void Add(
+            byte[] data, 
+            string filePath,
+            AssetCategory category = AssetCategory.Other,
+            bool saveManifest = true,
+            string? typeFactoryKey = null)
         {
             using var ms = new MemoryStream(data);
             DoAdd(ms, filePath, category, saveManifest: true);
         }
 
-        public void Add(string content, string filePath, AssetCategory category)
+        public void Add(
+            string content, 
+            string filePath,
+            AssetCategory category = AssetCategory.Other,
+            bool saveManifest = true,
+            string? typeFactoryKey = null)
         {
             var data = System.Text.Encoding.UTF8.GetBytes(content);
             Add(data, filePath, category);
         }
 
-        public void Add(Stream stream, string filePath, AssetCategory category)
+        public void Add(
+            Stream stream, 
+            string filePath,
+            AssetCategory category = AssetCategory.Other,
+            bool saveManifest = true,
+            string? typeFactoryKey = null)
         {
             DoAdd(stream, filePath, category, saveManifest: true);
         }
 
-        private void DoAdd(Stream stream, string filePath, AssetCategory category, bool saveManifest)
+        private void DoAdd(
+            Stream stream, 
+            string filePath, 
+            AssetCategory category = AssetCategory.Other, 
+            bool saveManifest = true,
+            string? typeFactoryKey = null)
         {
             _package.ThrowIfNotOpened();
 
@@ -61,7 +98,8 @@ namespace Sachssoft.Sasogine.Containers
             {
                 FileName = filePath,
                 Category = category,
-                Size = entryStream.Length
+                Size = entryStream.Length,
+                TypeFactoryKey = typeFactoryKey
             };
 
             _package.Manifest._assets[filePath] = newEntry;

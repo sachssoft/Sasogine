@@ -1,4 +1,6 @@
-﻿namespace Sachssoft.Sasogine.Containers
+﻿using Sachssoft.Naming;
+
+namespace Sachssoft.Sasogine.Containers
 {
     /// <summary>
     /// Factory interface for creating package levels from files.
@@ -12,5 +14,8 @@
         /// <param name="filePath">The file path to the level data.</param>
         /// <returns>A new instance of <see cref="PackageLevelBase"/> representing the level.</returns>
         PackageLevelBase Build(PackageBase package, string filePath);
+
+
+        INamingConvention? NamingConvention { get; }
     }
 }

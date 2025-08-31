@@ -4,7 +4,7 @@ using Sachssoft.Sasogine.Elements;
 using System;
 using System.ComponentModel;
 
-namespace Sachssoft.Sasogine.Resources;
+namespace Sachssoft.Sasogine.Assets;
 
 public abstract class AssetProvider<T> : NotifyingElement, IAssetProvider
 {

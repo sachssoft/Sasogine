@@ -69,6 +69,10 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
         IMyGameApp.Current = this;
     }
 
+    public CultureInfo Culture { get; set; } = CultureInfo.InvariantCulture;
+
+    public static string CurrentDirectory => AppContext.BaseDirectory;
+
     /// <summary>
     /// Indicates whether the application is running on a mobile platform (Android or iOS),
     /// or if mobile simulation is enabled for testing purposes.

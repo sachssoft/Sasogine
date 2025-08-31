@@ -1,7 +1,7 @@
 ﻿using Sachssoft.Observables;
 using Sachssoft.Sasogine.Elements;
 
-namespace Sachssoft.Sasogine.Resources;
+namespace Sachssoft.Sasogine.Assets;
 
 public class AssetCollection : IdentifiableCollection<IAssetProvider>
 {

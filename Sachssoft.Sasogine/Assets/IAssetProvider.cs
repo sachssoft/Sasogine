@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using Sachssoft.Sasogine.Elements;
 
-namespace Sachssoft.Sasogine.Resources;
+namespace Sachssoft.Sasogine.Assets;
 
 public interface IAssetProvider : IGameObject, INotifyPropertyChanged
 {

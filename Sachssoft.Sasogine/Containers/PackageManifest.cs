@@ -1,6 +1,6 @@
 ﻿using Sachssoft.Documents;
 using Sachssoft.Documents.Json;
-using Sachssoft.Sasogine.Resources;
+using Sachssoft.Sasogine.Assets;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -21,10 +21,9 @@ namespace Sachssoft.Sasogine.Containers
         internal readonly ObservableCollection<PackageLevelBase> _levels = new();
         internal PackageBase _package;
 
-        public Func<PackageBase, PackageAssetEntry> AssetFactory { get; set; }
+        protected IPackageAssetFactory? AssetFactory { get; set; }
 
-        //public Func<PackageBase, PackageLevelBase> LevelFactory { get; set; }
-        public IPackageLevelFactory LevelFactory { get; set; }
+        protected IPackageLevelFactory LevelFactory { get; set; }
 
         public void Load()
         {
@@ -67,6 +66,10 @@ namespace Sachssoft.Sasogine.Containers
 
         private void ReadAssets(FormatReaderBase reader)
         {
+            //if (AssetFactory == null)
+            //    throw new InvalidOperationException(
+            //        $"{nameof(AssetFactory)} is not set. You must set it before creating level instances.");
+
             _assets.Clear();
 
             if (!reader.Contains(SECTION_ASSETS))
@@ -78,13 +81,20 @@ namespace Sachssoft.Sasogine.Containers
             foreach (var readerItem in assetReaders)
             {
                 var entryReader = (JsonReader)readerItem;
-                var entry = AssetFactory.Invoke(_package);
+                //var entry = AssetFactory.Invoke(_package);
+                var entry = new PackageAssetEntry(_package);
 
                 entry.Guid = entryReader.ReadGuid(GetNamingValue(nameof(PackageAssetEntry.Guid)), Guid.NewGuid());
                 entry.FileName = entryReader.ReadString(GetNamingValue(nameof(PackageAssetEntry.FileName))) ?? $"$unknown{unknownIndex++}";
                 entry.Category = entryReader.ReadEnum<AssetCategory>(GetNamingValue(nameof(PackageAssetEntry.Category)));
                 entry.CategoryName = entryReader.ReadString(GetNamingValue(nameof(PackageAssetEntry.CategoryName))) ?? "";
                 entry.Hash = entryReader.ReadString(GetNamingValue(nameof(PackageAssetEntry.Hash)));
+                entry.TypeFactoryKey = entryReader.ReadString(GetNamingValue(nameof(PackageAssetEntry.TypeFactoryKey)));
+
+                if (AssetFactory != null)
+                {
+                    entry.Asset = AssetFactory.Build(_package, entry);
+                }
 
                 _assets.Add(entry.FileName, entry);
             }
@@ -92,6 +102,10 @@ namespace Sachssoft.Sasogine.Containers
 
         private void ReadLevels(FormatReaderBase reader)
         {
+            if (LevelFactory == null)
+                throw new InvalidOperationException(
+                    $"{nameof(LevelFactory)} is not set. You must set it before creating level instances.");
+
             _levels.Clear();
 
             if (!reader.Contains(SECTION_LEVELS))
@@ -148,6 +162,7 @@ namespace Sachssoft.Sasogine.Containers
                 entryWriter.WriteString(GetNamingValue(nameof(PackageAssetEntry.CategoryName)), asset.Value.CategoryName);
                 entryWriter.WriteString(GetNamingValue(nameof(PackageAssetEntry.Hash)), asset.Value.Hash);
                 entryWriter.WriteGuid(GetNamingValue(nameof(PackageAssetEntry.Guid)), asset.Value.Guid);
+                entryWriter.WriteString(GetNamingValue(nameof(PackageAssetEntry.TypeFactoryKey)), asset.Value.TypeFactoryKey);
 
                 assetWriters.Add(entryWriter);
             }

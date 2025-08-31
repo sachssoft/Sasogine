@@ -3,7 +3,7 @@ using Sachssoft.Observables;
 using Sachssoft.Runtime;
 using Sachssoft.Sasogine.Elements;
 
-namespace Sachssoft.Sasogine.Resources;
+namespace Sachssoft.Sasogine.Assets;
 
 public static class AssetsExtension
 {

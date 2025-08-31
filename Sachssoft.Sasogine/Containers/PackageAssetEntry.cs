@@ -1,10 +1,11 @@
-﻿using Sachssoft.Sasogine.Resources;
+﻿using Sachssoft.Sasogine.Assets;
+using Sachssoft.Sasogine.Resources;
 using System;
 using System.IO;
 
 namespace Sachssoft.Sasogine.Containers;
 
-public class PackageAssetEntry : IPackageAsset
+public sealed class PackageAssetEntry : IPackageAsset
 {
     private readonly PackageBase _package;
     private AssetCategory _category = AssetCategory.Other;
@@ -18,6 +19,11 @@ public class PackageAssetEntry : IPackageAsset
     public Guid Guid { get; set; } = Guid.NewGuid();
 
     public string FileName { get; set; } = string.Empty;
+
+    // Type Factory !! -> TypedFactoryManager CreateInstance (TypeKey)
+    public string? TypeFactoryKey { get; set; }
+
+    public IAssetProvider? Asset { get; set; }
 
     /// <summary>
     /// Vollständiger Pfad im Package, z. B. "assets/textures/foo.png"
