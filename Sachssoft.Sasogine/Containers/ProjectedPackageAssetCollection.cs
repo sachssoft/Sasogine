@@ -229,10 +229,35 @@ namespace Sachssoft.Sasogine.Containers
             return _package.Manifest._assets.ContainsKey(fileName);
         }
 
+        public void Synchronize(IEnumerable<string> fileNames)
+        {
+            _package.ThrowIfNotOpened();
+
+            // 1. Neue Dateien im Package, die noch nicht im Manifest sind, hinzufügen
+            foreach (var fileName in fileNames)
+            {
+                var filePath = FILE_PATH + fileName;
+
+                if (!_package.IsFileExists(filePath))
+                    continue; // Nicht gefunden, einfach ignorieren, da es sich um ein Synchronisierungsvorgang handelt
+
+                var entry = _package.Source.GetEntry(filePath)!;
+                var newEntry = new PackageAssetEntry(_package)
+                {
+                    FileName = fileName,
+                    Category = InferCategoryFromPath(fileName),
+                    Size = entry.Length
+                };
+                _package.Manifest._assets[fileName] = newEntry;
+            }
+
+            UpdateManifest();
+        }
+
         // Synchronisiert zwischen Manifest und Assets
         // Fügt Assets hinzu, die im Package sind, aber nicht im Manifest
         // Entfernt Manifest-Einträge, deren Dateien nicht mehr existieren
-        public void SynchronizeToManifest()
+        public void SynchronizeAll()
         {
             _package.ThrowIfNotOpened();
 
@@ -298,6 +323,27 @@ namespace Sachssoft.Sasogine.Containers
             _package.Manifest._assets.TryGetValue(filePath, out var entry) ? entry : null;
 
         public IEnumerable<PackageAssetEntry> GetAll() => _package.Manifest._assets.Values;
+
+        public IEnumerable<string> GetUnregisteredAssets()
+        {
+            _package.ThrowIfNotOpened();
+
+            foreach (var entry in _package.Source.Entries)
+            {
+                if (!entry.FullName.StartsWith(FILE_PATH, StringComparison.InvariantCultureIgnoreCase))
+                    continue;
+
+                // Nur echte Dateien (kein Verzeichnis)
+                if (string.IsNullOrEmpty(entry.Name))
+                    continue;
+
+                string assetName = entry.FullName.Substring(FILE_PATH.Length);
+
+                // Prüfen, ob Asset bereits im Manifest registriert ist
+                if (!_package.Manifest._assets.ContainsKey(assetName))
+                    yield return assetName;
+            }
+        }
 
         public IEnumerable<PackageAssetEntry> FindAll(AssetCategory category)
             => _package.Manifest._assets.Values

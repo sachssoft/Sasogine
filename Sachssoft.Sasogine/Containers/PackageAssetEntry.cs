@@ -1,7 +1,9 @@
 ﻿using Sachssoft.Sasogine.Assets;
 using Sachssoft.Sasogine.Resources;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.IO.Compression;
 
 namespace Sachssoft.Sasogine.Containers;
 
@@ -58,13 +60,18 @@ public sealed class PackageAssetEntry : IPackageAsset
 
     public string? Hash { get; set; }
 
+    public Stream Open()
+    {
+        _package.ThrowIfNotOpened();
+        var entry = EnsureGetEntry();
+
+        return entry.Open();
+    }
+
     public void Delete()
     {
         _package.ThrowIfNotOpened();
-
-        var entry = _package.Source.GetEntry(FilePath);
-        if (entry == null)
-            throw new FileNotFoundException($"Asset '{FileName}' not found in package.");
+        var entry = EnsureGetEntry();
 
         entry.Delete();
 
@@ -75,10 +82,7 @@ public sealed class PackageAssetEntry : IPackageAsset
     public void Replace(Stream stream)
     {
         _package.ThrowIfNotOpened();
-
-        var oldEntry = _package.Source.GetEntry(FilePath);
-        if (oldEntry == null)
-            throw new FileNotFoundException($"Asset '{FileName}' not found in package.");
+        var oldEntry = EnsureGetEntry();
 
         oldEntry.Delete();
 
@@ -94,5 +98,14 @@ public sealed class PackageAssetEntry : IPackageAsset
 
         _package.Manifest._assets[FileName] = this;
         _package.Manifest.Save();
+    }
+
+    internal ZipArchiveEntry EnsureGetEntry()
+    {
+        var entry = _package.Source!.GetEntry(FilePath);
+        if (entry == null)
+            throw new FileNotFoundException($"Asset '{FileName}' not found in package.");
+
+        return entry;
     }
 }
