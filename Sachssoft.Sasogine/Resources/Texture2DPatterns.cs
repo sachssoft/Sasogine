@@ -1,6 +1,6 @@
 ﻿namespace Sachssoft.Sasogine.Resources;
 
-public enum Texture2DPatterns
+public enum Texture2DPattern
 {
     Stretch,
     Repeat

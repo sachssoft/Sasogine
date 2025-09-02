@@ -45,6 +45,7 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
     static MyGameApp()
     {
         TypeFactoryManager.Active();
+        TypeRegistration.RegisterTypes();
     }
 
     public MyGameApp(params string[] args)

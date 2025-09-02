@@ -249,7 +249,7 @@ public class GameAssetManager
     private T LoadAsset<T>(Dictionary<string, AssetEntry<T>> dict, string key, Func<string, T> loader)
     {
         if (!dict.TryGetValue(key, out var entry))
-            throw new Exception($"Asset '{key}' not found.");
+            throw new Exception($"AssetBase '{key}' not found.");
 
         if (entry.Data != null)
             return entry.Data;

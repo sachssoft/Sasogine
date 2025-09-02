@@ -1,6 +1,7 @@
 ﻿using Sachssoft.Documents;
 using Sachssoft.Documents.Json;
 using Sachssoft.Observables;
+using Sachssoft.Sasogine.Assets;
 using Sachssoft.Sasogine.Containers;
 using Sachssoft.Sasogine.Resources;
 using System;
@@ -94,7 +95,7 @@ namespace Sachssoft.Sasogine.Containers
         /// </summary>
         public PackagePreviews Previews => _previews;
 
-        IReadOnlyDictionary<string, IPackageAsset> IPackage.Assets => new Dictionary<string, IPackageAsset>();
+        IReadOnlyDictionary<string, IAssetSource> IPackage.Assets => new Dictionary<string, IAssetSource>();
 
         IReadOnlyCollection<PackageLevelBase> IPackage.Levels => Array.Empty<PackageLevelBase>();
 

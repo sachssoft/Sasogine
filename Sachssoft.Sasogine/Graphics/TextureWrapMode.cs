@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Graphics
 {
-    public enum TextureWrapMode
+    public enum Texture2DPatternMode
     {
         Repeat,
         Clamp,

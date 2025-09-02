@@ -84,7 +84,7 @@ namespace Sachssoft.Sasogine.Containers
             string path = FILE_PATH + filePath;
 
             if (_package.IsFileExists(path))
-                throw new InvalidOperationException($"Asset '{filePath}' already exists.");
+                throw new InvalidOperationException($"AssetBase '{filePath}' already exists.");
 
             var entry = _package.Source.CreateEntry(path);
             using var entryStream = entry.Open();
@@ -99,10 +99,10 @@ namespace Sachssoft.Sasogine.Containers
                 FileName = filePath,
                 Category = category,
                 Size = entryStream.Length,
-                TypeFactoryKey = typeFactoryKey
+                TypeName = typeFactoryKey
             };
 
-            _package.Manifest._assets[filePath] = newEntry;
+            _package.Manifest._assetEntries[filePath] = newEntry;
 
             if (saveManifest)
                 _package.Manifest.Save();
@@ -116,7 +116,7 @@ namespace Sachssoft.Sasogine.Containers
             foreach (var asset in assets)
             {
                 if (Contains(asset.FilePath) && !overwrite)
-                    throw new InvalidOperationException($"Asset '{asset.FilePath}' already exists.");
+                    throw new InvalidOperationException($"AssetBase '{asset.FilePath}' already exists.");
             }
 
             // 2. Hinzufügen / Ersetzen
@@ -134,7 +134,7 @@ namespace Sachssoft.Sasogine.Containers
             foreach (var asset in assets)
             {
                 if (Contains(asset.FilePath) && !overwrite)
-                    throw new InvalidOperationException($"Asset '{asset.FilePath}' already exists.");
+                    throw new InvalidOperationException($"AssetBase '{asset.FilePath}' already exists.");
             }
 
             // 2. Hinzufügen / Ersetzen
@@ -171,7 +171,7 @@ namespace Sachssoft.Sasogine.Containers
                 foreach (var filePath in filePaths)
                 {
                     if (!Contains(filePath))
-                        throw new FileNotFoundException($"Asset '{filePath}' does not exist.");
+                        throw new FileNotFoundException($"AssetBase '{filePath}' does not exist.");
                 }
             }
 
@@ -226,7 +226,7 @@ namespace Sachssoft.Sasogine.Containers
         // Prüft, ob ein Asset im Manifest steht
         public bool ContainsInManifest(string fileName)
         {
-            return _package.Manifest._assets.ContainsKey(fileName);
+            return _package.Manifest._assetEntries.ContainsKey(fileName);
         }
 
         public void Synchronize(IEnumerable<string> fileNames)
@@ -248,7 +248,7 @@ namespace Sachssoft.Sasogine.Containers
                     Category = InferCategoryFromPath(fileName),
                     Size = entry.Length
                 };
-                _package.Manifest._assets[fileName] = newEntry;
+                _package.Manifest._assetEntries[fileName] = newEntry;
             }
 
             UpdateManifest();
@@ -269,7 +269,7 @@ namespace Sachssoft.Sasogine.Containers
 
                 string fileName = entry.FullName.Substring(FILE_PATH.Length);
 
-                if (!_package.Manifest._assets.ContainsKey(fileName))
+                if (!_package.Manifest._assetEntries.ContainsKey(fileName))
                 {
                     var newEntry = new PackageAssetEntry(_package)
                     {
@@ -277,20 +277,20 @@ namespace Sachssoft.Sasogine.Containers
                         Category = InferCategoryFromPath(fileName),
                         Size = entry.Length
                     };
-                    _package.Manifest._assets[fileName] = newEntry;
+                    _package.Manifest._assetEntries[fileName] = newEntry;
                 }
             }
 
             // 2. Manifest-Einträge entfernen, deren Dateien nicht mehr existieren
             var toRemove = new List<string>();
-            foreach (var kvp in _package.Manifest._assets)
+            foreach (var kvp in _package.Manifest._assetEntries)
             {
                 string path = FILE_PATH + kvp.Key;
                 if (!_package.IsFileExists(path))
                     toRemove.Add(kvp.Key);
             }
             foreach (var key in toRemove)
-                _package.Manifest._assets.Remove(key);
+                _package.Manifest._assetEntries.Remove(key);
 
             UpdateManifest();
         }
@@ -306,7 +306,7 @@ namespace Sachssoft.Sasogine.Containers
                     continue;
 
                 string fileName = entry.FullName.Substring(FILE_PATH.Length);
-                if (!_package.Manifest._assets.ContainsKey(fileName))
+                if (!_package.Manifest._assetEntries.ContainsKey(fileName))
                 {
                     entry.Delete();
                 }
@@ -315,15 +315,15 @@ namespace Sachssoft.Sasogine.Containers
         }
 
         public PackageAssetEntry GetEntry(string fileName) =>
-            (PackageAssetEntry)(_package.Manifest._assets.TryGetValue(fileName, out var entry)
+            (PackageAssetEntry)(_package.Manifest._assetEntries.TryGetValue(fileName, out var entry)
                 ? entry
-                : throw new InvalidOperationException($"Asset '{fileName}' does not exist."));
+                : throw new InvalidOperationException($"AssetBase '{fileName}' does not exist."));
 
         public PackageAssetEntry? FindEntry(string filePath) =>
-            (PackageAssetEntry?)(_package.Manifest._assets.TryGetValue(filePath, out var entry) ? entry : null);
+            (PackageAssetEntry?)(_package.Manifest._assetEntries.TryGetValue(filePath, out var entry) ? entry : null);
 
         public IEnumerable<PackageAssetEntry> GetAll() => 
-            _package.Manifest._assets.Values.Cast<PackageAssetEntry>();
+            _package.Manifest._assetEntries.Values.Cast<PackageAssetEntry>();
 
         public IEnumerable<string> GetUnregisteredAssets()
         {
@@ -341,19 +341,19 @@ namespace Sachssoft.Sasogine.Containers
                 string assetName = entry.FullName.Substring(FILE_PATH.Length);
 
                 // Prüfen, ob Asset bereits im Manifest registriert ist
-                if (!_package.Manifest._assets.ContainsKey(assetName))
+                if (!_package.Manifest._assetEntries.ContainsKey(assetName))
                     yield return assetName;
             }
         }
 
         public IEnumerable<PackageAssetEntry> FindAll(AssetCategory category)
-            => _package.Manifest._assets.Values
+            => _package.Manifest._assetEntries.Values
                 .Cast<PackageAssetEntry>()
                 .Where(x => x.Category == category)
                 .ToList();
 
         public IEnumerable<PackageAssetEntry> FindAll(string categoryName)
-            => _package.Manifest._assets.Values
+            => _package.Manifest._assetEntries.Values
                 .Cast<PackageAssetEntry>()
                 .Where(x => x.CategoryName == categoryName)
                 .ToList();
@@ -363,7 +363,7 @@ namespace Sachssoft.Sasogine.Containers
             if (!fileExtension.StartsWith("."))
                 fileExtension = "." + fileExtension;
 
-            return _package.Manifest._assets
+            return _package.Manifest._assetEntries
                 .Values
                 .Cast<PackageAssetEntry>()
                 .Where(x => x.FileName.EndsWith(fileExtension, StringComparison.OrdinalIgnoreCase))
@@ -372,7 +372,7 @@ namespace Sachssoft.Sasogine.Containers
 
         public IEnumerable<PackageAssetEntry> FindAllByFilename(string fileName)
         {
-            return _package.Manifest._assets
+            return _package.Manifest._assetEntries
                 .Values
                 .Cast<PackageAssetEntry>()
                 .Where(x => string.Equals(x.FileName, fileName, StringComparison.OrdinalIgnoreCase))

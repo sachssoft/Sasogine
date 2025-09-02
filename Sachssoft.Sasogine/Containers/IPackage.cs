@@ -1,5 +1,6 @@
 ﻿using Sachssoft.Documents;
 using Sachssoft.Documents.Json;
+using Sachssoft.Sasogine.Assets;
 using Sachssoft.Sasogine.Resources;
 using System;
 using System.Collections.Generic;
@@ -44,7 +45,7 @@ namespace Sachssoft.Sasogine.Containers
         /// <summary>
         /// Gets a read-only dictionary of assets contained in this package, keyed by their names.
         /// </summary>
-        IReadOnlyDictionary<string, IPackageAsset> Assets { get; }
+        IReadOnlyDictionary<string, IAssetSource> Assets { get; }
 
         /// <summary>
         /// Gets a read-only collection of levels included in this package.

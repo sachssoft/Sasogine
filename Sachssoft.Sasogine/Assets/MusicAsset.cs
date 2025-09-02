@@ -2,7 +2,7 @@
 
 namespace Sachssoft.Sasogine.Assets
 {
-    public class MusicAsset : AssetProvider<Song>
+    public class MusicAsset : AssetBase<Song>
     {
     }
 }

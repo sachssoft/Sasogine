@@ -1,6 +1,7 @@
 ﻿using Sachssoft.Documents;
 using Sachssoft.Documents.Json;
 using Sachssoft.Documents.Xml;
+using Sachssoft.Sasogine.Assets;
 using Sachssoft.Sasogine.Resources;
 using System;
 using System.Collections.Generic;
@@ -70,7 +71,7 @@ namespace Sachssoft.Sasogine.Containers
             }
         }
 
-        IReadOnlyDictionary<string, IPackageAsset> IPackage.Assets => (IReadOnlyDictionary<string, IPackageAsset>)_manifest._assets;
+        IReadOnlyDictionary<string, IAssetSource> IPackage.Assets => (IReadOnlyDictionary<string, IAssetSource>)_manifest._assetEntries;
 
         IReadOnlyCollection<PackageLevelBase> IPackage.Levels => (IReadOnlyCollection<PackageLevelBase>)_manifest._levels;
 

@@ -1,13 +1,14 @@
-﻿using Sachssoft.Sasogine.Assets;
-using Sachssoft.Sasogine.Resources;
+﻿using Sachssoft.Observables;
+using Sachssoft.Sasogine.Assets;
 using System;
-using System.Diagnostics.CodeAnalysis;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 
 namespace Sachssoft.Sasogine.Containers;
 
-public sealed class PackageAssetEntry : IPackageAsset
+public sealed class PackageAssetEntry : IAssetSource, IHasGuid
 {
     private readonly PackageBase _package;
     private AssetCategory _category = AssetCategory.Other;
@@ -23,9 +24,10 @@ public sealed class PackageAssetEntry : IPackageAsset
     public string FileName { get; set; } = string.Empty;
 
     // Type Factory !! -> TypedFactoryManager CreateInstance (TypeKey)
-    public string? TypeFactoryKey { get; set; }
+    public string? TypeName { get; set; }
 
-    public IAssetProvider? Asset { get; set; }
+    //public IAssetProvider? Asset { get; set; }
+    public IAsset? Asset { get; internal set; }
 
     /// <summary>
     /// Vollständiger Pfad im Package, z. B. "assets/textures/foo.png"
@@ -75,7 +77,7 @@ public sealed class PackageAssetEntry : IPackageAsset
 
         entry.Delete();
 
-        _package.Manifest._assets.Remove(FileName);
+        _package.Manifest._assetEntries.Remove(FileName);
         _package.Manifest.Save();
     }
 
@@ -96,7 +98,7 @@ public sealed class PackageAssetEntry : IPackageAsset
 
         Size = entryStream.Length;
 
-        _package.Manifest._assets[FileName] = this;
+        _package.Manifest._assetEntries[FileName] = this;
         _package.Manifest.Save();
     }
 
@@ -104,7 +106,7 @@ public sealed class PackageAssetEntry : IPackageAsset
     {
         var entry = _package.Source!.GetEntry(FilePath);
         if (entry == null)
-            throw new FileNotFoundException($"Asset '{FileName}' not found in package.");
+            throw new FileNotFoundException($"AssetBase '{FileName}' not found in package.");
 
         return entry;
     }

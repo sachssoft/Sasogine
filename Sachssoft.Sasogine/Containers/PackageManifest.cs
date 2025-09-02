@@ -1,6 +1,7 @@
 ﻿using Sachssoft.Documents;
 using Sachssoft.Documents.Json;
 using Sachssoft.Naming;
+using Sachssoft.Observables;
 using Sachssoft.Sasogine.Assets;
 using Sachssoft.Sasogine.Resources;
 using System;
@@ -16,8 +17,9 @@ namespace Sachssoft.Sasogine.Containers
         private const string FILE_PATH = "manifest";
         private readonly string _sectionAssets;
         private readonly string _sectionLevels;
+        private readonly string _sectionData;
 
-        internal readonly Dictionary<string, IPackageAsset> _assets = new(StringComparer.InvariantCultureIgnoreCase);
+        internal readonly Dictionary<string, IAssetSource> _assetEntries = new(StringComparer.InvariantCultureIgnoreCase);
         internal readonly ObservableCollection<PackageLevelBase> _levels = new();
         [AllowNull] internal PackageBase _package;
 
@@ -25,14 +27,16 @@ namespace Sachssoft.Sasogine.Containers
         {
             _sectionAssets = "$" + "assets".ToCase(Options.PropertyNamingConvention, Options.PropertyNamingOptions);
             _sectionLevels = "$" + "levels".ToCase(Options.PropertyNamingConvention, Options.PropertyNamingOptions);
+            _sectionData = "$" + "data".ToCase(Options.PropertyNamingConvention, Options.PropertyNamingOptions);
 
             Options.PreservedPropertyNames = [
                 _sectionAssets,
                 _sectionLevels,
+                _sectionData,
             ];
         }
 
-        protected IPackageAssetFactory? AssetFactory { get; set; }
+        [AllowNull] protected IPackageAssetFactory AssetFactory { get; set; }
 
         [AllowNull] protected IPackageLevelFactory LevelFactory { get; set; }
 
@@ -77,11 +81,11 @@ namespace Sachssoft.Sasogine.Containers
 
         private void ReadAssets(FormatReaderBase reader)
         {
-            //if (AssetFactory == null)
-            //    throw new InvalidOperationException(
-            //        $"{nameof(AssetFactory)} is not set. You must set it before creating level instances.");
+            if (AssetFactory == null)
+                throw new InvalidOperationException(
+                    $"{nameof(AssetFactory)} is not set. You must set it before creating level instances.");
 
-            _assets.Clear();
+            _assetEntries.Clear();
 
             if (!reader.Contains(_sectionAssets))
                 return;
@@ -92,8 +96,6 @@ namespace Sachssoft.Sasogine.Containers
             foreach (var readerItem in assetReaders)
             {
                 var entryReader = (JsonReader)readerItem;
-                //entryReader.NamingConvention = NamingConvention;
-                //entryReader.NamingOptions = NamingOptions;
                 entryReader.Options = Options;
 
                 var entry = new PackageAssetEntry(_package);
@@ -103,14 +105,17 @@ namespace Sachssoft.Sasogine.Containers
                 entry.Category = entryReader.ReadEnum<AssetCategory>(nameof(PackageAssetEntry.Category));
                 entry.CategoryName = entryReader.ReadString(nameof(PackageAssetEntry.CategoryName)) ?? "";
                 entry.Hash = entryReader.ReadString(nameof(PackageAssetEntry.Hash));
-                entry.TypeFactoryKey = entryReader.ReadString(nameof(PackageAssetEntry.TypeFactoryKey));
+                entry.TypeName = entryReader.ReadString(nameof(PackageAssetEntry.TypeName));
+                entry.Asset = AssetFactory.Build(_package, entry);
 
-                if (AssetFactory != null)
+                if (entry.Asset is NotifyingObject nAsset)
                 {
-                    entry.Asset = AssetFactory.Build(_package, entry);
+                    var assetReader = entryReader.Read(_sectionData);
+                    assetReader.Options = Options;                    
+                    Deserialize(nAsset, assetReader);
                 }
 
-                _assets.Add(entry.FileName, entry);
+                _assetEntries.Add(entry.FileName, entry);
             }
         }
 
@@ -161,7 +166,7 @@ namespace Sachssoft.Sasogine.Containers
 
             var sortedLevelList = unsortedLevelList.OrderBy(x => x.Index)
                                                    .ToArray();
-            for(int i = 0;  i < sortedLevelList.Length; i++)
+            for (int i = 0; i < sortedLevelList.Length; i++)
             {
                 var levelEntry = sortedLevelList[i];
                 levelEntry.Index = i;
@@ -172,21 +177,32 @@ namespace Sachssoft.Sasogine.Containers
         private void WriteAssets(FormatWriterBase writer)
         {
             var assetWriters = new List<FormatWriterBase>();
-            foreach (var asset in _assets)
+            foreach (var assetEntry in _assetEntries)
             {
                 var entryWriter = new JsonWriter();
                 //entryWriter.NamingConvention = NamingConvention;
                 //entryWriter.NamingOptions = NamingOptions;
                 entryWriter.Options = Options;
 
-                var entry = (PackageAssetEntry)asset.Value;
+                var entry = (PackageAssetEntry)assetEntry.Value;
+
+                //var asset = entry.Build(_package, filePath) ??
+                //    throw new InvalidOperationException("Can not create level instance");
 
                 entryWriter.WriteString(nameof(PackageAssetEntry.FileName), entry.FileName);
                 entryWriter.WriteEnum(nameof(PackageAssetEntry.Category), entry.Category);
                 entryWriter.WriteString(nameof(PackageAssetEntry.CategoryName), entry.CategoryName);
                 entryWriter.WriteString(nameof(PackageAssetEntry.Hash), entry.Hash);
                 entryWriter.WriteGuid(nameof(PackageAssetEntry.Guid), entry.Guid);
-                entryWriter.WriteString(nameof(PackageAssetEntry.TypeFactoryKey), entry.TypeFactoryKey);
+                entryWriter.WriteString(nameof(PackageAssetEntry.TypeName), entry.TypeName);
+
+                if (entry.Asset is NotifyingObject nAsset)
+                {
+                    var assetWriter = new JsonWriter();
+                    assetWriter.Options = Options;
+                    Serialize(nAsset, assetWriter);
+                    entryWriter.Write(_sectionData, assetWriter);
+                }
 
                 assetWriters.Add(entryWriter);
             }
@@ -232,7 +248,7 @@ namespace Sachssoft.Sasogine.Containers
 
         public bool TryGetAsset(string filePath, [MaybeNullWhen(false)] out PackageAssetEntry? asset)
         {
-            var result = _assets.TryGetValue(filePath, out var entry);
+            var result = _assetEntries.TryGetValue(filePath, out var entry);
             asset = (PackageAssetEntry?)entry;
             return result;
         }
