@@ -315,14 +315,15 @@ namespace Sachssoft.Sasogine.Containers
         }
 
         public PackageAssetEntry GetEntry(string fileName) =>
-            _package.Manifest._assets.TryGetValue(fileName, out var entry)
+            (PackageAssetEntry)(_package.Manifest._assets.TryGetValue(fileName, out var entry)
                 ? entry
-                : throw new InvalidOperationException($"Asset '{fileName}' does not exist.");
+                : throw new InvalidOperationException($"Asset '{fileName}' does not exist."));
 
         public PackageAssetEntry? FindEntry(string filePath) =>
-            _package.Manifest._assets.TryGetValue(filePath, out var entry) ? entry : null;
+            (PackageAssetEntry?)(_package.Manifest._assets.TryGetValue(filePath, out var entry) ? entry : null);
 
-        public IEnumerable<PackageAssetEntry> GetAll() => _package.Manifest._assets.Values;
+        public IEnumerable<PackageAssetEntry> GetAll() => 
+            _package.Manifest._assets.Values.Cast<PackageAssetEntry>();
 
         public IEnumerable<string> GetUnregisteredAssets()
         {
@@ -347,11 +348,13 @@ namespace Sachssoft.Sasogine.Containers
 
         public IEnumerable<PackageAssetEntry> FindAll(AssetCategory category)
             => _package.Manifest._assets.Values
+                .Cast<PackageAssetEntry>()
                 .Where(x => x.Category == category)
                 .ToList();
 
         public IEnumerable<PackageAssetEntry> FindAll(string categoryName)
             => _package.Manifest._assets.Values
+                .Cast<PackageAssetEntry>()
                 .Where(x => x.CategoryName == categoryName)
                 .ToList();
 
@@ -362,6 +365,7 @@ namespace Sachssoft.Sasogine.Containers
 
             return _package.Manifest._assets
                 .Values
+                .Cast<PackageAssetEntry>()
                 .Where(x => x.FileName.EndsWith(fileExtension, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
@@ -370,6 +374,7 @@ namespace Sachssoft.Sasogine.Containers
         {
             return _package.Manifest._assets
                 .Values
+                .Cast<PackageAssetEntry>()
                 .Where(x => string.Equals(x.FileName, fileName, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }

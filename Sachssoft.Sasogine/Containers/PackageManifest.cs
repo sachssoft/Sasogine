@@ -1,29 +1,40 @@
 ﻿using Sachssoft.Documents;
 using Sachssoft.Documents.Json;
+using Sachssoft.Naming;
 using Sachssoft.Sasogine.Assets;
+using Sachssoft.Sasogine.Resources;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO.Compression;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Principal;
 
 namespace Sachssoft.Sasogine.Containers
 {
     public class PackageManifest : Document
     {
         private const string FILE_PATH = "manifest";
-        private const string SECTION_ASSETS = "$assets";
-        private const string SECTION_LEVELS = "$levels";
+        private readonly string _sectionAssets;
+        private readonly string _sectionLevels;
 
-        internal readonly Dictionary<string, PackageAssetEntry> _assets = new(StringComparer.InvariantCultureIgnoreCase);
+        internal readonly Dictionary<string, IPackageAsset> _assets = new(StringComparer.InvariantCultureIgnoreCase);
         internal readonly ObservableCollection<PackageLevelBase> _levels = new();
-        internal PackageBase _package;
+        [AllowNull] internal PackageBase _package;
+
+        public PackageManifest()
+        {
+            _sectionAssets = "$" + "assets".ToCase(Options.PropertyNamingConvention, Options.PropertyNamingOptions);
+            _sectionLevels = "$" + "levels".ToCase(Options.PropertyNamingConvention, Options.PropertyNamingOptions);
+
+            Options.PreservedPropertyNames = [
+                _sectionAssets,
+                _sectionLevels,
+            ];
+        }
 
         protected IPackageAssetFactory? AssetFactory { get; set; }
 
-        protected IPackageLevelFactory LevelFactory { get; set; }
+        [AllowNull] protected IPackageLevelFactory LevelFactory { get; set; }
 
         public void Load()
         {
@@ -72,24 +83,27 @@ namespace Sachssoft.Sasogine.Containers
 
             _assets.Clear();
 
-            if (!reader.Contains(SECTION_ASSETS))
+            if (!reader.Contains(_sectionAssets))
                 return;
 
-            var assetReaders = new List<FormatReaderBase>(reader.ReadArray(SECTION_ASSETS));
+            var assetReaders = new List<FormatReaderBase>(reader.ReadArray(_sectionAssets));
             var unknownIndex = 0;
 
             foreach (var readerItem in assetReaders)
             {
                 var entryReader = (JsonReader)readerItem;
-                //var entry = AssetFactory.Invoke(_package);
+                //entryReader.NamingConvention = NamingConvention;
+                //entryReader.NamingOptions = NamingOptions;
+                entryReader.Options = Options;
+
                 var entry = new PackageAssetEntry(_package);
 
-                entry.Guid = entryReader.ReadGuid(GetNamingValue(nameof(PackageAssetEntry.Guid)), Guid.NewGuid());
-                entry.FileName = entryReader.ReadString(GetNamingValue(nameof(PackageAssetEntry.FileName))) ?? $"$unknown{unknownIndex++}";
-                entry.Category = entryReader.ReadEnum<AssetCategory>(GetNamingValue(nameof(PackageAssetEntry.Category)));
-                entry.CategoryName = entryReader.ReadString(GetNamingValue(nameof(PackageAssetEntry.CategoryName))) ?? "";
-                entry.Hash = entryReader.ReadString(GetNamingValue(nameof(PackageAssetEntry.Hash)));
-                entry.TypeFactoryKey = entryReader.ReadString(GetNamingValue(nameof(PackageAssetEntry.TypeFactoryKey)));
+                entry.Guid = entryReader.ReadGuid(nameof(PackageAssetEntry.Guid), Guid.NewGuid());
+                entry.FileName = entryReader.ReadString(nameof(PackageAssetEntry.FileName)) ?? $"$unknown{unknownIndex++}";
+                entry.Category = entryReader.ReadEnum<AssetCategory>(nameof(PackageAssetEntry.Category));
+                entry.CategoryName = entryReader.ReadString(nameof(PackageAssetEntry.CategoryName)) ?? "";
+                entry.Hash = entryReader.ReadString(nameof(PackageAssetEntry.Hash));
+                entry.TypeFactoryKey = entryReader.ReadString(nameof(PackageAssetEntry.TypeFactoryKey));
 
                 if (AssetFactory != null)
                 {
@@ -108,10 +122,10 @@ namespace Sachssoft.Sasogine.Containers
 
             _levels.Clear();
 
-            if (!reader.Contains(SECTION_LEVELS))
+            if (!reader.Contains(_sectionLevels))
                 return;
 
-            var sectionReader = (JsonReader)reader.Read(SECTION_LEVELS)!;
+            var sectionReader = (JsonReader)reader.Read(_sectionLevels)!;
 
             if (_package is ProjectedPackage projected)
             {
@@ -124,18 +138,22 @@ namespace Sachssoft.Sasogine.Containers
             foreach (var readerItem in entries)
             {
                 var entryReader = (JsonReader)readerItem;
-                var filePath = entryReader.ReadString(GetNamingValue(nameof(PackageLevelBase.RelativeFilePath))) ?? "";
+                entryReader.Options = Options;
+                //entryReader.NamingConvention = NamingConvention;
+                //entryReader.NamingOptions = NamingOptions;
+
+                var filePath = entryReader.ReadString((nameof(PackageLevelBase.RelativeFilePath))) ?? "";
 
                 var levelEntry = LevelFactory.Build(_package, filePath) ??
                     throw new InvalidOperationException("Can not create level instance");
 
-                levelEntry.ID = entryReader.ReadString(GetNamingValue(nameof(PackageLevelBase.ID)));
-                levelEntry.Name = entryReader.ReadString(GetNamingValue(nameof(PackageLevelBase.Name)));
-                levelEntry.Class = entryReader.ReadString(GetNamingValue(nameof(PackageLevelBase.Class)));
-                levelEntry.Index = entryReader.ReadInt32(GetNamingValue(nameof(PackageLevelBase.Index)));
-                levelEntry.Guid = entryReader.ReadGuid(GetNamingValue(nameof(PackageLevelBase.Guid)), Guid.NewGuid());
-                levelEntry.Title = entryReader.ReadString(GetNamingValue(nameof(PackageLevelBase.Title)));
-                levelEntry.Description = entryReader.ReadString(GetNamingValue(nameof(PackageLevelBase.Description)));
+                levelEntry.ID = entryReader.ReadString((nameof(PackageLevelBase.ID)));
+                levelEntry.Name = entryReader.ReadString((nameof(PackageLevelBase.Name)));
+                levelEntry.Class = entryReader.ReadString((nameof(PackageLevelBase.Class)));
+                levelEntry.Index = entryReader.ReadInt32((nameof(PackageLevelBase.Index)));
+                levelEntry.Guid = entryReader.ReadGuid((nameof(PackageLevelBase.Guid)), Guid.NewGuid());
+                levelEntry.Title = entryReader.ReadString((nameof(PackageLevelBase.Title)));
+                levelEntry.Description = entryReader.ReadString((nameof(PackageLevelBase.Description)));
                 levelEntry.RelativeFilePath = filePath;
 
                 unsortedLevelList.Add(levelEntry);
@@ -157,16 +175,22 @@ namespace Sachssoft.Sasogine.Containers
             foreach (var asset in _assets)
             {
                 var entryWriter = new JsonWriter();
-                entryWriter.WriteString(GetNamingValue(nameof(PackageAssetEntry.FileName)), asset.Value.FileName);
-                entryWriter.WriteEnum(GetNamingValue(nameof(PackageAssetEntry.Category)), asset.Value.Category);
-                entryWriter.WriteString(GetNamingValue(nameof(PackageAssetEntry.CategoryName)), asset.Value.CategoryName);
-                entryWriter.WriteString(GetNamingValue(nameof(PackageAssetEntry.Hash)), asset.Value.Hash);
-                entryWriter.WriteGuid(GetNamingValue(nameof(PackageAssetEntry.Guid)), asset.Value.Guid);
-                entryWriter.WriteString(GetNamingValue(nameof(PackageAssetEntry.TypeFactoryKey)), asset.Value.TypeFactoryKey);
+                //entryWriter.NamingConvention = NamingConvention;
+                //entryWriter.NamingOptions = NamingOptions;
+                entryWriter.Options = Options;
+
+                var entry = (PackageAssetEntry)asset.Value;
+
+                entryWriter.WriteString(nameof(PackageAssetEntry.FileName), entry.FileName);
+                entryWriter.WriteEnum(nameof(PackageAssetEntry.Category), entry.Category);
+                entryWriter.WriteString(nameof(PackageAssetEntry.CategoryName), entry.CategoryName);
+                entryWriter.WriteString(nameof(PackageAssetEntry.Hash), entry.Hash);
+                entryWriter.WriteGuid(nameof(PackageAssetEntry.Guid), entry.Guid);
+                entryWriter.WriteString(nameof(PackageAssetEntry.TypeFactoryKey), entry.TypeFactoryKey);
 
                 assetWriters.Add(entryWriter);
             }
-            writer.WriteArray(SECTION_ASSETS, assetWriters.ToArray());
+            writer.WriteArray(_sectionAssets, assetWriters.ToArray());
         }
 
         private void WriteLevels(FormatWriterBase writer)
@@ -178,15 +202,18 @@ namespace Sachssoft.Sasogine.Containers
             foreach (var level in _levels)
             {
                 var entryWriter = new JsonWriter();
+                //entryWriter.NamingConvention = NamingConvention;
+                //entryWriter.NamingOptions = NamingOptions;
+                entryWriter.Options = Options;
 
-                entryWriter.WriteString(GetNamingValue(nameof(PackageLevelBase.ID)), level.ID);
-                entryWriter.WriteString(GetNamingValue(nameof(PackageLevelBase.Name)), level.Name);
-                entryWriter.WriteString(GetNamingValue(nameof(PackageLevelBase.Class)), level.Class);
-                entryWriter.WriteInt32(GetNamingValue(nameof(PackageLevelBase.Index)), level.Index);
-                entryWriter.WriteGuid(GetNamingValue(nameof(PackageLevelBase.Guid)), level.Guid);
-                entryWriter.WriteString(GetNamingValue(nameof(PackageLevelBase.RelativeFilePath)), level.RelativeFilePath);
-                entryWriter.WriteString(GetNamingValue(nameof(PackageLevelBase.Title)), level.Title);
-                entryWriter.WriteString(GetNamingValue(nameof(PackageLevelBase.Description)), level.Description);
+                entryWriter.WriteString((nameof(PackageLevelBase.ID)), level.ID);
+                entryWriter.WriteString((nameof(PackageLevelBase.Name)), level.Name);
+                entryWriter.WriteString((nameof(PackageLevelBase.Class)), level.Class);
+                entryWriter.WriteInt32((nameof(PackageLevelBase.Index)), level.Index);
+                entryWriter.WriteGuid((nameof(PackageLevelBase.Guid)), level.Guid);
+                entryWriter.WriteString((nameof(PackageLevelBase.RelativeFilePath)), level.RelativeFilePath);
+                entryWriter.WriteString((nameof(PackageLevelBase.Title)), level.Title);
+                entryWriter.WriteString((nameof(PackageLevelBase.Description)), level.Description);
 
                 if (level.IsDirty && level.Index == projected.SelectedLevelIndex)
                 {
@@ -200,12 +227,14 @@ namespace Sachssoft.Sasogine.Containers
             sectionWriter.WriteInt32("selected-index", projected.SelectedLevelIndex);
             sectionWriter.WriteArray("entries", levelWriters.ToArray());
 
-            writer.Write(SECTION_LEVELS, sectionWriter);
+            writer.Write(_sectionLevels, sectionWriter);
         }
 
-        public bool TryGetAsset(string filePath, out PackageAssetEntry? asset)
+        public bool TryGetAsset(string filePath, [MaybeNullWhen(false)] out PackageAssetEntry? asset)
         {
-            return _assets.TryGetValue(filePath, out asset);
+            var result = _assets.TryGetValue(filePath, out var entry);
+            asset = (PackageAssetEntry?)entry;
+            return result;
         }
     }
 }
