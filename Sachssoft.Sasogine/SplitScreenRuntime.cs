@@ -26,14 +26,14 @@ public abstract class SplitScreenRuntime : RuntimeBase
 
     protected override sealed void OnScreenDraw(GameContext context)
     {
-        var graphics_device = GetGraphicsDeviceSafely();
+        var graphicsDevice = GetGraphicsDeviceSafely();
 
-        var full = graphics_device.Viewport.Bounds;
+        var full = graphicsDevice.Viewport.Bounds;
         var viewports = GetSplitViewports(full, PlayerCount);
 
         for (int i = 0; i < PlayerCount; i++)
         {
-            graphics_device.Viewport = new Viewport(viewports[i]);
+            graphicsDevice.Viewport = new Viewport(viewports[i]);
             _cameras[i].Update(context);
 
             var cxt = new MultiScreenGameContext(context, _cameras[i], viewports[i], i);
@@ -41,11 +41,23 @@ public abstract class SplitScreenRuntime : RuntimeBase
         }
 
         // Wichtig: Viewport zurücksetzen
-        graphics_device.Viewport = new Viewport(full);
+        graphicsDevice.Viewport = new Viewport(full);
     }
 
     protected virtual void OnPlayerScreenDraw(MultiScreenGameContext context)
     {
+        foreach (var component in Components)
+        {
+            if (component is IDrawableRuntimeComponent dComp)
+            {
+                dComp.Draw(context);
+            }
+            else if (component is IMultiScreenDrawableRuntimeComponent msdComp)
+            {
+                msdComp.Draw(context);
+            }
+        }
+
         // Zeichne hier den Level oder Spielausschnitt für den jeweiligen Spieler
         // z.B. TileMap.Draw(camera), Entities.Draw(camera), etc.
         // Zugriff auf `Effect` oder `EffectOverrite(context)` möglich

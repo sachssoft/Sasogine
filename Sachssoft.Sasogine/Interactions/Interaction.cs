@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 namespace Sachssoft.Sasogine.Interactions;
 
 [DebuggerDisplay("Interaction[{EnumTypeName}]")]
-public unsafe sealed class Interaction<TEnum> where TEnum : unmanaged, Enum
+public unsafe sealed class Interaction<TEnum> : IInteraction where TEnum : unmanaged, Enum
 {
     //private const int MaxEnumValue = 511; // oder 1023, je nach Bitbreite
     private readonly int _max_enum_value;
@@ -181,4 +181,56 @@ public unsafe sealed class Interaction<TEnum> where TEnum : unmanaged, Enum
         bit = index % 64;
         return true;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static TEnum ToEnum(ulong value)
+    {
+        int v = (int)value; // truncate auf int
+        return Unsafe.As<int, TEnum>(ref v);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static ulong ToUInt64(TEnum value)
+        => (ulong)UnsafeIndex(value);
+
+    #region IInteraction
+
+    void IInteraction.Press(ulong interaction)
+        => Press(ToEnum(interaction));
+
+    void IInteraction.Press(params ulong[] interactions)
+    {
+        for (int i = 0; i < interactions.Length; i++)
+            Press(ToEnum(interactions[i]));
+    }
+
+    void IInteraction.Release(ulong interaction)
+        => Release(ToEnum(interaction));
+
+    void IInteraction.Release(params ulong[] interactions)
+    {
+        for (int i = 0; i < interactions.Length; i++)
+            Release(ToEnum(interactions[i]));
+    }
+
+    bool IInteraction.IsPressed(ulong interaction)
+        => IsPressed(ToEnum(interaction));
+
+    bool IInteraction.WasJustPressed(ulong interaction)
+        => WasJustPressed(ToEnum(interaction));
+
+    bool IInteraction.WasJustReleased(ulong interaction)
+        => WasJustReleased(ToEnum(interaction));
+
+    void IInteraction.ForEachPressed(Action<ulong> action)
+        => ForEachPressed(x => action(ToUInt64(x)));
+
+    void IInteraction.ForEachJustReleased(Action<ulong> action)
+        => ForEachJustReleased(x => action(ToUInt64(x)));
+
+    void IInteraction.ForEachJustPressed(Action<ulong> action)
+        => ForEachJustPressed(x => action(ToUInt64(x)));
+
+    #endregion
+
 }

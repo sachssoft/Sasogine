@@ -39,7 +39,7 @@ public class GameContext : IDisposable
 
     public ViewBase View { get; }
 
-    public RuntimeBase? Runtime { get; }
+    public RuntimeBase Runtime { get; }
 
     public GameTime GameTime { get; }
 

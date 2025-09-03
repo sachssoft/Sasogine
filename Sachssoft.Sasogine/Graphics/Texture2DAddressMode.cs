@@ -3,6 +3,7 @@
     public enum Texture2DAddressMode
     {
         Clamp,
-        Wrap
+        Wrap,
+        Mirror
     }
 }

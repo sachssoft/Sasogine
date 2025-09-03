@@ -13,6 +13,7 @@ public abstract class RuntimeBase
 {
     private RenderTarget2D? _screen_target;
     private SpriteBatch? _sprite_batch;
+    private RuntimeComponentCollection _components = new();
 
     public RuntimeBase(CameraBase camera, IEffect? effect)
     {
@@ -37,6 +38,8 @@ public abstract class RuntimeBase
     // Optionaler Effekt (Shader), der beim Rendern angewendet wird.
     public IEffect? Effect { get; }
 
+    public RuntimeComponentCollection Components => _components;
+
     public virtual void Load()
     {
         var graphics_device = GetGraphicsDeviceSafely();
@@ -56,6 +59,9 @@ public abstract class RuntimeBase
     public virtual void Update(GameContext context)
     {
         Camera?.Update(context);
+
+        foreach (IRuntimeComponent component in _components)
+            component.Update(context);
     }
 
     public virtual void Draw(GameContext context)
@@ -108,6 +114,9 @@ public abstract class RuntimeBase
 
     protected virtual void OnScreenDraw(GameContext context)
     {
+        foreach (IDrawableRuntimeComponent component in _components)
+            component.Draw(context);
+
         // Zum Überschreiben vorgesehen
     }
 

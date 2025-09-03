@@ -6,7 +6,9 @@ namespace Sachssoft.Sasogine.Assets;
 
 public interface IAsset : IIdentifiable, IGameObjectElement
 {     
-    IAssetSource Source { get; }
+    IAssetSource? Source { get; set; }
 
     bool IsError { get; }
+
+    object? Instance { get; }
 }

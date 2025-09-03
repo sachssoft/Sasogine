@@ -2,7 +2,7 @@
 
 namespace Sachssoft.Sasogine.Elements
 {
-    public class ActiveGameObject : NotifyingElement, IActiveGameObjectElement
+    public class ActiveGameObject : NotifyingElement, IActiveGameObjectElement, IDrawableRuntimeComponent, IResourceComponent
     {
         private bool _isLoaded;
 

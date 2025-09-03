@@ -14,7 +14,7 @@ namespace Sachssoft.Sasogine.Assets
     {
         private IAssetSource? _source;
         private bool _isLoaded;
-        private T? _asset;
+        private T? _instance;
 
         /// <summary>
         /// Occurs after the asset has been successfully loaded.
@@ -50,7 +50,7 @@ namespace Sachssoft.Sasogine.Assets
                 try
                 {
                     using var stream = _source.Open();
-                    _asset = Build(stream);
+                    _instance = Build(stream);
                     AssetBuilt?.Invoke(this, EventArgs.Empty);
                 }
                 catch (Exception ex)
@@ -70,8 +70,9 @@ namespace Sachssoft.Sasogine.Assets
         /// <returns>The loaded asset instance, or <c>null</c> if loading failed.</returns>
         public T? LoadDirect()
         {
-            Load();
-            return _asset;
+            if (_instance == null)
+                Load();
+            return _instance;
         }
 
         /// <summary>
@@ -83,11 +84,11 @@ namespace Sachssoft.Sasogine.Assets
             if (!_isLoaded)
                 return;
 
-            if (_asset != null)
+            if (_instance != null)
             {
                 try
                 {
-                    Destroy(_asset);
+                    Destroy(_instance);
                 }
                 catch (Exception ex)
                 {
@@ -95,7 +96,7 @@ namespace Sachssoft.Sasogine.Assets
                 }
                 finally
                 {
-                    _asset = null;
+                    _instance = null;
                 }
             }
 
@@ -125,7 +126,9 @@ namespace Sachssoft.Sasogine.Assets
         /// <summary>
         /// Gets the loaded asset instance.
         /// </summary>
-        public T? Asset => _asset;
+        public T? Instance => _instance;
+
+        object? IAsset.Instance => _instance;
 
         /// <summary>
         /// Gets or sets the source from which the asset is loaded.
@@ -143,11 +146,16 @@ namespace Sachssoft.Sasogine.Assets
                     _source = value;
                     SourceChanged?.Invoke(this, EventArgs.Empty);
 
-                    if (_source != null)
+                    if (_source != null && AutoLoad)
                         Load();
                 }
             }
         }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public bool AutoLoad { get; set; } = false;
 
         /// <summary>
         /// Gets a value indicating whether the asset is currently loaded.

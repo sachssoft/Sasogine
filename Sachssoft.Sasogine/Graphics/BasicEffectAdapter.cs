@@ -11,13 +11,13 @@ using System.ComponentModel;
 
 namespace Sachssoft.Sasogine.Graphics;
 
-public class ImplementedBasicEffect : BasicEffect, IEffect
+public class BasicEffectAdapter : BasicEffect, IEffect
 {
-    public ImplementedBasicEffect() : base(IMyGameApp.Current.GraphicsDevice)
+    public BasicEffectAdapter() : base(IMyGameApp.Current.GraphicsDevice)
     {
     }
 
-    public ImplementedBasicEffect(GraphicsDevice device) : base(device)
+    public BasicEffectAdapter(GraphicsDevice device) : base(device)
     {
         VertexColorEnabled = true;
         TextureEnabled = true;

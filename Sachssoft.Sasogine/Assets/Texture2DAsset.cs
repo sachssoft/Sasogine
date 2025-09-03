@@ -36,24 +36,75 @@ public class Texture2DAsset : AssetBase<Texture2D>
 
     protected override Texture2D? Build(Stream stream)
     {
-        if (stream == null || stream.Length == 0)
-            return null;
+        // 1. Volltextur aus Stream laden
+        Texture2D original = Texture2D.FromStream(GraphicsDevice, stream);
 
-        if (GraphicsDevice == null)
+        if (!UseMipmaps)
         {
-            Exception = new InvalidOperationException("GraphicsDevice must be set before building a Texture2D.");
-            return null;
+            // Keine MipMaps, direkt zurückgeben
+            return original;
         }
 
-        try
+        // 2. Neue Texture mit MipMap-Unterstützung anlegen
+        int width = original.Width;
+        int height = original.Height;
+        int mipLevels = (int)Math.Floor(Math.Log(Math.Max(width, height), 2)) + 1;
+
+        Texture2D texture = new Texture2D(GraphicsDevice, width, height, mipmap: true, SurfaceFormat.Color);
+
+        // 3. Basislevel (Level 0) setzen
+        Color[] pixels = new Color[width * height];
+        original.GetData(pixels);
+        texture.SetData(0, null, pixels, 0, pixels.Length);
+
+        // 4. MipMap-Kette erstellen
+        Texture2D currentLevel = original;
+        for (int level = 1; level < mipLevels; level++)
         {
-            return Texture2D.FromStream(GraphicsDevice, stream);
+            width = Math.Max(width / 2, 1);
+            height = Math.Max(height / 2, 1);
+
+            // Pixel für nächstes Level generieren (Box-Downscale)
+            Texture2D nextLevelTexture = Texture2DScaler.DownscaleBox(GraphicsDevice, currentLevel);
+            Color[] mipPixels = new Color[width * height];
+            nextLevelTexture.GetData(mipPixels);
+
+            // In die Texture schreiben
+            texture.SetData(level, null, mipPixels, 0, mipPixels.Length);
+
+            currentLevel = nextLevelTexture;
         }
-        catch(Exception e) 
+
+        return texture;
+    }
+
+    public SamplerState CreateSamplerState()
+    {
+        var state = new SamplerState
         {
-            Exception = e;
-            return null;
-        }
+            Filter = FilterMode switch
+            {
+                Texture2DFilterMode.Point => TextureFilter.Point,
+                Texture2DFilterMode.Linear => TextureFilter.Linear,
+                Texture2DFilterMode.Anisotropic => TextureFilter.Anisotropic,
+                _ => TextureFilter.Point
+            },
+            AddressU = AddressMode switch
+            {
+                Texture2DAddressMode.Clamp => TextureAddressMode.Clamp,
+                Texture2DAddressMode.Wrap => TextureAddressMode.Wrap,
+                Texture2DAddressMode.Mirror => TextureAddressMode.Mirror,
+                _ => TextureAddressMode.Clamp
+            },
+            AddressV = AddressMode switch
+            {
+                Texture2DAddressMode.Clamp => TextureAddressMode.Clamp,
+                Texture2DAddressMode.Wrap => TextureAddressMode.Wrap,
+                Texture2DAddressMode.Mirror => TextureAddressMode.Mirror,
+                _ => TextureAddressMode.Clamp
+            }
+        };
+        return state;
     }
 
     public GraphicsDevice? GraphicsDevice { get; set; }
@@ -239,26 +290,6 @@ public class Texture2DAsset : AssetBase<Texture2D>
         get => GetValue<int>(LayerProperty);
         set => SetValue(LayerProperty, value);
     }
-
-    /// <example>
-    ///SamplerState sampler = new SamplerState
-    ///{
-    ///    AddressU = wrapMode switch
-    ///    {
-    ///        TextureWrapMode.Repeat => TextureAddressMode.Wrap,
-    ///        TextureWrapMode.Clamp => TextureAddressMode.Clamp,
-    ///        TextureWrapMode.Mirror => TextureAddressMode.Mirror,
-    ///        _ => TextureAddressMode.Wrap
-    ///    },
-    ///    AddressV = wrapMode switch
-    ///    {
-    ///        TextureWrapMode.Repeat => TextureAddressMode.Wrap,
-    ///        TextureWrapMode.Clamp => TextureAddressMode.Clamp,
-    ///        TextureWrapMode.Mirror => TextureAddressMode.Mirror,
-    ///        _ => TextureAddressMode.Wrap
-    ///    }
-    ///};
-    ///</example>
 
     public readonly static IProperty FilterModeProperty =
         new StoredProperty<Texture2DAsset, Texture2DFilterMode>(
