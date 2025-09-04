@@ -384,7 +384,34 @@ public abstract class Camera2D : CameraBase
         float minY = MathF.Min(MathF.Min(topLeft.Y, topRight.Y), MathF.Min(bottomLeft.Y, bottomRight.Y));
         float maxY = MathF.Max(MathF.Max(topLeft.Y, topRight.Y), MathF.Max(bottomLeft.Y, bottomRight.Y));
 
-        return new BoundingBox(new Vector3(minX, minY, 0f), new Vector3(maxX, maxY, 0f));
+        return new BoundingBox(new Vector3(minX, minY, _plane_minimum), new Vector3(maxX, maxY, _plane_maximum));
         //return new BoundingBox(minX, minY, width, height);
     }
+
+    /// <summary>
+    /// Prüft, ob ein Rechteck in Weltkoordinaten im aktuellen Kamerabild sichtbar ist.
+    /// </summary>
+    /// <param name="min">Linke untere Ecke des Rechtecks</param>
+    /// <param name="max">Rechte obere Ecke des Rechtecks</param>
+    /// <returns>True, wenn das Rechteck (teilweise) sichtbar ist</returns>
+    public bool IsVisibleOnScreen(Vector2 a, Vector2 b)
+    {
+        // Berechne min und max für x und y
+        Vector2 min = new Vector2(MathF.Min(a.X, b.X), MathF.Min(a.Y, b.Y));
+        Vector2 max = new Vector2(MathF.Max(a.X, b.X), MathF.Max(a.Y, b.Y));
+
+        // BoundingBox des aktuellen Bildschirms in Weltkoordinaten
+        BoundingBox screenBox = GetScreenBoundingBox();
+
+        // BoundingBox des Objekts
+        BoundingBox objectBox = new BoundingBox(
+            new Vector3(min, 0f),
+            new Vector3(max, 0f)
+        );
+
+        // Prüfen, ob sich die beiden BoundingBoxes überschneiden
+        return screenBox.Intersects(objectBox);
+    }
+
+
 }

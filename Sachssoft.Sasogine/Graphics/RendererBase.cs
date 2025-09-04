@@ -16,9 +16,9 @@ public abstract class RendererBase : IDisposable
     private SamplerState _sampler_state;
     private BlendState _blend_state;
     private BlendState _default_blend_state;
-    private readonly IEffect _effect;
+    private readonly IEffectAdapter _effect;
 
-    protected RendererBase(GraphicsDevice graphics_device, IEffect effect, params object[] args)
+    protected RendererBase(GraphicsDevice graphics_device, IEffectAdapter effect, params object[] args)
     {
         _graphics_device = graphics_device;
         _effect = effect;
@@ -58,7 +58,7 @@ public abstract class RendererBase : IDisposable
     {
     }
 
-    protected IEffect Effect => _effect;
+    protected IEffectAdapter Effect => _effect;
 
     protected BlendState BlendState
     {

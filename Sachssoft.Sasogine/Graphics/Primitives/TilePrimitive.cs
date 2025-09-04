@@ -75,12 +75,12 @@ public sealed class TilePrimitive : IDisposable
         _static_buffers_created = true;
     }
 
-    public void Draw(IEffect effect, CameraBase camera, Matrix transform)
+    public void Draw(IEffectAdapter effect, CameraBase camera, Matrix transform)
     {
         Draw(_texture, effect, camera, transform);
     }
 
-    public void Draw(Texture2D? texture, IEffect effect, CameraBase? camera, Matrix transform, Rectangle? source_rect = null)
+    public void Draw(Texture2D? texture, IEffectAdapter effect, CameraBase? camera, Matrix transform, Rectangle? source_rect = null)
     {
         if (_disposed)
             throw new ObjectDisposedException(nameof(TilePrimitive), "Cannot draw because the TilePrimitive has been disposed.");

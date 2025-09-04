@@ -7,6 +7,7 @@ using Sachssoft.Sasogine.Resources;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
@@ -36,9 +37,9 @@ namespace Sachssoft.Sasogine.Containers
             ];
         }
 
-        [AllowNull] protected IPackageAssetFactory AssetFactory { get; set; }
+        protected IPackageAssetFactory? AssetFactory { get; set; }
 
-        [AllowNull] protected IPackageLevelFactory LevelFactory { get; set; }
+        protected IPackageLevelFactory? LevelFactory { get; set; }
 
         public void Load()
         {
@@ -79,11 +80,28 @@ namespace Sachssoft.Sasogine.Containers
             WriteLevels(writer);
         }
 
+        [System.Diagnostics.Conditional("DEBUG")]
+        private void HintIfNoFactory(object? obj, string factoryName)
+        {
+            if (obj == null)
+            {
+                var msg =
+                    $"Hint: The factory '{factoryName}' is null. " +
+                    "Without a factory, no entries can be read from the file, and no instances can be created. ";
+
+                System.Diagnostics.Debug.WriteLine(msg);
+                if (System.Diagnostics.Debugger.IsAttached)
+                    System.Diagnostics.Debugger.Break(); // Stoppt nur, wenn Debugger läuft
+            }
+        }
+
         private void ReadAssets(FormatReaderBase reader)
         {
             if (AssetFactory == null)
-                throw new InvalidOperationException(
-                    $"{nameof(AssetFactory)} is not set. You must set it before creating level instances.");
+            {
+                HintIfNoFactory(AssetFactory, nameof(AssetFactory));
+                return;
+            }
 
             _assetEntries.Clear();
 
@@ -111,7 +129,7 @@ namespace Sachssoft.Sasogine.Containers
                 if (entry.Asset is NotifyingObject nAsset)
                 {
                     var assetReader = entryReader.Read(_sectionData);
-                    assetReader.Options = Options;                    
+                    assetReader.Options = Options;
                     Deserialize(nAsset, assetReader);
                 }
 
@@ -122,8 +140,10 @@ namespace Sachssoft.Sasogine.Containers
         private void ReadLevels(FormatReaderBase reader)
         {
             if (LevelFactory == null)
-                throw new InvalidOperationException(
-                    $"{nameof(LevelFactory)} is not set. You must set it before creating level instances.");
+            {
+                HintIfNoFactory(LevelFactory, nameof(LevelFactory));
+                return;
+            }
 
             _levels.Clear();
 

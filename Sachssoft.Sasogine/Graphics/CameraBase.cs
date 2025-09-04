@@ -6,6 +6,7 @@
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace Sachssoft.Sasogine.Graphics;
 
@@ -43,7 +44,7 @@ public abstract class CameraBase
 
     //public Matrix Transform => World * View * Projection;
 
-    public void ApplyEffect(IEffect effect)
+    public void ApplyEffect(IEffectAdapter effect)
     {
         effect.Projection = _projection;
         effect.View = _view;
@@ -65,4 +66,30 @@ public abstract class CameraBase
     public virtual void Update(GameContext context)
     {
     }
+
+    public virtual bool IsInView(Vector3 min, Vector3 max, Matrix? world = null)
+    {
+        var worldMatrix = world ?? Matrix.Identity;
+
+        var box = new BoundingBox(min, max);
+
+        // BoundingBox transformieren, falls nötig
+        if (worldMatrix != Matrix.Identity)
+            box = TransformBoundingBox(box, worldMatrix);
+
+        var frustum = new BoundingFrustum(World * View * Projection);
+        return frustum.Intersects(box);
+    }
+
+    private static BoundingBox TransformBoundingBox(BoundingBox box, Matrix matrix)
+    {
+        Vector3[] corners = box.GetCorners();
+        for (int i = 0; i < corners.Length; i++)
+        {
+            corners[i] = Vector3.Transform(corners[i], matrix);
+        }
+        return BoundingBox.CreateFromPoints(corners);
+    }
+
+
 }

@@ -10,7 +10,7 @@ using System;
 
 namespace Sachssoft.Sasogine.Graphics;
 
-public interface IEffect : IDisposable, ICloneable, ITransformProvider
+public interface IEffectAdapter : IDisposable, ICloneable, ITransformProvider
 {
     Texture2D? Texture { get; set; }
 
@@ -22,6 +22,6 @@ public interface IEffect : IDisposable, ICloneable, ITransformProvider
 
     void Apply();
 
-    Effect Result { get; }
+    Effect InnerEffect { get; }
 
 }

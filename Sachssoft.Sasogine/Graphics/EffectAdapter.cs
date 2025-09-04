@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Graphics;
 using System;
 
-public abstract class EffectAdapter : IEffect
+public abstract class EffectAdapter : IEffectAdapter
 {
     private Effect _effect;
 
@@ -12,7 +12,7 @@ public abstract class EffectAdapter : IEffect
         _effect = effect;
     }
 
-    public Effect Effect => _effect;
+    public Effect InnerEffect => _effect;
 
     public virtual Matrix Projection { get; set; } = Matrix.Identity;
     public virtual Matrix View { get; set; } = Matrix.Identity;
@@ -27,8 +27,6 @@ public abstract class EffectAdapter : IEffect
         get => _effect.CurrentTechnique;
         set => _effect.CurrentTechnique = value;
     }
-
-    Effect IEffect.Result => _effect;
 
     public abstract EffectAdapter Clone();
     object ICloneable.Clone() => Clone();

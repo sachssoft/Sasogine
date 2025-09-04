@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Diagnostics;
 using Sachssoft.Sasogine.Graphics;
+using Sachssoft.VarietyGolf.Core;
 using System;
 
 namespace Sachssoft.Sasogine;
@@ -11,14 +13,17 @@ namespace Sachssoft.Sasogine;
 // oder GameRuntime zuständig und wird im Backend verwendet. Sie enthält keine Benutzereingabe oder UI-Logik.
 public abstract class RuntimeBase
 {
-    private RenderTarget2D? _screen_target;
-    private SpriteBatch? _sprite_batch;
-    private RuntimeComponentCollection _components = new();
+    private RenderTarget2D? _screenTarget;
+    private SpriteBatch? _spriteBatch;
+    private readonly CameraBase _camera;
+    private readonly IEffectAdapter _effect;
+    private readonly RuntimeComponentCollection _components = new();
+    private readonly DiagnosticsContext _diagnostics = new();
 
-    public RuntimeBase(CameraBase camera, IEffect? effect)
+    public RuntimeBase(CameraBase camera, IEffectAdapter? effect)
     {
-        Camera = camera ?? throw new ArgumentNullException(nameof(camera));
-        Effect = effect;
+        _camera = camera ?? throw new ArgumentNullException(nameof(camera));
+        _effect = effect ?? new BasicEffectAdapter(IMyGameApp.Current.GraphicsDevice);
         BackgroundColor = Color.CornflowerBlue;
         RenderVisibility = true;
     }
@@ -33,35 +38,35 @@ public abstract class RuntimeBase
     public Color BackgroundColor { get; set; }
 
     // Referenz auf die Kamera, die für die Darstellung verwendet wird.
-    public CameraBase Camera { get; }
+    public CameraBase Camera => _camera;
 
     // Optionaler Effekt (Shader), der beim Rendern angewendet wird.
-    public IEffect? Effect { get; }
+    public IEffectAdapter Effect => _effect;
+
+    public DiagnosticsContext Diagnostics => _diagnostics;
 
     public RuntimeComponentCollection Components => _components;
 
     public virtual void Load()
     {
-        var graphics_device = GetGraphicsDeviceSafely();
-        _sprite_batch = new SpriteBatch(graphics_device);
-        ResizeRenderTarget(graphics_device);
+        var graphicsDevice = GetGraphicsDeviceSafely();
+        _spriteBatch = new SpriteBatch(graphicsDevice);
+        ResizeRenderTarget(graphicsDevice);
     }
 
     public virtual void Unload()
     {
-        _screen_target?.Dispose();
-        _screen_target = null;
+        _screenTarget?.Dispose();
+        _screenTarget = null;
 
-        _sprite_batch?.Dispose();
-        _sprite_batch = null;
+        _spriteBatch?.Dispose();
+        _spriteBatch = null;
     }
 
     public virtual void Update(GameContext context)
     {
         Camera?.Update(context);
-
-        foreach (IRuntimeComponent component in _components)
-            component.Update(context);
+        _components.ForEachRuntime(context);
     }
 
     public virtual void Draw(GameContext context)
@@ -80,7 +85,7 @@ public abstract class RuntimeBase
 
         try
         {
-            graphics_device.SetRenderTarget(_screen_target);
+            graphics_device.SetRenderTarget(_screenTarget);
             graphics_device.Clear(BackgroundColor);
 
             OnScreenDraw(context);
@@ -93,34 +98,33 @@ public abstract class RuntimeBase
 
         graphics_device.Clear(Color.Black);
 
-        if (_sprite_batch == null)
-            _sprite_batch = new SpriteBatch(graphics_device);
+        if (_spriteBatch == null)
+            _spriteBatch = new SpriteBatch(graphics_device);
 
         var effect = EffectOverrite(context);
         var rasterizer = new RasterizerState { MultiSampleAntiAlias = true };
 
         if (effect != null)
         {
-            _sprite_batch.Begin(SpriteSortMode.Immediate, samplerState: SamplerState.PointClamp, rasterizerState: rasterizer, effect: effect.Result);
+            _spriteBatch.Begin(SpriteSortMode.Immediate, samplerState: SamplerState.PointClamp, rasterizerState: rasterizer, effect: effect.InnerEffect);
         }
         else
         {
-            _sprite_batch.Begin(SpriteSortMode.Immediate, samplerState: SamplerState.PointClamp, rasterizerState: rasterizer);
+            _spriteBatch.Begin(SpriteSortMode.Immediate, samplerState: SamplerState.PointClamp, rasterizerState: rasterizer);
         }
 
-        _sprite_batch.Draw(_screen_target!, new Rectangle(0, 0, graphics_device.Viewport.Width, graphics_device.Viewport.Height), Color.White);
-        _sprite_batch.End();
+        _spriteBatch.Draw(_screenTarget!, new Rectangle(0, 0, graphics_device.Viewport.Width, graphics_device.Viewport.Height), Color.White);
+        _spriteBatch.End();
     }
 
     protected virtual void OnScreenDraw(GameContext context)
     {
-        foreach (IDrawableRuntimeComponent component in _components)
-            component.Draw(context);
+        _components.ForEachDrawable(context);
 
         // Zum Überschreiben vorgesehen
     }
 
-    protected virtual IEffect? EffectOverrite(GameContext context)
+    protected virtual IEffectAdapter? EffectOverrite(GameContext context)
     {
         return null;
     }
@@ -130,12 +134,12 @@ public abstract class RuntimeBase
         int width = graphics_device.PresentationParameters.BackBufferWidth;
         int height = graphics_device.PresentationParameters.BackBufferHeight;
 
-        if (_screen_target == null ||
-            _screen_target.Width != width ||
-            _screen_target.Height != height)
+        if (_screenTarget == null ||
+            _screenTarget.Width != width ||
+            _screenTarget.Height != height)
         {
-            _screen_target?.Dispose();
-            _screen_target = new RenderTarget2D(
+            _screenTarget?.Dispose();
+            _screenTarget = new RenderTarget2D(
                 graphics_device,
                 width,
                 height,
@@ -168,17 +172,17 @@ public abstract class RuntimeBase
     // Screenhot
     public Texture2D GetScreenshotTexture()
     {
-        if (_screen_target == null)
+        if (_screenTarget == null)
             throw new InvalidOperationException("No render target available for screenshot.");
 
-        var graphics_device = _screen_target.GraphicsDevice;
+        var graphics_device = _screenTarget.GraphicsDevice;
 
         // Hole Pixeldaten vom RenderTarget
-        Color[] pixel_data = new Color[_screen_target.Width * _screen_target.Height];
-        _screen_target.GetData(pixel_data);
+        Color[] pixel_data = new Color[_screenTarget.Width * _screenTarget.Height];
+        _screenTarget.GetData(pixel_data);
 
         // Erzeuge neues Texture2D-Objekt
-        Texture2D screenshot = new Texture2D(graphics_device, _screen_target.Width, _screen_target.Height);
+        Texture2D screenshot = new Texture2D(graphics_device, _screenTarget.Width, _screenTarget.Height);
         screenshot.SetData(pixel_data);
 
         return screenshot;

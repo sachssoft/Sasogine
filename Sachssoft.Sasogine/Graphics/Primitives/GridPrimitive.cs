@@ -70,7 +70,7 @@ public sealed class GridPrimitive : IDisposable
         _built = true;
     }
 
-    public void Draw(IEffect effect, CameraBase camera, Matrix transform)
+    public void Draw(IEffectAdapter effect, CameraBase camera, Matrix transform)
     {
         if (!_built)
             Build();

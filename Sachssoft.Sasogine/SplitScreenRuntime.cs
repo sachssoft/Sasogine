@@ -14,7 +14,7 @@ public abstract class SplitScreenRuntime : RuntimeBase
 
     public CameraBase[] Cameras => _cameras;
 
-    public SplitScreenRuntime(CameraBase[] cameras, IEffect? effect)
+    public SplitScreenRuntime(CameraBase[] cameras, IEffectAdapter? effect)
         : base(cameras[0], effect) // Hauptkamera egal – du renderst pro Kamera später
     {
         if (cameras.Length < 1 || cameras.Length > 4)
@@ -46,17 +46,7 @@ public abstract class SplitScreenRuntime : RuntimeBase
 
     protected virtual void OnPlayerScreenDraw(MultiScreenGameContext context)
     {
-        foreach (var component in Components)
-        {
-            if (component is IDrawableRuntimeComponent dComp)
-            {
-                dComp.Draw(context);
-            }
-            else if (component is IMultiScreenDrawableRuntimeComponent msdComp)
-            {
-                msdComp.Draw(context);
-            }
-        }
+        Components.ForEachDrawable(context);
 
         // Zeichne hier den Level oder Spielausschnitt für den jeweiligen Spieler
         // z.B. TileMap.Draw(camera), Entities.Draw(camera), etc.

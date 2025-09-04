@@ -11,7 +11,7 @@ public sealed class ModelRenderer : RendererBase
     private readonly Model _model;
     private CameraBase? _camera;
 
-    public ModelRenderer(CameraBase camera, IEffect effect, Model model)
+    public ModelRenderer(CameraBase camera, IEffectAdapter effect, Model model)
         : base(IMyGameApp.Current.GraphicsDevice, effect, camera)
     {
         _model = model ?? throw new ArgumentNullException(nameof(model));

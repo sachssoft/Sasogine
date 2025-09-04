@@ -11,7 +11,7 @@ using System.ComponentModel;
 
 namespace Sachssoft.Sasogine.Graphics;
 
-public class BasicEffectAdapter : BasicEffect, IEffect
+public class BasicEffectAdapter : BasicEffect, IEffectAdapter
 {
     public BasicEffectAdapter() : base(IMyGameApp.Current.GraphicsDevice)
     {
@@ -36,9 +36,9 @@ public class BasicEffectAdapter : BasicEffect, IEffect
         set => Alpha = value;
     }
 
-    Effect IEffect.Result => this;
+    Effect IEffectAdapter.InnerEffect => this;
 
-    void IEffect.Apply()
+    void IEffectAdapter.Apply()
     {        
     }
 
