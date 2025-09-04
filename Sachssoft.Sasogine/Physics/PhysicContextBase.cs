@@ -8,16 +8,16 @@ namespace Sachssoft.VarietyGolf.Core
 
         public PhysicContextBase()
         {
-            _world = GetWorld();
+            _world = BuildWorld();
         }
 
-        public bool IsPreviewVisibility { get; set; }
+        public bool IsDebugEnabled { get; set; }
 
         public T World => _world;
 
-        protected abstract T GetWorld();
+        protected abstract T BuildWorld();
 
-        public virtual void Update()
+        public virtual void Update(GameContext context)
         {
         }
 
