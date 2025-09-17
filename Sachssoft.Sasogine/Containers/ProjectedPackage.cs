@@ -73,7 +73,7 @@ namespace Sachssoft.Sasogine.Containers
 
         IReadOnlyDictionary<string, IAssetSource> IPackage.Assets => (IReadOnlyDictionary<string, IAssetSource>)_manifest._assetEntries;
 
-        IReadOnlyCollection<PackageLevelBase> IPackage.Levels => (IReadOnlyCollection<PackageLevelBase>)_manifest._levels;
+        IReadOnlyList<PackageLevelBase> IPackage.Levels => (IReadOnlyList<PackageLevelBase>)_manifest._levels;
 
         /// <summary>
         /// Creates a new package file.

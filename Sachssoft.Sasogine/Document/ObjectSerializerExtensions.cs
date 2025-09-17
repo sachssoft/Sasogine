@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Graphics.Colors;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Resources.Wrappers;
+using Sachssoft.Sasogine.Geometry;
 
 namespace Sachssoft.Documents;
 
@@ -257,6 +258,11 @@ public static class ObjectSerializerExtensions
         return new BoundingSphere(new Vector3(result[0], result[1], result[2]), result[3]);
     }
 
+    public static PathCollection? ReadPathCollection<TReader>(this TReader reader, object? context, PathCollection? fallback = default, SerializationFormat format = SerializationFormat.Base64) where TReader : FormatReaderBase
+    {
+        return null;
+    }
+
     public static Texture2D? ReadTexture2D<TReader>(this TReader reader, string property, GraphicsDevice graphics_device, Texture2D? fallback = default, SerializationFormat format = SerializationFormat.Base64) where TReader : FormatReaderBase
     {
         _ = property ?? throw new ArgumentNullException(nameof(property));
@@ -392,6 +398,11 @@ public static class ObjectSerializerExtensions
                 value.Center.X, value.Center.Y, value.Center.Z,
                 value.Radius
         });
+    }
+
+    public static void WritePathCollection<TWriter>(this TWriter writer, object? context, PathCollection? value, SerializationFormat format = SerializationFormat.Base64) where TWriter : FormatWriterBase
+    {
+
     }
 
     public static void WriteTexture2D<TWriter>(this TWriter writer, object? context, Texture2D? value, SerializationFormat format = SerializationFormat.Base64) where TWriter : FormatWriterBase

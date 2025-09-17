@@ -50,6 +50,6 @@ namespace Sachssoft.Sasogine.Containers
         /// <summary>
         /// Gets a read-only collection of levels included in this package.
         /// </summary>
-        IReadOnlyCollection<PackageLevelBase> Levels { get; }
+        IReadOnlyList<PackageLevelBase> Levels { get; }
     }
 }

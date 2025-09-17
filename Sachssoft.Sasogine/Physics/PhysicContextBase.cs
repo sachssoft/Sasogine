@@ -1,8 +1,6 @@
-﻿using Sachssoft.Sasogine;
-
-namespace Sachssoft.VarietyGolf.Core
+﻿namespace Sachssoft.Sasogine.Phyiscs
 {
-    public abstract class PhysicContextBase<T>
+    public abstract class PhysicContextBase<T> : IPhysicsContext
     {
         private readonly T _world;
 
@@ -14,6 +12,8 @@ namespace Sachssoft.VarietyGolf.Core
         public bool IsDebugEnabled { get; set; }
 
         public T World => _world;
+
+        object IPhysicsContext.PhysicsWorld => _world!;
 
         protected abstract T BuildWorld();
 

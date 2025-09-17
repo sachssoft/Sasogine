@@ -1,4 +1,6 @@
-﻿using Sachssoft.Observables;
+﻿using Sachssoft.Documents;
+using Sachssoft.Documents.Json;
+using Sachssoft.Observables;
 using Sachssoft.Sasogine.Elements;
 using Sachssoft.Sasogine.Features;
 using System;
@@ -303,6 +305,42 @@ namespace Sachssoft.Sasogine.Containers
         {
         }
 
+        /// <summary>
+        /// Reads the entry stream from the package and deserializes its content 
+        /// into this object using the specified <typeparamref name="TFormatter"/>.
+        /// </summary>
+        /// <typeparam name="TFormatter">
+        /// The document formatter to use for deserialization.
+        /// </typeparam>
+        /// <param name="options">Optional access options (buffer size, progress, etc.).</param>
+        protected void ReadAndDeserialize<TFormatter>(PackageEntryAccessOptions? options = null)
+            where TFormatter : IDocumentFormatter, new()
+        {
+            var ms = Read(options);
+            var formatter = new TFormatter();
+            formatter.LoadFrom(ms);
+            formatter.Reader.Deserialize(this);
+        }
+
+        /// <summary>
+        /// Serializes this object using the specified <typeparamref name="TFormatter"/> 
+        /// and writes the result into the package entry.
+        /// </summary>
+        /// <typeparam name="TFormatter">
+        /// The document formatter to use for serialization.
+        /// </typeparam>
+        /// <param name="options">Optional access options (buffer size, progress, etc.).</param>
+        protected void WriteAndSerialize<TFormatter>(PackageEntryAccessOptions? options = null)
+            where TFormatter : IDocumentFormatter, new()
+        {
+            var formatter = new TFormatter();
+            formatter.Writer.Serialize(this);
+
+            using var ms = new MemoryStream();
+            formatter.SaveTo(ms);
+            Write(ms, options);
+        }
+
         internal protected Stream Read(PackageEntryAccessOptions? options = null)
         {
             options ??= new PackageEntryAccessOptions();
@@ -359,8 +397,16 @@ namespace Sachssoft.Sasogine.Containers
             options ??= new PackageEntryAccessOptions();
 
             _stream?.Close();
-            _packageEntry?.Delete();
-            _packageEntry = _package.Source.CreateEntry(fullPath);
+            _packageEntry = null;
+
+            // Prüft ob die Datei
+            if (_package.IsFileExists(fullPath))
+            {
+                var tmpEntry = _package.Source!.GetEntry(fullPath)!;
+                tmpEntry.Delete();
+            }
+
+            _packageEntry = _package.Source!.CreateEntry(fullPath);
 
             Stream tempStream = options.Mode switch
             {

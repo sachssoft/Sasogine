@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Diagnostics;
 using Sachssoft.Sasogine.Graphics;
-using Sachssoft.VarietyGolf.Core;
 using System;
 
 namespace Sachssoft.Sasogine;

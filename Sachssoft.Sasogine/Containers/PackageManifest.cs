@@ -130,7 +130,8 @@ namespace Sachssoft.Sasogine.Containers
                 {
                     var assetReader = entryReader.Read(_sectionData);
                     assetReader.Options = Options;
-                    Deserialize(nAsset, assetReader);
+                    //Deserialize(nAsset, assetReader);
+                    assetReader.Deserialize(nAsset);
                 }
 
                 _assetEntries.Add(entry.FileName, entry);
@@ -220,7 +221,8 @@ namespace Sachssoft.Sasogine.Containers
                 {
                     var assetWriter = new JsonWriter();
                     assetWriter.Options = Options;
-                    Serialize(nAsset, assetWriter);
+                    //Serialize(nAsset, assetWriter);
+                    assetWriter.Serialize(nAsset);
                     entryWriter.Write(_sectionData, assetWriter);
                 }
 

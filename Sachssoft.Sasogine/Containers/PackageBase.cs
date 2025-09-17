@@ -97,7 +97,7 @@ namespace Sachssoft.Sasogine.Containers
 
         IReadOnlyDictionary<string, IAssetSource> IPackage.Assets => new Dictionary<string, IAssetSource>();
 
-        IReadOnlyCollection<PackageLevelBase> IPackage.Levels => Array.Empty<PackageLevelBase>();
+        IReadOnlyList<PackageLevelBase> IPackage.Levels => Array.Empty<PackageLevelBase>();
 
         /// <summary>
         /// Opens the package safely, loading the manifest and ZIP archive.
