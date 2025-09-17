@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Graphics;
 
+[Obsolete("--> BaseRenderer")]
 public abstract class RendererBase : IDisposable
 {
     private bool _disposed;

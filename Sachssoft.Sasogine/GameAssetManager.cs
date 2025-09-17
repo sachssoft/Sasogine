@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Xml.Linq;
 
 namespace Sachssoft.Sasogine;
@@ -35,6 +36,33 @@ public class GameAssetManager
     public GameAssetManager(IMyGameApp app) => _app = app;
 
     public IMyGameApp App => _app;
+
+    public string? ExternalFileDirectory { get; set; }
+
+    public ExternalFileLocation ExternalFileLocation { get; set; }
+
+    private string GetExternalPath(string entryPath)
+    {
+        if (string.IsNullOrWhiteSpace(entryPath))
+            throw new ArgumentException("Entry path must not be null or empty.", nameof(entryPath));
+
+        return ExternalFileLocation switch
+        {
+            ExternalFileLocation.Application =>
+                Path.Combine(Environment.CurrentDirectory, entryPath),
+
+            ExternalFileLocation.ContentManager =>
+                Path.Combine(_app.Content.RootDirectory, entryPath),
+
+            ExternalFileLocation.Custom =>
+                !string.IsNullOrWhiteSpace(ExternalFileDirectory) && Path.IsPathRooted(ExternalFileDirectory)
+                    ? Path.Combine(ExternalFileDirectory, entryPath)
+                    : throw new InvalidOperationException("ExternalFileDirectory is not set or invalid."),
+
+            _ => throw new ArgumentOutOfRangeException(nameof(ExternalFileLocation),
+                $"Unsupported file location: {ExternalFileLocation}")
+        };
+    }
 
     internal protected virtual void OnLoad() { }
 
@@ -68,8 +96,8 @@ public class GameAssetManager
             entry.Data = _app.Content.Load<Texture2D>(entry.Path);
         }
         else if (entry.SourceType == AssetSourceType.ExternalFile)
-        {
-            using var stream = File.OpenRead(entry.Path);
+        {            
+            using var stream = File.OpenRead(GetExternalPath(entry.Path));
             entry.Data = Texture2D.FromStream(_app.GraphicsDevice, stream);
         }
         else
@@ -122,7 +150,7 @@ public class GameAssetManager
 
             case AssetSourceType.ExternalFile:
                 // Shader von externer Datei (.mgfxo)
-                using (var fs = File.OpenRead(entry.Path))
+                using (var fs = File.OpenRead(GetExternalPath(entry.Path)))
                 using (var ms = new MemoryStream())
                 {
                     fs.CopyTo(ms);
@@ -170,7 +198,7 @@ public class GameAssetManager
                 }
             case AssetSourceType.ExternalFile:
                 {
-                    var fs = File.OpenRead(entry.Path);
+                    var fs = File.OpenRead(GetExternalPath(entry.Path));
                     entry.Data = fs;
                     break;
                 }
@@ -208,7 +236,7 @@ public class GameAssetManager
                 }
             case AssetSourceType.ExternalFile:
                 {
-                    var bytes = File.ReadAllBytes(entry.Path);
+                    var bytes = File.ReadAllBytes(GetExternalPath(entry.Path));
                     var fs = new FontSystem();
                     fs.AddFont(bytes);
                     entry.Data = fs;

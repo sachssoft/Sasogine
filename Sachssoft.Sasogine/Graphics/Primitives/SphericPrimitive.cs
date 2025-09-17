@@ -1,112 +1,119 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine;
+using Sachssoft.Sasogine.Graphics.Primitives;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Graphics3D;
-
-public class SphericPrimitive
+namespace Sachssoft.Sasogine.Graphics.Primitives
 {
-    private VertexPositionNormalTexture[] _vertices;
-    private short[] _indices;
-
-    public VertexBuffer VertexBuffer { get; private set; }
-    public IndexBuffer IndexBuffer { get; private set; }
-    public int PrimitiveCount => _indices.Length / 3;
-
-    public int LatitudeSegments { get; }
-    public int LongitudeSegments { get; }
-    public float Radius { get; }
-
-    public BoundingSphere BoundingSphere { get; private set; }
-
-    public SphericPrimitive(GraphicsDevice graphics_device, float radius = 1f, int latitude_segments = 16, int longitude_segments = 16)
+    public sealed class SpherePrimitive : PrimitiveBase
     {
-        Radius = radius;
-        LatitudeSegments = latitude_segments;
-        LongitudeSegments = longitude_segments;
+        private readonly VertexPositionNormalTexture[] _vertices;
+        private readonly short[] _indices;
 
-        GenerateSphere(graphics_device);
-        BoundingSphere = new BoundingSphere(Vector3.Zero, radius);
-    }
+        public float Radius { get; }
+        public int LatitudeSegments { get; }
+        public int LongitudeSegments { get; }
 
-    private void GenerateSphere(GraphicsDevice graphics_device)
-    {
-        var vertices = new List<VertexPositionNormalTexture>();
-        var indices = new List<short>();
+        public override int VertexCount => _vertices.Length;
+        public override int IndexCount => _indices.Length;
 
-        for (int lat = 0; lat <= LatitudeSegments; lat++)
+        public SpherePrimitive(float radius = 1f, int latitudeSegments = 16, int longitudeSegments = 16)
         {
-            float theta = float.Pi * lat / LatitudeSegments;
-            float sin_theta = float.Sin(theta);
-            float cos_theta = float.Cos(theta);
+            Radius = radius;
+            LatitudeSegments = latitudeSegments;
+            LongitudeSegments = longitudeSegments;
 
-            for (int lon = 0; lon <= LongitudeSegments; lon++)
+            (_vertices, _indices) = GenerateSphere(radius, latitudeSegments, longitudeSegments);
+        }
+
+        private static (VertexPositionNormalTexture[], short[]) GenerateSphere(float radius, int latSeg, int lonSeg)
+        {
+            var vertices = new List<VertexPositionNormalTexture>();
+            var indices = new List<short>();
+
+            for (int lat = 0; lat <= latSeg; lat++)
             {
-                float phi = 2f * float.Pi * lon / LongitudeSegments;
-                float sin_phi = float.Sin(phi);
-                float cos_phi = float.Cos(phi);
+                float theta = MathHelper.Pi * lat / latSeg;
+                float sinTheta = (float)Math.Sin(theta);
+                float cosTheta = (float)Math.Cos(theta);
 
-                Vector3 normal = new Vector3(
-                    cos_phi * sin_theta,
-                    cos_theta,
-                    sin_phi * sin_theta
+                for (int lon = 0; lon <= lonSeg; lon++)
+                {
+                    float phi = 2f * MathHelper.Pi * lon / lonSeg;
+                    float sinPhi = (float)Math.Sin(phi);
+                    float cosPhi = (float)Math.Cos(phi);
+
+                    Vector3 normal = new Vector3(
+                        cosPhi * sinTheta,
+                        cosTheta,
+                        sinPhi * sinTheta
+                    );
+
+                    Vector3 position = normal * radius;
+                    Vector2 texCoord = new Vector2((float)lon / lonSeg, (float)lat / latSeg);
+
+                    vertices.Add(new VertexPositionNormalTexture(position, normal, texCoord));
+                }
+            }
+
+            for (int lat = 0; lat < latSeg; lat++)
+            {
+                for (int lon = 0; lon < lonSeg; lon++)
+                {
+                    int first = lat * (lonSeg + 1) + lon;
+                    int second = first + lonSeg + 1;
+
+                    indices.Add((short)first);
+                    indices.Add((short)second);
+                    indices.Add((short)(first + 1));
+
+                    indices.Add((short)(first + 1));
+                    indices.Add((short)second);
+                    indices.Add((short)(second + 1));
+                }
+            }
+
+            return (vertices.ToArray(), indices.ToArray());
+        }
+
+        public override void Fill(
+            VertexPositionColorNormalTexture[] verticesBuffer,
+            int vertexOffset,
+            short[] indicesBuffer,
+            int indexOffset,
+            short baseVertex,
+            Texture2D? texture = null)
+        {
+            // Berechne UVs
+            var (u0, v0, u1, v1) = GetUV(texture);
+
+            for (int i = 0; i < _vertices.Length; i++)
+            {
+                var v = _vertices[i];
+                Vector2 uv = new Vector2(
+                    u0 + (u1 - u0) * v.TextureCoordinate.X,
+                    v0 + (v1 - v0) * v.TextureCoordinate.Y
                 );
 
-                Vector2 texture = new Vector2((float)lon / LongitudeSegments, (float)lat / LatitudeSegments);
-                Vector3 position = normal * Radius;
-
-                vertices.Add(new VertexPositionNormalTexture(position, normal, texture));
+                verticesBuffer[vertexOffset + i] = new VertexPositionColorNormalTexture(
+                    v.Position,
+                    Color,
+                    v.Normal,
+                    uv
+                );
             }
-        }
 
-        for (int lat = 0; lat < LatitudeSegments; lat++)
-        {
-            for (int lon = 0; lon < LongitudeSegments; lon++)
+            for (int i = 0; i < _indices.Length; i++)
             {
-                int first = lat * (LongitudeSegments + 1) + lon;
-                int second = first + LongitudeSegments + 1;
-
-                indices.Add((short)first);
-                indices.Add((short)second);
-                indices.Add((short)(first + 1));
-
-                indices.Add((short)(first + 1));
-                indices.Add((short)second);
-                indices.Add((short)(second + 1));
+                indicesBuffer[indexOffset + i] = (short)(_indices[i] + baseVertex);
             }
         }
 
-        _vertices = vertices.ToArray();
-        _indices = indices.ToArray();
-
-        VertexBuffer = new VertexBuffer(graphics_device, typeof(VertexPositionNormalTexture), _vertices.Length, BufferUsage.WriteOnly);
-        VertexBuffer.SetData(_vertices);
-
-        IndexBuffer = new IndexBuffer(graphics_device, IndexElementSize.SixteenBits, _indices.Length, BufferUsage.WriteOnly);
-        IndexBuffer.SetData(_indices);
-    }
-
-    public void Draw(GraphicsDevice device, BasicEffect effect, bool draw_wireframe = false)
-    {
-        var original_state = device.RasterizerState;
-
-        if (draw_wireframe)
+        public override void Update(GameContext context)
         {
-            var wire = new RasterizerState { FillMode = FillMode.WireFrame, CullMode = CullMode.None };
-            device.RasterizerState = wire;
+            // Optional: Rotation, Animation, Farbe
         }
-
-        device.SetVertexBuffer(VertexBuffer);
-        device.Indices = IndexBuffer;
-
-        foreach (EffectPass pass in effect.CurrentTechnique.Passes)
-        {
-            pass.Apply();
-            device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, PrimitiveCount);
-        }
-
-        if (draw_wireframe)
-            device.RasterizerState = original_state;
     }
 }

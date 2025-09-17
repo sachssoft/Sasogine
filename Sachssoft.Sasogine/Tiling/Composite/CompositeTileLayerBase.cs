@@ -1,6 +1,6 @@
 ﻿using Sachssoft.Graphics.Renderer;
 using Sachssoft.Sasogine.Features;
-using Sachssoft.Sasogine.Graphics.Renderer;
+using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
 
 namespace Sachssoft.Sasogine.Tiling.Composite;

@@ -77,6 +77,8 @@ public abstract class RuntimeBase
         if (graphics_device.IsDisposed || graphics_device.GraphicsDeviceStatus != GraphicsDeviceStatus.Normal)
             return;
 
+        OnScreenDrawBefore(context);
+
         ResizeRenderTarget(graphics_device);
 
         var previous_multi_sample = graphics_device.PresentationParameters.MultiSampleCount;
@@ -114,6 +116,11 @@ public abstract class RuntimeBase
 
         _spriteBatch.Draw(_screenTarget!, new Rectangle(0, 0, graphics_device.Viewport.Width, graphics_device.Viewport.Height), Color.White);
         _spriteBatch.End();
+    }
+
+    protected virtual void OnScreenDrawBefore(GameContext context)
+    {
+        // Sinnvoll für eigene RenderTargets
     }
 
     protected virtual void OnScreenDraw(GameContext context)

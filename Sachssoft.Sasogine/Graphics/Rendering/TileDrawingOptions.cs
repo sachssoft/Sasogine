@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using System;
 
-namespace Sachssoft.Sasogine.Graphics.Renderer
+namespace Sachssoft.Sasogine.Graphics.Rendering
 {
     /// <summary>
     /// Optionen zur Steuerung des Tile-Zeichnens,

@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics.Renderer;
+﻿namespace Sachssoft.Sasogine.Graphics.Rendering;
 
 /// <summary>
 /// Defines how draw calls are batched and ordered during rendering.

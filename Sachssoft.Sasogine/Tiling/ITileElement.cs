@@ -1,5 +1,5 @@
 ﻿using Sachssoft.Graphics.Renderer;
-using Sachssoft.Sasogine.Graphics.Renderer;
+using Sachssoft.Sasogine.Graphics.Rendering;
 using Sachssoft.Sasogine.Tiling.Stacked;
 
 namespace Sachssoft.Sasogine.Tiling;

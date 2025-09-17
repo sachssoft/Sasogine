@@ -7,6 +7,7 @@ using Sachssoft.Sasogine;
 
 namespace Sachssoft.Graphics.Primitives;
 
+[Obsolete]
 public sealed class GridPrimitive : IDisposable
 {
     private readonly GraphicsDevice _graphics_device;

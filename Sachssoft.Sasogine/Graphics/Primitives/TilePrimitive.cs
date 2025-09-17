@@ -6,6 +6,7 @@ using Sachssoft.Sasogine;
 
 namespace Sachssoft.Graphics.Primitives;
 
+[Obsolete("Maybe QuadPrimitive")]
 public sealed class TilePrimitive : IDisposable
 {
     private readonly GraphicsDevice _graphics_device;

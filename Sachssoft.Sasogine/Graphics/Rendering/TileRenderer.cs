@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Sachssoft.Sasogine.Graphics.Renderer;
+namespace Sachssoft.Sasogine.Graphics.Rendering;
 
 public sealed class TileRenderer : RendererBase
 {
