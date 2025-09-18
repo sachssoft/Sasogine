@@ -17,5 +17,8 @@ namespace Sachssoft.Sasogine.Observables
         public static readonly PropertyCategory Parallax = new("parallax", "Parallax");
         public static readonly PropertyCategory General = new("general", "General");
         public static readonly PropertyCategory Rendering = new("rendering", "Rendering");
+        public static readonly PropertyCategory Geometry = new("geometry", "Geometry");
+        public static readonly PropertyCategory World = new("world", "World");
+        public static readonly PropertyCategory Local = new("local", "Local");
     }
 }

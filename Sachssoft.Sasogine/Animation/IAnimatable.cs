@@ -22,7 +22,7 @@ namespace Sachssoft.Sasogine.Animation
         /// <summary>
         /// Gets the current position of the object after animation updates.
         /// </summary>
-        Vector2 Position { get; }
+        Vector2 WorldPosition { get; }
 
         /// <summary>
         /// Gets the initial rotation in degrees when animations start.
@@ -32,7 +32,7 @@ namespace Sachssoft.Sasogine.Animation
         /// <summary>
         /// Gets the current rotation in degrees after animation updates.
         /// </summary>
-        float Rotation { get; }
+        float WorldRotation { get; }
 
         /// <summary>
         /// Called after animations are applied to update the object state.

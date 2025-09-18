@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Observables;
-using Sachssoft.Observables.Attributes;
+using Sachssoft.Observables.Descriptors;
 using System;
 
 namespace Sachssoft.Sasogine.Animation
@@ -102,7 +102,7 @@ namespace Sachssoft.Sasogine.Animation
                 nameof(Speed),
                 defaultValue: 10f,
                 category: Sachssoft.Sasogine.Observables.PropertyCategories.Animation,
-                attributes: [new RoundValueAttribute(2)]);
+                descriptors: [new RoundValueDescriptor(2)]);
 
         /// <summary>
         /// Gets or sets the speed multiplier of the animation.

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Observables;
-using Sachssoft.Observables.Attributes;
+using Sachssoft.Observables.Descriptors;
 
 namespace Sachssoft.Sasogine.Animation
 {

@@ -32,7 +32,6 @@ public sealed class QuadPrimitive : PrimitiveBase
         Vector2 topRight = new Vector2(BottomRight.X, TopLeft.Y);
         Vector2 bottomLeft = new Vector2(TopLeft.X, BottomRight.Y);
 
-
         Vector3 normal = new Vector3(0, 0, -1f);
 
         // Vertices

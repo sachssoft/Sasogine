@@ -63,6 +63,9 @@ namespace Sachssoft.Sasogine.Geometry
             return clone;
         }
 
+        /// <summary>
+        /// Transforms the path with a matrix.
+        /// </summary>
         public Path Transform(Matrix transform)
         {
             var transformed = new Path();
@@ -108,8 +111,9 @@ namespace Sachssoft.Sasogine.Geometry
             {
                 Vector2 a = points[i];
                 Vector2 b = points[(i + 1) % n];
-                area += (b.X - a.X) * (b.Y + a.Y) / 2f;
+                area += (a.X * b.Y) - (b.X * a.Y);
             }
+            area /= 2f;
 
             if (area < 0) return PolygonDirection.Clockwise;
             if (area > 0) return PolygonDirection.Anticlockwise;

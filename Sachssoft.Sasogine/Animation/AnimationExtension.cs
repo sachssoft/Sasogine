@@ -19,7 +19,7 @@ namespace Sachssoft.Sasogine.Animation
             {
                 foreach (var animation in animatable.Animations)
                 {
-                    animation.Start(animatable.Position, animatable.Rotation);
+                    animation.Start(animatable.WorldPosition, animatable.WorldRotation);
                 }
             }
         }
@@ -60,7 +60,7 @@ namespace Sachssoft.Sasogine.Animation
                     rotation += MathHelper.ToRadians(animation.AddRotationDegree(context.ElapsedTimeInSeconds));
                 }
 
-                animatable.OnAnimated(animatable.Position, position, animatable.Rotation, rotation);
+                animatable.OnAnimated(animatable.WorldPosition, position, animatable.WorldRotation, rotation);
             }
         }
     }
