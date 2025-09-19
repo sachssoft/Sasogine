@@ -29,7 +29,7 @@ namespace Sachssoft.Sasogine.Surface
         public GameBaseContext(ViewBase view)
         {
             View = view ?? throw new ArgumentNullException(nameof(view));
-            Runtime = view.Runtime ?? throw new ArgumentNullException(nameof(view.Runtime));
+            Runtime = View.Runtime;
         }
 
         /// <summary>
@@ -51,6 +51,7 @@ namespace Sachssoft.Sasogine.Surface
         /// <summary>
         /// The Runtime associated with the View.
         /// </summary>
+        [AllowNull]
         public RuntimeBase Runtime { get; }
 
         /// <summary>
