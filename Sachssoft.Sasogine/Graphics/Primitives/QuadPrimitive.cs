@@ -50,7 +50,7 @@ public sealed class QuadPrimitive : PrimitiveBase
         indices[indexOffset + 5] = (short)(baseVertex + 0);
     }
 
-    public override void Update(GameContext context)
+    public override void Update(GameFrameContext context)
     {
         // z. B. Animationen, Rotation, Farbe
     }

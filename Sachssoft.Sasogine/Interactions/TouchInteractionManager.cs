@@ -9,7 +9,7 @@ public class TouchInteractionManager : InputInteractionManager<TouchButton>
     {
     }
 
-    public override void Update(GameContext context)
+    public override void Update(GameFrameContext context)
     {
         var currentTouches = TouchPanel.GetState();
         var currentStateWrapper = new TouchStateWrapper(currentTouches);

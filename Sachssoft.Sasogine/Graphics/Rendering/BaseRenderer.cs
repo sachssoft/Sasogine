@@ -62,7 +62,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
         /// <summary>
         /// Draw-Methode, die den Effekt aus dem GameContext bezieht
         /// </summary>
-        public void Draw(GameContext context, Matrix? transform = null, CameraBase? customCamera = null, IEffectAdapter? customEffect = null)
+        public void Draw(GameFrameContext context, Matrix? transform = null, CameraBase? customCamera = null, IEffectAdapter? customEffect = null)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
@@ -72,7 +72,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
         /// <summary>
         /// Abgeleitete Klassen implementieren hier das eigentliche Zeichnen
         /// </summary>
-        protected abstract void DrawInternal(GameContext context, Matrix? transform = null, CameraBase? customCamera = null, IEffectAdapter? customEffect = null);
+        protected abstract void DrawInternal(GameFrameContext context, Matrix? transform = null, CameraBase? customCamera = null, IEffectAdapter? customEffect = null);
 
         public void Dispose()
         {

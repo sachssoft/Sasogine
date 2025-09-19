@@ -10,9 +10,9 @@ using Sachssoft.Sasogine.Graphics;
 
 namespace Sachssoft.Sasogine;
 
-public class MultiScreenGameContext : GameContext
+public class MultiScreenGameContext : GameFrameContext
 {
-    public MultiScreenGameContext(GameContext self, CameraBase camera, Rectangle viewport, int player_index)
+    public MultiScreenGameContext(GameFrameContext self, CameraBase camera, Rectangle viewport, int player_index)
         : base(self)
     {
         Camera = camera;

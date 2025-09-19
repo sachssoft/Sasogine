@@ -52,7 +52,7 @@ public sealed class ActionScheduler
         });
     }
 
-    public void Update(GameContext context) 
+    public void Update(GameFrameContext context) 
         => Update(context.GameTime);
 
     public void Update(GameTime time)

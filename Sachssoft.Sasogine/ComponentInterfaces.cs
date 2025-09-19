@@ -8,20 +8,20 @@ namespace Sachssoft.Sasogine
 
     public interface IRuntimeComponent : IComponent
     {
-        void Update(GameContext context);
+        void Update(GameFrameContext context);
 
     }
 
     public interface IDrawableRuntimeComponent : IRuntimeComponent
     {
-        void Draw(GameContext context);
+        void Draw(GameFrameContext context);
     }
 
     public interface IResourceComponent : IComponent
     {
         bool IsLoaded { get; }
 
-        void Load(ViewContext context);
+        void Load(GameBaseContext context);
 
         void Unload();
     }

@@ -147,7 +147,7 @@ public unsafe class StackedTileMap<TTileInstance> : IDisposable, ITileMap
         if (row < 0 || row >= _rows) throw new ArgumentOutOfRangeException(nameof(row));
     }
 
-    public void Draw(TileRenderer renderer, TilePrimitive primitive, GameContext context, TileDrawingOptions options, Rectangle? view_bounds = null)
+    public void Draw(TileRenderer renderer, TilePrimitive primitive, GameFrameContext context, TileDrawingOptions options, Rectangle? view_bounds = null)
     {
         if (_disposed) throw new ObjectDisposedException(NameOfTileMap);
 
@@ -160,7 +160,7 @@ public unsafe class StackedTileMap<TTileInstance> : IDisposable, ITileMap
 
     }
 
-    public void Update(GameContext context)
+    public void Update(GameFrameContext context)
     {
         if (_disposed) throw new ObjectDisposedException(NameOfTileMap);
 
@@ -188,7 +188,7 @@ public unsafe class StackedTileMap<TTileInstance> : IDisposable, ITileMap
         }
     }
 
-    private int RenderLayer(TileRenderer renderer, TilePrimitive primitive, int layer, int layer_size, GameContext context, TileDrawingOptions options, Rectangle? view_bounds, int tile_width, int tile_height)
+    private int RenderLayer(TileRenderer renderer, TilePrimitive primitive, int layer, int layer_size, GameFrameContext context, TileDrawingOptions options, Rectangle? view_bounds, int tile_width, int tile_height)
     {
         int rendered = 0;
         TTileInstance* layer_start = _tile_data + layer * layer_size;

@@ -9,7 +9,7 @@ namespace Sachssoft.Sasogine.Elements
 
         public bool IsLoaded => _isLoaded;
 
-        public virtual void Load(ViewContext context)
+        public virtual void Load(GameBaseContext context)
         {
             if (_isLoaded)
                 return;
@@ -25,11 +25,11 @@ namespace Sachssoft.Sasogine.Elements
             _isLoaded = false;
         }
 
-        public virtual void Update(GameContext context)
+        public virtual void Update(GameFrameContext context)
         {
         }
 
-        public virtual void Draw(GameContext context)
+        public virtual void Draw(GameFrameContext context)
         {
         }
     }

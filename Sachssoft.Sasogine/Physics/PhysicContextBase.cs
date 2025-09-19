@@ -17,11 +17,11 @@
 
         protected abstract T BuildWorld();
 
-        public virtual void Update(GameContext context)
+        public virtual void Update(GameFrameContext context)
         {
         }
 
-        public virtual void Draw(GameContext context)
+        public virtual void Draw(GameFrameContext context)
         {
         }
     }

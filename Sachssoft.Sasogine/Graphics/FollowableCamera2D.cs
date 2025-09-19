@@ -68,7 +68,7 @@ public class FollowableCamera2D : Camera2D
         set => _dead_zone = value;
     }
 
-    public override void Update(GameContext context)
+    public override void Update(GameFrameContext context)
     {
         base.Update(context); // Verarbeitet Animations-Updates
 

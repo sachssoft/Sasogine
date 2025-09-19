@@ -11,7 +11,7 @@ public class TileRendererContext
     private TilePrimitive _tile_primitive;
 
     public TileRendererContext(
-        GameContext context,
+        GameFrameContext context,
         TileRenderer renderer,
         TilePrimitive tile_primitive)
     {

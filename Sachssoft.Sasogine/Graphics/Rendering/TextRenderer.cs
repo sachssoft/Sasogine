@@ -37,7 +37,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
             }
         }
 
-        protected override void DrawInternal(GameContext context, Matrix? transform = null, CameraBase? customCamera = null, IEffectAdapter? customEffect = null)
+        protected override void DrawInternal(GameFrameContext context, Matrix? transform = null, CameraBase? customCamera = null, IEffectAdapter? customEffect = null)
         {
             if (FontSystem == null || string.IsNullOrEmpty(Text))
                 return;
@@ -72,7 +72,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
 
         private class IntegralFontRenderer
         {
-            public GameContext? GameContext;
+            public GameFrameContext? GameContext;
             public IEffectAdapter? CustomEffect;
             public CameraBase? CustomCamera;
             public Matrix Transform;

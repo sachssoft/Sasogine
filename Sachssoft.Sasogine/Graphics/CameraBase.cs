@@ -63,7 +63,7 @@ public abstract class CameraBase
         return new Vector2(projected.X, projected.Y);
     }
 
-    public virtual void Update(GameContext context)
+    public virtual void Update(GameFrameContext context)
     {
     }
 

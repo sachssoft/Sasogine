@@ -41,7 +41,7 @@ public class MouseInteractionManager : InputInteractionManager<MouseButton>
         _wheel_actions[wheel_state] = (press_action, release_action);
     }
 
-    public override void Update(GameContext context)
+    public override void Update(GameFrameContext context)
     {
         var elapsed = context.GameTime.ElapsedGameTime;
         Update(Mouse.GetState(), elapsed);

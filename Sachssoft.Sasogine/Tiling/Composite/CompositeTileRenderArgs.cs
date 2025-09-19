@@ -10,14 +10,14 @@ using Sachssoft.Sasogine.Graphics.Rendering;
 
 public /*readonly ref*/ class CompositeTileRenderArgs
 {
-    public readonly GameContext Context;
+    public readonly GameFrameContext Context;
     public readonly TileRenderer Renderer;
     public readonly TilePrimitive Primitive;
     internal Coordinate _coordinate;
 
     public Coordinate Coordinate => _coordinate;
 
-    internal CompositeTileRenderArgs(GameContext context, TileRenderer renderer, TilePrimitive primitive)
+    internal CompositeTileRenderArgs(GameFrameContext context, TileRenderer renderer, TilePrimitive primitive)
     {
         Context = context;
         Renderer = renderer;

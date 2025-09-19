@@ -34,7 +34,7 @@ public abstract class CompositeTileBase : ICloneable, IOutputTile
     {
     }
 
-    public virtual void Update(GameContext context)
+    public virtual void Update(GameFrameContext context)
     {
         // Logik für Update, falls nötig
     }

@@ -19,7 +19,7 @@ public abstract class RuntimeBase
     private readonly IEffectAdapter _effect;
     private readonly RuntimeComponentCollection _components = new();
     private readonly DiagnosticsContext _diagnostics = new();
-    private ViewContext? _viewContext;
+    private GameBaseContext? _viewContext;
 
     public RuntimeBase(CameraBase camera, IEffectAdapter? effect)
     {
@@ -29,7 +29,7 @@ public abstract class RuntimeBase
         RenderVisibility = true;
     }
 
-    protected ViewContext ViewContext => _viewContext ?? throw new InvalidOperationException("No View Context");
+    protected GameBaseContext ViewContext => _viewContext ?? throw new InvalidOperationException("No View Context");
 
     // Gibt an, ob gerade die Maus über einer UI-Surface schwebt.
     public bool IsAnySurfaceHovered { get; private set; }
@@ -50,7 +50,7 @@ public abstract class RuntimeBase
 
     public RuntimeComponentCollection Components => _components;
 
-    public virtual void Load(ViewContext context)
+    public virtual void Load(GameBaseContext context)
     {
         //var graphicsDevice = GetGraphicsDeviceSafely();
         _spriteBatch = new SpriteBatch(context.GraphicsDevice);
@@ -67,13 +67,13 @@ public abstract class RuntimeBase
         _spriteBatch = null;
     }
 
-    public virtual void Update(GameContext context)
+    public virtual void Update(GameFrameContext context)
     {
         Camera?.Update(context);
         _components.ForEachRuntime(context);
     }
 
-    public virtual void Draw(GameContext context)
+    public virtual void Draw(GameFrameContext context)
     {
         if (!RenderVisibility)
             return;
@@ -123,19 +123,19 @@ public abstract class RuntimeBase
         _spriteBatch.End();
     }
 
-    protected virtual void OnScreenDrawBefore(GameContext context)
+    protected virtual void OnScreenDrawBefore(GameFrameContext context)
     {
         // Sinnvoll für eigene RenderTargets
     }
 
-    protected virtual void OnScreenDraw(GameContext context)
+    protected virtual void OnScreenDraw(GameFrameContext context)
     {
         _components.ForEachDrawable(context);
 
         // Zum Überschreiben vorgesehen
     }
 
-    protected virtual IEffectAdapter? EffectOverrite(GameContext context)
+    protected virtual IEffectAdapter? EffectOverrite(GameFrameContext context)
     {
         return null;
     }

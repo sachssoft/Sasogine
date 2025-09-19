@@ -133,7 +133,7 @@ namespace Sachssoft.Sasogine
             Array.Copy(_items, 0, array, arrayIndex, _count);
         }
 
-        public void LoadAll(ViewContext context)
+        public void LoadAll(GameBaseContext context)
         {
             for (int i = 0; i < _runtimeCount; i++)
             {
@@ -163,13 +163,13 @@ namespace Sachssoft.Sasogine
             }
         }
 
-        public void ForEachRuntime(GameContext context)
+        public void ForEachRuntime(GameFrameContext context)
         {
             for (int i = 0; i < _runtimeCount; i++)
                 _drawableCache[i].Update(context);
         }
 
-        public void ForEachDrawable(GameContext context)
+        public void ForEachDrawable(GameFrameContext context)
         {
             for (int i = 0; i < _drawableCount; i++)
                 _drawableCache[i].Draw(context);

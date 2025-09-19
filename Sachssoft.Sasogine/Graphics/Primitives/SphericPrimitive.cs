@@ -111,7 +111,7 @@ namespace Sachssoft.Sasogine.Graphics.Primitives
             }
         }
 
-        public override void Update(GameContext context)
+        public override void Update(GameFrameContext context)
         {
             // Optional: Rotation, Animation, Farbe
         }

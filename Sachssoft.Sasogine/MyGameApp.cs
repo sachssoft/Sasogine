@@ -25,7 +25,7 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
 {
     private GraphicsDeviceManager _graphics_device_manager;
     private ViewManager _view_manager;
-    private GameContext _game_context;
+    private GameFrameContext _game_context;
     private List<Region> _regions;
 
     private SurfaceHost? _surface_host;
@@ -212,7 +212,7 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
         _view_manager.Update(time, OnUpdate);
     }
 
-    protected virtual void OnUpdate(GameContext context)
+    protected virtual void OnUpdate(GameFrameContext context)
     {
     }
 
@@ -223,11 +223,11 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
         _view_manager.Draw(gameTime, OnDraw, OnDrawAfterGUI);
     }
 
-    protected virtual void OnDraw(GameContext context)
+    protected virtual void OnDraw(GameFrameContext context)
     {
     }
 
-    protected virtual void OnDrawAfterGUI(GameContext context)
+    protected virtual void OnDrawAfterGUI(GameFrameContext context)
     {
     }
 

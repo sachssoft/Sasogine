@@ -113,11 +113,11 @@ public class CompositeTileMap<T> : ITileMap, INotifyMapChanged where T : Composi
             throw new IndexOutOfRangeException($"Index {index} out of bounds (0..{_count - 1})");
     }
 
-    public virtual void Update(GameContext context)
+    public virtual void Update(GameFrameContext context)
     {
     }
 
-    public virtual void Draw(TileRenderer renderer, TilePrimitive primitive, GameContext context, TileDrawingOptions options, Rectangle? view_bounds = null)
+    public virtual void Draw(TileRenderer renderer, TilePrimitive primitive, GameFrameContext context, TileDrawingOptions options, Rectangle? view_bounds = null)
     {
         // Klasse statt struct
         var args = new CompositeTileRenderArgs(context, renderer, primitive);

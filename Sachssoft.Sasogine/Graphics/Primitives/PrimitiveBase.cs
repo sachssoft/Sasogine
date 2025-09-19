@@ -47,7 +47,7 @@ namespace Sachssoft.Sasogine.Graphics.Primitives
         /// <summary>
         /// Wird pro Frame aufgerufen (z. B. für Animation, Transformation etc.)
         /// </summary>
-        public virtual void Update(GameContext context) { }
+        public virtual void Update(GameFrameContext context) { }
 
         /// <summary>
         /// Berechnet UV-Koordinaten aus SourceRect und Texture.

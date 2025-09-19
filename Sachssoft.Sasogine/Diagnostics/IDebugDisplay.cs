@@ -6,5 +6,5 @@ public interface IDebugDisplay
 {
     void SendDebugText(object? sender, string? text);
 
-    void Update(GameContext context);
+    void Update(GameFrameContext context);
 }

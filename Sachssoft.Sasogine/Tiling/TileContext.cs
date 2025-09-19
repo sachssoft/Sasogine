@@ -1,9 +1,9 @@
 ﻿namespace Sachssoft.Sasogine.Tiling;
 
-public class TileContext : GameContext
+public class TileContext : GameFrameContext
 {
     public TileContext(
-        GameContext context,
+        GameFrameContext context,
         Coordinate coordinate,
         ITileMap map,
         int layer_index)

@@ -13,7 +13,7 @@ public sealed class ViewManager
     private Type? _default_view_type;
     private Action<ViewBase>? _default_view_init;
 
-    private GameContext? _game_context;
+    private GameFrameContext? _game_context;
     private bool _renderable;
 
     public ViewManager(SurfaceHost host)
@@ -34,7 +34,7 @@ public sealed class ViewManager
         }
     }
 
-    public void Update(GameTime time, Action<GameContext> on)
+    public void Update(GameTime time, Action<GameFrameContext> on)
     {
         var view = _host.View;
 
@@ -47,7 +47,7 @@ public sealed class ViewManager
         }
 
         _game_context?.Dispose();
-        _game_context = new GameContext(view, time);
+        _game_context = new GameFrameContext(view, time);
 
         _renderable = view.CanRender(_game_context);
 
@@ -58,7 +58,7 @@ public sealed class ViewManager
         }
     }
 
-    public void Draw(GameTime time, Action<GameContext> on_before_surface, Action<GameContext> on_after_surface)
+    public void Draw(GameTime time, Action<GameFrameContext> on_before_surface, Action<GameFrameContext> on_after_surface)
     {
         if (!_renderable || _game_context == null || _host.View == null)
             return;
@@ -184,7 +184,7 @@ public sealed class ViewManager
         _views[type] = (item.Factory, view);
         _host.View = view;
 
-        var viewContext = new ViewContext(view);
+        var viewContext = new GameBaseContext(view);
 
         if (!view.IsLoaded && view.ViewSwitchMode == ViewSwitchMode.Restart)
         {
@@ -210,7 +210,7 @@ public sealed class ViewManager
         _views[type] = (item.Factory, view);
         _host.View = view;
 
-        var viewContext = new ViewContext(view);
+        var viewContext = new GameBaseContext(view);
 
         // NEU: Ladebedingung überarbeitet
         if (!view.IsLoaded)

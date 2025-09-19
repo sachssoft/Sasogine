@@ -139,7 +139,7 @@ public abstract class ViewBase /*Panel,*/
     {
     }
 
-    internal protected virtual void OnLoad(ViewContext context)
+    internal protected virtual void OnLoad(GameBaseContext context)
     {
         Runtime?.Load(context);
     }
@@ -153,22 +153,22 @@ public abstract class ViewBase /*Panel,*/
     {
     }
 
-    internal virtual bool CanRender(GameContext context)
+    internal virtual bool CanRender(GameFrameContext context)
     {
         return true;
     }
 
-    internal protected virtual void OnUpdate(GameContext context)
+    internal protected virtual void OnUpdate(GameFrameContext context)
     {
         Runtime?.Update(context);
     }
 
-    internal protected virtual void OnDraw(GameContext context)
+    internal protected virtual void OnDraw(GameFrameContext context)
     {
         Runtime?.Draw(context);
     }
 
-    internal protected virtual void OnDrawAfterGUI(GameContext context)
+    internal protected virtual void OnDrawAfterGUI(GameFrameContext context)
     {
     }
 }

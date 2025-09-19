@@ -27,7 +27,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
         /// </summary>
         public static void Draw(
             PrimitiveBase primitive,
-            GameContext context,
+            GameFrameContext context,
             Texture2D? texture = null,
             Matrix? transform = null,
             CameraBase? customCamera = null,
@@ -54,7 +54,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
             _primitives.Add(primitive);
         }
 
-        public void Update(GameContext context)
+        public void Update(GameFrameContext context)
         {
             foreach (var primitive in _primitives)
             {
@@ -63,7 +63,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
             }
         }
 
-        protected override void DrawInternal(GameContext context, Matrix? transform = null, CameraBase? customCamera = null, IEffectAdapter? customEffect = null)
+        protected override void DrawInternal(GameFrameContext context, Matrix? transform = null, CameraBase? customCamera = null, IEffectAdapter? customEffect = null)
         {
             if (_primitives.Count == 0) return;
 
