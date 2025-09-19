@@ -1,14 +1,15 @@
 ﻿using Sachssoft.Observables;
+using Sachssoft.Sasogine.Surface;
 
 namespace Sachssoft.Sasogine.Elements
 {
-    public class ActiveGameObject : NotifyingElement, IActiveGameObjectElement, IDrawableRuntimeComponent, IResourceComponent
+    public class ActiveGameObject : NotifyingElement, IDrawableRuntimeComponent, IResourceComponent
     {
         private bool _isLoaded;
 
         public bool IsLoaded => _isLoaded;
 
-        public virtual void Load()
+        public virtual void Load(ViewContext context)
         {
             if (_isLoaded)
                 return;

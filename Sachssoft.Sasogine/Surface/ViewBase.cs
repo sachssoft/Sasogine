@@ -139,9 +139,9 @@ public abstract class ViewBase /*Panel,*/
     {
     }
 
-    internal protected virtual void OnLoad()
+    internal protected virtual void OnLoad(ViewContext context)
     {
-        Runtime?.Load();
+        Runtime?.Load(context);
     }
 
     internal protected virtual void OnUnload()

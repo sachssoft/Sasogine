@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sachssoft.Sasogine.Surface;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -131,18 +132,19 @@ namespace Sachssoft.Sasogine
 
             Array.Copy(_items, 0, array, arrayIndex, _count);
         }
-        public void LoadAll()
+
+        public void LoadAll(ViewContext context)
         {
             for (int i = 0; i < _runtimeCount; i++)
             {
                 if (_runtimeCache[i] is IResourceComponent resource && !resource.IsLoaded)
-                    resource.Load();
+                    resource.Load(context);
             }
 
             for (int i = 0; i < _drawableCount; i++)
             {
                 if (_drawableCache[i] is IResourceComponent resource && !resource.IsLoaded)
-                    resource.Load();
+                    resource.Load(context);
             }
         }
 

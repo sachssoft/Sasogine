@@ -184,10 +184,12 @@ public sealed class ViewManager
         _views[type] = (item.Factory, view);
         _host.View = view;
 
+        var viewContext = new ViewContext(view);
+
         if (!view.IsLoaded && view.ViewSwitchMode == ViewSwitchMode.Restart)
         {
             view.OnLoadPrepareInternal();
-            view.OnLoad();
+            view.OnLoad(viewContext);
             view.IsLoaded = true;
         }
 
@@ -208,11 +210,13 @@ public sealed class ViewManager
         _views[type] = (item.Factory, view);
         _host.View = view;
 
+        var viewContext = new ViewContext(view);
+
         // NEU: Ladebedingung überarbeitet
         if (!view.IsLoaded)
         {
             view.OnLoadPrepareInternal();
-            view.OnLoad();
+            view.OnLoad(viewContext);
             view.IsLoaded = true;
         }
 

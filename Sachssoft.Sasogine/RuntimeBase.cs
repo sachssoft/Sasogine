@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Diagnostics;
 using Sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine.Surface;
 using System;
 
 namespace Sachssoft.Sasogine;
@@ -18,6 +19,7 @@ public abstract class RuntimeBase
     private readonly IEffectAdapter _effect;
     private readonly RuntimeComponentCollection _components = new();
     private readonly DiagnosticsContext _diagnostics = new();
+    private ViewContext? _viewContext;
 
     public RuntimeBase(CameraBase camera, IEffectAdapter? effect)
     {
@@ -26,6 +28,8 @@ public abstract class RuntimeBase
         BackgroundColor = Color.CornflowerBlue;
         RenderVisibility = true;
     }
+
+    protected ViewContext ViewContext => _viewContext ?? throw new InvalidOperationException("No View Context");
 
     // Gibt an, ob gerade die Maus über einer UI-Surface schwebt.
     public bool IsAnySurfaceHovered { get; private set; }
@@ -46,11 +50,12 @@ public abstract class RuntimeBase
 
     public RuntimeComponentCollection Components => _components;
 
-    public virtual void Load()
+    public virtual void Load(ViewContext context)
     {
-        var graphicsDevice = GetGraphicsDeviceSafely();
-        _spriteBatch = new SpriteBatch(graphicsDevice);
-        ResizeRenderTarget(graphicsDevice);
+        //var graphicsDevice = GetGraphicsDeviceSafely();
+        _spriteBatch = new SpriteBatch(context.GraphicsDevice);
+        ResizeRenderTarget(context.GraphicsDevice);
+        _viewContext = context;
     }
 
     public virtual void Unload()
@@ -73,7 +78,7 @@ public abstract class RuntimeBase
         if (!RenderVisibility)
             return;
 
-        var graphics_device = GetGraphicsDeviceSafely();
+        var graphics_device = context.GraphicsDevice; // GetGraphicsDeviceSafely();
         if (graphics_device.IsDisposed || graphics_device.GraphicsDeviceStatus != GraphicsDeviceStatus.Normal)
             return;
 
@@ -157,13 +162,13 @@ public abstract class RuntimeBase
         }
     }
 
-    protected static GraphicsDevice GetGraphicsDeviceSafely()
-    {
-        // Im echten System: hole es aus Singleton oder Context
-        // Hier z. B. als Platzhalter:
-        return IMyGameApp.Current.GraphicsDevice
-            ?? throw new InvalidOperationException("GraphicsDevice is not available.");
-    }
+    //protected static GraphicsDevice GetGraphicsDeviceSafely()
+    //{
+    //    // Im echten System: hole es aus Singleton oder Context
+    //    // Hier z. B. als Platzhalter:
+    //    return IMyGameApp.Current.GraphicsDevice
+    //        ?? throw new InvalidOperationException("GraphicsDevice is not available.");
+    //}
 
     // Meldet der Runtime, ob die Maus gerade über einer UI-Surface ist.
     // Diese Information ist wichtig, damit die Runtime z.B. Eingaben korrekt verarbeitet:

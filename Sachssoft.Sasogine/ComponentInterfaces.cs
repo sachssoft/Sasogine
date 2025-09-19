@@ -1,4 +1,6 @@
-﻿namespace Sachssoft.Sasogine
+﻿using Sachssoft.Sasogine.Surface;
+
+namespace Sachssoft.Sasogine
 {
     public interface IComponent
     {
@@ -19,7 +21,7 @@
     {
         bool IsLoaded { get; }
 
-        void Load();
+        void Load(ViewContext context);
 
         void Unload();
     }

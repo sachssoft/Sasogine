@@ -26,7 +26,7 @@ public abstract class SplitScreenRuntime : RuntimeBase
 
     protected override sealed void OnScreenDraw(GameContext context)
     {
-        var graphicsDevice = GetGraphicsDeviceSafely();
+        var graphicsDevice = context.GraphicsDevice; //GetGraphicsDeviceSafely();
 
         var full = graphicsDevice.Viewport.Bounds;
         var viewports = GetSplitViewports(full, PlayerCount);

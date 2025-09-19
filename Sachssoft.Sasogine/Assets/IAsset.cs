@@ -4,7 +4,7 @@ using System;
 
 namespace Sachssoft.Sasogine.Assets;
 
-public interface IAsset : IIdentifiable, IGameObjectElement
+public interface IAsset : IIdentifiable
 {     
     IAssetSource? Source { get; set; }
 
