@@ -1,25 +1,19 @@
-﻿/* 
- * © 2024 Tobias Sachs
- * CameraBase
- * 11.07.2024 
-*/
-
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
 namespace Sachssoft.Sasogine.Graphics;
 
-public abstract class CameraBase
+public abstract class CameraBase : ICameraTransform
 {
     private Matrix _world = Matrix.Identity;
     private GraphicsDevice _graphic_device;
     private Matrix _projection;
     private Matrix _view;
 
-    public CameraBase(GraphicsDevice graphic_device)
+    public CameraBase(GraphicsDevice graphicDevice)
     {
-        _graphic_device = graphic_device;
+        _graphic_device = graphicDevice;
     }
 
     public GraphicsDevice GraphicsDevice => _graphic_device;
@@ -42,13 +36,36 @@ public abstract class CameraBase
         protected set => _world = value;
     }
 
-    //public Matrix Transform => World * View * Projection;
-
-    public void ApplyEffect(IEffectAdapter effect)
+    Matrix ICameraTransform.Projection
     {
-        effect.Projection = _projection;
-        effect.View = _view;
-        effect.World = _world;
+        get => Projection;
+        set => throw new InvalidOperationException("Cannot set Projection directly. Use camera methods to update it.");
+    }
+
+    Matrix ICameraTransform.View
+    {
+        get => View;
+        set => throw new InvalidOperationException("Cannot set View directly. Use camera methods to update it.");
+    }
+
+    Matrix ICameraTransform.World
+    {
+        get => World;
+        set => throw new InvalidOperationException("Cannot set World directly. Use camera methods to update it.");
+    }
+
+    void ICameraTransform.CopyTo(ICameraTransform target)
+    {
+        throw new InvalidOperationException("Copying from this camera is not allowed externally.");
+    }
+
+    public void ApplyFrom(ICameraTransform source)
+    {
+        if (source == null) throw new ArgumentNullException(nameof(source));
+
+        Projection = source.Projection;
+        View = source.View;
+        World = source.World;
     }
 
     public virtual Vector2 ToWorld(Vector2 screen_position)
@@ -90,6 +107,4 @@ public abstract class CameraBase
         }
         return BoundingBox.CreateFromPoints(corners);
     }
-
-
 }
