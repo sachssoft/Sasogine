@@ -1,10 +1,13 @@
-﻿using System.IO;
-using System;
-using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Graphics.Colors;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Resources.Wrappers;
+using nkast.Aether.Physics2D.Common;
+using nkast.Aether.Physics2D.Controllers;
 using Sachssoft.Sasogine.Geometry;
+using Sachssoft.Sasogine.Graphics.Colors;
+using Sachssoft.Sasogine.Resources.Wrappers;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Sachssoft.Documents;
 
@@ -258,18 +261,115 @@ public static class ObjectSerializerExtensions
         return new BoundingSphere(new Vector3(result[0], result[1], result[2]), result[3]);
     }
 
-    public static PathCollection? ReadPathCollection<TReader>(this TReader reader, object? context, PathCollection? fallback = default, SerializationFormat format = SerializationFormat.Base64) where TReader : FormatReaderBase
+    public static PathCollection? ReadPathCollection<TReader>(
+        this TReader reader,
+        object? context,
+        PathCollection? fallback = default,
+        SerializationFormat format = SerializationFormat.Compact)
+        where TReader : FormatReaderBase
     {
-        return null;
+        switch (format)
+        {
+            case SerializationFormat.Underlying:
+                {
+                    //var pathNodes = reader.ReadArray(context);
+                    //if (pathNodes == null)
+                    //    return fallback;
+
+                    //var paths = new PathCollection();
+
+                    //foreach (var pathNode in pathNodes)
+                    //{
+                    //    var path = new Sasogine.Geometry.Path();
+
+                    //    var polygonNodes = reader.ReadArray(pathNode);
+                    //    if (polygonNodes != null)
+                    //    {
+                    //        foreach (var polygonNode in polygonNodes)
+                    //        {
+                    //            int pointCount = reader.ReadArrayCount(polygonNode);
+                    //            var polygonPoints = new List<Sasogine.Geometry.Point>();
+
+                    //            for (int i = 0; i < pointCount; i++)
+                    //            {
+                    //                var pointArray = reader.ReadSingleArray<float>(polygonNode, i);
+                    //                if (pointArray.Length >= 2)
+                    //                {
+                    //                    polygonPoints.Add(new Sasogine.Geometry.Point(pointArray[0], pointArray[1]));
+                    //                }
+                    //            }
+
+                    //            path.AddPolygon(polygonPoints);
+                    //        }
+                    //    }
+
+                    //    paths.Add(path);
+                    //}
+
+                    //return paths;
+                    throw new NotImplementedException();
+                }
+
+            case SerializationFormat.Compact:
+                {
+                    string? base64 = reader.ReadString(context);
+                    if (string.IsNullOrEmpty(base64))
+                        return fallback;
+
+                    var bytes = Convert.FromBase64String(base64);
+                    using var ms = new MemoryStream(bytes);
+                    using var binaryReader = new BinaryReader(ms);
+
+                    var paths = new List<Sasogine.Geometry.Path>();
+
+                    try
+                    {
+                        int pathCount = binaryReader.ReadInt32();
+
+                        for (int p = 0; p < pathCount; p++)
+                        {
+                            var polygons = new List<Vector2[]>();
+                            int polygonCount = binaryReader.ReadInt32();
+
+                            for (int i = 0; i < polygonCount; i++)
+                            {
+                                int pointCount = binaryReader.ReadInt32();
+                                var polygonPoints = new List<Vector2>();
+
+                                for (int j = 0; j < pointCount; j++)
+                                {
+                                    float x = binaryReader.ReadSingle();
+                                    float y = binaryReader.ReadSingle();
+                                    polygonPoints.Add(new Vector2(x, y));
+                                }
+
+                                polygons.Add(polygonPoints.ToArray());
+                            }
+
+                            paths.Add(new Sasogine.Geometry.Path(polygons.ToArray()));
+                        }
+
+                        return new PathCollection(paths);
+                    }
+                    catch
+                    {
+                        return fallback;
+                    }
+                }
+
+            default:
+                throw new NotSupportedException($"Serialization format {format} not supported.");
+        }
     }
 
-    public static Texture2D? ReadTexture2D<TReader>(this TReader reader, string property, GraphicsDevice graphics_device, Texture2D? fallback = default, SerializationFormat format = SerializationFormat.Base64) where TReader : FormatReaderBase
+
+    public static Texture2D? ReadTexture2D<TReader>(this TReader reader, string property, GraphicsDevice graphics_device, Texture2D? fallback = default, SerializationFormat format = SerializationFormat.Compact) where TReader : FormatReaderBase
     {
         _ = property ?? throw new ArgumentNullException(nameof(property));
         return ReadTexture2D(reader: reader, context: property, fallback: fallback, graphicsDevice: graphics_device);
     }
 
-    public static Texture2D? ReadTexture2D<TReader>(this TReader reader, object? context, GraphicsDevice graphicsDevice, Texture2D? fallback = default, SerializationFormat format = SerializationFormat.Base64) where TReader : FormatReaderBase
+    public static Texture2D? ReadTexture2D<TReader>(this TReader reader, object? context, GraphicsDevice graphicsDevice, Texture2D? fallback = default, SerializationFormat format = SerializationFormat.Compact) where TReader : FormatReaderBase
     {
         var wrapper = FetchTexture2D<TReader>(reader, context, format);
 
@@ -284,13 +384,13 @@ public static class ObjectSerializerExtensions
         return wrapper.Result;
     }
 
-    public static Texture2DWrapper? FetchTexture2D<TReader>(this TReader reader, object? context, SerializationFormat format = SerializationFormat.Base64) where TReader : FormatReaderBase
+    public static Texture2DWrapper? FetchTexture2D<TReader>(this TReader reader, object? context, SerializationFormat format = SerializationFormat.Compact) where TReader : FormatReaderBase
     {
         byte[] texture_bytes;
 
         switch (format)
         {
-            case SerializationFormat.Base64:
+            case SerializationFormat.Compact:
                 {
                     var base64_string = reader.ReadString(context, string.Empty);
                     if (string.IsNullOrEmpty(base64_string))
@@ -299,7 +399,7 @@ public static class ObjectSerializerExtensions
                     texture_bytes = Convert.FromBase64String(base64_string);
                 }
                 break;
-            case SerializationFormat.ByteArray:
+            case SerializationFormat.Underlying:
                 {
                     texture_bytes = reader.ReadByteArray(context, null);
                 }
@@ -400,16 +500,160 @@ public static class ObjectSerializerExtensions
         });
     }
 
-    public static void WritePathCollection<TWriter>(this TWriter writer, object? context, PathCollection? value, SerializationFormat format = SerializationFormat.Base64) where TWriter : FormatWriterBase
+    public static void WritePath<TWriter>(this TWriter writer, object? context, Sasogine.Geometry.Path? value, SerializationFormat format = SerializationFormat.Compact) where TWriter : FormatWriterBase
     {
+        if (value == null)
+        {
+            writer.WriteString(context: context, null);
+            return;
+        }
 
+        switch (format)
+        {
+            case SerializationFormat.Underlying:
+                {
+                    // Write each polygon as array of points
+                    var polygonWriters = new List<TWriter>();
+
+                    for (int i = 0; i < value.GetPolygonCount(); i++)
+                    {
+                        var pointWriters = new List<TWriter>();
+
+                        for (int j = 0; j < value.GetPointCount(i); j++)
+                        {
+                            var point = value.GetPoint(i, j);
+                            var pointWriter = (TWriter)writer.CreateWriter();
+                            pointWriter.WriteSingleArray(new float[] { point.X, point.Y });
+                            pointWriters.Add(pointWriter);
+                        }
+
+                        var polygonWriter = (TWriter)writer.CreateWriter();
+                        polygonWriter.WriteArray(pointWriters.ToArray());
+                        polygonWriters.Add(polygonWriter);
+                    }
+
+                    // Write all polygons into the main writer
+                    writer.WriteArray(polygonWriters.ToArray());
+                    break;
+                }
+
+            case SerializationFormat.Compact:
+                {
+                    // Serialize path as compact binary (Base64)
+                    using var ms = new MemoryStream();
+                    using var binaryWriter = new BinaryWriter(ms);
+
+                    // Number of polygons
+                    binaryWriter.Write(value.GetPolygonCount());
+
+                    for (int i = 0; i < value.GetPolygonCount(); i++)
+                    {
+                        // Number of points in polygon
+                        binaryWriter.Write(value.GetPointCount(i));
+
+                        for (int j = 0; j < value.GetPointCount(i); j++)
+                        {
+                            var point = value.GetPoint(i, j);
+                            binaryWriter.Write((float)point.X);
+                            binaryWriter.Write((float)point.Y);
+                        }
+                    }
+
+                    writer.WriteString(context, Convert.ToBase64String(ms.ToArray()));
+                    break;
+                }
+
+            default:
+                throw new NotSupportedException($"Serialization format {format} not supported.");
+        }
     }
 
-    public static void WriteTexture2D<TWriter>(this TWriter writer, object? context, Texture2D? value, SerializationFormat format = SerializationFormat.Base64) where TWriter : FormatWriterBase
+    public static void WritePathCollection<TWriter>(this TWriter writer, object? context, PathCollection? value, SerializationFormat format = SerializationFormat.Compact) where TWriter : FormatWriterBase
+    {
+        if (value == null)
+        {
+            writer.WriteString(context: context, null);
+            return;
+        }
+
+        switch (format)
+        {
+            case SerializationFormat.Underlying:
+                {
+                    var pathWriters = new List<TWriter>();
+
+                    foreach (var path in value)
+                    {
+                        var polygonWriters = new List<TWriter>();
+
+                        for (int i = 0; i < path.GetPolygonCount(); i++)
+                        {
+                            var pointWriters = new List<TWriter>();
+
+                            for (int j = 0; j < path.GetPointCount(i); j++)
+                            {
+                                var point = path.GetPoint(i, j);
+                                var pointWriter = (TWriter)writer.CreateWriter();
+                                pointWriter.WriteSingleArray(new float[] { point.X, point.Y });
+                                pointWriters.Add(pointWriter);
+                            }
+
+                            var polygonWriter = (TWriter)writer.CreateWriter();
+                            polygonWriter.WriteArray(pointWriters.ToArray());
+                            polygonWriters.Add(polygonWriter);
+                        }
+
+                        var pathWriter = (TWriter)writer.CreateWriter();
+                        pathWriter.WriteArray(polygonWriters.ToArray());
+                        pathWriters.Add(pathWriter);
+                    }
+
+                    writer.WriteArray(pathWriters.ToArray());
+                    break;
+                }
+
+            case SerializationFormat.Compact:
+                {
+                    // Write as compact binary (Base64 for JSON/Text)
+                    using var ms = new MemoryStream();
+                    using var binaryWriter = new BinaryWriter(ms);
+
+                    // Number of paths
+                    binaryWriter.Write((int)value.Count);
+
+                    foreach (var path in value)
+                    {
+                        // Number of polygons
+                        binaryWriter.Write((int)path.GetPolygonCount());
+
+                        for (int i = 0; i < path.GetPolygonCount(); i++)
+                        {
+                            // Number of points
+                            binaryWriter.Write((int)path.GetPointCount(i));
+
+                            for (int j = 0; j < path.GetPointCount(i); j++)
+                            {
+                                var point = path.GetPoint(i, j);
+                                binaryWriter.Write((float)point.X);
+                                binaryWriter.Write((float)point.Y);
+                            }
+                        }
+                    }
+
+                    writer.WriteString(context, Convert.ToBase64String(ms.ToArray()));
+                    break;
+                }
+
+            default:
+                throw new NotSupportedException($"Serialization format {format} not supported.");
+        }
+    }
+
+    public static void WriteTexture2D<TWriter>(this TWriter writer, object? context, Texture2D? value, SerializationFormat format = SerializationFormat.Compact) where TWriter : FormatWriterBase
     {
         switch (format)
         {
-            case SerializationFormat.Base64:
+            case SerializationFormat.Compact:
                 using (var ms = new MemoryStream())
                 {
                     if (value != null)
@@ -425,7 +669,7 @@ public static class ObjectSerializerExtensions
                 }
                 break;
 
-            case SerializationFormat.ByteArray:
+            case SerializationFormat.Underlying:
                 using (var ms = new MemoryStream())
                 {
                     if (value != null)

@@ -20,5 +20,6 @@ namespace Sachssoft.Sasogine.Observables
         public static readonly PropertyCategory Geometry = new("geometry", "Geometry");
         public static readonly PropertyCategory World = new("world", "World");
         public static readonly PropertyCategory Local = new("local", "Local");
+        public static readonly PropertyCategory Camera = new("camera", "Camera");
     }
 }

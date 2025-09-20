@@ -306,34 +306,38 @@ namespace Sachssoft.Sasogine.Containers
         }
 
         /// <summary>
-        /// Reads the entry stream from the package and deserializes its content 
-        /// into this object using the specified <typeparamref name="TFormatter"/>.
+        /// Reads the content of the package entry, deserializes it using the specified 
+        /// <typeparamref name="TFormatter"/>, and applies the result to this object.
         /// </summary>
         /// <typeparam name="TFormatter">
-        /// The document formatter to use for deserialization.
+        /// The document formatter to use for deserialization. Must implement <see cref="IDocumentFormatter"/>.
         /// </typeparam>
-        /// <param name="options">Optional access options (buffer size, progress, etc.).</param>
-        protected void ReadAndDeserialize<TFormatter>(PackageEntryAccessOptions? options = null)
-            where TFormatter : IDocumentFormatter, new()
+        /// <param name="formatter">An instance of the formatter used to read and deserialize the entry.</param>
+        /// <param name="options">
+        /// Optional access options for reading the package entry (e.g., buffer size, progress reporting).
+        /// </param>
+        protected void ReadAndDeserialize<TFormatter>(TFormatter formatter, PackageEntryAccessOptions? options = null)
+            where TFormatter : IDocumentFormatter
         {
             var ms = Read(options);
-            var formatter = new TFormatter();
             formatter.LoadFrom(ms);
             formatter.Reader.Deserialize(this);
         }
 
         /// <summary>
         /// Serializes this object using the specified <typeparamref name="TFormatter"/> 
-        /// and writes the result into the package entry.
+        /// and writes the serialized data into the package entry.
         /// </summary>
         /// <typeparam name="TFormatter">
-        /// The document formatter to use for serialization.
+        /// The document formatter to use for serialization. Must implement <see cref="IDocumentFormatter"/>.
         /// </typeparam>
-        /// <param name="options">Optional access options (buffer size, progress, etc.).</param>
-        protected void WriteAndSerialize<TFormatter>(PackageEntryAccessOptions? options = null)
-            where TFormatter : IDocumentFormatter, new()
+        /// <param name="formatter">An instance of the formatter used to serialize and write the object.</param>
+        /// <param name="options">
+        /// Optional access options for writing to the package entry (e.g., buffer size, progress reporting).
+        /// </param>
+        protected void WriteAndSerialize<TFormatter>(TFormatter formatter, PackageEntryAccessOptions? options = null)
+            where TFormatter : IDocumentFormatter
         {
-            var formatter = new TFormatter();
             formatter.Writer.Serialize(this);
 
             using var ms = new MemoryStream();
