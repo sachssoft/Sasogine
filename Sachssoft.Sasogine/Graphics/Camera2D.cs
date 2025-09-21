@@ -40,6 +40,7 @@ public abstract class Camera2D : CameraBase
     private Vector2 _position_minimum = new Vector2(float.MinValue, float.MinValue);
     private Vector2 _position_maximum = new Vector2(float.MaxValue, float.MaxValue);
     private float _zoom_animation_duration = 0.5f;
+    private float _zoomStep = 0.33f;
 
     protected Camera2D(GraphicsDevice graphicsDevice) : base(graphicsDevice)
     {
@@ -59,6 +60,12 @@ public abstract class Camera2D : CameraBase
     {
         get => _origin;
         set => _origin = value;
+    }
+
+    public float ZoomStep
+    {
+        get => _zoomStep;
+        set => _zoomStep = float.Clamp(value, 0.001f, 1000f);
     }
 
     public float Zoom
@@ -279,17 +286,17 @@ public abstract class Camera2D : CameraBase
     public void ZoomIn(AnimationTimingBase? timing = null)
     {
         timing ??= new EaseOutQuad();
-        float target_zoom = _zoom / _zoom_factor * 10f;
-        float duration = MathF.Abs(MathF.Log(_zoom) - MathF.Log(target_zoom)) * _zoom_animation_duration;
-        ZoomTo(target_zoom, duration, timing);
+        float target_zoom = _zoom * (1f + ZoomStep); // +10%
+        target_zoom = MathHelper.Clamp(target_zoom, _zoom_minimum, _zoom_maximum);
+        ZoomTo(target_zoom, _zoom_animation_duration, timing);
     }
 
     public void ZoomOut(AnimationTimingBase? timing = null)
     {
         timing ??= new EaseOutQuad();
-        float target_zoom = _zoom * _zoom_factor / 10f;
-        float duration = MathF.Abs(MathF.Log(_zoom) - MathF.Log(target_zoom)) * _zoom_animation_duration;
-        ZoomTo(target_zoom, duration, timing);
+        float target_zoom = _zoom * (1f - ZoomStep); // -10%
+        target_zoom = MathHelper.Clamp(target_zoom, _zoom_minimum, _zoom_maximum);
+        ZoomTo(target_zoom, _zoom_animation_duration, timing);
     }
 
     /// <summary>
@@ -354,17 +361,31 @@ public abstract class Camera2D : CameraBase
 
     public override Vector2 ToWorld(Vector2 screenPosition)
     {
+        var vp = GraphicsDevice.Viewport;
+
+        // Normalized Device Coordinates (-1..1)
+        Vector3 ndc = new Vector3(
+            2f * (screenPosition.X - vp.X) / vp.Width - 1f,
+            1f - 2f * (screenPosition.Y - vp.Y) / vp.Height, // invert Y
+            0f
+        );
+
         Matrix inv = Matrix.Invert(View * Projection);
-        Vector3 screenPos3 = new Vector3(screenPosition, 0f);
-        Vector3 worldPos3 = Vector3.Transform(screenPos3, inv);
-        return new Vector2(worldPos3.X, worldPos3.Y);
+        Vector3 world = Vector3.Transform(ndc, inv);
+        return new Vector2(world.X, world.Y);
     }
 
     public override Vector2 ToScreen(Vector2 worldPosition)
     {
-        Vector3 worldPos3 = new Vector3(worldPosition, 0f);
-        Vector3 screenPos3 = Vector3.Transform(worldPos3, View * Projection);
-        return new Vector2(screenPos3.X, screenPos3.Y);
+        var vp = GraphicsDevice.Viewport;
+        Vector3 world = new Vector3(worldPosition, 0f);
+        Vector3 ndc = Vector3.Transform(world, View * Projection);
+
+        // NDC -> Screen
+        return new Vector2(
+            ((ndc.X + 1f) * 0.5f) * vp.Width + vp.X,
+            ((1f - ndc.Y) * 0.5f) * vp.Height + vp.Y
+        );
     }
 
     /// <summary>

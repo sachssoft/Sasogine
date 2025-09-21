@@ -110,6 +110,7 @@ namespace Sachssoft.Sasogine.Containers
 
             var assetReaders = new List<FormatReaderBase>(reader.ReadArray(_sectionAssets));
             var unknownIndex = 0;
+            var _assetIdCounter = 0;
 
             foreach (var readerItem in assetReaders)
             {
@@ -130,8 +131,23 @@ namespace Sachssoft.Sasogine.Containers
                 {
                     var assetReader = entryReader.Read(_sectionData);
                     assetReader.Options = Options;
-                    //Deserialize(nAsset, assetReader);
                     assetReader.Deserialize(nAsset);
+                }
+
+                if (entry.Asset != null)
+                {
+                    // ID setzen, falls leer
+                    if (string.IsNullOrEmpty(entry.Asset.ID))
+                    {
+                        if (entry.Asset.Source != null && !string.IsNullOrEmpty(entry.Asset.Source.FileName))
+                        {
+                            entry.Asset.ID = entry.Asset.Source.FileName;
+                        }
+                        else
+                        {
+                            entry.Asset.ID = $"asset{_assetIdCounter++}";
+                        }
+                    }
                 }
 
                 _assetEntries.Add(entry.FileName, entry);
