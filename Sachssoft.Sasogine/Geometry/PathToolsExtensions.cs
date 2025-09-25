@@ -76,5 +76,51 @@ namespace Sachssoft.Sasogine.Geometry
             }
             return allPoints;
         }
+        
+        /// <summary>
+         /// Optimiert die Pfade für Performance:
+         /// - vereinfacht Punkte
+         /// - optional gleichmäßiges Resampling
+         /// - optional leichtes Glätten
+         /// </summary>
+        public static PathCollection Optimize(
+            this PathCollection collection,
+            float simplifyTolerance = 0.5f,
+            int? targetPointCount = null,
+            float smoothFactor = 0.0f, 
+            float smoothMaxAngleDeg = 45f,
+            int smoothIterations = 1)
+        {
+            var resultPaths = new List<Path>();
+
+            foreach (var path in collection)
+            {
+                var polygon = path.GetPolygon(0) as List<Vector2>;
+
+                // 1. Douglas-Peucker Simplify
+                var simplified = PathTools.SimplifyDouglasPeucker(polygon, simplifyTolerance);
+
+                // 2. Resampling (falls gewünscht)
+                if (targetPointCount.HasValue && targetPointCount.Value > 2)
+                {
+                    simplified = PathTools.ResampleLinear(simplified, 0, simplified.Count - 1, targetPointCount.Value);
+                }
+
+                // 3. Glätten (Moving Average / Chaikin)
+                var optimized = simplified;
+                if (smoothFactor > 0f)
+                {
+                    for (int i = 0; i < smoothIterations; i++)
+                    {
+                        optimized = PathTools.SmoothPath(optimized, smoothFactor, smoothMaxAngleDeg, 2);
+                    }
+                }
+
+                resultPaths.Add(new Path(optimized.ToArray()));
+            }
+
+            return new PathCollection(resultPaths);
+        }
+
     }
 }
