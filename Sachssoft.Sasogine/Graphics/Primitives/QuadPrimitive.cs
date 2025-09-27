@@ -8,6 +8,10 @@ public sealed class QuadPrimitive : PrimitiveBase
     public Vector2 TopLeft { get; set; }
     public Vector2 BottomRight { get; set; }
 
+    public QuadPrimitive(): this(Vector2.Zero, Vector2.One, Color.White)
+    {
+    }
+
     public QuadPrimitive(Vector2 position, Vector2 size, Color color)
     {
         TopLeft = position;
