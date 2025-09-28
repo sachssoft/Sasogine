@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Graphics.Primitives;
-using Sachssoft.Graphics.Renderer;
 using Sachssoft.Sasogine.Graphics.Rendering;
 
 namespace Sachssoft.Sasogine.Tiling;

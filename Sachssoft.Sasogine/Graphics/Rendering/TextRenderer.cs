@@ -7,6 +7,7 @@ using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Graphics.Rendering
 {
+    [Obsolete]
     public sealed class TextRenderer : BaseRenderer, IDisposable
     {
         private readonly IntegralFontRenderer _renderer;

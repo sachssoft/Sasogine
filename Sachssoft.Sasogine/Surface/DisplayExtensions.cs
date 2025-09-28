@@ -79,7 +79,7 @@ public static class DisplayExtensions
             case CompactNumberStyle.Casual:
                 (divisor, suffix) = abs switch
                 {
-                    >= 1e12 => (1e12, "T"),
+                    >= 1e12 => (1e12, "TAsset"),
                     >= 1e9 => (1e9, "B"),
                     >= 1e6 => (1e6, "M"),
                     >= 1e3 => (1e3, "k"),
@@ -90,7 +90,7 @@ public static class DisplayExtensions
             case CompactNumberStyle.Technical:
                 (divisor, suffix) = abs switch
                 {
-                    >= 1e12 => (1e12, "T"),
+                    >= 1e12 => (1e12, "TAsset"),
                     >= 1e9 => (1e9, "G"),
                     >= 1e6 => (1e6, "M"),
                     >= 1e3 => (1e3, "K"),
@@ -101,7 +101,7 @@ public static class DisplayExtensions
             case CompactNumberStyle.Local:
                 (divisor, suffix) = abs switch
                 {
-                    >= 1e12 => (1e12, LocalSuffix("T", "Bio.", culture)),
+                    >= 1e12 => (1e12, LocalSuffix("TAsset", "Bio.", culture)),
                     >= 1e9 => (1e9, LocalSuffix("B", "Mrd.", culture)),
                     >= 1e6 => (1e6, LocalSuffix("M", "Mio.", culture)),
                     >= 1e3 => (1e3, LocalSuffix("k", "Tsd.", culture)),

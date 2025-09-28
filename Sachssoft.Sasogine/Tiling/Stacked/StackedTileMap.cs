@@ -1,5 +1,4 @@
 ﻿using Sachssoft.Graphics.Primitives;
-using Sachssoft.Graphics.Renderer;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -7,7 +6,6 @@ using System.Runtime.InteropServices;
 using System;
 using Microsoft.Xna.Framework;
 using System.Buffers;
-using Sachssoft.Sasogine.Tiling.Stacked;
 using Sachssoft.Sasogine.Graphics.Rendering;
 
 namespace Sachssoft.Sasogine.Tiling.Stacked;

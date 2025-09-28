@@ -260,7 +260,7 @@ public class Texture2DAsset : AssetBase<Texture2D>
             nameof(Opacity),
             defaultValue: 1f,
             category: Observables.PropertyCategories.Appearance,
-            coerce: (o, baseValue) => float.Clamp(baseValue, 0f, 1f),
+            coercion: (o, baseValue) => float.Clamp(baseValue, 0f, 1f),
             metadata: new PropertySerializationMetadata(
                 deserialize: (p, r) => r.ReadSingle(context: p.Name),
                 serialize: (p, w, v) => w.WriteSingle(context: p.Name, (float)(v ?? 1f)))

@@ -4,6 +4,9 @@ using System;
 
 namespace Sachssoft.Sasogine.Graphics.Rendering
 {
+    // Neues Konzept!!
+    // Besser!
+
     public sealed class RenderScope : IDisposable
     {
         private bool _disposed;
@@ -20,6 +23,10 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
         private readonly DepthStencilState _defaultDepthStencil;
         private readonly SamplerState _defaultSampler;
         private readonly BlendState _defaultBlend;
+
+        public RenderScope(GameFrameContext context, RenderOptions? options = null) : this(context.GraphicsDevice, options)
+        {
+        }
 
         public RenderScope(GraphicsDevice graphicsDevice, RenderOptions? options = null)
         {

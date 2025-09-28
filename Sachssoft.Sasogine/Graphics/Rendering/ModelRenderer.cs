@@ -1,64 +1,69 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine;
-using Sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
 
-namespace Sachssoft.Graphics.Renderer;
-
-public sealed class ModelRenderer : RendererBase
+namespace Sachssoft.Sasogine.Graphics
 {
-    private readonly Model _model;
-    private CameraBase? _camera;
-
-    public ModelRenderer(CameraBase camera, IEffectAdapter effect, Model model)
-        : base(IMyGameApp.Current.GraphicsDevice, effect, camera)
+    public sealed class ModelRenderer
     {
-        _model = model ?? throw new ArgumentNullException(nameof(model));
-    }
+        private readonly Model _model;
 
-    protected override void OnInitialize(object[] args)
-    {
-        _camera = (CameraBase)args[0];
-
-        BlendState = BlendState.Opaque;
-        SamplerState = SamplerState.LinearWrap;
-        DepthStencil = DepthStencilState.Default;
-
-        Rasterizer.CullMode = CullMode.CullCounterClockwiseFace;
-        Rasterizer.MultiSampleAntiAlias = true;
-
-        Effect.Projection = _camera.Projection;
-        Effect.View = _camera.View;
-        Effect.World = _camera.World;
-    }
-
-    protected override void OnUninitialize()
-    {
-        // Optional: Cleanup
-    }
-
-    public CameraBase Camera => _camera!;
-
-    public void DrawModel(Matrix? world_transform = null, Action<BasicEffect>? configure_effect = null)
-    {
-        Matrix world = (world_transform ?? Matrix.Identity) * _camera!.World;
-
-        foreach (ModelMesh mesh in _model.Meshes)
+        public ModelRenderer(Model model)
         {
-            foreach (Effect base_effect in mesh.Effects)
-            {
-                if (base_effect is BasicEffect effect)
-                {
-                    effect.World = world;
-                    effect.View = _camera.View;
-                    effect.Projection = _camera.Projection;
-                    effect.EnableDefaultLighting();
-                    configure_effect?.Invoke(effect);
-                }
-            }
+            _model = model ?? throw new ArgumentNullException(nameof(model));
+        }
 
-            mesh.Draw();
+        /// <summary>
+        /// Weltmatrix des Modells
+        /// </summary>
+        public Matrix World { get; set; } = Matrix.Identity;
+
+        /// <summary>
+        /// Optionaler Effekt-Override
+        /// </summary>
+        public Action<IEffectAdapter, CameraBase, Matrix?>? EffectSetupCallback { get; set; }
+
+        /// <summary>
+        /// Zeichnet das Modell innerhalb eines RenderScopes
+        /// </summary>
+        public void Draw(GameFrameContext context, Matrix? transform = null, CameraBase? camera = null, IEffectAdapter? customEffect = null)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
+            var cam = camera ?? context.Runtime.Camera ?? throw new InvalidOperationException("No camera available.");
+            var graphics = context.GraphicsDevice;
+
+            // Berechne finale Weltmatrix
+            Matrix finalWorld = (transform ?? Matrix.Identity) * World;
+
+            foreach (var mesh in _model.Meshes)
+            {
+                foreach (var effectBase in mesh.Effects)
+                {
+                    if (effectBase is IEffectAdapter effect)
+                    {
+                        effect.World = finalWorld;
+                        effect.View = cam.View;
+                        effect.Projection = cam.Projection;
+
+                        EffectSetupCallback?.Invoke(effect, cam, finalWorld);
+                        effect.Apply();
+                    }
+                    else if (effectBase is BasicEffect basic)
+                    {
+                        basic.World = finalWorld;
+                        basic.View = cam.View;
+                        basic.Projection = cam.Projection;
+
+                        EffectSetupCallback?.Invoke(null, cam, finalWorld); // optional für BasicEffect
+                        basic.CurrentTechnique.Passes[0].Apply();
+                    }
+                }
+
+                mesh.Draw();
+            }
         }
     }
 }

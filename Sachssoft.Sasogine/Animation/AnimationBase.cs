@@ -119,7 +119,7 @@ namespace Sachssoft.Sasogine.Animation
                 nameof(Duration),
                 defaultValue: 100,
                 category: Sachssoft.Sasogine.Observables.PropertyCategories.Animation,
-                coerce: (o, baseValue) => Math.Max(baseValue, 0));
+                coercion: (o, baseValue) => Math.Max(baseValue, 0));
 
         /// <summary>
         /// Gets or sets the total duration of the animation in milliseconds.
@@ -151,7 +151,7 @@ namespace Sachssoft.Sasogine.Animation
                 nameof(Delay),
                 defaultValue: 0,
                 category: Sachssoft.Sasogine.Observables.PropertyCategories.Animation,
-                coerce: (o, baseValue) => Math.Max(baseValue, 0));
+                coercion: (o, baseValue) => Math.Max(baseValue, 0));
 
         /// <summary>
         /// Gets or sets the start delay of the animation in milliseconds.

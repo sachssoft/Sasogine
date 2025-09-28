@@ -12,6 +12,8 @@ namespace Sachssoft.Sasogine.Graphics.Primitives
         private readonly VertexPositionNormalTexture[] _vertices;
         private readonly short[] _indices;
 
+        public Texture2D? Texture { get; set; } 
+
         public float Radius { get; }
         public int LatitudeSegments { get; }
         public int LongitudeSegments { get; }
@@ -83,11 +85,10 @@ namespace Sachssoft.Sasogine.Graphics.Primitives
             int vertexOffset,
             short[] indicesBuffer,
             int indexOffset,
-            short baseVertex,
-            Texture2D? texture = null)
+            short baseVertex)
         {
             // Berechne UVs
-            var (u0, v0, u1, v1) = GetUV(texture);
+            var (u0, v0, u1, v1) = GetUV(TextureSize);
 
             for (int i = 0; i < _vertices.Length; i++)
             {
@@ -99,7 +100,7 @@ namespace Sachssoft.Sasogine.Graphics.Primitives
 
                 verticesBuffer[vertexOffset + i] = new VertexPositionColorNormalTexture(
                     v.Position,
-                    Color,
+                    FillColor,
                     v.Normal,
                     uv
                 );
@@ -109,6 +110,12 @@ namespace Sachssoft.Sasogine.Graphics.Primitives
             {
                 indicesBuffer[indexOffset + i] = (short)(_indices[i] + baseVertex);
             }
+        }
+
+        protected override void EffectSetup(IEffectAdapter effect, CameraBase camera, Matrix? transform)
+        {
+            effect.Texture = Texture;
+            base.EffectSetup(effect, camera, transform);
         }
 
         public override void Update(GameFrameContext context)

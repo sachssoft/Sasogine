@@ -4,6 +4,7 @@ using System;
 
 namespace Sachssoft.Sasogine.Graphics.Rendering
 {
+    [Obsolete("Will be remove")]
     public abstract class BaseRenderer : IDisposable
     {
         private bool _disposed;
