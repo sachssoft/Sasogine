@@ -2,66 +2,79 @@
 
 namespace Sachssoft.Sasogine.Graphics.Rendering
 {
+    /// <summary>
+    /// Rendering options that define how an object should be drawn.
+    /// </summary>
     public class RenderOptions
     {
         // --- Presets ---
         public static readonly RenderOptions Default = new RenderOptions();
 
-        public static readonly RenderOptions LowQuality = new RenderOptions
-        {
-            CullMode = CullMode.None,
-            FillMode = FillMode.Solid,
-            DepthEnabled = false,
-            SamplerState = SamplerState.PointClamp,
-            AlphaBlend = true
-        };
-
-        public static readonly RenderOptions HighQuality = new RenderOptions
-        {
-            CullMode = CullMode.CullCounterClockwiseFace,
-            FillMode = FillMode.Solid,
-            DepthEnabled = true,
-            SamplerState = SamplerState.AnisotropicClamp,
-            AlphaBlend = true
-        };
-
-        public static readonly RenderOptions Wireframe = new RenderOptions
-        {
-            CullMode = CullMode.None,
-            FillMode = FillMode.WireFrame,
-            DepthEnabled = false,
-            SamplerState = SamplerState.PointClamp,
-            AlphaBlend = false
-        };
-
         public static readonly RenderOptions Opaque = new RenderOptions
         {
             AlphaBlend = false,
-            DepthEnabled = true,
+            Depth = DepthMode.Opaque,
+            CullMode = CullMode.CullCounterClockwiseFace,
+            FillMode = FillMode.Solid,
             SamplerState = SamplerState.LinearClamp
         };
 
         public static readonly RenderOptions AlphaBlended = new RenderOptions
         {
             AlphaBlend = true,
-            DepthEnabled = false,
+            Depth = DepthMode.Transparent,
+            CullMode = CullMode.None,
+            FillMode = FillMode.Solid,
             SamplerState = SamplerState.LinearClamp
         };
 
-        public static readonly RenderOptions DepthTestOnly = new RenderOptions
+        public static readonly RenderOptions Overlay = new RenderOptions
+        {
+            AlphaBlend = true,
+            Depth = DepthMode.Overlay,
+            CullMode = CullMode.None,
+            FillMode = FillMode.Solid,
+            SamplerState = SamplerState.PointClamp
+        };
+
+        public static readonly RenderOptions DepthOnly = new RenderOptions
         {
             AlphaBlend = false,
-            DepthEnabled = true,
-            CullMode = CullMode.CullCounterClockwiseFace,
-            SamplerState = SamplerState.PointWrap
+            Depth = DepthMode.DepthOnly,
+            CullMode = CullMode.None,
+            FillMode = FillMode.Solid,
+            SamplerState = SamplerState.PointClamp
         };
 
         // --- Properties ---
-        public CullMode CullMode { get; set; } = CullMode.None;
-        public FillMode FillMode { get; set; } = FillMode.Solid;
-        public bool DepthEnabled { get; set; } = false;
-        public TextureAddressMode TextureWrap { get; set; } = TextureAddressMode.Wrap;
-        public SamplerState SamplerState { get; set; } = SamplerState.PointClamp;
+        /// <summary>
+        /// Depth mode controlling test and write behavior.
+        /// </summary>
+        public DepthMode Depth { get; set; } = DepthMode.Disabled;
+
+        /// <summary>
+        /// Whether to enable alpha blending.
+        /// </summary>
         public bool AlphaBlend { get; set; } = true;
+
+        /// <summary>
+        /// Cull mode for rasterization.
+        /// </summary>
+        public CullMode CullMode { get; set; } = CullMode.None;
+
+        /// <summary>
+        /// Fill mode for rasterization (Solid or Wireframe).
+        /// </summary>
+        public FillMode FillMode { get; set; } = FillMode.Solid;
+
+        /// <summary>
+        /// Sampler state for texture sampling.
+        /// </summary>
+        public SamplerState SamplerState { get; set; } = SamplerState.PointClamp;
+
+        /// <summary>
+        /// Texture wrap mode (optional, can be used in shader).
+        /// </summary>
+        public TextureAddressMode TextureWrap { get; set; } = TextureAddressMode.Wrap;
     }
 }

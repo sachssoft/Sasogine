@@ -1,11 +1,13 @@
+using FontStashSharp;
 using Microsoft.Xna.Framework;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Sachssoft.Sasogine.Geometry
 {
-    public class Path
+    public class Path : IEnumerable<Vector2[]>, ICloneable
     {
         private readonly List<List<Vector2>> _points;
         private readonly List<PolygonDirection> _directions;
@@ -54,6 +56,8 @@ namespace Sachssoft.Sasogine.Geometry
         public Vector2 Origin => new Vector2(Left + Width / 2f, Top + Height / 2f);
 
         public bool IsEmpty() => _points.Count == 0;
+
+        object ICloneable.Clone() => Clone();
 
         public Path Clone()
         {
@@ -126,8 +130,8 @@ namespace Sachssoft.Sasogine.Geometry
 
             // BoundingBox-Vorfilter
             var bounds = GetPolygonBounds(polygonIndex);
-            if (point.X < bounds[0].X || point.X > bounds[1].X ||
-                point.Y < bounds[0].Y || point.Y > bounds[1].Y)
+            if (point.X < bounds.Min.X || point.X > bounds.Max.X ||
+                point.Y < bounds.Min.Y || point.Y > bounds.Max.Y)
                 return false;
 
             int n = polygon.Count;
@@ -158,20 +162,27 @@ namespace Sachssoft.Sasogine.Geometry
             _width = _height = _left = _top = _right = _bottom = null;
         }
 
-        public Vector2[] GetPolygonBounds(int index)
+        public BoundingBox2D GetPolygonBounds(int index)
         {
-            float left = float.MaxValue, top = float.MaxValue;
-            float right = float.MinValue, bottom = float.MinValue;
+            var polygon = _points[index];
+            if (polygon == null || polygon.Count == 0)
+                return BoundingBox2D.Empty; // oder eine eigene Logik für "ungültig"
 
-            foreach (var p in _points[index])
+            float left = polygon[0].X;
+            float top = polygon[0].Y;
+            float right = polygon[0].X;
+            float bottom = polygon[0].Y;
+
+            for (int i = 1; i < polygon.Count; i++)
             {
-                left = Math.Min(left, p.X);
-                top = Math.Min(top, p.Y);
-                right = Math.Max(right, p.X);
-                bottom = Math.Max(bottom, p.Y);
+                var p = polygon[i];
+                if (p.X < left) left = p.X;
+                if (p.Y < top) top = p.Y;
+                if (p.X > right) right = p.X;
+                if (p.Y > bottom) bottom = p.Y;
             }
 
-            return new[] { new Vector2(left, top), new Vector2(right, bottom) };
+            return new BoundingBox2D(new Vector2(left, top), new Vector2(right, bottom));
         }
 
         private (float Left, float Top, float Right, float Bottom, float Width, float Height) ComputeSize()
@@ -201,6 +212,16 @@ namespace Sachssoft.Sasogine.Geometry
             _height = bottom - top;
 
             return (_left.Value, _top.Value, _right.Value, _bottom.Value, _width.Value, _height.Value);
+        }
+
+        IEnumerator<Vector2[]> IEnumerable<Vector2[]>.GetEnumerator()
+        {
+            return (IEnumerator<Vector2[]>)_points;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return (IEnumerator<Vector2[]>)_points;
         }
     }
 }
