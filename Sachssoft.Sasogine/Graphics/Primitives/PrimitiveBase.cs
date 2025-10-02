@@ -4,6 +4,7 @@ using Sachssoft.Sasogine;
 using Sachssoft.Sasogine.Graphics;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
+using System.Collections.Generic;
 
 public abstract class PrimitiveBase
 {
@@ -39,7 +40,6 @@ public abstract class PrimitiveBase
 
     public bool OutlineVisible { get; set; } = false; // immer false
     public bool FillVisible { get; set; } = true;     // immer true
-
     public bool Visible { get; set; } = true;
 
     public Rectangle? SourceRect
@@ -86,6 +86,44 @@ public abstract class PrimitiveBase
         }
     }
 
+    private void DrawDebugWireframeUnique(GraphicsDevice graphics)
+    {
+        if (_vertexBuffer == null || _indexBuffer == null)
+            return;
+
+        var drawnEdges = new HashSet<(short, short)>();
+
+        for (int i = 0; i < _indexBuffer.Length; i += 3)
+        {
+            var edges = new (short, short)[]
+            {
+            (_indexBuffer[i], _indexBuffer[i + 1]),
+            (_indexBuffer[i + 1], _indexBuffer[i + 2]),
+            (_indexBuffer[i + 2], _indexBuffer[i])
+            };
+
+            foreach (var (a, b) in edges)
+            {
+                // Kanten normalisieren (kleiner Index zuerst)
+                var edge = a < b ? (a, b) : (b, a);
+                if (drawnEdges.Add(edge))
+                {
+                    var lineVertices = new VertexPositionColorNormalTexture[]
+                    {
+                    _vertexBuffer[edge.Item1],
+                    _vertexBuffer[edge.Item2]
+                    };
+                    graphics.DrawUserPrimitives(
+                        PrimitiveType.LineList,
+                        lineVertices,
+                        0,
+                        1
+                    );
+                }
+            }
+        }
+    }
+
     public void Draw(GameFrameContext context, Matrix? transform = null, CameraBase? customCamera = null, IEffectAdapter? customEffect = null)
     {
         if (!Visible || VertexCount == 0 || IndexCount == 0)
@@ -95,7 +133,6 @@ public abstract class PrimitiveBase
         var effect = customEffect ?? context.Runtime.Effect;
         var camera = customCamera ?? context.Runtime.Camera ?? throw new InvalidOperationException("No camera available.");
 
-        // Persistente Arrays
         _vertexBuffer ??= new VertexPositionColorNormalTexture[VertexCount];
         _indexBuffer ??= new short[IndexCount];
 
@@ -105,6 +142,7 @@ public abstract class PrimitiveBase
             _dirty = false;
         }
 
+        // Vertex & Index Buffer aktualisieren (wie gehabt)
         if (_dynamicVertexBuffer == null || _dynamicVertexBuffer.VertexCount < VertexCount)
         {
             _dynamicVertexBuffer?.Dispose();
@@ -126,12 +164,10 @@ public abstract class PrimitiveBase
         effect.Projection = camera.Projection;
         effect.Apply();
 
-        if (EffectSetupCallback != null)
-            EffectSetupCallback.Invoke(effect, camera, transform);
-        else
-            EffectSetup(effect, camera, transform);
+        EffectSetupCallback?.Invoke(effect, camera, transform);
+        EffectSetup(effect, camera, transform);
 
-        // DrawFill
+        // Normales Fill
         if (FillVisible)
         {
             foreach (var pass in effect.CurrentTechnique.Passes)
@@ -151,7 +187,7 @@ public abstract class PrimitiveBase
             }
         }
 
-        // DrawOutline
+        // Optional: Outline
         if (OutlineVisible)
         {
             foreach (var pass in effect.CurrentTechnique.Passes)
@@ -167,6 +203,7 @@ public abstract class PrimitiveBase
             }
         }
     }
+
 
     protected virtual void EffectSetup(IEffectAdapter effect, CameraBase camera, Matrix? transform)
     {

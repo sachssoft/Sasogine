@@ -103,7 +103,10 @@ namespace Sachssoft.Sasogine.Geometry
         }
 
         public int GetPolygonCount() => _points.Count;
+
+        [Obsolete("Use GetPolygonPoints")]
         public IReadOnlyList<Vector2> GetPolygon(int index) => _points[index];
+        public IReadOnlyList<Vector2> GetPolygonPoints(int index) => _points[index];
         public Path PolygonToPath(int index) => new Path(_points[index].ToArray());
         public PolygonDirection GetPolygonDirection(int index) => _directions[index];
 

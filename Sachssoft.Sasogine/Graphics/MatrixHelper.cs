@@ -8,7 +8,7 @@ namespace Sachssoft.Sasogine.Graphics;
 /// </summary>
 public static class MatrixHelper
 {
-    public static Matrix Create(Vector2 offset, Vector2 scale, float rotation, Vector2 origin, float depth = 0f)
+    public static Matrix Create(Vector2 position, Vector2 scale, float rotation, Vector2 origin, float depth = 0f)
     {
         // Origin in Weltkoordinaten
         Vector2 originPx = origin;
@@ -17,7 +17,7 @@ public static class MatrixHelper
             Matrix.CreateTranslation(-originPx.X, -originPx.Y, 0f) * // Punkte vom Pivot weg
             Matrix.CreateScale(scale.X, scale.Y, 1f) *               // Skalierung
             Matrix.CreateRotationZ(rotation) *                        // Rotation
-            Matrix.CreateTranslation(offset.X, offset.Y, depth);      // Position / Offset
+            Matrix.CreateTranslation(position.X, position.Y, depth);      // Position / Offset
     }
 
 
