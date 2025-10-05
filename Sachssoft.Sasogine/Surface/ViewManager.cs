@@ -13,7 +13,7 @@ public sealed class ViewManager
     private Type? _default_view_type;
     private Action<ViewBase>? _default_view_init;
 
-    private GameFrameContext? _game_context;
+    //private GameFrameContext? _gameContext;
     private bool _renderable;
 
     public ViewManager(SurfaceHost host)
@@ -38,46 +38,74 @@ public sealed class ViewManager
     {
         var view = _host.View;
 
-        if (view == null)
-        {
-            _renderable = false;
-            _game_context?.Dispose();
-            _game_context = null;
-            return;
-        }
+        //if (view == null)
+        //{
+        //    _renderable = false;
+        //    _gameContext?.Dispose();
+        //    _gameContext = null;
+        //    return;
+        //}
 
-        _game_context?.Dispose();
-        _game_context = new GameFrameContext(view, time);
+        //_gameContext?.Dispose();
+        //_gameContext = new GameFrameContext(view, time);
 
-        _renderable = view.CanRender(_game_context);
+        //_renderable = view.CanRender(_gameContext);
+
+        //if (_renderable)
+        //{
+        //    view.OnUpdate(_gameContext);
+        //    on(_gameContext);
+        //}
+
+        // Bug Fixed
+        var gameContext = new GameFrameContext(view, time);
+        _renderable = view?.CanRender(gameContext) ?? false;
 
         if (_renderable)
         {
-            view.OnUpdate(_game_context);
-            on(_game_context);
+            view?.OnUpdate(gameContext);
+            on(gameContext);
         }
     }
 
     public void Draw(GameTime time, Action<GameFrameContext> on_before_surface, Action<GameFrameContext> on_after_surface)
     {
-        if (!_renderable || _game_context == null || _host.View == null)
+        //if (!_renderable || _gameContext == null || _host.View == null)
+        //    return;
+
+        //var view = _host.View;
+
+        //view.OnDraw(_gameContext);
+        //on_before_surface(_gameContext);
+
+        //if (_gameContext.IsUIVisibled)
+        //{
+        //    _host.Render();
+        //}
+
+        //on_after_surface(_gameContext);
+        //view.OnDrawAfterGUI(_gameContext);
+
+        //_gameContext.Dispose();
+        //_gameContext = null;
+
+        // Bug Fixed
+        if (!_renderable || /*_gameContext == null ||*/ _host.View == null)
             return;
 
         var view = _host.View;
+        var gameContext = new GameFrameContext(view, time);
 
-        view.OnDraw(_game_context);
-        on_before_surface(_game_context);
+        view.OnDraw(gameContext);
+        on_before_surface(gameContext);
 
-        if (_game_context.IsUIVisibled)
+        if (gameContext.IsUIVisibled)
         {
             _host.Render();
         }
 
-        on_after_surface(_game_context);
-        view.OnDrawAfterGUI(_game_context);
-
-        _game_context.Dispose();
-        _game_context = null;
+        on_after_surface(gameContext);
+        view.OnDrawAfterGUI(gameContext);
     }
 
     public void Register<TView>() where TView : ViewBase, new()

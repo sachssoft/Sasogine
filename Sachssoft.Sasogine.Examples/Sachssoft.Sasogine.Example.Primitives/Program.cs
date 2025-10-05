@@ -1,2 +1,2 @@
-﻿using var game = new Sachssoft.Sasogine.Example.Primitives.Game1();
+﻿using var game = new Sachssoft.Sasogine.Example.Primitives.PrimitiveExampleApp();
 game.Run();

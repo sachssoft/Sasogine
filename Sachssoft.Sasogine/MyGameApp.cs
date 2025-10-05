@@ -25,7 +25,6 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
 {
     private GraphicsDeviceManager _graphics_device_manager;
     private ViewManager _view_manager;
-    private GameFrameContext _game_context;
     private List<Region> _regions;
 
     private SurfaceHost? _surface_host;
@@ -203,13 +202,20 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
     {
     }
 
-    protected override sealed void Update(GameTime time)
+    protected override sealed void Update(GameTime gameTime)
     {
         Dispatcher.ExecutePending();
 
-        base.Update(time);
+        base.Update(gameTime);
 
-        _view_manager.Update(time, OnUpdate);
+        if (_view_manager != null)
+        {
+            _view_manager?.Update(gameTime, OnUpdate);
+        }
+        else
+        {
+            OnUpdate(CreateGameFrameContext(gameTime));
+        }
     }
 
     protected virtual void OnUpdate(GameFrameContext context)
@@ -220,7 +226,14 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
     {
         base.Draw(gameTime);
 
-        _view_manager.Draw(gameTime, OnDraw, OnDrawAfterGUI);
+        if (_view_manager != null)
+        {
+            _view_manager?.Draw(gameTime, OnDraw, OnDrawAfterGUI);
+        }
+        else
+        {
+            OnDraw(CreateGameFrameContext(gameTime));
+        }
     }
 
     protected virtual void OnDraw(GameFrameContext context)
@@ -247,6 +260,11 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
     }
 
     public PlatformProfiles PlatformProfile => _platform_profile;
+
+    private GameFrameContext CreateGameFrameContext(GameTime time)
+    {
+        return new GameFrameContext(null, time);
+    }
 
     private PlatformProfiles DetermineGraphicsPlatformProfile()
     {

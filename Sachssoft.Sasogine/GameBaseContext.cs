@@ -26,10 +26,10 @@ namespace Sachssoft.Sasogine.Surface
         /// </summary>
         /// <param name="view">The View to associate with this context, from which the Runtime is copied.</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="view"/> is null.</exception>
-        public GameBaseContext(ViewBase view)
+        public GameBaseContext(ViewBase? view)
         {
-            View = view ?? throw new ArgumentNullException(nameof(view));
-            Runtime = View.Runtime;
+            View = view; // ?? throw new ArgumentNullException(nameof(view));
+            Runtime = View?.Runtime;
         }
 
         /// <summary>
@@ -46,6 +46,7 @@ namespace Sachssoft.Sasogine.Surface
         /// <summary>
         /// The View associated with this context.
         /// </summary>
+        [AllowNull]
         public ViewBase View { get; }
 
         /// <summary>

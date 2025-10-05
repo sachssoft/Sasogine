@@ -30,6 +30,8 @@ public sealed class PathCollection : IReadOnlyList<Path>, ICloneable
         (_centroid, _centroidComputed) = ComputeCentroid(_paths);
     }
 
+    public PathCollection(params Path[] pathArray) : this(paths: pathArray) { }    
+
     public Vector2 Centroid => _centroid;
     public Vector2 LowerBound { get; }
     public Vector2 UpperBound { get; }
