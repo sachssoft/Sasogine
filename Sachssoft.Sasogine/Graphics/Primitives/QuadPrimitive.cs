@@ -1,10 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine;
-using Sachssoft.Sasogine.Graphics.Primitives;
-using System;
 
-namespace Sachssoft.Graphics.Primitives;
+namespace Sachssoft.Sasogine.Graphics.Primitives;
 
 public class QuadPrimitive : PrimitiveBase
 {

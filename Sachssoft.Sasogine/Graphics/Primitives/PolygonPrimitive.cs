@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Geometry;
 using System;
+using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Graphics.Primitives
 {
@@ -10,11 +11,11 @@ namespace Sachssoft.Sasogine.Graphics.Primitives
     {
         private Path? _path;
         private float _depth;
-        private Tess? _tess;
+        private Tess? _cachedTess;
+        private bool _isConvex = true;
+        private int _cachedVertexCount = 0;
+        private int _cachedIndexCount = 0;
 
-        /// <summary>
-        /// Wenn true, werden die Polygonkoordinaten relativ zu den Bounds auf 0..1 normalisiert
-        /// </summary>
         public bool RelativeToBounds { get; set; } = true;
 
         public PolygonPrimitive(Path? path = null, float depth = 0f)
@@ -31,96 +32,206 @@ namespace Sachssoft.Sasogine.Graphics.Primitives
                 if (_path != value)
                 {
                     _path = value;
+                    _cachedTess = null;
+                    _cachedVertexCount = 0;
+                    _cachedIndexCount = 0;
                     MarkDirty();
                 }
             }
         }
 
-        // VertexCount direkt aus Path berechnen
-        public override int VertexCount
+        /// <summary>
+        /// Prüft, ob ein einfaches Polygon konvex ist
+        /// </summary>
+        private static bool IsConvex(Path polygon)
         {
-            get
+            int n = polygon.GetPointCount(0);
+            if (n < 3) return false;
+
+            bool? sign = null;
+
+            for (int i = 0; i < n; i++)
             {
-                if (_path == null) return 0;
-                int count = 0;
-                for (int p = 0; p < _path.GetPolygonCount(); p++)
-                    count += _path.GetPointCount(p);
-                return count;
+                var p0 = polygon.GetPoint(0, i);
+                var p1 = polygon.GetPoint(0, (i + 1) % n);
+                var p2 = polygon.GetPoint(0, (i + 2) % n);
+
+                float dx1 = p1.X - p0.X;
+                float dy1 = p1.Y - p0.Y;
+                float dx2 = p2.X - p1.X;
+                float dy2 = p2.Y - p1.Y;
+
+                float zCross = dx1 * dy2 - dy1 * dx2;
+
+                if (zCross == 0) continue;
+                if (sign == null)
+                    sign = zCross > 0;
+                else if (sign != (zCross > 0))
+                    return false;
             }
+
+            return true;
         }
 
-        // IndexCount direkt aus Path berechnen (Dreiecksfan)
-        public override int IndexCount
+        /// <summary>
+        /// Caching und Tessellation aller Polygone
+        /// </summary>
+        private void TessellateAll()
         {
-            get
-            {
-                if (_path == null) return 0;
-                int count = 0;
-                for (int p = 0; p < _path.GetPolygonCount(); p++)
-                {
-                    int pc = _path.GetPointCount(p);
-                    if (pc < 3) continue;
-                    count += (pc - 2) * 3;
-                }
-                return count;
-            }
-        }
+            if (_path == null || _path.IsEmpty()) return;
+            if (_cachedTess != null) return;
 
-        // Fill schreibt direkt in die Arrays, die vom Base bereitgestellt werden
-        public override void Fill(VertexPositionColorNormalTexture[] vertices, int vertexOffset, short[] indices, int indexOffset, short baseVertex)
-        {
-            if (_path == null || _path.IsEmpty())
-                return;
+            _isConvex = true;
+            int totalVertices = 0;
+            int totalIndices = 0;
 
-            _tess = new Tess();
-
-            float minX = _path.LowerBound.X;
-            float minY = _path.LowerBound.Y;
-            float width = MathF.Max(_path.Width, 1e-5f);
-            float height = MathF.Max(_path.Height, 1e-5f);
-
-            int currentVertex = vertexOffset;
-            int currentIndex = indexOffset;
-
+            // Prüfe, ob alle Polygone konvex sind
             for (int poly = 0; poly < _path.GetPolygonCount(); poly++)
             {
                 int pc = _path.GetPointCount(poly);
                 if (pc < 3) continue;
 
-                var contour = new ContourVertex[pc];
-                for (int j = 0; j < pc; j++)
+                if (!IsConvex(_path))
                 {
-                    var p = _path.GetPoint(poly, j);
-                    float x = RelativeToBounds ? (p.X - minX) / width : p.X;
-                    float y = RelativeToBounds ? (p.Y - minY) / height : p.Y;
+                    _isConvex = false;
+                    break;
+                }
+            }
 
-                    contour[j].Position = new Vec3(x, y, 0f);
+            if (_isConvex)
+            {
+                // Bei konvex: einfache Vertex/Indexberechnung
+                for (int poly = 0; poly < _path.GetPolygonCount(); poly++)
+                {
+                    int pc = _path.GetPointCount(poly);
+                    if (pc < 3) continue;
+                    totalVertices += pc;
+                    totalIndices += (pc - 2) * 3;
+                }
+            }
+            else
+            {
+                // Bei konkav: alles in einen Tessellator packen
+                var tess = new Tess();
+                for (int poly = 0; poly < _path.GetPolygonCount(); poly++)
+                {
+                    int pc = _path.GetPointCount(poly);
+                    if (pc < 3) continue;
+
+                    var contour = new ContourVertex[pc];
+
+                    float minX = _path.LowerBound.X;
+                    float minY = _path.LowerBound.Y;
+                    float width = MathF.Max(_path.Width, 1e-5f);
+                    float height = MathF.Max(_path.Height, 1e-5f);
+
+                    for (int j = 0; j < pc; j++)
+                    {
+                        var p = _path.GetPoint(poly, j);
+                        float x = RelativeToBounds ? (p.X - minX) / width : p.X;
+                        float y = RelativeToBounds ? (p.Y - minY) / height : p.Y;
+
+                        contour[j].Position = new Vec3(x, y, 0f);
+                    }
+
+                    tess.AddContour(contour, ContourOrientation.Original);
                 }
 
-                _tess.AddContour(contour, ContourOrientation.Original);
+                tess.Tessellate(WindingRule.EvenOdd, ElementType.Polygons, 3);
+
+                _cachedTess = tess;
+                totalVertices = tess.Vertices?.Length ?? 0;
+                totalIndices = tess.Elements?.Length ?? 0;
             }
 
-            _tess.Tessellate(WindingRule.EvenOdd, ElementType.Polygons, 3);
+            _cachedVertexCount = totalVertices;
+            _cachedIndexCount = totalIndices;
+        }
 
-            if (_tess.Vertices == null || _tess.Elements == null)
-                return;
-
-            // Vertex direkt in das vom Base bereitgestellte Array schreiben
-            for (int i = 0; i < _tess.Vertices.Length; i++)
+        public override int VertexCount
+        {
+            get
             {
-                var pos = _tess.Vertices[i].Position;
-                vertices[currentVertex++] = new VertexPositionColorNormalTexture(
-                    new Vector3((float)pos.X, (float)pos.Y, _depth),
-                    FillColor,
-                    Vector3.Backward,
-                    new Vector2((float)pos.X, (float)pos.Y)
-                );
+                TessellateAll();
+                return _cachedVertexCount;
             }
+        }
 
-            // Index direkt in das vom Base bereitgestellte Array schreiben
-            for (int i = 0; i < _tess.Elements.Length; i++)
+        public override int IndexCount
+        {
+            get
             {
-                indices[currentIndex++] = (short)(_tess.Elements[i] + baseVertex);
+                TessellateAll();
+                return _cachedIndexCount;
+            }
+        }
+
+        public override void Fill(VertexPositionColorNormalTexture[] vertices, int vertexOffset,
+                                  short[] indices, int indexOffset, short baseVertex)
+        {
+            if (_path == null || _path.IsEmpty()) return;
+
+            TessellateAll();
+
+            int currentVertex = vertexOffset;
+            int currentIndex = indexOffset;
+
+            if (_isConvex)
+            {
+                for (int poly = 0; poly < _path.GetPolygonCount(); poly++)
+                {
+                    int pc = _path.GetPointCount(poly);
+                    if (pc < 3) continue;
+
+                    float minX = _path.LowerBound.X;
+                    float minY = _path.LowerBound.Y;
+                    float width = MathF.Max(_path.Width, 1e-5f);
+                    float height = MathF.Max(_path.Height, 1e-5f);
+
+                    // Vertices
+                    for (int j = 0; j < pc; j++)
+                    {
+                        var p = _path.GetPoint(poly, j);
+                        float x = RelativeToBounds ? (p.X - minX) / width : p.X;
+                        float y = RelativeToBounds ? (p.Y - minY) / height : p.Y;
+
+                        vertices[currentVertex++] = new VertexPositionColorNormalTexture(
+                            new Vector3(x, y, _depth),
+                            FillColor,
+                            Vector3.Backward,
+                            new Vector2(x, y)
+                        );
+                    }
+
+                    // Indices (Dreiecksfan)
+                    for (int j = 1; j < pc - 1; j++)
+                    {
+                        indices[currentIndex++] = (short)(baseVertex + 0);
+                        indices[currentIndex++] = (short)(baseVertex + j);
+                        indices[currentIndex++] = (short)(baseVertex + j + 1);
+                    }
+
+                    baseVertex += (short)pc;
+                }
+            }
+            else
+            {
+                var tess = _cachedTess!;
+                for (int i = 0; i < tess.Vertices.Length; i++)
+                {
+                    var pos = tess.Vertices[i].Position;
+                    vertices[currentVertex++] = new VertexPositionColorNormalTexture(
+                        new Vector3((float)pos.X, (float)pos.Y, _depth),
+                        FillColor,
+                        Vector3.Backward,
+                        new Vector2((float)pos.X, (float)pos.Y)
+                    );
+                }
+
+                for (int i = 0; i < tess.Elements.Length; i++)
+                {
+                    indices[currentIndex++] = (short)(tess.Elements[i] + baseVertex);
+                }
             }
         }
     }
