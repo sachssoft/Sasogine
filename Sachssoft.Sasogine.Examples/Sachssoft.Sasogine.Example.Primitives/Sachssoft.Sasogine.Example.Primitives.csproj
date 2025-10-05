@@ -11,10 +11,12 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Content\Fonts\RobotoCondensed-Regular.ttf" />
     <None Remove="Icon.ico" />
     <None Remove="Icon.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Content\Fonts\RobotoCondensed-Regular.ttf" />
     <EmbeddedResource Include="Icon.ico">
       <LogicalName>Icon.ico</LogicalName>
     </EmbeddedResource>

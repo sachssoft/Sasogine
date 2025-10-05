@@ -7,7 +7,7 @@ using System.Net.Http.Headers;
 
 namespace Sachssoft.Sasogine.Graphics;
 
-public abstract class Camera2D : CameraBase
+public class Camera2D : CameraBase
 {
     private Vector2 _move_start;
     private Vector2 _move_end;
@@ -42,7 +42,7 @@ public abstract class Camera2D : CameraBase
     private float _zoom_animation_duration = 0.5f;
     private float _zoomStep = 0.33f;
 
-    protected Camera2D(GraphicsDevice graphicsDevice) : base(graphicsDevice)
+    public Camera2D(GraphicsDevice graphicsDevice) : base(graphicsDevice)
     {
         // UpdateZoomBounds entfernt - keine Exponenten mehr
     }

@@ -62,6 +62,7 @@
 		<PackageReference Include="Aether.Physics2D.MG" Version="2.2.0" />
 		<PackageReference Include="Clipper2" Version="1.5.4" />
 		<PackageReference Include="FontStashSharp.MonoGame" Version="1.4.1" />
+		<PackageReference Include="LibTessDotNet" Version="1.1.15" />
 		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.4">
 			<PrivateAssets>All</PrivateAssets>
 		</PackageReference>
@@ -69,6 +70,7 @@
 
 	<ItemGroup>
 		<Folder Include="Graphics\Colors\List\" />
+		<Folder Include="Graphics\Primitives\Shapes\" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -1,126 +1,97 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine;
 using Sachssoft.Sasogine.Graphics.Primitives;
 using System;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Graphics.Primitives
 {
-    public sealed class SpherePrimitive : PrimitiveBase
+    /// <summary>
+    /// A simple UV sphere primitive, 3D capable.
+    /// </summary>
+    public class SpherePrimitive : PrimitiveBase
     {
-        private readonly VertexPositionNormalTexture[] _vertices;
-        private readonly short[] _indices;
+        private readonly List<Vector3> _vertices = new();
+        private readonly List<short> _indices = new();
 
-        public Texture2D? Texture { get; set; } 
+        private int _segments = 16;
+        private int _rings = 16;
 
-        public float Radius { get; }
-        public int LatitudeSegments { get; }
-        public int LongitudeSegments { get; }
-
-        public override int VertexCount => _vertices.Length;
-        public override int IndexCount => _indices.Length;
-
-        public SpherePrimitive(float radius = 1f, int latitudeSegments = 16, int longitudeSegments = 16)
+        public SpherePrimitive(int segments = 16, int rings = 16)
         {
-            Radius = radius;
-            LatitudeSegments = latitudeSegments;
-            LongitudeSegments = longitudeSegments;
+            _segments = Math.Max(segments, 3);
+            _rings = Math.Max(rings, 2);
 
-            (_vertices, _indices) = GenerateSphere(radius, latitudeSegments, longitudeSegments);
+            GenerateSphere();
         }
 
-        private static (VertexPositionNormalTexture[], short[]) GenerateSphere(float radius, int latSeg, int lonSeg)
+        private void GenerateSphere()
         {
-            var vertices = new List<VertexPositionNormalTexture>();
-            var indices = new List<short>();
+            _vertices.Clear();
+            _indices.Clear();
 
-            for (int lat = 0; lat <= latSeg; lat++)
+            for (int ring = 0; ring <= _rings; ring++)
             {
-                float theta = MathHelper.Pi * lat / latSeg;
-                float sinTheta = (float)Math.Sin(theta);
-                float cosTheta = (float)Math.Cos(theta);
+                float theta = MathF.PI * ring / _rings;
+                float sinTheta = MathF.Sin(theta);
+                float cosTheta = MathF.Cos(theta);
 
-                for (int lon = 0; lon <= lonSeg; lon++)
+                for (int seg = 0; seg <= _segments; seg++)
                 {
-                    float phi = 2f * MathHelper.Pi * lon / lonSeg;
-                    float sinPhi = (float)Math.Sin(phi);
-                    float cosPhi = (float)Math.Cos(phi);
+                    float phi = 2 * MathF.PI * seg / _segments;
+                    float sinPhi = MathF.Sin(phi);
+                    float cosPhi = MathF.Cos(phi);
 
-                    Vector3 normal = new Vector3(
-                        cosPhi * sinTheta,
-                        cosTheta,
-                        sinPhi * sinTheta
-                    );
+                    float x = cosPhi * sinTheta * 0.5f;
+                    float y = cosTheta * 0.5f;
+                    float z = sinPhi * sinTheta * 0.5f;
 
-                    Vector3 position = normal * radius;
-                    Vector2 texCoord = new Vector2((float)lon / lonSeg, (float)lat / latSeg);
-
-                    vertices.Add(new VertexPositionNormalTexture(position, normal, texCoord));
+                    _vertices.Add(new Vector3(x, y, z));
                 }
             }
 
-            for (int lat = 0; lat < latSeg; lat++)
+            for (int ring = 0; ring < _rings; ring++)
             {
-                for (int lon = 0; lon < lonSeg; lon++)
+                for (int seg = 0; seg < _segments; seg++)
                 {
-                    int first = lat * (lonSeg + 1) + lon;
-                    int second = first + lonSeg + 1;
+                    int first = (ring * (_segments + 1)) + seg;
+                    int second = first + _segments + 1;
 
-                    indices.Add((short)first);
-                    indices.Add((short)second);
-                    indices.Add((short)(first + 1));
+                    _indices.Add((short)first);
+                    _indices.Add((short)second);
+                    _indices.Add((short)(first + 1));
 
-                    indices.Add((short)(first + 1));
-                    indices.Add((short)second);
-                    indices.Add((short)(second + 1));
+                    _indices.Add((short)(first + 1));
+                    _indices.Add((short)second);
+                    _indices.Add((short)(second + 1));
                 }
             }
-
-            return (vertices.ToArray(), indices.ToArray());
         }
 
-        public override void Fill(
-            VertexPositionColorNormalTexture[] verticesBuffer,
-            int vertexOffset,
-            short[] indicesBuffer,
-            int indexOffset,
-            short baseVertex)
+        public override int VertexCount => _vertices.Count;
+        public override int IndexCount => _indices.Count;
+
+        public override void Fill(VertexPositionColorNormalTexture[] vertices, int vertexOffset, short[] indices, int indexOffset, short baseVertex)
         {
-            // Berechne UVs
-            var (u0, v0, u1, v1) = GetUV(TextureSize);
-
-            for (int i = 0; i < _vertices.Length; i++)
+            for (int i = 0; i < _vertices.Count; i++)
             {
-                var v = _vertices[i];
-                Vector2 uv = new Vector2(
-                    u0 + (u1 - u0) * v.TextureCoordinate.X,
-                    v0 + (v1 - v0) * v.TextureCoordinate.Y
-                );
-
-                verticesBuffer[vertexOffset + i] = new VertexPositionColorNormalTexture(
-                    v.Position,
+                vertices[vertexOffset + i] = new VertexPositionColorNormalTexture(
+                    _vertices[i],
                     FillColor,
-                    v.Normal,
-                    uv
+                    Vector3.Normalize(_vertices[i]),
+                    new Vector2((_vertices[i].X + 0.5f), (_vertices[i].Y + 0.5f))
                 );
             }
 
-            for (int i = 0; i < _indices.Length; i++)
+            for (int i = 0; i < _indices.Count; i++)
             {
-                indicesBuffer[indexOffset + i] = (short)(_indices[i] + baseVertex);
+                indices[indexOffset + i] = (short)(_indices[i] + baseVertex);
             }
         }
 
         protected override void EffectSetup(IEffectAdapter effect, CameraBase camera, Matrix? transform)
         {
-            effect.Texture = Texture;
-            base.EffectSetup(effect, camera, transform);
-        }
-
-        public override void Update(GameFrameContext context)
-        {
-            // Optional: Rotation, Animation, Farbe
+            effect.Color = FillColor;
         }
     }
 }

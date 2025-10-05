@@ -126,7 +126,7 @@ public abstract class PrimitiveBase
 
     public void Draw(GameFrameContext context, Matrix? transform = null, CameraBase? customCamera = null, IEffectAdapter? customEffect = null)
     {
-        if (!Visible || VertexCount == 0 || IndexCount == 0)
+        if (!Visible)
             return;
 
         var graphics = context.GraphicsDevice;
@@ -136,13 +136,18 @@ public abstract class PrimitiveBase
         _vertexBuffer ??= new VertexPositionColorNormalTexture[VertexCount];
         _indexBuffer ??= new short[IndexCount];
 
+        // ✅ Fill zuerst, wenn dirty
         if (_dirty)
         {
             Fill(_vertexBuffer, 0, _indexBuffer, 0, 0);
             _dirty = false;
         }
 
-        // Vertex & Index Buffer aktualisieren (wie gehabt)
+        // Jetzt prüfen: Wenn immer noch keine Vertices/Indices -> Draw abbrechen
+        if (VertexCount == 0 || IndexCount == 0)
+            return;
+
+        // Buffers updaten (wie gehabt)
         if (_dynamicVertexBuffer == null || _dynamicVertexBuffer.VertexCount < VertexCount)
         {
             _dynamicVertexBuffer?.Dispose();
@@ -167,7 +172,7 @@ public abstract class PrimitiveBase
         EffectSetupCallback?.Invoke(effect, camera, transform);
         EffectSetup(effect, camera, transform);
 
-        // Normales Fill
+        // Fill zeichnen
         if (FillVisible)
         {
             foreach (var pass in effect.CurrentTechnique.Passes)
@@ -187,7 +192,7 @@ public abstract class PrimitiveBase
             }
         }
 
-        // Optional: Outline
+        // Optional Outline
         if (OutlineVisible)
         {
             foreach (var pass in effect.CurrentTechnique.Passes)
@@ -203,7 +208,6 @@ public abstract class PrimitiveBase
             }
         }
     }
-
 
     protected virtual void EffectSetup(IEffectAdapter effect, CameraBase camera, Matrix? transform)
     {
