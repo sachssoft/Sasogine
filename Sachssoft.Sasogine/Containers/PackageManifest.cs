@@ -89,9 +89,9 @@ namespace Sachssoft.Sasogine.Containers
                     $"Hint: The factory '{factoryName}' is null. " +
                     "Without a factory, no entries can be read from the file, and no instances can be created. ";
 
-                System.Diagnostics.Debug.WriteLine(msg);
-                if (System.Diagnostics.Debugger.IsAttached)
-                    System.Diagnostics.Debugger.Break(); // Stoppt nur, wenn Debugger läuft
+                //System.Diagnostics.Debug.WriteLine(msg);
+                //if (System.Diagnostics.Debugger.IsAttached)
+                //    System.Diagnostics.Debugger.Break(); // Stoppt nur, wenn Debugger läuft
             }
         }
 

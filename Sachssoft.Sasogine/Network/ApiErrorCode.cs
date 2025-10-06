@@ -51,9 +51,9 @@ public enum ApiErrorCode
     NetworkError = -3,
 
     /// <summary>
-    /// Error parsing JSON response.
+    /// Error parsing response.
     /// </summary>
-    JsonParseError = -4,
+    ParseError = -4,
 
     /// <summary>
     /// Unexpected error occurred, e.g. unhandled exceptions.
