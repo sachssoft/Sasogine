@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Xml;
 
 namespace Sachssoft.Sasogine.Containers
 {
@@ -55,15 +54,16 @@ namespace Sachssoft.Sasogine.Containers
             if (create)
                 level.Create();
 
-            // Es kann auch passieren, dass trotz Erstellen keine Datei angelegt wurde.
             if (!level.IsExists && ((flags & PackageEntryFlags.CreateEmptyEntryIfMissing) != 0))
             {
-                // Lege eine leere Datei
+                // lege leere Datei an
                 level.Write(new MemoryStream());
             }
 
-            // Existierendes Level entfernen
-            var existing = _package.Manifest._levels.FirstOrDefault(l => l.RelativeFilePath == level.RelativeFilePath);
+            // Existierendes Level ersetzen
+            var existing = _package.Manifest._levels
+                .FirstOrDefault(l => l.RelativeFilePath == level.RelativeFilePath);
+
             if (existing != null)
                 _package.Manifest._levels.Remove(existing);
 
@@ -98,10 +98,13 @@ namespace Sachssoft.Sasogine.Containers
         {
             string oldFullFilePath = FILE_PATH + oldFileName;
             string newFullFilePath = FILE_PATH + newFileName;
+
             _package.MoveFileTo(oldFullFilePath, newFullFilePath);
 
             var level = GetEntry(newFileName);
             level.RelativeFilePath = newFileName;
+
+            UpdateManifest();
         }
 
         public PackageLevelBase GetEntry(string fileName) =>
@@ -112,7 +115,8 @@ namespace Sachssoft.Sasogine.Containers
             _package.Manifest._levels.FirstOrDefault(l => l.RelativeFilePath == fileName);
 
         public bool IsEntryExists(string fileName) =>
-            _package.Manifest._levels.Where(x => x.RelativeFilePath.Equals(fileName, StringComparison.CurrentCultureIgnoreCase)).Any();
+            _package.Manifest._levels
+                .Any(x => x.RelativeFilePath.Equals(fileName, StringComparison.CurrentCultureIgnoreCase));
 
         public void SynchronizeToManifest(Func<PackageBase, PackageLevelBase> createInstanceFunc)
         {
@@ -130,14 +134,6 @@ namespace Sachssoft.Sasogine.Containers
                 {
                     var newLevel = createInstanceFunc(_package);
                     newLevel.RelativeFilePath = fileName;
-
-                    //using var stream = entry.Open();
-                    //using var tempStream = new MemoryStream();
-                    //stream.CopyTo(tempStream);
-                    //tempStream.Position = 0;
-
-                    //newLevel.Save(tempStream); // Stream temporär speichern
-
                     _package.Manifest._levels.Add(newLevel);
                 }
             }
@@ -166,12 +162,18 @@ namespace Sachssoft.Sasogine.Containers
                 if (!Contains(fileName))
                     entry.Delete();
             }
+
+            UpdateManifest();
         }
 
+        /// <summary>
+        /// Aktualisiert die Manifestdaten, sortiert die Indizes neu und benachrichtigt das übergeordnete Package.
+        /// </summary>
         private void UpdateManifest()
         {
-            var sortedLevelList = _package.Manifest._levels.OrderBy(l => l.Index)
-                                                           .ToArray();
+            var sortedLevelList = _package.Manifest._levels
+                .OrderBy(l => l.Index)
+                .ToArray();
 
             for (int i = 0; i < sortedLevelList.Length; i++)
             {
@@ -180,6 +182,16 @@ namespace Sachssoft.Sasogine.Containers
             }
 
             _package.Manifest.Save();
+            NotifyLevelsChanged();
+        }
+
+        /// <summary>
+        /// Benachrichtigt das übergeordnete ProjectedPackage, dass sich die Level geändert haben.
+        /// </summary>
+        private void NotifyLevelsChanged()
+        {
+            if (_package is ProjectedPackage projected)
+                projected.OnLevelsChanged();
         }
 
         IEnumerator<PackageLevelBase> IEnumerable<PackageLevelBase>.GetEnumerator()

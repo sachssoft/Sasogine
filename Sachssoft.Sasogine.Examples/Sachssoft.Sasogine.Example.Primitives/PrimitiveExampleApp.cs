@@ -109,7 +109,7 @@ Current View: {_view}";
             _spriteBatch.End();
 
             // Prepare effect
-            _effect.Color = Color.White;
+            _effect.Color = Color.Green;
             _effect.VertexColorEnabled = true;
             _effect.TextureEnabled = false;
             _effect.ApplyFrom(_camera);

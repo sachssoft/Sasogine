@@ -16,6 +16,10 @@ namespace Sachssoft.Sasogine.Containers
         private readonly ProjectedPackageLevelCollection _levels;
         private readonly ProjectedPackageAssetCollection _assets;
         private string _filePath;
+        // Cache für aktuell ausgewähltes Level
+        private int _cachedSelectedIndex = -1;
+        private int _selectedLevelIndex;
+        private PackageLevelBase? _cachedSelectedLevel;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProjectedPackage"/> class.
@@ -48,15 +52,20 @@ namespace Sachssoft.Sasogine.Containers
         /// <summary>
         /// Gets or sets the index of the currently selected level.
         /// </summary>
-        public int SelectedLevelIndex { get; set; }
+        public int SelectedLevelIndex
+        {
+            get => _selectedLevelIndex;
+            set
+            {
+                _selectedLevelIndex = value;
+                InvalidateLevelCache();
+            }
+        }
 
         /// <summary>
         /// Gets the currently selected level in the package.
+        /// Uses internal caching to avoid redundant lookups.
         /// </summary>
-        /// <remarks>
-        /// The selected level is determined by the <see cref="SelectedLevelIndex"/> property.
-        /// If the index is out of range or the level collection is empty, this property returns <c>null</c>.
-        /// </remarks>
         public PackageLevelBase? SelectedLevel
         {
             get
@@ -64,16 +73,41 @@ namespace Sachssoft.Sasogine.Containers
                 if (_levels == null || _levels.Entries.Count == 0)
                     return null;
 
-                if (SelectedLevelIndex < 0 || SelectedLevelIndex >= _levels.Entries.Count)
-                    throw new IndexOutOfRangeException($"{nameof(SelectedLevelIndex)} is out of the valid range.");
+                // Falls Cache veraltet oder ungültig ist, neu laden
+                if (_cachedSelectedLevel == null || _cachedSelectedIndex != _selectedLevelIndex)
+                {
+                    if (_selectedLevelIndex < 0 || _selectedLevelIndex >= _levels.Entries.Count)
+                        return null; // Kein Fehlerwurf, sondern sauberes null -> stabiler für UI/Editor
 
-                return _levels[SelectedLevelIndex];
+                    _cachedSelectedLevel = _levels[_selectedLevelIndex];
+                    _cachedSelectedIndex = _selectedLevelIndex;
+                }
+
+                return _cachedSelectedLevel;
             }
         }
 
         IReadOnlyDictionary<string, IAssetSource> IPackage.Assets => (IReadOnlyDictionary<string, IAssetSource>)_manifest._assetEntries;
 
         IReadOnlyList<PackageLevelBase> IPackage.Levels => (IReadOnlyList<PackageLevelBase>)_manifest._levels;
+
+        private void InvalidateLevelCache()
+        {
+            _cachedSelectedLevel = null;
+            _cachedSelectedIndex = -1;
+        }
+
+        /// <summary>
+        /// Should be called when levels are modified (added/removed/reordered).
+        /// </summary>
+        internal void OnLevelsChanged()
+        {
+            InvalidateLevelCache();
+
+            // Index ggf. korrigieren, falls außerhalb der neuen Grenzen
+            if (_selectedLevelIndex >= _levels.Entries.Count)
+                _selectedLevelIndex = Math.Max(0, _levels.Entries.Count - 1);
+        }
 
         /// <summary>
         /// Creates a new package file.
