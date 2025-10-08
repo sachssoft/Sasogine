@@ -6,6 +6,7 @@
         Ellipse,
         Polygon,
         Custom,
+        Parser,
         Dice,
         Sphere
     }
