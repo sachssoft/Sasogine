@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace Sachssoft.Sasogine.Geometry;
 
@@ -62,6 +63,18 @@ public sealed class PathCollection : IReadOnlyList<Path>, ICloneable
     {
         var transformedPaths = _paths.Select(p => p.Transform(matrix));
         return new PathCollection(transformedPaths);
+    }
+
+    public PathCollection Transform(Func<Vector2, Vector2> transform)
+    {
+        var paths = new List<Path>();
+
+        foreach(var path  in this)
+        {
+            paths.Add(path.Transform(transform));
+        }
+
+        return new PathCollection(paths);
     }
 
     private static (Vector2, Vector2) ComputeBounds(IReadOnlyList<Path> paths)

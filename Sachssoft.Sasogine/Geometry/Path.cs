@@ -85,6 +85,21 @@ namespace Sachssoft.Sasogine.Geometry
             return transformed;
         }
 
+        public Path Transform(Func<Vector2, Vector2> transform)
+        {
+            var transformed = new Path();
+            foreach (var poly in _points)
+            {
+                var transformedPoly = new List<Vector2>(poly.Count);
+                for (int i = 0; i < poly.Count; i++)
+                    transformedPoly.Add(transform.Invoke(poly[i]));
+
+                transformed._points.Add(transformedPoly);
+                transformed._directions.Add(ComputePolygonDirection(transformedPoly.ToArray()));
+            }
+            return transformed;
+        }
+
         public void AddPolygon(Vector2[] points)
         {
             if (points == null || points.Length < 3)
