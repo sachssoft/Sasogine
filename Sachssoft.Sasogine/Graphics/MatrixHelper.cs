@@ -8,6 +8,15 @@ namespace Sachssoft.Sasogine.Graphics;
 /// </summary>
 public static class MatrixHelper
 {
+    public static Matrix Create(Vector2 position, Vector2 scale, float rotation, float depth = 0f)
+    {
+        return
+            Matrix.CreateScale(scale.X, scale.Y, 1f) *
+            Matrix.CreateRotationZ(rotation) *
+            Matrix.CreateTranslation(position.X, position.Y, depth);
+    }
+
+
     public static Matrix Create(Vector2 position, Vector2 scale, float rotation, Vector2 origin, float depth = 0f)
     {
         // Origin in Weltkoordinaten
@@ -35,5 +44,15 @@ public static class MatrixHelper
     public static Matrix CreateDepth(float z)
     {
         return Matrix.CreateTranslation(0f, 0f, z);
+    }
+
+    public static Matrix CreateSkew(float skewX, float skewY)
+    {
+        return new Matrix(
+            1f, skewY, 0f, 0f,  // Row 1
+            skewX, 1f, 0f, 0f,  // Row 2
+            0f, 0f, 1f, 0f,     // Row 3
+            0f, 0f, 0f, 1f      // Row 4
+        );
     }
 }

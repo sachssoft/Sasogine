@@ -112,7 +112,7 @@ public sealed class PathCollection : IReadOnlyList<Path>, ICloneable
             int polygonCount = path.GetPolygonCount();
             for (int i = 0; i < polygonCount; i++)
             {
-                var polygon = path.GetPolygon(i);
+                var polygon = path.GetPolygonPoints(i);
                 if (polygon.Count < 3)
                     continue;
 

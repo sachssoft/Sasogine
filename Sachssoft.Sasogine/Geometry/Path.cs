@@ -119,9 +119,8 @@ namespace Sachssoft.Sasogine.Geometry
 
         public int GetPolygonCount() => _points.Count;
 
-        [Obsolete("Use GetPolygonPoints")]
-        public IReadOnlyList<Vector2> GetPolygon(int index) => _points[index];
         public IReadOnlyList<Vector2> GetPolygonPoints(int index) => _points[index];
+
         public IEnumerable<Vector2[]> ToPoints()
         {
             for (int i = 0; i < _points.Count; i++)

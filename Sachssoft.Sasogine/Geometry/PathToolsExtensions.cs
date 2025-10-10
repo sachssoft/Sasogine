@@ -15,7 +15,7 @@ namespace Sachssoft.Sasogine.Geometry
             var resultPaths = new List<Path>();
             foreach (var path in collection)
             {
-                var smoothed = PathTools.SmoothPath(path.GetPolygon(0) as List<Vector2>, smoothFactor, maxAngleDeg, segments);
+                var smoothed = PathTools.SmoothPath(path.GetPolygonPoints(0) as List<Vector2>, smoothFactor, maxAngleDeg, segments);
                 resultPaths.Add(new Path(smoothed.ToArray()));
             }
             return new PathCollection(resultPaths);
@@ -29,7 +29,7 @@ namespace Sachssoft.Sasogine.Geometry
             var resultPaths = new List<Path>();
             foreach (var path in collection)
             {
-                var rounded = PathTools.RoundCornersAuto(path.GetPolygon(0) as List<Vector2>, radius, maxAngleDeg, segments);
+                var rounded = PathTools.RoundCornersAuto(path.GetPolygonPoints(0) as List<Vector2>, radius, maxAngleDeg, segments);
                 resultPaths.Add(new Path(rounded.ToArray()));
             }
             return new PathCollection(resultPaths);
@@ -43,7 +43,7 @@ namespace Sachssoft.Sasogine.Geometry
             var resultPaths = new List<Path>();
             foreach (var path in collection)
             {
-                var resampled = PathTools.ResampleLinear(path.GetPolygon(0) as List<Vector2>, startIndex, endIndex, newPointCount);
+                var resampled = PathTools.ResampleLinear(path.GetPolygonPoints(0) as List<Vector2>, startIndex, endIndex, newPointCount);
                 resultPaths.Add(new Path(resampled.ToArray()));
             }
             return new PathCollection(resultPaths);
@@ -57,7 +57,7 @@ namespace Sachssoft.Sasogine.Geometry
             var resultPaths = new List<Path>();
             foreach (var path in collection)
             {
-                var simplified = PathTools.SimplifyDouglasPeucker(path.GetPolygon(0) as List<Vector2>, tolerance);
+                var simplified = PathTools.SimplifyDouglasPeucker(path.GetPolygonPoints(0) as List<Vector2>, tolerance);
                 resultPaths.Add(new Path(simplified.ToArray()));
             }
             return new PathCollection(resultPaths);
@@ -72,7 +72,7 @@ namespace Sachssoft.Sasogine.Geometry
             foreach (var path in collection)
             {
                 for (int i = 0; i < path.GetPolygonCount(); i++)
-                    allPoints.AddRange(path.GetPolygon(i));
+                    allPoints.AddRange(path.GetPolygonPoints(i));
             }
             return allPoints;
         }
@@ -95,7 +95,7 @@ namespace Sachssoft.Sasogine.Geometry
 
             foreach (var path in collection)
             {
-                var polygon = path.GetPolygon(0) as List<Vector2>;
+                var polygon = path.GetPolygonPoints(0) as List<Vector2>;
 
                 // 1. Douglas-Peucker Simplify
                 var simplified = PathTools.SimplifyDouglasPeucker(polygon, simplifyTolerance);

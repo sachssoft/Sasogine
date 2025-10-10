@@ -133,6 +133,9 @@ public abstract class PrimitiveBase
         var effect = customEffect ?? context.Runtime.Effect;
         var camera = customCamera ?? context.Runtime.Camera ?? throw new InvalidOperationException("No camera available.");
 
+        if (effect.InnerEffect.IsDisposed)
+            throw new InvalidOperationException();
+
         _vertexBuffer ??= new VertexPositionColorNormalTexture[VertexCount];
         _indexBuffer ??= new short[IndexCount];
 

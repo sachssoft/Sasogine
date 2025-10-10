@@ -32,11 +32,11 @@ public sealed class PhysicsPathCollection
 
                 if (clipVertices.Length > 0)
                 {
-                    v = ClipVertices(body.Position, new Vertices(path.GetPolygon(j)), inside, clipVertices);
+                    v = ClipVertices(body.Position, new Vertices(path.GetPolygonPoints(j)), inside, clipVertices);
                 }
                 else
                 {
-                    v = new Vertices(path.GetPolygon(j));
+                    v = new Vertices(path.GetPolygonPoints(j));
                 }
 
                 v.Translate(new Vector2(-Width / 2f, -Height / 2f) + origin);

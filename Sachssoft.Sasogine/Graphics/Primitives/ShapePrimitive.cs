@@ -6,28 +6,17 @@ using System;
 
 namespace Sachssoft.Sasogine.Graphics.Primitives
 {
-    /// <summary>
-    /// Abstract base class for a shape or polygon.
-    /// Supports a single Path and automatically triangulates it.
-    /// </summary>
     public abstract class ShapePrimitive : PrimitiveBase
     {
         private bool _relativeToBounds = true;
         private Tess? _tess;
         private float _depth;
 
-        /// <summary>
-        /// Creates a shape primitive with optional depth.
-        /// </summary>
-        /// <param name="depth">Z-depth for the vertices.</param>
         protected ShapePrimitive(float depth = 0f)
         {
             _depth = depth;
         }
 
-        /// <summary>
-        /// When true, the polygon points are normalized to 0..1 based on the bounds.
-        /// </summary>
         public bool RelativeToBounds
         {
             get => _relativeToBounds;
@@ -36,17 +25,13 @@ namespace Sachssoft.Sasogine.Graphics.Primitives
                 if (_relativeToBounds != value)
                 {
                     _relativeToBounds = value;
-                    MarkDirty(); // Wichtig: neu triangulieren
+                    MarkDirty();
                 }
             }
         }
 
-        /// <summary>
-        /// Must be implemented by subclasses to provide the Path to draw.
-        /// </summary>
         protected abstract Path DefinedPath { get; }
 
-        /// <inheritdoc/>
         public override int VertexCount
         {
             get
@@ -59,7 +44,6 @@ namespace Sachssoft.Sasogine.Graphics.Primitives
             }
         }
 
-        /// <inheritdoc/>
         public override int IndexCount
         {
             get
@@ -70,58 +54,96 @@ namespace Sachssoft.Sasogine.Graphics.Primitives
                 {
                     int pc = DefinedPath.GetPointCount(poly);
                     if (pc < 3) continue;
-                    count += (pc - 2) * 3; // Triangle fan
+                    count += (pc - 2) * 3;
                 }
                 return count;
             }
         }
 
-        /// <summary>
-        /// Creates a ShapePrimitive from a given Path.
-        /// </summary>
-        /// <param name="definedPath">The Path to render.</param>
-        /// <returns>A ShapePrimitive instance.</returns>
         public static ShapePrimitive Create(Path definedPath) => new AnonymousShape(definedPath);
 
-        /// <inheritdoc/>
-        public override void Fill(VertexPositionColorNormalTexture[] vertices, int vertexOffset, short[] indices, int indexOffset, short baseVertex)
+        public override void Fill(
+            VertexPositionColorNormalTexture[] vertices,
+            int vertexOffset,
+            short[] indices,
+            int indexOffset,
+            short baseVertex)
         {
-            if (DefinedPath == null || DefinedPath.IsEmpty())
+            var path = DefinedPath;
+            if (path == null || path.IsEmpty())
                 return;
+
+            // Prüfen auf ungültige Punkte
+            for (int poly = 0; poly < path.GetPolygonCount(); poly++)
+            {
+                for (int i = 0; i < path.GetPointCount(poly); i++)
+                {
+                    var p = path.GetPoint(poly, i);
+                    if (float.IsNaN(p.X) || float.IsNaN(p.Y) || float.IsInfinity(p.X) || float.IsInfinity(p.Y))
+                        return; // Ungültiger Path → unsichtbar
+                }
+            }
 
             _tess = new Tess();
 
-            float minX = DefinedPath.LowerBound.X;
-            float minY = DefinedPath.LowerBound.Y;
-            float width = MathF.Max(DefinedPath.Width, 1e-5f);
-            float height = MathF.Max(DefinedPath.Height, 1e-5f);
+            float minX = path.LowerBound.X;
+            float minY = path.LowerBound.Y;
+            float width = MathF.Max(path.Width, 1e-5f);
+            float height = MathF.Max(path.Height, 1e-5f);
 
             int currentVertex = vertexOffset;
             int currentIndex = indexOffset;
 
-            for (int polyIndex = 0; polyIndex < DefinedPath.GetPolygonCount(); polyIndex++)
+            bool anyContour = false;
+
+            // Konturen hinzufügen
+            for (int poly = 0; poly < path.GetPolygonCount(); poly++)
             {
-                int pc = DefinedPath.GetPointCount(polyIndex);
+                int pc = path.GetPointCount(poly);
                 if (pc < 3) continue;
 
                 var contour = new ContourVertex[pc];
+                bool skip = false;
 
-                for (int j = 0; j < pc; j++)
+                for (int i = 0; i < pc; i++)
                 {
-                    var p = DefinedPath.GetPoint(polyIndex, j);
+                    var p = path.GetPoint(poly, i);
                     float x = RelativeToBounds ? (p.X - minX) / width : p.X;
                     float y = RelativeToBounds ? (p.Y - minY) / height : p.Y;
 
-                    contour[j].Position = new Vec3(x, y, 0f);
+                    if (float.IsNaN(x) || float.IsNaN(y) || float.IsInfinity(x) || float.IsInfinity(y))
+                    {
+                        skip = true;
+                        break;
+                    }
+
+                    contour[i].Position = new Vec3(x, y, 0f);
                 }
 
+                if (skip) continue;
+
                 _tess.AddContour(contour, ContourOrientation.Original);
+                anyContour = true;
             }
 
-            _tess.Tessellate(WindingRule.EvenOdd, ElementType.Polygons, 3);
+            if (!anyContour) return;
+
+            try
+            {
+                _tess.Tessellate(WindingRule.EvenOdd, ElementType.Polygons, 3);
+            }
+            catch
+            {
+                return;
+            }
 
             if (_tess.Vertices == null || _tess.Elements == null)
                 return;
+
+            // Vertex-Array überprüfen
+            if (vertices.Length < currentVertex + _tess.Vertices.Length ||
+                indices.Length < currentIndex + _tess.Elements.Length)
+                return; // Arrays zu klein → nicht rendern
 
             for (int i = 0; i < _tess.Vertices.Length; i++)
             {
@@ -140,15 +162,11 @@ namespace Sachssoft.Sasogine.Graphics.Primitives
             }
         }
 
-        /// <inheritdoc/>
         protected override void EffectSetup(IEffectAdapter effect, CameraBase camera, Matrix? transform)
         {
             effect.Color = FillColor;
         }
 
-        /// <summary>
-        /// Anonymous implementation for creating a ShapePrimitive from a Path.
-        /// </summary>
         private class AnonymousShape : ShapePrimitive
         {
             private readonly Path _definedPath;

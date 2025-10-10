@@ -30,6 +30,11 @@ namespace Sachssoft.Sasogine.Graphics.Primitives
             _segments = segments < 3 ? 3 : segments;
         }
 
+        public EllipsePrimitive(Color fillColor, int segments = 32) : this(segments)
+        {
+            FillColor = fillColor;
+        }
+
         public override int VertexCount => _segments + 1;
         public override int IndexCount => _segments * 3;
 
