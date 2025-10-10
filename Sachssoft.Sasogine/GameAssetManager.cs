@@ -71,6 +71,12 @@ public class GameAssetManager
     public void AddTexture(string key, string path, AssetSourceType type = AssetSourceType.ContentXnb) =>
         _textures.Add(key, new(path, type));
 
+    public Texture2D AddAndLoadTexture(string key, string path, AssetSourceType type = AssetSourceType.ContentXnb)
+    {
+        AddTexture(key, path, type);
+        return LoadTexture(key);
+    }
+
     public void AddModel(string key, string path, AssetSourceType type = AssetSourceType.ContentXnb) =>
         _models.Add(key, new(path, type));
 
