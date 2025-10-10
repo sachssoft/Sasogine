@@ -28,6 +28,28 @@ public static class MatrixHelper
             Matrix.CreateRotationZ(rotation) *                        // Rotation
             Matrix.CreateTranslation(position.X, position.Y, depth);      // Position / Offset
     }
+    
+    /// <summary>
+     /// Creates a transformation matrix using relative origin (0..1) and optional size.
+     /// </summary>
+     /// <param name="position">World position.</param>
+     /// <param name="scale">Scale factors.</param>
+     /// <param name="rotation">Rotation in radians.</param>
+     /// <param name="origin">Pivot in 0..1 coordinates (relative to size) or absolute pixels if size not provided).</param>
+     /// <param name="size">Optional size to convert origin from relative to absolute pixels.</param>
+     /// <param name="depth">Optional depth (Z coordinate).</param>
+     /// <returns>Transformation matrix.</returns>
+    public static Matrix Create(Vector2 position, Vector2 scale, float rotation, Vector2 origin, Vector2? size = null, float depth = 0f)
+    {
+        // Convert relative origin to pixel coordinates if size is provided
+        Vector2 originPx = size.HasValue ? origin * size.Value : origin;
+
+        return
+            Matrix.CreateTranslation(-originPx.X, -originPx.Y, 0f) * // Pivot
+            Matrix.CreateScale(scale.X, scale.Y, 1f) *               // Scale
+            Matrix.CreateRotationZ(rotation) *                        // Rotate
+            Matrix.CreateTranslation(position.X, position.Y, depth); // Translate
+    }
 
 
     /// <summary>

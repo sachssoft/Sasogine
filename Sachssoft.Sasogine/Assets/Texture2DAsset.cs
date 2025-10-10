@@ -13,26 +13,26 @@ namespace Sachssoft.Sasogine.Assets;
 
 public class Texture2DAsset : AssetBase<Texture2D>
 {
-    protected override void OnTypeRegistering(TypeRegisteringContext context)
-    {
-        base.OnTypeRegistering(context);
+    //protected override void OnTypeRegistering(TypeRegisteringContext context)
+    //{
+    //    base.OnTypeRegistering(context);
 
-        context.RegisterProperty(TextureTypeProperty);
-        context.RegisterProperty(TranslationProperty);
-        context.RegisterProperty(RotationProperty);
-        context.RegisterProperty(ScaleProperty);
-        context.RegisterProperty(PivotProperty);
-        context.RegisterProperty(PatternProperty);
-        context.RegisterProperty(PatternModeProperty);
-        context.RegisterProperty(DiffuseColorProperty);
-        context.RegisterProperty(OpacityProperty);
-        context.RegisterProperty(LayerProperty);
-        context.RegisterProperty(FilterModeProperty);
-        context.RegisterProperty(AddressModeProperty);
-        context.RegisterProperty(SpriteEffectProperty);
-        context.RegisterProperty(BlendStateOverrideProperty);
-        context.RegisterProperty(UseMipmapsProperty);
-    }
+    //    context.RegisterProperty(TextureTypeProperty);
+    //    context.RegisterProperty(TranslationProperty);
+    //    context.RegisterProperty(RotationProperty);
+    //    context.RegisterProperty(ScaleProperty);
+    //    context.RegisterProperty(PivotProperty);
+    //    context.RegisterProperty(PatternProperty);
+    //    context.RegisterProperty(PatternModeProperty);
+    //    context.RegisterProperty(DiffuseColorProperty);
+    //    context.RegisterProperty(OpacityProperty);
+    //    context.RegisterProperty(LayerProperty);
+    //    context.RegisterProperty(FilterModeProperty);
+    //    context.RegisterProperty(AddressModeProperty);
+    //    context.RegisterProperty(SpriteEffectProperty);
+    //    context.RegisterProperty(BlendStateOverrideProperty);
+    //    context.RegisterProperty(UseMipmapsProperty);
+    //}
 
     protected override Texture2D? Build(Stream stream)
     {

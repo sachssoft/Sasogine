@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Enums;
 using System;
+using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Geometry.Shapes
 {
@@ -8,63 +9,103 @@ namespace Sachssoft.Sasogine.Geometry.Shapes
     {
         public int Segments { get; init; } = 8;
 
-        public EdgeType TopLeftEdgeType { get; init; } = EdgeType.None;
-        public EdgeType TopRightEdgeType { get; init; } = EdgeType.None;
-        public EdgeType BottomLeftEdgeType { get; init; } = EdgeType.None;
-        public EdgeType BottomRightEdgeType { get; init; } = EdgeType.None;
+        public RoundingType TopLeftEdgeType { get; init; } = RoundingType.Linear;
+        public RoundingType TopRightEdgeType { get; init; } = RoundingType.Linear;
+        public RoundingType BottomLeftEdgeType { get; init; } = RoundingType.Linear;
+        public RoundingType BottomRightEdgeType { get; init; } = RoundingType.Linear;
 
-        public Vector2 TopLeftEdgeSize { get; init; }
-        public Vector2 TopRightEdgeSize { get; init; }
-        public Vector2 BottomLeftEdgeSize { get; init; }
-        public Vector2 BottomRightEdgeSize { get; init; }
+        private Vector2 _topLeftEdgeSize = Vector2.Zero;
+        public Vector2 TopLeftEdgeSize
+        {
+            get => _topLeftEdgeSize;
+            init => _topLeftEdgeSize = CoerceSize(value);
+        }
+
+        private Vector2 _topRightEdgeSize = Vector2.Zero;
+        public Vector2 TopRightEdgeSize
+        {
+            get => _topRightEdgeSize;
+            init => _topRightEdgeSize = CoerceSize(value);
+        }
+
+        private Vector2 _bottomLeftEdgeSize = Vector2.Zero;
+        public Vector2 BottomLeftEdgeSize
+        {
+            get => _bottomLeftEdgeSize;
+            init => _bottomLeftEdgeSize = CoerceSize(value);
+        }
+
+        private Vector2 _bottomRightEdgeSize = Vector2.Zero;
+        public Vector2 BottomRightEdgeSize
+        {
+            get => _bottomRightEdgeSize;
+            init => _bottomRightEdgeSize = CoerceSize(value);
+        }
+
+        /// <summary>
+        /// Ensure the corner size is within [0,1].
+        /// Later, this can also clamp based on rectangle size.
+        /// </summary>
+        private static Vector2 CoerceSize(Vector2 size)
+        {
+            return new Vector2(
+                MathHelper.Clamp(size.X, 0f, 1f),
+                MathHelper.Clamp(size.Y, 0f, 1f)
+            );
+        }
 
         protected override Path BuildDefinedPath()
         {
-            var builder = new PathBuilder();
+            var polygon = new List<Vector2>();
 
-            // Normierte Eckpunkte
-            Vector2 tl = new(0f, 0f); // Top-Left
-            Vector2 tr = new(1f, 0f); // Top-Right
-            Vector2 br = new(1f, 1f); // Bottom-Right
-            Vector2 bl = new(0f, 1f); // Bottom-Left
+            // Eckpunkte normiert
+            Vector2 tl = new(0f, 0f);
+            Vector2 tr = new(1f, 0f);
+            Vector2 br = new(1f, 1f);
+            Vector2 bl = new(0f, 1f);
 
-            // Hilfsfunktion: Ecke hinzufügen
-            void AddCorner(Vector2 corner, EdgeType type, Vector2 offset, Vector2 next)
+            // Hilfsmethode: Ecke abrunden
+            Vector2[] RoundCorner(Vector2 corner, Vector2 next, Vector2 prev, Vector2 size, RoundingType type)
             {
-                switch (type)
+                if (size == Vector2.Zero)
+                    return new Vector2[] { corner };
+
+                Vector2 dirPrev = (corner - prev).SafeNormalize();
+                Vector2 dirNext = (next - corner).SafeNormalize();
+
+                Vector2 start = corner - dirPrev * size.Length();
+                Vector2 end = corner + dirNext * size.Length();
+
+                return type switch
                 {
-                    case EdgeType.None:
-                        builder.AddLine(next.X, next.Y);
-                        break;
-
-                    case EdgeType.Below:
-                        // „Abgesenkte“ Ecke: Linie zum Offset-Punkt, dann zum nächsten Eckpunkt
-                        var lowered = corner + offset;
-                        builder.AddLine(lowered.X, lowered.Y);
-                        builder.AddLine(next.X, next.Y);
-                        break;
-
-                    case EdgeType.Rounded:
-                        // Abgerundete Ecke: Quadratic Bezier
-                        var control = corner + offset;
-                        builder.AddQuadraticBezier(control, next, Segments);
-                        break;
-                }
+                    RoundingType.Linear => new Vector2[] { start, end }, // Bevel
+                    RoundingType.Quadratic => GeometrySampler.SampleQuadraticBezier(start, corner, end, Segments),
+                    RoundingType.Cubic => GeometrySampler.SampleCubicBezier(start, start + dirPrev * size.Length() * 0.5f, end - dirNext * size.Length() * 0.5f, end, Segments),
+                    _ => new Vector2[] { corner }
+                };
             }
 
-            // Startpunkt oben links
-            builder.Start(tl);
 
             // Ecken nacheinander
-            AddCorner(tl, TopLeftEdgeType, TopLeftEdgeSize, tr);
-            AddCorner(tr, TopRightEdgeType, TopRightEdgeSize, br);
-            AddCorner(br, BottomRightEdgeType, BottomRightEdgeSize, bl);
-            AddCorner(bl, BottomLeftEdgeType, BottomLeftEdgeSize, tl);
+            polygon.AddRange(RoundCorner(tl, tr, bl, TopLeftEdgeSize, TopLeftEdgeType));
+            polygon.AddRange(RoundCorner(tr, br, tl, TopRightEdgeSize, TopRightEdgeType));
+            polygon.AddRange(RoundCorner(br, bl, tr, BottomRightEdgeSize, BottomRightEdgeType));
+            polygon.AddRange(RoundCorner(bl, tl, br, BottomLeftEdgeSize, BottomLeftEdgeType));
 
-            // Pfad schließen
-            builder.Close();
+            // Polygon schließen
+            if (polygon.Count > 0 && polygon[0] != polygon[^1])
+                polygon.Add(polygon[0]);
 
-            return builder.ToPath();
+            return new Path(new[] { polygon.ToArray() });
+        }
+    }
+
+    public static class VectorExtensions
+    {
+        public static Vector2 SafeNormalize(this Vector2 v)
+        {
+            float len = v.Length();
+            return len < 1e-8f ? Vector2.Zero : v / len;
         }
     }
 }

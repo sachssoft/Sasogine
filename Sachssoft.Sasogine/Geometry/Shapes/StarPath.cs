@@ -1,91 +1,99 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Enums;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Geometry.Shapes
 {
     public class StarPath : ShapePathBase
     {
-        public int Points { get; init; } = 5;
-        public float OuterRadius { get; init; } = 50f;
-        public float InnerRadius { get; init; } = 25f;
-        public float Rotation { get; init; } = 0f;
+        public int Spikes { get; init; } = 5;
+        public float OuterRadius { get; init; } = 1f;
+        public float InnerRadius { get; init; } = 0.5f;
+        public float Angle { get; init; } = 0f;
 
-        public float OuterSmoothRadius { get; init; } = 0f;
-        public float InnerSmoothRadius { get; init; } = 0f;
-        public int SmoothSegments { get; init; } = 4;
+        public float OuterRounding { get; init; } = 0f; // 0..1
+        public float InnerRounding { get; init; } = 0f; // 0..1
+
+        public RoundingType OuterRoundingType { get; init; } = RoundingType.Quadratic;
+        public RoundingType InnerRoundingType { get; init; } = RoundingType.Quadratic;
+
+        public int Segments { get; init; } = 8;
 
         protected override Path BuildDefinedPath()
         {
-            var raw = new List<Vector2>();
-            int count = Math.Max(2, Points);
-            float step = MathHelper.Pi / count;
+            if (Spikes < 2) throw new InvalidOperationException("Star must have at least 2 spikes.");
 
-            for (int i = 0; i < count * 2; i++)
+            float rotationRad = MathHelper.ToRadians(Angle);
+            float step = MathHelper.TwoPi / Spikes;
+
+            var polygon = new List<Vector2>();
+            Vector2 center = new Vector2(0.5f, 0.5f);
+
+            for (int i = 0; i < Spikes; i++)
             {
-                float angle = Rotation + i * step;
-                float radius = (i % 2 == 0) ? OuterRadius : InnerRadius;
-                raw.Add(new Vector2(
-                    (float)Math.Cos(angle) * radius,
-                    (float)Math.Sin(angle) * radius
-                ));
+                // Berechne Außen- und Innenpunkt
+                float outerAngle = rotationRad + i * step;
+                float innerAngle = outerAngle + step / 2f;
+
+                Vector2 outerPoint = center + new Vector2(MathF.Cos(outerAngle), MathF.Sin(outerAngle)) * OuterRadius;
+                Vector2 innerPoint = center + new Vector2(MathF.Cos(innerAngle), MathF.Sin(innerAngle)) * InnerRadius;
+
+                // Vorheriger Punkt für Rounding
+                Vector2 prev = polygon.Count > 0 ? polygon[^1] : outerPoint;
+
+                // Außenpunkt mit optionalem Rounding
+                if (OuterRounding > 0f && polygon.Count > 0)
+                {
+                    float dist = OuterRounding * Vector2.Distance(prev, outerPoint);
+                    Vector2 start = outerPoint - Vector2.Normalize(outerPoint - prev) * dist;
+                    Vector2 end = outerPoint + Vector2.Normalize(innerPoint - outerPoint) * dist;
+
+                    var sampled = OuterRoundingType switch
+                    {
+                        RoundingType.Linear => GeometrySampler.SampleLinear(start, end, Segments),
+                        RoundingType.Quadratic => GeometrySampler.SampleQuadraticBezier(start, outerPoint, end, Segments),
+                        RoundingType.Cubic => GeometrySampler.SampleCubicBezier(start, start + Vector2.Normalize(outerPoint - prev) * dist * 0.5f,
+                                                                               end - Vector2.Normalize(innerPoint - outerPoint) * dist * 0.5f,
+                                                                               end, Segments),
+                        _ => throw new NotImplementedException()
+                    };
+                    polygon.AddRange(sampled);
+                }
+                else
+                {
+                    polygon.Add(outerPoint);
+                }
+
+                // Innenpunkt mit optionalem Rounding
+                if (InnerRounding > 0f)
+                {
+                    float dist = InnerRounding * Vector2.Distance(outerPoint, innerPoint);
+                    Vector2 start = innerPoint - Vector2.Normalize(innerPoint - outerPoint) * dist;
+                    Vector2 end = innerPoint + Vector2.Normalize(outerPoint - innerPoint) * dist;
+
+                    var sampled = InnerRoundingType switch
+                    {
+                        RoundingType.Linear => GeometrySampler.SampleLinear(start, end, Segments),
+                        RoundingType.Quadratic => GeometrySampler.SampleQuadraticBezier(start, innerPoint, end, Segments),
+                        RoundingType.Cubic => GeometrySampler.SampleCubicBezier(start, start + Vector2.Normalize(innerPoint - outerPoint) * dist * 0.5f,
+                                                                               end - Vector2.Normalize(outerPoint - innerPoint) * dist * 0.5f,
+                                                                               end, Segments),
+                        _ => throw new NotImplementedException()
+                    };
+                    polygon.AddRange(sampled);
+                }
+                else
+                {
+                    polygon.Add(innerPoint);
+                }
             }
 
-            if (OuterSmoothRadius <= 0f && InnerSmoothRadius <= 0f)
-                return new Path(new List<Vector2[]> { raw.ToArray() });
+            // Polygon schließen
+            if (polygon.Count > 0 && polygon[0] != polygon[^1])
+                polygon.Add(polygon[0]);
 
-            var smooth = new List<Vector2>();
-            int total = raw.Count;
-
-            for (int i = 0; i < total; i++)
-            {
-                Vector2 prev = raw[(i - 1 + total) % total];
-                Vector2 corner = raw[i];
-                Vector2 next = raw[(i + 1) % total];
-
-                bool isOuter = (i % 2 == 0);
-                float r = isOuter ? OuterSmoothRadius : InnerSmoothRadius;
-
-                AddRoundedCorner(smooth, prev, corner, next, r, SmoothSegments);
-            }
-
-            return new Path(new List<Vector2[]> { smooth.ToArray() });
-        }
-
-        private void AddRoundedCorner(List<Vector2> output, Vector2 prev, Vector2 corner, Vector2 next, float radius, int segments)
-        {
-            if (radius <= 0f)
-            {
-                output.Add(corner);
-                return;
-            }
-
-            Vector2 v1 = Vector2.Normalize(prev - corner);
-            Vector2 v2 = Vector2.Normalize(next - corner);
-
-            float angle1 = (float)Math.Atan2(v1.Y, v1.X);
-            float angle2 = (float)Math.Atan2(v2.Y, v2.X);
-
-            // Richtung korrigieren (von v1 nach v2)
-            float diff = angle2 - angle1;
-            if (diff <= -MathHelper.Pi) diff += MathHelper.TwoPi;
-            else if (diff > MathHelper.Pi) diff -= MathHelper.TwoPi;
-
-            // Tangentenpunkte
-            Vector2 p1 = corner + v1 * radius;
-            Vector2 p2 = corner + v2 * radius;
-
-            // Bogenpunkte
-            for (int i = 0; i <= segments; i++)
-            {
-                float t = i / (float)segments;
-                float angle = angle1 + diff * t;
-                var p = corner + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
-                output.Add(p);
-            }
+            return new Path(new[] { polygon.ToArray() });
         }
     }
 }
