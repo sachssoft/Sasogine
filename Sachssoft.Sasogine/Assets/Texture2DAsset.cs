@@ -1,9 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input.Touch;
 using Sachssoft.Documents;
 using Sachssoft.Observables;
-using Sachssoft.Runtime;
 using Sachssoft.Sasogine.Graphics;
 using Sachssoft.Sasogine.Resources;
 using System;
@@ -11,28 +9,26 @@ using System.IO;
 
 namespace Sachssoft.Sasogine.Assets;
 
-public class Texture2DAsset : AssetBase<Texture2D>
+public class Texture2DAsset : AssetBase<Texture2D>, ITypeRegistry
 {
-    //protected override void OnTypeRegistering(TypeRegisteringContext context)
-    //{
-    //    base.OnTypeRegistering(context);
-
-    //    context.RegisterProperty(TextureTypeProperty);
-    //    context.RegisterProperty(TranslationProperty);
-    //    context.RegisterProperty(RotationProperty);
-    //    context.RegisterProperty(ScaleProperty);
-    //    context.RegisterProperty(PivotProperty);
-    //    context.RegisterProperty(PatternProperty);
-    //    context.RegisterProperty(PatternModeProperty);
-    //    context.RegisterProperty(DiffuseColorProperty);
-    //    context.RegisterProperty(OpacityProperty);
-    //    context.RegisterProperty(LayerProperty);
-    //    context.RegisterProperty(FilterModeProperty);
-    //    context.RegisterProperty(AddressModeProperty);
-    //    context.RegisterProperty(SpriteEffectProperty);
-    //    context.RegisterProperty(BlendStateOverrideProperty);
-    //    context.RegisterProperty(UseMipmapsProperty);
-    //}
+    static void ITypeRegistry.RegisterProperties(TypeRegistryContext context)
+    {
+        context.RegisterProperty(TextureTypeProperty);
+        context.RegisterProperty(TranslationProperty);
+        context.RegisterProperty(RotationProperty);
+        context.RegisterProperty(ScaleProperty);
+        context.RegisterProperty(PivotProperty);
+        context.RegisterProperty(PatternProperty);
+        context.RegisterProperty(PatternModeProperty);
+        context.RegisterProperty(DiffuseColorProperty);
+        context.RegisterProperty(OpacityProperty);
+        context.RegisterProperty(LayerProperty);
+        context.RegisterProperty(FilterModeProperty);
+        context.RegisterProperty(AddressModeProperty);
+        context.RegisterProperty(SpriteEffectProperty);
+        context.RegisterProperty(BlendStateOverrideProperty);
+        context.RegisterProperty(UseMipmapsProperty);
+    }
 
     protected override Texture2D? Build(Stream stream)
     {

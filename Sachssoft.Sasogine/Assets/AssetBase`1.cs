@@ -47,16 +47,9 @@ namespace Sachssoft.Sasogine.Assets
 
             if (_source != null)
             {
-                try
-                {
-                    using var stream = _source.Open();
-                    _instance = Build(stream);
-                    AssetBuilt?.Invoke(this, EventArgs.Empty);
-                }
-                catch (Exception ex)
-                {
-                    Exception = ex;
-                }
+                using var stream = _source.Open();
+                _instance = Build(stream);
+                AssetBuilt?.Invoke(this, EventArgs.Empty);
             }
 
             _isLoaded = true;

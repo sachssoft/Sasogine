@@ -8,8 +8,15 @@ namespace Sachssoft.Sasogine.Assets
     /// <summary>
     /// Represents an audio asset (WAV) that can be loaded from an <see cref="IAssetSource"/>.
     /// </summary>
-    public class SoundAsset : AssetBase<SoundEffect>
+    public class SoundAsset : AssetBase<SoundEffect>, ITypeRegistry
     {
+        static void ITypeRegistry.RegisterProperties(TypeRegistryContext context)
+        {
+            context.RegisterProperty(VolumeProperty);
+            context.RegisterProperty(LoopProperty);
+            context.RegisterProperty(PitchProperty);
+        }
+
         /// <summary>
         /// Builds a <see cref="SoundEffect"/> from the specified WAV stream.
         /// </summary>

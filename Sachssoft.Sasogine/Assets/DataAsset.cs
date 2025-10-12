@@ -9,8 +9,15 @@ namespace Sachssoft.Sasogine.Assets
     /// <summary>
     /// Represents a text asset that can be loaded from an <see cref="IAssetSource"/>.
     /// </summary>
-    public class DataAsset : AssetBase<string>
+    public class DataAsset : AssetBase<string>, ITypeRegistry
     {
+        static void ITypeRegistry.RegisterProperties(TypeRegistryContext context)
+        {
+            context.RegisterProperty(TargetProperty);
+            context.RegisterProperty(FormatProperty);
+            context.RegisterProperty(EncodingProperty);
+        }
+
         /// <summary>
         /// Builds the string content from the specified stream.
         /// </summary>
