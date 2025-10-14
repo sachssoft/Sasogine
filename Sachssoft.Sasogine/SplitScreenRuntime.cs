@@ -24,7 +24,7 @@ public abstract class SplitScreenRuntime : RuntimeBase
         PlayerCount = cameras.Length;
     }
 
-    protected override sealed void OnScreenDraw(GameFrameContext context)
+    protected override sealed void OnSceneRender(GameFrameContext context)
     {
         var graphicsDevice = context.GraphicsDevice; //GetGraphicsDeviceSafely();
 

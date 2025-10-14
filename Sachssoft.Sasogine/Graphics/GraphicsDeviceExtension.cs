@@ -12,6 +12,26 @@ public static class GraphicsDeviceExtension
         return tex;
     }
 
+    public static Texture2D CreatePremultiplied(this Texture2D texture)
+    {
+        int w = texture.Width;
+        int h = texture.Height;
+        Color[] data = new Color[w * h];
+        texture.GetData(data);
+
+        for (int i = 0; i < data.Length; i++)
+        {
+            float alpha = data[i].A / 255f;
+            data[i].R = (byte)(data[i].R * alpha);
+            data[i].G = (byte)(data[i].G * alpha);
+            data[i].B = (byte)(data[i].B * alpha);
+        }
+
+        Texture2D result = new Texture2D(texture.GraphicsDevice, w, h);
+        result.SetData(data);
+        return result;
+    }
+
     public static Texture2D CreateScreenhot(this GraphicsDevice graphics_device)
     {
         var width = graphics_device.PresentationParameters.BackBufferWidth;

@@ -39,6 +39,7 @@ namespace Sachssoft.Sasogine.Diagnostics
         Events = 1 << 29,        // Spielinterne Events
         States = 1 << 30,        // Objekt/Actor States
         UI = 1 << 31,            // UI
-        Elements = 1 << 32       // Elements
+        Elements = 1 << 32,       // Elements
+        Editor = 1 << 33         // Editor
     }
 }

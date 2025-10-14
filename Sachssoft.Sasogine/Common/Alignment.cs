@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Enums;
+namespace Sachssoft.Sasogine.Common;
 
 public enum Alignment
 {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Graphics;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
@@ -54,6 +55,10 @@ namespace Sachssoft.Sasogine.Surface
         /// </summary>
         [AllowNull]
         public RuntimeBase Runtime { get; }
+
+        public CameraBase Camera => Runtime.Camera;
+
+        public IEffectAdapter Effect => Runtime.Effect;
 
         /// <summary>
         /// Benchmark time that can be used for profiling or performance measurements.

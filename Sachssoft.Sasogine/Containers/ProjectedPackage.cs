@@ -49,23 +49,48 @@ namespace Sachssoft.Sasogine.Containers
         /// </summary>
         public ProjectedPackageLevelCollection Levels => _levels;
 
-        /// <summary>
-        /// Gets or sets the index of the currently selected level.
-        /// </summary>
         public int SelectedLevelIndex
         {
             get => _selectedLevelIndex;
             set
             {
+                // keine Änderung -> nichts tun
+                if (value == _selectedLevelIndex)
+                    return;
+
+                // vorheriges Level schließen (wenn vorhanden)
+                var previous = _cachedSelectedLevel;
+
+                // neuen Index setzen
                 _selectedLevelIndex = value;
-                InvalidateLevelCache();
+
+                // validen neuen Index prüfen
+                if (_levels != null && _selectedLevelIndex >= 0 && _selectedLevelIndex < _levels.Entries.Count)
+                {
+                    // Cache auf das neue Level setzen
+                    _cachedSelectedLevel = _levels[_selectedLevelIndex];
+                    _cachedSelectedIndex = _selectedLevelIndex;
+
+                    // Close des vorherigen (falls unterschiedlich)
+                    if (previous != null && !ReferenceEquals(previous, _cachedSelectedLevel))
+                    {
+                        OnLevelClosed(previous);
+                    }
+
+                    // Open des neuen Levels
+                    if (_cachedSelectedLevel != null)
+                        OnLevelOpen(_cachedSelectedLevel);
+                }
+                else
+                {
+                    // ungültiger Index -> Cache leeren und ggf. vorheriges schließen
+                    InvalidateLevelCache();
+                    if (previous != null)
+                        OnLevelClosed(previous);
+                }
             }
         }
 
-        /// <summary>
-        /// Gets the currently selected level in the package.
-        /// Uses internal caching to avoid redundant lookups.
-        /// </summary>
         public PackageLevelBase? SelectedLevel
         {
             get
@@ -77,14 +102,26 @@ namespace Sachssoft.Sasogine.Containers
                 if (_cachedSelectedLevel == null || _cachedSelectedIndex != _selectedLevelIndex)
                 {
                     if (_selectedLevelIndex < 0 || _selectedLevelIndex >= _levels.Entries.Count)
-                        return null; // Kein Fehlerwurf, sondern sauberes null -> stabiler für UI/Editor
+                        return null; // sauber null liefern
 
                     _cachedSelectedLevel = _levels[_selectedLevelIndex];
                     _cachedSelectedIndex = _selectedLevelIndex;
+
+                    if (_cachedSelectedLevel != null)
+                        OnLevelOpen(_cachedSelectedLevel);
                 }
 
                 return _cachedSelectedLevel;
             }
+        }
+
+
+        protected virtual void OnLevelOpen(PackageLevelBase level)
+        {
+        }
+
+        protected virtual void OnLevelClosed(PackageLevelBase level)
+        {
         }
 
         IReadOnlyDictionary<string, IAssetSource> IPackage.Assets => (IReadOnlyDictionary<string, IAssetSource>)_manifest._assetEntries;

@@ -31,6 +31,12 @@ namespace Sachssoft.Sasogine.Containers
         /// </summary>
         public event EventHandler? IsDirtyChanged;
 
+        public event EventHandler? Loaded;
+        public event EventHandler? Unloaded;
+        public event EventHandler? Saved;
+        public event EventHandler? Deleted;
+        public event EventHandler? Duplicated;
+
         /// <summary>
         /// Initializes a new instance of <see cref="PackageEntryBase"/>.
         /// </summary>
@@ -249,6 +255,7 @@ namespace Sachssoft.Sasogine.Containers
         /// </summary>
         protected virtual void OnLoad()
         {
+            Loaded?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -257,6 +264,7 @@ namespace Sachssoft.Sasogine.Containers
         /// </summary>
         protected virtual void OnUnload()
         {
+            Unloaded?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -276,6 +284,7 @@ namespace Sachssoft.Sasogine.Containers
         /// </summary>
         protected virtual void OnSave()
         {
+            Saved?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -284,6 +293,7 @@ namespace Sachssoft.Sasogine.Containers
         /// </summary>
         protected virtual void OnDeleted()
         {
+            Deleted?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -293,6 +303,7 @@ namespace Sachssoft.Sasogine.Containers
         /// <param name="newFilePath">The relative file path of the duplicated entry.</param>
         protected virtual void OnDuplicated(string newFilePath)
         {
+            Duplicated?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>

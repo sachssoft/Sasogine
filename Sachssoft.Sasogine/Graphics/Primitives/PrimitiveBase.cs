@@ -21,6 +21,7 @@ public abstract class PrimitiveBase
     private DynamicIndexBuffer? _dynamicIndexBuffer;
 
     private bool _dirty = true;
+    private FlipMode _uvFlipMode;
 
     // Constructor
     protected PrimitiveBase() { }
@@ -54,6 +55,12 @@ public abstract class PrimitiveBase
         set { if (_textureSize != value) { _textureSize = value; MarkDirty(); } }
     }
 
+    public FlipMode UVFlipMode
+    {
+        get => _uvFlipMode;
+        set { if (_uvFlipMode != value) { _uvFlipMode = value; MarkDirty(); } }
+    }
+
     public abstract int VertexCount { get; }
     public abstract int IndexCount { get; }
 
@@ -66,14 +73,35 @@ public abstract class PrimitiveBase
 
     protected (float u0, float v0, float u1, float v1) GetUV(Point textureSize)
     {
-        if (textureSize.X == 0 || textureSize.Y == 0 || !SourceRect.HasValue)
+        // Fallback für leere Textur
+        if (textureSize.X == 0 || textureSize.Y == 0)
             return (0f, 0f, 1f, 1f);
 
-        var src = SourceRect.Value;
-        return ((float)src.X / textureSize.X,
-                (float)src.Y / textureSize.Y,
-                (float)(src.X + src.Width) / textureSize.X,
-                (float)(src.Y + src.Height) / textureSize.Y);
+        float u0 = 0f;
+        float v0 = 0f;
+        float u1 = 1f;
+        float v1 = 1f;
+
+        if (SourceRect.HasValue)
+        {
+            var src = SourceRect.Value;
+            u0 = (float)src.X / textureSize.X;
+            v0 = (float)src.Y / textureSize.Y;
+            u1 = (float)(src.X + src.Width) / textureSize.X;
+            v1 = (float)(src.Y + src.Height) / textureSize.Y;
+        }
+
+        // Flip anwenden
+        if (UVFlipMode.HasFlag(FlipMode.Horizontal))
+        {
+            var temp = u0; u0 = u1; u1 = temp;
+        }
+        if (UVFlipMode.HasFlag(FlipMode.Vertical))
+        {
+            var temp = v0; v0 = v1; v1 = temp;
+        }
+
+        return (u0, v0, u1, v1);
     }
 
     public virtual void Update(GameFrameContext context) { }

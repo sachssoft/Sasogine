@@ -1,80 +1,82 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
 
 namespace Sachssoft.Sasogine.Graphics.Rendering
 {
-    /// <summary>
-    /// Rendering options that define how an object should be drawn.
-    /// </summary>
     public class RenderOptions
     {
-        // --- Presets ---
-        public static readonly RenderOptions Default = new RenderOptions();
+        // --- Default ---
+        public static readonly RenderOptions Default = new RenderOptions
+        {
+            AlphaBlend = true,
+            Depth = DepthMode.Disabled,
+            CullMode = CullMode.None,
+            FillMode = FillMode.Solid,
+            SamplerState = SamplerState.PointClamp,
+            PremultipliedAlpha = true,
+            ScissorRectangle = null
+        };
 
+        // --- Opaque ---
         public static readonly RenderOptions Opaque = new RenderOptions
         {
             AlphaBlend = false,
             Depth = DepthMode.Opaque,
             CullMode = CullMode.CullCounterClockwiseFace,
             FillMode = FillMode.Solid,
-            SamplerState = SamplerState.LinearClamp
+            SamplerState = SamplerState.LinearClamp,
+            PremultipliedAlpha = true,
+            ScissorRectangle = null
         };
 
+        // --- Transparent ---
         public static readonly RenderOptions AlphaBlended = new RenderOptions
         {
             AlphaBlend = true,
             Depth = DepthMode.Transparent,
             CullMode = CullMode.None,
             FillMode = FillMode.Solid,
-            SamplerState = SamplerState.LinearClamp
+            SamplerState = SamplerState.LinearClamp,
+            PremultipliedAlpha = true,
+            ScissorRectangle = null
         };
 
-        public static readonly RenderOptions Overlay = new RenderOptions
+        // --- Overlay / UI / Parallax (Premultiplied) ---
+        public static readonly RenderOptions ScenePremultiplied = new RenderOptions
         {
             AlphaBlend = true,
-            Depth = DepthMode.Overlay,
+            Depth = DepthMode.Disabled,
             CullMode = CullMode.None,
             FillMode = FillMode.Solid,
-            SamplerState = SamplerState.PointClamp
+            SamplerState = SamplerState.PointClamp,
+            PremultipliedAlpha = true,
+            ScissorRectangle = null
         };
 
-        public static readonly RenderOptions DepthOnly = new RenderOptions
+        // --- Straight Alpha ---
+        public static readonly RenderOptions SceneStraightAlpha = new RenderOptions
         {
-            AlphaBlend = false,
-            Depth = DepthMode.DepthOnly,
+            AlphaBlend = true,
+            Depth = DepthMode.Disabled,
             CullMode = CullMode.None,
             FillMode = FillMode.Solid,
-            SamplerState = SamplerState.PointClamp
+            SamplerState = SamplerState.PointClamp,
+            PremultipliedAlpha = false,
+            ScissorRectangle = null
         };
 
         // --- Properties ---
-        /// <summary>
-        /// Depth mode controlling test and write behavior.
-        /// </summary>
         public DepthMode Depth { get; set; } = DepthMode.Disabled;
-
-        /// <summary>
-        /// Whether to enable alpha blending.
-        /// </summary>
         public bool AlphaBlend { get; set; } = true;
-
-        /// <summary>
-        /// Cull mode for rasterization.
-        /// </summary>
+        public bool PremultipliedAlpha { get; set; } = true;
         public CullMode CullMode { get; set; } = CullMode.None;
-
-        /// <summary>
-        /// Fill mode for rasterization (Solid or Wireframe).
-        /// </summary>
         public FillMode FillMode { get; set; } = FillMode.Solid;
-
-        /// <summary>
-        /// Sampler state for texture sampling.
-        /// </summary>
         public SamplerState SamplerState { get; set; } = SamplerState.PointClamp;
 
         /// <summary>
-        /// Texture wrap mode (optional, can be used in shader).
+        /// Optionales ScissorRectangle für das Rendern.
+        /// Wird in RenderScope aktiviert, falls gesetzt.
         /// </summary>
-        public TextureAddressMode TextureWrap { get; set; } = TextureAddressMode.Wrap;
+        public Rectangle? ScissorRectangle { get; set; } = null;
     }
 }

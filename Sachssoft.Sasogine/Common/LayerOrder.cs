@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Enums
+﻿namespace Sachssoft.Sasogine.Common
 {
     /// <summary>
     /// Determines the layer order of elements in a UI or scene.

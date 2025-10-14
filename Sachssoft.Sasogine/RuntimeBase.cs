@@ -7,21 +7,76 @@ using System;
 
 namespace Sachssoft.Sasogine;
 
-// Die RuntimeBase bildet die zentrale Zeichen- und Steuerlogik für alle Backends des Frameworks ab. 
-// Sie verwaltet Kamera-Updates, das Rendern auf einen internen Zwischenspeicher (RenderTarget) sowie das finale 
-// Bildschirm-Rendering inklusive optionaler Effekte. Diese abstrakte Basisklasse ist für alle Runtimes wie EditorRuntime 
-// oder GameRuntime zuständig und wird im Backend verwendet. Sie enthält keine Benutzereingabe oder UI-Logik.
-public abstract class RuntimeBase
+/*
+ -----------------------------------------------------------------------------------------------------
+ Die RuntimeBase ist das zentrale Fundament für jede Spiel- oder Editorlaufzeit im Framework.
+ Sie übernimmt:
+ - Kameraaktualisierung (CameraBase)
+ - Rendering auf ein internes Offscreen-RenderTarget (Scene)
+ - Rendering dieses RenderTargets auf den Bildschirm (Fullscreen)
+ - Optionales Hinzufügen von Post-Processing-Effekten
+ - Verwaltung einer Komponentenliste, die Update und Draw unterstützt
+ - Diagnosedaten, Input-Zustände und Screenshot-Erstellung
+
+ Diese Klasse selbst implementiert keine Spiellogik. 
+ Stattdessen wird sie von konkreten Runtimes (z.B. GameRuntime oder EditorRuntime) abgeleitet,
+ die eigene Inhalte im OnSceneRender()-Hook zeichnen.
+
+ Vorteile dieses Aufbaus:
+ - Einheitliche Rendering-Pipeline für alle Runtimes
+ - Post-Processing einfach erweiterbar (EffectOverride)
+ - Klares Trennen von Spiellogik und Rendering
+ - Effizient durch Zwischenspeicherung in RenderTarget2D
+ - Stabilität durch sicheres Ressourcen-Management und kontrolliertes Rendern
+ -----------------------------------------------------------------------------------------------------
+*/
+
+/// <summary>
+/// The RuntimeBase class serves as the central runtime for all engine backends.
+/// It handles:
+/// - Camera updates via CameraBase
+/// - Rendering the scene to an offscreen RenderTarget2D (scene render target)
+/// - Drawing the scene render target to the screen (fullscreen)
+/// - Optional post-processing effects via EffectOverride
+/// - Management of a component collection that supports update and draw
+/// - Diagnostic data and UI input state reporting
+/// - Screenshot capture of the current scene
+/// 
+/// This class does not implement game logic directly. It is intended to be subclassed
+/// for specific runtime implementations, such as GameRuntime or EditorRuntime.
+/// Subclasses typically override OnSceneRender() to draw game objects or editor content.
+/// 
+/// Advantages:
+/// - Unified rendering pipeline for all runtimes
+/// - Easy to extend with post-processing effects
+/// - Clear separation of rendering and game logic
+/// - Efficient rendering via offscreen RenderTarget2D
+/// - Safe resource management and controlled rendering lifecycle
+/// </summary>
+public abstract class RuntimeBase : IDisposable
 {
-    private RenderTarget2D? _screenTarget;
+    private RenderTarget2D? _sceneRenderTarget;
     private SpriteBatch? _spriteBatch;
     private readonly CameraBase _camera;
     private readonly IEffectAdapter _effect;
     private readonly RuntimeComponentCollection _components = new();
     private readonly DiagnosticsContext _diagnostics = new();
     private GameBaseContext? _viewContext;
+    private Color[]? _screenshotBuffer;
+    private bool _disposed;
 
-    public RuntimeBase(CameraBase camera, IEffectAdapter? effect)
+    /// <summary>
+    /// Number of samples for MSAA in the scene RenderTarget.
+    /// Only considered during RenderTarget creation.
+    /// </summary>
+    protected int SceneSampleCount { get; set; } = 2;
+
+    /// <summary>
+    /// Creates a new RuntimeBase instance with a camera and optional effect.
+    /// </summary>
+    /// <param name="camera">The camera used for rendering the scene.</param>
+    /// <param name="effect">Optional rendering effect. If null, a basic effect is used.</param>
+    protected RuntimeBase(CameraBase camera, IEffectAdapter? effect)
     {
         _camera = camera ?? throw new ArgumentNullException(nameof(camera));
         _effect = effect ?? new BasicEffectAdapter(IMyGameApp.Current.GraphicsDevice);
@@ -29,173 +84,233 @@ public abstract class RuntimeBase
         RenderVisibility = true;
     }
 
+    /// <summary>
+    /// Gets the game or editor context. Throws if Load() has not been called.
+    /// </summary>
     protected GameBaseContext ViewContext => _viewContext ?? throw new InvalidOperationException("No View Context");
 
-    // Gibt an, ob gerade die Maus über einer UI-Surface schwebt.
+    /// <summary>
+    /// Indicates whether the mouse is currently hovering over a UI surface.
+    /// </summary>
     public bool IsAnySurfaceHovered { get; private set; }
 
-    // Gibt an, ob die Runtime aktuell gerendert werden soll.
+    /// <summary>
+    /// Indicates whether a UI surface currently has focus.
+    /// </summary>
+    public bool IsAnySurfaceFocused { get; private set; }
+
+    /// <summary>
+    /// Indicates whether the runtime should render.
+    /// </summary>
     public bool RenderVisibility { get; set; }
 
-    // Definiert die Hintergrundfarbe der Runtime.
+    /// <summary>
+    /// Background color used when clearing the scene render target.
+    /// </summary>
     public Color BackgroundColor { get; set; }
 
-    // Referenz auf die Kamera, die für die Darstellung verwendet wird.
+    /// <summary>
+    /// Gets the camera used for rendering.
+    /// </summary>
     public CameraBase Camera => _camera;
 
-    // Optionaler Effekt (Shader), der beim Rendern angewendet wird.
+    /// <summary>
+    /// Gets the effect used for rendering.
+    /// </summary>
     public IEffectAdapter Effect => _effect;
 
+    /// <summary>
+    /// Provides diagnostics data for the runtime.
+    /// </summary>
     public DiagnosticsContext Diagnostics => _diagnostics;
 
+    /// <summary>
+    /// Gets the collection of runtime components that are updated and drawn automatically.
+    /// </summary>
     public RuntimeComponentCollection Components => _components;
 
+    /// <summary>
+    /// Loads the runtime and initializes necessary resources.
+    /// Must be called before calling Draw().
+    /// </summary>
+    /// <param name="context">The graphics context containing the GraphicsDevice.</param>
     public virtual void Load(GameBaseContext context)
     {
-        //var graphicsDevice = GetGraphicsDeviceSafely();
+        _viewContext = context ?? throw new ArgumentNullException(nameof(context));
         _spriteBatch = new SpriteBatch(context.GraphicsDevice);
-        ResizeRenderTarget(context.GraphicsDevice);
-        _viewContext = context;
+        EnsureSceneRenderTargetSize(context.GraphicsDevice);
     }
 
+    /// <summary>
+    /// Unloads all resources associated with this runtime.
+    /// </summary>
     public virtual void Unload()
     {
-        _screenTarget?.Dispose();
-        _screenTarget = null;
+        DisposeSceneResources();
+    }
+
+    /// <summary>
+    /// Disposes all resources used by the runtime.
+    /// </summary>
+    public void Dispose()
+    {
+        if (_disposed) return;
+        _disposed = true;
+        DisposeSceneResources();
+    }
+
+    private void DisposeSceneResources()
+    {
+        _sceneRenderTarget?.Dispose();
+        _sceneRenderTarget = null;
 
         _spriteBatch?.Dispose();
         _spriteBatch = null;
+
+        _screenshotBuffer = null;
     }
 
+    /// <summary>
+    /// Updates the camera and all components.
+    /// </summary>
+    /// <param name="context">The frame context.</param>
     public virtual void Update(GameFrameContext context)
     {
-        Camera?.Update(context);
+        _camera?.Update(context);
         _components.ForEachRuntime(context);
     }
 
+    /// <summary>
+    /// Draws the scene to the offscreen render target and then to the screen.
+    /// Applies optional effects via EffectOverride.
+    /// </summary>
+    /// <param name="context">The frame context.</param>
     public virtual void Draw(GameFrameContext context)
     {
         if (!RenderVisibility)
             return;
 
-        var graphics_device = context.GraphicsDevice; // GetGraphicsDeviceSafely();
-        if (graphics_device.IsDisposed || graphics_device.GraphicsDeviceStatus != GraphicsDeviceStatus.Normal)
+        var graphicsDevice = context.GraphicsDevice;
+        if (graphicsDevice.IsDisposed || graphicsDevice.GraphicsDeviceStatus != GraphicsDeviceStatus.Normal)
             return;
 
-        OnScreenDrawBefore(context);
+        OnSceneRenderBegin(context);
 
-        ResizeRenderTarget(graphics_device);
+        EnsureSceneRenderTargetSize(graphicsDevice);
 
-        var previous_multi_sample = graphics_device.PresentationParameters.MultiSampleCount;
-        graphics_device.PresentationParameters.MultiSampleCount = 2;
+        graphicsDevice.SetRenderTarget(_sceneRenderTarget);
+        graphicsDevice.Clear(BackgroundColor);
+        OnSceneRender(context);
+        graphicsDevice.SetRenderTarget(null);
 
-        try
-        {
-            graphics_device.SetRenderTarget(_screenTarget);
-            graphics_device.Clear(BackgroundColor);
+        graphicsDevice.Clear(Color.Black);
 
-            OnScreenDraw(context);
-        }
-        finally
-        {
-            graphics_device.SetRenderTarget(null);
-            graphics_device.PresentationParameters.MultiSampleCount = previous_multi_sample;
-        }
-
-        graphics_device.Clear(Color.Black);
-
-        if (_spriteBatch == null)
-            _spriteBatch = new SpriteBatch(graphics_device);
-
-        var effect = EffectOverrite(context);
+        var effect = EffectOverride(context);
         var rasterizer = new RasterizerState { MultiSampleAntiAlias = true };
 
-        if (effect != null)
-        {
-            _spriteBatch.Begin(SpriteSortMode.Immediate, samplerState: SamplerState.PointClamp, rasterizerState: rasterizer, effect: effect.InnerEffect);
-        }
-        else
-        {
-            _spriteBatch.Begin(SpriteSortMode.Immediate, samplerState: SamplerState.PointClamp, rasterizerState: rasterizer);
-        }
+        _spriteBatch!.Begin(
+            SpriteSortMode.Immediate,
+            samplerState: SamplerState.PointClamp,
+            rasterizerState: rasterizer,
+            effect: effect?.InnerEffect
+        );
 
-        _spriteBatch.Draw(_screenTarget!, new Rectangle(0, 0, graphics_device.Viewport.Width, graphics_device.Viewport.Height), Color.White);
+        _spriteBatch.Draw(
+            _sceneRenderTarget!,
+            new Rectangle(0, 0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height),
+            Color.White
+        );
+
         _spriteBatch.End();
     }
 
-    protected virtual void OnScreenDrawBefore(GameFrameContext context)
-    {
-        // Sinnvoll für eigene RenderTargets
-    }
+    /// <summary>
+    /// Called before rendering the scene. Can be used to set up additional render targets.
+    /// </summary>
+    /// <param name="context">The frame context.</param>
+    protected virtual void OnSceneRenderBegin(GameFrameContext context) { }
 
-    protected virtual void OnScreenDraw(GameFrameContext context)
+    /// <summary>
+    /// Renders the actual scene. Typically overridden by subclasses to draw game or editor objects.
+    /// </summary>
+    /// <param name="context">The frame context.</param>
+    protected virtual void OnSceneRender(GameFrameContext context)
     {
         _components.ForEachDrawable(context);
-
-        // Zum Überschreiben vorgesehen
     }
 
-    protected virtual IEffectAdapter? EffectOverrite(GameFrameContext context)
-    {
-        return null;
-    }
+    /// <summary>
+    /// Provides a way to override the rendering effect (e.g., for post-processing).
+    /// </summary>
+    /// <param name="context">The frame context.</param>
+    /// <returns>An optional effect adapter.</returns>
+    protected virtual IEffectAdapter? EffectOverride(GameFrameContext context) => null;
 
-    protected void ResizeRenderTarget(GraphicsDevice graphics_device)
+    /// <summary>
+    /// Ensures the scene render target has the correct size matching the back buffer.
+    /// </summary>
+    /// <param name="graphicsDevice">The graphics device.</param>
+    protected void EnsureSceneRenderTargetSize(GraphicsDevice graphicsDevice)
     {
-        int width = graphics_device.PresentationParameters.BackBufferWidth;
-        int height = graphics_device.PresentationParameters.BackBufferHeight;
+        int width = graphicsDevice.PresentationParameters.BackBufferWidth;
+        int height = graphicsDevice.PresentationParameters.BackBufferHeight;
 
-        if (_screenTarget == null ||
-            _screenTarget.Width != width ||
-            _screenTarget.Height != height)
+        if (_sceneRenderTarget == null ||
+            _sceneRenderTarget.Width != width ||
+            _sceneRenderTarget.Height != height)
         {
-            _screenTarget?.Dispose();
-            _screenTarget = new RenderTarget2D(
-                graphics_device,
+            _sceneRenderTarget?.Dispose();
+            _sceneRenderTarget = new RenderTarget2D(
+                graphicsDevice,
                 width,
                 height,
                 false,
-                graphics_device.PresentationParameters.BackBufferFormat,
-                graphics_device.PresentationParameters.DepthStencilFormat,
-                graphics_device.PresentationParameters.MultiSampleCount,
-                RenderTargetUsage.PlatformContents);
+                graphicsDevice.PresentationParameters.BackBufferFormat,
+                graphicsDevice.PresentationParameters.DepthStencilFormat,
+                SceneSampleCount,
+                RenderTargetUsage.PlatformContents
+            );
         }
     }
 
-    //protected static GraphicsDevice GetGraphicsDeviceSafely()
-    //{
-    //    // Im echten System: hole es aus Singleton oder Context
-    //    // Hier z. B. als Platzhalter:
-    //    return IMyGameApp.Current.GraphicsDevice
-    //        ?? throw new InvalidOperationException("GraphicsDevice is not available.");
-    //}
-
-    // Meldet der Runtime, ob die Maus gerade über einer UI-Surface ist.
-    // Diese Information ist wichtig, damit die Runtime z.B. Eingaben korrekt verarbeitet:
-    // Wenn die Maus über einer UI-Surface schwebt, soll die Runtime Spiel- oder Simulationsinteraktionen pausieren oder ignorieren.
-    // Erfolgt keine Meldung, weiß die Runtime nicht, dass die UI den Eingabefokus hat, 
-    // was dazu führen kann, dass z.B. Spielaktionen fälschlich ausgelöst werden, obwohl der Nutzer mit der UI interagiert.
-    public void ReportInputOverSurface(bool state)
+    /// <summary>
+    /// Reports whether the mouse is hovering over a UI surface.
+    /// </summary>
+    /// <param name="hoverState">True if hovering, false otherwise.</param>
+    public void ReportSurfaceHover(bool hoverState)
     {
-        IsAnySurfaceHovered = state;
+        IsAnySurfaceHovered = hoverState;
     }
 
-    // Screenhot
-    public Texture2D GetScreenshotTexture()
+    /// <summary>
+    /// Reports whether a UI surface currently has focus.
+    /// </summary>
+    /// <param name="focusState">True if focused, false otherwise.</param>
+    public void ReportSurfaceFocus(bool focusState)
     {
-        if (_screenTarget == null)
-            throw new InvalidOperationException("No render target available for screenshot.");
+        IsAnySurfaceFocused = focusState;
+    }
 
-        var graphics_device = _screenTarget.GraphicsDevice;
+    /// <summary>
+    /// Captures a screenshot of the current scene render target as a Texture2D.
+    /// </summary>
+    /// <returns>A Texture2D containing the screenshot.</returns>
+    public Texture2D CaptureScreenshot()
+    {
+        if (_sceneRenderTarget == null)
+            throw new InvalidOperationException("No scene render target available for screenshot.");
 
-        // Hole Pixeldaten vom RenderTarget
-        Color[] pixel_data = new Color[_screenTarget.Width * _screenTarget.Height];
-        _screenTarget.GetData(pixel_data);
+        var device = _sceneRenderTarget.GraphicsDevice;
+        int pixelCount = _sceneRenderTarget.Width * _sceneRenderTarget.Height;
 
-        // Erzeuge neues Texture2D-Objekt
-        Texture2D screenshot = new Texture2D(graphics_device, _screenTarget.Width, _screenTarget.Height);
-        screenshot.SetData(pixel_data);
+        _screenshotBuffer ??= new Color[pixelCount];
+        if (_screenshotBuffer.Length != pixelCount)
+            _screenshotBuffer = new Color[pixelCount];
 
+        _sceneRenderTarget.GetData(_screenshotBuffer);
+
+        var screenshot = new Texture2D(device, _sceneRenderTarget.Width, _sceneRenderTarget.Height);
+        screenshot.SetData(_screenshotBuffer);
         return screenshot;
     }
 }

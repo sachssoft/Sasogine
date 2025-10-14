@@ -2,109 +2,154 @@
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Surface;
 using System;
+using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Graphics.Rendering
 {
-    // Neues Konzept!!
-    // Besser!
-
     /// <summary>
-    /// A scope for applying rendering states temporarily.
-    /// Restores previous states on Dispose().
+    /// Temporärer Rendering-Scope: wendet RenderStates an und stellt alte States wieder her.
+    /// Unterstützt optional Scissor-Rectangle.
+    /// Optimiert für 2D/Parallax-Szenen.
     /// </summary>
     public sealed class RenderScope : IDisposable
     {
         private bool _disposed;
         private readonly GraphicsDevice _graphicsDevice;
 
-        private readonly RasterizerState _rasterizer;
-        private readonly DepthStencilState _depthStencil;
-        private readonly SamplerState _sampler;
-        private readonly BlendState _blend;
+        private readonly RasterizerState _customRasterizer;
+        private readonly DepthStencilState _customDepthStencil;
+        private readonly SamplerState _customSampler;
+        private readonly BlendState _customBlend;
 
-        private readonly RasterizerState _defaultRasterizer;
-        private readonly DepthStencilState _defaultDepthStencil;
-        private readonly SamplerState _defaultSampler;
-        private readonly BlendState _defaultBlend;
+        private readonly RasterizerState _prevRasterizer;
+        private readonly DepthStencilState _prevDepthStencil;
+        private readonly SamplerState _prevSampler;
+        private readonly BlendState _prevBlend;
 
+        private static readonly Dictionary<RenderOptions, RasterizerState> _rasterizerCache = new();
+        private static readonly Dictionary<DepthMode, DepthStencilState> _depthCache = new();
+
+        /// <summary>
+        /// Erstellt einen RenderScope für GameBaseContext.
+        /// </summary>
         public RenderScope(GameBaseContext context, RenderOptions? options = null)
-            : this(context.GraphicsDevice, options) { }
+            : this(context.GraphicsDevice, options)
+        {
+        }
 
+        /// <summary>
+        /// Erstellt einen RenderScope für ein GraphicsDevice.
+        /// </summary>
         public RenderScope(GraphicsDevice graphicsDevice, RenderOptions? options = null)
         {
             _graphicsDevice = graphicsDevice ?? throw new ArgumentNullException(nameof(graphicsDevice));
             options ??= RenderOptions.Default;
 
-            // Save default states
-            _defaultRasterizer = _graphicsDevice.RasterizerState;
-            _defaultDepthStencil = _graphicsDevice.DepthStencilState;
-            _defaultSampler = _graphicsDevice.SamplerStates[0];
-            _defaultBlend = _graphicsDevice.BlendState;
+            // Alte States speichern
+            _prevRasterizer = _graphicsDevice.RasterizerState;
+            _prevDepthStencil = _graphicsDevice.DepthStencilState;
+            _prevSampler = _graphicsDevice.SamplerStates[0];
+            _prevBlend = _graphicsDevice.BlendState;
 
-            // Create custom states
-            _rasterizer = new RasterizerState
+            // RasterizerState vorbereiten (mit Scissor optional)
+            if (options.ScissorRectangle.HasValue)
             {
-                CullMode = options.CullMode,
-                FillMode = options.FillMode
-            };
+                // Neues RasterizerState erzeugen, basierend auf den Optionen
+                _customRasterizer = new RasterizerState
+                {
+                    CullMode = options.CullMode,
+                    FillMode = options.FillMode,
+                    ScissorTestEnable = true
+                };
 
-            _depthStencil = CreateDepthStencilState(options.Depth);
+                // Scissor-Rectangle setzen
+                _graphicsDevice.ScissorRectangle = options.ScissorRectangle.Value;
+            }
+            else
+            {
+                _customRasterizer = GetRasterizer(options);
+            }
 
-            _sampler = options.SamplerState;
-            _blend = options.AlphaBlend ? BlendState.AlphaBlend : BlendState.Opaque;
+            // RasterizerState anwenden
+            _graphicsDevice.RasterizerState = _customRasterizer;
 
-            // Apply immediately
-            _graphicsDevice.RasterizerState = _rasterizer;
-            _graphicsDevice.DepthStencilState = _depthStencil;
-            _graphicsDevice.SamplerStates[0] = _sampler;
-            _graphicsDevice.BlendState = _blend;
+            // DepthStencil
+            _customDepthStencil = GetDepthStencil(options.Depth);
+            _graphicsDevice.DepthStencilState = _customDepthStencil;
+
+            // Sampler
+            _customSampler = options.SamplerState;
+            _graphicsDevice.SamplerStates[0] = _customSampler;
+
+            // Blend
+            _customBlend = options.AlphaBlend
+                ? new BlendState
+                {
+                    ColorSourceBlend = Blend.One,
+                    ColorDestinationBlend = Blend.InverseSourceAlpha,
+                    AlphaSourceBlend = Blend.One,
+                    AlphaDestinationBlend = Blend.InverseSourceAlpha
+                }
+                : BlendState.Opaque;
+            _graphicsDevice.BlendState = _customBlend;
         }
 
-        private DepthStencilState CreateDepthStencilState(DepthMode mode)
+        private static RasterizerState GetRasterizer(RenderOptions options)
         {
-            return mode switch
+            if (!_rasterizerCache.TryGetValue(options, out var state))
             {
-                DepthMode.Disabled => DepthStencilState.None,
-                DepthMode.Opaque => DepthStencilState.Default,
-                DepthMode.Transparent => new DepthStencilState
+                state = new RasterizerState
                 {
-                    DepthBufferEnable = true,
-                    DepthBufferWriteEnable = false
-                },
-                DepthMode.Overlay => new DepthStencilState
-                {
-                    DepthBufferEnable = false,
-                    DepthBufferWriteEnable = false
-                },
-                DepthMode.DepthOnly => new DepthStencilState
-                {
-                    DepthBufferEnable = true,
-                    DepthBufferWriteEnable = true,
-                    // Optional: ColorWriteChannels = ColorWriteChannels.None
-                },
-                _ => DepthStencilState.None
-            };
+                    CullMode = options.CullMode,
+                    FillMode = options.FillMode
+                };
+                _rasterizerCache[options] = state;
+            }
+            return state;
         }
 
+        private static DepthStencilState GetDepthStencil(DepthMode mode)
+        {
+            if (!_depthCache.TryGetValue(mode, out var state))
+            {
+                state = mode switch
+                {
+                    DepthMode.Disabled => DepthStencilState.None,
+                    DepthMode.Opaque => DepthStencilState.Default,
+                    DepthMode.Transparent => new DepthStencilState
+                    {
+                        DepthBufferEnable = false,
+                        DepthBufferWriteEnable = false
+                    },
+                    DepthMode.Overlay => new DepthStencilState
+                    {
+                        DepthBufferEnable = false,
+                        DepthBufferWriteEnable = false
+                    },
+                    DepthMode.DepthOnly => new DepthStencilState
+                    {
+                        DepthBufferEnable = true,
+                        DepthBufferWriteEnable = true
+                    },
+                    _ => DepthStencilState.None
+                };
+                _depthCache[mode] = state;
+            }
+            return state;
+        }
+
+        /// <summary>
+        /// Setzt die alten GraphicsDevice States zurück.
+        /// </summary>
         public void Dispose()
         {
             if (_disposed) return;
             _disposed = true;
 
-            _graphicsDevice.RasterizerState = _defaultRasterizer;
-            _graphicsDevice.DepthStencilState = _defaultDepthStencil;
-            _graphicsDevice.SamplerStates[0] = _defaultSampler;
-            _graphicsDevice.BlendState = _defaultBlend;
-
-            _rasterizer?.Dispose();
-            _sampler?.Dispose();
-            _blend?.Dispose();
-
-            if (_depthStencil != DepthStencilState.Default &&
-                _depthStencil != DepthStencilState.None)
-            {
-                _depthStencil?.Dispose();
-            }
+            _graphicsDevice.RasterizerState = _prevRasterizer;
+            _graphicsDevice.DepthStencilState = _prevDepthStencil;
+            _graphicsDevice.SamplerStates[0] = _prevSampler;
+            _graphicsDevice.BlendState = _prevBlend;
         }
     }
 }

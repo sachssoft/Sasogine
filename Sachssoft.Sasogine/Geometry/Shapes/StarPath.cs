@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Enums;
+using Sachssoft.Sasogine.Common;
 using System;
 using System.Collections.Generic;
 
