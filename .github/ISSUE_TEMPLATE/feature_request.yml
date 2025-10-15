@@ -1,0 +1,42 @@
+name: 🚀 Feature Request
+description: Vorschlag für eine neue Funktion
+title: "FEATURE: "
+labels:
+  - enhancement
+assignees: [Sachssoft]
+
+body:
+  - type: markdown
+    id: info
+    attributes:
+      value: "Bitte alle relevanten Infos zum Feature angeben."
+  - type: dropdown
+    id: praefix
+    attributes:
+      label: "Präfix wählen"
+      options:
+        - label: "GAME"
+        - label: "EDITOR"
+        - label: "CHALLENGE"
+        - label: "ELEMENT"
+  - type: input
+    id: beschreibung
+    attributes:
+      label: "📝 Beschreibung"
+      placeholder: "Was soll das Feature machen?"
+    validations:
+      required: true
+  - type: textarea
+    id: nutzen
+    attributes:
+      label: "🧭 Ziel / Nutzen"
+  - type: checkboxes
+    id: tasks
+    attributes:
+      label: "✅ Aufträge"
+      options:
+        - label: "Konzept / Mockup"
+        - label: "Implementierung"
+        - label: "Tests / QA"
+        - label: "Dokumentation"
+        - label: "Review"

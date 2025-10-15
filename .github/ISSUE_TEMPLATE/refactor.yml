@@ -1,0 +1,48 @@
+name: 🧹 Refactoring
+description: Verbesserung von bestehendem Code ohne neues Feature
+title: "REFACTOR: "
+labels:
+  - refactor
+assignees: []
+
+body:
+  - type: dropdown
+    id: praefix
+    attributes:
+      label: "Präfix wählen"
+      options:
+        - label: "EDITOR"
+        - label: "CHALLENGE"
+        - label: "UI"
+        - label: "CORE"
+  - type: input
+    id: beschreibung
+    attributes:
+      label: "📝 Beschreibung"
+      placeholder: "Was soll refactored werden?"
+    validations:
+      required: true
+  - type: textarea
+    id: ziel
+    attributes:
+      label: "🧭 Ziel des Refactorings"
+      description: "Warum wird der Code verbessert?"
+  - type: textarea
+    id: umfang
+    attributes:
+      label: "🧩 Umfang"
+      description: "Welche Klassen/Module/Funktionen sind betroffen?"
+  - type: checkboxes
+    id: tasks
+    attributes:
+      label: "✅ Aufträge"
+      options:
+        - label: "Analyse"
+        - label: "Umsetzung"
+        - label: "Tests prüfen / anpassen"
+        - label: "Review / Merge"
+  - type: textarea
+    id: hinweise
+    attributes:
+      label: "💡 Hinweise"
+      description: "Risiken, Abhängigkeiten oder technische Schulden"

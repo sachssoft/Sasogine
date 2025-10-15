@@ -1,0 +1,50 @@
+name: 🐞 Bug Report
+description: Melde einen Fehler im Projekt
+title: "BUG: "
+labels:
+  - bug
+assignees: []
+
+body:
+  - type: dropdown
+    id: praefix
+    attributes:
+      label: "Präfix wählen"
+      options:
+        - label: "EDITOR"
+        - label: "CHALLENGE"
+        - label: "UI"
+        - label: "CORE"
+  - type: input
+    id: beschreibung
+    attributes:
+      label: "📝 Beschreibung"
+      placeholder: "Was ist das Problem?"
+  - type: textarea
+    id: schritte
+    attributes:
+      label: "🧪 Schritte zur Reproduktion"
+      description: "Liste der Schritte, um den Bug nachzustellen"
+  - type: textarea
+    id: erwartetes
+    attributes:
+      label: "🧭 Erwartetes Verhalten"
+  - type: textarea
+    id: umgebung
+    attributes:
+      label: "🧰 Umgebung / Version / Branch"
+  - type: checkboxes
+    id: tasks
+    attributes:
+      label: "✅ Aufträge"
+      options:
+        - label: "Fehler reproduzieren"
+        - label: "Ursache analysieren"
+        - label: "Fix implementieren"
+        - label: "Test schreiben"
+        - label: "Review"
+  - type: textarea
+    id: hinweise
+    attributes:
+      label: "💡 Hinweise"
+      description: "Screenshots, Logs oder zusätzliche Informationen"

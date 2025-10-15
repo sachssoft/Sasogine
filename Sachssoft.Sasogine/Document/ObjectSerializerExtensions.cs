@@ -2,11 +2,13 @@
 using Microsoft.Xna.Framework.Graphics;
 using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Controllers;
+using Sachssoft.Sasogine.Gameplay;
 using Sachssoft.Sasogine.Geometry;
 using Sachssoft.Sasogine.Graphics.Colors;
 using Sachssoft.Sasogine.Resources.Wrappers;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 
 namespace Sachssoft.Documents;
@@ -413,6 +415,45 @@ public static class ObjectSerializerExtensions
         return new Texture2DWrapper(texture_bytes);
     }
 
+    public static TieredScore<int> ReadTieredScoreInt<TReader>(this TReader reader, object? context, ScoreDirection scoreDirection = ScoreDirection.High, TieredScore<int> fallback = default) where TReader : FormatReaderBase
+    {
+        var result = reader.ReadInt32Array(
+            context,
+            new int[] {
+                fallback.Gold,
+                fallback.Silver,
+                fallback.Bronze
+            }
+        );
+        return new TieredScore<int>(result[0], result[1], result[2], scoreDirection);
+    }
+
+    public static TieredScore<float> ReadTieredScoreSingle<TReader>(this TReader reader, object? context, ScoreDirection scoreDirection = ScoreDirection.High, TieredScore<float> fallback = default) where TReader : FormatReaderBase
+    {
+        var result = reader.ReadSingleArray(
+            context,
+            new float[] {
+                fallback.Gold,
+                fallback.Silver,
+                fallback.Bronze
+            }
+        );
+        return new TieredScore<float>(result[0], result[1], result[2], scoreDirection);
+    }
+
+    public static TieredScore<TimeSpan> ReadTieredScoreTimeSpan<TReader>(this TReader reader, object? context, ScoreDirection scoreDirection = ScoreDirection.Low, TieredScore<TimeSpan> fallback = default) where TReader : FormatReaderBase
+    {
+        var result = reader.ReadTimeSpanArray(
+            context,
+            new TimeSpan[] {
+                fallback.Gold,
+                fallback.Silver,
+                fallback.Bronze
+            }
+        );
+        return new TieredScore<TimeSpan>(result[0], result[1], result[2], scoreDirection);
+    }
+
     public static void WritePoint<TWriter>(this TWriter writer, object? context, Point value) where TWriter : FormatWriterBase
     {
         writer.WriteInt32Array(context, new int[] { value.X, value.Y });
@@ -687,6 +728,21 @@ public static class ObjectSerializerExtensions
             default:
                 throw new ArgumentOutOfRangeException(nameof(format), format, null);
         }
+    }
+
+    public static void WriteTieredScoreInt<TWriter>(this TWriter writer, object? context, TieredScore<int> value) where TWriter : FormatWriterBase
+    {
+        writer.WriteInt32Array(context, new int[] { value.Gold, value.Silver, value.Bronze });
+    }
+
+    public static void WriteTieredScoreSingle<TWriter>(this TWriter writer, object? context, TieredScore<float> value) where TWriter : FormatWriterBase
+    {
+        writer.WriteSingleArray(context, new float[] { value.Gold, value.Silver, value.Bronze });
+    }
+
+    public static void WriteTieredScoreTimeSpan<TWriter>(this TWriter writer, object? context, TieredScore<TimeSpan> value) where TWriter : FormatWriterBase
+    {
+        writer.WriteTimeSpanArray(context, new TimeSpan[] { value.Gold, value.Silver, value.Bronze });
     }
 
 }

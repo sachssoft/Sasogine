@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Dokumentation
+    url: https://dein-projekt-link.de/docs
+    about: Bitte zuerst die Dokumentation prüfen, bevor du ein Issue erstellst.
