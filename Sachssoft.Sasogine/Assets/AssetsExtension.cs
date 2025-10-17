@@ -14,16 +14,15 @@ public static class AssetsExtension
     /// Null-safe, optionaler Prepare-Callback.
     /// </summary>
     public static T? GetAssetInstance<TAsset, T>(
-        this Association<TAsset> association,
+        this Reference<IAssetSource, IAssetSourceCollection> reference,
         ref TAsset? asset,
-        IEnumerable<IAsset>? enumerable,
+        IAssetSourceCollection? itemSource,
         Action<TAsset>? prepare = null)
         where TAsset : AssetBase<T>
         where T : class
     {
         asset?.Unload();
-        var collection = enumerable ?? Enumerable.Empty<IAsset>();
-        asset = association.Find(collection);
+        reference.ItemsSource = itemSource;
 
         if (asset != null && !asset.IsLoaded)
         {
@@ -38,75 +37,72 @@ public static class AssetsExtension
     /// ProjectedPackageAssetCollection
     /// </summary>
     public static T? GetAssetInstance<TAsset, T>(
-        this Association<TAsset> association,
+        this Reference<IAssetSource, IAssetSourceCollection> reference,
         ref TAsset? asset,
         ProjectedPackageAssetCollection? packageAssetCollection,
         Action<TAsset>? prepare = null)
         where TAsset : AssetBase<T>
         where T : class
     {
-        var collection = packageAssetCollection?.GetAll()
-                                               .Select(x => x.Asset);
-        return GetAssetInstance<TAsset, T>(association, ref asset, collection, prepare);
+        return GetAssetInstance<TAsset, T>(reference, ref asset, packageAssetCollection, prepare);
     }
 
-    /// <summary>
-    /// IDictionary<string, IAsset>
-    /// </summary>
-    public static T? GetAssetInstance<TAsset, T>(
-        this Association<TAsset> association,
-        ref TAsset? asset,
-        IDictionary<string, IAsset>? assetDictionary,
-        Action<TAsset>? prepare = null)
-        where TAsset : AssetBase<T>
-        where T : class
-    {
-        var collection = assetDictionary?.Values;
-        return GetAssetInstance<TAsset, T>(association, ref asset, collection, prepare);
-    }
+    ///// <summary>
+    ///// IDictionary<string, IAsset>
+    ///// </summary>
+    //public static T? GetAssetInstance<TAsset, T>(
+    //    this Reference<IAssetSource, IAssetSourceCollection> reference,
+    //    ref TAsset? asset,
+    //    IDictionary<string, IAsset>? assetDictionary,
+    //    Action<TAsset>? prepare = null)
+    //    where TAsset : AssetBase<T>
+    //    where T : class
+    //{
+    //    return GetAssetInstance<TAsset, T>(reference, ref asset, assetDictionary, prepare);
+    //}
 
-    /// <summary>
-    /// IReadOnlyDictionary<string, IAsset>
-    /// </summary>
-    public static T? GetAssetInstance<TAsset, T>(
-        this Association<TAsset> association,
-        ref TAsset? asset,
-        IReadOnlyDictionary<string, IAsset>? assetDictionary,
-        Action<TAsset>? prepare = null)
-        where TAsset : AssetBase<T>
-        where T : class
-    {
-        var collection = assetDictionary?.Values;
-        return GetAssetInstance<TAsset, T>(association, ref asset, collection, prepare);
-    }
+    ///// <summary>
+    ///// IReadOnlyDictionary<string, IAsset>
+    ///// </summary>
+    //public static T? GetAssetInstance<TAsset, T>(
+    //    this Reference<IAssetSource, IAssetSourceCollection> reference,
+    //    ref TAsset? asset,
+    //    IReadOnlyDictionary<string, IAsset>? assetDictionary,
+    //    Action<TAsset>? prepare = null)
+    //    where TAsset : AssetBase<T>
+    //    where T : class
+    //{
+    //    var collection = assetDictionary?.Values;
+    //    return GetAssetInstance<TAsset, T>(reference, ref asset, assetDictionary, prepare);
+    //}
 
-    /// <summary>
-    /// IDictionary<string, IAssetSource>
-    /// </summary>
-    public static T? GetAssetInstance<TAsset, T>(
-        this Association<TAsset> association,
-        ref TAsset? asset,
-        IDictionary<string, IAssetSource>? assetSourceDictionary,
-        Action<TAsset>? prepare = null)
-        where TAsset : AssetBase<T>
-        where T : class
-    {
-        var collection = assetSourceDictionary?.Values.Select(x => x.Asset);
-        return GetAssetInstance<TAsset, T>(association, ref asset, collection, prepare);
-    }
+    ///// <summary>
+    ///// IDictionary<string, IAssetSource>
+    ///// </summary>
+    //public static T? GetAssetInstance<TAsset, T>(
+    //    this Reference<IAssetSource, IAssetSourceCollection> reference,
+    //    ref TAsset? asset,
+    //    IDictionary<string, IAssetSource>? assetSourceDictionary,
+    //    Action<TAsset>? prepare = null)
+    //    where TAsset : AssetBase<T>
+    //    where T : class
+    //{
+    //    var collection = assetSourceDictionary?.Values.Select(x => x.Asset);
+    //    return GetAssetInstance<TAsset, T>(reference, ref asset, assetSourceDictionary, prepare);
+    //}
 
-    /// <summary>
-    /// IReadOnlyDictionary<string, IAssetSource>
-    /// </summary>
-    public static T? GetAssetInstance<TAsset, T>(
-        this Association<TAsset> association,
-        ref TAsset? asset,
-        IReadOnlyDictionary<string, IAssetSource>? assetSourceDictionary,
-        Action<TAsset>? prepare = null)
-        where TAsset : AssetBase<T>
-        where T : class
-    {
-        var collection = assetSourceDictionary?.Values.Select(x => x.Asset);
-        return GetAssetInstance<TAsset, T>(association, ref asset, collection, prepare);
-    }
+    ///// <summary>
+    ///// IReadOnlyDictionary<string, IAssetSource>
+    ///// </summary>
+    //public static T? GetAssetInstance<TAsset, T>(
+    //    this Reference<IAssetSource, IAssetSourceCollection> reference,
+    //    ref TAsset? asset,
+    //    IReadOnlyDictionary<string, IAssetSource>? assetSourceDictionary,
+    //    Action<TAsset>? prepare = null)
+    //    where TAsset : AssetBase<T>
+    //    where T : class
+    //{
+    //    var collection = assetSourceDictionary?.Values.Select(x => x.Asset);
+    //    return GetAssetInstance<TAsset, T>(reference, ref asset, assetSourceDictionary, prepare);
+    //}
 }

@@ -42,10 +42,7 @@ namespace Sachssoft.Sasogine.Containers
         /// </summary>
         bool IsOpen { get; }
 
-        /// <summary>
-        /// Gets a read-only dictionary of assets contained in this package, keyed by their names.
-        /// </summary>
-        IReadOnlyDictionary<string, IAssetSource> Assets { get; }
+        IAssetCollection Assets { get; }
 
         /// <summary>
         /// Gets a read-only collection of levels included in this package.

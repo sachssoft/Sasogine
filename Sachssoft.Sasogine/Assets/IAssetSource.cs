@@ -5,8 +5,10 @@ using System.IO;
 
 namespace Sachssoft.Sasogine.Assets
 {
-    public interface IAssetSource : IHasGuid
+    public interface IAssetSource : IHasGuid, IIdentifiable
     {
+        event EventHandler? AssetChanged;
+
         string FileName { get; set; }
 
         AssetCategory Category { get; set; }

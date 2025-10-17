@@ -6,7 +6,7 @@ namespace Sachssoft.Sasogine.Containers
 {
     public static class AssetRecognizer
     {
-        public static AssetType Detect(PackageAssetEntry packageAssetEntry)
+        public static AssetType Detect(PackageAssetSource packageAssetEntry)
         {
             using var stream = packageAssetEntry.Open();
             return Detect(stream);

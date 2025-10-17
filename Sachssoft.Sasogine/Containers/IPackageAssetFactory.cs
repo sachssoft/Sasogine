@@ -4,6 +4,6 @@ namespace Sachssoft.Sasogine.Containers
 {
     public interface IPackageAssetFactory
     {
-        IAsset? Build(PackageBase package, PackageAssetEntry entry);
+        IAsset? Build(PackageBase package, PackageAssetSource entry);
     }
 }

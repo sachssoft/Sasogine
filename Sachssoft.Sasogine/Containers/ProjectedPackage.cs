@@ -124,7 +124,9 @@ namespace Sachssoft.Sasogine.Containers
         {
         }
 
-        IReadOnlyDictionary<string, IAssetSource> IPackage.Assets => (IReadOnlyDictionary<string, IAssetSource>)_manifest._assetEntries;
+        IAssetCollection IPackage.Assets => _assets.FindAssets();
+
+        //IReadOnlyDictionary<string, IAssetSource> IPackage.Assets => (IReadOnlyDictionary<string, IAssetSource>)_manifest._assetEntries;
 
         IReadOnlyList<PackageLevelBase> IPackage.Levels => (IReadOnlyList<PackageLevelBase>)_manifest._levels;
 

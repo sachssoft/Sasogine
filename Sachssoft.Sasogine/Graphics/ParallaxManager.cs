@@ -27,6 +27,8 @@ namespace Sachssoft.Sasogine.Graphics
 
         public IEffectAdapter? CustomEffect { get; set; }
 
+        public Color TintColor { get; set; } = Color.White;
+
         public IEnumerable<ParallaxEntry>? Entries
         {
             get => _entries;
@@ -234,7 +236,7 @@ namespace Sachssoft.Sasogine.Graphics
 
         protected virtual void DrawOverride(GameFrameContext context, Texture2D? texture, IEffectAdapter effect, Matrix transform)
         {
-            effect.Color = Color.White;
+            effect.Color = TintColor;
             effect.Texture = texture;
 
             _displayPrimitive.DrawScoped(context, transform: transform, options: RenderOptions);

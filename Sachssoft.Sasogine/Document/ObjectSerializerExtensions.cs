@@ -2,6 +2,9 @@
 using Microsoft.Xna.Framework.Graphics;
 using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Controllers;
+using Sachssoft.Observables;
+using Sachssoft.Sasogine.Assets;
+using Sachssoft.Sasogine.Containers;
 using Sachssoft.Sasogine.Gameplay;
 using Sachssoft.Sasogine.Geometry;
 using Sachssoft.Sasogine.Graphics.Colors;
@@ -9,7 +12,9 @@ using Sachssoft.Sasogine.Resources.Wrappers;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Formats.Tar;
 using System.IO;
+using System.Reflection.PortableExecutable;
 
 namespace Sachssoft.Documents;
 
@@ -454,6 +459,13 @@ public static class ObjectSerializerExtensions
         return new TieredScore<TimeSpan>(result[0], result[1], result[2], scoreDirection);
     }
 
+    public static AssetReference<TAsset> ReadAssetReference<TReader, TAsset>(this TReader reader, object? context) where TReader : FormatReaderBase where TAsset : class, IIdentifiable
+    {
+        var reference = new AssetReference<TAsset>();
+        reference.ID = reader.ReadString(context);
+        return reference;
+    }
+
     public static void WritePoint<TWriter>(this TWriter writer, object? context, Point value) where TWriter : FormatWriterBase
     {
         writer.WriteInt32Array(context, new int[] { value.X, value.Y });
@@ -743,6 +755,11 @@ public static class ObjectSerializerExtensions
     public static void WriteTieredScoreTimeSpan<TWriter>(this TWriter writer, object? context, TieredScore<TimeSpan> value) where TWriter : FormatWriterBase
     {
         writer.WriteTimeSpanArray(context, new TimeSpan[] { value.Gold, value.Silver, value.Bronze });
+    }
+
+    public static void WriteAssetReference<TWriter, TAsset>(this TWriter writer, object? context, AssetReference<TAsset> value) where TWriter : FormatWriterBase where TAsset : class, IIdentifiable
+    {
+        writer.WriteString(value.ID);
     }
 
 }

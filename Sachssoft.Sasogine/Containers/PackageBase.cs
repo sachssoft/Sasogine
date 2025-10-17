@@ -61,8 +61,8 @@ namespace Sachssoft.Sasogine.Containers
         public PackageLicense License => _license;
         public PackageIcon Icon => _icon;
         public PackagePreviews Previews => _previews;
-
-        IReadOnlyDictionary<string, IAssetSource> IPackage.Assets => new Dictionary<string, IAssetSource>();
+        
+        IAssetCollection IPackage.Assets => AssetSourceView.Empty;
         IReadOnlyList<PackageLevelBase> IPackage.Levels => Array.Empty<PackageLevelBase>();
 
         public void Open()
@@ -106,6 +106,9 @@ namespace Sachssoft.Sasogine.Containers
                     }
                 }
             }
+
+            if (IsOpen)
+                OnOpened();
         }
 
         public void Close()
@@ -129,6 +132,8 @@ namespace Sachssoft.Sasogine.Containers
                 _stream = null;
                 _isClosed = true;
             }
+
+            OnClosed();
         }
 
         public void Save()
@@ -191,6 +196,14 @@ namespace Sachssoft.Sasogine.Containers
         }
 
         protected virtual void Disposing()
+        {
+        }
+
+        protected virtual void OnOpened()
+        {
+        }
+
+        protected virtual void OnClosed()
         {
         }
 

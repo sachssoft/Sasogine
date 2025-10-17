@@ -22,7 +22,7 @@ public enum AssetSourceType
 {
     ExternalFile,
     EmbeddedResource,
-    ContentXnb
+    Content
 }
 public class GameAssetManager
 {
@@ -68,25 +68,25 @@ public class GameAssetManager
 
     internal protected virtual void OnUnload() => UnloadAll();
 
-    public void AddTexture(string key, string path, AssetSourceType type = AssetSourceType.ContentXnb) =>
+    public void AddTexture(string key, string path, AssetSourceType type = AssetSourceType.Content) =>
         _textures.Add(key, new(path, type));
 
-    public Texture2D AddAndLoadTexture(string key, string path, AssetSourceType type = AssetSourceType.ContentXnb)
+    public Texture2D AddAndLoadTexture(string key, string path, AssetSourceType type = AssetSourceType.Content)
     {
         AddTexture(key, path, type);
         return LoadTexture(key);
     }
 
-    public void AddModel(string key, string path, AssetSourceType type = AssetSourceType.ContentXnb) =>
+    public void AddModel(string key, string path, AssetSourceType type = AssetSourceType.Content) =>
         _models.Add(key, new(path, type));
 
-    public void AddShader(string key, string path, AssetSourceType type = AssetSourceType.ContentXnb) =>
+    public void AddShader(string key, string path, AssetSourceType type = AssetSourceType.Content) =>
         _shaders.Add(key, new(path, type));
 
-    public void AddFontSystem(string key, string path, AssetSourceType type = AssetSourceType.ContentXnb) =>
+    public void AddFontSystem(string key, string path, AssetSourceType type = AssetSourceType.Content) =>
         _fontSystems.Add(key, new(path, type));
 
-    public void AddData(string key, string path, AssetSourceType type = AssetSourceType.ContentXnb) =>
+    public void AddData(string key, string path, AssetSourceType type = AssetSourceType.Content) =>
         _data.Add(key, new(path, type));
 
     public Texture2D LoadTexture(string key)
@@ -97,7 +97,7 @@ public class GameAssetManager
         if (entry.Data != null)
             return entry.Data;
 
-        if (entry.SourceType == AssetSourceType.ContentXnb)
+        if (entry.SourceType == AssetSourceType.Content)
         {
             entry.Data = _app.Content.Load<Texture2D>(entry.Path);
         }
@@ -124,7 +124,7 @@ public class GameAssetManager
         if (entry.Data != null)
             return entry.Data;
 
-        if (entry.SourceType == AssetSourceType.ContentXnb)
+        if (entry.SourceType == AssetSourceType.Content)
         {
             entry.Data = _app.Content.Load<Model>(entry.Path);
         }
@@ -150,7 +150,7 @@ public class GameAssetManager
 
         switch (entry.SourceType)
         {
-            case AssetSourceType.ContentXnb:
+            case AssetSourceType.Content:
                 entry.Data = _app.Content.Load<Effect>(entry.Path);
                 break;
 
@@ -194,7 +194,7 @@ public class GameAssetManager
 
         switch (entry.SourceType)
         {
-            case AssetSourceType.ContentXnb:
+            case AssetSourceType.Content:
                 {
                     // Content pipeline muss Byte[] als rohes Asset ausliefern
                     var bytes = _app.Content.Load<byte[]>(entry.Path);
@@ -234,7 +234,7 @@ public class GameAssetManager
 
         switch (entry.SourceType)
         {
-            case AssetSourceType.ContentXnb:
+            case AssetSourceType.Content:
                 {
                     // Content-Pipeline muss das FontSystem als fertiges Objekt bereitstellen
                     entry.Data = _app.Content.Load<FontSystem>(entry.Path);
@@ -293,7 +293,7 @@ public class GameAssetManager
             try { disposable.Dispose(); } catch { /* ignore */ }
         }
 
-        if (entry.SourceType == AssetSourceType.ContentXnb)
+        if (entry.SourceType == AssetSourceType.Content)
         {
             try { _app.Content.UnloadAsset(entry.Path); } catch { /* optional */ }
         }
@@ -311,7 +311,7 @@ public class GameAssetManager
 
         switch (entry.SourceType)
         {
-            case AssetSourceType.ContentXnb:
+            case AssetSourceType.Content:
             case AssetSourceType.ExternalFile:
                 entry.Data = loader(entry.Path);
                 break;
