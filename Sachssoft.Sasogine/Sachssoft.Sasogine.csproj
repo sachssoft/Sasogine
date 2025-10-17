@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
-		<RootNamespace>Sachssoft.Sasogine</RootNamespace>
+		<RootNamespace>Sachssoft.Engine</RootNamespace>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>Sasogine</Title>
@@ -74,6 +74,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\Sasolib\sasosoft.Sasolib\Sachssoft.Sasolib.csproj" />
+	  <ProjectReference Include="..\..\Sasolib\sasosoft.Sasofly\Sachssoft.Sasofly.csproj" />
 	</ItemGroup>
 </Project>
