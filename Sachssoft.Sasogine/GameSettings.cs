@@ -1,4 +1,4 @@
-﻿using Sachssoft.Observables;
+﻿using Sachssoft.Inspection;
 using Sachssoft.Sasogine.Elements;
 using System;
 using System.Collections.Generic;
@@ -13,16 +13,8 @@ namespace Sachssoft.Sasogine;
 
 public class GameSettings : NotifyingObject
 {
-    private Dictionary<string, object?> _settings;
-
     public GameSettings()
     {
-    }
-
-    public GameSettings(string filename)
-    {
-        _settings = new();
-        Filename = filename;
     }
 
     [AllowNull]
@@ -94,47 +86,7 @@ public class GameSettings : NotifyingObject
     {
     }
 
-    public T? GetValue<T>([CallerMemberName] string property_name = "", T? default_value = default, Func<object?, T>? converter = null)
-    {
-        if (_settings.TryGetValue(property_name, out var v))
-        {
-            try
-            {
-                if (converter != null)
-                {
-                    return converter.Invoke(v);
-                }
-                else
-                {
-                    return (T?)v;
-                }
-            }
-            catch
-            {
-                Debug.WriteLine("GameSettings Invalid Type Warning: " + property_name);
-                _settings.Remove(property_name);
-            }
-        }
-
-        return default_value;
-    }
-
-    public void SetValue<T>([CallerMemberName] string property_name = "", T? value = default)
-    {
-        _settings[property_name] = value;
-    }
-
-    public void Clear()
-    {
-        _settings.Clear();
-    }
-
-    public void Reset(string key)
-    {
-        _settings.Remove(key);
-    }
-
-    public virtual void Apply(IMyGameApp app)
+    public virtual void Apply(IGameApplication app)
     {
     }
 }

@@ -9,7 +9,7 @@ namespace Sachssoft.Sasogine.Tiling;
 public class OrthographicTileCamera : FollowableCamera2D
 {
 
-    public OrthographicTileCamera() : this(IMyGameApp.Current.GraphicsDevice)
+    public OrthographicTileCamera() : this(IGameApplication.Current.GraphicsDevice)
     {
     }
 
@@ -40,14 +40,14 @@ public class OrthographicTileCamera : FollowableCamera2D
     public override Vector2 ToWorld(Vector2 screen_position)
     {
         var t = new Vector3(screen_position, 0);
-        t = IMyGameApp.Current.GraphicsDevice.Viewport.Unproject(t, Projection, View, World);
+        t = IGameApplication.Current.GraphicsDevice.Viewport.Unproject(t, Projection, View, World);
         return new Vector2(t.X, t.Y);
     }
 
     public override Vector2 ToScreen(Vector2 world_position)
     {
         var t = new Vector3(world_position, 0);
-        t = IMyGameApp.Current.GraphicsDevice.Viewport.Project(t, Projection, View, World);
+        t = IGameApplication.Current.GraphicsDevice.Viewport.Project(t, Projection, View, World);
         return new Vector2(t.X, t.Y);
     }
 

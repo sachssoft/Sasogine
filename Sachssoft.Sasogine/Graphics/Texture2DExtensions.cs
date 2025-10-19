@@ -50,7 +50,7 @@ public static class Texture2DExtensions
     //}
 
     public static Texture2D CreateMask(this Texture2D texture, Color mask_color)
-        => CreateMask(texture, mask_color, IMyGameApp.Current.GraphicsDevice);
+        => CreateMask(texture, mask_color, IGameApplication.Current.GraphicsDevice);
 
     public static Texture2D CreateMask(this Texture2D texture, Color mask_color, GraphicsDevice graphics_device)
     {
@@ -72,16 +72,16 @@ public static class Texture2DExtensions
     }
 
     public static Texture2D TileCrop(this Texture2D texture, Point cell, Point size)
-        => TileCrop(texture, cell, size, IMyGameApp.Current.GraphicsDevice);
+        => TileCrop(texture, cell, size, IGameApplication.Current.GraphicsDevice);
 
     public static Texture2D TileCrop(this Texture2D texture, Point cell, Point size, GraphicsDevice graphics_device)
         => Crop(texture, new Point(cell.X * size.X, cell.Y * size.Y), size, graphics_device);
 
     public static Texture2D Crop(this Texture2D texture, Point position, Point size)
-        => Crop(texture, position, size, IMyGameApp.Current.GraphicsDevice);
+        => Crop(texture, position, size, IGameApplication.Current.GraphicsDevice);
 
     public static Texture2D Crop(this Texture2D texture, Rectangle sourceRectangle)
-        => Crop(texture, new Point(sourceRectangle.X, sourceRectangle.Y), new Point(sourceRectangle.Width, sourceRectangle.Height), IMyGameApp.Current.GraphicsDevice);
+        => Crop(texture, new Point(sourceRectangle.X, sourceRectangle.Y), new Point(sourceRectangle.Width, sourceRectangle.Height), IGameApplication.Current.GraphicsDevice);
 
     public static Texture2D Crop(this Texture2D texture, Point position, Point size, GraphicsDevice graphics_device)
     {
@@ -112,7 +112,7 @@ public static class Texture2DExtensions
 
 
     public static Texture2D Clone(this Texture2D texture)
-        => Clone(texture, IMyGameApp.Current.GraphicsDevice);
+        => Clone(texture, IGameApplication.Current.GraphicsDevice);
 
     public static Texture2D Clone(this Texture2D texture, GraphicsDevice graphics_device)
     {
@@ -130,7 +130,7 @@ public static class Texture2DExtensions
 
     public static Texture2D Blend<T>(this Texture2D texture, Color color, float amount)
         where T : IColorBlender, new()
-        => Blend<T>(texture, color, amount, IMyGameApp.Current.GraphicsDevice);
+        => Blend<T>(texture, color, amount, IGameApplication.Current.GraphicsDevice);
 
     public static Texture2D Blend<T>(this Texture2D texture, Color color, float amount, GraphicsDevice graphics_device)
        where T : IColorBlender, new()
@@ -154,7 +154,7 @@ public static class Texture2DExtensions
 
     public static Texture2D Adjust<T>(this Texture2D texture, float amount)
         where T : IColorTransformer, new()
-        => Adjust<T>(texture, amount, IMyGameApp.Current.GraphicsDevice);
+        => Adjust<T>(texture, amount, IGameApplication.Current.GraphicsDevice);
 
     // Nicht-destruktiv – gibt neue Textur zurück
     public static Texture2D Adjust<T>(this Texture2D texture, float amount, GraphicsDevice graphics_device)
@@ -197,7 +197,7 @@ public static class Texture2DExtensions
     }
 
     public static Texture2D Adjust(this Texture2D texture, ColorTransformerFactory factory)
-        => Adjust(texture, factory, IMyGameApp.Current.GraphicsDevice);
+        => Adjust(texture, factory, IGameApplication.Current.GraphicsDevice);
 
     public static Texture2D Adjust(this Texture2D texture, ColorTransformerFactory factory, GraphicsDevice graphics_device)
     {

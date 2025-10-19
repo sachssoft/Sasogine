@@ -21,7 +21,7 @@ public sealed class GridPrimitive : IDisposable
     private int _rows = 10;
 
     public GridPrimitive()
-        : this(IMyGameApp.Game.GraphicsDevice)
+        : this(IGameApplication.Game.GraphicsDevice)
     {
     }
 

@@ -1,7 +1,7 @@
 ﻿using Sachssoft.Documents;
 using Sachssoft.Documents.Json;
 using Sachssoft.Naming;
-using Sachssoft.Observables;
+using Sachssoft.Inspection;
 using Sachssoft.Sasogine.Assets;
 using Sachssoft.Sasogine.Resources;
 using System;

@@ -24,7 +24,7 @@ public sealed class TilePrimitive : IDisposable
     private bool _disposed;
 
     public TilePrimitive()
-    : this(IMyGameApp.Current.GraphicsDevice, Vector2.One, Color.White)
+    : this(IGameApplication.Current.GraphicsDevice, Vector2.One, Color.White)
     {
     }
 

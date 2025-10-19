@@ -1,4 +1,4 @@
-﻿using Sachssoft.Observables;
+﻿using Sachssoft.Inspection;
 using Sachssoft.Sasogine.Elements;
 using System;
 

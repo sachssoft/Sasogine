@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Media;
-using Sachssoft.Observables;
+using Sachssoft.Inspection;
 
 namespace Sachssoft.Sasogine.Assets
 {

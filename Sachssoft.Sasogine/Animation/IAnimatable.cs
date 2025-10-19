@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Observables;
+using Sachssoft.Inspection;
 using Sachssoft.Sasogine.Elements;
 
 namespace Sachssoft.Sasogine.Animation

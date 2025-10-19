@@ -25,7 +25,7 @@ public sealed class TileRenderer : RendererBase
     }
 
     public TileRenderer(CameraBase camera, IEffectAdapter effect, Vector2? tile_size = null, DrawBatchMode mode = DrawBatchMode.Immediate)
-        : base(IMyGameApp.Current.GraphicsDevice, effect, camera)
+        : base(IGameApplication.Current.GraphicsDevice, effect, camera)
     {
         _tile_size = tile_size ?? Vector2.One;
         _draw_mode = mode;

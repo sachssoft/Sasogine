@@ -11,13 +11,9 @@ public abstract class SurfaceHost : IDisposable
 
     public virtual ISurfaceElement? Root { get; set; }
 
-    //public abstract bool IsMouseOverGUI { get; }
+    public Game Game { get; internal set; }
 
-    //public abstract bool IsTouchOverGUI { get; }
-
-    //public abstract bool IsPointOverGUI(Point p);
-
-    public abstract void Render();
+    public abstract void Render(GameFrameContext context);
 
     public abstract void Dispose();
 }

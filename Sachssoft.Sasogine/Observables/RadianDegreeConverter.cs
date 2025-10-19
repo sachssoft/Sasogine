@@ -1,4 +1,4 @@
-﻿using Sachssoft.Observables.Descriptors;
+﻿using Sachssoft.Inspection.Descriptors;
 
 using System;
 

@@ -4,6 +4,7 @@ using Sachssoft.Sasogine.Diagnostics;
 using Sachssoft.Sasogine.Graphics;
 using Sachssoft.Sasogine.Surface;
 using System;
+using System.Numerics;
 
 namespace Sachssoft.Sasogine;
 
@@ -64,6 +65,7 @@ public abstract class RuntimeBase : IDisposable
     private GameBaseContext? _viewContext;
     private Color[]? _screenshotBuffer;
     private bool _disposed;
+    private bool _isLoaded;
 
     /// <summary>
     /// Number of samples for MSAA in the scene RenderTarget.
@@ -79,10 +81,23 @@ public abstract class RuntimeBase : IDisposable
     protected RuntimeBase(CameraBase camera, IEffectAdapter? effect)
     {
         _camera = camera ?? throw new ArgumentNullException(nameof(camera));
-        _effect = effect ?? new BasicEffectAdapter(IMyGameApp.Current.GraphicsDevice);
+        _effect = effect ?? new BasicEffectAdapter(IGameApplication.Current.GraphicsDevice);
         BackgroundColor = Color.CornflowerBlue;
         RenderVisibility = true;
     }
+
+    /// <summary>
+    /// Gets a value indicating whether the runtime has been loaded.
+    /// </summary>
+    /// <value>
+    /// <c>true</c> if <see cref="Load(GameBaseContext)"/> has been called successfully;
+    /// otherwise, <c>false</c>.
+    /// </value>
+    /// <remarks>
+    /// This property can be used to check the current load state before calling
+    /// <see cref="Load(GameBaseContext)"/> or <see cref="Unload"/> to avoid exceptions.
+    /// </remarks>
+    public bool IsLoaded => _isLoaded;
 
     /// <summary>
     /// Gets the game or editor context. Throws if Load() has not been called.
@@ -136,9 +151,13 @@ public abstract class RuntimeBase : IDisposable
     /// <param name="context">The graphics context containing the GraphicsDevice.</param>
     public virtual void Load(GameBaseContext context)
     {
+        if (_isLoaded)
+            throw new InvalidOperationException("The runtime has already been loaded.");
+
         _viewContext = context ?? throw new ArgumentNullException(nameof(context));
         _spriteBatch = new SpriteBatch(context.GraphicsDevice);
         EnsureSceneRenderTargetSize(context.GraphicsDevice);
+        _isLoaded = true;
     }
 
     /// <summary>
@@ -146,7 +165,11 @@ public abstract class RuntimeBase : IDisposable
     /// </summary>
     public virtual void Unload()
     {
+        if (!_isLoaded)
+            throw new InvalidOperationException("The runtime has not been loaded yet.");
+
         DisposeSceneResources();
+        _isLoaded = false;
     }
 
     /// <summary>
@@ -156,7 +179,8 @@ public abstract class RuntimeBase : IDisposable
     {
         if (_disposed) return;
         _disposed = true;
-        DisposeSceneResources();
+        if (_isLoaded)
+            Unload();
     }
 
     private void DisposeSceneResources()
@@ -191,7 +215,7 @@ public abstract class RuntimeBase : IDisposable
             return;
 
         var graphicsDevice = context.GraphicsDevice;
-        if (graphicsDevice.IsDisposed || graphicsDevice.GraphicsDeviceStatus != GraphicsDeviceStatus.Normal)
+        if (graphicsDevice.IsDisposed || graphicsDevice.GraphicsDeviceStatus != GraphicsDeviceStatus.Normal || !_isLoaded)
             return;
 
         OnSceneRenderBegin(context);

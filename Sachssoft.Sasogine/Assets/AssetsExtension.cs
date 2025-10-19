@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Sachssoft.Observables;
+using Sachssoft.Inspection;
 using Sachssoft.Sasogine.Containers;
 using Sachssoft.Sasogine.Elements;
 

@@ -17,21 +17,22 @@ using Sachssoft.Sasogine.Surface;
 using Sachssoft.Sasogine.Elements;
 using Sachssoft.Sasogine.Services;
 using Sachssoft.Sasogine.Resources;
-using Sachssoft.Observables;
+using Sachssoft.Inspection;
+using System.Net.Http.Headers;
 
 namespace Sachssoft.Sasogine;
 
-public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetManager : GameAssetManager
+public abstract class GameApplication : Game, IGameApplication
 {
     private GraphicsDeviceManager _graphics_device_manager;
     private ViewManager _view_manager;
     private List<Region> _regions;
 
-    private SurfaceHost? _surface_host;
+    private SurfaceHost? _surfaceHost;
     private int _selected_region_index;
-    private TAssetManager _assets;
+    protected GameAssetManager _assets;
     protected private PlatformProfiles _platform_profile;
-    private List<GameSettings> _settings;
+    private readonly Dictionary<Type, GameSettings> _settings = new Dictionary<Type, GameSettings>();
 
     public static GameDispatcher Dispatcher = new GameDispatcher();
 
@@ -41,21 +42,20 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
         public ViewBase? Instance;
     }
 
-    static MyGameApp()
+    static GameApplication()
     {
         TypeFactoryManager.Active();
         TypeRegistration.RegisterTypes();
     }
 
-    public MyGameApp(params string[] args)
+    public GameApplication(params string[] args)
     {
-        if (IMyGameApp.Current != null)
+        if (IGameApplication.Current != null)
         {
             throw new GameException("Game already was started");
         }
 
         _regions = new List<Region>();
-        _settings = new List<GameSettings>();
 
         _graphics_device_manager = ConfigureGraphicsDevice();
         // Share GraphicsDeviceManager as a service.
@@ -66,7 +66,7 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
 
-        IMyGameApp.Current = this;
+        IGameApplication.Current = this;
     }
 
     public CultureInfo Culture { get; set; } = CultureInfo.InvariantCulture;
@@ -130,45 +130,46 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
         };
     }
 
-    public static MyGameApp<TAssetManager> Current
+    public static GameApplication Current
     {
-        get => (MyGameApp<TAssetManager>)IMyGameApp.Current;
+        get => (GameApplication)IGameApplication.Current;
     }
-
-    //public Desktop Desktop
-    //{
-    //    get => _gui_desktop;
-    //}
 
     public SurfaceHost? SurfaceHost
     {
-        get => _surface_host;
+        get => _surfaceHost;
     }
 
-    protected abstract TAssetManager CreateAssetManager();
+    protected virtual GameAssetManager? AssetsOverride() => null;
+
+    public GameAssetManager Assets => _assets;
+
+    GameAssetManager IGameApplication.Assets => _assets;
 
     protected override sealed void LoadContent()
     {
         base.LoadContent();
 
-        _settings.ForEach(x => x.OnLoad());
+        foreach (var setting in _settings.Values)
+            setting.OnLoad();
 
         _platform_profile = DetermineGraphicsPlatformProfile();
 
         // ### Assets
-        //_assets = (TAssetManager)Activator.CreateInstance(typeof(TAssetManager), this); // AOT-Problem!
-        _assets = CreateAssetManager();
+        _assets = AssetsOverride() ?? new GameAssetManager(this);
         _assets.OnLoad();
         //TypeFactoryManager.InvokeAssetRegistrations();
 
         // ## UI
         //UIEnvironment.Game = this;
-        _surface_host = CreateSurfaceHost();
-        _surface_host?.Initialize(this); // <--- UIEnvironment.Game
+        _surfaceHost = CreateSurfaceHost();
 
-        if (_surface_host != null)
+        if (_surfaceHost != null)
         {
-            _view_manager = new ViewManager(_surface_host);
+            _surfaceHost.Game = this;
+            _surfaceHost.Initialize(this);
+
+            _view_manager = new ViewManager(_surfaceHost);
             InitializeViews(_view_manager);
         }
 
@@ -246,15 +247,16 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
 
     protected override void OnExiting(object sender, ExitingEventArgs args)
     {
-        if (_surface_host != null)
+        if (_surfaceHost != null)
         {
-            var view = _surface_host.View;
+            var view = _surfaceHost.View;
             view?.OnUnload();
 
-            _surface_host.Dispose(); //UIEnvironment.Game.Exit();
+            _surfaceHost.Dispose(); //UIEnvironment.Game.Exit();
         }
 
-        _settings.ForEach(x => x.OnSave());
+        foreach (var setting in _settings.Values)
+            setting.OnSave();
 
         base.OnExiting(sender, args);
     }
@@ -301,10 +303,6 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
         _graphics_device_manager.ApplyChanges();
     }
 
-    public TAssetManager Assets => _assets;
-
-    GameAssetManager IMyGameApp.Assets => _assets;
-
     public void SelectRegion(int index)
     {
         _selected_region_index = index;
@@ -345,8 +343,20 @@ public abstract class MyGameApp<TAssetManager> : Game, IMyGameApp where TAssetMa
         return default_value;
     }
 
-    protected void AddSettings(GameSettings settings) => _settings.Add(settings);
+    protected void AddSettings<TSettings>() where TSettings : GameSettings, new()
+    {
+        if (_settings.ContainsKey(typeof(TSettings)))
+            throw new InvalidOperationException("Setting Type already exists");
 
-    public virtual GameSettings GetSettings(int index) => _settings[index];
+        TypeFactoryManager.Register<TSettings>();
+        _settings.Add(typeof(TSettings), new TSettings());
+    }
 
+    public TSettings GetSettings<TSettings>() where TSettings : GameSettings, new()
+    {
+        if (!_settings.TryGetValue(typeof(TSettings), out var settings))
+            throw new InvalidOperationException("Setting Type does not exists");
+
+        return (TSettings)settings;
+    }
 }

@@ -16,11 +16,11 @@ using System.ComponentModel.Design;
 
 namespace Sachssoft.Sasogine;
 
-public interface IMyGameApp
+public interface IGameApplication
 {
 
     [AllowNull]
-    public static IMyGameApp Current { get; internal set; }
+    public static IGameApplication Current { get; internal set; }
 
     public static Game Game => (Game)Current;
 
@@ -40,19 +40,9 @@ public interface IMyGameApp
 
     bool IsActive { get; }
 
-    GameSettings GetSettings(int index);
+    TSettings GetSettings<TSettings>() where TSettings : GameSettings, new();
 
     GameServiceContainer Services { get; }
-
-    //ViewBase? GetCurrentView(); 
-    
-    //void OpenView<TView>(Action<TView>? init = null) where TView : ViewBase;
-
-    //void CloseView<TView>(TView view) where TView : ViewBase;
-
-    //void SwitchView<TView>(Action<TView>? init = null) where TView : ViewBase;
-
-    //void GoBackView(Action<ViewBase>? init = null);
 
     void Exit();
 }

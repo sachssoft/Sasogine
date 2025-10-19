@@ -24,7 +24,7 @@ public static class TilingHelper
     }
 
     public static Rectangle GetViewBounds(CameraBase camera, Vector2 tile_size)
-        => GetViewBounds(IMyGameApp.Current.GraphicsDevice.Viewport, camera, tile_size);
+        => GetViewBounds(IGameApplication.Current.GraphicsDevice.Viewport, camera, tile_size);
 
     public static Rectangle GetViewBounds(GraphicsDevice graphics_device, CameraBase camera, Vector2 tile_size)
         => GetViewBounds(graphics_device.Viewport, camera, tile_size);

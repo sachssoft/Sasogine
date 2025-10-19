@@ -1,6 +1,6 @@
 ﻿using Sachssoft.Documents;
 using Sachssoft.Documents.Json;
-using Sachssoft.Observables;
+using Sachssoft.Inspection;
 using Sachssoft.Sasogine.Elements;
 using Sachssoft.Sasogine.Features;
 using System;

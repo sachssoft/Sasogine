@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Controllers;
-using Sachssoft.Observables;
+using Sachssoft.Inspection;
 using Sachssoft.Sasogine.Assets;
 using Sachssoft.Sasogine.Containers;
 using Sachssoft.Sasogine.Gameplay;

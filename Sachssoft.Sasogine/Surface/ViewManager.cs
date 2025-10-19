@@ -38,25 +38,6 @@ public sealed class ViewManager
     {
         var view = _host.View;
 
-        //if (view == null)
-        //{
-        //    _renderable = false;
-        //    _gameContext?.Dispose();
-        //    _gameContext = null;
-        //    return;
-        //}
-
-        //_gameContext?.Dispose();
-        //_gameContext = new GameFrameContext(view, time);
-
-        //_renderable = view.CanRender(_gameContext);
-
-        //if (_renderable)
-        //{
-        //    view.OnUpdate(_gameContext);
-        //    on(_gameContext);
-        //}
-
         // Bug Fixed
         var gameContext = new GameFrameContext(view, time);
         _renderable = view?.CanRender(gameContext) ?? false;
@@ -70,25 +51,6 @@ public sealed class ViewManager
 
     public void Draw(GameTime time, Action<GameFrameContext> on_before_surface, Action<GameFrameContext> on_after_surface)
     {
-        //if (!_renderable || _gameContext == null || _host.View == null)
-        //    return;
-
-        //var view = _host.View;
-
-        //view.OnDraw(_gameContext);
-        //on_before_surface(_gameContext);
-
-        //if (_gameContext.IsUIVisibled)
-        //{
-        //    _host.Render();
-        //}
-
-        //on_after_surface(_gameContext);
-        //view.OnDrawAfterGUI(_gameContext);
-
-        //_gameContext.Dispose();
-        //_gameContext = null;
-
         // Bug Fixed
         if (!_renderable || /*_gameContext == null ||*/ _host.View == null)
             return;
@@ -101,7 +63,7 @@ public sealed class ViewManager
 
         if (gameContext.IsUIVisibled)
         {
-            _host.Render();
+            _host.Render(gameContext);
         }
 
         on_after_surface(gameContext);

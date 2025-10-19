@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Documents;
-using Sachssoft.Observables;
+using Sachssoft.Inspection;
 using Sachssoft.Sasogine.Graphics;
 using Sachssoft.Sasogine.Resources;
 using System;
@@ -105,7 +105,6 @@ public class Texture2DAsset : AssetBase<Texture2D>, ITypeRegistry
 
     public GraphicsDevice? GraphicsDevice { get; set; }
 
-    #region Properties
 
     public readonly static IProperty TextureTypeProperty =
         new StoredProperty<Texture2DAsset, Texture2DAssetType>(
@@ -377,32 +376,4 @@ public class Texture2DAsset : AssetBase<Texture2D>, ITypeRegistry
         set => SetValue(UseMipmapsProperty, value);
     }
 
-    #endregion
-
-    //#region Transformations
-
-    //public Vector2 GetSize()
-    //{
-    //    if (Asset == null)
-    //        return Vector2.Zero;
-
-    //    return new Vector2(Asset.Width, Asset.Height);
-    //}
-
-    ///// <summary>
-    ///// Transformationsmatrix: Translation, Rotation, Scale und Pivot
-    ///// </summary>
-    //public Matrix GetTransformMatrix()
-    //{
-    //    var size = GetSize();
-    //    var pivotOffset = Pivot * size;
-
-    //    return
-    //        Matrix.CreateTranslation(new Vector3(-pivotOffset, 0f)) *
-    //        Matrix.CreateScale(new Vector3(Scale, 1f)) *
-    //        Matrix.CreateRotationZ(Rotation) *
-    //        Matrix.CreateTranslation(new Vector3(Translation, 0f));
-    //}
-
-    //#endregion
 }

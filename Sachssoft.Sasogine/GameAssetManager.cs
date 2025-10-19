@@ -26,16 +26,16 @@ public enum AssetSourceType
 }
 public class GameAssetManager
 {
-    private IMyGameApp _app;
+    private IGameApplication _app;
     private Dictionary<string, AssetEntry<Texture2D>> _textures = new();
     private Dictionary<string, AssetEntry<Model>> _models = new();
     private Dictionary<string, AssetEntry<Effect>> _shaders = new();
     private Dictionary<string, AssetEntry<FontSystem>> _fontSystems = new();
     private Dictionary<string, AssetEntry<Stream>> _data = new();
 
-    public GameAssetManager(IMyGameApp app) => _app = app;
+    public GameAssetManager(IGameApplication app) => _app = app;
 
-    public IMyGameApp App => _app;
+    public IGameApplication App => _app;
 
     public string? ExternalFileDirectory { get; set; }
 

@@ -1,4 +1,4 @@
-﻿using Sachssoft.Observables;
+﻿using Sachssoft.Inspection;
 using Sachssoft.Sasogine.Assets;
 using System;
 using System.Collections;

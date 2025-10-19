@@ -1,2 +1,2 @@
-﻿using var game = new Sachssoft.Sasogine.Example.Surface.Game1();
+﻿using var game = new Sachssoft.Sasogine.Example.SurfaceExampleApp();
 game.Run();

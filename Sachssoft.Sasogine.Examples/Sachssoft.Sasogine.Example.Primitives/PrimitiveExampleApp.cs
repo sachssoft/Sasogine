@@ -6,6 +6,7 @@ using Sachssoft.Sasogine.Geometry;
 using Sachssoft.Sasogine.Graphics;
 using Sachssoft.Sasogine.Graphics.Primitives;
 using Sachssoft.Sasogine.Interactions;
+using System.Diagnostics;
 
 namespace Sachssoft.Sasogine.Example.Primitives
 {

@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sachssoft.Sasogine.Example.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sachssoft.Sasogine.Example.TypeManager", "Sachssoft.Sasogine.Examples\Sachssoft.Sasogine.Example.TypeManager\Sachssoft.Sasogine.Example.TypeManager.csproj", "{416B5FC4-215F-4D05-9235-6FA19E12625E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sachssoft.Sasogine.Surface", "..\Sasogine.Surface\Sachssoft.Sasogine.Surface\Sachssoft.Sasogine.Surface.csproj", "{3588EDD1-BB8F-0514-D340-F770A3529F42}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +97,10 @@ Global
 		{416B5FC4-215F-4D05-9235-6FA19E12625E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{416B5FC4-215F-4D05-9235-6FA19E12625E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{416B5FC4-215F-4D05-9235-6FA19E12625E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3588EDD1-BB8F-0514-D340-F770A3529F42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3588EDD1-BB8F-0514-D340-F770A3529F42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3588EDD1-BB8F-0514-D340-F770A3529F42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3588EDD1-BB8F-0514-D340-F770A3529F42}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

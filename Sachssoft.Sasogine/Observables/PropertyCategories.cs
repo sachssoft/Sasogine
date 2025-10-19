@@ -1,4 +1,4 @@
-﻿using Sachssoft.Observables;
+﻿using Sachssoft.Inspection;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Observables

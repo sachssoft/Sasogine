@@ -36,12 +36,12 @@ namespace Sachssoft.Sasogine.Surface
         /// <summary>
         /// The currently running instance of the game application.
         /// </summary>
-        public IMyGameApp CurrentApp => IMyGameApp.Current ?? throw new InvalidOperationException("CurrentApp is null.");
+        public IGameApplication CurrentApp => IGameApplication.Current ?? throw new InvalidOperationException("CurrentApp is null.");
 
         /// <summary>
         /// The <see cref="GraphicsDevice"/> of the current game application.
         /// </summary>
-        public GraphicsDevice GraphicsDevice => IMyGameApp.Current?.GraphicsDevice
+        public GraphicsDevice GraphicsDevice => IGameApplication.Current?.GraphicsDevice
             ?? throw new InvalidOperationException("GraphicsDevice is null.");
 
         /// <summary>

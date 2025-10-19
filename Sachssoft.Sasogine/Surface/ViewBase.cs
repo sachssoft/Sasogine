@@ -103,7 +103,7 @@ public abstract class ViewBase /*Panel,*/
 
     protected virtual void OnLeft()
     {
-        IMyGameApp.Current.View.Close(this);
+        IGameApplication.Current.View.Close(this);
     }
 
     internal protected virtual void OnActivated() { }

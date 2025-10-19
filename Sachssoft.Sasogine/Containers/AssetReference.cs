@@ -1,4 +1,4 @@
-﻿using Sachssoft.Observables;
+﻿using Sachssoft.Inspection;
 
 namespace Sachssoft.Sasogine.Containers
 {

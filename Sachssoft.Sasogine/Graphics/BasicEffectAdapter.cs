@@ -14,7 +14,7 @@ namespace Sachssoft.Sasogine.Graphics
         /// Initializes a new instance of <see cref="BasicEffectAdapter"/> using the current graphics device.
         /// </summary>
         public BasicEffectAdapter()
-            : this(IMyGameApp.Current.GraphicsDevice)
+            : this(IGameApplication.Current.GraphicsDevice)
         {
         }
 

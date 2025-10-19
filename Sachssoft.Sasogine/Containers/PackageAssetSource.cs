@@ -1,4 +1,4 @@
-﻿using Sachssoft.Observables;
+﻿using Sachssoft.Inspection;
 using Sachssoft.Sasogine.Assets;
 using System;
 using System.IO;
@@ -52,7 +52,7 @@ namespace Sachssoft.Sasogine.Containers
             get => _asset;
             internal set
             {
-                if (_asset != null)
+                if (_asset != value)
                 {
                     _asset = value;
                     AssetChanged?.Invoke(this, EventArgs.Empty);
