@@ -1,6 +1,4 @@
-﻿using Sachssoft.Sasogine.Surface;
-
-namespace Sachssoft.Sasogine
+﻿namespace Sachssoft.Sasogine
 {
     public interface IComponent
     {

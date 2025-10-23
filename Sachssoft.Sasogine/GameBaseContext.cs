@@ -1,9 +1,10 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine.Presentation;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Surface
+namespace Sachssoft.Sasogine
 {
     /// <summary>
     /// Base class for the game context associated with a View.
@@ -27,7 +28,7 @@ namespace Sachssoft.Sasogine.Surface
         /// </summary>
         /// <param name="view">The View to associate with this context, from which the Runtime is copied.</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="view"/> is null.</exception>
-        public GameBaseContext(ViewBase? view)
+        public GameBaseContext(SceneBase? view)
         {
             View = view; // ?? throw new ArgumentNullException(nameof(view));
             Runtime = View?.Runtime;
@@ -48,7 +49,7 @@ namespace Sachssoft.Sasogine.Surface
         /// The View associated with this context.
         /// </summary>
         [AllowNull]
-        public ViewBase View { get; }
+        public SceneBase View { get; }
 
         /// <summary>
         /// The Runtime associated with the View.

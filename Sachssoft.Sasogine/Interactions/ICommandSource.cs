@@ -1,4 +1,4 @@
-﻿using Sachssoft.Sasogine.Surface;
+﻿using Sachssoft.Sasogine.Presentation;
 
 namespace Sachssoft.Sasogine.Interactions;
 
@@ -8,5 +8,5 @@ public interface ICommandSource
 
     object? CommandParameter { get; set; }
 
-    ViewBase? ViewOwner { get; set; }
+    SceneBase? ViewOwner { get; set; }
 }

@@ -6,13 +6,11 @@
 
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Sachssoft.Sasogine.Graphics;
-using Sachssoft.Sasogine.Surface;
 using Microsoft.Xna.Framework;
-using System.ComponentModel.Design;
+using Sachssoft.Sasogine.Presentation;
 
 namespace Sachssoft.Sasogine;
 
@@ -28,7 +26,7 @@ public interface IGameApplication
 
     ContentManager Content { get; }
 
-    ViewManager View { get; }
+    SceneManager View { get; }
 
     IEnumerable<Region> Regions { get; }
 

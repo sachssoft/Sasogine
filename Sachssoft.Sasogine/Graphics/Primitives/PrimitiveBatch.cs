@@ -6,6 +6,8 @@ using Sachssoft.Sasogine.Graphics.Primitives;
 using System;
 using System.Collections.Generic;
 
+namespace Sachssoft.Sasogine.Graphics.Primitives;
+
 public sealed class PrimitiveBatch : IDisposable
 {
     private readonly List<PrimitiveBase> _primitives = new();

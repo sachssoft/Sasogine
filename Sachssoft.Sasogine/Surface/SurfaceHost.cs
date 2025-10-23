@@ -1,19 +1,34 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 
-namespace Sachssoft.Sasogine.Surface;
+namespace Sachssoft.Sasogine.Presentation;
 
-public abstract class SurfaceHost : IDisposable
+public interface IHost : IDisposable
 {
-    public virtual void Initialize(Game game) { }
+    void Initialize(Game game) { }
 
-    public virtual ViewBase? View { get; internal protected set; }
+    SceneBase? Scene { get; set; }
 
-    public virtual ISurfaceElement? Root { get; set; }
+    IHostElement? RootElement { get; set; }
 
-    public Game Game { get; internal set; }
+    Game Game { get; }
 
-    public abstract void Render(GameFrameContext context);
-
-    public abstract void Dispose();
+    void Render(GameFrameContext context);
 }
+
+
+//public abstract class Host : IDisposable
+//{
+//    public virtual void Initialize(Game game) { }
+
+//    public virtual SceneBase? Scene { get; internal protected set; }
+
+//    public virtual IHostElement? RootElement { get; set; }
+
+//    [AllowNull]
+//    public Game Game { get; internal set; }
+
+//    public abstract void Render(GameFrameContext context);
+
+//    public abstract void Dispose();
+//}

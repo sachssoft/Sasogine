@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Surface;
+﻿namespace Sachssoft.Sasogine.Gameplay;
 
 public enum CountdownStyle
 {

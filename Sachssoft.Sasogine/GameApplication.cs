@@ -13,22 +13,19 @@ using System.Reflection;
 using Sachssoft.Sasogine.Graphics;
 using System.Globalization;
 using Sachssoft.Sasogine.Features;
-using Sachssoft.Sasogine.Surface;
-using Sachssoft.Sasogine.Elements;
-using Sachssoft.Sasogine.Services;
-using Sachssoft.Sasogine.Resources;
 using Sachssoft.Inspection;
-using System.Net.Http.Headers;
+using Sachssoft.Sasogine.Presentation;
 
 namespace Sachssoft.Sasogine;
 
 public abstract class GameApplication : Game, IGameApplication
 {
     private GraphicsDeviceManager _graphics_device_manager;
-    private ViewManager _view_manager;
+    private SceneManager _view_manager;
     private List<Region> _regions;
 
-    private SurfaceHost? _surfaceHost;
+    //private SurfaceHost? _surfaceHost;
+    private IHost? _presentsationHost;
     private int _selected_region_index;
     protected GameAssetManager _assets;
     protected private PlatformProfiles _platform_profile;
@@ -39,7 +36,7 @@ public abstract class GameApplication : Game, IGameApplication
     private class ViewItem
     {
         public Type Type;
-        public ViewBase? Instance;
+        public SceneBase? Instance;
     }
 
     static GameApplication()
@@ -100,7 +97,7 @@ public abstract class GameApplication : Game, IGameApplication
         base.Initialize();
 
         if (Window != null)
-            Window.ClientSizeChanged += (s, e) => SurfaceHost?.View?.OnClientSizeChanged();
+            Window.ClientSizeChanged += (s, e) => PresensationHost?.Scene?.OnClientSizeChanged();
 
         //// Load supported languages and set the default language.
         //List<CultureInfo> cultures = LocalizationManager.GetSupportedCultures();
@@ -135,9 +132,9 @@ public abstract class GameApplication : Game, IGameApplication
         get => (GameApplication)IGameApplication.Current;
     }
 
-    public SurfaceHost? SurfaceHost
+    public IHost? PresensationHost
     {
-        get => _surfaceHost;
+        get => _presentsationHost;
     }
 
     protected virtual GameAssetManager? AssetsOverride() => null;
@@ -162,14 +159,14 @@ public abstract class GameApplication : Game, IGameApplication
 
         // ## UI
         //UIEnvironment.Game = this;
-        _surfaceHost = CreateSurfaceHost();
+        _presentsationHost = CreatePresensationHost();
 
-        if (_surfaceHost != null)
+        if (_presentsationHost != null)
         {
-            _surfaceHost.Game = this;
-            _surfaceHost.Initialize(this);
+            //_surfaceHost.Game = this;
+            _presentsationHost.Initialize(this);
 
-            _view_manager = new ViewManager(_surfaceHost);
+            _view_manager = new SceneManager(_presentsationHost);
             InitializeViews(_view_manager);
         }
 
@@ -177,12 +174,12 @@ public abstract class GameApplication : Game, IGameApplication
         _view_manager?.Load();
     }
 
-    protected virtual SurfaceHost? CreateSurfaceHost()
+    protected virtual IHost? CreatePresensationHost()
     {
         return null;
     }
 
-    protected virtual void InitializeViews(ViewManager view)
+    protected virtual void InitializeViews(SceneManager view)
     {
     }
 
@@ -247,12 +244,12 @@ public abstract class GameApplication : Game, IGameApplication
 
     protected override void OnExiting(object sender, ExitingEventArgs args)
     {
-        if (_surfaceHost != null)
+        if (_presentsationHost != null)
         {
-            var view = _surfaceHost.View;
+            var view = _presentsationHost.Scene;
             view?.OnUnload();
 
-            _surfaceHost.Dispose(); //UIEnvironment.Game.Exit();
+            _presentsationHost.Dispose(); //UIEnvironment.Game.Exit();
         }
 
         foreach (var setting in _settings.Values)
@@ -321,7 +318,7 @@ public abstract class GameApplication : Game, IGameApplication
 
     public IEnumerable<Region> Regions => _regions.AsEnumerable();
 
-    public ViewManager View => _view_manager;
+    public SceneManager View => _view_manager;
 
     // Bezeichnung von einem Typ
     public string? GetCaption(Type type, string? default_value = null)

@@ -2,9 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Diagnostics;
 using Sachssoft.Sasogine.Graphics;
-using Sachssoft.Sasogine.Surface;
 using System;
-using System.Numerics;
 
 namespace Sachssoft.Sasogine;
 
@@ -102,7 +100,7 @@ public abstract class RuntimeBase : IDisposable
     /// <summary>
     /// Gets the game or editor context. Throws if Load() has not been called.
     /// </summary>
-    protected GameBaseContext ViewContext => _viewContext ?? throw new InvalidOperationException("No View Context");
+    protected GameBaseContext ViewContext => _viewContext ?? throw new InvalidOperationException("No Scene Context");
 
     /// <summary>
     /// Indicates whether the mouse is currently hovering over a UI surface.

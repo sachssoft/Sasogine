@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Surface
+﻿namespace Sachssoft.Sasogine.Gameplay
 {
     /// <summary>
     /// Defines formatting styles for compact number display,

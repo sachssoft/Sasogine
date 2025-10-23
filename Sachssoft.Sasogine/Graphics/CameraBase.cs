@@ -45,7 +45,7 @@ public abstract class CameraBase : ICameraTransform
     Matrix ICameraTransform.View
     {
         get => View;
-        set => throw new InvalidOperationException("Cannot set View directly. Use camera methods to update it.");
+        set => throw new InvalidOperationException("Cannot set Scene directly. Use camera methods to update it.");
     }
 
     Matrix ICameraTransform.World

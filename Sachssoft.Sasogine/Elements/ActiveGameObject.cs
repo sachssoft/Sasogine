@@ -1,5 +1,4 @@
 ﻿using Sachssoft.Inspection;
-using Sachssoft.Sasogine.Surface;
 
 namespace Sachssoft.Sasogine.Elements
 {

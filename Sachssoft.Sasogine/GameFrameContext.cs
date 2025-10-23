@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Diagnostics;
-using Sachssoft.Sasogine.Surface;
+using Sachssoft.Sasogine.Presentation;
 using System;
 
 namespace Sachssoft.Sasogine
@@ -29,7 +29,7 @@ namespace Sachssoft.Sasogine
         /// <param name="view">The View associated with this frame.</param>
         /// <param name="time">The GameTime for this frame.</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="view"/> or <paramref name="time"/> is null.</exception>
-        public GameFrameContext(ViewBase? view, GameTime time)
+        public GameFrameContext(SceneBase? view, GameTime time)
             : base(view)
         {
             GameTime = time ?? throw new ArgumentNullException(nameof(time));

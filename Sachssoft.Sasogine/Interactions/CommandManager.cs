@@ -1,4 +1,4 @@
-﻿using Sachssoft.Sasogine.Surface;
+﻿using Sachssoft.Sasogine.Presentation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -48,7 +48,7 @@ public class CommandManager
         return false;
     }
 
-    public void Execute(ViewBase view, string key, params object[] args)
+    public void Execute(SceneBase view, string key, params object[] args)
     {
         if (_commands.TryGetValue(key, out var command) && command.CanExecute(view, args))
         {

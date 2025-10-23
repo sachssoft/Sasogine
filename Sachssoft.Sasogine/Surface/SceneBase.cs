@@ -12,33 +12,45 @@ using Sachssoft.Sasogine.Diagnostics;
 using Sachssoft.Sasogine.Features;
 using Sachssoft.Sasogine.Services;
 
-namespace Sachssoft.Sasogine.Surface;
+namespace Sachssoft.Sasogine.Presentation;
 
-public abstract class ViewBase /*Panel,*/
+public abstract class SceneBase /*Panel,*/
 {
     private FrameCounter _frame_counter;
     private TimeSpan _elapsed_game_time;
     private bool _init;
-    internal ISurfaceElement _container = null;
+    internal IHostElement _container = null;
     //internal Widget? ContainerCache = null;
     private bool _is_active;
-    private readonly ViewSwitchMode _view_switch_mode;
+    private readonly SceneSwitchMode _view_switch_mode;
 
-    public ViewBase(ViewSwitchMode view_switch_mode = ViewSwitchMode.Restart)
+    public SceneBase(/*SceneSwitchMode view_switch_mode = SceneSwitchMode.Reload*/)
     {
         _frame_counter = new();
-        _view_switch_mode = view_switch_mode;
+        //_view_switch_mode = view_switch_mode;
 
         OnInitialize();
         _container = CreateContainer();
     }
 
-    public ISurfaceElement Container { get => _container; }
+    public IHostElement Container { get => _container; }
 
-    protected virtual ISurfaceElement CreateContainer() => throw new NotImplementedException();
+    protected virtual IHostElement CreateContainer() => throw new NotImplementedException();
+
+    //[MaybeNull]
+    //public Host Host
+    //{
+    //    get
+    //    {
+    //        if (Container == null)
+    //            throw new InvalidOperationException("No surface host");
+
+    //        return Container.Host;
+    //    }
+    //}
 
     [MaybeNull]
-    public SurfaceHost Host
+    public IHost Host
     {
         get
         {
@@ -61,11 +73,11 @@ public abstract class ViewBase /*Panel,*/
         set;
     }
 
-    public ViewSwitchMode ViewSwitchMode
-    {
-        get => _view_switch_mode;
-        init => _view_switch_mode = value;
-    }
+    //public ViewSwitchMode ViewSwitchMode
+    //{
+    //    get => _view_switch_mode;
+    //    init => _view_switch_mode = value;
+    //}
 
     public bool IsActive
     {
@@ -117,7 +129,7 @@ public abstract class ViewBase /*Panel,*/
 
     // Später Umstellung
 
-    public virtual ISurfaceElement? Build() => null;
+    public virtual IHostElement? Build() => null;
 
     internal protected virtual void OnOpening()
     {

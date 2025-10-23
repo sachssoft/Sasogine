@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace Sachssoft.Sasogine.Surface;
+namespace Sachssoft.Sasogine.Gameplay;
 
 public static class DisplayExtensions
 {
@@ -11,7 +11,7 @@ public static class DisplayExtensions
     {
         int totalDays = countdown.Days;
         int years = totalDays / 365;
-        int weeks = (totalDays % 365) / 7;
+        int weeks = totalDays % 365 / 7;
         int days = totalDays % 7;
 
         int hours = countdown.Hours;

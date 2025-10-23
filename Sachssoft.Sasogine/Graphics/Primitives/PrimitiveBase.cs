@@ -6,6 +6,8 @@ using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
 using System.Collections.Generic;
 
+namespace Sachssoft.Sasogine.Graphics;
+
 public abstract class PrimitiveBase
 {
     // Fields

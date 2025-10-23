@@ -1,10 +1,10 @@
-﻿using Sachssoft.Sasogine.Surface;
+﻿using Sachssoft.Sasogine.Presentation;
 using System;
 
 namespace Sachssoft.Sasogine.Interactions;
 
 public class ActionCommand<TView> : ICommand
-    where TView : ViewBase
+    where TView : SceneBase
 {
     private readonly Action<TView, object[]> _execute;
     private readonly Func<TView, object[], bool>? _can_execute;
@@ -29,9 +29,9 @@ public class ActionCommand<TView> : ICommand
     public void RaiseCanExecuteChanged()
         => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
 
-    bool ICommand.CanExecute(ViewBase view, params object[] args)
+    bool ICommand.CanExecute(SceneBase view, params object[] args)
         => CanExecute((TView)view, args);
 
-    void ICommand.Execute(ViewBase view, params object[] args)
+    void ICommand.Execute(SceneBase view, params object[] args)
         => Execute((TView)view, args);
 }

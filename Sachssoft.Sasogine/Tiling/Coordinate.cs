@@ -3,6 +3,8 @@
 using System;
 using Microsoft.Xna.Framework;
 
+namespace Sachssoft.Sasogine.Tiling;
+
 /// <summary>
 /// Stellt eine unveränderliche 2D-Koordinate mit ganzzahligen X- und Y-Werten dar,
 /// die speziell für Tile-basierte Spiele oder Raster verwendet wird.
