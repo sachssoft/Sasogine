@@ -20,11 +20,10 @@ public abstract class SceneBase /*Panel,*/
     private TimeSpan _elapsed_game_time;
     private bool _init;
     internal IHostElement _container = null;
-    //internal Widget? ContainerCache = null;
     private bool _is_active;
     private readonly SceneSwitchMode _view_switch_mode;
 
-    public SceneBase(/*SceneSwitchMode view_switch_mode = SceneSwitchMode.Reload*/)
+    public SceneBase()
     {
         _frame_counter = new();
         //_view_switch_mode = view_switch_mode;
@@ -35,19 +34,13 @@ public abstract class SceneBase /*Panel,*/
 
     public IHostElement Container { get => _container; }
 
+    public GameApplication Application
+    {
+        get;
+        internal set;
+    }
+
     protected virtual IHostElement CreateContainer() => throw new NotImplementedException();
-
-    //[MaybeNull]
-    //public Host Host
-    //{
-    //    get
-    //    {
-    //        if (Container == null)
-    //            throw new InvalidOperationException("No surface host");
-
-    //        return Container.Host;
-    //    }
-    //}
 
     [MaybeNull]
     public IHost Host

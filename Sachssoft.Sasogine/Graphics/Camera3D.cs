@@ -129,6 +129,31 @@ namespace Sachssoft.Sasogine.Graphics
 
         #region Update
 
+        protected override Matrix ProjectionOverride()
+        {
+            return _is3D ? Matrix.CreatePerspectiveFieldOfView(
+                                     _fov,
+                                     GraphicsDevice.Viewport.AspectRatio,
+                                     _nearPlane,
+                                     _farPlane)
+                               : Matrix.CreateOrthographic(
+                                     GraphicsDevice.Viewport.Width * _zoom,
+                                     GraphicsDevice.Viewport.Height * _zoom,
+                                     _plane_minimum,
+                                     _plane_maximum);
+        }
+
+        protected override Matrix ViewOverride()
+        {
+            return _is3D ? Matrix.CreateLookAt(_position, _target, _up)
+                         : Matrix.CreateTranslation(-_origin.X, -_origin.Y, 0f);
+        }
+
+        protected override Matrix WorldOverride()
+        {
+            return Matrix.Identity;
+        }
+
         public override void Update(GameFrameContext context)
         {
             float dt = (float)context.GameTime.ElapsedGameTime.TotalSeconds;
@@ -146,22 +171,24 @@ namespace Sachssoft.Sasogine.Graphics
                     _move_animating = false;
             }
 
-            // Projection & View
-            Projection = _is3D ? Matrix.CreatePerspectiveFieldOfView(
-                                     _fov,
-                                     GraphicsDevice.Viewport.AspectRatio,
-                                     _nearPlane,
-                                     _farPlane)
-                               : Matrix.CreateOrthographic(
-                                     GraphicsDevice.Viewport.Width * _zoom,
-                                     GraphicsDevice.Viewport.Height * _zoom,
-                                     _plane_minimum,
-                                     _plane_maximum);
+            //// Projection & View
+            //Projection = _is3D ? Matrix.CreatePerspectiveFieldOfView(
+            //                         _fov,
+            //                         GraphicsDevice.Viewport.AspectRatio,
+            //                         _nearPlane,
+            //                         _farPlane)
+            //                   : Matrix.CreateOrthographic(
+            //                         GraphicsDevice.Viewport.Width * _zoom,
+            //                         GraphicsDevice.Viewport.Height * _zoom,
+            //                         _plane_minimum,
+            //                         _plane_maximum);
 
-            View = _is3D ? Matrix.CreateLookAt(_position, _target, _up)
-                         : Matrix.CreateTranslation(-_origin.X, -_origin.Y, 0f);
+            //View = _is3D ? Matrix.CreateLookAt(_position, _target, _up)
+            //             : Matrix.CreateTranslation(-_origin.X, -_origin.Y, 0f);
 
-            World = Matrix.Identity;
+            //World = Matrix.Identity;
+
+            base.Update(context);
         }
 
         #endregion

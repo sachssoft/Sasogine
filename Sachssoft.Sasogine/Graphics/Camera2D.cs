@@ -199,7 +199,7 @@ public class Camera2D : CameraBase
         return factor;
     }
 
-    protected virtual Matrix ProjectionOverride()
+    protected override Matrix ProjectionOverride()
     {
         var factor = GetEffectiveZoomFactor();
 
@@ -209,12 +209,12 @@ public class Camera2D : CameraBase
         return Matrix.CreateOrthographic(width * factor, height * factor, _plane_minimum, _plane_maximum);
     }
 
-    protected virtual Matrix ViewOverride()
+    protected override Matrix ViewOverride()
     {
         return Matrix.Identity;
     }
 
-    protected virtual Matrix WorldOverride()
+    protected override Matrix WorldOverride()
     {
         return Matrix.Identity;
     }
@@ -258,9 +258,10 @@ public class Camera2D : CameraBase
             }
         }
 
-        Projection = ProjectionOverride();
-        View = ViewOverride();
-        World = WorldOverride();
+        //Projection = ProjectionOverride();
+        //View = ViewOverride();
+        //World = WorldOverride();
+        base.Update(context);
     }
 
     /// <summary>

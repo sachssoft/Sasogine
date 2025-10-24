@@ -115,7 +115,6 @@ namespace Sachssoft.Sasogine.Containers
             }
         }
 
-
         protected virtual void OnLevelOpen(PackageLevelBase level)
         {
         }

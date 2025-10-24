@@ -29,5 +29,13 @@ namespace Sachssoft.Sasogine.Interactions
                 timeout
             );
         }
+
+        public static void Bind<TInteractionEnum>(this MouseInteractionManager manager, MouseButton button, Interaction<TInteractionEnum> interaction, TInteractionEnum value) where TInteractionEnum : unmanaged, Enum
+        {
+            manager.Add(button,
+                () => interaction.Press(value),
+                () => interaction.Release(value)
+            );
+        }
     }
 }
