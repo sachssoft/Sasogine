@@ -5,16 +5,13 @@
 */
 
 using System;
-using System.ComponentModel.Design;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Diagnostics;
-using Sachssoft.Sasogine.Features;
-using Sachssoft.Sasogine.Services;
 
 namespace Sachssoft.Sasogine.Presentation;
 
-public abstract class SceneBase /*Panel,*/
+public abstract class SceneBase : IDisposeManagerProvider
 {
     private FrameCounter _frame_counter;
     private TimeSpan _elapsed_game_time;
@@ -33,6 +30,8 @@ public abstract class SceneBase /*Panel,*/
     }
 
     public IHostElement Container { get => _container; }
+
+    public DisposeManager DisposeManager { get; } = new DisposeManager();
 
     public GameApplication Application
     {
@@ -152,6 +151,7 @@ public abstract class SceneBase /*Panel,*/
     internal protected virtual void OnUnload()
     {
         Runtime?.Unload();
+        DisposeManager.Dispose();
     }
 
     internal protected virtual void OnClientSizeChanged()

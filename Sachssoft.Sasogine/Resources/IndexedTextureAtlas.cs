@@ -26,7 +26,7 @@ namespace Sachssoft.Sasogine.Resources
         /// <exception cref="InvalidOperationException">Thrown if the frameName is not found in the base <see cref="TextureAtlas"/>.</exception>
         public void AddFrame(TEnum key, string frameName)
         {
-            if (Frames.TryGetValue(frameName, out var frame))
+            if (base.Frames.TryGetValue(frameName, out var frame))
             {
                 _enumFrames[key] = frame;
                 return;
@@ -42,6 +42,8 @@ namespace Sachssoft.Sasogine.Resources
         /// <returns>The <see cref="TextureAtlasFrame"/> associated with the specified key.</returns>
         /// <exception cref="KeyNotFoundException">Thrown if the key does not exist in the atlas.</exception>
         public TextureAtlasFrame this[TEnum key] => _enumFrames[key];
+
+        public IReadOnlyDictionary<TEnum, TextureAtlasFrame> EnumFrames => _enumFrames;
 
         /// <summary>
         /// Crops a texture from the atlas using the frame associated with the specified enum key.
