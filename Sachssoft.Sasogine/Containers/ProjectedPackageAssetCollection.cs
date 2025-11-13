@@ -51,7 +51,7 @@ namespace Sachssoft.Sasogine.Containers
         public void AddFromFile(string sourceFilePath, string filePath, AssetCategory category = AssetCategory.Other)
         {
             if (!File.Exists(sourceFilePath))
-                throw new FileNotFoundException("Source file does not exist.", sourceFilePath);
+                throw new FileNotFoundException("EntrySource file does not exist.", sourceFilePath);
 
             using var fs = File.OpenRead(sourceFilePath);
             Add(fs, filePath, category);

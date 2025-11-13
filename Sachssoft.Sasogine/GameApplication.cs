@@ -15,6 +15,7 @@ using System.Globalization;
 using Sachssoft.Sasogine.Features;
 using Sachssoft.Inspection;
 using Sachssoft.Sasogine.Presentation;
+using Sachssoft.Sasogine.Localization;
 
 namespace Sachssoft.Sasogine;
 
@@ -32,6 +33,7 @@ public abstract class GameApplication : Game, IGameApplication
     private readonly Dictionary<Type, GameSettings> _settings = new Dictionary<Type, GameSettings>();
 
     public static GameDispatcher Dispatcher = new GameDispatcher();
+    private LocalizationManager _localization = new LocalizationManager();
 
     private class ViewItem
     {
@@ -68,6 +70,11 @@ public abstract class GameApplication : Game, IGameApplication
 
     public CultureInfo Culture { get; set; } = CultureInfo.InvariantCulture;
 
+    public LocalizationManager Localization
+    {
+        get => _localization;
+    }
+
     public static string CurrentDirectory => AppContext.BaseDirectory;
 
     /// <summary>
@@ -99,18 +106,8 @@ public abstract class GameApplication : Game, IGameApplication
         if (Window != null)
             Window.ClientSizeChanged += (s, e) => PresensationHost?.Scene?.OnClientSizeChanged();
 
-        //// Load supported languages and set the default language.
-        //List<CultureInfo> cultures = LocalizationManager.GetSupportedCultures();
-        //var languages = new List<CultureInfo>();
-        //for (int i = 0; i < cultures.Count; i++)
-        //{
-        //    languages.Add(cultures[i]);
-        //}
-
-        //// TODO You should load this from a settings file or similar,
-        //// based on what the user or operating system selected.
-        //var selectedLanguage = LocalizationManager.DEFAULT_CULTURE_CODE;
-        //LocalizationManager.SetCulture(selectedLanguage);
+        // Schließen
+        _localization.Close();
     }
 
     protected virtual GraphicsDeviceManager ConfigureGraphicsDevice()

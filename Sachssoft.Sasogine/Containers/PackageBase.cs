@@ -230,14 +230,14 @@ namespace Sachssoft.Sasogine.Containers
                 throw new ArgumentException("Target path cannot be empty.", nameof(newFilePath));
 
             if (!IsFileExists(oldFilePath))
-                throw new PackageException($"Source file '{oldFilePath}' does not exist in the package.");
+                throw new PackageException($"EntrySource file '{oldFilePath}' does not exist in the package.");
 
             if (IsFileExists(newFilePath))
                 throw new PackageException($"Target file '{newFilePath}' already exists in the package.");
 
             var oldEntry = _source.GetEntry(oldFilePath);
             if (oldEntry == null)
-                throw new PackageException($"Source entry '{oldFilePath}' not found in the ZIP archive.");
+                throw new PackageException($"EntrySource entry '{oldFilePath}' not found in the ZIP archive.");
 
             try
             {
