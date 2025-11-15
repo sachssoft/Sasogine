@@ -1,12 +1,13 @@
 ﻿
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using Sachssoft.Sasogine.Graphics;
-using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Localization;
 using Sachssoft.Sasogine.Presentation;
 using Sachssoft.Sasogine.Resources;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Sachssoft.Sasogine;
 
@@ -24,11 +25,9 @@ public interface IGameApplication
 
     SceneManager View { get; }
 
-    IEnumerable<Region> Regions { get; }
-
-    Region CurrentRegion { get; }
-
     PlatformProfiles PlatformProfile { get; }
+
+    LocalizationManager Localization {  get; }
 
     GameResourceManager Resources { get; }
 

@@ -19,11 +19,9 @@ public abstract class GameApplication : Game, IGameApplication
 {
     private GraphicsDeviceManager _graphicsDeviceManager;
     private SceneManager _viewManager;
-    private List<Region> _regions;
 
     //private SurfaceHost? _surfaceHost;
     private IHost? _presentsationHost;
-    private int _selected_region_index;
     protected private GameResourceManager _resourceManager;
     protected private PlatformProfiles _platform_profile;
     private readonly Dictionary<Type, GameSettings> _settings = new Dictionary<Type, GameSettings>();
@@ -50,8 +48,6 @@ public abstract class GameApplication : Game, IGameApplication
             throw new GameException("Game already was started");
         }
 
-        _regions = new List<Region>();
-
         _graphicsDeviceManager = ConfigureGraphicsDevice();
         // Share GraphicsDeviceManager as a service.
         Services.AddService(typeof(GraphicsDeviceManager), _graphicsDeviceManager);
@@ -63,8 +59,6 @@ public abstract class GameApplication : Game, IGameApplication
 
         IGameApplication.Current = this;
     }
-
-    public CultureInfo Culture { get; set; } = CultureInfo.InvariantCulture;
 
     public LocalizationManager Localization
     {
@@ -95,7 +89,7 @@ public abstract class GameApplication : Game, IGameApplication
     /// </summary>
     public static bool IsDebugMode { get; set; } = true;
 
-    protected override void Initialize()
+    protected override sealed void Initialize()
     {
         _localization = new LocalizationManager(this);
 
@@ -295,27 +289,9 @@ public abstract class GameApplication : Game, IGameApplication
         _graphicsDeviceManager.ApplyChanges();
     }
 
-    public void SelectRegion(int index)
-    {
-        _selected_region_index = index;
-    }
-
-    // Regionabhängige Assets
-    protected void AddRegion(Region region)
-    {
-        if (_regions.Where(r => region.Name == region.Name || region.Prefix == region.Prefix).Count() > 1)
-            throw new GameException("Region already exists");
-
-        _regions.Add(region);
-    }
-
-    public Region CurrentRegion => _regions[_selected_region_index];
-
-    public IEnumerable<Region> Regions => _regions.AsEnumerable();
-
     public SceneManager View => _viewManager;
 
-    public Assembly Assembly { get => Assembly.GetEntryAssembly(); }
+    public Assembly Assembly => Assembly.GetEntryAssembly()!;
 
     // Bezeichnung von einem Typ
     public string? GetCaption(Type type, string? default_value = null)

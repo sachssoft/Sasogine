@@ -21,9 +21,4 @@ public abstract class GameApplication<TResourceManager> : GameApplication where 
 
     protected sealed override GameResourceManager? ResourcesOverride() => CreateResources();
 
-    protected override void OnLoad()
-    {
-        base.OnLoad();
-    }
-
 }

@@ -164,12 +164,18 @@ namespace Sachssoft.Sasogine.Localization
             => _entries.TryGetValue(key, out var wrapper) && wrapper.Instance != null && wrapper.Instance.IsLoaded;
 
         public bool TryGetValue<T>(string key, out T? result, T? defaultValue = default)
+           where T : class
+        {
+            return TryGetValue<T>(key, 0, out result, defaultValue);
+        }
+
+        public bool TryGetValue<T>(string key, int quantity, out T? result, T? defaultValue = default)
             where T : class
         {
             if (_entries.ContainsKey(key))
             {
                 var entry = EnsureEntryLoaded(key);
-                if (entry is T t)
+                if (entry.GetValue(quantity) is T t)
                 {
                     result = t;
                     return true;
@@ -183,7 +189,13 @@ namespace Sachssoft.Sasogine.Localization
         public T? GetValue<T>(string key, T? defaultValue = default)
             where T : class
         {
-            if (TryGetValue<T>(key, out var result))
+            return GetValue<T>(key, 0, defaultValue);
+        }
+
+        public T? GetValue<T>(string key, int quantity, T? defaultValue = default)
+            where T : class
+        {
+            if (TryGetValue<T>(key, quantity, out var result))
                 return result;
             return defaultValue;
         }
