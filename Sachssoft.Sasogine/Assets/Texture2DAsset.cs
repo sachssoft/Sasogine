@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Documents;
 using Sachssoft.Inspection;
 using Sachssoft.Sasogine.Graphics;
-using Sachssoft.Sasogine.Resources;
 using System;
 using System.IO;
 

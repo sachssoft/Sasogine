@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Resources.Wrappers;
+using Sachssoft.Sasogine.Containers.Wrappers;
 using System;
 using System.IO;
 

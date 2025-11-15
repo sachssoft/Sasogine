@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 
-namespace Sachssoft.Sasogine.Resources
+namespace Sachssoft.Sasogine.Resources.Loaders
 {
     public class LoaderOptions
     {

@@ -1,34 +1,47 @@
-﻿using System;
+﻿using Sachssoft.Sasogine.Resources.Loaders;
+using System;
 using System.IO;
+using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Resources
+namespace Sachssoft.Sasogine.Resources.Loaders
 {
     /// <summary>
     /// Loads a file from the local file system.
     /// Provides existence checking and optional case-sensitive path validation.
+    /// Supports synchronous and asynchronous access.
     /// </summary>
     public sealed class LocalFileLoader : LoaderBase
     {
-        /// <summary>
-        /// Initializes a new instance of <see cref="LocalFileLoader"/> for the specified file path.
-        /// </summary>
-        /// <param name="filePath">The full path to the file.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="filePath"/> is null or empty.</exception>
-        public LocalFileLoader(string filePath)
-            : base(filePath)
+
+        public LocalFileLoader()
         {
         }
 
-        /// <summary>
-        /// Opens a readable <see cref="Stream"/> to the local file.
-        /// </summary>
-        /// <returns>A readable <see cref="Stream"/> of the file.</returns>
-        /// <exception cref="IOException">Thrown if the file cannot be opened.</exception>
-        protected override Stream StreamOpen()
+        public LocalFileLoader(string? filePath)
         {
+            FilePath = filePath;
+        }
+
+        /// <summary>
+        /// Vollständiger Pfad oder Name der Ressource. Optional.
+        /// </summary>
+        public string? FilePath { get; set; }
+
+        protected override Stream OpenStream()
+        {
+            if (string.IsNullOrWhiteSpace(FilePath))
+                throw new InvalidOperationException("FilePath is not set.");
+
             try
             {
-                return new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                return new FileStream(
+                    FilePath,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.Read,
+                    bufferSize: 4096,
+                    useAsync: false
+                );
             }
             catch (Exception ex)
             {
@@ -36,37 +49,26 @@ namespace Sachssoft.Sasogine.Resources
             }
         }
 
-        /// <summary>
-        /// Checks whether the file exists on the local file system.
-        /// Performs optional case-sensitive validation on case-insensitive platforms.
-        /// </summary>
-        public override bool IsFileExist
+        protected override Task<Stream> OpenStreamAsync()
         {
-            get
+            if (string.IsNullOrWhiteSpace(FilePath))
+                throw new InvalidOperationException("FilePath is not set.");
+
+            try
             {
-                if (!File.Exists(FilePath))
-                    return false;
-
-                // Perform optional case-sensitive check (important for Linux/macOS)
-                var directory = Path.GetDirectoryName(FilePath);
-                if (directory is null)
-                    return false;
-
-                var fileName = Path.GetFileName(FilePath);
-                try
-                {
-                    foreach (var file in Directory.GetFiles(directory))
-                    {
-                        if (string.Equals(fileName, Path.GetFileName(file), StringComparison.Ordinal))
-                            return true;
-                    }
-                }
-                catch
-                {
-                    return false;
-                }
-
-                return false;
+                Stream stream = new FileStream(
+                    FilePath,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.Read,
+                    bufferSize: 4096,
+                    useAsync: true
+                );
+                return Task.FromResult(stream);
+            }
+            catch (Exception ex)
+            {
+                throw new IOException($"Failed to open file asynchronously: {FilePath}", ex);
             }
         }
     }

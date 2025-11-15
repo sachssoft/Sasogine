@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace Sachssoft.Sasogine.Resources.Wrappers
+namespace Sachssoft.Sasogine.Containers.Wrappers
 {
     /// <summary>
     /// Lazily wraps text data, either as a string or as a deferred stream source from a package,

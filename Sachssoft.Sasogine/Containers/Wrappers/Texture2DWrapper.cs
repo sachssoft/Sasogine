@@ -3,7 +3,7 @@ using Sachssoft.Sasogine.Containers;
 using System;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Resources.Wrappers
+namespace Sachssoft.Sasogine.Containers.Wrappers
 {
     /// <summary>
     /// Lazily wraps image data, either as a byte array or as a deferred stream source from a package,

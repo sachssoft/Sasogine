@@ -1,22 +1,25 @@
 ﻿
+
+using Sachssoft.Sasogine.Resources;
+
 namespace Sachssoft.Sasogine;
 
-public abstract class GameApplication<TAssetManager> : GameApplication where TAssetManager : GameAssetManager
+public abstract class GameApplication<TResourceManager> : GameApplication where TResourceManager : GameResourceManager
 {
     public GameApplication(params string[] args) : base(args)
     {
     }
 
-    public static new GameApplication<TAssetManager> Current
+    public static new GameApplication<TResourceManager> Current
     {
-        get => (GameApplication<TAssetManager>)IGameApplication.Current;
+        get => (GameApplication<TResourceManager>)IGameApplication.Current;
     }
 
-    public new TAssetManager Assets => (TAssetManager)_assets;
+    public new TResourceManager Resources => (TResourceManager)_resourceManager;
 
-    protected abstract TAssetManager CreateAssets();
+    protected abstract TResourceManager CreateResources();
 
-    protected sealed override GameAssetManager? AssetsOverride() => CreateAssets();
+    protected sealed override GameResourceManager? ResourcesOverride() => CreateResources();
 
     protected override void OnLoad()
     {

@@ -1,48 +1,47 @@
 ﻿using Sachssoft.Sasogine.Resources;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Sachssoft.Sasogine.Localization
 {
-    /// <summary>
-    /// Represents a localized text entry.
-    /// Implements <see cref="ILocalizedEntryWrapper"/> and stores a string value.
-    /// </summary>
-    public class LocalizedString : ILocalizedEntryWrapper
+    public class LocalizedString : ILocalizedEntry
     {
-        /// <summary>
-        /// The actual localized text value.
-        /// </summary>
-        public string? Value { get; private set; } = null;
+        private string? _singleValue;
+        private IReadOnlyDictionary<LocalizationPluralCase, string?>? _pluralCases;
+        private bool _isLoaded = false;
 
-        /// <summary>
-        /// Initializes a new instance of <see cref="LocalizedString"/>.
-        /// </summary>
-        public LocalizedString() { }
+        public bool IsLoaded => _isLoaded;
 
-        /// <summary>
-        /// Loads the localization entry from a dictionary of attributes.
-        /// Expects an attribute "Value" containing the text.
-        /// </summary>
-        /// <param name="attributes">The attributes dictionary from XML.</param>
-        /// <exception cref="ArgumentNullException">Thrown if attributes is null.</exception>
-        /// <exception cref="KeyNotFoundException">Thrown if "Value" attribute is missing.</exception>
-        public void Load(Dictionary<string, string?> attributes, LoaderBase? loader)
+        public void Load(CultureInfo culture, GameResourceManager resourceManager, LocalizedEntryData data)
         {
-            if (attributes == null) throw new ArgumentNullException(nameof(attributes));
+            data.Attributes.TryGetValue("Value", out _singleValue);
 
-            if (!attributes.TryGetValue("Value", out var value) || value == null)
-                return;
-
-            Value = value;
+            _pluralCases = data.PluralCases;
+            _isLoaded = true;
         }
 
-        /// <summary>
-        /// Implicit conversion to string for convenience.
-        /// </summary>
-        /// <param name="entry">The <see cref="LocalizedString"/> instance.</param>
-        public static implicit operator string?(LocalizedString entry) => entry.Value;
+        public object? GetValue(int count)
+        {
+            if (_pluralCases != null)
+            {
+                // PluralCase auswählen
+                LocalizationPluralCase caseToUse = count switch
+                {
+                    0 when _pluralCases.ContainsKey(LocalizationPluralCase.Zero) => LocalizationPluralCase.Zero,
+                    1 when _pluralCases.ContainsKey(LocalizationPluralCase.One) => LocalizationPluralCase.One,
+                    2 when _pluralCases.ContainsKey(LocalizationPluralCase.Two) => LocalizationPluralCase.Two,
+                    >= 3 and <= 4 when _pluralCases.ContainsKey(LocalizationPluralCase.Few) => LocalizationPluralCase.Few,
+                    >= 5 when _pluralCases.ContainsKey(LocalizationPluralCase.Many) => LocalizationPluralCase.Many,
+                    _ => LocalizationPluralCase.Default
+                };
 
-        object? ILocalizedEntryWrapper.Value => Value;
+                if (_pluralCases.TryGetValue(caseToUse, out var val))
+                    return val;
+            }
+
+            return _singleValue;
+        }
     }
+
 }

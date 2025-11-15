@@ -1,9 +1,4 @@
-﻿/* 
- * © 2024 Tobias Sachs
- * IMyGameApp
- * 08.07.2024 
-*/
-
+﻿
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
@@ -11,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using Sachssoft.Sasogine.Graphics;
 using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Presentation;
+using Sachssoft.Sasogine.Resources;
 
 namespace Sachssoft.Sasogine;
 
@@ -34,7 +30,7 @@ public interface IGameApplication
 
     PlatformProfiles PlatformProfile { get; }
 
-    GameAssetManager Assets { get; }
+    GameResourceManager Resources { get; }
 
     bool IsActive { get; }
 

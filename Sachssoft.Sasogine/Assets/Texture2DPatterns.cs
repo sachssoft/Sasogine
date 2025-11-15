@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Resources;
+﻿namespace Sachssoft.Sasogine.Assets;
 
 public enum Texture2DPattern
 {

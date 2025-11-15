@@ -1,9 +1,4 @@
-﻿/* 
- * © 2024 Tobias Sachs
- * MyGameApp
- * 08.07.2024 
-*/
-
+﻿
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -16,24 +11,25 @@ using Sachssoft.Sasogine.Features;
 using Sachssoft.Inspection;
 using Sachssoft.Sasogine.Presentation;
 using Sachssoft.Sasogine.Localization;
+using Sachssoft.Sasogine.Resources;
 
 namespace Sachssoft.Sasogine;
 
 public abstract class GameApplication : Game, IGameApplication
 {
-    private GraphicsDeviceManager _graphics_device_manager;
-    private SceneManager _view_manager;
+    private GraphicsDeviceManager _graphicsDeviceManager;
+    private SceneManager _viewManager;
     private List<Region> _regions;
 
     //private SurfaceHost? _surfaceHost;
     private IHost? _presentsationHost;
     private int _selected_region_index;
-    protected GameAssetManager _assets;
+    protected private GameResourceManager _resourceManager;
     protected private PlatformProfiles _platform_profile;
     private readonly Dictionary<Type, GameSettings> _settings = new Dictionary<Type, GameSettings>();
 
     public static GameDispatcher Dispatcher = new GameDispatcher();
-    private LocalizationManager _localization = new LocalizationManager();
+    private LocalizationManager _localization;
 
     private class ViewItem
     {
@@ -56,10 +52,10 @@ public abstract class GameApplication : Game, IGameApplication
 
         _regions = new List<Region>();
 
-        _graphics_device_manager = ConfigureGraphicsDevice();
+        _graphicsDeviceManager = ConfigureGraphicsDevice();
         // Share GraphicsDeviceManager as a service.
-        Services.AddService(typeof(GraphicsDeviceManager), _graphics_device_manager);
-        _graphics_device_manager.ApplyChanges();
+        Services.AddService(typeof(GraphicsDeviceManager), _graphicsDeviceManager);
+        _graphicsDeviceManager.ApplyChanges();
 
         IsFixedTimeStep = false;
         Content.RootDirectory = "Content";
@@ -101,13 +97,15 @@ public abstract class GameApplication : Game, IGameApplication
 
     protected override void Initialize()
     {
-        base.Initialize();
+        _localization = new LocalizationManager(this);
 
         if (Window != null)
             Window.ClientSizeChanged += (s, e) => PresensationHost?.Scene?.OnClientSizeChanged();
 
-        // Schließen
-        _localization.Close();
+        _resourceManager = ResourcesOverride() ?? new GameResourceManager(this);
+        _resourceManager.OnInitialize();
+
+        base.Initialize();
     }
 
     protected virtual GraphicsDeviceManager ConfigureGraphicsDevice()
@@ -134,24 +132,21 @@ public abstract class GameApplication : Game, IGameApplication
         get => _presentsationHost;
     }
 
-    protected virtual GameAssetManager? AssetsOverride() => null;
+    protected virtual GameResourceManager? ResourcesOverride() => null;
 
-    public GameAssetManager Assets => _assets;
+    public GameResourceManager Resources => _resourceManager;
 
-    GameAssetManager IGameApplication.Assets => _assets;
+    GameResourceManager IGameApplication.Resources => throw new NotImplementedException();
 
     protected override sealed void LoadContent()
     {
-        base.LoadContent();
-
         foreach (var setting in _settings.Values)
             setting.OnLoad();
 
         _platform_profile = DetermineGraphicsPlatformProfile();
 
         // ### Assets
-        _assets = AssetsOverride() ?? new GameAssetManager(this);
-        _assets.OnLoad();
+        _resourceManager.OnLoad();
         //TypeFactoryManager.InvokeAssetRegistrations();
 
         // ## UI
@@ -163,12 +158,15 @@ public abstract class GameApplication : Game, IGameApplication
             //_surfaceHost.Game = this;
             _presentsationHost.Initialize(this);
 
-            _view_manager = new SceneManager(_presentsationHost);
-            InitializeViews(_view_manager);
+            _viewManager = new SceneManager(_presentsationHost);
+            InitializeViews(_viewManager);
         }
 
         OnLoad();
-        _view_manager?.Load();
+        _viewManager?.Load();
+
+        // Schließen
+        _localization.Close();
     }
 
     protected virtual IHost? CreatePresensationHost()
@@ -188,7 +186,7 @@ public abstract class GameApplication : Game, IGameApplication
     {
         OnUnload();
 
-        _assets.OnUnload();
+        _resourceManager.OnUnload();
 
         base.UnloadContent();
     }
@@ -203,9 +201,9 @@ public abstract class GameApplication : Game, IGameApplication
 
         base.Update(gameTime);
 
-        if (_view_manager != null)
+        if (_viewManager != null)
         {
-            _view_manager?.Update(gameTime, OnUpdate);
+            _viewManager?.Update(gameTime, OnUpdate);
         }
         else
         {
@@ -221,9 +219,9 @@ public abstract class GameApplication : Game, IGameApplication
     {
         base.Draw(gameTime);
 
-        if (_view_manager != null)
+        if (_viewManager != null)
         {
-            _view_manager?.Draw(gameTime, OnDraw, OnDrawAfterGUI);
+            _viewManager?.Draw(gameTime, OnDraw, OnDrawAfterGUI);
         }
         else
         {
@@ -291,10 +289,10 @@ public abstract class GameApplication : Game, IGameApplication
 
     public void ChangeResolution(int width, int height, bool fullscreen = false)
     {
-        _graphics_device_manager.PreferredBackBufferWidth = width;
-        _graphics_device_manager.PreferredBackBufferHeight = height;
-        _graphics_device_manager.IsFullScreen = fullscreen;
-        _graphics_device_manager.ApplyChanges();
+        _graphicsDeviceManager.PreferredBackBufferWidth = width;
+        _graphicsDeviceManager.PreferredBackBufferHeight = height;
+        _graphicsDeviceManager.IsFullScreen = fullscreen;
+        _graphicsDeviceManager.ApplyChanges();
     }
 
     public void SelectRegion(int index)
@@ -315,7 +313,9 @@ public abstract class GameApplication : Game, IGameApplication
 
     public IEnumerable<Region> Regions => _regions.AsEnumerable();
 
-    public SceneManager View => _view_manager;
+    public SceneManager View => _viewManager;
+
+    public Assembly Assembly { get => Assembly.GetEntryAssembly(); }
 
     // Bezeichnung von einem Typ
     public string? GetCaption(Type type, string? default_value = null)
