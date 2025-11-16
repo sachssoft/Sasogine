@@ -1,119 +1,158 @@
 ﻿using Microsoft.Xna.Framework.Input;
 using System;
+using System.Runtime.InteropServices;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using Sachssoft.Sasogine.Services;
+using Sachssoft.Sasogine.Services.Platforms;
 
-namespace Sachssoft.Sasogine.Interactions;
-
-public struct Shortcut
+namespace Sachssoft.Sasogine.Interactions
 {
-    public ShortcutInputDeviceTypes DeviceType { get; set; }
-
-    // Für Tastatur-Shortcut
-    public Keys Keys { get; set; }
-
-    public bool ModifierCtrl { get; set; }
-
-    public bool ModifierAlt { get; set; }
-
-    public bool ModifierShift { get; set; }
-
-    // Für Gamepad-Shortcut (z.B. A, B, X, Y)
-    public Buttons GamepadButton { get; set; }
-
-    public override string ToString()
+    public struct Shortcut
     {
-        if (DeviceType == ShortcutInputDeviceTypes.Keyboard)
+        public static Shortcut Default => new Shortcut
         {
-            var parts = new System.Collections.Generic.List<string>();
-            if (ModifierCtrl) parts.Add("ModifierCtrl");
-            if (ModifierAlt) parts.Add("ModifierAlt");
-            if (ModifierShift) parts.Add("ModifierShift");
-            parts.Add(Keys.ToString());
-            return string.Join("+", parts);
+            DeviceType = ShortcutInputDeviceTypes.None
+        };
+
+        public ShortcutInputDeviceTypes DeviceType { get; set; }
+
+        public Keys Keys { get; set; }
+
+        private bool[] modifiers;
+
+        public bool GetModifier(int index)
+        {
+            if (modifiers == null) return false;
+            if (index < 0 || index >= 3) return false;
+            return modifiers[index];
         }
-        else // Gamepad
+
+        public void SetModifier(int index, bool value)
         {
-            return $"Gamepad:{GamepadButton}";
+            if (modifiers == null)
+                modifiers = new bool[3]; // 0=Ctrl/Cmd, 1=Alt/Option, 2=Shift
+            if (index < 0 || index >= 3) return;
+            modifiers[index] = value;
         }
-    }
 
-    public static bool TryParse(string input, out Shortcut shortcut)
-    {
-        shortcut = default;
+        public Buttons GamepadButton { get; set; }
 
-        if (string.IsNullOrWhiteSpace(input))
-            return false;
-
-        input = input.Trim();
-
-        // Check if input is a gamepad shortcut
-        if (input.StartsWith("gamepad:", StringComparison.OrdinalIgnoreCase))
+        public string ToString(IPlatformModifierService? service = null)
         {
-            var btnString = input.Substring(8); // nach "gamepad:"
-            if (Enum.TryParse<Buttons>(btnString, true, out var btn))
+            if (service == null)
             {
-                shortcut = new Shortcut
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
-                    DeviceType = ShortcutInputDeviceTypes.Gamepad,
-                    GamepadButton = btn
-                };
-                return true;
-            }
-            return false;
-        }
-        else
-        {
-            // Parse Keyboard shortcut (wie vorher)
-            var parts = input.Split('+', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-            bool ctrl = false, alt = false, shift = false;
-            Keys key = Keys.None;
-
-            foreach (var part in parts)
-            {
-                switch (part.ToLowerInvariant())
+                    service = new MacOSModifierKeyService();
+                }
+                else if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
-                    case "ctrl":
-                    case "control":
-                        ctrl = true;
-                        break;
-                    case "alt":
-                        alt = true;
-                        break;
-                    case "shift":
-                        shift = true;
-                        break;
-                    default:
-                        if (Enum.TryParse<Keys>(part, true, out var parsedKey))
-                        {
-                            key = parsedKey;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                        break;
+                    service = new LinuxModifierKeyService();
+                }
+                else
+                {
+                    service = new WindowsModifierKeyService();
                 }
             }
 
-            if (key == Keys.None)
+            return service.ToString(this);
+        }
+
+        public override string ToString()
+        {
+            // Ruft die ToString-Version mit dem passenden Plattform-Service auf
+            return ToString(null);
+        }
+
+        public static bool TryParse(string? str, IPlatformModifierService? service, out Shortcut shortcut)
+        {
+            shortcut = default;
+            if (string.IsNullOrWhiteSpace(str))
                 return false;
 
-            shortcut = new Shortcut
+            str = str.Trim();
+
+            // Plattform-Service automatisch auswählen, falls null
+            if (service == null)
             {
-                DeviceType = ShortcutInputDeviceTypes.Keyboard,
-                ModifierCtrl = ctrl,
-                ModifierAlt = alt,
-                ModifierShift = shift,
-                Keys = key
-            };
+                service = RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+                    ? new MacOSModifierKeyService()
+                    : RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+                        ? new LinuxModifierKeyService()
+                        : new WindowsModifierKeyService();
+            }
+
+            // Gamepad-Format: "Gamepad:A"
+            if (str.StartsWith("Gamepad:", StringComparison.OrdinalIgnoreCase))
+            {
+                var btnStr = str.Substring(8).Trim();
+                if (Enum.TryParse<Buttons>(btnStr, true, out var btn))
+                {
+                    shortcut = new Shortcut
+                    {
+                        DeviceType = ShortcutInputDeviceTypes.Gamepad,
+                        GamepadButton = btn
+                    };
+                    return true;
+                }
+                return false;
+            }
+
+            // Keyboard-Format
+            var parts = str.Split('+', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var tempShortcut = new Shortcut { DeviceType = ShortcutInputDeviceTypes.Keyboard };
+
+            foreach (var partRaw in parts)
+            {
+                var part = partRaw.Trim();
+                bool matchedModifier = false;
+
+                // Prüfe, ob es ein Modifier ist
+                for (int i = 0; i < service.ModifierCount; i++)
+                {
+                    if (string.Equals(part, service.GetModifierString(i), StringComparison.OrdinalIgnoreCase))
+                    {
+                        tempShortcut.SetModifier(i, true);
+                        matchedModifier = true;
+                        break;
+                    }
+                }
+
+                // Wenn kein Modifier, dann Key
+                if (!matchedModifier)
+                {
+                    if (Enum.TryParse<Keys>(part, true, out var key))
+                    {
+                        tempShortcut.Keys = key;
+                    }
+                    else
+                    {
+                        // Ungültiger Teil
+                        return false;
+                    }
+                }
+            }
+
+            // Prüfe, ob ein Key gesetzt wurde
+            if (tempShortcut.Keys == Keys.None)
+                return false;
+
+            shortcut = tempShortcut;
             return true;
         }
-    }
 
-    public static Shortcut Parse(string input)
-    {
-        if (TryParse(input, out var shortcut))
-            return shortcut;
-        throw new FormatException($"Ungültiger Shortcut-String: '{input}'");
+        public static bool TryParse(string? str, out Shortcut shortcut)
+        {
+            return TryParse(str, null, out shortcut);
+        }
+
+        public static Shortcut Parse(string str, IPlatformModifierService? service = null)
+        {
+            if (TryParse(str, service, out var shortcut))
+                return shortcut;
+
+            throw new FormatException($"Invalid shortcut string: '{str}'");
+        }
     }
 }
