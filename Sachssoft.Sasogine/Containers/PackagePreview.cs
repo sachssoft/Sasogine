@@ -54,7 +54,7 @@ namespace Sachssoft.Sasogine.Containers
         public Texture2DWrapper? Get(PackagePreviewType type, int index = 1)
         {
             if (index < 1)
-                throw new ArgumentOutOfRangeException(nameof(index), "Index must be >= 1.");
+                throw new ArgumentOutOfRangeException(nameof(index), "ViewportIndex must be >= 1.");
 
             string fileName = index == 1 && type != PackagePreviewType.Screenshot
                 ? string.Format(FILE_FORMAT_SINGLE, type.ToString().ToLowerInvariant())

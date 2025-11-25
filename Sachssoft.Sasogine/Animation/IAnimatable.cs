@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Inspection;
-using Sachssoft.Sasogine.Elements;
+using Sachssoft.Sasogine.Inspection;
 
 namespace Sachssoft.Sasogine.Animation
 {

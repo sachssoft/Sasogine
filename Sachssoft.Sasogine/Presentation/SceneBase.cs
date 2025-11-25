@@ -1,179 +1,112 @@
-﻿/* 
- * © 2024 Tobias Sachs
- * ViewBase
- * 11.07.2024 
-*/
-
-using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System;
 using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Diagnostics;
 
-namespace Sachssoft.Sasogine.Presentation;
-
-public abstract class SceneBase : IDisposeManagerProvider
+namespace Sachssoft.Sasogine.Presentation
 {
-    private FrameCounter _frame_counter;
-    private TimeSpan _elapsed_game_time;
-    private bool _init;
-    internal IHostElement _container = null;
-    private bool _is_active;
-    private readonly SceneSwitchMode _view_switch_mode;
-
-    public SceneBase()
+    /// <summary>
+    /// Base class for all scenes in the presentation layer.
+    /// Supports switching runtime at any time (auto unload/load).
+    /// Runtime may be null.
+    /// </summary>
+    public abstract class SceneBase : IDisposeManagerProvider
     {
-        _frame_counter = new();
-        //_view_switch_mode = view_switch_mode;
+        private IPresentationHostElement? _container;
+        private bool _isActive;
+        private SceneManager? _scenes;
+        private GameApplication? _application;
 
-        OnInitialize();
-        _container = CreateContainer();
-    }
-
-    public IHostElement Container { get => _container; }
-
-    public DisposeManager DisposeManager { get; } = new DisposeManager();
-
-    public GameApplication Application
-    {
-        get;
-        internal set;
-    }
-
-    protected virtual IHostElement CreateContainer() => throw new NotImplementedException();
-
-    [MaybeNull]
-    public IHost Host
-    {
-        get
+        protected SceneBase()
         {
-            if (Container == null)
-                throw new InvalidOperationException("No surface host");
-
-            return Container.Host;
         }
-    }
 
-    //public IGameDebugService? Debug
-    //{
-    //    get;
-    //    protected set;
-    //}
-
-    public RuntimeBase? Runtime
-    {
-        get;
-        set;
-    }
-
-    //public ViewSwitchMode ViewSwitchMode
-    //{
-    //    get => _view_switch_mode;
-    //    init => _view_switch_mode = value;
-    //}
-
-    public bool IsActive
-    {
-        get => _is_active;
-        internal set
+        public GameApplication Application
         {
-            if (_is_active != value)
+            get => _application ?? throw new InvalidOperationException("Scene is not attached to a GameApplication.");
+        }
+
+        public IPresentationHostElement? Container
+        {
+            get => _container;
+            protected set => _container = value;
+        }
+
+        public DisposeManager DisposeManager { get; } = new DisposeManager();
+
+        public SceneManager Scenes
+        {
+            get => _scenes ?? throw new InvalidOperationException("Scenes is not set.");
+            internal set
             {
-                _is_active = value;
-                if (_is_active)
+                _scenes = value;
+                _application = _scenes.Application;
+            }
+        }
+
+        public IPresentationHost? Host => Container?.Host;
+
+        public bool IsActive
+        {
+            get => _isActive;
+            internal set
+            {
+                if (_isActive != value)
                 {
-                    OnActivated();
-                }
-                else
-                {
-                    OnDeactivated();
+                    _isActive = value;
+                    if (_isActive)
+                        OnActivated();
+                    else
+                        OnDeactivated();
                 }
             }
         }
-    }
 
-    public bool IsLoaded
-    {
-        get;
-        internal set;
-    }
+        public bool IsLoaded { get; internal set; }
 
-    protected void Leave()
-    {
-        IsActive = false;
-        OnLeft();
-        OnUnload();
-        IsLoaded = false;
-    }
+        protected void Leave()
+        {
+            if (!IsLoaded)
+                return;
 
-    protected virtual void OnLeft()
-    {
-        IGameApplication.Current.View.Close(this);
-    }
+            IsActive = false;
+            OnLeft();
+        }
 
-    internal protected virtual void OnActivated() { }
-    internal protected virtual void OnDeactivated() { }
+        /// <summary>
+        /// Default implementation closes this scene via the SceneManager.
+        /// </summary>
+        protected virtual void OnLeft()
+        {
+            _scenes?.Close(this);
+        }
 
-    //protected GameRuntimeBase? Runtime
-    //{
-    //    get;
-    //    set;
-    //}
+        internal protected virtual void OnActivated() { }
 
-    // Später Umstellung
+        internal protected virtual void OnDeactivated() { }
 
-    public virtual IHostElement? Build() => null;
+        internal protected virtual void OnLoad()
+        {
+            IsLoaded = true;
+        }
 
-    internal protected virtual void OnOpening()
-    {
-    }
+        internal protected virtual void OnUnload()
+        {
+            DisposeManager.Dispose();
+            IsLoaded = false;
+        }
 
-    internal protected virtual void OnClosing()
-    {
-    }
+        internal protected virtual void OnClientSizeChanged() { }
 
-    public FrameCounter FrameCounter => _frame_counter;
+        internal virtual bool CanRender(PresentationContext context) => true;
 
-    public TimeSpan ElapsedGameTime => _elapsed_game_time;
+        internal protected virtual void OnUpdate(PresentationContext context)
+        {
+        }
 
-    internal virtual void OnLoadPrepareInternal()
-    {
-    }
+        internal protected virtual void OnDrawContent(PresentationContext context)
+        {
+        }
 
-    internal protected virtual void OnInitialize()
-    {
-    }
+        internal protected virtual void OnDrawOverlay(PresentationContext context) { }
 
-    internal protected virtual void OnLoad(GameBaseContext context)
-    {
-        Runtime?.Load(context);
-    }
-
-    internal protected virtual void OnUnload()
-    {
-        Runtime?.Unload();
-        DisposeManager.Dispose();
-    }
-
-    internal protected virtual void OnClientSizeChanged()
-    {
-    }
-
-    internal virtual bool CanRender(GameFrameContext context)
-    {
-        return true;
-    }
-
-    internal protected virtual void OnUpdate(GameFrameContext context)
-    {
-        Runtime?.Update(context);
-    }
-
-    internal protected virtual void OnDraw(GameFrameContext context)
-    {
-        Runtime?.Draw(context);
-    }
-
-    internal protected virtual void OnDrawAfterGUI(GameFrameContext context)
-    {
     }
 }

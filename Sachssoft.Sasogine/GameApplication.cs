@@ -18,16 +18,17 @@ namespace Sachssoft.Sasogine;
 public abstract class GameApplication : Game, IGameApplication
 {
     private GraphicsDeviceManager _graphicsDeviceManager;
-    private SceneManager _viewManager;
+    private SceneManager _sceneManager;
 
     //private SurfaceHost? _surfaceHost;
-    private IHost? _presentsationHost;
+    private IPresentationHost? _presentsationHost;
     protected private GameResourceManager _resourceManager;
     protected private PlatformProfiles _platform_profile;
     private readonly Dictionary<Type, GameSettings> _settings = new Dictionary<Type, GameSettings>();
 
     public static GameDispatcher Dispatcher = new GameDispatcher();
     private LocalizationManager _localization;
+    private readonly GameContext _gameContext;
 
     private class ViewItem
     {
@@ -58,6 +59,7 @@ public abstract class GameApplication : Game, IGameApplication
         IsMouseVisible = true;
 
         IGameApplication.Current = this;
+        _gameContext = new GameContext(this);
     }
 
     public LocalizationManager Localization
@@ -93,8 +95,10 @@ public abstract class GameApplication : Game, IGameApplication
     {
         _localization = new LocalizationManager(this);
 
-        if (Window != null)
-            Window.ClientSizeChanged += (s, e) => PresensationHost?.Scene?.OnClientSizeChanged();
+        if (Window != null && PresensationHost?.Scene != null)
+        {
+            Window.ClientSizeChanged += (s, e) => PresensationHost?.Scene.OnClientSizeChanged();
+        }
 
         _resourceManager = ResourcesOverride() ?? new GameResourceManager(this);
         _resourceManager.OnInitialize();
@@ -121,7 +125,7 @@ public abstract class GameApplication : Game, IGameApplication
         get => (GameApplication)IGameApplication.Current;
     }
 
-    public IHost? PresensationHost
+    public IPresentationHost? PresensationHost
     {
         get => _presentsationHost;
     }
@@ -152,18 +156,18 @@ public abstract class GameApplication : Game, IGameApplication
             //_surfaceHost.Game = this;
             _presentsationHost.Initialize(this);
 
-            _viewManager = new SceneManager(_presentsationHost);
-            InitializeViews(_viewManager);
+            _sceneManager = new SceneManager(this, _presentsationHost);
+            InitializeViews(_sceneManager);
         }
 
         OnLoad();
-        _viewManager?.Load();
+        _sceneManager?.Load();
 
         // Schließen
         _localization.Close();
     }
 
-    protected virtual IHost? CreatePresensationHost()
+    protected virtual IPresentationHost? CreatePresensationHost()
     {
         return null;
     }
@@ -195,17 +199,18 @@ public abstract class GameApplication : Game, IGameApplication
 
         base.Update(gameTime);
 
-        if (_viewManager != null)
+        if (_sceneManager != null)
         {
-            _viewManager?.Update(gameTime, OnUpdate);
+            _sceneManager?.Update(gameTime);
         }
         else
         {
-            OnUpdate(CreateGameFrameContext(gameTime));
+            _gameContext.Update(gameTime);
+            OnUpdate(_gameContext);
         }
     }
 
-    protected virtual void OnUpdate(GameFrameContext context)
+    protected virtual void OnUpdate(GameContext context)
     {
     }
 
@@ -213,21 +218,22 @@ public abstract class GameApplication : Game, IGameApplication
     {
         base.Draw(gameTime);
 
-        if (_viewManager != null)
+        if (_sceneManager != null)
         {
-            _viewManager?.Draw(gameTime, OnDraw, OnDrawAfterGUI);
+            _sceneManager?.Draw(gameTime);
         }
         else
         {
-            OnDraw(CreateGameFrameContext(gameTime));
+            _gameContext.Update(gameTime);
+            OnDraw(_gameContext);
         }
     }
 
-    protected virtual void OnDraw(GameFrameContext context)
+    protected virtual void OnDraw(GameContext context)
     {
     }
 
-    protected virtual void OnDrawAfterGUI(GameFrameContext context)
+    protected virtual void OnDrawAfterGUI(GameContext context)
     {
     }
 
@@ -235,8 +241,8 @@ public abstract class GameApplication : Game, IGameApplication
     {
         if (_presentsationHost != null)
         {
-            var view = _presentsationHost.Scene;
-            view?.OnUnload();
+            var scene = _presentsationHost.Scene;
+            scene?.OnUnload();
 
             _presentsationHost.Dispose(); //UIEnvironment.Game.Exit();
         }
@@ -248,11 +254,6 @@ public abstract class GameApplication : Game, IGameApplication
     }
 
     public PlatformProfiles PlatformProfile => _platform_profile;
-
-    private GameFrameContext CreateGameFrameContext(GameTime time)
-    {
-        return new GameFrameContext(null, time);
-    }
 
     private PlatformProfiles DetermineGraphicsPlatformProfile()
     {
@@ -289,7 +290,7 @@ public abstract class GameApplication : Game, IGameApplication
         _graphicsDeviceManager.ApplyChanges();
     }
 
-    public SceneManager View => _viewManager;
+    public SceneManager Scenes => _sceneManager;
 
     public Assembly Assembly => Assembly.GetEntryAssembly()!;
 

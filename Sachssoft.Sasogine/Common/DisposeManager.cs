@@ -1,32 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
 
-public class DisposeManager : IDisposable
+namespace Sachssoft.Sasogine.Common
 {
-    private readonly List<IDisposable> _disposables = new();
-    private bool _disposed;
-
-    public T Register<T>(T disposable) where T : IDisposable
+    public class DisposeManager : IDisposable
     {
-        if (_disposed)
-            throw new ObjectDisposedException(nameof(DisposeManager));
+        private readonly List<IDisposable> _disposables = new();
+        private bool _disposed;
 
-        if (disposable != null)
-            _disposables.Add(disposable);
-
-        return disposable;
-    }
-
-    public void Dispose()
-    {
-        if (_disposed) return;
-
-        foreach (var d in _disposables)
+        public void Register<T>(T disposable) where T : IDisposable
         {
-            try { d.Dispose(); } catch { }
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(DisposeManager));
+
+            if (disposable != null)
+                _disposables.Add(disposable);
         }
 
-        _disposables.Clear();
-        _disposed = true;
+        public void Register(Func<IDisposable> disposeAction)
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(DisposeManager));
+
+            if (disposeAction != null)
+                _disposables.Add(disposeAction.Invoke());
+        }
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+
+            foreach (var d in _disposables)
+            {
+                try { d.Dispose(); } catch { }
+            }
+
+            _disposables.Clear();
+            _disposed = true;
+        }
     }
 }

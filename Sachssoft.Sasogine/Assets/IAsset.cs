@@ -1,5 +1,5 @@
 ﻿using Sachssoft.Inspection;
-using Sachssoft.Sasogine.Elements;
+using Sachssoft.Sasogine.Inspection;
 using System;
 
 namespace Sachssoft.Sasogine.Assets;

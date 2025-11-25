@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine;
+using Sachssoft.Sasogine.Engine;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
 
@@ -28,11 +28,11 @@ namespace Sachssoft.Sasogine.Graphics
         /// <summary>
         /// Zeichnet das Modell innerhalb eines RenderScopes
         /// </summary>
-        public void Draw(GameFrameContext context, Matrix? transform = null, CameraBase? camera = null, IEffectAdapter? customEffect = null)
+        public void Draw(RuntimeViewportContext context, Matrix? transform = null, CameraBase? camera = null, IEffectAdapter? customEffect = null)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var cam = camera ?? context.Runtime.Camera ?? throw new InvalidOperationException("No camera available.");
+            var cam = camera ?? context.Camera ?? throw new InvalidOperationException("No camera available.");
             var graphics = context.GraphicsDevice;
 
             // Berechne finale Weltmatrix

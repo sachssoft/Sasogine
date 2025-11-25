@@ -1,7 +1,7 @@
 ﻿using Sachssoft.Documents;
 using Sachssoft.Documents.Json;
 using Sachssoft.Inspection;
-using Sachssoft.Sasogine.Elements;
+using Sachssoft.Sasogine.Inspection;
 using Sachssoft.Sasogine.Features;
 using System;
 using System.IO;

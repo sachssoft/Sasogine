@@ -1,4 +1,6 @@
-﻿namespace Sachssoft.Sasogine.Phyiscs
+﻿using Sachssoft.Sasogine.Engine;
+
+namespace Sachssoft.Sasogine.Phyiscs
 {
     public abstract class PhysicContextBase<T> : IPhysicsContext
     {
@@ -17,11 +19,11 @@
 
         protected abstract T BuildWorld();
 
-        public virtual void Update(GameFrameContext context)
+        public virtual void Update(RuntimeContext context)
         {
         }
 
-        public virtual void Draw(GameFrameContext context)
+        public virtual void Draw(RuntimeViewportContext context)
         {
         }
     }

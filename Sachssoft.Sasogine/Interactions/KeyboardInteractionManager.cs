@@ -10,7 +10,7 @@ public class KeyboardInteractionManager : InputInteractionManager<Keys>
     {
     }
 
-    public override void Update(GameFrameContext context)
+    public override void Update(GameContext context)
     {
         var elapsed = context.GameTime.ElapsedGameTime;
 

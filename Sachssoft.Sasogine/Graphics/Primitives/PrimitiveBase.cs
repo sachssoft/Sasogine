@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine;
+using Sachssoft.Sasogine.Engine;
 using Sachssoft.Sasogine.Graphics;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
@@ -106,9 +106,9 @@ public abstract class PrimitiveBase
         return (u0, v0, u1, v1);
     }
 
-    public virtual void Update(GameFrameContext context) { }
+    public virtual void Update(RuntimeContext context) { }
 
-    public void DrawScoped(GameFrameContext context, Matrix? transform = null, CameraBase? customCamera = null, IEffectAdapter? customEffect = null, RenderOptions? options = null)
+    public void DrawScoped(RuntimeViewportContext context, Matrix? transform = null, CameraBase? customCamera = null, IEffectAdapter? customEffect = null, RenderOptions? options = null)
     {
         using (new RenderScope(context, options))
         {
@@ -154,14 +154,14 @@ public abstract class PrimitiveBase
         }
     }
 
-    public void Draw(GameFrameContext context, Matrix? transform = null, CameraBase? customCamera = null, IEffectAdapter? customEffect = null)
+    public void Draw(RuntimeViewportContext context, Matrix? transform = null, CameraBase? customCamera = null, IEffectAdapter? customEffectAdapter = null)
     {
         if (!Visible)
             return;
 
         var graphics = context.GraphicsDevice;
-        var effect = customEffect ?? context.Runtime.Effect;
-        var camera = customCamera ?? context.Runtime.Camera ?? throw new InvalidOperationException("No camera available.");
+        var effect = customEffectAdapter ?? context.EffectAdapter;
+        var camera = customCamera ?? context.Camera ?? throw new InvalidOperationException("No camera available.");
 
         if (effect.InnerEffect.IsDisposed)
             throw new InvalidOperationException();

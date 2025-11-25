@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine;
+using Sachssoft.Sasogine.Engine;
 using Sachssoft.Sasogine.Graphics;
 using Sachssoft.Sasogine.Graphics.Primitives;
 using System;
@@ -43,12 +43,12 @@ public sealed class PrimitiveBatch : IDisposable
         _dirty = true;
     }
 
-    public void Draw(GameFrameContext context, Matrix? transform = null, CameraBase? camera = null, IEffectAdapter? effectAdapter = null)
+    public void Draw(RuntimeViewportContext context, Matrix? transform = null, CameraBase? camera = null, IEffectAdapter? customEffectAdapter = null)
     {
         if (_primitives.Count == 0) return;
 
-        var effect = effectAdapter ?? context.Runtime.Effect;
-        camera ??= context.Runtime.Camera ?? throw new InvalidOperationException("No camera available.");
+        var effectAdapter = customEffectAdapter ?? context.Runtime.PrimaryEffectAdapter;
+        camera ??= context.Camera ?? throw new InvalidOperationException("No camera available.");
         var graphics = context.GraphicsDevice;
 
         // Berechne Gesamtgrößen
@@ -98,12 +98,12 @@ public sealed class PrimitiveBatch : IDisposable
         _indexBuffer.SetData(_indexArray, 0, totalIndices, SetDataOptions.Discard);
 
         // Matrizen setzen
-        effect.World = transform ?? Matrix.Identity * camera.World;
-        effect.View = camera.View;
-        effect.Projection = camera.Projection;
-        effect.Apply();
+        effectAdapter.World = transform ?? Matrix.Identity * camera.World;
+        effectAdapter.View = camera.View;
+        effectAdapter.Projection = camera.Projection;
+        effectAdapter.Apply();
 
-        foreach (var pass in effect.CurrentTechnique.Passes)
+        foreach (var pass in effectAdapter.CurrentTechnique.Passes)
         {
             pass.Apply();
             graphics.SetVertexBuffer(_vertexBuffer);

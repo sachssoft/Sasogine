@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Engine;
 using Sachssoft.Sasogine.Graphics.Primitives;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
@@ -75,14 +76,14 @@ namespace Sachssoft.Sasogine.Graphics
             }
         }
 
-        public void Draw(GameFrameContext context)
+        public void Draw(RuntimeViewportContext context)
         {
             if (_displayPrimitive == null ||
                 _currentEntries == null ||
                 _currentEntries.Count == 0)
                 return;
 
-            var effect = context.Effect;
+            var effectAdapter = context.EffectAdapter;
 
             // courseSize ist bereits in Weltkoordinaten (wie du gesagt hast)
             var courseWorldSize = AreaSize;
@@ -149,7 +150,7 @@ namespace Sachssoft.Sasogine.Graphics
                         Matrix.CreateTranslation(pos.X, pos.Y, 0f) *
                         depth;
 
-                    DrawOverride(context, texture, effect, transform);
+                    DrawOverride(context, texture, effectAdapter, transform);
                     continue;
                 }
 
@@ -228,13 +229,13 @@ namespace Sachssoft.Sasogine.Graphics
                             Matrix.CreateTranslation(pos.X, pos.Y, 0f) *
                             depth;
 
-                        DrawOverride(context, texture, effect, transform);
+                        DrawOverride(context, texture, effectAdapter, transform);
                     }
                 }
             }
         }
 
-        protected virtual void DrawOverride(GameFrameContext context, Texture2D? texture, IEffectAdapter effect, Matrix transform)
+        protected virtual void DrawOverride(RuntimeViewportContext context, Texture2D? texture, IEffectAdapter effect, Matrix transform)
         {
             effect.Color = TintColor;
             effect.Texture = texture;

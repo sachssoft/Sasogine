@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Sachssoft.Inspection;
 using Sachssoft.Sasogine.Containers;
-using Sachssoft.Sasogine.Elements;
+using Sachssoft.Sasogine.Inspection;
 
 namespace Sachssoft.Sasogine.Assets;
 

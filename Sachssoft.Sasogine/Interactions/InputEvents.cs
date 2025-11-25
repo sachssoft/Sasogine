@@ -30,7 +30,7 @@ public sealed class InputEvents
 
     public float MouseWheelDelta => _delta_wheel_mouse;
 
-    public void Update(GameFrameContext context)
+    public void Update(GameContext context)
     {
         Keyboard = Microsoft.Xna.Framework.Input.Keyboard.GetState();
         Mouse = Microsoft.Xna.Framework.Input.Mouse.GetState();

@@ -219,7 +219,7 @@ public class Camera2D : CameraBase
         return Matrix.Identity;
     }
 
-    public override void Update(GameFrameContext context)
+    public override void Update(GameContext context)
     {
         float dt = (float)context.GameTime.ElapsedGameTime.TotalSeconds;
 

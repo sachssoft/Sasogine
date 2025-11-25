@@ -119,7 +119,7 @@ namespace Sachssoft.Sasogine.Graphics
         /// Override in derived classes to implement animation, movement, etc.
         /// </summary>
         /// <param name="context">Frame context containing elapsed time.</param>
-        public virtual void Update(GameFrameContext context)
+        public virtual void Update(GameContext context)
         {
             UpdateMatrices();
         }

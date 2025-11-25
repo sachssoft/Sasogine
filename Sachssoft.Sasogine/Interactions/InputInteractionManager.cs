@@ -94,7 +94,7 @@ public abstract class InputInteractionManager<TButton> where TButton : struct, E
         }
     }
 
-    public abstract void Update(GameFrameContext context);
+    public abstract void Update(GameContext context);
 
     protected void Update(IInputState<TButton> current_state, TimeSpan elapsed)
     {

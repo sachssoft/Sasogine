@@ -14,7 +14,7 @@ public class GamePadInteractionManager : InputInteractionManager<Buttons>
         _player_index = player_index;
     }
 
-    public override void Update(GameFrameContext context)
+    public override void Update(GameContext context)
     {     
         var elapsed = context.GameTime.ElapsedGameTime;
         Update(new GamePadStateWrapper(GamePad.GetState(_player_index)), elapsed);

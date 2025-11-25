@@ -23,7 +23,7 @@ public interface IGameApplication
 
     ContentManager Content { get; }
 
-    SceneManager View { get; }
+    SceneManager Scenes { get; }
 
     PlatformProfiles PlatformProfile { get; }
 

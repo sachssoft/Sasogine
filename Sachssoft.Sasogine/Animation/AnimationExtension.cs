@@ -47,7 +47,7 @@ namespace Sachssoft.Sasogine.Animation
         /// </summary>
         /// <param name="animatable">The animatable object to update.</param>
         /// <param name="context">The current game context providing elapsed time information.</param>
-        public static void UpdateAnimation(this IAnimatable animatable, GameFrameContext context)
+        public static void UpdateAnimation(this IAnimatable animatable, GameContext context)
         {
             var position = animatable.StartPosition;
             var rotation = animatable.StartRotation;

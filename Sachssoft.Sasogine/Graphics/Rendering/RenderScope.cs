@@ -30,7 +30,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
         /// <summary>
         /// Erstellt einen RenderScope für GameBaseContext.
         /// </summary>
-        public RenderScope(GameBaseContext context, RenderOptions? options = null)
+        public RenderScope(GameContext context, RenderOptions? options = null)
             : this(context.GraphicsDevice, options)
         {
         }
