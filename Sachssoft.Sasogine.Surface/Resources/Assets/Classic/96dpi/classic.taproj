@@ -1,0 +1,971 @@
+{
+  "metadata": {
+    "title": "Surface UI",
+    "author": "Sachssoft",
+    "description": null,
+    "version": "1.0",
+    "auto-generate": false,
+    "enable-warnings": true,
+    "advanced-mode": true,
+    "asset-type": "Frames",
+    "render-type": "Pixel"
+  },
+  "export": {
+    "path": "D:\\Projekte\\Sasogine.Surface\\Sachssoft.Sasogine.Surface\\Resources\\Assets\\Classic\\96dpi\\",
+    "name": null,
+    "name-format": "{NAME}_{SUFFIX}_{NUMBER}_{AUTO}",
+    "file-exists-behavior": "Overwrite",
+    "auto-number-format": "({VALUE})",
+    "move-to-subfolder": true,
+    "subfolder-name": "output",
+    "selected-texture-index": 0,
+    "selected-resolution-index": 0,
+    "selected-unit-index": 0,
+    "data-format": {
+      "_type": "sasogine-surface",
+      "purpose": null,
+      "allow-export": true,
+      "file-suffix": null,
+      "type": "XML"
+    },
+    "texture-outputs": [
+      {
+        "_type": "diffuse",
+        "purpose": null,
+        "allow-export": true,
+        "file-suffix": null,
+        "image-format": {
+          "_type": "jpg",
+          "quality": 90
+        }
+      },
+      {
+        "_type": "output",
+        "purpose": null,
+        "allow-export": true,
+        "file-suffix": null,
+        "image-format": {
+          "_type": "bmp",
+          "bit-depth": "Bpp24",
+          "alpha-threshold": 0.5
+        },
+        "rendering": "Stroke",
+        "alpha-threshold": 0.5,
+        "thickness": 1,
+        "direction": "Outside",
+        "color": "Black",
+        "smoothing-filter": "None",
+        "smoothing-side": "Outside"
+      },
+      {
+        "_type": "normal-map",
+        "purpose": null,
+        "allow-export": true,
+        "file-suffix": null,
+        "image-format": {
+          "_type": "png",
+          "interlaced": false,
+          "pixel-format": "Indexed8Bit",
+          "compression-strategy": "Default",
+          "compression-level": 6
+        }
+      },
+      {
+        "_type": "normal-map",
+        "purpose": null,
+        "allow-export": true,
+        "file-suffix": null,
+        "image-format": {
+          "_type": "tga",
+          "use-rle": false,
+          "bit-depth": "Rgb24"
+        }
+      },
+      {
+        "_type": "mask",
+        "purpose": null,
+        "allow-export": true,
+        "file-suffix": null,
+        "image-format": {
+          "_type": "tga",
+          "use-rle": false,
+          "bit-depth": "Rgb24"
+        },
+        "enable-grayscale": false,
+        "enable-smoothing": false,
+        "alpha-threshold": 0.5,
+        "morph-radius": 1
+      }
+    ],
+    "texture-resolutions": [
+      {
+        "can-export": true,
+        "name": "Resolution3",
+        "unit-index": 0,
+        "raw-scale": 1
+      },
+      {
+        "can-export": true,
+        "name": "Resolution1",
+        "unit-index": 0,
+        "raw-scale": 2
+      },
+      {
+        "can-export": false,
+        "name": "Resolution2",
+        "unit-index": 0,
+        "raw-scale": 3
+      },
+      {
+        "can-export": false,
+        "name": "Test",
+        "unit-index": 0,
+        "raw-scale": 4
+      }
+    ]
+  },
+  "atlas": {
+    "max-count": 1,
+    "use-background": false,
+    "background-color": "#00000000",
+    "border-padding": 5,
+    "force-power-of-two": true,
+    "use-squared": false,
+    "use-variable-size": false,
+    "squared-exture-size": 512,
+    "squared-minimum-texture-size": 64,
+    "squared-maximum-texture-size": 64,
+    "not-squared-texture-width": 256,
+    "not-squared-texture-height": 256,
+    "not-squared-minimum-texture-width": 64,
+    "not-squared-minimum-texture-height": 64,
+    "not-squared-maximum-texture-width": 4096,
+    "not-squared-maximum-texture-height": 4096
+  },
+  "packing": {
+    "selected-packer-algorithm": {
+      "_type": "rectangle",
+      "heuristic-method": "BestShortSideFit",
+      "sort-mode": "HeightWidthArea",
+      "layout-spacing": 0,
+      "frame-allow-item-rotation": true
+    }
+  },
+  "preprocessing": {
+    "detect-duplicate-frames": true,
+    "duplicate-detection-alpha-threshold": 0.01,
+    "use-bitmap-trimming": false,
+    "use-frame-normalization": false,
+    "frame-normalize-mode": "Uniform",
+    "uniform-width": 32,
+    "uniform-height": 32,
+    "alignment": "TopLeft",
+    "stretch-mode": "None",
+    "stretch-interpolation": "PixelPerfect",
+    "use-pixel-extrusion": false,
+    "extrude-pixels": 2,
+    "alpha-bleed": false,
+    "use-outline": false,
+    "outline-color": "Black",
+    "outline-thickness": 1,
+    "use-color-correction": false,
+    "premultiply-alpha": true,
+    "color-space": "Auto",
+    "use-background": false,
+    "background-color": "White",
+    "use-transform": true,
+    "scale-x": 1,
+    "scale-y": 1,
+    "offset-x": 0,
+    "offset-y": 0,
+    "padding-left": 0,
+    "padding-right": 0,
+    "padding-top": 0,
+    "padding-bottom": 0,
+    "flip-horizontal": false,
+    "flip-vertical": false,
+    "bitmap-trimming": {
+      "_type": null
+    }
+  },
+  "view": {
+    "transparency-pattern-color-adaptive": false,
+    "transparency-pattern-color-1": "DarkMagenta",
+    "transparency-pattern-color-2": "#ffa83fa8",
+    "background-visibility": false,
+    "background-color": "DarkMagenta",
+    "frame-outline-visibility": true,
+    "frame-outline-color": "#fff580be",
+    "atlas-outline-visibility": true,
+    "atlas-outline-color": "#ff8e81da",
+    "grid-visibility": false,
+    "grid-color": "#00000000",
+    "zoom": 1.599999986588955,
+    "frame-list-mode": "Tree",
+    "frame-tile-size": "Medium"
+  },
+  "frames": [
+    {
+      "_type": "group",
+      "name": "checkboxes",
+      "is-expanded": false,
+      "frames": [
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_checkbox-checked-disabled",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_checkbox-checked-disabled.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_checkbox-checked-hovered",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_checkbox-checked-hovered.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_checkbox-unchecked-default",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_checkbox-unchecked-default.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_checkbox-unchecked-disabled",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_checkbox-unchecked-disabled.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_checkbox-unchecked-hovered",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_checkbox-unchecked-hovered.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        }
+      ]
+    },
+    {
+      "_type": "group",
+      "name": "radiobuttons",
+      "is-expanded": false,
+      "frames": [
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_radiobutton-checked-default",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_radiobutton-checked-default.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_radiobutton-checked-disabled",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_radiobutton-checked-disabled.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_radiobutton-checked-hovered",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_radiobutton-checked-hovered.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_radiobutton-unchecked-default",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_radiobutton-unchecked-default.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_radiobutton-unchecked-disabled",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_radiobutton-unchecked-disabled.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_radiobutton-unchecked-hovered",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_radiobutton-unchecked-hovered.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        }
+      ]
+    },
+    {
+      "_type": "group",
+      "name": "buttons",
+      "is-expanded": false,
+      "frames": [
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_button-border-default",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_button-border-default.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_button-border-disabled",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_button-border-disabled.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_button-border-focused",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_button-border-focused.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_button-border-hovered",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_button-border-hovered.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_button-border-pressed",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_button-border-pressed.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        }
+      ]
+    },
+    {
+      "_type": "group",
+      "name": "icons",
+      "is-expanded": false,
+      "frames": [
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_archive-file-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_archive-file-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_button-arrow-up-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_button-arrow-up-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_button-arrow-up-icon_copy_1",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_button-arrow-up-icon_copy_1.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_button-arrow-up-icon_copy_2",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_button-arrow-up-icon_copy_2.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_button-arrow-up-icon_copy_3",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_button-arrow-up-icon_copy_3.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_disc-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_disc-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_drive-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_drive-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_favourite-folder-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_favourite-folder-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_file-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_file-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_folder-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_folder-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_icon-refresh",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_icon-refresh.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_image-file-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_image-file-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_inspector-value-clear_icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_inspector-value-clear_icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_map-file-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_map-file-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_menu-arrow-down_icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_menu-arrow-down_icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_menu-arrow-left-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_menu-arrow-left-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_menu-arrow-right-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_menu-arrow-right-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_menu-arrow-up-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_menu-arrow-up-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_menu-check-mark-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_menu-check-mark-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_menu-radio-mark-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_menu-radio-mark-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_music-file-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_music-file-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_network-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_network-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_script-file-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_script-file-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_sound-file-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_sound-file-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_text-file-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_text-file-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_video-file-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_video-file-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_window-close-icon",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_window-close-icon.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        }
+      ]
+    },
+    {
+      "_type": "group",
+      "name": "switches",
+      "is-expanded": false,
+      "frames": [
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_switch-default",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_switch-default.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_switch-disabled",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_switch-disabled.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_switch-hovered",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_switch-hovered.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_switch-knob-default",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_switch-knob-default.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_switch-knob-disabled",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_switch-knob-disabled.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        }
+      ]
+    },
+    {
+      "_type": "group",
+      "name": "border",
+      "is-expanded": true,
+      "frames": [
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_content-border-default",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_content-border-default.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_content-border-disabled",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_content-border-disabled.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "rectangle",
+          "name": "sasogine_surface_classic_content-border-focused",
+          "source-file-path": "D:/Projekte/Sasogine.Surface/Sachssoft.Sasogine.Surface/Resources/Assets/Classic/96dpi/sasogine_surface_classic_content-border-focused.png",
+          "class": null,
+          "has-region": false,
+          "rectangle": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 0
+          },
+          "has-animation": false
+        },
+        {
+          "_type": "group",
+          "name": "window",
+          "is-expanded": true,
+          "frames": []
+        }
+      ]
+    }
+  ]
+}

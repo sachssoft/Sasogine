@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Sachssoft.Sasogine.Platform;
+using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Services;
 
@@ -27,5 +28,5 @@ public interface IAppUpdateService
     /// Opens the update page using the specified web client service.
     /// </summary>
     /// <param name="webClient">The web client service used to open the update page.</param>
-    void OpenWebClient(IWebClientService webClient);
+    void OpenWebClient(IWebClient webClient);
 }

@@ -1,0 +1,957 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="100"
+   height="30"
+   viewBox="0 0 26.458333 7.9375002"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   sodipodi:docname="default_ui.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="px"
+     inkscape:zoom="5.7109948"
+     inkscape:cx="379.44353"
+     inkscape:cy="58.658782"
+     inkscape:window-width="2880"
+     inkscape:window-height="1514"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g25"
+     showguides="true">
+    <inkscape:page
+       x="0"
+       y="0"
+       width="26.458332"
+       height="7.9375"
+       id="page2"
+       margin="0"
+       bleed="0"
+       inkscape:label="button_default" />
+    <inkscape:page
+       x="31.100077"
+       y="0.057380218"
+       width="26.458332"
+       height="6.6145835"
+       id="page3"
+       inkscape:label="field_default"
+       margin="0"
+       bleed="0" />
+    <inkscape:page
+       x="0.32459152"
+       y="9.2914324"
+       width="26.458332"
+       height="7.9375"
+       id="page5"
+       margin="0"
+       bleed="0"
+       inkscape:label="button_pressed" />
+    <inkscape:page
+       x="0.52746123"
+       y="19.800083"
+       width="26.458332"
+       height="7.9375"
+       id="page6"
+       margin="0"
+       bleed="0"
+       inkscape:label="button_disabled" />
+    <inkscape:page
+       x="0.28401759"
+       y="29.537828"
+       width="26.458332"
+       height="7.9375"
+       id="page7"
+       margin="0"
+       bleed="0"
+       inkscape:label="button_hovered" />
+    <inkscape:page
+       x="0.081147879"
+       y="39.51902"
+       width="26.458332"
+       height="7.9375"
+       id="page8"
+       margin="0"
+       bleed="0"
+       inkscape:label="button_focused" />
+    <inkscape:page
+       x="31.039064"
+       y="29.7407"
+       width="26.458332"
+       height="6.6145835"
+       id="page13"
+       margin="0"
+       bleed="0"
+       inkscape:label="field_hovered" />
+    <inkscape:page
+       x="31.039064"
+       y="19.556641"
+       width="26.458332"
+       height="6.6145835"
+       id="page14"
+       margin="0"
+       bleed="0"
+       inkscape:label="field_disabled" />
+    <inkscape:page
+       x="31.32308"
+       y="39.356724"
+       width="26.458332"
+       height="6.6145835"
+       id="page15"
+       inkscape:label="field_focused"
+       margin="0"
+       bleed="0" />
+    <inkscape:page
+       x="59.359673"
+       y="0.081147879"
+       width="13.229166"
+       height="6.6145835"
+       id="page16"
+       margin="0"
+       bleed="0"
+       inkscape:label="switch_default" />
+    <inkscape:page
+       x="74.148872"
+       y="0.10143485"
+       width="6.614583"
+       height="6.6145835"
+       id="page17"
+       inkscape:label="switch_thumb_default"
+       margin="0"
+       bleed="0" />
+    <inkscape:page
+       x="60.478748"
+       y="19.796175"
+       width="13.229166"
+       height="6.6145835"
+       id="page1"
+       margin="0"
+       bleed="0"
+       inkscape:label="switch_disabled" />
+    <inkscape:page
+       x="75.741882"
+       y="19.624035"
+       width="6.614583"
+       height="6.6145835"
+       id="page4"
+       margin="0"
+       bleed="0"
+       inkscape:label="switch_thumb_disabled" />
+    <inkscape:page
+       x="75.454987"
+       y="29.780333"
+       width="6.614583"
+       height="6.6145835"
+       id="page9"
+       margin="0"
+       bleed="0"
+       inkscape:label="switch_thumb_hovered" />
+    <inkscape:page
+       x="75.282845"
+       y="39.24807"
+       width="6.614583"
+       height="6.6145835"
+       id="page12"
+       margin="0"
+       bleed="0"
+       inkscape:label="switch_thumb_focused" />
+    <inkscape:page
+       x="87.926186"
+       y="0.19655631"
+       width="6.614583"
+       height="6.6145835"
+       id="page18"
+       margin="0"
+       bleed="0"
+       inkscape:label="checkbox_default" />
+    <inkscape:page
+       x="87.664108"
+       y="20.114262"
+       width="6.614583"
+       height="6.6145835"
+       id="page20"
+       margin="0"
+       bleed="0"
+       inkscape:label="checkbox_disabled" />
+    <inkscape:page
+       x="87.926186"
+       y="29.942078"
+       width="6.614583"
+       height="6.6145835"
+       id="page21"
+       margin="0"
+       bleed="0"
+       inkscape:label="checkbox_hovered" />
+    <inkscape:page
+       x="87.72963"
+       y="39.376781"
+       width="6.614583"
+       height="6.6145835"
+       id="page22"
+       margin="0"
+       bleed="0"
+       inkscape:label="checkbox_focused" />
+    <inkscape:page
+       x="96.502815"
+       y="0.50961643"
+       width="6.614583"
+       height="6.6145835"
+       id="page26"
+       inkscape:label="checkmark_default"
+       margin="0"
+       bleed="0" />
+    <inkscape:page
+       x="97.614708"
+       y="20.430986"
+       width="6.614583"
+       height="6.6145835"
+       id="page27"
+       inkscape:label="checkmark_disabled"
+       margin="0"
+       bleed="0" />
+    <inkscape:page
+       x="106.50983"
+       y="0.64860272"
+       width="6.614583"
+       height="6.6145835"
+       id="page28"
+       inkscape:label="checkmark_intermediate_default"
+       margin="0"
+       bleed="0" />
+    <inkscape:page
+       x="106.00021"
+       y="20.338327"
+       width="6.614583"
+       height="6.6145835"
+       id="page29"
+       inkscape:label="checkmark_intermediate_disabled"
+       margin="0"
+       bleed="0" />
+    <inkscape:page
+       x="97.066055"
+       y="29.942078"
+       width="6.614583"
+       height="6.6145835"
+       id="page30"
+       margin="0"
+       bleed="0"
+       inkscape:label="checkmark_hovered" />
+    <inkscape:page
+       x="106.82835"
+       y="30.138634"
+       width="6.614583"
+       height="6.6145835"
+       id="page31"
+       margin="0"
+       bleed="0"
+       inkscape:label="checkmark_intermediate_hovered" />
+    <inkscape:page
+       x="117.53607"
+       y="0.78758901"
+       width="6.614583"
+       height="6.6145835"
+       id="page47"
+       margin="0"
+       bleed="0"
+       inkscape:label="radiobutton_default" />
+    <inkscape:page
+       x="117.5824"
+       y="20.060356"
+       width="6.614583"
+       height="6.6145835"
+       id="page48"
+       margin="0"
+       bleed="0"
+       inkscape:label="radiobutton_disabled" />
+    <inkscape:page
+       x="117.48975"
+       y="29.465096"
+       width="6.614583"
+       height="6.6145835"
+       id="page49"
+       margin="0"
+       bleed="0"
+       inkscape:label="radiobutton_hovered" />
+    <inkscape:page
+       x="117.53607"
+       y="39.101479"
+       width="6.614583"
+       height="6.6145835"
+       id="page51"
+       margin="0"
+       bleed="0"
+       inkscape:label="radiobutton_focused" />
+    <inkscape:page
+       x="127.0798"
+       y="0.9265753"
+       width="6.614583"
+       height="6.6145835"
+       id="page52"
+       margin="0"
+       bleed="0"
+       inkscape:label="radiomark_default" />
+    <inkscape:page
+       x="128.377"
+       y="20.384657"
+       width="6.614583"
+       height="6.6145835"
+       id="page53"
+       margin="0"
+       bleed="0"
+       inkscape:label="radiomark_disabled" />
+    <inkscape:page
+       x="128.23802"
+       y="29.279779"
+       width="6.614583"
+       height="6.6145835"
+       id="page54"
+       margin="0"
+       bleed="0"
+       inkscape:label="radiomark_hovered" />
+    <inkscape:page
+       x="138.43034"
+       y="0.78758901"
+       width="6.614583"
+       height="6.6145835"
+       id="page55"
+       margin="0"
+       bleed="0"
+       inkscape:label="expander_unexpanded_mark_default" />
+    <inkscape:page
+       x="138.29137"
+       y="20.014027"
+       width="6.614583"
+       height="6.6145835"
+       id="page56"
+       margin="0"
+       bleed="0"
+       inkscape:label="expander_unexpanded_mark_disabled" />
+    <inkscape:page
+       x="138.52299"
+       y="29.048136"
+       width="6.614583"
+       height="6.6145835"
+       id="page57"
+       margin="0"
+       bleed="0"
+       inkscape:label="expander_unexpanded_mark_hovered" />
+    <inkscape:page
+       x="147.74243"
+       y="0.78758901"
+       width="6.614583"
+       height="6.6145835"
+       id="page58"
+       margin="0"
+       bleed="0"
+       inkscape:label="unexpanded_mark_default" />
+    <inkscape:page
+       x="147.51079"
+       y="19.782383"
+       width="6.614583"
+       height="6.6145835"
+       id="page59"
+       margin="0"
+       bleed="0"
+       inkscape:label="unexpanded_mark_disabled" />
+    <inkscape:page
+       x="148.25204"
+       y="28.631178"
+       width="6.614583"
+       height="6.6145835"
+       id="page60"
+       margin="0"
+       bleed="0"
+       inkscape:label="unexpanded_mark_hovered" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer7"
+     inkscape:label="Switch">
+    <g
+       inkscape:groupmode="layer"
+       id="layer8"
+       inkscape:label="SwitchDefault">
+      <path
+         id="path17-3"
+         style="fill:#999999;fill-opacity:1;stroke:none;stroke-width:0.529167;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         d="M 62.666976 0.081131999 A 3.3072915 3.3072915 0 0 0 59.359685 3.3884237 A 3.3072915 3.3072915 0 0 0 62.666976 6.6957154 L 69.28156 6.6957154 A 3.3072915 3.3072915 0 0 0 72.588851 3.3884237 A 3.3072915 3.3072915 0 0 0 69.28156 0.081131999 L 62.666976 0.081131999 z " />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="g5"
+       inkscape:label="SwitchDisabled">
+      <path
+         id="path4"
+         style="fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:0.529167;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         d="m 63.786041,19.796175 a 3.3072915,3.3072915 0 0 0 -3.307291,3.307291 3.3072915,3.3072915 0 0 0 3.307291,3.307292 h 6.614584 a 3.3072915,3.3072915 0 0 0 3.307291,-3.307292 3.3072915,3.3072915 0 0 0 -3.307291,-3.307291 z" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="layer9"
+       inkscape:label="SwitchThumbDefault">
+      <circle
+         style="fill:#e6e6e6;fill-opacity:1;stroke:none;stroke-width:0.423333;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="path17"
+         cx="77.456169"
+         cy="3.4087265"
+         r="2.6458333" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="g6"
+       inkscape:label="SwitchThumbHovered">
+      <circle
+         style="fill:#b3b3b3;fill-opacity:1;stroke:none;stroke-width:0.423333;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="circle5"
+         cx="78.762283"
+         cy="33.087624"
+         r="2.6458333" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="g12"
+       inkscape:label="SwitchThumbFocused">
+      <circle
+         style="fill:#e6e6e6;fill-opacity:1;stroke:none;stroke-width:0.423333;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="path17-6"
+         cx="78.590141"
+         cy="42.555359"
+         r="2.6458333" />
+      <ellipse
+         style="fill:none;fill-opacity:1;stroke:#666666;stroke-width:0.529167;stroke-dasharray:0.529167, 0.529167;stroke-dashoffset:0;stroke-opacity:1"
+         id="circle9"
+         cx="78.590225"
+         cy="42.554386"
+         rx="2.3812499"
+         ry="2.383796" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="g4"
+       inkscape:label="SwitchThumbDisabled">
+      <circle
+         style="fill:#666666;fill-opacity:1;stroke:none;stroke-width:0.423333;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="circle4"
+         cx="79.049179"
+         cy="22.931326"
+         r="2.6458333" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer6"
+     inkscape:label="Field">
+    <g
+       inkscape:groupmode="layer"
+       id="g13"
+       inkscape:label="FieldHovered">
+      <rect
+         style="fill:#666666;stroke-width:2.63997;fill-opacity:1"
+         id="rect3-3-6"
+         width="26.458332"
+         height="6.6145854"
+         x="31.039064"
+         y="29.740698" />
+      <rect
+         style="display:inline;fill:none;stroke:#999999;stroke-width:0.594212;stroke-dasharray:none"
+         id="rect5-5-8"
+         width="25.86412"
+         height="6.0203719"
+         x="31.33617"
+         y="30.037806" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="layer4"
+       inkscape:label="FieldFocused">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#layer2"
+         id="use12"
+         style="display:inline"
+         transform="translate(0.22300419,39.299344)" />
+      <rect
+         style="fill:none;stroke:#333333;stroke-width:0.529166;stroke-dasharray:0.529166, 0.529166;stroke-dashoffset:0"
+         id="rect5-5-88"
+         width="25.864119"
+         height="6.0203753"
+         x="31.620186"
+         y="39.653828" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="layer3"
+       inkscape:label="FieldDisabled">
+      <rect
+         style="fill:#4d4d4d;stroke-width:2.63997;fill-opacity:1"
+         id="rect3-3"
+         width="26.458332"
+         height="6.6145854"
+         x="31.039064"
+         y="19.556639" />
+      <rect
+         style="display:inline;fill:none;stroke:#4d4d4d;stroke-width:0.594212;stroke-dasharray:none"
+         id="rect5-5"
+         width="25.86412"
+         height="6.0203719"
+         x="31.33617"
+         y="19.853746" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="layer2"
+       inkscape:label="FieldDefault"
+       style="display:inline">
+      <rect
+         style="fill:#333333;stroke-width:2.63997"
+         id="rect3"
+         width="26.458332"
+         height="6.6145854"
+         x="31.100077"
+         y="0.057378724" />
+      <rect
+         style="fill:none;stroke:#666666;stroke-width:0.594212;stroke-dasharray:none"
+         id="rect5"
+         width="25.86412"
+         height="6.0203719"
+         x="31.397182"
+         y="0.35448608" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer5"
+     inkscape:label="Button">
+    <g
+       inkscape:label="ButtonDefault"
+       inkscape:groupmode="layer"
+       id="layer1"
+       transform="translate(1.606646,51.412672)">
+      <rect
+         style="fill:#999999;stroke-width:2.64583"
+         id="rect4"
+         width="26.458332"
+         height="7.9375"
+         x="-1.6066459"
+         y="-51.41267"
+         rx="1.3229166"
+         ry="1.3229166" />
+    </g>
+    <g
+       inkscape:label="ButtonPressed"
+       inkscape:groupmode="layer"
+       id="g8"
+       transform="translate(1.931238,60.704103)">
+      <rect
+         style="fill:#e6e6e6;stroke-width:2.64583"
+         id="rect8"
+         width="26.458332"
+         height="7.9375"
+         x="-1.6066459"
+         y="-51.41267"
+         rx="1.3229166"
+         ry="1.3229166" />
+    </g>
+    <g
+       inkscape:label="ButtonDisabled"
+       inkscape:groupmode="layer"
+       id="g9"
+       transform="translate(2.1341077,71.212753)">
+      <rect
+         style="fill:#4d4d4d;stroke-width:2.64583"
+         id="rect9"
+         width="26.458332"
+         height="7.9375"
+         x="-1.6066459"
+         y="-51.41267"
+         rx="1.3229166"
+         ry="1.3229166" />
+    </g>
+    <g
+       inkscape:label="ButtonHovered"
+       inkscape:groupmode="layer"
+       id="g10"
+       transform="translate(1.8906635,80.950499)">
+      <rect
+         style="fill:#b3b3b3;stroke-width:2.64583;fill-opacity:1"
+         id="rect10"
+         width="26.458332"
+         height="7.9375"
+         x="-1.6066459"
+         y="-51.41267"
+         rx="1.3229166"
+         ry="1.3229166" />
+    </g>
+    <g
+       inkscape:label="ButtonFocused"
+       inkscape:groupmode="layer"
+       id="g11"
+       transform="translate(1.6877943,90.931688)">
+      <rect
+         style="fill:#999999;stroke-width:2.64583"
+         id="rect4-6"
+         width="26.458332"
+         height="7.9375"
+         x="-1.6066462"
+         y="-51.41267"
+         rx="1.3229166"
+         ry="1.3229166" />
+      <rect
+         style="fill:none;stroke:#666666;stroke-width:0.52916667;stroke-dasharray:0.5291667, 0.5291667;stroke-dashoffset:0;stroke-opacity:1"
+         id="rect11-1"
+         width="25.135416"
+         height="6.6145835"
+         x="-0.94518816"
+         y="-50.751213"
+         rx="0.85510957"
+         ry="0.82987624" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer10"
+     inkscape:label="CheckBox">
+    <g
+       inkscape:groupmode="layer"
+       id="layer11"
+       inkscape:label="CheckBoxDefault">
+      <rect
+         style="display:inline;fill:#333333;stroke-width:2.63997"
+         id="rect3-30"
+         width="6.6145835"
+         height="6.6145859"
+         x="87.926186"
+         y="0.19655631" />
+      <rect
+         style="display:inline;fill:none;stroke:#666666;stroke-width:0.79375;stroke-dasharray:none"
+         id="rect5-2"
+         width="5.8208332"
+         height="5.8208332"
+         x="88.323059"
+         y="0.59343129" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="g22"
+       inkscape:label="CheckBoxHovered">
+      <rect
+         style="display:inline;fill:#666666;stroke-width:2.63997;fill-opacity:1"
+         id="rect3-30-2"
+         width="6.6145835"
+         height="6.6145859"
+         x="87.926186"
+         y="29.942078" />
+      <rect
+         style="display:inline;fill:none;stroke:#999999;stroke-width:0.79375;stroke-dasharray:none;stroke-opacity:1"
+         id="rect5-2-8"
+         width="5.8208332"
+         height="5.8208332"
+         x="88.323059"
+         y="30.338953" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="g23"
+       inkscape:label="CheckBoxFocused">
+      <rect
+         style="display:inline;fill:#333333;stroke-width:2.63997;fill-opacity:1"
+         id="rect3-30-5"
+         width="6.6145835"
+         height="6.6145859"
+         x="87.72963"
+         y="39.376781" />
+      <rect
+         style="display:inline;fill:none;stroke:#666666;stroke-width:0.79375;stroke-dasharray:0.79374999,0.79374999;stroke-opacity:1;stroke-dashoffset:0"
+         id="rect5-2-3"
+         width="5.8208332"
+         height="5.8208332"
+         x="88.126503"
+         y="39.773655" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="g24"
+       inkscape:label="CheckBoxDisabled">
+      <rect
+         style="display:inline;fill:#4d4d4d;stroke-width:2.63997;fill-opacity:1"
+         id="rect3-30-6"
+         width="6.6145835"
+         height="6.6145859"
+         x="87.664108"
+         y="20.11426" />
+      <rect
+         style="display:inline;fill:none;stroke:#4d4d4d;stroke-width:0.79375;stroke-dasharray:none;stroke-opacity:1"
+         id="rect5-2-2"
+         width="5.8208332"
+         height="5.8208332"
+         x="88.060982"
+         y="20.511137" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="layer14"
+       inkscape:label="CheckMarkHovered">
+      <path
+         id="rect31-1-4"
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#666666;stroke-width:0;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         d="m 101.77653,31.378482 -1.870908,1.870887 -0.93544,-0.935443 -0.93545,0.935443 0.93545,0.935443 0.93544,0.935444 0.935468,-0.935443 1.87088,-1.870887 z" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="layer13"
+       inkscape:label="CheckMarkDisabled">
+      <path
+         id="rect31-1"
+         style="fill:#666666;fill-opacity:1;stroke:#666666;stroke-width:0;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         d="m 102.32518,21.867391 -1.8709,1.870887 -0.935446,-0.935443 -0.93545,0.935443 0.93545,0.935443 0.935446,0.935444 0.93546,-0.935443 1.87088,-1.870887 z" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="layer12"
+       inkscape:label="CheckMarkDefault">
+      <path
+         id="rect31"
+         style="fill:#e6e6e6;fill-opacity:1;stroke:#666666;stroke-width:0;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         d="M 101.21328,1.9460213 99.342383,3.816908 98.406941,2.8814651 97.471497,3.8169085 98.40694,4.7523514 99.342384,5.6877949 100.27784,4.7523516 102.14872,2.8814649 Z" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="layer15"
+       inkscape:label="CheckMarkIntermediateDisabled">
+      <rect
+         style="fill:#666666;fill-opacity:1;stroke:#666666;stroke-width:0;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="rect32-5"
+         width="3.96875"
+         height="3.96875"
+         x="107.32314"
+         y="21.661243" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="g25"
+       inkscape:label="CheckMarkIntermediateDefault">
+      <rect
+         style="fill:#e6e6e6;fill-opacity:1;stroke:#666666;stroke-width:0;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="rect32"
+         width="3.96875"
+         height="3.96875"
+         x="107.83275"
+         y="1.9715194" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="g26"
+       inkscape:label="CheckMarkIntermediateHovered">
+      <rect
+         style="fill:#b3b3b3;fill-opacity:1;stroke:#666666;stroke-width:0;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="rect32-5-6"
+         width="3.96875"
+         height="3.96875"
+         x="108.15127"
+         y="31.46155" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="g47"
+     inkscape:label="RadioButton">
+    <g
+       inkscape:groupmode="layer"
+       id="g34"
+       inkscape:label="RadioBoxDefault">
+      <ellipse
+         style="fill:#333333;fill-opacity:1;stroke:#666666;stroke-width:0;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="path54"
+         cx="120.84336"
+         cy="4.0948806"
+         rx="3.3072929"
+         ry="3.3072917" />
+      <ellipse
+         style="fill:none;fill-opacity:1;stroke:#666666;stroke-width:0.79375;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="path55"
+         cx="120.84336"
+         cy="4.0948806"
+         rx="2.9104164"
+         ry="2.9104166" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="g36"
+       inkscape:label="RadioBoxHovered">
+      <ellipse
+         style="fill:#666666;fill-opacity:1;stroke:#666666;stroke-width:0;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="path54-2"
+         cx="120.79704"
+         cy="32.772388"
+         rx="3.3072929"
+         ry="3.3072917" />
+      <ellipse
+         style="fill:none;fill-opacity:1;stroke:#999999;stroke-width:0.79375;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="path55-2"
+         cx="120.79704"
+         cy="32.772388"
+         rx="2.9104164"
+         ry="2.9104166" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="g38"
+       inkscape:label="RadioBoxFocused">
+      <ellipse
+         style="fill:#333333;fill-opacity:1;stroke:#666666;stroke-width:0;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="path54-65"
+         cx="120.84337"
+         cy="42.408772"
+         rx="3.3072929"
+         ry="3.3072917" />
+      <ellipse
+         style="fill:none;fill-opacity:1;stroke:#666666;stroke-width:0.79375;stroke-dasharray:0.79374999,0.79374999;stroke-dashoffset:0;stroke-opacity:1"
+         id="path55-4"
+         cx="120.84337"
+         cy="42.408772"
+         rx="2.9104164"
+         ry="2.9104166" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="g40"
+       inkscape:label="RadioBoxDisabled">
+      <ellipse
+         style="fill:#4d4d4d;fill-opacity:1;stroke:#4d4d4d;stroke-width:0;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="path54-6"
+         cx="120.88969"
+         cy="23.367647"
+         rx="3.3072929"
+         ry="3.3072917" />
+      <ellipse
+         style="fill:#4d4d4d;fill-opacity:1;stroke:#4d4d4d;stroke-width:0.79375;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="path55-5"
+         cx="120.88969"
+         cy="23.367647"
+         rx="2.9104164"
+         ry="2.9104166" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="g41"
+       inkscape:label="RadioMarkHovered">
+      <circle
+         style="fill:#b3b3b3;fill-opacity:1;stroke:none;stroke-width:0.423333;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="path17-0-8"
+         cx="131.54532"
+         cy="32.58707"
+         r="1.3229166" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="g42"
+       inkscape:label="RadioMarkDisabled">
+      <circle
+         style="fill:#666666;fill-opacity:1;stroke:none;stroke-width:0.423333;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="path17-0-5"
+         cx="131.6843"
+         cy="23.691948"
+         r="1.3229166" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="g43"
+       inkscape:label="RadioMarkDefault">
+      <circle
+         style="fill:#e6e6e6;fill-opacity:1;stroke:none;stroke-width:0.423333;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="path17-0"
+         cx="130.3871"
+         cy="4.2338672"
+         r="1.3229166" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer16"
+     inkscape:label="Expander">
+    <g
+       inkscape:groupmode="layer"
+       id="layer17"
+       inkscape:label="ExpanderUnxpandedMarkDefault">
+      <path
+         sodipodi:type="star"
+         style="fill:#e6e6e6;fill-opacity:1;stroke:none;stroke-width:1.03171;stroke-dasharray:1.03171, 1.03171;stroke-dashoffset:0;stroke-opacity:1"
+         id="path60"
+         inkscape:flatsided="true"
+         sodipodi:sides="3"
+         sodipodi:cx="138.43034"
+         sodipodi:cy="0.78758901"
+         sodipodi:r1="3.4746604"
+         sodipodi:r2="1.7373302"
+         sodipodi:arg1="0"
+         sodipodi:arg2="1.0471976"
+         inkscape:rounded="0"
+         inkscape:randomized="0"
+         d="M 141.905,0.78758901 136.69301,3.7967332 V -2.2215552 Z"
+         inkscape:transform-center-x="-0.6683124"
+         transform="matrix(0.76935635,0,0,0.76935635,34.567061,3.488944)" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="g61"
+       inkscape:label="ExpanderUnxpandedMarkDisabled">
+      <path
+         sodipodi:type="star"
+         style="fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:1.03171;stroke-dasharray:1.03171, 1.03171;stroke-dashoffset:0;stroke-opacity:1"
+         id="path61"
+         inkscape:flatsided="true"
+         sodipodi:sides="3"
+         sodipodi:cx="138.43034"
+         sodipodi:cy="0.78758901"
+         sodipodi:r1="3.4746604"
+         sodipodi:r2="1.7373302"
+         sodipodi:arg1="0"
+         sodipodi:arg2="1.0471976"
+         inkscape:rounded="0"
+         inkscape:randomized="0"
+         d="M 141.905,0.78758901 136.69301,3.7967332 V -2.2215552 Z"
+         inkscape:transform-center-x="-0.6683124"
+         transform="matrix(0.76935635,0,0,0.76935635,34.428084,22.715381)" />
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       id="g62"
+       inkscape:label="ExpanderUnexpandedMarkHovered"
+       transform="translate(0.09265127,27.102994)">
+      <path
+         sodipodi:type="star"
+         style="fill:#b3b3b3;fill-opacity:1;stroke:none;stroke-width:1.03171;stroke-dasharray:1.03171, 1.03171;stroke-dashoffset:0;stroke-opacity:1"
+         id="path62"
+         inkscape:flatsided="true"
+         sodipodi:sides="3"
+         sodipodi:cx="138.43034"
+         sodipodi:cy="0.78758901"
+         sodipodi:r1="3.4746604"
+         sodipodi:r2="1.7373302"
+         sodipodi:arg1="0"
+         sodipodi:arg2="1.0471976"
+         inkscape:rounded="0"
+         inkscape:randomized="0"
+         d="M 141.905,0.78758901 136.69301,3.7967332 V -2.2215552 Z"
+         inkscape:transform-center-x="-0.6683124"
+         transform="matrix(0.76935635,0,0,0.76935635,34.567061,4.6464963)" />
+    </g>
+  </g>
+</svg>

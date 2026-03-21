@@ -1,0 +1,22 @@
+*** INFORMATION ***
+
+tcs UIGame is based on Myra and was further developed by Tobias Sachs
+
+This UI framework goes its own way. It continues to be developed and remains free for the others.
+
+However, it was only intended for Monogame. Support for FNA and KNI in next versions is planned.
+The rest like Stride and others are no longer supported due to technical reasons. Please understand this.
+
+
+
+
+*** CHANGES ***
+
+Version: 1.0
+
+--- Changes namespaces
+--- Improves quality 
+--- Removes all obsolete functions and classes
+--- Fixes issues in controls and dialogs
+--- Reduces unnecessary dependencies
+--- Add new features

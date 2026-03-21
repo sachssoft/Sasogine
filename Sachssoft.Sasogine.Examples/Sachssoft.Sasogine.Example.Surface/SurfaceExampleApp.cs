@@ -1,31 +1,25 @@
 ﻿using Sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine.Presentation;
 using Sachssoft.Sasogine.Surface;
 using Sachssoft.Sasogine.Surface.Controls;
 
 namespace Sachssoft.Sasogine.Example
 {
-    public class SurfaceExampleApp : MyGameApp<SurfaceExampleAssets>
+    public class SurfaceExampleApp : GameApplication<SurfaceExampleResources>
     {
         private CameraBase? _camera;
 
-        protected override SurfaceExampleAssets CreateAssetManager()
+        protected override SurfaceExampleResources CreateResources()
         {
-            return new SurfaceExampleAssets(this);
+            return new SurfaceExampleResources(this);
         }
 
-        protected override SurfaceHost? CreateSurfaceHost()
+        protected override IPresentationHost? CreatePresensationHost()
         {
-            //return new Desktop();
-            return new Workspace();
+            return new Desktop();
         }
 
-        protected override void OnLoad()
-        {
-            base.OnLoad();
-
-        }
-
-        protected override void InitializeViews(ViewManager view)
+        protected override void InitializeViews(SceneManager view)
         {
             base.InitializeViews(view);
 
@@ -35,11 +29,26 @@ namespace Sachssoft.Sasogine.Example
             view.SetDefault<SurfaceExampleView>();
         }
 
-        protected override void OnUpdate(GameFrameContext context)
+        protected override void OnUpdate(GameContext context)
         {
             base.OnUpdate(context);
-
-            _camera?.Update(context);
         }
+
+        //protected override void InitializeViews(ViewManager view)
+        //{
+        //    base.InitializeViews(view);
+
+        //    Window.AllowUserResizing = true;
+
+        //    view.Register<SurfaceExampleView>();
+        //    view.SetDefault<SurfaceExampleView>();
+        //}
+
+        //protected override void OnUpdate(GameFrameContext context)
+        //{
+        //    base.OnUpdate(context);
+
+        //    _camera?.Update(context);
+        //}
     }
 }

@@ -1,8 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Diagnostics;
 using Sachssoft.Sasogine.Graphics;
-using Sachssoft.Sasogine.Presentation;
 using System;
 
 namespace Sachssoft.Sasogine.Engine;
@@ -57,7 +55,7 @@ namespace Sachssoft.Sasogine.Engine;
 public abstract class RuntimeBase : IDisposable
 {
     private readonly RuntimeComponentCollection _components = new();
-    private readonly DiagnosticsContext _diagnostics = new();
+    //private readonly DiagnosticsContext _diagnostics = new();
     private readonly int _viewportCount;
     private readonly RuntimeViewportContext[] _runtimeContextes;
     private GameApplication? _application;
@@ -81,35 +79,14 @@ public abstract class RuntimeBase : IDisposable
         _sceneRenderTargets = new RenderTarget2D[_viewportCount];
     }
 
-    internal void EnsureInitialized(GameApplication application)
-    {
-        if (_wasInitialized)
-            return; // bereits eingerichtet
-
-        _application = application ?? throw new ArgumentNullException(nameof(application));
-        _graphicsDevice = _application.GraphicsDevice;
-
-        for (int i = 0; i < _viewportCount; i++)
-        {
-            var context = new RuntimeViewportContext(application, this, i)
-            {
-                Camera = CreateCamera(_graphicsDevice) ?? throw new InvalidOperationException($"Camera at index {i} is null."),
-                EffectAdapter = CreateDefaultEffectAdapter(_graphicsDevice),
-            };
-
-            _runtimeContextes[i] = context;
-        }
-
-        _wasInitialized = true;
-    }
-
     /// <summary>Maximal 4 Viewports für Split-Screen.</summary>
     public const int MaxViewports = 4;
 
     /// <summary>
     /// Die „Standardkamera“ der Runtime, genutzt als Ausgangspunkt für Viewports.
     /// </summary>
-    public CameraBase PrimaryCamera => _runtimeContextes[0].Camera;
+    //public CameraBase PrimaryCamera => _runtimeContextes[0].Camera;
+    public ICamera PrimaryCamera => _runtimeContextes[0].Camera;
 
     /// <summary>
     /// Der Effektadapter, der standardmäßig auf den Primär-Viewport angewendet wird.
@@ -129,7 +106,7 @@ public abstract class RuntimeBase : IDisposable
     public RuntimeComponentCollection Components => _components;
 
     /// <summary>Diagnostics für Profiler/Debugging.</summary>
-    public DiagnosticsContext Diagnostics => _diagnostics;
+    //public DiagnosticsContext Diagnostics => _diagnostics;
 
     /// <summary>Gibt an, ob Runtime geladen ist.</summary>
     public bool IsLoaded => _isLoaded;
@@ -161,7 +138,8 @@ public abstract class RuntimeBase : IDisposable
     /// </summary>
     public void ReportPresentationFocus(bool focusState) => IsAnyPresentationFocused = focusState;
 
-    public abstract CameraBase CreateCamera(GraphicsDevice graphicsDevice);
+    //public abstract CameraBase CreateCamera(GraphicsDevice graphicsDevice);
+    public abstract ICamera CreateCamera(GraphicsDevice graphicsDevice);
 
     public virtual IEffectAdapter CreateDefaultEffectAdapter(GraphicsDevice graphicsDevice)
     {
@@ -199,6 +177,28 @@ public abstract class RuntimeBase : IDisposable
 
         DisposeSceneResources();
         _isLoaded = false;
+    }
+
+    internal void EnsureInitialized(GameApplication application)
+    {
+        if (_wasInitialized)
+            return; // bereits eingerichtet
+
+        _application = application ?? throw new ArgumentNullException(nameof(application));
+        _graphicsDevice = _application.GraphicsDevice;
+
+        for (int i = 0; i < _viewportCount; i++)
+        {
+            var context = new RuntimeViewportContext(application, this, i)
+            {
+                Camera = CreateCamera(_graphicsDevice) ?? throw new InvalidOperationException($"Camera at index {i} is null."),
+                EffectAdapter = CreateDefaultEffectAdapter(_graphicsDevice),
+            };
+
+            _runtimeContextes[i] = context;
+        }
+
+        _wasInitialized = true;
     }
 
     private void DisposeSceneResources()

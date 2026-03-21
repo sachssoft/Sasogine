@@ -12,7 +12,8 @@ namespace Sachssoft.Sasogine.Engine
 
         public RuntimeBase Runtime { get; }
 
-        public CameraBase PrimaryCamera => Runtime.PrimaryCamera;
+        public ICamera PrimaryCamera => Runtime.PrimaryCamera;
+        //public CameraBase PrimaryCamera => Runtime.PrimaryCamera;
 
         public IEffectAdapter PrimaryEffectAdapter => Runtime.PrimaryEffectAdapter;
     }

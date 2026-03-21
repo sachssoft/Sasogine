@@ -1,0 +1,19 @@
+name: ❓ Question
+description: Submit a question or inquiry about the project
+title: "QUESTION: "
+labels:
+  - question
+assignees: []
+
+body:
+  - type: input
+    id: title
+    attributes:
+      label: "📝 Title"
+      placeholder: "Enter the question title"
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "📖 Description"
+      placeholder: "Describe your question in detail"

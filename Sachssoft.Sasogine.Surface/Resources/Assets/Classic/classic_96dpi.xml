@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with Free texture packer v0.6.7 http://free-tex-packer.com
+Format:
+n  => name
+x  => x pos
+y  => y pos
+w  => width
+h  => height
+pX => x pos of the pivot point
+pY => y pos of the pivot point
+oX => x-corner offset
+oY => y-corner offset
+oW => original width
+oH => original height
+r => 'y' if sprite is rotated-->
+<TextureAtlas imagePath="classic_96dpi.png" width="256" height="256" scale="1" format="RGBA8888">
+  <sprite n="sasogine_surface_classic_switch_hovered" x="0" y="0" w="48" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_switch_disabled" x="0" y="24" w="48" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_switch_default" x="48" y="0" w="48" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_item_boder_selected" x="0" y="48" w="32" h="32" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_button-border-hovered" x="32" y="48" w="32" h="32" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_button-border-pressed" x="64" y="24" w="32" h="32" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_window-border-default" x="64" y="56" w="32" h="32" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_item_border_hovered" x="0" y="80" w="32" h="32" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_button-border-disabled" x="32" y="80" w="32" h="32" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_button-border-focused" x="96" y="0" w="32" h="32" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_box_border_focused" x="96" y="32" w="32" h="32" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_button-border-default" x="96" y="64" w="32" h="32" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_content-border-default" x="64" y="88" w="32" h="32" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_field-border-default" x="96" y="96" w="32" h="32" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_field-border-disabled" x="0" y="112" w="32" h="32" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_field-border-focused" x="32" y="112" w="32" h="32" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_field-border-hovered" x="128" y="0" w="32" h="32" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_window_boder-inactivate" x="128" y="32" w="32" h="32" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_checkbox_unchecked_hovered" x="64" y="120" w="24" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_radiobutton_checked_default" x="128" y="64" w="24" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_radiobutton_checked_disabled" x="128" y="88" w="24" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_radiobutton_checked_hovered" x="128" y="112" w="24" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_radiobutton_unchecked_default" x="0" y="144" w="24" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_radiobutton_unchecked_disabled" x="24" y="144" w="24" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_radiobutton_unchecked_hovered" x="48" y="144" w="24" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_checkbox_unchecked_default" x="72" y="144" w="24" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_checkbox_unchecked_disabled" x="96" y="136" w="24" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_checkbox_checked_disabled" x="120" y="136" w="24" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_switch_knob_default" x="160" y="0" w="24" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_switch_knob_disabled" x="160" y="24" w="24" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_thumb_default" x="160" y="48" w="24" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_thumb_disabled" x="144" y="136" w="24" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_thumb_hovered" x="152" y="72" w="24" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_checkbox_checked_default" x="152" y="96" w="24" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_checkbox_checked_hovered" x="0" y="168" w="24" h="24" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_menu_arrow_right_icon" x="48" y="24" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_menu_arrow_up_icon" x="152" y="120" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_menu_check_mark_icon" x="168" y="120" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_menu_radio_mark_icon" x="168" y="136" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_music_file_icon" x="168" y="152" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_network_icon" x="24" y="168" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_drive_icon" x="40" y="168" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_favourite_folder_icon" x="56" y="168" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_button_arrow_up_icon_copy_1" x="72" y="168" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_button_arrow_up_icon_copy_2" x="88" y="168" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_button_arrow_up_icon_copy_3" x="104" y="168" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_archive_ile_icon" x="120" y="168" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_script_file_icon" x="136" y="168" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_sound_file_icon" x="152" y="160" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_file_icon" x="152" y="176" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_folder_icon" x="168" y="168" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_icon_refresh" x="184" y="0" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_image_file_icon" x="184" y="16" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_inspector_value_clear_icon" x="184" y="32" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_text_file_icon" x="184" y="48" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_button_arrow_up_icon" x="184" y="64" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_disc_icon" x="184" y="80" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_map_file_icon" x="184" y="96" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_video_file_icon" x="184" y="112" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_menu_arrow_down_icon" x="184" y="128" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_menu_arrow_left_icon" x="184" y="144" w="16" h="16" pX="0.5" pY="0.5"/>
+  <sprite n="sasogine_surface_classic_window_close_icon" x="184" y="160" w="16" h="16" pX="0.5" pY="0.5"/>
+</TextureAtlas>

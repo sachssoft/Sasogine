@@ -1,0 +1,29 @@
+name: 📝 Task
+description: Submit a task or assignment for the project
+title: "TASK: "
+labels:
+  - task
+assignees: []
+
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "📖 Description"
+      placeholder: "Describe the task or issue"
+
+  - type: checkboxes
+    id: todo
+    attributes:
+      label: "📌 To-Do"
+      options:
+        - label: "Test"
+        - label: "Refactor / Improvement needed"
+        - label: "Analysis"
+        - label: "Design / Layout"
+        - label: "Documentation"
+        - label: "Add Feature"
+        - label: "Bug Fix"
+        - label: "Optimization / Performance"
+        - label: "Review"
+        - label: "Other"

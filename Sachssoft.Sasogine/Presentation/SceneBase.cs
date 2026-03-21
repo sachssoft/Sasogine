@@ -1,5 +1,8 @@
-﻿using System;
-using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Sasogine.Common;
+using System;
+using System.Collections.Generic;
+using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 
 namespace Sachssoft.Sasogine.Presentation
 {
@@ -14,6 +17,9 @@ namespace Sachssoft.Sasogine.Presentation
         private bool _isActive;
         private SceneManager? _scenes;
         private GameApplication? _application;
+        private Type? _cachedType;
+        private SceneSectionBase? _cachedSection;
+        private readonly Dictionary<Type, SceneSectionBase> _sections = new();
 
         protected SceneBase()
         {
@@ -61,6 +67,50 @@ namespace Sachssoft.Sasogine.Presentation
         }
 
         public bool IsLoaded { get; internal set; }
+
+        protected void RegisterSection<TSection>(TSection section)
+            where TSection : SceneSectionBase
+        {
+            var type = typeof(TSection);
+
+            if (_sections.ContainsKey(type))
+                throw new InvalidOperationException($"Scene section '{type.Name}' is already registered.");
+
+            _sections[type] = section;
+            DisposeManager.Register(section);
+        }
+
+        public TSection GetSection<TSection>() where TSection : SceneSectionBase
+        {
+            var type = typeof(TSection);
+
+            // Hotpath: Cache-Treffer
+            if (_cachedType == type)
+            {
+                if (_cachedSection is null)
+                    throw new InvalidOperationException(
+                        $"Scene section '{type.Name}' wurde gecached, ist aber null. " +
+                        "Dies deutet auf einen Fehler in RegisterSection oder Cache-Invalidierung hin."
+                    );
+
+                // Safe Unsafe.Cast, da Typ durch _cachedType geprüft
+                return Unsafe.As<SceneSectionBase, TSection>(ref _cachedSection);
+            }
+
+            // Coldpath: Dictionary-Lookup
+            if (!_sections.TryGetValue(type, out var section))
+                throw new InvalidOperationException($"Scene section '{type.Name}' ist nicht registriert.");
+
+            if (section is null)
+                throw new InvalidOperationException($"Scene section '{type.Name}' ist null. Dies ist ein Programmierfehler.");
+
+            // Cache aktualisieren
+            _cachedType = type;
+            _cachedSection = section;
+
+            // Hotpath-freundlich zurückgeben
+            return Unsafe.As<SceneSectionBase, TSection>(ref _cachedSection);
+        }
 
         protected void Leave()
         {

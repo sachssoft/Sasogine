@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Interactions;
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
