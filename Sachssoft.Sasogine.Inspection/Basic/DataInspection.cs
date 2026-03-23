@@ -6,7 +6,7 @@ using System.ComponentModel;
 
 namespace Sachssoft.Sasogine.Inspection
 {
-    public abstract class DataInspection : NotifyingElement, IDefinition
+    public abstract class DataInspection : NotifyingElement, IElementDefinition
     {
         public event EventHandler<DefinitionChangedEventArgs>? Changed;
 

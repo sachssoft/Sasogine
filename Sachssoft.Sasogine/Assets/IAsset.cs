@@ -8,7 +8,7 @@ namespace Sachssoft.Sasogine.Assets
     /// Base interface for all assets (e.g., Texture2D, Model, Sound).
     /// Provides lifecycle events, synchronous/asynchronous loading, and error handling.
     /// </summary>
-    public interface IAsset2
+    public interface IAsset
     {
         /// <summary>
         /// Fired after the asset instance has been successfully loaded.

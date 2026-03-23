@@ -14,7 +14,7 @@ namespace Sachssoft.Sasogine.Assets
     /// synchronous/asynchronous loading, unloading, and event notifications.
     /// </summary>
     /// <typeparam name="T">Concrete type of the asset instance</typeparam>
-    public abstract class AssetBase2<T, TDefinition> : ElementBase<TDefinition>, IAsset2
+    public abstract class AssetBase<T, TDefinition> : ElementBase<TDefinition>, IAsset
         where T : class
         where TDefinition : class, IAssetDefinition
     {
@@ -45,7 +45,7 @@ namespace Sachssoft.Sasogine.Assets
         /// </summary>
         public event EventHandler? InstanceChanged;
         
-        protected AssetBase2() { }
+        protected AssetBase() { }
 
         public override TDefinition Definition => _definition;
 
@@ -82,7 +82,7 @@ namespace Sachssoft.Sasogine.Assets
         /// </summary>
         public T? Instance => _instance;
 
-        object? IAsset2.Instance => _instance;
+        object? IAsset.Instance => _instance;
 
         /// <summary>
         /// Initializes the component with a registry and creates its definition.
