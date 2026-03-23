@@ -21,7 +21,7 @@ internal static class Mathematics
     /// <returns><c>true</c> if <paramref name="left"/> is within epsilon of <paramref name="right"/>; otherwise, <c>false</c>.</returns>
     public static bool EpsilonEquals(this float left, float right, float epsilon = ZeroTolerance)
     {
-        return Math.Abs(left - right) <= epsilon;
+        return float.Abs(left - right) <= epsilon;
     }
 
     public static bool IsZero(this float a)
@@ -29,7 +29,7 @@ internal static class Mathematics
         return a.EpsilonEquals(0.0f);
     }
 
-    public static Point ToPoint(this Vector2 v) => new Point((int)Math.Round(v.X), (int)Math.Round(v.Y));
+    public static Point ToPoint(this Vector2 v) => new Point((int)float.Round(v.X), (int)float.Round(v.Y));
 
     public static Vector2 ToVector2(this Point p) => new Vector2(p.X, p.Y);
 

@@ -162,8 +162,8 @@ partial class Widget : IInputEventsProcessor
     {
         if (_lastTouchDown != null &&
             (DateTime.Now - _lastTouchDown.Value).TotalMilliseconds < UIEnvironment.DoubleClickIntervalInMs &&
-            Math.Abs(touchPos.X - _lastLocalTouchPosition.X) <= UIEnvironment.DoubleClickRadius &&
-            Math.Abs(touchPos.Y - _lastLocalTouchPosition.Y) <= UIEnvironment.DoubleClickRadius)
+            int.Abs(touchPos.X - _lastLocalTouchPosition.X) <= UIEnvironment.DoubleClickRadius &&
+            int.Abs(touchPos.Y - _lastLocalTouchPosition.Y) <= UIEnvironment.DoubleClickRadius)
         {
             _lastTouchDown = null;
             InputEventsManager.Queue(this, InputEventType.TouchDoubleClick);

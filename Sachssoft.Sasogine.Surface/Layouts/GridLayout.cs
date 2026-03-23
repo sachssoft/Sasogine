@@ -130,12 +130,12 @@ public class GridLayout : ILayout
             _visibleWidgets.Add(child);
 
             var gp = GetActualGridPosition(child);
-            columns = Math.Max(columns, gp.X + Math.Max(Grid.GetColumnSpan(child), 1));
-            rows = Math.Max(rows, gp.Y + Math.Max(Grid.GetRowSpan(child), 1));
+            columns = int.Max(columns, gp.X + int.Max(Grid.GetColumnSpan(child), 1));
+            rows = int.Max(rows, gp.Y + int.Max(Grid.GetRowSpan(child), 1));
         }
 
-        columns = Math.Max(columns, ColumnsProportions.Count);
-        rows = Math.Max(rows, RowsProportions.Count);
+        columns = int.Max(columns, ColumnsProportions.Count);
+        rows = int.Max(rows, RowsProportions.Count);
 
         _measureColWidths.Clear();
         _measureRowHeights.Clear();
@@ -174,10 +174,10 @@ public class GridLayout : ILayout
                     if (Grid.GetRowSpan(widget) != 1) measured.Y = 0;
 
                     if (colProp.Type != ProportionType.Pixel)
-                        _measureColWidths[col] = Math.Max(_measureColWidths[col], measured.X);
+                        _measureColWidths[col] = int.Max(_measureColWidths[col], measured.X);
 
                     if (rowProp.Type != ProportionType.Pixel)
-                        _measureRowHeights[row] = Math.Max(_measureRowHeights[row], measured.Y);
+                        _measureRowHeights[row] = int.Max(_measureRowHeights[row], measured.Y);
                 }
             }
         }
@@ -346,8 +346,8 @@ public class GridLayout : ILayout
         var rect = new Rectangle(bounds.Left + CellLocationsX[col], bounds.Top + CellLocationsY[row], cellSize.X, cellSize.Y);
 
         // Clamp to bounds
-        rect.Width = Math.Max(0, Math.Min(rect.Width, bounds.Right - rect.X));
-        rect.Height = Math.Max(0, Math.Min(rect.Height, bounds.Bottom - rect.Y));
+        rect.Width = int.Max(0, int.Min(rect.Width, bounds.Right - rect.X));
+        rect.Height = int.Max(0, int.Min(rect.Height, bounds.Bottom - rect.Y));
 
         control.Arrange(rect);
     }

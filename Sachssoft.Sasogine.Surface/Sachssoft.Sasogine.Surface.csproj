@@ -53,6 +53,6 @@
 		<Folder Include="Resources\Assets\Old\" />
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\Sachssoft.Sasogine\Sachssoft.Sasogine.Basic.csproj" />
+	  <ProjectReference Include="..\Sachssoft.Sasogine\Sachssoft.Sasogine.csproj" />
 	</ItemGroup>
 </Project>

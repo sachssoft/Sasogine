@@ -36,8 +36,8 @@ public struct Transform
         }
         else
         {
-            var cos = (float)Math.Cos(rotation);
-            var sin = (float)Math.Sin(rotation);
+            var cos = float.Cos(rotation);
+            var sin = float.Sin(rotation);
             result.M11 = scale.X * cos;
             result.M12 = scale.X * sin;
             result.M21 = scale.Y * -sin;

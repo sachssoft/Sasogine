@@ -224,7 +224,7 @@ public static class UIEnvironment
     //    };
     //}
 
-    public static IClipboard? Clipboard => _clipboard;
+    public static IClipboardService? Clipboard => _clipboard;
 
     public static TextInputState TextInputState => _textInputState;
 
@@ -320,7 +320,7 @@ public static class UIEnvironment
 
     internal static string InternalClipboard;
     private static TextInputState _textInputState;
-    private static IClipboard _clipboard;
+    private static IClipboardService _clipboard;
 
     public static MouseInfo DefaultMouseInfoGetter()
     {

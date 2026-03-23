@@ -150,7 +150,7 @@ namespace Sachssoft.Sasogine.Surface.Controls
             // Immer prüfen, ob Ziel sich geändert hat oder Animation zurückgesetzt werden soll
             float target = GetAnimationTarget();
 
-            if (_isAnimating || Math.Abs(_animationEnd - target) > 0.001f)
+            if (_isAnimating || float.Abs(_animationEnd - target) > 0.001f)
             {
                 AnimateKnob(gameTime);
             }

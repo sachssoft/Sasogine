@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Engine;
 using Sachssoft.Sasogine.Presentation;
 using Sachssoft.Sasogine.Surface.Controls;
 using System;

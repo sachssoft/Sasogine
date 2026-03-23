@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Sasofly.Resources;
-using Sachssoft.Sasogine.Graphics.Colors;
+using Sachssoft.Sasogine.Graphics;
 using Sachssoft.Sasogine.Surface.Layouts;
 using Sachssoft.Sasogine.Surface.Visuals;
 using System;
@@ -124,7 +124,7 @@ public class ColorValueEditor : InspectorValueEditorBase
         {
             // value ist entweder Color oder Color?, casten wir sicher
             Color color = value is Color c ? c : ((Color?)value).GetValueOrDefault(Color.Black);
-            textBox.Text = color.ToHex();
+            textBox.Text = ColorUtils.ToHexString(color);
             label.Background = color.ToBrush();
         }
     }

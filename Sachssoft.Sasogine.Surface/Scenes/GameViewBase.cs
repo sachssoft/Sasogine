@@ -1,5 +1,4 @@
-﻿using Sachssoft.Sasogine.Engine;
-using Sachssoft.Sasogine.Presentation;
+﻿using Sachssoft.Sasogine.Presentation;
 using Sachssoft.Sasogine.Surface.Controls;
 using Sachssoft.Sasogine.Surface.Visuals.Controls;
 using System;

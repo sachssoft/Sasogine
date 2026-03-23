@@ -269,7 +269,7 @@ namespace Sachssoft.Sasogine.Surface.Controls
 
             if (Popup?.Content != null)
             {
-                Popup.Content.MinWidth = Math.Max(
+                Popup.Content.MinWidth = int.Max(
                     Popup.Content.Width.Value.GetValueOrDefault(),
                     Bounds.Width
                 );

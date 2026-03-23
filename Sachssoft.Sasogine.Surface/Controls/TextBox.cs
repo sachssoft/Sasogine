@@ -688,7 +688,7 @@ namespace Sachssoft.Sasogine.Surface.Controls
                             var ensureText = EnsureGetText();
 
                             // get start of line
-                            var searchStart = Math.Max(0, SelectionStartIndex - 1);
+                            var searchStart = int.Max(0, SelectionStartIndex - 1);
                             var lineStart = ensureText.LastIndexOf("\n", searchStart);
                             // special case: cursor is in first line
                             if (lineStart == -1) lineStart = 0;
@@ -706,8 +706,8 @@ namespace Sachssoft.Sasogine.Surface.Controls
                         // duplicate selection
                         else
                         {
-                            var start = Math.Min(SelectionStartIndex, SelectionEndIndex);
-                            var end = Math.Max(SelectionStartIndex, SelectionEndIndex);
+                            var start = int.Min(SelectionStartIndex, SelectionEndIndex);
+                            var end = int.Max(SelectionStartIndex, SelectionEndIndex);
                             var text = EnsureGetText().Substring(start, end - start);
                             Insert(end, text);
                         }
@@ -860,8 +860,8 @@ namespace Sachssoft.Sasogine.Surface.Controls
         {
             if (SelectionEndIndex != SelectionStartIndex)
             {
-                var selectStart = Math.Min(SelectionStartIndex, SelectionEndIndex);
-                var selectEnd = Math.Max(SelectionStartIndex, SelectionEndIndex);
+                var selectStart = int.Min(SelectionStartIndex, SelectionEndIndex);
+                var selectEnd = int.Max(SelectionStartIndex, SelectionEndIndex);
 
                 var clipboardText = _richTextLayout.Text.Substring(selectStart, selectEnd - selectStart);
                 ClipboardServiceHelper.SetText(clipboardText);
@@ -1340,8 +1340,8 @@ namespace Sachssoft.Sasogine.Surface.Controls
                 return;
             }
 
-            var selectStart = Math.Min(SelectionStartIndex, SelectionEndIndex);
-            var selectEnd = Math.Max(SelectionStartIndex, SelectionEndIndex);
+            var selectStart = int.Min(SelectionStartIndex, SelectionEndIndex);
+            var selectEnd = int.Max(SelectionStartIndex, SelectionEndIndex);
 
             if (selectStart >= selectEnd)
             {
@@ -1530,7 +1530,7 @@ namespace Sachssoft.Sasogine.Surface.Controls
             if (CaretColor.Value != null)
             {
                 result.X += CaretWidth;
-                result.Y = Math.Max(result.Y, CaretWidth /*CaretColor.Value.Size.Y*/);
+                result.Y = int.Max(result.Y, CaretWidth /*CaretColor.Value.Size.Y*/);
             }
 
             return result;

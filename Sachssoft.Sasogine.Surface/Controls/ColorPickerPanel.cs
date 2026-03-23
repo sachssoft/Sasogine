@@ -23,8 +23,8 @@ public partial class ColorPickerPanel
 
     private const int Rows = 2;
     private const int ColorsPerRow = 8;
-    private const float DegToRad = (float)Math.PI / 180;
-    private const float RadToDeg = 180 / (float)Math.PI;
+    private const float DegToRad = float.Pi / 180;
+    private const float RadToDeg = 180 / float.Pi;
     private const string InputChars = "1234567890,";
     private const string HexChars = "1234567890ABCDEFabcdef";
     private readonly List<Image> _userColorBackgrounds = new List<Image>();
@@ -252,11 +252,11 @@ public partial class ColorPickerPanel
         int r = WheelHeight / 2;
         int x = p.X - r - _hsPicker.Bounds.Height / 2;
         int y = p.Y - r - _hsPicker.Bounds.Width / 2;
-        float angle = (float)Math.Atan2(x, y);
-        float rsquared = Math.Min(x * x + y * y, r * r);
-        float radius = (float)Math.Sqrt(rsquared);
-        _hsPicker.Left = (int)(radius * Math.Sin(angle));
-        _hsPicker.Top = (int)(radius * Math.Cos(angle));
+        float angle = float.Atan2(x, y);
+        float rsquared = float.Min(x * x + y * y, r * r);
+        float radius = float.Sqrt(rsquared);
+        _hsPicker.Left = (int)(radius * float.Sin(angle));
+        _hsPicker.Top = (int)(radius * float.Cos(angle));
 
         int h = (int)(angle * RadToDeg) + 90;
         if (h < 0)
@@ -502,8 +502,8 @@ public partial class ColorPickerPanel
         }
         if (!(bool)_hsPicker.Tag)
         {
-            _hsPicker.Top = (int)(hsv.S / 200f * WheelHeight * Math.Sin(DegToRad * (-hsv.H + 180)));
-            _hsPicker.Left = (int)(hsv.S / 200f * WheelHeight * Math.Cos(DegToRad * (-hsv.H + 180)));
+            _hsPicker.Top = (int)(hsv.S / 200f * WheelHeight * float.Sin(DegToRad * (-hsv.H + 180)));
+            _hsPicker.Left = (int)(hsv.S / 200f * WheelHeight * float.Cos(DegToRad * (-hsv.H + 180)));
         }
         if (!(bool)_vPicker.Tag)
         {

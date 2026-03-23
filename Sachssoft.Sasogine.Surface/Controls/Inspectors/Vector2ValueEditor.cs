@@ -1,8 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Graphics.Colors;
+using Sachssoft.Sasogine.Graphics;
 using Sachssoft.Sasogine.Surface.Layouts;
 using Sachssoft.Sasogine.Surface.Visuals;
-using Sachssoft.Sasogine.Surface.Visuals.Controls;
 using System;
 
 namespace Sachssoft.Sasogine.Surface.Controls.Inspectors

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.3.11520.95
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sachssoft.Sasogine.Basic", "Sachssoft.Sasogine\Sachssoft.Sasogine.Basic.csproj", "{A94D8326-3B2C-41BD-9774-821FAD667E4C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sachssoft.Sasogine", "Sachssoft.Sasogine\Sachssoft.Sasogine.csproj", "{A94D8326-3B2C-41BD-9774-821FAD667E4C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
@@ -39,19 +39,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sachssoft.Sasogine.Editor",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sachssoft.Sasogine.Tiling", "Sachssoft.Sasogine.Tiling\Sachssoft.Sasogine.Tiling.csproj", "{E2AFBC44-5F78-F3C5-6148-7FE72CB8576E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sachssoft.Sasogine.Packaging", "Sachssoft.Sasogine.Containers\Sachssoft.Sasogine.Packaging.csproj", "{902DBB88-34A5-492B-9344-9AD8F2D432DF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sachssoft.Sasogine.Gameplay", "Sachssoft.Sasogine.Gameplay\Sachssoft.Sasogine.Gameplay.csproj", "{251F63EA-14F6-4C9E-9D60-FAC03C6D63A9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sachssoft.Sasogine.Diagnostics", "Sachssoft.Sasogine.Diagnostics\Sachssoft.Sasogine.Diagnostics.csproj", "{C4807FD4-6D87-4325-8097-F68E3AC3EB20}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sachssoft.Sasogine.Interactions", "Sachssoft.Sasogine.Interactions\Sachssoft.Sasogine.Interactions.csproj", "{60BCF10B-5531-433C-BE61-E93E36BD88E1}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sachssoft.Sasogine.Network", "Sachssoft.Sasogine.Network\Sachssoft.Sasogine.Network.csproj", "{60669D7B-A452-40CD-9AE3-EAA112B0FDCE}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sachssoft.Sasogine.Geometry", "Sachssoft.Sasogine.Geometry\Sachssoft.Sasogine.Geometry.csproj", "{164C2A0C-50E9-4D63-AFCA-4B148CCFC3C8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sachssoft.Sasogine.Graphics", "Sachssoft.Sasogine.Graphics\Sachssoft.Sasogine.Graphics.csproj", "{ADFD7B60-E7D3-497E-B7C1-2D3716C86A1D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sasofly", "Sasofly", "{2116D355-8780-421E-BC24-78AE703A4575}"
 EndProject
@@ -76,6 +64,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sachssoft.Sasogine.Physics", "Sachssoft.Sasogine.Physics\Sachssoft.Sasogine.Physics.csproj", "{61BADCE3-14A4-4492-8EA3-99EFA9E8BFE2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sachssoft.Sasofly.Inspection", "..\Sasolib\Sachssoft.Sasofly.Inspection\Sachssoft.Sasofly.Inspection.csproj", "{A3759AFE-5613-FE98-58F7-779DE2A19E07}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sachssoft.Sasofly.Documents", "..\Sasolib\Sachssoft.Sasofly.Documents\Sachssoft.Sasofly.Documents.csproj", "{F4A4C6A7-FF05-398D-E927-5EAF80D15884}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -151,34 +141,10 @@ Global
 		{E2AFBC44-5F78-F3C5-6148-7FE72CB8576E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E2AFBC44-5F78-F3C5-6148-7FE72CB8576E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E2AFBC44-5F78-F3C5-6148-7FE72CB8576E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{902DBB88-34A5-492B-9344-9AD8F2D432DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{902DBB88-34A5-492B-9344-9AD8F2D432DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{902DBB88-34A5-492B-9344-9AD8F2D432DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{902DBB88-34A5-492B-9344-9AD8F2D432DF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{251F63EA-14F6-4C9E-9D60-FAC03C6D63A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{251F63EA-14F6-4C9E-9D60-FAC03C6D63A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{251F63EA-14F6-4C9E-9D60-FAC03C6D63A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{251F63EA-14F6-4C9E-9D60-FAC03C6D63A9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C4807FD4-6D87-4325-8097-F68E3AC3EB20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C4807FD4-6D87-4325-8097-F68E3AC3EB20}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C4807FD4-6D87-4325-8097-F68E3AC3EB20}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C4807FD4-6D87-4325-8097-F68E3AC3EB20}.Release|Any CPU.Build.0 = Release|Any CPU
-		{60BCF10B-5531-433C-BE61-E93E36BD88E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{60BCF10B-5531-433C-BE61-E93E36BD88E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{60BCF10B-5531-433C-BE61-E93E36BD88E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{60BCF10B-5531-433C-BE61-E93E36BD88E1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{60669D7B-A452-40CD-9AE3-EAA112B0FDCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{60669D7B-A452-40CD-9AE3-EAA112B0FDCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60669D7B-A452-40CD-9AE3-EAA112B0FDCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60669D7B-A452-40CD-9AE3-EAA112B0FDCE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{164C2A0C-50E9-4D63-AFCA-4B148CCFC3C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{164C2A0C-50E9-4D63-AFCA-4B148CCFC3C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{164C2A0C-50E9-4D63-AFCA-4B148CCFC3C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{164C2A0C-50E9-4D63-AFCA-4B148CCFC3C8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ADFD7B60-E7D3-497E-B7C1-2D3716C86A1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ADFD7B60-E7D3-497E-B7C1-2D3716C86A1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ADFD7B60-E7D3-497E-B7C1-2D3716C86A1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ADFD7B60-E7D3-497E-B7C1-2D3716C86A1D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F3A69BF2-ED50-936B-D3E9-882635CFCBD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F3A69BF2-ED50-936B-D3E9-882635CFCBD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3A69BF2-ED50-936B-D3E9-882635CFCBD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -219,6 +185,10 @@ Global
 		{A3759AFE-5613-FE98-58F7-779DE2A19E07}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3759AFE-5613-FE98-58F7-779DE2A19E07}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3759AFE-5613-FE98-58F7-779DE2A19E07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4A4C6A7-FF05-398D-E927-5EAF80D15884}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4A4C6A7-FF05-398D-E927-5EAF80D15884}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4A4C6A7-FF05-398D-E927-5EAF80D15884}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4A4C6A7-FF05-398D-E927-5EAF80D15884}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -246,6 +216,7 @@ Global
 		{F6537167-A0F1-4C7F-A956-908D4DE2F090} = {73138C20-2BCF-449F-8D95-620781BE751E}
 		{F9E1DF2A-4875-1EA4-9991-D1BFBB763E39} = {2116D355-8780-421E-BC24-78AE703A4575}
 		{A3759AFE-5613-FE98-58F7-779DE2A19E07} = {2116D355-8780-421E-BC24-78AE703A4575}
+		{F4A4C6A7-FF05-398D-E927-5EAF80D15884} = {2116D355-8780-421E-BC24-78AE703A4575}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7424B1A3-2A7B-4467-963E-74EEA104AB1F}

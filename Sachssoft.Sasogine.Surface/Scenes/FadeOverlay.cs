@@ -1,12 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Graphics.Colors;
 using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
-using Sachssoft.Sasogine.Surface.Visuals.Controls;
 using Sachssoft.Sasogine.Surface.Visuals;
 using Sachssoft.Sasogine.Surface.Visuals.Brushes;
 using Sachssoft.Sasogine.Surface.Controls;
+using Sachssoft.Sasogine.Graphics;
 
 namespace Sachssoft.Sasogine.Surface.Scenes;
 
@@ -33,23 +32,23 @@ internal class FadeOverlay : Container
         base.InternalRender(context, t);
     }
 
-    public Task FadeToAsync(float target_alpha, int duration_ms)
+    public Task FadeToAsync(float targetAlpha, int durationMs)
     {
         var tcs = new TaskCompletionSource<bool>();
         float start_alpha = ((SolidColorBrush)Background).Color.A / 255f;
-        float end_alpha = target_alpha;
+        float end_Alpha = targetAlpha;
         int elapsed = 0;
 
         _frame_updates.Add(() =>
         {
             elapsed += 16; // simulierte Framerate
-            float t = float.Clamp(elapsed / (float)duration_ms, 0f, 1f);
-            float alpha = float.Lerp(start_alpha, end_alpha, t);
-            Background = new SolidColorBrush(((SolidColorBrush)Background).Color.ChangeAlphaChannel(alpha));
+            float t = float.Clamp(elapsed / (float)durationMs, 0f, 1f);
+            float alpha = float.Lerp(start_alpha, end_Alpha, t);
+            Background = new SolidColorBrush(ColorUtils.ChangeAlphaChannel(((SolidColorBrush)Background).Color, alpha));
 
-            if (elapsed >= duration_ms)
+            if (elapsed >= durationMs)
             {
-                Background = new SolidColorBrush(((SolidColorBrush)Background).Color.ChangeAlphaChannel(end_alpha));
+                Background = new SolidColorBrush(ColorUtils.ChangeAlphaChannel(((SolidColorBrush)Background).Color, end_Alpha));
                 tcs.SetResult(true);
                 return true; // fertig
             }

@@ -1,9 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Graphics.Colors;
 using Sachssoft.Sasogine.Surface.Basic;
 using Sachssoft.Sasogine.Surface.Visuals;
-using Sachssoft.Sasogine.Surface.Visuals.Regions;
 using System;
 using System.Collections.Generic;
 using System.Globalization;

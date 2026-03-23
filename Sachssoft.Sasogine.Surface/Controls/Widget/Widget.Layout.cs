@@ -325,7 +325,7 @@ namespace Sachssoft.Sasogine.Surface.Controls
                     var localTransform = new Transform(p.ToVector2(),
                         TransformOrigin * _layoutBounds.Size().ToVector2(),
                         Scale,
-                        Rotation * (float)Math.PI / 180);
+                        Rotation * float.Pi / 180);
 
                     if (Parent != null)
                     {

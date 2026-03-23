@@ -83,8 +83,8 @@ public sealed class NinePatchRegion : ITextureRegion
         if (left < 0 || top < 0 || right < 0 || bottom < 0) throw new ArgumentException("Insets must be non-negative.");
         if (left + right > bounds.Width || top + bottom > bounds.Height) throw new ArgumentException("Insets are larger than bounds.");
 
-        int centerWidth = Math.Max(0, bounds.Width - left - right);
-        int centerHeight = Math.Max(0, bounds.Height - top - bottom);
+        int centerWidth = int.Max(0, bounds.Width - left - right);
+        int centerHeight = int.Max(0, bounds.Height - top - bottom);
 
         int xLeft = bounds.X;
         int xCenter = bounds.X + left;
@@ -187,8 +187,8 @@ public sealed class NinePatchRegion : ITextureRegion
         int topHeight = _topLeft.Bounds.Height;
         int bottomHeight = _bottomLeft.Bounds.Height;
 
-        int centerWidth = Math.Max(0, dest.Width - leftWidth - rightWidth);
-        int centerHeight = Math.Max(0, dest.Height - topHeight - bottomHeight);
+        int centerWidth = int.Max(0, dest.Width - leftWidth - rightWidth);
+        int centerHeight = int.Max(0, dest.Height - topHeight - bottomHeight);
 
         // Draw top row
         _topLeft.Draw(context, new Rectangle(dest.X, dest.Y, leftWidth, topHeight), color);

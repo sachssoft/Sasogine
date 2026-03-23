@@ -1,13 +1,7 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using nkast.Aether.Physics2D.Dynamics;
-using Sachssoft.Sasogine.Surface.Basic;
+﻿using Sachssoft.Sasogine.Surface.Basic;
 using Sachssoft.Sasogine.Surface.Styles;
-using Sachssoft.Sasogine.Surface.Visuals;
-using Sachssoft.Sasogine.Surface.Visuals.Brushes;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace Sachssoft.Sasogine.Surface.Controls.Primitives

@@ -197,7 +197,7 @@ namespace Sachssoft.Sasogine.Surface.Controls.Inspectors
             {
                 //Dynamische Breite basierend auf ScrollViewer
                 int availableWidth = _orientation.Value == Orientation.Horizontal
-                    ? Math.Max(0, viewer.Bounds.Width - _labelWidth - 20 * 2) // 20px Puffer
+                    ? int.Max(0, viewer.Bounds.Width - _labelWidth - 20 * 2) // 20px Puffer
                     : viewer.Bounds.Width - 20 * 2; // vertikal
                 editorItem.EditorControl.Width = availableWidth;
             }

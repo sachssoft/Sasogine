@@ -85,8 +85,8 @@ namespace Sachssoft.Sasogine.Surface.Visuals.Regions
             int startY = dest.Y + ((_offset.Y % tileHeight + tileHeight) % tileHeight) - tileHeight;
 
             // Anzahl benötigter Tiles in X- und Y-Richtung
-            int tilesX = (_mode == TileMode.TileY) ? 1 : (int)Math.Ceiling(dest.Width / (float)tileWidth) + 2;
-            int tilesY = (_mode == TileMode.TileX) ? 1 : (int)Math.Ceiling(dest.Height / (float)tileHeight) + 2;
+            int tilesX = (_mode == TileMode.TileY) ? 1 : (int)float.Ceiling(dest.Width / (float)tileWidth) + 2;
+            int tilesY = (_mode == TileMode.TileX) ? 1 : (int)float.Ceiling(dest.Height / (float)tileHeight) + 2;
 
             for (int y = 0; y < tilesY; y++)
             {

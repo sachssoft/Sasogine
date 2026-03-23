@@ -3,6 +3,10 @@ using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasofly.Inspection;
 using Sachssoft.Sasogine.Containers;
 using Sachssoft.Sasogine.Containers.Wrappers;
+using Sachssoft.Sasogine.Gameplay;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Sachssoft.Documents;
 
@@ -541,7 +545,7 @@ public static class ObjectSerializerExtensions
         });
     }
 
-    public static void WritePath<TWriter>(this TWriter writer, object? context, Sasogine.Geometry.Path? value, SerializationFormat format = SerializationFormat.Compact) where TWriter : FormatWriterBase
+    public static void WritePath<TWriter>(this TWriter writer, object? context, Geometry.Path? value, SerializationFormat format = SerializationFormat.Compact) where TWriter : FormatWriterBase
     {
         if (value == null)
         {

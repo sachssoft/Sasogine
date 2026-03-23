@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using Sachssoft.Sasogine.Graphics.Colors;
+using Sachssoft.Sasogine.Graphics;
 using Sachssoft.Sasogine.Surface.Basic;
 using Sachssoft.Sasogine.Surface.Layouts;
 using Sachssoft.Sasogine.Surface.Styles;
@@ -28,7 +28,7 @@ public class Dialog : Window, IModalContent, IModalHost
 
     public Dialog()
     {
-        ModalBackground = Color.Black.ChangeAlphaChannel(0.5f).ToBrush();
+        ModalBackground = ColorUtils.ChangeAlphaChannel(Color.Black, 0.5f).ToBrush();
 
         _layout = (GridLayout)LayoutContainer!;
         _layout.RowsProportions.Add(new Proportion(ProportionType.Auto));

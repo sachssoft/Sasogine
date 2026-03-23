@@ -75,7 +75,7 @@ namespace Sachssoft.Sasogine.Surface.Visuals
         public void DrawLine(Vector2 point1, Vector2 point2, Color color, float thickness = 1f)
         {
             var distance = Vector2.Distance(point1, point2);
-            var angle = (float)Math.Atan2(point2.Y - point1.Y, point2.X - point1.X);
+            var angle = float.Atan2(point2.Y - point1.Y, point2.X - point1.X);
             DrawLine(point1, distance, angle, color, thickness);
         }
 
@@ -85,7 +85,7 @@ namespace Sachssoft.Sasogine.Surface.Visuals
         public void DrawLine(Vector2 point, float length, float angle, Color color, float thickness = 1f)
         {
             var scale = new Vector2(length, thickness);
-            point.Y -= (int)(thickness * Math.Cos(angle) / 2.0f);
+            point.Y -= (int)(thickness * float.Cos(angle) / 2.0f);
             Draw(Stylesheet.WhiteRegion.Texture, point, null, color, angle, scale, 0);
         }
 
@@ -131,7 +131,7 @@ namespace Sachssoft.Sasogine.Surface.Visuals
         private void DrawPolygonEdge(Vector2 point1, Vector2 point2, Color color, float thickness)
         {
             var length = Vector2.Distance(point1, point2);
-            var angle = (float)Math.Atan2(point2.Y - point1.Y, point2.X - point1.X);
+            var angle = float.Atan2(point2.Y - point1.Y, point2.X - point1.X);
             var scale = new Vector2(length, thickness);
             Draw(Stylesheet.WhiteRegion.Texture, point1, null, color, angle, scale);
         }
@@ -164,7 +164,7 @@ namespace Sachssoft.Sasogine.Surface.Visuals
             var points = new Vector2[sides];
             for (var i = 0; i < sides; i++)
             {
-                points[i] = new Vector2((float)(radius * Math.Cos(theta)), (float)(radius * Math.Sin(theta)));
+                points[i] = new Vector2((float)(radius * double.Cos(theta)), (float)(radius * double.Sin(theta)));
                 theta += step;
             }
             return points;
@@ -172,13 +172,13 @@ namespace Sachssoft.Sasogine.Surface.Visuals
 
         private Vector2[] CreateCircle(double radius, int sides)
         {
-            var step = 2.0 * Math.PI / sides;
+            var step = 2.0 * float.Pi / sides;
             return CreateArcHelper(radius, sides, step);
         }
 
         private Vector2[] CreateArc(double radius, int sides, double startAngle, double endAngle)
         {
-            var max = Math.Max(endAngle - startAngle, 0);
+            var max = double.Max(endAngle - startAngle, 0);
             var step = max / sides;
             return CreateArcHelper(radius, sides, step, startAngle);
         }

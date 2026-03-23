@@ -69,7 +69,7 @@ namespace Sachssoft.Sasogine.Surface.Visuals.Regions
 
             if (orientation == Orientation.Horizontal)
             {
-                int middleWidth = Math.Max(0, bounds.Width - fixedA - fixedB);
+                int middleWidth = int.Max(0, bounds.Width - fixedA - fixedB);
 
                 int xLeft = bounds.X;
                 int xMiddle = bounds.X + fixedA;
@@ -81,7 +81,7 @@ namespace Sachssoft.Sasogine.Surface.Visuals.Regions
             }
             else
             {
-                int middleHeight = Math.Max(0, bounds.Height - fixedA - fixedB);
+                int middleHeight = int.Max(0, bounds.Height - fixedA - fixedB);
 
                 int yTop = bounds.Y;
                 int yMiddle = bounds.Y + fixedA;
@@ -132,9 +132,9 @@ namespace Sachssoft.Sasogine.Surface.Visuals.Regions
         {
             if (_orientation == Orientation.Horizontal)
             {
-                int left = Math.Min(_fixedA, dest.Width);
-                int right = Math.Min(_fixedB, dest.Width - left);
-                int middleWidth = Math.Max(0, dest.Width - left - right);
+                int left = int.Min(_fixedA, dest.Width);
+                int right = int.Min(_fixedB, dest.Width - left);
+                int middleWidth = int.Max(0, dest.Width - left - right);
 
                 int xLeft = dest.X;
                 int xMiddle = dest.X + left;
@@ -147,9 +147,9 @@ namespace Sachssoft.Sasogine.Surface.Visuals.Regions
             }
             else
             {
-                int top = Math.Min(_fixedA, dest.Height);
-                int bottom = Math.Min(_fixedB, dest.Height - top);
-                int middleHeight = Math.Max(0, dest.Height - top - bottom);
+                int top = int.Min(_fixedA, dest.Height);
+                int bottom = int.Min(_fixedB, dest.Height - top);
+                int middleHeight = int.Max(0, dest.Height - top - bottom);
 
                 int yTop = dest.Y;
                 int yMiddle = dest.Y + top;

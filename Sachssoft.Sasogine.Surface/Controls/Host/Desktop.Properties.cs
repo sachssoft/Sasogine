@@ -156,7 +156,7 @@ namespace Sachssoft.Sasogine.Surface.Controls
                     _transform = new Transform(_bounds.Location.ToVector2(),
                         TransformOrigin * _bounds.Size().ToVector2(),
                         Scale,
-                        Rotation * (float)Math.PI / 180);
+                        Rotation * float.Pi / 180);
                 }
 
                 return _transform.Value;

@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Graphics.Colors;
+using Sachssoft.Sasogine.Graphics;
 using Sachssoft.Sasogine.Surface.Visuals;
 
 namespace Sachssoft.Sasogine.Surface.Styles

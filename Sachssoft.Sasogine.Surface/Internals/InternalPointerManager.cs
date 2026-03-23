@@ -90,7 +90,7 @@ namespace Sachssoft.Sasogine.Surface.Internals
             }
 
             // Mausrad
-            if (Math.Abs(wheel - _mouseWheelDelta) > float.Epsilon)
+            if (float.Abs(wheel - _mouseWheelDelta) > float.Epsilon)
             {
                 _mouseWheelDelta = wheel;
                 MouseWheelChanged?.Invoke(_mouseWheelDelta);

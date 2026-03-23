@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Engine;
 
 namespace Sachssoft.Sasogine.Presentation
 {

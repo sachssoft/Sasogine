@@ -1,10 +1,6 @@
-﻿using FontStashSharp;
-using FontStashSharp.RichText;
+﻿using FontStashSharp.RichText;
 using Microsoft.Xna.Framework;
-using System;
-using System.ComponentModel;
 using Sachssoft.Sasogine.Surface.Utility;
-using Sachssoft.Sasogine.Graphics.Colors;
 using Sachssoft.Sasogine.Surface.Visuals;
 using Sachssoft.Sasogine.Surface.Styles;
 using System.Runtime.CompilerServices;

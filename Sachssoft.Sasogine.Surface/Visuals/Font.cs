@@ -1,5 +1,4 @@
 ﻿using FontStashSharp;
-using nkast.Aether.Physics2D.Common;
 using Sachssoft.Sasogine.Surface.Styles;
 using System;
 

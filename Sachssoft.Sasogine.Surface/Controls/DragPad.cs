@@ -158,15 +158,15 @@ public class DragPad : Widget
         var hint = GetHint();
         var max = MaxHint;
 
-        hint.X = Math.Clamp(hint.X, 0, max.X);
-        hint.Y = Math.Clamp(hint.Y, 0, max.Y);
+        hint.X = float.Clamp(hint.X, 0, max.X);
+        hint.Y = float.Clamp(hint.Y, 0, max.Y);
 
         if (Area == DragPadArea.Circle)
         {
             // Zentrum
             var center = max / 2f;
             var offset = hint - center;
-            var radius = Math.Min(max.X, max.Y) / 2f;
+            var radius = float.Min(max.X, max.Y) / 2f;
 
             if (offset.Length() > radius)
             {
@@ -239,8 +239,8 @@ public class DragPad : Widget
     private static Vector2 ClampVector(Vector2 v, Vector2 min, Vector2 max)
     {
         return new Vector2(
-            Math.Clamp(v.X, min.X, max.X),
-            Math.Clamp(v.Y, min.Y, max.Y)
+            float.Clamp(v.X, min.X, max.X),
+            float.Clamp(v.Y, min.Y, max.Y)
         );
     }
 }

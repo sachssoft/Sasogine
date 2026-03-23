@@ -1,32 +1,26 @@
-﻿using Sachssoft.Sasogine.Platform;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Services;
-
-/// <summary>
-/// Provides functionality to check for and apply application updates.
-/// </summary>
-public interface IAppUpdateService
+namespace Sachssoft.Sasogine.Platform
 {
     /// <summary>
-    /// Checks whether an update is available, e.g., by retrieving a website.
+    /// Platform service to check for application updates and apply them if available.
     /// </summary>
-    /// <returns>True if an update is available; otherwise, false.</returns>
-    Task<bool> CheckForUpdatesAsync();
+    public interface IAppUpdateService
+    {
+        /// <summary>
+        /// Checks whether an update is available.
+        /// </summary>
+        /// <returns>True if an update is available, false otherwise.</returns>
+        Task<bool> CheckForUpdatesAsync();
 
-    /// <summary>
-    /// Applies the update if one is available (e.g., by opening a website or downloading resources).
-    /// </summary>
-    Task ApplyUpdatesAsync();
+        /// <summary>
+        /// Applies the update if available.
+        /// </summary>
+        Task ApplyUpdatesAsync();
 
-    /// <summary>
-    /// Gets a value indicating whether an update is currently available.
-    /// </summary>
-    bool HasPendingUpdate { get; }
-
-    /// <summary>
-    /// Opens the update page using the specified web client service.
-    /// </summary>
-    /// <param name="webClient">The web client service used to open the update page.</param>
-    void OpenWebClient(IWebClient webClient);
+        /// <summary>
+        /// Indicates whether there is a pending update.
+        /// </summary>
+        bool HasPendingUpdate { get; }
+    }
 }

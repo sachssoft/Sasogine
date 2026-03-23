@@ -1,19 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using Sachssoft.Sasogine.Graphics.Colors;
 using Sachssoft.Sasogine.Presentation;
 using Sachssoft.Sasogine.Surface.Basic;
 using Sachssoft.Sasogine.Surface.Controls.Primitives;
-using Sachssoft.Sasogine.Surface.Interactions;
-using Sachssoft.Sasogine.Surface.Layouts;
-using Sachssoft.Sasogine.Surface.Styles;
-using Sachssoft.Sasogine.Surface.Utility;
 using Sachssoft.Sasogine.Surface.Visuals;
-using Sachssoft.Sasogine.Surface.Visuals.Brushes;
-using Sachssoft.Sasogine.Surface.Visuals.Controls;
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
 namespace Sachssoft.Sasogine.Surface.Controls;
 
@@ -453,8 +445,8 @@ public partial class Widget : ElementBase, ITransformable, IPresentationHostElem
 
         // Clamping
         var parentBounds = Parent?.Bounds ?? Desktop.InternalBounds;
-        Left = Math.Clamp(Left, 0, parentBounds.Width - Bounds.Width);
-        Top = Math.Clamp(Top, 0, parentBounds.Height - Bounds.Height);
+        Left = int.Clamp(Left, 0, parentBounds.Width - Bounds.Width);
+        Top = int.Clamp(Top, 0, parentBounds.Height - Bounds.Height);
     }
 
     internal protected virtual void OnMouseCaptureLost()

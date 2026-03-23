@@ -113,8 +113,8 @@ public struct Thickness
     {
         int x = rect.X + t.Left;
         int y = rect.Y + t.Top;
-        int width = Math.Max(0, rect.Width - t.Width);
-        int height = Math.Max(0, rect.Height - t.Height);
+        int width = int.Max(0, rect.Width - t.Width);
+        int height = int.Max(0, rect.Height - t.Height);
         return new Rectangle(x, y, width, height);
     }
 }

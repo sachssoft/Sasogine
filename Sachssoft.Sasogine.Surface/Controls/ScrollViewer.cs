@@ -537,20 +537,20 @@ public class ScrollViewer : ContentControl
 
             // Horizontal scrollbar frame & thumb
             _horizontalScrollbarFrame = new Rectangle(bounds.Left, bounds.Bottom - hsHeight, bw, hsHeight);
-            var mw = Math.Max(1, measureSize.X); // verhindern Division durch 0
+            var mw = int.Max(1, measureSize.X); // verhindern Division durch 0
             _horizontalScrollbarThumb = new Rectangle(bounds.Left, bounds.Bottom - hsHeight,
-                Math.Max(HorizontalScrollThumb.Value?.Size.X ?? 0, bw * bw / mw),
+                int.Max(HorizontalScrollThumb.Value?.Size.X ?? 0, bw * bw / mw),
                 HorizontalScrollThumb.Value?.Size.Y ?? 0);
 
             // Vertical scrollbar frame & thumb
             _verticalScrollbarFrame = new Rectangle(bounds.Left + bounds.Width - vsWidth, bounds.Top, vsWidth, bh);
-            var mh = Math.Max(1, measureSize.Y); // verhindern Division durch 0
+            var mh = int.Max(1, measureSize.Y); // verhindern Division durch 0
             _verticalScrollbarThumb = new Rectangle(bounds.Left + bounds.Width - vsWidth, bounds.Top,
                 VerticalScrollThumb.Value?.Size.X ?? 0,
-                Math.Max(VerticalScrollThumb.Value?.Size.Y ?? 0, bh * bh / mh));
+                int.Max(VerticalScrollThumb.Value?.Size.Y ?? 0, bh * bh / mh));
 
-            _thumbMaximumX = Math.Max(1, bw - _horizontalScrollbarThumb.Width);
-            _thumbMaximumY = Math.Max(1, bh - _verticalScrollbarThumb.Height);
+            _thumbMaximumX = int.Max(1, bw - _horizontalScrollbarThumb.Width);
+            _thumbMaximumY = int.Max(1, bh - _verticalScrollbarThumb.Height);
 
             // Update bounds für Presenter
             bounds.Width = _horizontalScrollingOn ? measureSize.X : availableSize.X;
@@ -562,8 +562,8 @@ public class ScrollViewer : ContentControl
         // Fit scroll position in new maximums – nur wenn außerhalb
         var scrollMaximum = ScrollMaximum;
         var scrollPosition = ScrollPosition;
-        var newScrollX = Math.Min(scrollPosition.X, scrollMaximum.X);
-        var newScrollY = Math.Min(scrollPosition.Y, scrollMaximum.Y);
+        var newScrollX = int.Min(scrollPosition.X, scrollMaximum.X);
+        var newScrollY = int.Min(scrollPosition.Y, scrollMaximum.Y);
 
         if (newScrollX != scrollPosition.X || newScrollY != scrollPosition.Y)
         {

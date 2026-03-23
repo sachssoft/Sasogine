@@ -57,8 +57,8 @@ internal struct ColorHSV
         float h, s, v;
         float min, max, delta;
 
-        min = Math.Min(Math.Min(r, g), b);
-        max = Math.Max(Math.Max(r, g), b);
+        min = float.Min(float.Min(r, g), b);
+        max = float.Max(float.Max(r, g), b);
 
         v = max;
 
@@ -73,9 +73,9 @@ internal struct ColorHSV
 
             return new ColorHSV
             {
-                H = (int)Math.Round(h),
-                S = (int)Math.Round(s),
-                V = (int)Math.Round(v),
+                H = (int)float.Round(h),
+                S = (int)float.Round(s),
+                V = (int)float.Round(v),
             };
         }
 
@@ -101,9 +101,9 @@ internal struct ColorHSV
 
         return new ColorHSV
         {
-            H = (int)Math.Round(h),
-            S = (int)Math.Round(s),
-            V = (int)Math.Round(v),
+            H = (int)float.Round(h),
+            S = (int)float.Round(s),
+            V = (int)float.Round(v),
         };
     }
 
@@ -120,13 +120,13 @@ internal struct ColorHSV
 
         int i;
         float f, p, q, t;
-        h = Math.Max(0.0f, Math.Min(360.0f, h));
-        s = Math.Max(0.0f, Math.Min(100.0f, s));
-        v = Math.Max(0.0f, Math.Min(100.0f, v));
+        h = float.Max(0.0f, float.Min(360.0f, h));
+        s = float.Max(0.0f, float.Min(100.0f, s));
+        v = float.Max(0.0f, float.Min(100.0f, v));
         s /= 100;
         v /= 100;
         h /= 60;
-        i = (int)Math.Floor(h);
+        i = (int)float.Floor(h);
         f = h - i;
         p = v * (1 - s);
         q = v * (1 - s * f);
@@ -136,34 +136,34 @@ internal struct ColorHSV
         switch (i)
         {
             case 0:
-                r = (int)Math.Round(255 * v);
-                g = (int)Math.Round(255 * t);
-                b = (int)Math.Round(255 * p);
+                r = (int)float.Round(255 * v);
+                g = (int)float.Round(255 * t);
+                b = (int)float.Round(255 * p);
                 break;
             case 1:
-                r = (int)Math.Round(255 * q);
-                g = (int)Math.Round(255 * v);
-                b = (int)Math.Round(255 * p);
+                r = (int)float.Round(255 * q);
+                g = (int)float.Round(255 * v);
+                b = (int)float.Round(255 * p);
                 break;
             case 2:
-                r = (int)Math.Round(255 * p);
-                g = (int)Math.Round(255 * v);
-                b = (int)Math.Round(255 * t);
+                r = (int)float.Round(255 * p);
+                g = (int)float.Round(255 * v);
+                b = (int)float.Round(255 * t);
                 break;
             case 3:
-                r = (int)Math.Round(255 * p);
-                g = (int)Math.Round(255 * q);
-                b = (int)Math.Round(255 * v);
+                r = (int)float.Round(255 * p);
+                g = (int)float.Round(255 * q);
+                b = (int)float.Round(255 * v);
                 break;
             case 4:
-                r = (int)Math.Round(255 * t);
-                g = (int)Math.Round(255 * p);
-                b = (int)Math.Round(255 * v);
+                r = (int)float.Round(255 * t);
+                g = (int)float.Round(255 * p);
+                b = (int)float.Round(255 * v);
                 break;
             default:
-                r = (int)Math.Round(255 * v);
-                g = (int)Math.Round(255 * p);
-                b = (int)Math.Round(255 * q);
+                r = (int)float.Round(255 * v);
+                g = (int)float.Round(255 * p);
+                b = (int)float.Round(255 * q);
                 break;
         }
 
