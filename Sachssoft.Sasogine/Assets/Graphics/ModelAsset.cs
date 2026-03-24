@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Assets.Graphics
 {
-    internal class ModelAsset
+    public class ModelAsset
     {
     }
 }

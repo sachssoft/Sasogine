@@ -16,8 +16,20 @@ namespace Sachssoft.Sasogine.Common
 
         /// <summary>
         /// The definition instance that configures this element.
-        /// Must be provided at construction time to ensure immutability at runtime.
+        /// Acts like the "Model" in a ViewModel-Model pattern: it is static configuration data,
+        /// typically used for editor purposes or when loading from external sources.
+        /// <para>
+        /// Warning: During gameplay, avoid repeatedly accessing the Definition,
+        /// as it may introduce performance overhead. It is recommended to copy or initialize
+        /// all necessary fields from the definition at element creation/load time.
+        /// </para>
         /// </summary>
+        // Die Definition fungiert wie das "Model" im ViewModel-Model-Prinzip: 
+        // Sie enthält statische Konfigurationsdaten und wird typischerweise für den Editor 
+        // oder beim Laden aus externen Daten genutzt. 
+        // Achtung: Während des Spiels sollte die Definition nicht dauerhaft abgefragt werden, 
+        // da dies zu Performance-Einbußen führen kann. Alle notwendigen Felder sollten
+        // beim Initialisieren oder Laden des Elements kopiert oder gesetzt werden.
         [AllowNull]
         public virtual TDefinition Definition { get; }
 

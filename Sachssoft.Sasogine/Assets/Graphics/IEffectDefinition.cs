@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Graphics;
 
 namespace Sachssoft.Sasogine.Assets.Graphics
 {
-    internal interface IEffectDefinition
+    public interface IEffectDefinition : IAssetDefinition
     {
+
+        ElementTemplate<IEffectAdapter> Template { get; set; }
+
     }
 }

@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Sachssoft.Sasogine.Assets.Graphics
 {
-    public sealed class Texture2DAsset : AssetBase2<Texture2D, ITexture2DDefinition>
+    public sealed class Texture2DAsset : AssetBase<Texture2D, ITexture2DDefinition>
     {
         private Texture2DFilterMode _filterMode;
         private Texture2DAddressMode _addressMode;
