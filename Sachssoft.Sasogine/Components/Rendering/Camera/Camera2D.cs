@@ -1,9 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Components.Rendering.Animation;
-using Sachssoft.Sasogine.Rendering.Animation.Timings;
+using Sachssoft.Sasogine.Components.Rendering.Animation.Timings;
 using System;
-using System.Net.Http.Headers;
 
 namespace Sachssoft.Sasogine.Components.Rendering.Camera;
 

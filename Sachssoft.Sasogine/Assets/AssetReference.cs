@@ -6,11 +6,11 @@ namespace Sachssoft.Sasogine.Assets
     // TAsset z.B. Texture2D
 
     public class AssetReference<TAsset> : ReferenceBase<TAsset>
-        where TAsset : class, IAsset2
+        where TAsset : class, IAsset
     {
-        private ReferenceRegistry<IAsset2>? _registry;
+        private ReferenceRegistry<IAsset>? _registry;
 
-        public ReferenceRegistry<IAsset2>? Registry
+        public ReferenceRegistry<IAsset>? Registry
         {
             get => _registry;
             set

@@ -1,10 +1,9 @@
-﻿using Sachssoft.Sasogine.Components;
-using Sachssoft.Sasogine.Presentation;
+﻿using Sachssoft.Sasogine.Presentation;
 
 namespace Sachssoft.Sasogine.Components.Rendering
 {
     public abstract class ParallaxLayerBase<TDefinition> : ComponentBase<TDefinition>
-        where TDefinition : IParallaxLayerDefinition
+        where TDefinition : class, IParallaxLayerDefinition
     {
         private int _parallaxIndex;
 

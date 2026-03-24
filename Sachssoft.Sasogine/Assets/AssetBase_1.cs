@@ -1,10 +1,8 @@
-﻿using Sachssoft.Sasofly.Inspection;
-using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Components;
 using Sachssoft.Sasogine.Resources.Loaders;
 using System;
 using System.IO;
-using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Assets

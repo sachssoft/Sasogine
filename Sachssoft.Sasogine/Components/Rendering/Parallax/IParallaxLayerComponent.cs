@@ -1,7 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Components;
-
-namespace Sachssoft.Sasogine.Rendering
+﻿namespace Sachssoft.Sasogine.Components.Rendering
 {
     public interface IParallaxLayerComponent : IDrawableRuntimeComponent
     {

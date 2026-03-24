@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Components.Rendering.Camera;
 using Sachssoft.Sasogine.Graphics;
 using Sachssoft.Sasogine.Graphics.Primitives;

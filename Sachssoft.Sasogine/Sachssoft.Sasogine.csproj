@@ -72,14 +72,7 @@
 	  <PackageReference Include="LibTessDotNet" Version="1.1.15" />
 	  <PackageReference Include="NLayer" Version="1.16.0" />
 	</ItemGroup>
-	
-	<ItemGroup>
-	  <ProjectReference Include="..\..\Sasolib\Sachssoft.Sasofly.Documents\Sachssoft.Sasofly.Documents.csproj" />
-	  <ProjectReference Include="..\..\Sasolib\Sachssoft.Sasofly.Inspection\Sachssoft.Sasofly.Inspection.csproj" />
-	  <ProjectReference Include="..\..\Sasolib\sasosoft.Sasofly\Sachssoft.Sasofly.csproj" />
-	  <ProjectReference Include="..\Sachssoft.Sasogine.Examples\Sachssoft.Sasogine.Example.Inspector\Sachssoft.Sasogine.Example.Inspector.csproj" />
-	</ItemGroup>
-	
+		
 	<ItemGroup>
 	  <Folder Include="Graphics\Colors\List\" />
 	</ItemGroup>

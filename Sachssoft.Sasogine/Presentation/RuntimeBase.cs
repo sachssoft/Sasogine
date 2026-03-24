@@ -144,7 +144,10 @@ public abstract class RuntimeBase : IDisposable
 
     public virtual IEffectAdapter CreateDefaultEffectAdapter(GraphicsDevice graphicsDevice)
     {
-        return new BasicEffectAdapter(graphicsDevice);
+        return new BasicEffectAdapter()
+        {
+            GraphicsDevice = graphicsDevice
+        };
     }
 
     public Rectangle GetSplitViewport(int index)
@@ -265,7 +268,7 @@ public abstract class RuntimeBase : IDisposable
 
         // Sprites auf Bildschirm
         var effect = FullScreenEffectOverride(context);
-        _spriteBatch.Begin(SpriteSortMode.Immediate, samplerState: SamplerState.PointClamp, rasterizerState: new RasterizerState { MultiSampleAntiAlias = true }, effect: effect?.InnerEffect);
+        _spriteBatch.Begin(SpriteSortMode.Immediate, samplerState: SamplerState.PointClamp, rasterizerState: new RasterizerState { MultiSampleAntiAlias = true }, effect: effect?.Effect);
 
         for (int i = 0; i < ViewportCount; i++)
         {

@@ -10,7 +10,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Animation
     /// Supports pausing, resetting, and infinite or delayed animations.
     /// </summary>
     public abstract class AnimationBase<TDefinition> : ComponentBase<TDefinition>, IAnimationComponent
-        where TDefinition : IAnimationDefinition
+        where TDefinition : class, IAnimationDefinition
     {
         private int _duration;
         private bool _infinite;

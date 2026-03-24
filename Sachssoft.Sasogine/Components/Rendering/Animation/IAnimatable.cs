@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasofly.Inspection;
 using System.Collections.ObjectModel;
 
 namespace Sachssoft.Sasogine.Components.Rendering.Animation

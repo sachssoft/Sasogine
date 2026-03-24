@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Sachssoft.Sasogine.Assets.Audio
 {
-    public class SoundAsset : AssetBase2<ISoundPlayer, ISoundAssetDefinition>
+    public class SoundAsset : AssetBase<ISoundPlayer, ISoundAssetDefinition>
     {
         protected override ISoundPlayer? Build(Stream stream)
         {

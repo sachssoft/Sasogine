@@ -1,6 +1,4 @@
-﻿using Sachssoft.Sasogine.Components;
-using Sachssoft.Sasogine.Presentation;
-using Sachssoft.Sasogine.Rendering.Parallax;
+﻿using Sachssoft.Sasogine.Presentation;
 using System.Collections.ObjectModel;
 
 namespace Sachssoft.Sasogine.Components.Rendering
