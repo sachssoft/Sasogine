@@ -20,7 +20,7 @@ namespace Sachssoft.Sasogine.Common
 
         public T? Find(string id)
         {
-
+            throw new NotImplementedException();
         }
     }
 }

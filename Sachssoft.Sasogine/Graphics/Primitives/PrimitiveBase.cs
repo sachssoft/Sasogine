@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Components.Rendering.Camera;
 using Sachssoft.Sasogine.Graphics.Rendering;
-using Sachssoft.Sasogine.Presentation;
+using Sachssoft.Sasogine.Scenes;
 using System;
 using System.Collections.Generic;
 

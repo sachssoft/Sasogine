@@ -2,37 +2,29 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Localization;
-using Sachssoft.Sasogine.Platform;
-using Sachssoft.Sasogine.Presentation;
+using Sachssoft.Sasogine.Basic;
 using Sachssoft.Sasogine.Resources;
-using System.Diagnostics.CodeAnalysis;
+using Sachssoft.Sasogine.Scenes;
 
 namespace Sachssoft.Sasogine;
 
 public interface IGameApplication
 {
+    public static IGameApplication Current { get; internal set; } = null!;
 
-    [AllowNull]
-    public static IGameApplication Current { get; internal set; }
-
-    public static Game Game => (Game)Current;
+    GameConfiguration Configuration { get; }
 
     GraphicsDevice GraphicsDevice { get; }
 
     ContentManager Content { get; }
 
-    SceneManager Scenes { get; }
-
-    PlatformProfiles PlatformProfile { get; }
-
-    LocalizationManager Localization {  get; }
+    ISceneManager Scenes { get; }
 
     GameResourceManager Resources { get; }
 
     bool IsActive { get; }
 
-    //TSettings GetSettings<TSettings>() where TSettings : GameSettings, new();
+    IGameSettings Settings { get; }
 
     GameServiceContainer Services { get; }
 

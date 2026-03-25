@@ -1,24 +1,29 @@
-﻿
-
+﻿using Sachssoft.Sasogine.Basic;
 using Sachssoft.Sasogine.Resources;
+using System;
 
 namespace Sachssoft.Sasogine;
 
-public abstract class GameApplication<TResourceManager> : GameApplication where TResourceManager : GameResourceManager
+public abstract class GameApplication<TResourceManager> : GameApplication
+    where TResourceManager : GameResourceManager
 {
-    public GameApplication(params string[] args) : base(args)
+    private readonly TResourceManager _resourcesTyped;
+
+    protected GameApplication(GameConfiguration? configuration = null, params string[] args)
+        : base(configuration, args)
     {
+        _resourcesTyped = (TResourceManager)_resources;
     }
 
-    public static new GameApplication<TResourceManager> Current
-    {
-        get => (GameApplication<TResourceManager>)IGameApplication.Current;
-    }
+    /// <summary>
+    /// Typed version of Resources, guaranteed to be TResourceManager
+    /// </summary>
+    public new TResourceManager Resources => _resourcesTyped;
 
-    public new TResourceManager Resources => (TResourceManager)_resourceManager;
-
-    protected abstract TResourceManager CreateResources();
-
-    protected sealed override GameResourceManager? ResourcesOverride() => CreateResources();
-
+    /// <summary>
+    /// Type-safe Current property
+    /// </summary>
+    public static new GameApplication<TResourceManager> Current =>
+        IGameApplication.Current as GameApplication<TResourceManager>
+        ?? throw new InvalidOperationException($"Current game is not of type {typeof(GameApplication<TResourceManager>).Name}");
 }

@@ -21,6 +21,9 @@ namespace Sachssoft.Sasogine.World
         string? Id { get; }
         string? Class { get; }
 
+        //
+        object? DataContext { get; }
+
         // Zustand
         NodeStatus Status { get; }               // Intact / Warning / Error
         ActivityState ActivityState { get; }     // Idle / Active

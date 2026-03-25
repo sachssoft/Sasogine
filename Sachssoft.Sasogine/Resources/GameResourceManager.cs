@@ -1,6 +1,4 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine;
-using Sachssoft.Sasogine.Resources;
 using Sachssoft.Sasogine.Resources.Loaders;
 using System;
 using System.Collections.Generic;
@@ -15,11 +13,15 @@ namespace Sachssoft.Sasogine.Resources
         private static readonly Dictionary<Type, Delegate> _registeredLoaders = new Dictionary<Type, Delegate>();
         private static readonly Dictionary<Type, object> _registeredFactories = new Dictionary<Type, object>();
 
+        private CultureInfo _culture = CultureInfo.InvariantCulture;
+
         // Culture-specific assets: CultureInfo → Key → ResourceEntry
         private readonly Dictionary<CultureInfo, Dictionary<string, object>> _items =
             new Dictionary<CultureInfo, Dictionary<string, object>>();
 
         private readonly GameApplication _gameApplication;
+
+        public event EventHandler CultureChanged;
 
         public GameResourceManager(GameApplication application)
         {
@@ -34,6 +36,24 @@ namespace Sachssoft.Sasogine.Resources
         {
             get => _gameApplication.Content.RootDirectory;
             set => _gameApplication.Content.RootDirectory = value;
+        }
+
+        public CultureInfo Culture
+        {
+            get => _culture;
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+
+                if (_culture.Equals(value))
+                    return;
+
+                _culture = value;
+
+                CultureInfo.CurrentUICulture = value;
+                CultureInfo.DefaultThreadCurrentUICulture = value;
+            }
         }
 
         public static void RegisterLoader<TLoader>(Func<GameResourceManager, string, TLoader> factory)
@@ -66,9 +86,9 @@ namespace Sachssoft.Sasogine.Resources
             _registeredFactories[typeof(TData)] = new FactoryWrapper<TData>(syncFactory, asyncFactory);
         }
 
-        public virtual void OnInitialize() { }
-        public virtual void OnLoad() { }
-        public virtual void OnUnload() { }
+        public virtual void Initialize() { }
+        public virtual void Load() { }
+        public virtual void Unload() { }
 
         // ------------------------ ADD ------------------------
 

@@ -1,44 +1,99 @@
-﻿/*
- * © 2024 Tobias Sachs
- * FrameCounter
- * 11.07.2024
- */
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 
 namespace Sachssoft.Sasogine.Diagnostics;
 
+/// <summary>
+/// High-Performance Hybrid FrameCounter:
+/// - Ringpuffer für schnelle Reaktion auf plötzliche FPS-Drops
+/// - EMA für glatte Durchschnittswerte
+/// - FastWeight für sofortige FPS-Reaktion
+/// - GC-frei nach Initialisierung
+/// </summary>
 public class FrameCounter
 {
-    public long TotalFrames { get; private set; }
-    public float TotalSeconds { get; private set; }
-    public float AverageFramesPerSecond { get; private set; }
-    public float CurrentFramesPerSecond { get; private set; }
+    private readonly float[] _samples;
+    private int _index;
+    private int _count;
+    private float _sum;
+
+    private readonly float _smoothing;  // EMA-Faktor
+    private readonly float _fastWeight; // Gewicht für aktuelle FPS
+
+    private long _totalFrames;
+    private float _totalSeconds;
+
+    private float _currentFps;
+    private float _averageFps;
 
     public const int MaximumSamples = 100;
 
-    private readonly Queue<float> _sample_buffer = new();
-
-    public void Update(float delta_time)
+    public FrameCounter(float smoothing = 0.1f, float fastWeight = 0.2f)
     {
-        if (delta_time < 0f)
-            throw new ArgumentOutOfRangeException(nameof(delta_time), "delta_time must be positive.");
+        if (smoothing <= 0f || smoothing > 1f)
+            throw new ArgumentOutOfRangeException(nameof(smoothing), "Smoothing must be in (0,1].");
+        if (fastWeight < 0f || fastWeight > 1f)
+            throw new ArgumentOutOfRangeException(nameof(fastWeight), "FastWeight must be in [0,1].");
 
-        CurrentFramesPerSecond = 1.0f / delta_time;
+        _samples = new float[MaximumSamples];
+        _smoothing = smoothing;
+        _fastWeight = fastWeight;
 
-        _sample_buffer.Enqueue(CurrentFramesPerSecond);
+        Reset();
+    }
 
-        if (_sample_buffer.Count > MaximumSamples)
+    public long TotalFrames => _totalFrames;
+    public float TotalSeconds => _totalSeconds;
+    public float CurrentFramesPerSecond => _currentFps;
+    public float AverageFramesPerSecond => _averageFps;
+
+    public void Update(float deltaTime)
+    {
+        if (deltaTime <= 0f)
+            throw new ArgumentOutOfRangeException(nameof(deltaTime), "deltaTime must be positive and non-zero.");
+
+        _currentFps = 1f / deltaTime;
+
+        // --- Ringpuffer für schnelle Durchschnitts-Reaktion ---
+        if (_count < MaximumSamples)
         {
-            _sample_buffer.Dequeue();
+            _samples[_index] = _currentFps;
+            _sum += _currentFps;
+            _count++;
+        }
+        else
+        {
+            _sum -= _samples[_index];
+            _samples[_index] = _currentFps;
+            _sum += _currentFps;
         }
 
-        // Durchschnitt immer aus allen Samples berechnen
-        AverageFramesPerSecond = _sample_buffer.Average();
+        _index = (_index + 1) % MaximumSamples;
+        float ringAverage = _sum / _count;
 
-        TotalFrames++;
-        TotalSeconds += delta_time;
+        // --- EMA + FastWeight für stabilen, aber reaktiven Durchschnitt ---
+        if (_totalFrames == 0)
+        {
+            _averageFps = ringAverage;
+        }
+        else
+        {
+            float ema = _averageFps + _smoothing * (ringAverage - _averageFps);
+            _averageFps = (1f - _fastWeight) * ema + _fastWeight * _currentFps;
+        }
+
+        _totalFrames++;
+        _totalSeconds += deltaTime;
+    }
+
+    public void Reset()
+    {
+        _index = 0;
+        _count = 0;
+        _sum = 0f;
+        _totalFrames = 0;
+        _totalSeconds = 0f;
+        _currentFps = 0f;
+        _averageFps = 0f;
+        Array.Clear(_samples, 0, _samples.Length);
     }
 }

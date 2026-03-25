@@ -1,56 +1,38 @@
-﻿
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Reflection;
-using Sachssoft.Sasogine.Features;
-using Sachssoft.Sasogine.Presentation;
-using Sachssoft.Sasogine.Localization;
+using Sachssoft.Sasogine.Basic;
 using Sachssoft.Sasogine.Resources;
-using Sachssoft.Sasogine.Providers;
-using Sachssoft.Sasogine.Platform;
+using Sachssoft.Sasogine.Scenes;
+using System;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
 
 namespace Sachssoft.Sasogine;
 
 public abstract class GameApplication : Game, IGameApplication
 {
-    private GraphicsDeviceManager _graphicsDeviceManager;
-    private SceneManager _sceneManager;
+    protected private readonly GameRegistry _registry;
+    protected private readonly GameResourceManager _resources;
+    protected private readonly ISceneManager _scenes;
+    protected private readonly IGameSettings? _settings;
 
-    //private SurfaceHost? _surfaceHost;
-    private IPresentationHost? _presentsationHost;
-    protected private GameResourceManager _resourceManager;
-    protected private PlatformProfiles _platform_profile;
-    //private readonly Dictionary<Type, GameSettings> _settings = new Dictionary<Type, GameSettings>();
+    private readonly GraphicsDeviceManager _graphicsDeviceManager;
 
-    public static GameDispatcher Dispatcher = new GameDispatcher();
-    private LocalizationManager _localization;
-    private readonly GameContext _gameContext;
-
-    private class ViewItem
+    public GameApplication(GameConfiguration? configuration = null, params string[] args)
     {
-        public Type Type;
-        public SceneBase? Instance;
-    }
-
-    static GameApplication()
-    {
-        //TypeFactoryManager.Active();
-        //TypeRegistration.RegisterTypes();
-    }
-
-    public GameApplication(params string[] args)
-    {
-        TypeRegistration?.Active();
-        TypeRegistration?.RegisterTypes();
-
         if (IGameApplication.Current != null)
-        {
-            throw new GameException("Game already was started");
-        }
+            throw new GameException("Game already was started.");
+
+        // Optional Configuration: default erstellen, falls null
+        Configuration = configuration ?? new GameConfiguration();
+
+        _registry = CreateRegistry() ?? throw new GameException("Registry creation failed.");
+        _resources = CreateResources() ?? new GameResourceManager(this);
+        _scenes = CreateScenes() ?? throw new GameException("Scene manager creation failed.");
+        _settings = CreateSettings();
 
         _graphicsDeviceManager = ConfigureGraphicsDevice();
-        // Share GraphicsDeviceManager as a service.
         Services.AddService(typeof(GraphicsDeviceManager), _graphicsDeviceManager);
         _graphicsDeviceManager.ApplyChanges();
 
@@ -59,59 +41,47 @@ public abstract class GameApplication : Game, IGameApplication
         IsMouseVisible = true;
 
         IGameApplication.Current = this;
-        _gameContext = new GameContext(this);
     }
 
-    #region Providers
+    public GameConfiguration Configuration { get; }
 
-    public IGameSettingsProvider Settings { get; protected set; }
+    public GameRegistry Registry => _registry;
 
-    public ITypeRegistrationProvider TypeRegistration { get; protected set; }
+    public ISceneManager Scenes => _scenes;
 
-    #endregion
+    public GameResourceManager Resources => _resources;
 
-    public LocalizationManager Localization
-    {
-        get => _localization;
-    }
+    public IGameSettings? Settings => _settings;
 
-    public static string CurrentDirectory => AppContext.BaseDirectory;
+    public string CurrentDirectory => AppContext.BaseDirectory;
 
-    /// <summary>
-    /// Indicates whether the application is running on a mobile platform (Android or iOS),
-    /// or if mobile simulation is enabled for testing purposes.
-    /// </summary>
-    public static bool IsMobile => OperatingSystem.IsAndroid() || OperatingSystem.IsIOS() || MobileSimulation;
+    public bool IsDebugMode { get; set; } = true;
 
-    /// <summary>
-    /// Indicates whether the application is running on a desktop platform (Windows, Linux, or macOS).
-    /// </summary>
-    public static bool IsDesktop => OperatingSystem.IsMacOS() || OperatingSystem.IsLinux() || OperatingSystem.IsWindows();
+    public static GameApplication Current =>
+        IGameApplication.Current as GameApplication
+        ?? throw new InvalidOperationException("GameApplication not initialized.");
 
-    /// <summary>
-    /// Enables simulation of a mobile environment on desktop for testing purposes only.
-    /// </summary>
-    protected static bool MobileSimulation { get; set; }
-
-    /// <summary>
-    /// Indicates whether the application is running in debug mode. This can be used to enable
-    /// developer-specific features or diagnostics.
-    /// </summary>
-    public static bool IsDebugMode { get; set; } = true;
+    public Assembly Assembly =>
+        Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
 
     protected override sealed void Initialize()
     {
-        _localization = new LocalizationManager(this);
+        if (Window != null)
+            RegisterWindowEvents();
 
-        if (Window != null && PresensationHost?.Scene != null)
-        {
-            Window.ClientSizeChanged += (s, e) => PresensationHost?.Scene.OnClientSizeChanged();
-        }
-
-        _resourceManager = ResourcesOverride() ?? new GameResourceManager(this);
-        _resourceManager.OnInitialize();
+        _resources.Initialize();
 
         base.Initialize();
+    }
+
+    private void RegisterWindowEvents()
+    {
+        Window.FileDrop += Window_FileDrop;
+        Window.ClientSizeChanged += Window_ClientSizeChanged;
+        Window.OrientationChanged += Window_OrientationChanged;
+        Window.KeyDown += Window_KeyDown;
+        Window.KeyUp += Window_KeyUp;
+        Window.TextInput += Window_TextInput;
     }
 
     protected virtual GraphicsDeviceManager ConfigureGraphicsDevice()
@@ -128,216 +98,115 @@ public abstract class GameApplication : Game, IGameApplication
         };
     }
 
-    public static GameApplication Current
+    public void ChangeResolution(int width, int height, bool fullscreen = false)
     {
-        get => (GameApplication)IGameApplication.Current;
+        if (_graphicsDeviceManager.PreferredBackBufferWidth == width &&
+            _graphicsDeviceManager.PreferredBackBufferHeight == height &&
+            _graphicsDeviceManager.IsFullScreen == fullscreen)
+            return;
+
+        _graphicsDeviceManager.PreferredBackBufferWidth = width;
+        _graphicsDeviceManager.PreferredBackBufferHeight = height;
+        _graphicsDeviceManager.IsFullScreen = fullscreen;
+
+        _graphicsDeviceManager.ApplyChanges();
     }
-
-    public IPresentationHost? PresensationHost
-    {
-        get => _presentsationHost;
-    }
-
-    protected virtual GameResourceManager? ResourcesOverride() => null;
-
-    public GameResourceManager Resources => _resourceManager;
-
-    GameResourceManager IGameApplication.Resources => throw new NotImplementedException();
 
     protected override sealed void LoadContent()
     {
-        Settings?.Load();
-        //foreach (var setting in _settings.Values)
-        //    setting.OnLoad();
-
-        _platform_profile = DetermineGraphicsPlatformProfile();
-
-        // ### Assets
-        _resourceManager.OnLoad();
-        //TypeFactoryManager.InvokeAssetRegistrations();
-
-        // ## UI
-        //UIEnvironment.Game = this;
-        _presentsationHost = CreatePresensationHost();
-
-        if (_presentsationHost != null)
-        {
-            //_surfaceHost.Game = this;
-            _presentsationHost.Initialize(this);
-
-            _sceneManager = new SceneManager(this, _presentsationHost);
-            InitializeViews(_sceneManager);
-        }
-
-        OnLoad();
-        _sceneManager?.Load();
-
-        // Schließen
-        _localization.Close();
-    }
-
-    protected virtual IPresentationHost? CreatePresensationHost()
-    {
-        return null;
-    }
-
-    protected virtual void InitializeViews(SceneManager view)
-    {
-    }
-
-    protected virtual void OnLoad()
-    {
+        _settings?.Load();
+        _resources.Load();
+        _scenes?.CurrentScene?.Load();
     }
 
     protected override sealed void UnloadContent()
     {
-        OnUnload();
-
-        _resourceManager.OnUnload();
-
+        _resources.Unload();
         base.UnloadContent();
-    }
-
-    protected virtual void OnUnload()
-    {
     }
 
     protected override sealed void Update(GameTime gameTime)
     {
-        Dispatcher.ExecutePending();
-
         base.Update(gameTime);
-
-        if (_sceneManager != null)
-        {
-            _sceneManager?.Update(gameTime);
-        }
-        else
-        {
-            _gameContext.Update(gameTime);
-            OnUpdate(_gameContext);
-        }
-    }
-
-    protected virtual void OnUpdate(GameContext context)
-    {
+        _scenes?.Update(gameTime);
     }
 
     protected override sealed void Draw(GameTime gameTime)
     {
         base.Draw(gameTime);
-
-        if (_sceneManager != null)
-        {
-            _sceneManager?.Draw(gameTime);
-        }
-        else
-        {
-            _gameContext.Update(gameTime);
-            OnDraw(_gameContext);
-        }
+        _scenes?.Draw(gameTime);
     }
 
-    protected virtual void OnDraw(GameContext context)
+    protected override void OnActivated(object sender, EventArgs args)
     {
+        base.OnActivated(sender, args);
+
+        if (_scenes.CurrentScene is IClientActivator activator)
+            activator.OnClientActivate();
     }
 
-    protected virtual void OnDrawAfterGUI(GameContext context)
+    protected override void OnDeactivated(object sender, EventArgs args)
     {
+        base.OnDeactivated(sender, args);
+
+        if (_scenes.CurrentScene is IClientActivator activator)
+            activator.OnClientDeactivate();
     }
 
     protected override void OnExiting(object sender, ExitingEventArgs args)
     {
-        if (_presentsationHost != null)
-        {
-            var scene = _presentsationHost.Scene;
-            scene?.OnUnload();
+        if (_scenes.CurrentScene is IApplicationExitAware exitAware)
+            exitAware.OnApplicationExited();
 
-            _presentsationHost.Dispose(); //UIEnvironment.Game.Exit();
-        }
+        foreach (var scene in _scenes.ActiveScenes.ToArray())
+            scene.Unload();
 
-        //foreach (var setting in _settings.Values)
-        //    setting.OnSave();
-        Settings?.Save();
+        _settings?.Save();
 
         base.OnExiting(sender, args);
     }
 
-    public PlatformProfiles PlatformProfile => _platform_profile;
+    protected virtual GameRegistry CreateRegistry() => new GameRegistry();
 
-    private PlatformProfiles DetermineGraphicsPlatformProfile()
+    protected virtual GameResourceManager? CreateResources() => null;
+
+    protected abstract ISceneManager CreateScenes();
+
+    protected virtual IGameSettings? CreateSettings() => null;
+
+    private void Window_FileDrop(object? sender, FileDropEventArgs e)
     {
-        // https://community.monogame.net/t/solved-how-to-determine-if-the-app-is-using-desktop-gl-or-dx/10494
-
-        var a = Assembly.GetAssembly(typeof(Microsoft.Xna.Framework.Game));
-        var shader_type = a.GetType("Microsoft.Xna.Framework.Graphics.Shader");
-        var profile_property = shader_type.GetProperty("Profile");
-        var value = (int)profile_property.GetValue(null);
-
-        // https://github.com/MonoGame/MonoGame/blob/develop/MonoGame.Framework/Platform/Graphics/Shader/Shader.OpenGL.cs
-        // 0 = OpenGl (Shader.OpenGL.cs bei GitHub)
-        // 1 = DirectX (Shader.DirectX.cs bei GitHub)
-        // ...
-
-        return value switch
-        {
-            0 => PlatformProfiles.OpenGL,
-            1 => PlatformProfiles.DirectX,
-            _ => PlatformProfiles.Unknown
-
-            // Zukünftig Vulkan, Metal, ...
-
-            // Derzeit ist in der aktuellen Monogame-Version
-            // nicht verfügar
-        };
+        if (_scenes.CurrentScene is IClientFileDropReceiver receiver)
+            receiver.OnFileDrop(e.Files);
     }
 
-    public void ChangeResolution(int width, int height, bool fullscreen = false)
+    private void Window_ClientSizeChanged(object? sender, EventArgs e)
     {
-        _graphicsDeviceManager.PreferredBackBufferWidth = width;
-        _graphicsDeviceManager.PreferredBackBufferHeight = height;
-        _graphicsDeviceManager.IsFullScreen = fullscreen;
-        _graphicsDeviceManager.ApplyChanges();
+        if (_scenes.CurrentScene is IClientResizeAware resizeAware)
+            resizeAware.OnClientSizeChanged();
     }
 
-    public SceneManager Scenes => _sceneManager;
-
-    public Assembly Assembly => Assembly.GetEntryAssembly()!;
-
-    // Bezeichnung von einem Typ
-    public string? GetCaption(Type type, string? default_value = null)
+    private void Window_OrientationChanged(object? sender, EventArgs e)
     {
-        var name = type.Name;
-
-        // z.B. TestClass => Test Class
-        // var policy = ...
-
-        return GetCaption(name, name);
+        if (_scenes.CurrentScene is IClientResizeAware resizeAware)
+            resizeAware.OnOrientationChanged();
     }
 
-    public string? GetCaption(string key, string? default_value = null)
+    private void Window_KeyUp(object? sender, InputKeyEventArgs e)
     {
-        // Sprach-JSON
-        // Name => Key -> Bezeichnung finden!
-        //
-
-        return default_value;
+        if (_scenes.CurrentScene is IClientKeyboardInput input)
+            input.OnKeyUp(e.Key);
     }
 
-    //protected void AddSettings<TSettings>() where TSettings : GameSettings, new()
-    //{
-    //    if (_settings.ContainsKey(typeof(TSettings)))
-    //        throw new InvalidOperationException("Setting Type already exists");
+    private void Window_KeyDown(object? sender, InputKeyEventArgs e)
+    {
+        if (_scenes.CurrentScene is IClientKeyboardInput input)
+            input.OnKeyDown(e.Key);
+    }
 
-    //    TypeFactoryManager.Register<TSettings>();
-    //    _settings.Add(typeof(TSettings), new TSettings());
-    //}
-
-    //public TSettings GetSettings<TSettings>() where TSettings : GameSettings, new()
-    //{
-    //    if (!_settings.TryGetValue(typeof(TSettings), out var settings))
-    //        throw new InvalidOperationException("Setting Type does not exists");
-
-    //    return (TSettings)settings;
-    //}
+    private void Window_TextInput(object? sender, TextInputEventArgs e)
+    {
+        if (_scenes.CurrentScene is IClientKeyboardInput input)
+            input.OnTextInput(e.Character);
+    }
 }
