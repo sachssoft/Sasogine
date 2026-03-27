@@ -1,0 +1,366 @@
+name: Build & publish Box2D‑CSharp bindings
+
+on:
+    push:
+        branches: [ "**" ]
+    workflow_dispatch:
+
+env:
+    BOX2D_REPO: erincatto/box2d
+    NUGET_FEED: https://api.nuget.org/v3/index.json
+
+jobs:
+    detect-tag:
+        name: Detect Box2D tag & compute version
+        runs-on: [self-hosted, Linux, X64]
+        env:
+            GH_TOKEN: ${{ github.token }}
+        permissions:
+            contents: read
+        outputs:
+            box2d_ref: ${{ steps.ref.outputs.ref }}
+            pkg_ver: ${{ steps.version.outputs.value }}
+        steps:
+            -   id: ref
+                name: "Fetch latest Box2D tag or commit"
+                run: |
+                    if [[ "${GITHUB_REF_NAME}" == "public/vnext" ]]; then
+                        # Get the latest commit hash for main
+                        sha=$(gh api /repos/$BOX2D_REPO/commits/main --jq .sha)
+                        echo "Using Box2D commit hash from main: $sha"
+                        echo "ref=$sha" >> "$GITHUB_OUTPUT"
+                    else
+                        tag=$(gh api /repos/$BOX2D_REPO/releases/latest --jq .tag_name)
+                        echo "Using Box2D ref: $tag"
+                        echo "ref=$tag" >> "$GITHUB_OUTPUT"
+                    fi
+
+            -   id: version
+                name: "Compute managed package version string"
+                run: |
+                    ts=$(date -u '+%Y.%m.%d.%H%M')
+                    branch="${GITHUB_REF_NAME##*/}"
+                    if [ "$branch" = "main" ] || [ "$branch" = "master" ]; then
+                      version="$ts"
+                    else
+                      safe_branch=$(echo "$branch" | tr '/ "' '--')
+                      version="$ts-$safe_branch"
+                    fi
+                    echo "value=$version" >> "$GITHUB_OUTPUT"
+                    echo "Computed version: $version"
+
+    build-box2d-linux-x64:
+        name: Build / retrieve Box2D native libs (Build & Test)
+        needs: detect-tag
+        strategy:
+            matrix:
+                include:
+                    # Linux x64
+                    -   target: linux-x64
+                        runs_on: [self-hosted, Linux, X64]
+                        cmake_flags: >
+                            -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DBOX2D_SAMPLES=OFF -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=bin -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=bin -DCMAKE_C_FLAGS="-O3 -march=native -Wno-error=maybe-uninitialized"
+        runs-on: ${{ matrix.runs_on }}
+        
+        concurrency:
+            group: box2d-${{ matrix.target }}-${{ needs.detect-tag.outputs.box2d_tag }}
+            cancel-in-progress: false
+
+        steps:
+            -   id: purge
+                name: Move previous run to /dev/null for safekeeping
+                run: |
+                    rm -rf ./* 
+            
+            -   id: cache
+                name: Restore native build cache
+                uses: actions/cache@v4
+                with:
+                    path: box2d-build
+                    key: ${{ matrix.target }}-${{ needs.detect-tag.outputs.box2d_tag }}
+                    restore-keys: |
+                        ${{ matrix.target }}-${{ needs.detect-tag.outputs.box2d_tag }}
+
+            -   name: "Clone Box2D ${{ needs.detect-tag.outputs.box2d_ref }}"
+                if: steps.cache.outputs.cache-hit != 'true'
+                run: |
+                    git clone https://github.com/${{ env.BOX2D_REPO }} box2d-src
+                    cd box2d-src
+                    git checkout ${{ needs.detect-tag.outputs.box2d_ref }}
+                    
+            -   name: "Configure & compile Box2D"
+                if: steps.cache.outputs.cache-hit != 'true'
+                run: |
+                    cmake -S box2d-src -B box2d-build ${{ matrix.cmake_flags }}
+                    cmake --build box2d-build --config Release --parallel
+
+            -   name: Prepare artefact directory
+                shell: bash
+                run: |
+                    mkdir -p artefact/
+                    if [ -f box2d-build/bin/libbox2d.so ]; then
+                      cp box2d-build/bin/libbox2d.so artefact/
+                    fi
+                    if [ -f box2d-build/bin/libbox2d.dylib ]; then
+                      cp box2d-build/bin/libbox2d.dylib artefact/
+                    fi
+                    if [ -f box2d-build/bin/libbox2d.dll ]; then
+                      cp box2d-build/bin/libbox2d.dll artefact/
+                    fi
+
+            -   name: "Fail if artefact directory is empty"
+                shell: bash
+                run: |
+                    if [ -z "$(ls -A artefact/)" ]; then
+                      echo "Artefact directory is empty, aborting."
+                      tree box2d-build/bin
+                      exit 1
+                    fi
+
+            -   name: Upload artefacts
+                uses: actions/upload-artifact@v4
+                with:
+                    name: ${{ matrix.target }}
+                    path: artefact/
+                    retention-days: 7
+                    if-no-files-found: 'error'
+
+    build-box2d-main:
+        name: Build / retrieve Box2D native libs (Dist)
+        needs: detect-tag
+        if: ${{ github.ref == 'refs/heads/main' ||
+            startsWith(github.ref_name, 'public/') }}
+        strategy:
+            matrix:
+                include:
+                    # Linux x86 (cross‑compile)
+                    -   target: linux-x86
+                        runs_on: [self-hosted, Linux, X64]
+                        cmake_flags: >
+                            -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DBOX2D_SAMPLES=OFF -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=bin -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=bin -DCMAKE_C_FLAGS="-O3 -m32 -msse2 -mstackrealign -march=i686 -Wno-error=maybe-uninitialized" -DCMAKE_SHARED_LINKER_FLAGS="-Wl,--hash-style=sysv"
+
+                    # Linux ARM64
+                    -   target: linux-arm64
+                        runs_on: [self-hosted, Linux, X64]
+                        cmake_flags: >
+                            -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_PROCESSOR=aarch64 -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ -DBUILD_SHARED_LIBS=ON -DBOX2D_SAMPLES=OFF -DCMAKE_C_FLAGS="-O3 -Wno-error=maybe-uninitialized" 
+
+                    # Windows x64
+                    -   target: win-x64
+                        runs_on: [self-hosted, Linux, X64]
+                        cmake_flags: >
+                            -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_PROCESSOR=x86_64 -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ -DBUILD_SHARED_LIBS=ON -DBOX2D_SAMPLES=OFF -DCMAKE_C_FLAGS_RELEASE="-O3 -march=native"
+
+                    # Windows x86
+                    -   target: win-x86
+                        runs_on: [self-hosted, Linux, X64]
+                        cmake_flags: >
+                            -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_PROCESSOR=x86 -DCMAKE_C_COMPILER=i686-w64-mingw32-gcc -DCMAKE_CXX_COMPILER=i686-w64-mingw32-g++ -DCMAKE_C_FLAGS="-O3 -m32 -msse -mstackrealign -march=i686" -DBUILD_SHARED_LIBS=ON -DBOX2D_SAMPLES=OFF
+
+                    # Windows ARM64
+                    -   target: win-arm64
+                        runs_on: [self-hosted, Linux, X64]
+                        cmake_flags: >
+                            -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_PROCESSOR=ARM64 -DCMAKE_C_COMPILER=aarch64-w64-mingw32-gcc -DCMAKE_CXX_COMPILER=aarch64-w64-mingw32-g++ -DBUILD_SHARED_LIBS=ON -DBOX2D_SAMPLES=OFF -DCMAKE_C_FLAGS_RELEASE="-O3"
+
+                    # macOS x64
+                    -   target: osx-x64
+                        runs_on: macos-13
+                        cmake_flags: >
+                            -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DBOX2D_SAMPLES=OFF -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=bin -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=bin -DCMAKE_C_FLAGS_RELEASE="-O3" -DCMAKE_CXX_FLAGS_RELEASE="-O3"
+
+                    # macOS ARM64
+                    -   target: osx-arm64
+                        runs_on: macos-latest
+                        cmake_flags: >
+                            -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DBOX2D_SAMPLES=OFF -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=bin -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=bin -DCMAKE_C_FLAGS_RELEASE="-O3" -DCMAKE_CXX_FLAGS_RELEASE="-O3"
+        runs-on: ${{ matrix.runs_on }}
+        
+        concurrency:
+            group: box2d-${{ matrix.target }}-${{ needs.detect-tag.outputs.box2d_tag }}
+            cancel-in-progress: false
+
+        steps:
+            -   id: purge
+                run: |
+                    rm -rf ./* 
+
+            -   id: cache
+                name: Restore native build cache
+                uses: actions/cache@v4
+                with:
+                    path: box2d-build
+                    key: ${{ matrix.target }}-${{ needs.detect-tag.outputs.box2d_ref }}
+                    restore-keys: |
+                        ${{ matrix.target }}-${{ needs.detect-tag.outputs.box2d_ref }}
+
+            -   name: "Clone Box2D ${{ needs.detect-tag.outputs.box2d_ref }}"
+                if: steps.cache.outputs.cache-hit != 'true'
+                run: |
+                    git clone https://github.com/${{ env.BOX2D_REPO }} box2d-src
+                    cd box2d-src
+                    git checkout ${{ needs.detect-tag.outputs.box2d_ref }}
+
+            -   name: "Configure & compile Box2D"
+                if: steps.cache.outputs.cache-hit != 'true'
+                run: |
+                    cmake -S box2d-src -B box2d-build ${{ matrix.cmake_flags }}
+                    cmake --build box2d-build --config Release --parallel
+
+            -   name: Prepare artefact directory
+                shell: bash
+                run: |
+                    mkdir -p artefact/
+                    if [ -f box2d-build/bin/libbox2d.so ]; then
+                      cp box2d-build/bin/libbox2d.so artefact/
+                    fi
+                    if [ -f box2d-build/bin/libbox2d.dylib ]; then
+                      cp box2d-build/bin/libbox2d.dylib artefact/
+                    fi
+                    if [ -f box2d-build/bin/libbox2d.dll ]; then
+                      cp box2d-build/bin/libbox2d.dll artefact/
+                    fi
+
+            -   name: "Fail if artefact directory is empty"
+                shell: bash
+                run: |
+                    if [ -z "$(ls -A artefact/)" ]; then
+                      echo "Artefact directory is empty, aborting."
+                      tree box2d-build/bin
+                      exit 1
+                    fi
+
+            -   name: Upload artefacts
+                uses: actions/upload-artifact@v4
+                with:
+                    name: ${{ matrix.target }}
+                    path: artefact/
+                    retention-days: 7
+                    if-no-files-found: 'error'
+    
+    run-tests:
+        name: Test C# bindings
+        needs: [ detect-tag, build-box2d-linux-x64 ]
+        runs-on: [self-hosted, Linux, X64]
+        steps:
+            -   id: purge
+                run: |
+                    rm -rf ./* 
+
+            -   uses: actions/checkout@v4
+
+            -   name: "Download native libs"
+                uses: actions/download-artifact@v4
+                with:
+                    path: src/Box2DBindings/native
+                    pattern: "*"
+
+            -   name: Build UnitTests project
+                run: |
+                    dotnet build src/UnitTests --configuration Debug --framework net8.0
+                    dotnet build src/UnitTests --configuration Debug --framework net9.0
+
+            -   name: Copy Linux shared library to UnitTests output
+                shell: bash
+                run: |
+                    set -e
+                    lib=src/Box2DBindings/native/linux-x64/libbox2d.so
+                    if [ ! -f "$lib" ]; then
+                      echo "Missing Linux shared library: $lib"
+                      exit 1
+                    fi
+                    cp "$lib" src/UnitTests/bin/Debug/net8.0/
+                    cp "$lib" src/UnitTests/bin/Debug/net9.0/
+                    
+                    sync
+
+            -   name: Run UnitTests (net8.0)
+                run: dotnet test src/UnitTests --configuration Debug --framework net8.0 --no-build --logger trx --results-directory TestResults
+
+            -   name: Run UnitTests (net9.0)
+                run: dotnet test src/UnitTests --configuration Debug --framework net9.0 --no-build --logger trx --results-directory TestResults
+
+
+    publish-docs:
+        name: Publish documentation
+        needs: [ run-tests ]
+        if: github.ref == 'refs/heads/main'
+        runs-on: [self-hosted, Linux, X64]
+        permissions:
+            id-token: write
+            pages: write
+        steps:
+            -   id: purge
+                run: |
+                    rm -rf ./* 
+
+            -   uses: actions/checkout@v4
+
+            -   name: Generate Doxygen Documentation
+                run: doxygen
+
+            -   name: Upload artefact
+                uses: actions/upload-pages-artifact@v3
+                with:
+                    name: github-pages
+                    path: docs/html
+                    retention-days: 7
+
+            -   name: Deploy to GitHub Pages
+                uses: actions/deploy-pages@v4
+    
+    publish-bindings:
+        name: Publish NuGet package
+        needs: [ run-tests, build-box2d-main, detect-tag ]
+        if: ${{ github.ref == 'refs/heads/main' ||
+            startsWith(github.ref_name, 'public/') }}
+        runs-on: [self-hosted, Linux, X64]
+        steps:
+            -   id: purge
+                run: |
+                    rm -rf ./*
+
+            -   uses: actions/checkout@v4
+
+            -   name: "Download native libs"
+                uses: actions/download-artifact@v4
+                with:
+                    path: src/Box2DBindings/native
+                    pattern: "*"
+            
+            -   name: "Run UPX on native libs"
+                run: |
+                    if [ -f src/Box2DBindings/native/linux-x64/libbox2d.so ]; then
+                        chmod +x src/Box2DBindings/native/linux-x64/libbox2d.so 
+                        upx src/Box2DBindings/native/linux-x64/libbox2d.so
+                    fi
+                    if [ -f src/Box2DBindings/native/linux-x86/libbox2d.so ]; then
+                        chmod +x src/Box2DBindings/native/linux-x86/libbox2d.so
+                        upx src/Box2DBindings/native/linux-x86/libbox2d.so
+                    fi
+                    if [ -f src/Box2DBindings/native/linux-arm64/libbox2d.so ]; then
+                        chmod +x src/Box2DBindings/native/linux-arm64/libbox2d.so
+                        upx src/Box2DBindings/native/linux-arm64/libbox2d.so
+                    fi
+                    if [ -f src/Box2DBindings/native/win-x64/libbox2d.dll ]; then
+                        chmod +x src/Box2DBindings/native/win-x64/libbox2d.dll
+                        upx src/Box2DBindings/native/win-x64/libbox2d.dll
+                    fi
+                    if [ -f src/Box2DBindings/native/win-x86/libbox2d.dll ]; then
+                        chmod +x src/Box2DBindings/native/win-x86/libbox2d.dll
+                        upx src/Box2DBindings/native/win-x86/libbox2d.dll
+                    fi
+
+            -   name: "Pack NuGet package"
+                run: |
+                    dotnet pack src/Box2DBindings \
+                      -p:PackageVersion=${{ needs.detect-tag.outputs.pkg_ver }} \
+                      -c Release
+
+            -   name: "Push to NuGet"
+                env:
+                    NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+                run: |
+                    dotnet nuget push src/Box2DBindings/bin/Release/*.nupkg \
+                      --api-key "$NUGET_API_KEY" \
+                      --source "$NUGET_FEED"

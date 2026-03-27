@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../Sachssoft.Sasogine.Backend.DX/Sachssoft.Sasogine.Backend.DX.csproj" />
+  <Project Path="Sachssoft.Sasogine.Experimental/Sachssoft.Sasogine.Experimental.csproj" />
+</Solution>

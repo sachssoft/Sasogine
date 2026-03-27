@@ -1,0 +1,29 @@
+# dotnet
+
+bin/
+obj/
+
+# Visual Studio Code
+
+.vscode/
+
+# Rider
+
+.idea/
+
+# User-specific files
+
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# artefects
+
+.artefacts/
+src/native/
+
+*.dll
+*.so
+
+AGENTS.md

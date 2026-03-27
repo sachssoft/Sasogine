@@ -1,0 +1,168 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net6.0-windows;net6.0-android;net6.0-ios;net6.0-macos</TargetFrameworks>
+
+		<PackageId>Sasogine.Physics.Box2D.Monogame</PackageId>
+		<Authors>Tobias Sachs</Authors>
+		<Description>C# bindings for Box2D 3.x, integrated with MonoGame</Description>
+		<PackageTags>Box2D Physics GameDev Bindings Dotnet Csharp MonoGame</PackageTags>
+
+		<!-- Repository -->
+		<RepositoryUrl>https://github.com/sachssoft/sasogine</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+
+		<!-- Lizenz -->
+		<License>MIT</License>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+
+		<!-- Root namespace -->
+		<RootNamespace>Sachssoft.Sasogine.Physics.Box2D</RootNamespace>
+
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+
+		<TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<RootNamespace>Box2D</RootNamespace>
+		<LangVersion>preview</LangVersion>
+
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
+		<DefineConstants>TRACE</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+		<DebugType>full</DebugType>
+		<DefineConstants>TRACE</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- Readme -->
+		<None Include="README.md" Pack="true" PackagePath="/" />
+
+		<!-- Windows DLL -->
+		<None Include="native/win-x64/libbox2d.dll" Pack="true" PackagePath="runtimes/win-x64/native/" />
+		<!-- Windows x86 DLL -->
+		<None Include="native/win-x86/libbox2d.dll" Pack="true" PackagePath="runtimes/win-x86/native/" />
+		<!-- Windows arm64 DLL -->
+		<None Include="native/win-arm64/libbox2d.dll" Pack="true" PackagePath="runtimes/win-arm64/native/" />
+		<!-- Linux SO -->
+		<None Include="native/linux-x64/libbox2d.so" Pack="true" PackagePath="runtimes/linux-x64/native/" />
+		<!-- Linux x86 SO -->
+		<None Include="native/linux-x86/libbox2d.so" Pack="true" PackagePath="runtimes/linux-x86/native/" />
+		<!-- Linux arm64 SO -->
+		<None Include="native/linux-arm64/libbox2d.so" Pack="true" PackagePath="runtimes/linux-arm64/native/" />
+		<!-- OSX DYLIB -->
+		<None Include="native/osx-x64/libbox2d.dylib" Pack="true" PackagePath="runtimes/osx-x64/native/" />
+		<!-- OSX ARM64 DYLIB -->
+		<None Include="native/osx-arm64/libbox2d.dylib" Pack="true" PackagePath="runtimes/osx-arm64/native/" />
+
+		<!-- Ergänzung fehlende Libraries für Mobile -->
+
+		<!-- Android ARM64 -->
+		<None Include="native/android-arm64/libbox2d.so" Pack="true" PackagePath="runtimes/android-arm64/native/" />
+		<!-- Android x86_64 -->
+		<None Include="native/android-x64/libbox2d.so" Pack="true" PackagePath="runtimes/android-x64/native/" />
+
+		<!-- iOS ARM64 -->
+		<None Include="native/ios-arm64/libbox2d.dylib" Pack="true" PackagePath="runtimes/ios-arm64/native/" />
+		<!-- iOS x64 Simulator -->
+		<None Include="native/ios-x64/libbox2d.dylib" Pack="true" PackagePath="runtimes/ios-x64/native/" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="Joints\DistanceJoint_Externs.cs">
+			<DependentUpon>DistanceJoint.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Joints\Joint_Externs.cs">
+			<DependentUpon>Joint.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Joints\MotorJoint_Externs.cs">
+			<DependentUpon>MotorJoint.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Collision\Character Movement\Mover_Externs.cs">
+			<DependentUpon>Mover.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Collision\Character Movement\Plane_Externs.cs">
+			<DependentUpon>Plane.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Collision\DynamicTree_Externs.cs">
+			<DependentUpon>DynamicTree.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Joints\MouseJoint_Externs.cs">
+			<DependentUpon>MouseJoint.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Joints\PrismaticJoint_Externs.cs">
+			<DependentUpon>PrismaticJoint.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Joints\RevoluteJoint_Externs.cs">
+			<DependentUpon>RevoluteJoint.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Joints\WeldJoint_Externs.cs">
+			<DependentUpon>WeldJoint.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Joints\WheelJoint_Externs.cs">
+			<DependentUpon>WheelJoint.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Shapes\Capsule_Externs.cs">
+			<DependentUpon>Capsule.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Shapes\ChainShape_Externs.cs">
+			<DependentUpon>ChainShape.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Shapes\Circle_Externs.cs">
+			<DependentUpon>Circle.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Shapes\Polygon_Externs.cs">
+			<DependentUpon>Polygon.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Shapes\Segment_Externs.cs">
+			<DependentUpon>Segment.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Shapes\Shape_Externs.cs">
+			<DependentUpon>Shape.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Body_Externs.cs">
+			<DependentUpon>Body.cs</DependentUpon>
+		</Compile>
+		<Compile Update="AABB_Externs.cs">
+			<DependentUpon>AABB.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Rotation_Externs.cs">
+			<DependentUpon>Rotation.cs</DependentUpon>
+		</Compile>
+		<Compile Update="Core_Externs.cs">
+			<DependentUpon>Core.cs</DependentUpon>
+		</Compile>
+		<Compile Update="World_Cast.cs">
+			<DependentUpon>World.cs</DependentUpon>
+		</Compile>
+		<Compile Update="World_Events.cs">
+			<DependentUpon>World.cs</DependentUpon>
+		</Compile>
+		<Compile Update="World_Cast_Externs.cs">
+			<DependentUpon>World_Cast.cs</DependentUpon>
+		</Compile>
+		<Compile Update="World_Externs.cs">
+			<DependentUpon>World.cs</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<Import Project="..\Physics\Sachssoft.Sasogine.Physics.Box2D.Shared\Sachssoft.Sasogine.Physics.Box2D.Shared.projitems" Label="Shared" />
+
+
+</Project>
+
+

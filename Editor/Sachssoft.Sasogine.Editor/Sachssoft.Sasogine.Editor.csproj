@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<RootNamespace>Sachssoft.Sasogine.Editor</RootNamespace>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<Title>Sasogine Editor</Title>
+		<Copyright>© Tobias Sachs (Sachssoft)</Copyright>
+	</PropertyGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
+		<PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.4.1" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.4.1" />
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
+		<RuntimeIdentifiers>osx-x64;linux-x64</RuntimeIdentifiers>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<TargetFrameworks>net8.0-windows;net8.0</TargetFrameworks>
+		<IsTrimmable>True</IsTrimmable>
+		<IsAotCompatible>True</IsAotCompatible>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="ImGui.NET" Version="1.91.6.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Basic\Sachssoft.Sasogine.csproj" />
+	</ItemGroup>
+
+</Project>
