@@ -1,14 +1,20 @@
-﻿using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
-
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Basic
+﻿namespace Sachssoft.Sasogine.Presentation.Deterlite.Layouts
 {
     public readonly struct LayoutBounds
     {
         private readonly Bounds _container;
         private readonly Bounds _content;
+        private readonly Bounds _extent;
         private readonly Insets _padding;
+        private readonly Insets _margin;
 
-        public LayoutBounds(Bounds container, Insets padding)
+        public LayoutBounds(Bounds container)
+            : this(container, Insets.None, Insets.None) { }
+
+        public LayoutBounds(Bounds container, Insets margin)
+            : this(container, Insets.None, margin) { }
+
+        public LayoutBounds(Bounds container, Insets padding, Insets margin)
         {
             _container = container;
             _content = new Bounds(
@@ -17,12 +23,21 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Basic
                 container.Width - padding.Left - padding.Right,
                 container.Height - padding.Top - padding.Bottom
             );
+            _extent = new Bounds(
+                container.X - margin.Left,
+                container.Y - margin.Top,
+                container.Width + margin.Left + margin.Right,
+                container.Height + margin.Top + margin.Bottom
+            );
             _padding = padding;
+            _margin = margin;
         }
 
         public Bounds Container => _container;
 
         public Bounds Content => _content;
+
+        public Bounds Extent => _extent;
 
         public Insets Padding => _padding;
     }

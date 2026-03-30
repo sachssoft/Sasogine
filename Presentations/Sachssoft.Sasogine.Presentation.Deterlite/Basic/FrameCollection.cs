@@ -1,9 +1,8 @@
-﻿using Sachssoft.Sasogine.Presentation.Deterlite.Widgets;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Basic
+namespace Sachssoft.Sasogine.Presentation.Deterlite
 {
     public class FrameCollection : IList<FrameBase>
     {

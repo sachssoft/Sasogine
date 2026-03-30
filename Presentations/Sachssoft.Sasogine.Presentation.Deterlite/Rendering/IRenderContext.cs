@@ -1,10 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.UI.Deterlite;
 using System;
 using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite
+namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
 {
     public interface IRenderContext : IDisposable
     {

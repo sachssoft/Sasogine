@@ -1,6 +1,5 @@
-﻿namespace Sachssoft.Sasogine.Presentation.Deterlite.Basic
-{
-    public enum FrameCollectionChangeType
+﻿namespace Sachssoft.Sasogine.Presentation.Deterlite
+{    public enum FrameCollectionChangeType
     {
         None = 0,
         Added = 1,

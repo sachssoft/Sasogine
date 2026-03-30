@@ -319,6 +319,7 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
             // Debug-Borders rendern
             if ((_debugFlags & DebugFlags.BoundsBorder) != 0)
                 RenderFrameBoundsBorder(frame, render, absoluteBounds);
+
             if ((_debugFlags & DebugFlags.ContentBorder) != 0)
                 RenderFrameContentBoundsBorder(frame, render, absoluteBounds);
 

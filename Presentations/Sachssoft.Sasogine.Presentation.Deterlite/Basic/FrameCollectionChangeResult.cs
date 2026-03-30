@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Linq;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Basic
+namespace Sachssoft.Sasogine.Presentation.Deterlite
 {
     public readonly struct FrameCollectionChangeResult
     {
