@@ -1,12 +1,9 @@
-﻿using FontStashSharp.RichText;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Presentation.Deterlite.Basic;
 using Sachssoft.Sasogine.Presentation.Deterlite.Input;
 using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
 using Sachssoft.Sasogine.Presentation.Deterlite.Rendering;
 using System;
-using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Presentation.Deterlite
 {

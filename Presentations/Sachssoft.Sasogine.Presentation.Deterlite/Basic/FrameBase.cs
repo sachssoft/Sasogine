@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Presentation.Deterlite.Basic;
 using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
 using Sachssoft.Sasogine.Presentation.Deterlite.Rendering;
 using System;

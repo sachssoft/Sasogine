@@ -1,6 +1,4 @@
-﻿using Sachssoft.Sasogine.Presentation.Deterlite.Basic;
-
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Layouts
+﻿namespace Sachssoft.Sasogine.Presentation.Deterlite.Layouts
 {
     public abstract class LayoutBase : FrameBase
     {

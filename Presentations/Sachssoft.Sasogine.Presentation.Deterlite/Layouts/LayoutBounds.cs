@@ -40,5 +40,7 @@
         public Bounds Extent => _extent;
 
         public Insets Padding => _padding;
+
+        public Insets Margin => _margin;
     }
 }
