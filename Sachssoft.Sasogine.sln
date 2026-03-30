@@ -45,6 +45,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sachssoft.Sasogine.Physics.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sachssoft.Sasogine.Physics.Box2D.FNA", "Sachssoft.Sasogine.Physics.Box2D.FNA\Sachssoft.Sasogine.Physics.Box2D.FNA.csproj", "{E4D84B2A-9703-4EC6-9F02-481B4FC95622}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentations", "Presentations", "{0143141C-D10D-41F2-81BA-A9AD55E7FF51}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sachssoft.Sasogine.Presentation.Deterlite", "Presentations\Sachssoft.Sasogine.Presentation.Deterlite\Sachssoft.Sasogine.Presentation.Deterlite.csproj", "{9D50A7F3-7A6F-89FC-FF72-C71AE83BA45D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,6 +115,10 @@ Global
 		{E4D84B2A-9703-4EC6-9F02-481B4FC95622}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4D84B2A-9703-4EC6-9F02-481B4FC95622}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4D84B2A-9703-4EC6-9F02-481B4FC95622}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D50A7F3-7A6F-89FC-FF72-C71AE83BA45D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D50A7F3-7A6F-89FC-FF72-C71AE83BA45D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D50A7F3-7A6F-89FC-FF72-C71AE83BA45D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D50A7F3-7A6F-89FC-FF72-C71AE83BA45D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -132,6 +140,7 @@ Global
 		{08CA238B-2E41-4997-9CA8-A85DD32A11F0} = {E4609182-DA8D-46F2-A0A8-2421DE7E56DB}
 		{BFA1CB05-B6CC-4058-BBAE-FC1D643911E8} = {E4609182-DA8D-46F2-A0A8-2421DE7E56DB}
 		{E4D84B2A-9703-4EC6-9F02-481B4FC95622} = {E4609182-DA8D-46F2-A0A8-2421DE7E56DB}
+		{9D50A7F3-7A6F-89FC-FF72-C71AE83BA45D} = {0143141C-D10D-41F2-81BA-A9AD55E7FF51}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7424B1A3-2A7B-4467-963E-74EEA104AB1F}
