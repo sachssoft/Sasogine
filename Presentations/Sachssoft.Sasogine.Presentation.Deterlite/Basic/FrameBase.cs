@@ -583,7 +583,7 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
             _isArrangeValid = false;
         }
 
-        internal virtual protected void Render(GameTime gameTime, FrameContext context)
+        internal virtual protected void Render(FrameContext context)
         {
             var render = context.Render;
 

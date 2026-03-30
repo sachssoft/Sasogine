@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Presentation.Deterlite;
 using Sachssoft.Sasogine.Presentation.Deterlite.Controls;
 using Sachssoft.Sasogine.Presentation.Deterlite.Input;
+using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
 using Sachssoft.Sasogine.Presentation.Deterlite.Rendering;
 
 public class Button : Widget
@@ -13,16 +14,18 @@ public class Button : Widget
     public VisualState VisualState => _pointerTracker.VisualState;
     public ButtonState State => _buttonState;
 
-    internal protected override void Render(GameTime gameTime, FrameContext context)
+    internal protected override void Render(FrameContext context)
     {
         bool isPressed = (context.Input.Mouse.Interaction & MouseInteractionState.Pressed) != 0;
 
+        var bounds = context.Bounds;
+
         // --- Tracker Update ---
         _pointerTracker.Update(
-            Bounds,
+            bounds.Container,
             context.Input.Mouse.Position,
             isPressed,
-            gameTime.TotalGameTime,
+            context.GameTime.TotalGameTime,
             isFocused: IsFocused,
             isDisabled: !IsEnabled,
             isSelected: false
@@ -40,7 +43,7 @@ public class Button : Widget
             _ => Color.Black
         };
 
-        context.Render.DrawRectangle(Bounds, color);
+        context.Render.DrawRectangle(bounds.Container, color);
 
         // --- ButtonState direkt aus Tracker berechnen ---
         _buttonState = ButtonState.None;

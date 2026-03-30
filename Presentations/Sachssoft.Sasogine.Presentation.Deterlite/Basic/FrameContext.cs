@@ -1,4 +1,7 @@
-﻿using Sachssoft.Sasogine.Presentation.Deterlite.Input;
+﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Presentation.Deterlite.Basic;
+using Sachssoft.Sasogine.Presentation.Deterlite.Input;
+using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
 
 namespace Sachssoft.Sasogine.Presentation.Deterlite
 {
@@ -8,11 +11,17 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
         private readonly InputManager _input;
         private readonly IRenderContext _render;
 
+        private GameTime _gameTime;
+        private LayoutBounds _bounds;
+
         public FrameContext(Workspace workspace, InputManager Input, IRenderContext render)
         {
             _workspace = workspace;
             _input = Input;
             _render = render;
+
+            _gameTime = null!;
+            _bounds = default;
         }
 
         public Workspace Workspace => _workspace;
@@ -20,5 +29,15 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
         public InputManager Input => _input;
 
         public IRenderContext Render => _render;
+
+        public GameTime GameTime => _gameTime;
+
+        public LayoutBounds Bounds => _bounds; // Absolute
+
+        public void Update(GameTime gameTime, LayoutBounds bounds)
+        {
+            _gameTime = gameTime;
+            _bounds = bounds;
+        }
     }
 }

@@ -215,25 +215,38 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
             _backgroundBrush?.Render(_displayBounds, render);
 
             // Keine Skalierung, keine Offset-Translation
-            render.PushTransform(new Transform(Vector2.Zero, Vector2.One));
+            //render.PushTransform(new Transform(Vector2.Zero, Vector2.One));
+
+            // Frames rendern (Start mit Workspace-Offset)
+            var rootContainer = new Bounds(
+                0,
+                0,
+                _displayBounds.Width,
+                _displayBounds.Height
+            );
+
+            var rootBounds = new LayoutBounds(rootContainer, _padding);
+            //var rootBounds = new Bounds(_padding.Left, _padding.Top,
+            //    _displayBounds.Width - _padding.Horizontal,
+            //    _displayBounds.Height - _padding.Vertical);
 
             // Frames rendern
             foreach (var frame in _frames)
-                RenderFrameRecursive(frame, render, gameTime);
+                RenderFrameRecursive(frame, render, gameTime, rootBounds);
 
-            render.PopTransform();
+            //render.PopTransform();
             render.End();
 
             // Debug-Borders
             if ((_debugFlags & (DebugFlags.BoundsBorder | DebugFlags.ContentBorder)) != 0)
             {
                 render.Begin(_rasterizerState);
-                render.PushTransform(new Transform(Vector2.Zero, Vector2.One));
+                //render.PushTransform(new Transform(Vector2.Zero, Vector2.One));
 
                 foreach (var frame in _frames)
-                    RenderDebugBordersRecursive(frame, render);
+                    RenderDebugBordersRecursive(frame, render, rootBounds);
 
-                render.PopTransform();
+                //render.PopTransform();
                 render.End();
             }
 
@@ -241,11 +254,11 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
             if ((_debugFlags & DebugFlags.FPS) != 0)
             {
                 render.Begin(_rasterizerState);
-                render.PushTransform(new Transform(Vector2.Zero, Vector2.One));
+                //render.PushTransform(new Transform(Vector2.Zero, Vector2.One));
 
                 RenderFPS(render);
 
-                render.PopTransform();
+                //render.PopTransform();
                 render.End();
             }
         }
@@ -253,49 +266,76 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
         // --------------------------
         // Layout / Render Helper
         // --------------------------
-        private void RenderFrameRecursive(FrameBase frame, IRenderContext render, GameTime gameTime)
+        private void RenderFrameRecursive(FrameBase frame, IRenderContext render, GameTime gameTime, LayoutBounds parentAbsoluteBounds)
         {
             if (!frame.IsVisible) return;
 
-            // Kinder zuerst
-            foreach (var child in frame.ChildFrames.VisibleSorted)
-                RenderFrameRecursive(child, render, gameTime);
+            // Absolute Container-Bounds relativ zum Parent Container
+            var containerBounds = new Bounds(
+                parentAbsoluteBounds.Container.X + frame.Bounds.X,
+                parentAbsoluteBounds.Container.Y + frame.Bounds.Y,
+                frame.Bounds.Width,
+                frame.Bounds.Height
+            );
+
+            var absoluteBounds = new LayoutBounds(containerBounds, frame.Padding);
+
+            _frameContext.Update(gameTime, absoluteBounds);
 
             // Frame selbst rendern
             if (RenderHook != null)
                 RenderHook.Call(frame, _frameContext);
             else
-                frame.Render(gameTime, _frameContext);
+                frame.Render(_frameContext);
 
             FrameHook?.Call(frame, _frameContext);
 
-            // Debug-Borders
-            if ((_debugFlags & DebugFlags.BoundsBorder) != 0)
-                RenderFrameBoundsBorder(frame, render);
-            if ((_debugFlags & DebugFlags.ContentBorder) != 0)
-                RenderFrameContentBoundsBorder(frame, render);
-        }
+            //// Debug-Borders
+            //if ((_debugFlags & DebugFlags.BoundsBorder) != 0)
+            //    RenderFrameBoundsBorder(frame, render, absoluteBounds);
 
-        private void RenderDebugBordersRecursive(FrameBase frame, IRenderContext render)
-        {
-            if ((_debugFlags & DebugFlags.BoundsBorder) != 0)
-                RenderFrameBoundsBorder(frame, render);
-            if ((_debugFlags & DebugFlags.ContentBorder) != 0)
-                RenderFrameContentBoundsBorder(frame, render);
+            //if ((_debugFlags & DebugFlags.ContentBorder) != 0)
+            //    RenderFrameContentBoundsBorder(frame, render, absoluteBounds);
 
+            // Kinder zuerst
             foreach (var child in frame.ChildFrames.VisibleSorted)
-                RenderDebugBordersRecursive(child, render);
+                RenderFrameRecursive(child, render, gameTime, absoluteBounds);
         }
 
-        private void RenderFrameBoundsBorder(FrameBase frame, IRenderContext render)
+        private void RenderDebugBordersRecursive(FrameBase frame, IRenderContext render, LayoutBounds parentAbsoluteBounds)
         {
-            render.DrawBorder(frame.Bounds, _debugVisuals.BoundsBorderColor, _debugVisuals.LineThickness);
+            if (!frame.IsVisible) return;
+
+            // Absolute Bounds für dieses Frame
+            Bounds absoluteContainer = new Bounds(
+                parentAbsoluteBounds.Container.X + frame.Bounds.X,
+                parentAbsoluteBounds.Container.Y + frame.Bounds.Y,
+                frame.Bounds.Width,
+                frame.Bounds.Height
+            );
+
+            LayoutBounds absoluteBounds = new LayoutBounds(absoluteContainer, frame.Padding);
+
+            // Debug-Borders rendern
+            if ((_debugFlags & DebugFlags.BoundsBorder) != 0)
+                RenderFrameBoundsBorder(frame, render, absoluteBounds);
+            if ((_debugFlags & DebugFlags.ContentBorder) != 0)
+                RenderFrameContentBoundsBorder(frame, render, absoluteBounds);
+
+            // Rekursiv Kinder
+            foreach (var child in frame.ChildFrames.VisibleSorted)
+                RenderDebugBordersRecursive(child, render, absoluteBounds);
         }
 
-        private void RenderFrameContentBoundsBorder(FrameBase frame, IRenderContext render)
+        private void RenderFrameBoundsBorder(FrameBase frame, IRenderContext render, LayoutBounds absoluteBounds)
         {
-            if (frame.ContentBounds != frame.Bounds)
-                render.DrawBorder(frame.ContentBounds, _debugVisuals.ContentBorderColor, _debugVisuals.LineThickness);
+            render.DrawBorder(absoluteBounds.Container, _debugVisuals.BoundsBorderColor, _debugVisuals.LineThickness);
+        }
+
+        private void RenderFrameContentBoundsBorder(FrameBase frame, IRenderContext render, LayoutBounds absoluteBounds)
+        {
+            if (absoluteBounds.Content != absoluteBounds.Container)
+                render.DrawBorder(absoluteBounds.Content, _debugVisuals.ContentBorderColor, _debugVisuals.LineThickness);
         }
 
         private void RenderFPS(IRenderContext render)
