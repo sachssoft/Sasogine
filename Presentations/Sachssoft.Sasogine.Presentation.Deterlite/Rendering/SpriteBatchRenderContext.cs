@@ -1,10 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
 using Sachssoft.Sasogine.UI.Deterlite;
 using System;
 using System.Collections.Generic;
-using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
 
 namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
 {
@@ -18,7 +18,6 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
         private Matrix _currentTransform = Matrix.Identity;
 
         private bool _isBegun;
-
         private static Texture2D? _blankTexture;
 
         public SpriteBatchRenderContext(GraphicsDevice graphicsDevice)
@@ -58,8 +57,10 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
         public void DrawRectangle(Bounds rect, Color color)
         {
             var position = Vector2.Transform(rect.Location, _currentTransform);
+            var size = Vector2.Transform(new Vector2(rect.Width, rect.Height), _currentTransform) - Vector2.Transform(Vector2.Zero, _currentTransform);
             _spriteBatch.Draw(_blankTexture,
-                new Rectangle((int)position.X, (int)position.Y, (int)rect.Width, (int)rect.Height), color);
+                new Rectangle((int)position.X, (int)position.Y, (int)size.X, (int)size.Y),
+                color);
         }
 
         public void DrawBorder(Bounds rect, Color color, Insets thickness)
@@ -75,13 +76,13 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
             int h = (int)rect.Height;
 
             // Top
-            if (top > 0) _spriteBatch.Draw(_blankTexture, new Rectangle(x, y, w, top), color);
+            if (top > 0) DrawRectangle(new Bounds(x, y, w, top), color);
             // Bottom
-            if (bottom > 0) _spriteBatch.Draw(_blankTexture, new Rectangle(x, y + h - bottom, w, bottom), color);
+            if (bottom > 0) DrawRectangle(new Bounds(x, y + h - bottom, w, bottom), color);
             // Left
-            if (left > 0) _spriteBatch.Draw(_blankTexture, new Rectangle(x, y, left, h), color);
+            if (left > 0) DrawRectangle(new Bounds(x, y, left, h), color);
             // Right
-            if (right > 0) _spriteBatch.Draw(_blankTexture, new Rectangle(x + w - right, y, right, h), color);
+            if (right > 0) DrawRectangle(new Bounds(x + w - right, y, right, h), color);
         }
 
         public void DrawText(SpriteFont font, string text, Vector2 position, Color color)
@@ -93,7 +94,7 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
         public void PushClip(Bounds rect)
         {
             var current = _graphicsDevice.ScissorRectangle;
-            var intersect = Rectangle.Intersect(current, (Rectangle)rect); // implicit Conversion Bounds → Rectangle
+            var intersect = Rectangle.Intersect(current, (Rectangle)rect);
             _graphicsDevice.ScissorRectangle = intersect;
             _clipStack.Push(rect);
         }
@@ -108,10 +109,11 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
             }
         }
 
-        public void PushTransform(Vector2 translation)
+        // --- angepasst für Transform ---
+        public void PushTransform(Transform transform)
         {
             _transformStack.Push(_currentTransform);
-            _currentTransform = Matrix.CreateTranslation(new Vector3(translation, 0)) * _currentTransform;
+            _currentTransform = transform.Matrix * _currentTransform;
         }
 
         public void PopTransform()

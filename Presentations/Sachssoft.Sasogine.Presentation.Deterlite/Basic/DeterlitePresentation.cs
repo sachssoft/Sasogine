@@ -49,7 +49,7 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
         public virtual void Update(PresentationContext context)
         {
             if (_resizeAware != null && _resizeAware.WasClientResize)
-                _workspace.Value.EnsureClientResize();
+                _workspace.Value.Invalidate();
 
             _workspace.Value.Update(context.GameTime);
         }

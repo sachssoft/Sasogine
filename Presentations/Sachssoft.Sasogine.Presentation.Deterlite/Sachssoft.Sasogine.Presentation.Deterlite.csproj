@@ -16,6 +16,10 @@
 		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.4.1" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Basic\Sachssoft.Sasogine.csproj" />
+	</ItemGroup>
+
 	<PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
 		<RuntimeIdentifiers>osx-x64;linux-x64</RuntimeIdentifiers>
 	</PropertyGroup>
@@ -25,9 +29,5 @@
 		<IsTrimmable>True</IsTrimmable>
 		<IsAotCompatible>True</IsAotCompatible>
 	</PropertyGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\..\Sasogine\Basic\Sachssoft.Sasogine.csproj" />
-	</ItemGroup>
 
 </Project>

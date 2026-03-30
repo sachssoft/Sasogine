@@ -21,7 +21,7 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
         void PopClip();
 
         // Transformation / Verschiebung
-        void PushTransform(Vector2 translation);
+        void PushTransform(Transform transform);
         void PopTransform();
     }
 }

@@ -23,7 +23,7 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Basic
 
         public bool IsReadOnly => false;
 
-        public IEnumerable<FrameBase> VisibleSorted => _cache;
+        public IReadOnlyList<FrameBase> VisibleSorted => _cache;
 
         public FrameBase this[int index]
         {

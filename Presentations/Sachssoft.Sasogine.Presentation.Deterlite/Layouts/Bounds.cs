@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace Sachssoft.Sasogine.Presentation.Deterlite.Layouts
@@ -20,6 +21,15 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Layouts
             _top = y;
             _right = x + width;
             _bottom = y + height;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Bounds(Vector2 position, Vector2 size)
+        {
+            _left = position.X;
+            _top = position.Y;
+            _right = position.X + size.X;
+            _bottom = position.Y + size.Y;
         }
 
         public float X => _left;
@@ -81,5 +91,17 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Layouts
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(in Bounds a, in Bounds b) => !a.Equals(b);
+
+        public override string ToString()
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}, {1}, {2}, {3}",
+                X,
+                Y,
+                Width,
+                Height
+            );
+        }
     }
 }

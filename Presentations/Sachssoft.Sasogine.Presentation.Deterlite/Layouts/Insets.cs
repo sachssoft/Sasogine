@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace Sachssoft.Sasogine.Presentation.Deterlite.Layouts
 {
@@ -8,6 +9,9 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Layouts
         private readonly float _top;
         private readonly float _right;
         private readonly float _bottom;
+
+
+        public static readonly Insets None = new Insets(0.0f);
 
         public Insets(float uniform)
         {
@@ -59,6 +63,16 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Layouts
                 bounds.Height + Vertical
             );
 
-        public static readonly Insets None = new Insets(0.0f);
+        public override string ToString()
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}, {1}, {2}, {3}",
+                Left,
+                Top,
+                Right,
+                Bottom
+            );
+        }
     }
 }
