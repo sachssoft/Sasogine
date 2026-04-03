@@ -31,19 +31,20 @@ public class Button : Widget
             isSelected: false
         );
 
-        // --- Visualisierung ---
-        Color color = _pointerTracker.VisualState switch
-        {
-            VisualState.None => Color.Black,
-            VisualState.Hovered => Color.Red,
-            VisualState.Pressed => Color.Green,
-            VisualState.Focused => Color.Yellow,
-            VisualState.Selected => Color.Violet,
-            VisualState.Disabled => Color.DimGray,
-            _ => Color.Black
-        };
+        //// --- Visualisierung ---
+        //Color color = _pointerTracker.VisualState switch
+        //{
+        //    VisualState.None => Color.Black,
+        //    VisualState.Hovered => Color.Red,
+        //    VisualState.Pressed => Color.Green,
+        //    VisualState.Focused => Color.Yellow,
+        //    VisualState.Selected => Color.Violet,
+        //    VisualState.Disabled => Color.DimGray,
+        //    _ => Color.Black
+        //};
 
-        context.Render.DrawRectangle(bounds.Container, color);
+        //context.Render.DrawRectangle(bounds.Container, Color);
+        BackgroundBrush?.Render(context.Bounds.Container, context.Render);
 
         // --- ButtonState direkt aus Tracker berechnen ---
         _buttonState = ButtonState.None;

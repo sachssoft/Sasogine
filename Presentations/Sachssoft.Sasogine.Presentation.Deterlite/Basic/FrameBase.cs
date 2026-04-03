@@ -1,11 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
 using Sachssoft.Sasogine.Presentation.Deterlite.Rendering;
+using Sachssoft.Sasogine.Presentation.Deterlite.Styling;
 using System;
 
 namespace Sachssoft.Sasogine.Presentation.Deterlite
 {
-    public abstract class FrameBase : IFrameChildHostInternal
+    public abstract class FrameBase : IFrameChildHostInternal, IStyleable
     {
         private readonly FrameCollection _childFrames;
         private IFrameChildHostInternal? _parent = null;
@@ -13,6 +14,9 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
         private bool _isMeasureValid;
         private bool _isArrangeValid;
         private bool _shouldInvalidate;
+
+        private string? _styleName;
+        private bool _isStyleApplied;
 
         private bool _isVisible = true;
         private Vector2 _desiredSize = Vector2.Zero;
@@ -70,7 +74,20 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
 
         public object? Tag { get; set; } // für beliebige Daten
 
+
         // ---- Ende der performance-unkritischen Felder
+
+        public string? StyleName
+        {
+            get => _styleName;
+            set
+            {
+                if (_isStyleApplied)
+                    throw new InvalidOperationException("Cannot change StyleName after style has been applied.");
+
+                _styleName = value;
+            }
+        }
 
         public FrameBase? Parent
         {
@@ -591,6 +608,17 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
         }
 
         internal protected virtual void LayoutUpdated() { }
+
+        internal protected virtual void ApplyFromStyle(Style? style) { }
+
+        void IStyleable.ApplyFromStyle(Style? style)
+        {
+            if (_isStyleApplied)
+                throw new InvalidOperationException("Style has already been applied to this frame.");
+
+            ApplyFromStyle(style);
+            _isStyleApplied = true;
+        }
 
         public override string ToString()
         {

@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Atlas>
+	<Texture Id="First" File="default_skin_texture_0.png" Source="Embedded"/>
+	<Texture Id="Second" File="default_skin_texture_1.png" Source="Embedded"/>
+	<Region Texture="First" />
+	<NinePatchRegion />
+</Atlas>

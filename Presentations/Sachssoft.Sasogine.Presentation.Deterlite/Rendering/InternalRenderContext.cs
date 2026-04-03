@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
 {
-    public sealed class SpriteBatchRenderContext : IRenderContext
+    internal sealed class InternalRenderContext : IRenderContext
     {
         private readonly SpriteBatch _spriteBatch;
         private readonly GraphicsDevice _graphicsDevice;
@@ -20,13 +20,16 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
         private bool _isBegun;
         private static Texture2D? _blankTexture;
 
-        public SpriteBatchRenderContext(GraphicsDevice graphicsDevice)
+        public InternalRenderContext(Workspace workspace)
         {
             _graphicsDevice = graphicsDevice ?? throw new ArgumentNullException(nameof(graphicsDevice));
             _spriteBatch = new SpriteBatch(graphicsDevice);
 
             // Nur einmal setzen
             _blankTexture ??= graphicsDevice.CreateEmptyTexture(Color.White); // Sasogine Mixin
+
+            // Caches
+
         }
 
         public void Begin(RasterizerState? rasterizerState = null)
@@ -85,10 +88,8 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
             if (right > 0) DrawRectangle(new Bounds(x + w - right, y, right, h), color);
         }
 
-        public void DrawText(SpriteFont font, string text, Vector2 position, Color color)
+        public void DrawText(Bounds rect, string text, Font font, TextLayout layout, Color color);
         {
-            var transformedPos = Vector2.Transform(position, _currentTransform);
-            _spriteBatch.DrawString(font, text, transformedPos, color);
         }
 
         public void PushClip(Bounds rect)

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Skin xmlns="Deterlite"
+      xmlns:cuie="Sachssoft.CustomUIExample">
+
+	<!-- ================== Resources ================== -->
+	<Resource Id="example_skin_1" Type="TextureAtlas" File="example_skin_1.axml" Source="Embedded">
+		<Values ScaleDefinition="1"/>
+	</Resource>
+	<Resource Id="example_skin_2" Type="TextureAtlas" File="example_skin_2.axml" Source="Embedded">
+		<Values ScaleDefinition="2"/>
+	</Resource>
+
+	<Resource Id="Noto-Regular" Type="FontFace" File="NotoSans-Regular.ttf" Source="Embedded">
+		<Values FontName="Noto"
+			   />
+	</Resource>
+	
+	<Resource Id="Noto-Italic" Type="FontFace" File="NotoSans-Italic.ttf" Source="Embedded"/>
+	<Resource Id="Noto-Bold" Type="FontFace" File="NotoSans-Bold.ttf" Source="Embedded"/>
+	<Resource Id="Noto-BoldItalic" Type="FontFace" File="NotoSans-BoldItalic.ttf" Source="Embedded"/>
+
+	<Resource Id="Cousine-Regular" Type="FontFace" File="Cousine-Regular.ttf" Source="Embedded"/>
+	<Resource Id="Cousine-Italic" Type="FontFace" File="Cousine-Italic.ttf" Source="Embedded"/>
+	<Resource Id="Cousine-Bold" Type="FontFace" File="Cousine-Bold.ttf" Source="Embedded"/>
+	<Resource Id="Cousine-BoldItalic" Type="FontFace" File="Cousine-BoldItalic.ttf" Source="Embedded"/>
+
+	<Resource Id="Literata-Regular" Type="FontFace" File="Literata-Regular.ttf" Source="Embedded"/>
+	<Resource Id="Literata-Italic" Type="FontFace" File="Literata-Italic.ttf" Source="Embedded"/>
+	<Resource Id="Literata-Bold" Type="FontFace" File="Literata-Bold.ttf" Source="Embedded"/>
+	<Resource Id="Literata-BoldItalic" Type="FontFace" File="Literata-BoldItalic.ttf" Source="Embedded"/>
+	
+	<!-- ================== Definitions ================== -->
+	<!-- Typeface definiert mehrere Varianten -->
+	<Resource Type="FontFamily" Id="Noto">
+		<Values Name="Noto" />
+		<Resource Type="Variant" Id="Regular">
+			<Values Face="Noto-Regular" Weight="Normal" Style="Normal"/>
+		</Resource>
+		<Definition Type="Variant" Id="Italic">
+			<Values Face="Noto-Italic" Weight="Normal" Style="Italic"/>
+		</Definition>
+		<Definition Type="Variant" Id="Bold">
+			<Values Face="Noto-Bold" Weight="Bold" Style="Normal"/>
+		</Definition>
+		<Definition Type="Variant" Id="BoldItalic">
+			<Values Face="Noto-BoldItalic" Weight="Bold" Style="Italic"/>
+		</Definition>
+	</Resource>
+
+	<Definition Type="Font" Id="default-font">
+		<Values Typeface="Noto" Size="20"/>
+	</Definition>
+	<Definition Type="Font" Id="header-font">
+		<Values Typeface="Noto" Size="20" Weight="Bold"/>
+	</Definition>	
+	
+	<Definition Id="background" Type="SolidColorBrush">
+		<Values Color="#1E1E1E"/>
+	</Definition>
+
+	<Definition Type="Font" Id="default-font">
+		<Values Typeface="Noto-Regular" Size="20"/>
+	</Definition>
+	<Definition Type="Font" Id="header-font">
+		<Values Typeface="Noto-Bold" Size="20"/>
+	</Definition>
+	<Definition Type="Font" Id="text-font">
+		<Values Typeface="Cousine-Regular" Size="18"/>
+	</Definition>
+	<Definition Type="Font" Id="tooltip-font">
+		<Values Typeface="Literata-Regular" Size="16"/>
+	</Definition>
+
+	<Definition Type="Value" Id="field-height" Value="25"/>
+	<Definition Type="Value" Id="button-height" Value="30"/>
+	<Definition Type="Insets" Id="button-margin" Value="1"/>
+
+	<!-- ================== Styles ================== -->
+
+	<Style Type="Label">
+		<Values Font="default-font"
+                TextColor="white"
+                DisabledTextColor="gray"
+                ClipToBounds="True"
+                TextHorizontalAlignment="Left"
+                HorizontalAlignment="Left"/>
+	</Style>
+
+	<Style Type="Label" Id="ToolTip">
+		<Values Background="background"
+                Padding="5"
+                Font="tooltip-font"
+                TextColor="white"/>
+	</Style>
+
+	<Style Type="TextBox">
+		<Values Background="background"
+                TextColor="white"
+                DisabledTextColor="gray"
+                Font="text-font"
+                Cursor="cursor"
+                SelectionColor="blue"
+                CaretColor="white"
+                Height="25"/>
+	</Style>
+
+	<Style Type="Button">
+		<Values Width="120"
+                Height="30"
+                Background="button"
+                HoveredBackground="button-over"
+                PressedBackground="button-down"/>
+		<Style Type="Label" Id="content">
+			<Values HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    TextHorizontalAlignment="Center"
+                    TextVerticalAlignment="Center"
+                    Font="default-font"
+                    TextColor="red"
+                    DisabledTextColor="gray"/>
+		</Style>
+	</Style>
+
+	<Style Type="Button" Id="blue" BasedOn="Button">
+		<Values Background="button-blue"
+                HoveredBackground="button-blue-over"
+                PressedBackground="button-blue-down"/>
+		<Style Type="Label" Id="content">
+			<Values Font="default-font"
+                    TextColor="white"
+                    DisabledTextColor="gray"/>
+		</Style>
+	</Style>
+
+	<Style Type="Switch">
+		<Values Background="switch"
+                AnimationDuration="100"
+                HoveredBackground="switch-hovered"
+                Width="52"
+                Height="25"/>
+		<Style Type="Image" Id="knob">
+			<Values Visual="switch-knob"
+                    HoveredVisual="switch-knob-hovered"
+                    PressedVisual="switch-knob"/>
+		</Style>
+	</Style>
+
+	<Style Type="Slider" Id="horizontal">
+		<Values Background="slider"
+                Orientation="Horizontal"
+                Width="100"
+                Height="25"/>
+		<Style Type="Button" Id="thumb">
+			<Values Background="slider-knob"
+                    HoveredBackground="slider-knob-over"
+                    PressedBackground="slider-knob-down"
+                    Width="25"
+                    Height="25"/>
+		</Style>
+	</Style>
+
+	<Style Type="Slider" Id="vertical">
+		<Values Background="slider-vertical"
+                Orientation="Vertical"
+                Width="25"
+                Height="100"/>
+		<Style Type="Image">
+			<Values Visual="slider-knob"
+                    HoveredVisual="slider-knob-over"
+                    PressedVisual="slider-knob-down"/>
+		</Style>
+	</Style>
+
+	<Style Type="Window">
+		<Values Background="background" Padding="5"/>
+		<Style Type="Label" Id="Title">
+			<Values Font="header-font"
+                    TextColor="white"
+                    HorizontalAlignment="Center"/>
+		</Style>
+		<Style Type="Button" Id="CloseButton">
+			<Values Width="20" Height="20" HoveredBackground="button-over" PressedBackground="button-red"/>
+			<Style Type="Image" Id="Icon">
+				<Values Image="icon-close"/>
+			</Style>
+		</Style>
+	</Style>
+
+</Skin>

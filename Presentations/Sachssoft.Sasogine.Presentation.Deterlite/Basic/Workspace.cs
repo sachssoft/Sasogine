@@ -3,25 +3,24 @@ using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Presentation.Deterlite.Input;
 using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
 using Sachssoft.Sasogine.Presentation.Deterlite.Rendering;
+using Sachssoft.Sasogine.Presentation.Deterlite.Styling;
 using System;
 
 namespace Sachssoft.Sasogine.Presentation.Deterlite
 {
-    public sealed class Workspace : IDisposable, IRenderingHook, IFrameChildHostInternal
+    public sealed class Workspace : IDisposable, IRenderingHook, IFrameChildHostInternal, IStyleable
     {
+        private readonly IGameApplication _application;
+        private readonly WorkspaceConfiguration _configuration;
         private readonly GraphicsDevice _graphicsDevice;
         private readonly RasterizerState _rasterizerState;
         private readonly FrameCollection _frames;
         private readonly FrameContext _frameContext;
         private readonly InputManager _inputManager;
-        private readonly WorkspaceConfiguration _configuration;
+        private readonly Skin? _skin;
 
         private Bounds _displayBounds;
         private Bounds _layoutBounds;
-
-        // Scale wird nur für das Rendern berechnet, Layout bleibt unabhängig von Auflösung
-        private float _scale = 1f;
-        private Insets _padding = Insets.None;
 
         private DebugFlags _debugFlags;
         private DebugVisuals _debugVisuals = DebugVisuals.Default;
@@ -29,19 +28,24 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
         private IFrameHook? _renderHook;
         private IFrameHook? _frameHook;
 
-        private IBrush? _backgroundBrush;
-
         private bool _autoInvalidate;
         private bool _shouldInvalidate;
         private bool _isDisposed;
 
-        public Workspace(IGameApplication application, IRenderContext? renderContext = null, WorkspaceConfiguration? configuration = null)
-        {
-            if (application is not Game game)
-                throw new InvalidCastException("IGameApplication must be a Game instance.");
+        private string? _styleName;
+        private bool _isStyleApplied;
 
-            _configuration = configuration ?? new WorkspaceConfiguration();
-            _graphicsDevice = game.GraphicsDevice;
+        // Styled Properties
+        //private float _scale = 1f; Ab Version 1.1
+        private Insets _padding = Insets.None;
+        private IBrush? _backgroundBrush;
+
+        public Workspace(IGameApplication application, WorkspaceConfiguration? configuration = null)
+        {
+            configuration ??= new WorkspaceConfiguration();
+
+            _skin = configuration.Skin;
+            _graphicsDevice = application.GraphicsDevice;
 
             _rasterizerState = new RasterizerState
             {
@@ -58,7 +62,7 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
             _frameContext = new FrameContext(
                 workspace: this,
                 Input: _inputManager,
-                render: renderContext ?? new SpriteBatchRenderContext(_graphicsDevice)
+                render: configuration.RenderContext ?? new InternalRenderContext(this)
             );
 
             // initial Display / Layout Bounds
@@ -77,11 +81,15 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
             );
 
             // initial Scale basierend auf DesignSize
-            _scale = MathF.Min(
-                _displayBounds.Width / _configuration.DesignWidth,
-                _displayBounds.Height / _configuration.DesignHeight
-            );
+            //_scale = MathF.Min(
+            //    _displayBounds.Width / _configuration.DesignWidth,
+            //    _displayBounds.Height / _configuration.DesignHeight
+            //);
         }
+
+        public IGameApplication Application => _application;
+
+        public WorkspaceConfiguration Configuration => _configuration;
 
         // --------------------------
         // Properties
@@ -89,7 +97,7 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
         public Bounds DisplayBounds => _displayBounds;
         public Bounds LayoutBounds => _layoutBounds;
         public bool ShouldInvalidate => _shouldInvalidate;
-        public float Scale => _scale; // ReadOnly, nur für Render-Transformation
+        //public float Scale => _scale; // ReadOnly, nur für Render-Transformation
         public Insets Padding
         {
             get => _padding;
@@ -106,6 +114,18 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
         IFrameChildHost? IFrameChildHostInternal.Parent
         {
             get => null; set { }
+        }
+
+        public string? StyleName
+        {
+            get => _styleName;
+            set
+            {
+                if (_isStyleApplied)
+                    throw new InvalidOperationException("Cannot change StyleName after style has been applied.");
+
+                _styleName = value;
+            }
         }
 
         public IBrush? BackgroundBrush
@@ -145,6 +165,43 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
         }
 
         // --------------------------
+        // Apply Styles
+        // --------------------------
+
+        // Es ermöglicht auch Wechsel von Skin ohne neuzustarten
+        public void ApplySkin(Skin? skin)
+        {
+            // ....
+            // Aktualisiert neue Style anhand Stylesheet
+            // Wenn bereits angewendet, Exception werfen
+            // Wenn sheet = null -> Configuration Style anwenden (Default-Stylesheet)
+
+            // ... bitte implementieren
+
+            // wenn Applied -> bitte auch Invalidieren
+
+            if (_isStyleApplied && (_skin == skin))
+                throw new InvalidOperationException("Style has already been applied to this frame.");
+
+            foreach (var frame in _frames)
+                ApplyStyleRecursive(frame);
+
+            _isStyleApplied = true;
+        }
+
+        private void ApplyStyleRecursive(FrameBase frame)
+        {
+            if (frame is IStyleable styleable)
+            {
+                //var style = _skin?.FindStyle(frame.GetType(), frame.StyleName);
+                //styleable.ApplyFromStyle(style);
+            }
+
+            foreach (var child in frame.ChildFrames)
+                ApplyStyleRecursive(child);
+        }
+
+        // --------------------------
         // Update
         // --------------------------
         public void Update(GameTime gameTime)
@@ -164,9 +221,9 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
                 _shouldInvalidate = true;
 
                 // Scale neu berechnen basierend auf Designgröße
-                float scaleX = newSize.X / _configuration.DesignWidth;
-                float scaleY = newSize.Y / _configuration.DesignHeight;
-                _scale = MathF.Min(scaleX, scaleY);
+                //float scaleX = newSize.X / _configuration.DesignWidth;
+                //float scaleY = newSize.Y / _configuration.DesignHeight;
+                //_scale = MathF.Min(scaleX, scaleY);
             }
 
             if (_shouldInvalidate || AutoInvalidate)
@@ -342,6 +399,16 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
         }
 
         public void Invalidate() => _shouldInvalidate = true;
+
+        private void ApplyFromStyle(Style? style)
+        {
+            // Implemntieren...
+        }
+
+        void IStyleable.ApplyFromStyle(Style? style)
+        {
+            ApplyFromStyle(style);
+        }
 
         public void Dispose()
         {

@@ -12,8 +12,10 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
 
         // Zeichnen
         void DrawBorder(Bounds rect, Color color, Insets thickness);
+
         void DrawRectangle(Bounds rect, Color color);
-        void DrawText(SpriteFont font, string text, Vector2 position, Color color);
+
+        void DrawText(Bounds rect, string text, Font font, TextLayout layout, Color color);
 
         // Clipping
         void PushClip(Bounds rect);
