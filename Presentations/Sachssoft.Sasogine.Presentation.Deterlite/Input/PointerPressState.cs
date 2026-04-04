@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Input
+namespace Sachssoft.Sasogine.Presentation.Input
 {
     [Flags]
     public enum PointerPressState

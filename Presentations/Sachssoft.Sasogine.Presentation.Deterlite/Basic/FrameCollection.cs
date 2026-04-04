@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite
+namespace Sachssoft.Sasogine.Presentation
 {
     public class FrameCollection : IList<FrameBase>
     {

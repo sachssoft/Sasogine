@@ -1,8 +1,8 @@
-﻿namespace Sachssoft.Sasogine.Presentation.Deterlite.Styling
+﻿namespace Sachssoft.Sasogine.Presentation.Styling
 {
     public interface ITypeFactory<T, TEntry> 
         where T : class
-        where TEntry : SkinEntry
+        where TEntry : class, ISkinEntry
     {
         T Create(Skin skin, TEntry entry);
     }

@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Presentation.Deterlite.Rendering;
+using Sachssoft.Sasogine.Presentation.Rendering;
 using System;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Input
+namespace Sachssoft.Sasogine.Presentation.Input
 {
     public struct PointerStateTracker
     {

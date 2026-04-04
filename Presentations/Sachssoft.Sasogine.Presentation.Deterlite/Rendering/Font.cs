@@ -1,10 +1,8 @@
-﻿using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
-using Sachssoft.Sasogine.Presentation.Deterlite.Styling;
+﻿using Sachssoft.Sasogine.Presentation.Styling;
 using System;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
+namespace Sachssoft.Sasogine.Presentation.Rendering
 {
     /// <summary>
     /// Immutable font descriptor for game rendering.
@@ -14,10 +12,9 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
     public class Font
     {
         /// <summary>
-        /// The font family (e.g., Arial, Roboto).
+        /// The font name
         /// </summary>
-        // Definiert die Grundform der Buchstaben
-        public required FontFamily Family { get; init; }
+        public required string Name { get; init; }
 
         /// <summary>
         /// The weight of the font (e.g., Normal, Bold).
@@ -56,10 +53,10 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
         /// <param name="style">The font style</param>
         /// <param name="size">The font size in points (int recommended for cache)</param>
         [SetsRequiredMembers]
-        public Font(FontFamily family, FontWeight weight = FontWeight.Normal,
+        public Font(string name, FontWeight weight = FontWeight.Normal,
                     FontStyle style = FontStyle.Normal, int size = 16)
         {
-            Family = family ?? throw new ArgumentNullException(nameof(family));
+            Name = name ?? throw new ArgumentNullException(nameof(name));
             Weight = weight;
             Style = style;
             Size = size;
@@ -69,14 +66,14 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
         /// Computes a stable hash code for caching purposes.
         /// </summary>
         public override int GetHashCode()
-            => HashCode.Combine(Family.Name, Weight, Style, Size);
+            => HashCode.Combine(Name, Weight, Style, Size);
 
         /// <summary>
         /// Compares this Font with another for equality.
         /// </summary>
         public override bool Equals(object? obj)
             => obj is Font other
-               && Family.Name == other.Family.Name
+               && Name == other.Name
                && Weight == other.Weight
                && Style == other.Style
                && Size == other.Size;
@@ -85,6 +82,6 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
         /// Returns a readable string representation of the font.
         /// </summary>
         public override string ToString()
-            => $"(Font={Family.Name}, Weight={Weight}, Style={Style}, Size={Size}pt)";
+            => $"(Name={Name}, Weight={Weight}, Style={Style}, Size={Size}pt)";
     }
 }

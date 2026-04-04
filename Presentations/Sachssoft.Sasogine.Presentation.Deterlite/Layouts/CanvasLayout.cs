@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Drawing;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Layouts
+namespace Sachssoft.Sasogine.Presentation.Layouts
 {
     public class CanvasLayout : LayoutBase
     {

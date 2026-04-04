@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Presentation.Deterlite.Layouts
+﻿namespace Sachssoft.Sasogine.Presentation.Layouts
 {
     public enum FlowDirection
     {

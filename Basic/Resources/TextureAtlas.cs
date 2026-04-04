@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine.Resources.Loaders;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -10,18 +11,35 @@ using System.Xml.Linq;
 
 namespace Sachssoft.Sasogine.Resources;
 
-public class TextureAtlas
+public class TextureAtlas : IResourceContainer
 {
     private Texture2D _texture;
+    private int _scaleDefinition = 1;
     private readonly Dictionary<string, TextureAtlasFrame> _frames = new();
 
+    public TextureAtlas() { }
+
     public Texture2D Texture => _texture;
+
+    public int ScaleDefinition => _scaleDefinition;
 
     public IReadOnlyDictionary<string, TextureAtlasFrame> Frames => _frames;
 
     public TextureAtlasFrame this[string key] => _frames[key];
 
-    public void Load(Texture2D texture, Stream xmlStream)
+    public static TextureAtlas? Load(LoaderBase? loader)
+    {
+        throw new NotImplementedException();
+        //throw new NotImplementedException();
+    }
+
+    public static TextureAtlas? Load(Stream stream)
+    {
+        throw new NotImplementedException();
+        //throw new NotImplementedException();
+    }
+
+    public void Load(Texture2D texture, Stream xmlStream, int scaleDefinition = 1)
     {
         _texture = texture;
 
@@ -130,5 +148,10 @@ public class TextureAtlas
 
         croppedTexture = _texture.Crop(frame.SourceRectangle);
         return true;
+    }
+
+    public bool TryGetResource<T>(string id, out T value)
+    {
+        throw new NotImplementedException();
     }
 }

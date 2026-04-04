@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Presentation.Deterlite.Styling
+﻿namespace Sachssoft.Sasogine.Presentation.Styling
 {
     public record StylesheetNamespace
     {

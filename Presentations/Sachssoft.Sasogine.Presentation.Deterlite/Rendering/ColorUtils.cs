@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
+namespace Sachssoft.Sasogine.Presentation.Rendering
 {
     public static class ColorUtils
     {

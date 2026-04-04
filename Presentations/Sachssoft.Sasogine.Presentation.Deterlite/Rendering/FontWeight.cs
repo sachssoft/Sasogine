@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
+﻿namespace Sachssoft.Sasogine.Presentation.Rendering
 {
     /// <summary>
     /// Represents the weight (thickness) of a font.

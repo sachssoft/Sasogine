@@ -1,12 +1,12 @@
-﻿using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
-using Sachssoft.Sasogine.Presentation.Deterlite.Styling;
+﻿using Sachssoft.Sasogine.Presentation.Layouts;
+using Sachssoft.Sasogine.Presentation.Styling;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
+namespace Sachssoft.Sasogine.Presentation.Rendering
 {
     public class TextureRegion : ITextureRegion
     {

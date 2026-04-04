@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.UI.Deterlite.Layouts
+﻿namespace Sachssoft.Sasogine.Layouts
 {
     public enum Orientation
     {

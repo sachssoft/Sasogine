@@ -1,10 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
-using Sachssoft.Sasogine.Presentation.Deterlite.Rendering;
-using Sachssoft.Sasogine.Presentation.Deterlite.Styling;
+using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Presentation.Layouts;
+using Sachssoft.Sasogine.Presentation.Rendering;
+using Sachssoft.Sasogine.Presentation.Styling;
 using System;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite
+namespace Sachssoft.Sasogine.Presentation
 {
     public abstract class FrameBase : IFrameChildHostInternal, IStyleable
     {

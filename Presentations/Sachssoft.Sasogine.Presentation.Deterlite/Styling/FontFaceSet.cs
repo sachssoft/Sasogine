@@ -1,15 +1,16 @@
-﻿using Sachssoft.Sasogine.Presentation.Deterlite.Rendering;
+﻿using Sachssoft.Sasogine.Presentation.Rendering;
+using Sachssoft.Sasogine.Resources;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Styling
+namespace Sachssoft.Sasogine.Presentation.Styling
 {
     /// <summary>
     /// Represents a font family containing multiple font faces (weight + style variants).
     /// Provides fast lookup and deterministic fallback.
     /// </summary>
-    public sealed class FontFamily
+    public sealed class FontFaceSet : IResourceContainer
     {
         private readonly List<FontFace> _faces = new();
         private readonly Dictionary<FontKey, FontFace> _lookup;
@@ -34,7 +35,7 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Styling
         /// </summary>
         /// <param name="name">The font family name</param>
         /// <param name="faces">Array of FontFace instances (must contain at least one)</param>
-        public FontFamily(string name, FontFace[] faces)
+        public FontFaceSet(string name, FontFace[] faces)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
 
@@ -85,6 +86,11 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Styling
 
             // 3. Last fallback: Normal weight + Normal style
             return _lookup[new FontKey(FontWeight.Normal, FontStyle.Normal)];
+        }
+
+        public bool TryGetResource<T>(string id, out T value)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

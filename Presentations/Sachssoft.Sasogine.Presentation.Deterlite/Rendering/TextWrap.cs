@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
+﻿namespace Sachssoft.Sasogine.Presentation.Rendering
 {
     public enum TextWrap
     {

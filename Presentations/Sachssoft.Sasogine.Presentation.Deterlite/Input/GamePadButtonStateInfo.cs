@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Input;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Input
+namespace Sachssoft.Sasogine.Presentation.Input
 {
     public class GamePadButtonStateInfo
     {

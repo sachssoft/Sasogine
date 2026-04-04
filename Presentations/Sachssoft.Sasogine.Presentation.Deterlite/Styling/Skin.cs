@@ -1,14 +1,18 @@
-﻿using Sachssoft.Sasogine.Presentation.Deterlite.Rendering;
+﻿using Sachssoft.Sasogine.Resources;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Styling
+namespace Sachssoft.Sasogine.Presentation.Styling
 {
     public class Skin
     {
+        private readonly Dictionary<string, ISkinEntry> _entries = new();
         private readonly Workspace _workspace;
-        private readonly TextureAtlas[] _atlases;
-        private readonly FontTypeface[] _fontTypefaces;
+
+        private readonly List<TextureAtlasSet> _textureAtlasSets = new();
+        private readonly List<FontFaceSet> _fontFaceSets = new();
 
         public Skin(Workspace workspace)
         {
@@ -19,122 +23,55 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Styling
 
         public List<StylesheetNamespace> Namespaces { get; } = new();
 
-        public IReadOnlyList<ISkinEntry> Entries { get; init; } 
+        public SkinRegistry Registry { get; } = new();
 
-        public SkinRegistry SkinRegistry { get; } = new();
+        public IEnumerable<ISkinEntry> Entries => _entries.Values;
 
-        public void Load()
+        public IReadOnlyCollection<TextureAtlasSet> TextureAtlasSets => _textureAtlasSets.AsReadOnly();
+
+        public IReadOnlyCollection<FontFaceSet> FontFaceSets => _fontFaceSets.AsReadOnly();
+
+        public virtual void Load()
         {
+            // In XML müssen zuerst die FontFace-Resource eingetragen werden, dann FontFamily
+            // Umgekehrt würde FontFamily Face nicht finden
+            // Es ist Von-Oben-Nach-Unten-Prinzip
+
+            foreach (var entry in _entries.Values)
+            {
+                if (entry is Resource resource)
+                {
+                    switch (resource.TargetType)
+                    {
+                        case Type t when t == typeof(TextureAtlas):
+                            {
+                                _textureAtlasSets.Add(resource.Create<TextureAtlasSet>(this));
+                                break;
+                            }
+                        case Type t when t == typeof(FontFaceSet):
+                            {
+                                _fontSets.Add(resource.Create<FontFaceSet>(this));
+                                break;
+                            }
+                    }
+                }
+            }
         }
 
         public void Unload()
         {
         }
 
+        public void AddEntry(ISkinEntry entry)
+        {
+            if (!_entries.TryAdd(entry.Id, entry))
+                throw new InvalidOperationException();
+        }
+
         public Resource? FindResource(string id) => 
-            Entries.Where(x => x.Id == id && x is Resource).FirstOrDefault();
+            Entries.Where(x => x.Id == id && x is Resource)
+                   .Cast<Resource>()
+                   .FirstOrDefault();
 
-        public TextureAtlas GetAtlas(float scale = 1f)
-        {
-        }
-
-        public ITextureRegion? FindRegion(string name)
-        {
-            return null;
-        }
-
-        public FontTypeface GetTypeface(string name)
-        {
-            // Bei Fallback immer erste Typeface
-        }
-
-        //private protected override Stylesheet GetStylesheet() => this;
-
-        //#region Atlas
-
-        //private readonly Dictionary<string, TextureSheet> _textureAtlases = new();
-        //public Dictionary<string, TextureSheet> TextureAtlases => _textureAtlases;
-
-        //public TextureSheet? FindTextureAtlas(string? name)
-        //{
-        //    if (_textureAtlases.TryGetValue(name ?? string.Empty, out var atlas))
-        //    {
-        //        return atlas;
-        //    }
-        //    return null;
-        //}
-
-        //public ITextureRegion? FindRegion(string? atlasName, string? regionName)
-        //{
-        //    var atlas = FindTextureAtlas(atlasName);
-
-        //    if (atlas != null && atlas.Regions.TryGetValue(regionName ?? string.Empty, out var region))
-        //    {
-        //        return region;
-        //    }
-        //    return null;
-        //}
-
-        //public ITextureRegion? FindRegion(string? regionName)
-        //{
-        //    foreach (var atlas in _textureAtlases.Values)
-        //    {
-        //        if (atlas.Regions.TryGetValue(regionName ?? string.Empty, out var region))
-        //        {
-        //            return region;
-        //        }
-        //    }
-        //    return null;
-        //}
-
-        //#endregion
-
-        //#region Fonts
-
-        //private readonly Dictionary<string, FontTypeface> _typefaces = new();
-        //private readonly Dictionary<string, Font> _fonts = new();
-
-        //public Dictionary<string, FontTypeface> Typefaces => _typefaces;
-        //public Dictionary<string, Font> Fonts => _fonts;
-
-        //public Font DefaultFont => _fonts.FirstOrDefault().Value;
-
-        //public Font GetFont(string? id)
-        //{
-        //    if (_fonts.TryGetValue(id ?? string.Empty, out var font))
-        //        return font;
-
-        //    throw new NotImplementedException(); //FontTypeface.Default.GetV;
-        //}
-
-        //public FontTypeface FindTypefaceOrDefault(string? name)
-        //{
-        //    foreach(var typefaces in _typefaces.Values)
-        //    {
-        //        if (typefaces.Name == name)
-        //            return typefaces;
-        //    }
-
-        //    return FontTypeface.Noto;
-        //}
-
-        //#endregion
-
-        //#region Brushes
-
-        //private readonly Dictionary<string, IBrush> _brushes = new();
-        //private static Stylesheet _current;
-
-        //public Dictionary<string, IBrush> Brushes => _brushes;
-
-        //public IBrush? FindBrush(string? id)
-        //{
-        //    if (_brushes.TryGetValue(id ?? string.Empty, out var brush))
-        //        return brush;
-
-        //    return null;
-        //}
-
-        //#endregion
     }
 }

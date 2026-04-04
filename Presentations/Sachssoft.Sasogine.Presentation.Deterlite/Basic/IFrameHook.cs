@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Presentation.Deterlite
+﻿namespace Sachssoft.Sasogine.Presentation
 {
     public interface IFrameHook
     {

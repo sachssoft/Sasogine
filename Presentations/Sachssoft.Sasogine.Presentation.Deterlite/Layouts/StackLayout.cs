@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.UI.Deterlite.Layouts;
+using Sachssoft.Sasogine.Layouts;
 using System;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Layouts
+namespace Sachssoft.Sasogine.Presentation.Layouts
 {
     public class StackLayout : LayoutBase
     {

@@ -1,9 +1,9 @@
-﻿namespace Sachssoft.Sasogine.Presentation.Deterlite.Layouts
+﻿
+namespace Sachssoft.Sasogine.Presentation.Layouts;
+
+public enum Alignment
 {
-    public enum Alignment
-    {
-        Near = 0,
-        Center = 1,
-        Far = 2
-    }
+    Near = 0,
+    Center = 1,
+    Far = 2
 }

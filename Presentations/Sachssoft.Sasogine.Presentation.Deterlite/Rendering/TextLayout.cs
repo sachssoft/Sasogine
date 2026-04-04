@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
-using Sachssoft.Sasogine.Presentation.Deterlite.Styling;
+using Sachssoft.Sasogine.Presentation.Layouts;
+using Sachssoft.Sasogine.Presentation.Styling;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
+namespace Sachssoft.Sasogine.Presentation.Rendering
 {
     /// <summary>
     /// Represents layout settings for rendering text.

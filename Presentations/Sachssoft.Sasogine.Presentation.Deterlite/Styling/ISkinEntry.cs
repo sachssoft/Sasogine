@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Styling
+namespace Sachssoft.Sasogine.Presentation.Styling
 {
     public interface ISkinEntry
     {
         /// <summary>
         /// Eindeutige Id des Skin-Eintrags.
         /// </summary>
-        string? Id { get; }
+        string Id { get; }
 
         /// <summary>
         /// Optional zugeordnete Klasse für Gruppierungen.

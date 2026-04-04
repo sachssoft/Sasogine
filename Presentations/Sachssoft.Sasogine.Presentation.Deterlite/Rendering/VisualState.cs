@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
+namespace Sachssoft.Sasogine.Presentation.Rendering
 {
     [Flags]
     public enum VisualState

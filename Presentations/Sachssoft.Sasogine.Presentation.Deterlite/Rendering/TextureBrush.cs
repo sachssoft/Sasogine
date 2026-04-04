@@ -1,6 +1,6 @@
-﻿using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
-using Sachssoft.Sasogine.Presentation.Deterlite.Styling;
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
+﻿using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Resources;
+namespace Sachssoft.Sasogine.Presentation.Rendering
 {
     public class TextureBrush : IBrush
     {
@@ -40,30 +40,6 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
 
         public void Render(Bounds bounds, IRenderContext context)
         {
-        }
-
-        IStylePart IStylePart.Create(Skin sheet, PropertyMap properties)
-        {
-            float opacity = 1f;
-            ITextureRegion? region = null;
-
-            foreach (var entry in properties)
-            {
-                switch (entry.Name)
-                {
-                    case nameof(TextureBrush.TextureRegion):
-                        if (entry.Value is StyleBinding binding)
-                            region = binding.Resolve(sheet) as ITextureRegion;
-                        break;
-
-                    case nameof(TextureBrush.Opacity):
-                        if (entry.Value is float o)
-                            opacity = o;
-                        break;
-                }
-            }
-
-            return new TextureBrush(region, opacity);
         }
     }
 }

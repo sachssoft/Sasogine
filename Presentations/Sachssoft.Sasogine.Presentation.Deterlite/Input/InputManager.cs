@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Input
+namespace Sachssoft.Sasogine.Presentation.Input
 {
     public sealed class InputManager
     {

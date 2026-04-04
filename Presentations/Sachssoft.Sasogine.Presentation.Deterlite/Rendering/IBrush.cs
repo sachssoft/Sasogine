@@ -1,9 +1,8 @@
-﻿using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
-using Sachssoft.Sasogine.Presentation.Deterlite.Styling;
+﻿using Sachssoft.Sasogine.Common;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
+namespace Sachssoft.Sasogine.Presentation.Rendering
 {
-    public interface IBrush : IStylePart
+    public interface IBrush 
     {
         void Render(Bounds bounds, IRenderContext context);
     }

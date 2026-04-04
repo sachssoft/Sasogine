@@ -1,7 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 using System;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Layouts
+namespace Sachssoft.Sasogine.Presentation.Layouts
 {
     internal static class LayoutMath
     {

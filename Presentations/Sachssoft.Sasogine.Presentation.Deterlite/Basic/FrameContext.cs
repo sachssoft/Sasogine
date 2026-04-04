@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Presentation.Deterlite.Input;
-using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
-using Sachssoft.Sasogine.Presentation.Deterlite.Rendering;
+using Sachssoft.Sasogine.Presentation.Input;
+using Sachssoft.Sasogine.Presentation.Layouts;
+using Sachssoft.Sasogine.Presentation.Rendering;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite
+namespace Sachssoft.Sasogine.Presentation
 {
     public sealed class FrameContext
     {

@@ -1,7 +1,7 @@
-﻿using Sachssoft.Sasogine.Presentation.Deterlite.Rendering;
+﻿using Sachssoft.Sasogine.Presentation.Rendering;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Styling
+namespace Sachssoft.Sasogine.Presentation.Styling
 {
     /// <summary>
     /// Represents a single font face (file, weight, style).
@@ -9,15 +9,7 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Styling
     /// </summary>
     public sealed class FontFace
     {
-        /// <summary>
-        /// Path to the font file (e.g., TTF)
-        /// </summary>
-        public required string File { get; init; }
-
-        /// <summary>
-        /// Optional resource source wrapper for loading the font
-        /// </summary>
-        public ResourceFileSource Source { get; init; }
+        public required Resource Resource { get; init; }
 
         /// <summary>
         /// Weight (Normal / Bold)
@@ -38,15 +30,14 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Styling
         /// Optional Constructor with all parameters
         /// </summary>
         [SetsRequiredMembers]
-        public FontFace(string file, ResourceFileSource source, FontWeight weight = FontWeight.Normal, FontStyle style = FontStyle.Normal)
+        public FontFace(Resource resource, FontWeight weight = FontWeight.Normal, FontStyle style = FontStyle.Normal)
         {
-            File = file;
-            Source = source;
+            Resource = resource;
             Weight = weight;
             Style = style;
         }
 
         public override string ToString()
-            => $"{System.IO.Path.GetFileName(File)} (Weight={Weight}, Style={Style})";
+            => $"Resource={Resource.Id} (Weight={Weight}, Style={Style})";
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Input
+namespace Sachssoft.Sasogine.Presentation.Input
 {
     public struct TouchPoint
     {

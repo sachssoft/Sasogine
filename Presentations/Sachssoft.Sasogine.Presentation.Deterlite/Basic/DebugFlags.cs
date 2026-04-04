@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite
+namespace Sachssoft.Sasogine.Presentation
 {
     [Flags]
     public enum DebugFlags

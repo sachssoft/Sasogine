@@ -10,7 +10,7 @@ namespace Sachssoft.Sasogine.Resources.Loaders
     /// Provides existence checking and optional case-sensitive path validation.
     /// Supports synchronous and asynchronous access.
     /// </summary>
-    public sealed class LocalFileLoader : LoaderBase
+    public sealed class LocalFileLoader : LoaderBase, IFileLoader
     {
 
         public LocalFileLoader()

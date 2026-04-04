@@ -1,16 +1,15 @@
-﻿using Sachssoft.Sasogine.Presentation.Deterlite.Rendering;
-using Sachssoft.Sasogine.Presentation.Deterlite.Styling;
+﻿using Sachssoft.Sasogine.Presentation.Styling;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite
+namespace Sachssoft.Sasogine.Presentation
 {
     public class WorkspaceConfiguration
     {
 
         public WorkspaceConfiguration() { }
 
-        public IRenderContext? RenderContext { get; init; }
-
         public Skin? Skin { get; init; }
+
+        public IWorkspaceProvider? Provider { get; init; }
 
         public StyleRegistry? StyleRegistry { get; init; }
 

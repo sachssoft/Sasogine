@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite
+namespace Sachssoft.Sasogine.Presentation
 {
     public readonly struct DebugVisuals
     {

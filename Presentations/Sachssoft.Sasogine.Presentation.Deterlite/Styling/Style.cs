@@ -1,8 +1,7 @@
-﻿using Sachssoft.Sasogine.Presentation.Deterlite.Controls;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Styling
+namespace Sachssoft.Sasogine.Presentation.Styling
 {
     public sealed class Style : SkinEntry<Style>
     {

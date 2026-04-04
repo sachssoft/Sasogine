@@ -1,8 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
-using Sachssoft.Sasogine.Presentation.Deterlite.Styling;
+using Sachssoft.Sasogine.Common;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
+namespace Sachssoft.Sasogine.Presentation.Rendering
 {
     public class SolidColorBrush : IBrush
     {
@@ -63,32 +62,6 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Rendering
             }
 
             context.DrawRectangle(bounds, _renderColor);
-        }
-
-        IStylePart IStylePart.Create(Skin sheet, PropertyMap properties)
-        {
-            Color color = default;
-            float opacity = 1f; // Default-Wert, falls nicht gesetzt
-
-            foreach (var entry in properties)
-            {
-                switch (entry.Name)
-                {
-                    case nameof(SolidColorBrush.Color):
-                        if (entry.Value is Color clr)
-                            color = clr;
-                        else if (entry.Value is string str)
-                            color = ColorUtils.FromHex(str);
-                        break;
-
-                    case nameof(SolidColorBrush.Opacity):
-                        if (entry.Value is float o)
-                            opacity = o;
-                        break;
-                }
-            }
-
-            return new SolidColorBrush(color, opacity);
         }
     }
 }

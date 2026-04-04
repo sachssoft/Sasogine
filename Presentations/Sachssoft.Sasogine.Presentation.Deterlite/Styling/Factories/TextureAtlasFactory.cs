@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Sachssoft.Sasogine.Resources;
+using System;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Styling.Factories
+namespace Sachssoft.Sasogine.Presentation.Styling.Factories
 {
     internal class TextureAtlasFactory : ITypeFactory<TextureAtlas, Resource>
     {
@@ -11,7 +12,6 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Styling.Factories
             if (entry == null)
                 throw new ArgumentNullException(nameof(entry));
 
-#if SASOGINE
             try
             {
                 using var stream = entry.GetStream(skin);
@@ -26,9 +26,6 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite.Styling.Factories
             {
                 throw new InvalidOperationException($"Failed to create TextureAtlas from resource '{entry.Id}': {ex.Message}", ex);
             }
-#else
-            throw new NotSupportedException("TextureAtlasFactory is not implemented for this platform.");
-#endif
         }
     }
 }

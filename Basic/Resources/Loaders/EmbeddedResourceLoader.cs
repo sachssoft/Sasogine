@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Resources.Loaders
 {
-    public sealed class EmbeddedResourceLoader : LoaderBase
+    public sealed class EmbeddedResourceLoader : LoaderBase, IFileLoader
     {
         // Cache der Ressourcen-Namen für Performance
         private string[]? _cachedResourceNames;

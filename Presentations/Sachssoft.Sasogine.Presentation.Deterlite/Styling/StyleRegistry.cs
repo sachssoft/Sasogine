@@ -1,9 +1,7 @@
-﻿using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
-using Sachssoft.Sasogine.Presentation.Deterlite.Rendering;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Styling
+namespace Sachssoft.Sasogine.Presentation.Styling
 {
     public sealed class StyleRegistry
     {

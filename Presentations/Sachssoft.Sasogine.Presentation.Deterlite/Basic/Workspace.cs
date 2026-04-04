@@ -1,23 +1,27 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Presentation.Deterlite.Input;
-using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
-using Sachssoft.Sasogine.Presentation.Deterlite.Rendering;
-using Sachssoft.Sasogine.Presentation.Deterlite.Styling;
+using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Presentation.Input;
+using Sachssoft.Sasogine.Presentation.Layouts;
+using Sachssoft.Sasogine.Presentation.Rendering;
+using Sachssoft.Sasogine.Presentation.Styling;
 using System;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite
+namespace Sachssoft.Sasogine.Presentation
 {
     public sealed class Workspace : IDisposable, IRenderingHook, IFrameChildHostInternal, IStyleable
     {
         private readonly IGameApplication _application;
+        private readonly IWorkspaceProvider _provider;
+        private readonly IFontManager _fontManager;
+        private readonly IRenderContext _renderContext;
         private readonly WorkspaceConfiguration _configuration;
         private readonly GraphicsDevice _graphicsDevice;
         private readonly RasterizerState _rasterizerState;
         private readonly FrameCollection _frames;
         private readonly FrameContext _frameContext;
         private readonly InputManager _inputManager;
-        private readonly Skin? _skin;
+        private Skin _skin;
 
         private Bounds _displayBounds;
         private Bounds _layoutBounds;
@@ -57,12 +61,17 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
                 SlopeScaleDepthBias = 0
             };
 
+            _provider = configuration.Provider ?? new InternalWorkspaceProvider();
+            _renderContext = _provider.Resolve<IRenderContext>(this);
+            _fontManager = _provider.Resolve<IFontManager>(this);
+            //_inputManager = _provider.Resolve<IInputManager>(this); // später implementieren
+
             _frames = new FrameCollection(this);
             _inputManager = new InputManager();
             _frameContext = new FrameContext(
                 workspace: this,
                 Input: _inputManager,
-                render: configuration.RenderContext ?? new InternalRenderContext(this)
+                render: _renderContext
             );
 
             // initial Display / Layout Bounds
@@ -90,6 +99,8 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
         public IGameApplication Application => _application;
 
         public WorkspaceConfiguration Configuration => _configuration;
+
+        //public IWorkspaceProvider? Provider { get; init; }
 
         // --------------------------
         // Properties
@@ -169,24 +180,36 @@ namespace Sachssoft.Sasogine.Presentation.Deterlite
         // --------------------------
 
         // Es ermöglicht auch Wechsel von Skin ohne neuzustarten
-        public void ApplySkin(Skin? skin)
+        public void ApplySkin(Skin skin)
         {
-            // ....
-            // Aktualisiert neue Style anhand Stylesheet
-            // Wenn bereits angewendet, Exception werfen
-            // Wenn sheet = null -> Configuration Style anwenden (Default-Stylesheet)
+            if (skin == null)
+                throw new ArgumentNullException(nameof(skin));
 
-            // ... bitte implementieren
+            // 🔥 WICHTIG: Erst prüfen, dann ggf. abbrechen
+            if (_isStyleApplied && _skin == skin)
+                throw new InvalidOperationException(
+                    "Style has already been applied to this frame."
+                );
 
-            // wenn Applied -> bitte auch Invalidieren
+            // Wenn gleiches Skin aber noch nicht applied → trotzdem durchlaufen
+            if (_skin != skin)
+            {
+                _skin?.Unload();
 
-            if (_isStyleApplied && (_skin == skin))
-                throw new InvalidOperationException("Style has already been applied to this frame.");
+                _skin = skin;
+                _skin.Load();
+                _frameContext.Render.OnSkinChanged(skin);
+                _isStyleApplied = false; // reset, weil neues Skin
+            }
 
+            // 👉 Styles anwenden
             foreach (var frame in _frames)
                 ApplyStyleRecursive(frame);
 
             _isStyleApplied = true;
+
+            // 👉 UI invalidieren
+            Invalidate();
         }
 
         private void ApplyStyleRecursive(FrameBase frame)

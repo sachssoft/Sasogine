@@ -2,7 +2,7 @@
 using Sachssoft.Sasogine.Common.Performance;
 using Sachssoft.Sasogine.Scenes;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite
+namespace Sachssoft.Sasogine.Presentation
 {
     public abstract class DeterlitePresentation : IPresentation
     {

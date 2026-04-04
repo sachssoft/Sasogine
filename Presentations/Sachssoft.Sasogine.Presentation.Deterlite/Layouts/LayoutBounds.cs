@@ -1,4 +1,6 @@
-﻿namespace Sachssoft.Sasogine.Presentation.Deterlite.Layouts
+﻿using Sachssoft.Sasogine.Common;
+
+namespace Sachssoft.Sasogine.Presentation.Layouts
 {
     public readonly struct LayoutBounds
     {

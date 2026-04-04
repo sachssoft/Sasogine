@@ -2,65 +2,101 @@
 <Skin xmlns="Deterlite"
       xmlns:cuie="Sachssoft.CustomUIExample">
 
-	<!-- ================== Resources ================== -->
-	<Resource Id="example_skin_1" Type="TextureAtlas" File="example_skin_1.axml" Source="Embedded">
-		<Values ScaleDefinition="1"/>
-	</Resource>
-	<Resource Id="example_skin_2" Type="TextureAtlas" File="example_skin_2.axml" Source="Embedded">
-		<Values ScaleDefinition="2"/>
-	</Resource>
-
-	<Resource Id="Noto-Regular" Type="FontFace" File="NotoSans-Regular.ttf" Source="Embedded">
-		<Values FontName="Noto"
-			   />
-	</Resource>
-	
-	<Resource Id="Noto-Italic" Type="FontFace" File="NotoSans-Italic.ttf" Source="Embedded"/>
-	<Resource Id="Noto-Bold" Type="FontFace" File="NotoSans-Bold.ttf" Source="Embedded"/>
-	<Resource Id="Noto-BoldItalic" Type="FontFace" File="NotoSans-BoldItalic.ttf" Source="Embedded"/>
-
-	<Resource Id="Cousine-Regular" Type="FontFace" File="Cousine-Regular.ttf" Source="Embedded"/>
-	<Resource Id="Cousine-Italic" Type="FontFace" File="Cousine-Italic.ttf" Source="Embedded"/>
-	<Resource Id="Cousine-Bold" Type="FontFace" File="Cousine-Bold.ttf" Source="Embedded"/>
-	<Resource Id="Cousine-BoldItalic" Type="FontFace" File="Cousine-BoldItalic.ttf" Source="Embedded"/>
-
-	<Resource Id="Literata-Regular" Type="FontFace" File="Literata-Regular.ttf" Source="Embedded"/>
-	<Resource Id="Literata-Italic" Type="FontFace" File="Literata-Italic.ttf" Source="Embedded"/>
-	<Resource Id="Literata-Bold" Type="FontFace" File="Literata-Bold.ttf" Source="Embedded"/>
-	<Resource Id="Literata-BoldItalic" Type="FontFace" File="Literata-BoldItalic.ttf" Source="Embedded"/>
-	
-	<!-- ================== Definitions ================== -->
-	<!-- Typeface definiert mehrere Varianten -->
-	<Resource Type="FontFamily" Id="Noto">
-		<Values Name="Noto" />
-		<Resource Type="Variant" Id="Regular">
-			<Values Face="Noto-Regular" Weight="Normal" Style="Normal"/>
+	<!-- ================== Texture Atlases ================== -->
+	<Resource Type="TextureAtlasSet" Id="AtlasLight">
+		<Values VariantName="Light"/>
+		<Resource Id="Cousine-Regular" Type="TextureAtlas" File="example_skin_1_light.axml" Source="Embedded">
+			<Values ScaleDefinition="1"/>
 		</Resource>
-		<Definition Type="Variant" Id="Italic">
-			<Values Face="Noto-Italic" Weight="Normal" Style="Italic"/>
-		</Definition>
-		<Definition Type="Variant" Id="Bold">
-			<Values Face="Noto-Bold" Weight="Bold" Style="Normal"/>
-		</Definition>
-		<Definition Type="Variant" Id="BoldItalic">
-			<Values Face="Noto-BoldItalic" Weight="Bold" Style="Italic"/>
-		</Definition>
+		<Resource Id="Cousine-Regular" Type="TextureAtlas" File="example_skin_2_light.axml" Source="Embedded">
+			<Values ScaleDefinition="2"/>
+		</Resource>
+	</Resource>
+	
+	<Resource Type="TextureAtlasSet" Id="AtlasDark">
+		<Values VariantName="Dark"/>
+		<Resource Id="Cousine-Regular" Type="TextureAtlas" File="example_skin_1_dark.axml" Source="Embedded">
+			<Values ScaleDefinition="1"/>
+		</Resource>
+		<Resource Id="Cousine-Regular" Type="TextureAtlas" File="example_skin_2_dark.axml" Source="Embedded">
+			<Values ScaleDefinition="2"/>
+		</Resource>
+	</Resource>
+	<!-- ================== Font Families ================== -->
+
+	<!-- Cousine -->
+	<Resource Type="FontFaceSet" Id="Cousine">
+		<Values Name="Cousine" />
+		<Resource Id="Cousine-Regular" Type="FontFace" File="Cousine-Regular.ttf" Source="Embedded">
+			<Values Weight="Normal" Style="Normal"/>
+		</Resource>
+		<Resource Id="Cousine-Italic" Type="FontFace" File="Cousine-Italic.ttf" Source="Embedded">
+			<Values Weight="Normal" Style="Italic"/>
+		</Resource>
+		<Resource Id="Cousine-Bold" Type="FontFace" File="Cousine-Bold.ttf" Source="Embedded">
+			<Values Weight="Bold" Style="Normal"/>
+		</Resource>
+		<Resource Id="Cousine-BoldItalic" Type="FontFace" File="Cousine-BoldItalic.ttf" Source="Embedded">
+			<Values Weight="Bold" Style="Italic"/>
+		</Resource>
 	</Resource>
 
-	<Definition Type="Font" Id="default-font">
-		<Values Typeface="Noto" Size="20"/>
-	</Definition>
-	<Definition Type="Font" Id="header-font">
-		<Values Typeface="Noto" Size="20" Weight="Bold"/>
-	</Definition>	
-	
-	<Definition Id="background" Type="SolidColorBrush">
-		<Values Color="#1E1E1E"/>
-	</Definition>
+	<!-- Literata -->
+	<Resource Type="FontFaceSet" Id="Literata">
+		<Values Name="Literata" />
+		<Resource Id="Literata-Regular" Type="FontFace" File="Literata-Regular.ttf" Source="Embedded">
+			<Values Weight="Normal" Style="Normal"/>
+		</Resource>
+		<Resource Id="Literata-Italic" Type="FontFace" File="Literata-Italic.ttf" Source="Embedded">
+			<Values Weight="Normal" Style="Italic"/>
+		</Resource>
+		<Resource Id="Literata-Bold" Type="FontFace" File="Literata-Bold.ttf" Source="Embedded">
+			<Values Weight="Bold" Style="Normal"/>
+		</Resource>
+		<Resource Id="Literata-BoldItalic" Type="FontFace" File="Literata-BoldItalic.ttf" Source="Embedded">
+			<Values Weight="Bold" Style="Italic"/>
+		</Resource>
+	</Resource>
 
-	<Definition Type="Font" Id="default-font">
+	<!-- Noto -->
+	<Resource Type="FontFaceSet" Id="Noto">
+		<Values Name="Noto" />
+		<Resource Id="Noto-Regular" Type="FontFace" File="NotoSans-Regular.ttf" Source="Embedded">
+			<Values Weight="Normal" Style="Normal"/>
+		</Resource>
+		<Resource Id="Noto-Italic" Type="FontFace" File="NotoSans-Italic.ttf" Source="Embedded">
+			<Values Weight="Normal" Style="Italic"/>
+		</Resource>
+		<Resource Id="Noto-Bold" Type="FontFace" File="NotoSans-Bold.ttf" Source="Embedded">
+			<Values Weight="Bold" Style="Normal"/>
+		</Resource>
+		<Resource Id="Noto-BoldItalic" Type="FontFace" File="NotoSans-BoldItalic.ttf" Source="Embedded">
+			<Values Weight="Bold" Style="Italic"/>
+		</Resource>
+	</Resource>
+	
+	<!-- -->
+
+	<Resource Type="Font" Id="default-font">
+		<Values Typeface="Noto" Size="20"/>
+	</Resource>
+	<Resource Type="Font" Id="header-font">
+		<Values Typeface="Noto" Size="20" Weight="Bold"/>
+	</Resource>
+
+	<Resource Id="background" Type="SolidColorBrush">
+		<Values Color="#1E1E1E"/>
+	</Resource>
+
+	<Resource Id="back1" Type="TextureBrush">
+		<Values Region="@back1"/>
+	</Resource>
+	
+	
+
+	<Resource Type="Font" Id="default-font">
 		<Values Typeface="Noto-Regular" Size="20"/>
-	</Definition>
+	</Resource>
 	<Definition Type="Font" Id="header-font">
 		<Values Typeface="Noto-Bold" Size="20"/>
 	</Definition>
