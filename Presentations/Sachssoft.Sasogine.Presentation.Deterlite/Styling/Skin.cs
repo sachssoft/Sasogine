@@ -50,7 +50,7 @@ namespace Sachssoft.Sasogine.Presentation.Styling
                             }
                         case Type t when t == typeof(FontFaceSet):
                             {
-                                _fontSets.Add(resource.Create<FontFaceSet>(this));
+                                _fontFaceSets.Add(resource.Create<FontFaceSet>(this));
                                 break;
                             }
                     }

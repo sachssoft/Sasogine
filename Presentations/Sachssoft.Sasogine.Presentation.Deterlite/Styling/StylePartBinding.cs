@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Sachssoft.Sasogine.Presentation.Styling;
+using Sachssoft.Sasogine.Resources;
 
 public sealed class StyleBinding
 {
@@ -13,7 +14,7 @@ public sealed class StyleBinding
 
     // Suche nur im Skin
     public T? Resolve<T>(Skin skin)
-        where T : class
+        where T : class, IResourceContainer
     {
         if (skin == null) return null;
 

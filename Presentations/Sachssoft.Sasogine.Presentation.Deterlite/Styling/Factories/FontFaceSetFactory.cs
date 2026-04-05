@@ -30,10 +30,7 @@ namespace Sachssoft.Sasogine.Presentation.Styling
                 if (string.IsNullOrEmpty(child.File))
                     continue;
 
-                if (skin.Registry.TryCreate<FontFace>(child, out var face))
-                {
-                    faces.Add(face);
-                }
+                faces.Add(skin.Registry.Create<FontFace>(skin, child));
             }
 
             return new FontFaceSet(familyName, faces.ToArray());

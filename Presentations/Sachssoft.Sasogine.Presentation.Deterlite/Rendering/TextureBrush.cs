@@ -1,4 +1,5 @@
-﻿using Sachssoft.Sasogine.Common;
+﻿using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Resources;
 namespace Sachssoft.Sasogine.Presentation.Rendering
 {
@@ -7,11 +8,11 @@ namespace Sachssoft.Sasogine.Presentation.Rendering
         private float _opacity = 1f;
         private ITextureRegion? _textureRegion;
 
-        public TextureBrush() : this(null, 1f) { }
+        public TextureBrush(Texture2D texture) : this(texture, null, 1f) { }
 
-        public TextureBrush(ITextureRegion? textureRegion) : this(textureRegion, 1f) { }
+        public TextureBrush(Texture2D texture, ITextureRegion? textureRegion) : this(texture, textureRegion, 1f) { }
 
-        public TextureBrush(ITextureRegion? textureRegion, float opacity)
+        public TextureBrush(Texture2D texture, ITextureRegion? textureRegion, float opacity)
         {
             _opacity = float.Clamp(opacity, 0f, 1f);
             _textureRegion = textureRegion;
@@ -40,6 +41,16 @@ namespace Sachssoft.Sasogine.Presentation.Rendering
 
         public void Render(Bounds bounds, IRenderContext context)
         {
+            if (_textureRegion == null) // Klassischer Region
+            {
+
+            }
+            else if (_textureRegion != null)
+            {
+                var pos = bounds.Location;
+
+                //_textureRegion.Draw(pos, )
+            }
         }
     }
 }

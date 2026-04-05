@@ -1,23 +1,22 @@
-﻿using Sachssoft.Sasogine.Presentation.Deterlite.Rendering;
+﻿using Sachssoft.Sasogine.Presentation.Rendering;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Controls
+namespace Sachssoft.Sasogine.Presentation.Widgets;
+
+public class Widget : FrameBase
 {
-    public class Widget : FrameBase
-    {
-        public bool IsEnabled { get; set; } = true;
+    public bool IsEnabled { get; set; } = true;
 
-        public bool IsFocusable { get; set; } = true; 
+    public bool IsFocusable { get; set; } = true; 
 
-        public bool IsFocused { get; set; }
+    public bool IsFocused { get; set; }
 
-        public IBrush? FocusBrush { get; set; }
+    public IBrush? FocusBrush { get; set; }
 
-        public IBrush? DisabledBackgroundBrush { get; set; }
+    public IBrush? DisabledBackgroundBrush { get; set; }
 
-        public IBrush? DisabledForegroundBrush { get; set; }
+    public IBrush? DisabledForegroundBrush { get; set; }
 
-        public IBrush? HoveredBackgroundBrush { get; set; }
+    public IBrush? HoveredBackgroundBrush { get; set; }
 
-        public IBrush? HoveredForegroundBrush { get; set; }
-    }
+    public IBrush? HoveredForegroundBrush { get; set; }
 }

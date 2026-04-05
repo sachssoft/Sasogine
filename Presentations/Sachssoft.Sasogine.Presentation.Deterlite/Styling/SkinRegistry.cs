@@ -1,107 +1,148 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Presentation.Rendering;
+using Sachssoft.Sasogine.Resources;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Sachssoft.Sasogine.Presentation.Styling
 {
     public class SkinRegistry
     {
-        private readonly Dictionary<string, object> _typeFactories = new();
+        // Key: Type direkt → stabil und refactor-sicher
+        private readonly Dictionary<Type, Func<Skin, Resource, object?>> _typeFactories = new();
+        private static readonly string[] s_defaultNamespaces = new[]
+        {
+            "Microsoft.Xna.Framework",
+            "Microsoft.Xna.Framework.Audio",
+            "Microsoft.Xna.Framework.Graphics",
+            "Microsoft.Xna.Framework.Media",
+            "Sachssoft.Sasogine.Presentation.Rendering",
+            "Sachssoft.Sasogine.Presentation.Styling"
+        };
 
         public SkinRegistry()
         {
             RegisterDefaults();
         }
 
-        // Registrierung über IResourceFactory
-        public void Register<T>(string name, ITypeFactory<T, Resource> factory)
+        public IEnumerable<Type> RegisteredTypes => _typeFactories.Keys;
+
+        public void Register<T, TFactory>()
             where T : class
+            where TFactory : ITypeFactory<T, Resource>, new()
         {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Resource name cannot be null or empty.", nameof(name));
+            var type = typeof(T);
 
-            if (factory == null)
-                throw new ArgumentNullException(nameof(factory));
+            if (_typeFactories.ContainsKey(type))
+                throw new InvalidOperationException($"A factory for type '{type.FullName}' is already registered.");
 
-            if (_typeFactories.ContainsKey(name))
-                throw new InvalidOperationException($"A factory for '{name}' is already registered.");
-
-            _typeFactories.Add(name, factory);
+            var factory = new TFactory();
+            _typeFactories[type] = factory.Create;
         }
 
-        // Registrierung über Delegate
-        public void Register<T>(string name, Func<Skin, PropertyMap, T> factory) where T : class
+        public bool ContainsType(string name, string? @namespace = null)
         {
-            if (factory == null)
-                throw new ArgumentNullException(nameof(factory));
-
-            Register<T>(name, new ResourceFactoryWrapper<T>(factory));
-        }
-
-#if SASOGINE
-        protected virtual void RegisterDefaults()
-        {
-            Register<TextureAtlas>(nameof(TextureAtlas), (s, v, ta) =>
+            foreach (var type in _typeFactories.Keys)
             {
-
-            });
-        }
-#else
-        protected virtual void RegisterDefaults()
-        {
-            // Später für andere Plattformen/engines implementieren
-        }
-#endif
-
-        // Create über Type
-        public object Create(string name, Type type, Skin skin, PropertyMap values)
-        {
-            if (!_typeFactories.TryGetValue(name, out var factory))
-                throw new InvalidOperationException($"No resource factory registered for '{name}'.");
-
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            var instance = factory.Create(type, skin, values);
-
-            if (instance == null)
-                throw new InvalidOperationException($"Factory for '{name}' returned null.");
-
-            if (!type.IsAssignableFrom(instance.GetType()))
-                throw new InvalidOperationException($"Factory for '{name}' returned invalid type '{instance.GetType().Name}', expected '{type.Name}'.");
-
-            return instance;
-        }
-
-        // Typsichere Variante
-        public bool TryCreate<T>(Resource resource, out T instance) where T : class
-        {
-            var result = Create(name, typeof(T), skin, values);
-
-            return (T)result;
-        }
-
-        // Wrapper für Delegate
-        private class ResourceFactoryWrapper<T> : IResourceFactory where T : class
-        {
-            private readonly Func<Skin, PropertyMap, T> _factory;
-
-            public ResourceFactoryWrapper(Func<Skin, PropertyMap, T> factory)
-            {
-                _factory = factory ?? throw new ArgumentNullException(nameof(factory));
+                string typeNamespace = type.Namespace ?? "";
+                if ((@namespace == null && Array.Exists(s_defaultNamespaces, ns => ns == typeNamespace)) ||
+                    (@namespace != null && typeNamespace == @namespace))
+                {
+                    if (type.Name == name)
+                        return true;
+                }
             }
 
-            public object Create(Type targetType, Skin skin, PropertyMap values)
+            return false;
+        }
+
+        // Create über Name + Skin + Resource
+        public object Create(string name, Skin skin, Resource resource)
+        {
+            foreach (var type in _typeFactories.Keys)
             {
-                var result = _factory.Invoke(skin, values);
+                if (type.Name != name)
+                    continue;
 
-                if (result == null)
-                    throw new InvalidOperationException($"Factory returned null for type '{typeof(T).Name}'.");
+                var factory = _typeFactories[type];
+                var result = factory.Invoke(skin, resource)
+                             ?? throw new InvalidOperationException($"Factory for '{type.FullName}' returned null.");
 
-                if (!targetType.IsAssignableFrom(result.GetType()))
-                    throw new InvalidOperationException($"Factory returned type '{result.GetType().Name}', expected '{targetType.Name}'.");
+                if (!type.IsAssignableFrom(result.GetType()))
+                    throw new InvalidOperationException($"Factory for '{type.FullName}' returned invalid type '{result.GetType().FullName}'.");
 
                 return result;
             }
+
+            throw new InvalidOperationException($"No factory registered for type '{name}'.");
+        }
+
+        public T Create<T>(Skin skin, Resource resource) 
+            where T : class
+        {
+            var type = typeof(T);
+
+            if (!_typeFactories.TryGetValue(type, out var factory))
+                throw new InvalidOperationException($"No factory registered for type '{type.FullName}'.");
+
+            var result = factory.Invoke(skin, resource)
+                         ?? throw new InvalidOperationException($"Factory for '{type.FullName}' returned null.");
+
+            if (!(result is T typedResult))
+                throw new InvalidOperationException($"Factory for '{type.FullName}' returned invalid type '{result.GetType().FullName}'.");
+
+            return typedResult;
+        }
+
+        public bool TryCreate(string name, Skin skin, Resource resource, [MaybeNullWhen(false)] out object instance)
+        {
+            instance = null;
+
+            foreach (var type in _typeFactories.Keys)
+            {
+                if (type.Name != name)
+                    continue;
+
+                var factory = _typeFactories[type];
+                var result = factory.Invoke(skin, resource);
+
+                if (result == null || !type.IsAssignableFrom(result.GetType()))
+                    return false;
+
+                instance = result;
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool TryCreate<T>(Skin skin, Resource resource, [MaybeNullWhen(false)] out T instance) 
+            where T : class
+        {
+            instance = null;
+            var type = typeof(T);
+
+            if (!_typeFactories.TryGetValue(type, out var factory))
+                return false;
+
+            var result = factory.Invoke(skin, resource);
+            if (!(result is T typedResult))
+                return false;
+
+            instance = typedResult;
+            return true;
+        }
+
+        protected virtual void RegisterDefaults()
+        {
+            Register<FontFace, FontFaceFactory>();
+            Register<FontFaceSet, FontFaceSetFactory>();
+            Register<SolidColorBrush, SolidColorBrushFactory>();
+            Register<Texture2D, Texture2DFactory>();
+            Register<TextureAtlas, TextureAtlasFactory>();
+            Register<TextureAtlasSet, TextureAtlasSetFactory>();
+            Register<TextureBrush, TextureBrushFactory>();
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Resources
 {
     public interface ITextureRegion
     {
-        void Draw(Vector2 vector, Rectangle sourceRect);
+        IReadOnlyList<Rectangle> Regions { get; } // = SourceRects
     }
 }

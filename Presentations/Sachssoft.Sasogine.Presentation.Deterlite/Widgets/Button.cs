@@ -1,10 +1,7 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Presentation.Deterlite;
-using Sachssoft.Sasogine.Presentation.Deterlite.Controls;
-using Sachssoft.Sasogine.Presentation.Deterlite.Input;
-using Sachssoft.Sasogine.Presentation.Deterlite.Layouts;
-using Sachssoft.Sasogine.Presentation.Deterlite.Rendering;
+﻿using Sachssoft.Sasogine.Presentation.Input;
+using Sachssoft.Sasogine.Presentation.Rendering;
+
+namespace Sachssoft.Sasogine.Presentation.Widgets;
 
 public class Button : Widget
 {

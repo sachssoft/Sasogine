@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Presentation.Deterlite.Rendering;
+using Sachssoft.Sasogine.Presentation.Rendering;
 using System;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Styling
+namespace Sachssoft.Sasogine.Presentation.Styling
 {
     internal class SolidColorBrushFactory : ITypeFactory<SolidColorBrush, Resource>
     {

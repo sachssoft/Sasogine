@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace Sachssoft.Sasogine.Presentation.Deterlite.Styling.Factories
+namespace Sachssoft.Sasogine.Presentation.Styling
 {
     internal class Texture2DFactory : ITypeFactory<Texture2D, Resource>
     {

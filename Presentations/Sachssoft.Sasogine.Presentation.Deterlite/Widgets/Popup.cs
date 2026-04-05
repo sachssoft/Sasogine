@@ -1,6 +1,5 @@
-﻿namespace Sachssoft.Sasogine.Presentation.Deterlite.Widgets
+﻿namespace Sachssoft.Sasogine.Presentation.Widgets;
+
+public class Popup : FrameBase
 {
-    public class Popup : FrameBase
-    {
-    }
 }

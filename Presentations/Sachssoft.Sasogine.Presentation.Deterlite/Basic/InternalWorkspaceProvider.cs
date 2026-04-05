@@ -10,7 +10,6 @@ namespace Sachssoft.Sasogine.Presentation
     internal class InternalWorkspaceProvider : IWorkspaceProvider
     {
         private IRenderContext? _renderContext;
-        private IFontManager? _fontManager;
 
         /// <summary>
         /// Liefert die passende Instanz vom Typ T. Lazy-Caching für bekannte Typen.
@@ -29,23 +28,13 @@ namespace Sachssoft.Sasogine.Presentation
                     ?? throw new InvalidOperationException($"Resolved instance cannot be cast to {requestedType.Name}.");
             }
 
-            // FontContainer bereitstellen
-            if (requestedType.IsAssignableFrom(typeof(IFontService)))
-            {
-                if (_fontService == null)
-                    _fontService = new InternalFontService(_renderContext); // Implementierung intern
-
-                return _fontService as T
-                    ?? throw new InvalidOperationException($"Resolved instance cannot be cast to {requestedType.Name}.");
-            }
-
             // Unbekannte Typen
             throw new NotSupportedException($"Resolve<{requestedType.Name}> is not supported by this WorkspaceService.");
         }
 
         public void NotifySkinChanged(Skin skin)
         {
-            _renderContext.
+            _renderContext?.OnSkinChanged(skin);
         }
     }
 }

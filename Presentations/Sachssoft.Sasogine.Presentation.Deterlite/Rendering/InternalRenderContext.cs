@@ -5,6 +5,7 @@ using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Graphics;
 using Sachssoft.Sasogine.Presentation.Layouts;
 using Sachssoft.Sasogine.Presentation.Styling;
+using Sachssoft.Sasogine.Resources;
 using System;
 using System.Collections.Generic;
 
@@ -142,6 +143,60 @@ internal sealed class InternalRenderContext : IRenderContext, IDisposable
 
         Vector2 pos = Vector2.Transform(rect.Location, _currentTransform);
         _spriteBatch.DrawString(spriteFont, text, pos, color);
+    }
+
+    public void DrawImage(Vector2 pos, Texture2D texture, ITextureRegion? region = null)
+    {
+        if (!_isBegun) throw new InvalidOperationException("RenderContext not begun");
+
+        if (region == null)
+        {
+            _spriteBatch.Draw(texture, pos, Color.White);
+            return;
+        }
+
+        foreach (var rect in region.Regions)
+        {
+            _spriteBatch.Draw(texture, pos, rect, Color.White);
+        }
+    }
+
+    public void DrawStrechtedImage(Bounds rect, Texture2D texture, ITextureRegion? region = null)
+    {
+        if (!_isBegun) throw new InvalidOperationException("RenderContext not begun");
+
+        if (region == null)
+        {
+            _spriteBatch.Draw(
+                texture,
+                new Vector2(rect.X, rect.Y),
+                null,
+                Color.White,
+                0f,
+                Vector2.Zero,
+                new Vector2(rect.Width / texture.Width, rect.Height / texture.Height),
+                SpriteEffects.None,
+                0f
+            );
+            return;
+        }
+
+        foreach (var src in region.Regions)
+        {
+            Vector2 scale = new Vector2(rect.Width / src.Width, rect.Height / src.Height);
+
+            _spriteBatch.Draw(
+                texture,
+                new Vector2(rect.X, rect.Y),
+                src,
+                Color.White,
+                0f,                  // Rotation
+                Vector2.Zero,         // Origin
+                scale,
+                SpriteEffects.None,
+                0f                    // LayerDepth
+            );
+        }
     }
 
     public Vector2 MeasureText(string text, Font font, float maxWidth = float.PositiveInfinity, TextLayout? layout = null)

@@ -1,7 +1,7 @@
 ﻿using Sachssoft.Sasogine.Resources;
 using System;
 
-namespace Sachssoft.Sasogine.Presentation.Styling.Factories
+namespace Sachssoft.Sasogine.Presentation.Styling
 {
     internal class TextureAtlasFactory : ITypeFactory<TextureAtlas, Resource>
     {

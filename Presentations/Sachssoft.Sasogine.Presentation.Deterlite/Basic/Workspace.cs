@@ -13,7 +13,6 @@ namespace Sachssoft.Sasogine.Presentation
     {
         private readonly IGameApplication _application;
         private readonly IWorkspaceProvider _provider;
-        private readonly IFontManager _fontManager;
         private readonly IRenderContext _renderContext;
         private readonly WorkspaceConfiguration _configuration;
         private readonly GraphicsDevice _graphicsDevice;
@@ -63,7 +62,7 @@ namespace Sachssoft.Sasogine.Presentation
 
             _provider = configuration.Provider ?? new InternalWorkspaceProvider();
             _renderContext = _provider.Resolve<IRenderContext>(this);
-            _fontManager = _provider.Resolve<IFontManager>(this);
+            //_fontManager = _provider.Resolve<IFontManager>(this);
             //_inputManager = _provider.Resolve<IInputManager>(this); // später implementieren
 
             _frames = new FrameCollection(this);

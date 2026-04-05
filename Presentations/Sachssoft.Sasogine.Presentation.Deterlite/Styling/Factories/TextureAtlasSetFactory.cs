@@ -1,7 +1,7 @@
 ﻿using Sachssoft.Sasogine.Resources;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Presentation.Styling.Factories
+namespace Sachssoft.Sasogine.Presentation.Styling
 {
     internal class TextureAtlasSetFactory : ITypeFactory<TextureAtlasSet, Resource>
     {
@@ -31,10 +31,7 @@ namespace Sachssoft.Sasogine.Presentation.Styling.Factories
                 if (string.IsNullOrEmpty(child.File))
                     continue;
 
-                if (skin.Registry.TryCreate<TextureAtlas>(child, out var atlas))
-                {
-                    atlases.Add(atlas);
-                }
+                atlases.Add(skin.Registry.Create<TextureAtlas>(skin, child));
             }
 
             return new TextureAtlasSet(variantName, atlases.ToArray());
