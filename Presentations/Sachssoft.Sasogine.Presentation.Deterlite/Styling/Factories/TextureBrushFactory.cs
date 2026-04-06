@@ -3,11 +3,11 @@ using Sachssoft.Sasogine.Presentation.Rendering;
 using Sachssoft.Sasogine.Resources;
 using System;
 
-namespace Sachssoft.Sasogine.Presentation.Styling;
+namespace Sachssoft.Sasogine.Presentation.Styling.Factories;
 
 internal class TextureBrushFactory : ITypeFactory<TextureBrush, Resource>
 {
-    public TextureBrush Create(Skin skin, Resource entry)
+    public TextureBrush Create(ResourceStore store, Resource entry)
     {
         Texture2D? texture = null;
         float opacity = 1f;
@@ -18,8 +18,8 @@ internal class TextureBrushFactory : ITypeFactory<TextureBrush, Resource>
             switch (property.Name)
             {
                 case nameof(TextureBrush.TextureRegion):
-                    if (property.Value is StyleBinding binding)
-                        region = binding.Resolve<ITextureRegion, ITextureRegionResource>(skin);
+                    if (property.Value is Binding binding)
+                        region = binding.Resolve<ITextureRegion>(store);
                     break;
 
                 case nameof(TextureBrush.Opacity):

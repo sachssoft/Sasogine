@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Assets>
+	<Resource Id="SkinExample" Type="Skin">
+		
+	</Resource>
+
+	<Resource Id="Texture1" Type="Texture2D"></Resource>
+</Assets>

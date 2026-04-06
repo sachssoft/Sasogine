@@ -4,7 +4,7 @@ using Sachssoft.Sasogine.Scenes;
 
 namespace Sachssoft.Sasogine.Presentation
 {
-    public abstract class DeterlitePresentation : IPresentation
+    public abstract class Presentation : IPresentation
     {
         private readonly IGameApplication _application;
         private readonly IScene _scene;
@@ -13,7 +13,7 @@ namespace Sachssoft.Sasogine.Presentation
 
         private bool _loaded;
 
-        public DeterlitePresentation(IGameApplication application, IScene scene)
+        public Presentation(IGameApplication application, IScene scene)
         {
             _application = application;
             _scene = scene;

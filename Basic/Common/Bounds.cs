@@ -92,6 +92,40 @@ public readonly struct Bounds : IEquatable<Bounds>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(in Bounds a, in Bounds b) => !a.Equals(b);
 
+    public static Bounds Parse(string s)
+    {
+        if (TryParse(s, out var result))
+            return result;
+
+        throw new FormatException($"Invalid Bounds format: '{s}'. Expected 4 numeric values separated by ',' or ' '.");
+    }
+
+    public static bool TryParse(string? s, out Bounds result)
+    {
+        result = Zero;
+        if (string.IsNullOrWhiteSpace(s))
+            return false;
+
+        var parts = s.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length != 4)
+            return false;
+
+        try
+        {
+            float x = float.Parse(parts[0], CultureInfo.InvariantCulture);
+            float y = float.Parse(parts[1], CultureInfo.InvariantCulture);
+            float w = float.Parse(parts[2], CultureInfo.InvariantCulture);
+            float h = float.Parse(parts[3], CultureInfo.InvariantCulture);
+
+            result = new Bounds(x, y, w, h);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     public override string ToString()
     {
         return string.Format(

@@ -1,32 +1,20 @@
-﻿using Sachssoft.Sasogine.Presentation.Layouts;
-using Sachssoft.Sasogine.Presentation.Widgets;
-using System;
-using System.Collections.Generic;
+﻿using Sachssoft.Sasogine.Presentation.Rendering;
+using Sachssoft.Sasogine.Presentation.Styling.Factories;
+using Sachssoft.Sasogine.Resources;
 
 namespace Sachssoft.Sasogine.Presentation.Styling
 {
-    public sealed class StyleRegistry
+    public sealed class StyleRegistry : ResourceRegistry
     {
-        private readonly Dictionary<Type, StyleRegistryStyleableEntry> _styleableTypes = new();
-        private record StyleRegistryStyleableEntry(Type Type);
-
-        public StyleRegistry()
+        protected override void RegisterDefaults()
         {
-            Register();
-        }
+            base.RegisterDefaults();
 
-        public void Register<T>() where T : class, IStyleable
-        {
-            _styleableTypes[typeof(T)] = new StyleRegistryStyleableEntry(
-                Type: typeof(T)
-            );
-        }
-
-        private void Register()
-        {
-            Register<Workspace>();
-            Register<CanvasLayout>();
-            Register<Button>();
+            Register<FontFace, FontFaceFactory>();
+            Register<FontFaceSet, FontFaceSetFactory>();
+            Register<Font, FontFactory>();
+            Register<SolidColorBrush, SolidColorBrushFactory>();
+            Register<TextureBrush, TextureBrushFactory>();
         }
     }
 }

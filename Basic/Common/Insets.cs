@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace Sachssoft.Sasogine.Common;
@@ -61,6 +62,45 @@ public readonly struct Insets
             bounds.Width + Horizontal,
             bounds.Height + Vertical
         );
+
+    public static Insets Parse(string s)
+    {
+        if (TryParse(s, out var result))
+            return result;
+
+        throw new FormatException($"Invalid Insets format: '{s}'. Expected 1, 2, or 4 numeric values separated by ',' or ' '.");
+    }
+
+    public static bool TryParse(string? s, out Insets result)
+    {
+        result = None;
+
+        if (string.IsNullOrWhiteSpace(s))
+            return false;
+
+        var parts = s.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        float[] values = new float[parts.Length];
+
+        try
+        {
+            for (int i = 0; i < parts.Length; i++)
+                values[i] = float.Parse(parts[i], CultureInfo.InvariantCulture);
+
+            result = values.Length switch
+            {
+                1 => new Insets(values[0]),
+                2 => new Insets(values[0], values[1]),
+                4 => new Insets(values[0], values[1], values[2], values[3]),
+                _ => None
+            };
+
+            return values.Length == 1 || values.Length == 2 || values.Length == 4;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 
     public override string ToString()
     {

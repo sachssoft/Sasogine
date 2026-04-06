@@ -30,6 +30,10 @@
 	  <ProjectReference Include="..\..\Basic\Sachssoft.Sasogine.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Resources\" />
+	</ItemGroup>
+
 	<PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
 		<RuntimeIdentifiers>osx-x64;linux-x64</RuntimeIdentifiers>
 	</PropertyGroup>

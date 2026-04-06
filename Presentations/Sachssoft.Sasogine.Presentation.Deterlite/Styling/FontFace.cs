@@ -1,4 +1,5 @@
 ﻿using Sachssoft.Sasogine.Presentation.Rendering;
+using Sachssoft.Sasogine.Resources;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Sachssoft.Sasogine.Presentation.Styling

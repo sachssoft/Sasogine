@@ -47,6 +47,7 @@ namespace Sachssoft.Sasogine.Presentation
         {
             configuration ??= new WorkspaceConfiguration();
 
+            _application = application;
             _skin = configuration.Skin;
             _graphicsDevice = application.GraphicsDevice;
 
@@ -441,7 +442,9 @@ namespace Sachssoft.Sasogine.Presentation
                 if (frame is IDisposable disposable) disposable.Dispose();
 
             _frames.Clear();
-            _frameContext.Render.Dispose();
+
+            if (_frameContext.Render is IDisposable d)
+                d.Dispose();
         }
     }
 }

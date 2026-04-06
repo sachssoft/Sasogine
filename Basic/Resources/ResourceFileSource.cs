@@ -8,14 +8,20 @@ namespace Sachssoft.Sasogine.Resources;
 
 public sealed class ResourceFileSource
 {
-    private static readonly Dictionary<string, Func<IFileLoader>> _registeredTypes = new(StringComparer.OrdinalIgnoreCase);
+    private const string ENTRY_LOCAL = "Local";
+    private const string ENTRY_EMBEDDED = "Embedded";
+
+    private static readonly Dictionary<string, Func<IFileLoader>> s_registeredTypes = new(StringComparer.OrdinalIgnoreCase);
 
     private readonly Func<IFileLoader> _factory;
 
+    public static ResourceFileSource Local => From(ENTRY_LOCAL);
+    public static ResourceFileSource Embedded => From(ENTRY_EMBEDDED);
+
     static ResourceFileSource()
     {
-        Register<LocalFileLoader>("Local");
-        Register<EmbeddedResourceLoader>("Embedded");
+        Register<LocalFileLoader>(ENTRY_LOCAL);
+        Register<EmbeddedResourceLoader>(ENTRY_EMBEDDED);
     }
 
     private ResourceFileSource(string name, Func<IFileLoader> factory)
@@ -71,13 +77,13 @@ public sealed class ResourceFileSource
     public static void Register<T>(string name)
         where T : LoaderBase, IFileLoader, new()
     {
-        _registeredTypes[name] = () => new T();
+        s_registeredTypes[name] = () => new T();
     }
 
     // 🔹 Aus Registry holen
     public static ResourceFileSource From(string name)
     {
-        if (!_registeredTypes.TryGetValue(name, out var factory))
+        if (!s_registeredTypes.TryGetValue(name, out var factory))
             throw new InvalidOperationException($"ResourceFileSource '{name}' not registered.");
 
         return new ResourceFileSource(name, factory);

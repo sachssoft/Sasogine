@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sachssoft.Sasogine.Resources;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 

@@ -1,35 +1,36 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Graphics;
 using Sachssoft.Sasogine.Presentation.Rendering;
+using Sachssoft.Sasogine.Resources;
 using System;
 
-namespace Sachssoft.Sasogine.Presentation.Styling
+namespace Sachssoft.Sasogine.Presentation.Styling.Factories;
+
+internal class SolidColorBrushFactory : ITypeFactory<SolidColorBrush, Resource>
 {
-    internal class SolidColorBrushFactory : ITypeFactory<SolidColorBrush, Resource>
+    public SolidColorBrush Create(ResourceStore store, Resource entry)
     {
-        public SolidColorBrush Create(Skin skin, Resource entry)
+        Color color = default;
+        float opacity = 1f; // Default-Wert, falls nicht gesetzt
+
+        foreach (var property in entry.Properties)
         {
-            Color color = default;
-            float opacity = 1f; // Default-Wert, falls nicht gesetzt
-
-            foreach (var property in entry.Properties)
+            switch (property.Name)
             {
-                switch (property.Name)
-                {
-                    case nameof(SolidColorBrush.Color):
-                        if (property.Value is Color clr)
-                            color = clr;
-                        else if (property.Value is string str)
-                            color = ColorUtils.FromHex(str);
-                        break;
+                case nameof(SolidColorBrush.Color):
+                    if (property.Value is Color clr)
+                        color = clr;
+                    else if (property.Value is string str)
+                        color = ColorUtils.FromHex(str);
+                    break;
 
-                    case nameof(SolidColorBrush.Opacity):
-                        if (property.Value is float o)
-                            opacity = o;
-                        break;
-                }
+                case nameof(SolidColorBrush.Opacity):
+                    if (property.Value is float o)
+                        opacity = o;
+                    break;
             }
-
-            return new SolidColorBrush(color, opacity);
         }
+
+        return new SolidColorBrush(color, opacity);
     }
 }

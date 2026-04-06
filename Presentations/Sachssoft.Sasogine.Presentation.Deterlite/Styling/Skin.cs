@@ -1,20 +1,20 @@
 ﻿using Sachssoft.Sasogine.Resources;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Sachssoft.Sasogine.Presentation.Styling
 {
-    public class Skin
+    public sealed class Skin : ResourceStore, IStyleContainer
     {
-        private readonly Dictionary<string, ISkinEntry> _entries = new();
         private readonly Workspace _workspace;
 
         private readonly List<TextureAtlasSet> _textureAtlasSets = new();
         private readonly List<FontFaceSet> _fontFaceSets = new();
 
-        public Skin(Workspace workspace)
+        public Skin(Workspace workspace, IEnumerable<IResourceEntry> entries, ResourceFileSource source, string? rootPath = null)
+            : base(workspace.Application, entries, source, rootPath)
         {
             _workspace = workspace;
         }
@@ -23,36 +23,29 @@ namespace Sachssoft.Sasogine.Presentation.Styling
 
         public List<StylesheetNamespace> Namespaces { get; } = new();
 
-        public SkinRegistry Registry { get; } = new();
-
-        public IEnumerable<ISkinEntry> Entries => _entries.Values;
-
         public IReadOnlyCollection<TextureAtlasSet> TextureAtlasSets => _textureAtlasSets.AsReadOnly();
 
         public IReadOnlyCollection<FontFaceSet> FontFaceSets => _fontFaceSets.AsReadOnly();
 
-        public virtual void Load()
+        public void Load()
         {
-            // In XML müssen zuerst die FontFace-Resource eingetragen werden, dann FontFamily
-            // Umgekehrt würde FontFamily Face nicht finden
-            // Es ist Von-Oben-Nach-Unten-Prinzip
-
-            foreach (var entry in _entries.Values)
+            foreach (var entry in Entries)
             {
                 if (entry is Resource resource)
                 {
+                    // Erst die Resource laden
+                    resource.Load(this);
+
+                    // Danach die Instanz holen
                     switch (resource.TargetType)
                     {
-                        case Type t when t == typeof(TextureAtlas):
-                            {
-                                _textureAtlasSets.Add(resource.Create<TextureAtlasSet>(this));
-                                break;
-                            }
+                        case Type t when t == typeof(TextureAtlasSet):
+                            _textureAtlasSets.Add(resource.GetInstance<TextureAtlasSet>());
+                            break;
+
                         case Type t when t == typeof(FontFaceSet):
-                            {
-                                _fontFaceSets.Add(resource.Create<FontFaceSet>(this));
-                                break;
-                            }
+                            _fontFaceSets.Add(resource.GetInstance<FontFaceSet>());
+                            break;
                     }
                 }
             }
@@ -62,16 +55,22 @@ namespace Sachssoft.Sasogine.Presentation.Styling
         {
         }
 
-        public void AddEntry(ISkinEntry entry)
+        public bool TryGetStyle<T>(string? id, [MaybeNullWhen(false)] out Style style)
+            where T : class, IStyleable
         {
-            if (!_entries.TryAdd(entry.Id, entry))
-                throw new InvalidOperationException();
+            style = null;
+
+            if (string.IsNullOrEmpty(id))
+                return false;
+
+            // Suche Style nach TargetType und Id
+            style = Entries.OfType<Style>()
+                           .FirstOrDefault(s =>
+                               s.TargetType == typeof(T) &&
+                               string.Equals(s.Id, id, StringComparison.Ordinal)
+                           );
+
+            return style != null;
         }
-
-        public Resource? FindResource(string id) => 
-            Entries.Where(x => x.Id == id && x is Resource)
-                   .Cast<Resource>()
-                   .FirstOrDefault();
-
     }
 }

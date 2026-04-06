@@ -64,7 +64,7 @@ internal sealed class InternalRenderContext : IRenderContext, IDisposable
                 );
 
                 var fontSystem = new FontSystem();
-                using var stream = fontFace.Resource.GetStream();
+                using var stream = fontFace.Resource.GetStream(skin);
                 fontSystem.AddFont(stream);
 
                 _fontSystems[font] = fontSystem;

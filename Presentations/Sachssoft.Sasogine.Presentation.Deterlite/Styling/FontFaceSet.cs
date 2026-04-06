@@ -2,6 +2,7 @@
 using Sachssoft.Sasogine.Resources;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Sachssoft.Sasogine.Presentation.Styling
@@ -88,9 +89,9 @@ namespace Sachssoft.Sasogine.Presentation.Styling
             return _lookup[new FontKey(FontWeight.Normal, FontStyle.Normal)];
         }
 
-        public bool TryGetResource<T>(string id, out T value)
+        public bool TryGetResource<T>(string id, [MaybeNullWhen(false)] out T value, ResourceLookupOptions options = ResourceLookupOptions.None)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

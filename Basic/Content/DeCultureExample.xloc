@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Localization xmlns:cuie="Sachssoft.CustomUIExample">
+
+	<Resource Id="Example0" Type="String">
+		Example Text
+	</Resource>
+
+	<Resource Id="Example1"><!-- Type = String <- Default -->
+		Example Text 2
+	</Resource>
+
+	<!-- Asset aus AssetSource mit Id -->
+	<Resource Id="Image1" Type="Texture2D" Asset="ExampleImage1" />
+	
+</Localization>
