@@ -121,7 +121,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Animation
             return float.Clamp((float)(now - _startTicks) / _duration, 0f, 1f);
         }
 
-        protected override void ApplyDefinition()
+        public override void ApplyDefinition()
         {
             base.ApplyDefinition();
 
@@ -130,7 +130,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Animation
             _delay = Definition.Delay;
         }
 
-        protected override void ApplyDefinitionChange(string? key)
+        public override void ApplyDefinitionChange(string? key)
         {
             base.ApplyDefinitionChange(key);
 

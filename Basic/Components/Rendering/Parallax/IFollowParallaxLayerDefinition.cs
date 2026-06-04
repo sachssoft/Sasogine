@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace Sachssoft.Sasogine.Components.Rendering
+namespace Sachssoft.Sasogine.Components.Rendering.Parallax
 {
     public interface IFollowParallaxLayerDefinition : IParallaxLayerDefinition
     {

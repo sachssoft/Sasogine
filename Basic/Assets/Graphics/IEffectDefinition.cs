@@ -7,7 +7,7 @@ namespace Sachssoft.Sasogine.Assets.Graphics
     public interface IEffectDefinition : IAssetDefinition
     {
 
-        ElementTemplate<IEffectAdapter> Template { get; set; }
+        Template<IEffectAdapter> Template { get; set; }
 
     }
 }

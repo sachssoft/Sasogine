@@ -1,6 +1,6 @@
 ﻿using Sachssoft.Sasogine.Scenes;
 
-namespace Sachssoft.Sasogine.Components.Rendering
+namespace Sachssoft.Sasogine.Components.Rendering.Parallax
 {
     public abstract class ParallaxLayerBase<TDefinition> : ComponentBase<TDefinition>
         where TDefinition : class, IParallaxLayerDefinition
@@ -16,14 +16,14 @@ namespace Sachssoft.Sasogine.Components.Rendering
             return _parallaxIndex / cameraDepth;
         }
 
-        protected override void ApplyDefinition()
+        public override void ApplyDefinition()
         {
             base.ApplyDefinition();
 
             _parallaxIndex = Definition.Index;
         }
 
-        protected override void ApplyDefinitionChange(string? key)
+        public override void ApplyDefinitionChange(string? key)
         {
             base.ApplyDefinitionChange(key);
 

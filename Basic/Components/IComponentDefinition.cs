@@ -2,7 +2,7 @@
 
 namespace Sachssoft.Sasogine.Components
 {
-    public interface IComponentDefinition : IElementDefinition
+    public interface IComponentDefinition : IEngineObjectDefinition
     {        
     }
 }

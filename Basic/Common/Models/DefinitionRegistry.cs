@@ -10,14 +10,14 @@ namespace Sachssoft.Sasogine.Common
     /// <typeparam name="TTarget">Runtime object type (Component, Asset, etc.)</typeparam>
     /// <typeparam name="TDefinition">Definition interface type (must be interface)</typeparam>
     public abstract class DefinitionRegistry<TTarget, TDefinition>
-        where TDefinition : class, IElementDefinition
+        where TDefinition : class, IEngineObjectDefinition
         where TTarget : class
     {
         // Key to uniquely identify Target+Definition type
         private readonly record struct RegistryKey(Type TargetType, Type DefinitionType);
 
         // Factories for each combination
-        private readonly Dictionary<RegistryKey, Func<IElementDefinition>> _factories = new();
+        private readonly Dictionary<RegistryKey, Func<IEngineObjectDefinition>> _factories = new();
 
         // Static constructor validates type parameters
         static DefinitionRegistry()

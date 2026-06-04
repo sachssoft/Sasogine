@@ -3,12 +3,12 @@ using System;
 
 namespace Sachssoft.Sasogine.Components
 {
-    public class ComponentReference<TComponent> : ReferenceBase<TComponent>
+    public class ComponentReference<TComponent> : Reference<TComponent>
         where TComponent : class, IComponent
     {
-        private ReferenceRegistry<IComponent>? _registry;
+        private EngineObjectCollection<IComponent>? _registry;
 
-        public ReferenceRegistry<IComponent>? Registry
+        public EngineObjectCollection<IComponent>? Registry
         {
             get => _registry;
             set
@@ -17,16 +17,16 @@ namespace Sachssoft.Sasogine.Components
 
                 if (_registry != null)
                 {
-                    _registry.Registered -= OnRegistryChanged;
-                    _registry.Unregistered -= OnRegistryChanged;
+                    _registry.Added -= OnRegistryChanged;
+                    _registry.Removed -= OnRegistryChanged;
                 }
 
                 _registry = value;
 
                 if (_registry != null)
                 {
-                    _registry.Registered += OnRegistryChanged;
-                    _registry.Unregistered += OnRegistryChanged;
+                    _registry.Added += OnRegistryChanged;
+                    _registry.Removed += OnRegistryChanged;
                 }
 
                 MarkDirty();

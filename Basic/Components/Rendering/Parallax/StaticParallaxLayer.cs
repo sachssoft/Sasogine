@@ -1,6 +1,6 @@
 ﻿using Sachssoft.Sasogine.Scenes;
 
-namespace Sachssoft.Sasogine.Components.Rendering
+namespace Sachssoft.Sasogine.Components.Rendering.Parallax
 {
     public class StaticParallax : ParallaxLayerBase<IStaticParallaxLayerDefinition>
     {

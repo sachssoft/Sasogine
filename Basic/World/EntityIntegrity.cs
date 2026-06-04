@@ -1,6 +1,6 @@
 ﻿namespace Sachssoft.Sasogine.World
 {
-    public enum NodeStatus
+    public enum EntityIntegrity
     {
         Intact,   // Node funktioniert einwandfrei
         Warning,  // Node hat eine Warnung

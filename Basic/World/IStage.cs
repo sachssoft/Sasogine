@@ -28,6 +28,6 @@ namespace Sachssoft.Sasogine.World
     {
         // Hier kommen später die Properties und Methoden wie Entities, Tiles und Scripts
 
-        IEnumerable<INode> Nodes { get; }
+        IEnumerable<IEntity> Nodes { get; }
     }
 }

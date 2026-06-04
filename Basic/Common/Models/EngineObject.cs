@@ -9,8 +9,8 @@ namespace Sachssoft.Sasogine.Common
     /// Can be a Component, Asset, Scene element, etc.
     /// </summary>
     /// <typeparam name="TDefinition">Type of definition that drives this element.</typeparam>
-    public abstract class ElementBase<TDefinition> : IElement
-        where TDefinition : class, IElementDefinition
+    public abstract class EngineObject<TDefinition> : IEngineObject
+        where TDefinition : class, IEngineObjectDefinition
     {
         private bool _isLoaded;
 
@@ -31,10 +31,10 @@ namespace Sachssoft.Sasogine.Common
         // da dies zu Performance-Einbußen führen kann. Alle notwendigen Felder sollten
         // beim Initialisieren oder Laden des Elements kopiert oder gesetzt werden.
         [AllowNull]
-        public virtual TDefinition Definition { get; }
+        public TDefinition Definition { get; private set; }
 
         [AllowNull]
-        IElementDefinition IElement.Definition => Definition;
+        IEngineObjectDefinition IEngineObject.Definition => Definition;
 
         /// <summary>
         /// Indicates whether this element has been loaded.
@@ -59,6 +59,14 @@ namespace Sachssoft.Sasogine.Common
         /// </summary>
         public object? DataContext { get; set; }
 
+        public void Initialize(TDefinition definition)
+        {
+            if (Definition != null)
+                throw new InvalidOperationException("Already initialized");
+
+            Definition = definition;
+        }
+
         /// <summary>
         /// Loads the element and applies the definition.
         /// Hooks up definition change events.
@@ -72,9 +80,6 @@ namespace Sachssoft.Sasogine.Common
             {
                 // Apply all properties from the definition
                 ApplyDefinition();
-
-                // Subscribe to definition changes
-                Definition.Changed += Definition_Changed;
             }
 
             _isLoaded = true;
@@ -89,9 +94,6 @@ namespace Sachssoft.Sasogine.Common
             {
                 // Apply all properties from the definition
                 ApplyDefinition();
-
-                // Subscribe to definition changes
-                Definition.Changed += Definition_Changed;
             }
 
             _isLoaded = true; 
@@ -108,29 +110,17 @@ namespace Sachssoft.Sasogine.Common
 
             if (Definition != null)
             {
-                // Unsubscribe from events to prevent memory leaks
-                Definition.Changed -= Definition_Changed;
+                // ...
             }
 
             _isLoaded = false;
         }
 
         /// <summary>
-        /// Handles a change from the definition.
-        /// </summary>
-        private void Definition_Changed(object? sender, DefinitionChangedEventArgs e)
-        {
-            if (e == null) return;
-
-            // Apply only the changed property
-            ApplyDefinitionChange(e.Key);
-        }
-
-        /// <summary>
         /// Applies the full definition to this element.
         /// Override in derived classes for custom behavior.
         /// </summary>
-        protected virtual void ApplyDefinition()
+        public virtual void ApplyDefinition()
         {
             Id = Definition.Id;
             Class = Definition.Class;
@@ -140,15 +130,15 @@ namespace Sachssoft.Sasogine.Common
         /// Applies a single changed property from the definition.
         /// Override in derived classes to handle incremental updates.
         /// </summary>
-        /// <param name="key">The name of the property that changed.</param>
-        protected virtual void ApplyDefinitionChange(string? key)
+        /// <param name="propertyName">The name of the property that changed.</param>
+        public virtual void ApplyDefinitionChange(string? propertyName)
         {
-            switch (key)
+            switch (propertyName)
             {
-                case nameof(IElementDefinition.Id):
+                case nameof(IEngineObjectDefinition.Id):
                     Id = Definition.Id;
                     break;
-                case nameof(IElementDefinition.Class):
+                case nameof(IEngineObjectDefinition.Class):
                     Class = Definition.Class;
                     break;
             }

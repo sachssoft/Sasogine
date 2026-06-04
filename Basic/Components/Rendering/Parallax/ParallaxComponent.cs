@@ -1,9 +1,9 @@
 ﻿using Sachssoft.Sasogine.Scenes;
 using System.Collections.ObjectModel;
 
-namespace Sachssoft.Sasogine.Components.Rendering
+namespace Sachssoft.Sasogine.Components.Rendering.Parallax
 {
-    public sealed class ParallaxComponent : ComponentBase<IParallaxDefinition>, IDrawableRuntimeComponent
+    public class ParallaxComponent : ComponentBase<IParallaxDefinition>, IDrawableRuntimeComponent
     {
         public ParallaxComponent() { }
 
@@ -28,12 +28,12 @@ namespace Sachssoft.Sasogine.Components.Rendering
             }
         }
 
-        protected override void ApplyDefinition()
+        public override void ApplyDefinition()
         {
             base.ApplyDefinition();
         }
 
-        protected override void ApplyDefinitionChange(string? key)
+        public override void ApplyDefinitionChange(string? key)
         {
             base.ApplyDefinitionChange(key);
         }

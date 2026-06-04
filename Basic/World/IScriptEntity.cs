@@ -7,7 +7,7 @@ namespace Sachssoft.Sasogine.World
     /// Node, die Skriptlogik enthält oder Aktionen ausführt.
     /// Kann von Editor und Runtime genutzt werden.
     /// </summary>
-    public interface IScriptNode : INode
+    public interface IScriptEntity : IEntity
     {
         /// <summary>
         /// Führt das Skript oder die Logik einmal synchron aus.

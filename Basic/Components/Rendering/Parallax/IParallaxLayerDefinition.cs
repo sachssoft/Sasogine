@@ -1,9 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Assets;
 using Sachssoft.Sasogine.Assets.Graphics;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Graphics;
 
-namespace Sachssoft.Sasogine.Components.Rendering
+namespace Sachssoft.Sasogine.Components.Rendering.Parallax
 {
     public interface IParallaxLayerDefinition : IComponentDefinition
     {
@@ -15,7 +16,7 @@ namespace Sachssoft.Sasogine.Components.Rendering
 
         float Depth{ get; set; }
 
-        AssetReference<Texture2DAsset> Texture { get; set; }
+        Reference<Texture2DAsset> Texture { get; set; }
 
         Vector2 Scale { get; set; }
 

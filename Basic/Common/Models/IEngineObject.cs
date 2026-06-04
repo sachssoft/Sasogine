@@ -8,13 +8,13 @@ namespace Sachssoft.Sasogine.Common
     /// </summary>
     // Stellt ein generisches Element in der Engine dar.
     // Bietet Zugriff auf Definition, ID, Klasse, DataContext und Lebenszyklus-Methoden.
-    public interface IElement
+    public interface IEngineObject
     {
         /// <summary>
         /// Gets the definition instance that configures this element.
         /// </summary>
         // Liefert die Definition, die dieses Element konfiguriert.
-        IElementDefinition Definition { get; }
+        IEngineObjectDefinition Definition { get; }
 
         /// <summary>
         /// Indicates whether the element has been loaded.

@@ -12,12 +12,12 @@ namespace Sachssoft.Sasogine.Assets
     /// synchronous/asynchronous loading, unloading, and event notifications.
     /// </summary>
     /// <typeparam name="T">Concrete type of the asset instance</typeparam>
-    public abstract class AssetBase<T, TDefinition> : ElementBase<TDefinition>, IAsset
+    public abstract class AssetBase<T, TDefinition> : EngineObject<TDefinition>, IAsset
         where T : class
         where TDefinition : class, IAssetDefinition
     {
-        private AssetDefinitionRegistry _registry = null!;
-        private TDefinition _definition = null!;
+        //private AssetDefinitionRegistry _registry = null!;
+        //private TDefinition _definition = null!;
         private bool _loaded;          // True if the asset is loaded
         private T? _instance;          // The loaded asset instance
         private readonly object _sync = new(); // Lock object for thread-safety
@@ -45,7 +45,7 @@ namespace Sachssoft.Sasogine.Assets
         
         protected AssetBase() { }
 
-        public override TDefinition Definition => _definition;
+        //public override TDefinition Definition => _definition;
 
         /// <summary>
         /// True if an error occurred during loading or building the asset.
@@ -82,19 +82,19 @@ namespace Sachssoft.Sasogine.Assets
 
         object? IAsset.Instance => _instance;
 
-        /// <summary>
-        /// Initializes the component with a registry and creates its definition.
-        /// </summary>
-        /// <param name="registry">The registry from which the definition will be created.</param>
-        /// <exception cref="ArgumentNullException">Thrown if the registry is null.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if the definition could not be created.</exception>
-        public void Initialize(AssetDefinitionRegistry registry)
-        {
-            _registry = registry ?? throw new ArgumentNullException(nameof(registry), "Registry cannot be null.");
+        ///// <summary>
+        ///// Initializes the component with a registry and creates its definition.
+        ///// </summary>
+        ///// <param name="registry">The registry from which the definition will be created.</param>
+        ///// <exception cref="ArgumentNullException">Thrown if the registry is null.</exception>
+        ///// <exception cref="InvalidOperationException">Thrown if the definition could not be created.</exception>
+        //public void Initialize(AssetDefinitionRegistry registry)
+        //{
+        //    _registry = registry ?? throw new ArgumentNullException(nameof(registry), "Registry cannot be null.");
 
-            _definition = (TDefinition)_registry.Create(GetType(), typeof(TDefinition))
-                         ?? throw new InvalidOperationException($"Definition for {typeof(TDefinition).Name} could not be created.");
-        }
+        //    _definition = (TDefinition)_registry.Create(GetType(), typeof(TDefinition))
+        //                 ?? throw new InvalidOperationException($"Definition for {typeof(TDefinition).Name} could not be created.");
+        //}
 
         /// <summary>
         /// Synchronously loads the asset if not already loaded.
@@ -195,8 +195,8 @@ namespace Sachssoft.Sasogine.Assets
                 if (!_loaded)
                     return;
 
-                if (Definition != null)
-                    Definition.Changed -= Definition_Changed;
+                //if (Definition != null)
+                  // ...  
 
                 if (_instance != null)
                 {
@@ -219,11 +219,6 @@ namespace Sachssoft.Sasogine.Assets
                 Unloaded?.Invoke(this, EventArgs.Empty);
                 InstanceChanged?.Invoke(this, EventArgs.Empty);
             }
-        }
-
-        private void Definition_Changed(object? sender, DefinitionChangedEventArgs e)
-        {
-            ApplyDefinitionChange(e.Key);
         }
 
         /// <summary>

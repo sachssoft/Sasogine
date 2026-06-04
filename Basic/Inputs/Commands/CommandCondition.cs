@@ -1,5 +1,8 @@
 ﻿using System;
 
+
+namespace Sachssoft.Sasogine.Inputs;
+
 public readonly struct CommandCondition
 {
     private readonly Func<object?, bool>? _canExecute;

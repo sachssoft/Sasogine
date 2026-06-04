@@ -9,7 +9,10 @@ namespace Sachssoft.Sasogine.World
     /// <para>ActivityState:</para> Temporäre Aktion oder Arbeit der Node (Idle / Active)
     /// </summary>
     // z.B. Tiles, Sprites, Scripts, Audio, usw...
-    public interface INode
+
+    // Wenn mit Update dann IRuntimeComponent implementieren
+    // und auch mit Zeichen dann IDrawableRuntimeComponent implementieren
+    public interface IEntity
     {
         // Events
         event EventHandler? Loaded;
@@ -25,18 +28,12 @@ namespace Sachssoft.Sasogine.World
         object? DataContext { get; }
 
         // Zustand
-        NodeStatus Status { get; }               // Intact / Warning / Error
+        EntityIntegrity Integrity { get; }               // Intact / Warning / Error
         ActivityState ActivityState { get; }     // Idle / Active
 
         // Lifecycle
         void Load();
         Task LoadAsync();
         void Unload();
-
-        /// <summary>
-        /// Update-Methode für Game-Loop, wird jede Frame aufgerufen.
-        /// </summary>
-        /// <param name="gameContext">Aktueller Spiel-Kontext für Update/Logik.</param>
-        void Update(GameContext gameContext);
     }
 }

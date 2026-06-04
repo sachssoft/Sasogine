@@ -10,14 +10,14 @@ namespace Sachssoft.Sasogine.Components.Rendering.Animation
         private float _speed;
         private float _currentRotation;
 
-        protected override void ApplyDefinition()
+        public override void ApplyDefinition()
         {
             base.ApplyDefinition();
 
             _speed = Definition.Speed;
         }
 
-        protected override void ApplyDefinitionChange(string? key)
+        public override void ApplyDefinitionChange(string? key)
         {
             base.ApplyDefinitionChange(key);
 

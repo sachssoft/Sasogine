@@ -2,7 +2,7 @@
 
 namespace Sachssoft.Sasogine.Assets
 {
-    public interface IAssetDefinition : IElementDefinition
+    public interface IAssetDefinition : IEngineObjectDefinition
     {
     }
 }

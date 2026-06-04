@@ -112,7 +112,7 @@ namespace Sachssoft.Sasogine.Assets.Graphics
             return texture;
         }
 
-        protected override void ApplyDefinition()
+        public override void ApplyDefinition()
         {
             base.ApplyDefinition();
 
@@ -124,7 +124,7 @@ namespace Sachssoft.Sasogine.Assets.Graphics
             _pivot = Definition.Pivot;
         }
 
-        protected override void ApplyDefinitionChange(string? key)
+        public override void ApplyDefinitionChange(string? key)
         {
             base.ApplyDefinitionChange(key);
 

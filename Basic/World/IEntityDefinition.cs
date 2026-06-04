@@ -2,7 +2,7 @@
 
 namespace Sachssoft.Sasogine.World
 {
-    public interface INodeDefinition : IElementDefinition
+    public interface IEntityDefinition : IEngineObjectDefinition
     {
     }
 }

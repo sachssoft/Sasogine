@@ -2,7 +2,7 @@
 
 namespace Sachssoft.Sasogine.Common
 {
-    public class ElementTemplate<T> : IElementTemplate where T : class
+    public class Template<T> : ITemplate where T : class
     {
         private readonly TemplateType _templateType;
         private readonly Func<T>? _factory;
@@ -16,13 +16,13 @@ namespace Sachssoft.Sasogine.Common
             Registry
         }
 
-        public ElementTemplate(Func<T> factory)
+        public Template(Func<T> factory)
         {
             _templateType = TemplateType.Factory;
             _factory = factory ?? throw new ArgumentNullException(nameof(factory));
         }
 
-        public ElementTemplate(IFactoryRegistry registry, string targetId, Type targetType)
+        public Template(IFactoryRegistry registry, string targetId, Type targetType)
         {
             _templateType = TemplateType.Registry;
             _referenceRegistry = registry ?? throw new ArgumentNullException(nameof(registry));
@@ -44,6 +44,6 @@ namespace Sachssoft.Sasogine.Common
             }
         }
 
-        object IElementTemplate.Create() => Create();
+        object ITemplate.Create() => Create();
     }
 }

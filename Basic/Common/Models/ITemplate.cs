@@ -1,7 +1,7 @@
 ﻿
 namespace Sachssoft.Sasogine.Common
 {
-    public interface IElementTemplate
+    public interface ITemplate
     {
         object Create();
     }

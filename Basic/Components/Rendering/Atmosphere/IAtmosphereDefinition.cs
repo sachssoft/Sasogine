@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Assets
+namespace Sachssoft.Sasogine.Components.Rendering.Atmosphere
 {
-    public class AssetReferenceRegistry
+    public interface IAtmosphereDefinition : IComponentDefinition
     {
     }
 }
