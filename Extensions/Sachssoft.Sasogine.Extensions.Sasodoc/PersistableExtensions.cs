@@ -48,61 +48,61 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
         }
 
 
-        public static void WritePersistable(this FormatWriterBase writer, string property, PersistableRegistry registry, ISerialization? persistableonent, FormatOptions? options = null)
-        {
-            if (persistableonent == null)
-                return;
+        //public static void WritePersistable(this FormatWriterBase writer, string property, PersistableRegistry registry, ISerialization? persistableonent, FormatOptions? options = null)
+        //{
+        //    if (persistableonent == null)
+        //        return;
 
-            var persistableWriter = writer.CreateWriter();
-            persistableWriter.Options = options;
-            persistableWriter.WriteString(registry.TypePropertyName, registry.FindName(persistableonent.GetType()));
-            persistableonent.Serialize(persistableWriter);
-            writer.Write(property, persistableWriter);
-        }
+        //    var persistableWriter = writer.CreateWriter();
+        //    persistableWriter.Options = options;
+        //    persistableWriter.WriteString(registry.TypePropertyName, registry.FindName(persistableonent.GetType()));
+        //    persistableonent.Serialize(persistableWriter);
+        //    writer.Write(property, persistableWriter);
+        //}
 
-        public static void WritePersistableArray(this FormatWriterBase writer, string property, PersistableRegistry registry, ISerialization[]? persistableonents, FormatOptions? options = null)
-        {
-            if (persistableonents == null)
-                return;
+        //public static void WritePersistableArray(this FormatWriterBase writer, string property, PersistableRegistry registry, ISerialization[]? persistableonents, FormatOptions? options = null)
+        //{
+        //    if (persistableonents == null)
+        //        return;
 
-            var writerList = new List<FormatWriterBase>();
-            foreach (var persistableonent in persistableonents)
-            {
-                var persistableWriter = writer.CreateWriter();
-                persistableWriter.Options = options;
-                persistableWriter.WriteString(registry.TypePropertyName, registry.FindName(persistableonent.GetType()));
-                persistableonent.Serialize(persistableWriter);
-                writerList.Add(persistableWriter);
-            }
-            writer.WriteArray(property, writerList.ToArray());
-        }
+        //    var writerList = new List<FormatWriterBase>();
+        //    foreach (var persistableonent in persistableonents)
+        //    {
+        //        var persistableWriter = writer.CreateWriter();
+        //        persistableWriter.Options = options;
+        //        persistableWriter.WriteString(registry.TypePropertyName, registry.FindName(persistableonent.GetType()));
+        //        persistableonent.Serialize(persistableWriter);
+        //        writerList.Add(persistableWriter);
+        //    }
+        //    writer.WriteArray(property, writerList.ToArray());
+        //}
 
-        public static void TraverseReference(this FormatReaderBase reader, string property, ISerialization persistable, FormatOptions? options = null)
-        {
-            if (persistable == null)
-                throw new ArgumentNullException(nameof(persistable));
+        //public static void TraverseReference(this FormatReaderBase reader, string property, ISerialization persistable, FormatOptions? options = null)
+        //{
+        //    if (persistable == null)
+        //        throw new ArgumentNullException(nameof(persistable));
 
-            if (reader.Contains(property))
-            {
-                var persistableReader = reader.Read(property);
+        //    if (reader.Contains(property))
+        //    {
+        //        var persistableReader = reader.Read(property);
 
-                if (persistableReader != null)
-                {
-                    persistableReader.Options = options;
-                    persistable.Deserialize(persistableReader);
-                }
-            }
-        }
+        //        if (persistableReader != null)
+        //        {
+        //            persistableReader.Options = options;
+        //            persistable.Deserialize(persistableReader);
+        //        }
+        //    }
+        //}
 
-        public static void EmitReference(this FormatWriterBase writer, string property, ISerialization persistable, FormatOptions? options = null)
-        {
-            if (persistable == null)
-                throw new ArgumentNullException(nameof(persistable));
+        //public static void EmitReference(this FormatWriterBase writer, string property, ISerialization persistable, FormatOptions? options = null)
+        //{
+        //    if (persistable == null)
+        //        throw new ArgumentNullException(nameof(persistable));
 
-            var persistableWriter = writer.CreateWriter();
-            persistableWriter.Options = options;
-            persistable.Serialize(persistableWriter);
-            writer.Write(property, persistableWriter);
-        }
+        //    var persistableWriter = writer.CreateWriter();
+        //    persistableWriter.Options = options;
+        //    persistable.Serialize(persistableWriter);
+        //    writer.Write(property, persistableWriter);
+        //}
     }
 }
