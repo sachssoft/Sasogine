@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sachssoft.Sasogine.Resources.Localization
+﻿namespace Sachssoft.Sasogine.Resources.Localization
 {
     /// <summary>
     /// Represents plural categories for localization.

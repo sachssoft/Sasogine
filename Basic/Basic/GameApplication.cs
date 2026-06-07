@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Basic;
+using Sachssoft.Sasogine.Embedding;
 using Sachssoft.Sasogine.Resources;
 using Sachssoft.Sasogine.Resources.Localization;
 using Sachssoft.Sasogine.Scenes;
@@ -10,35 +11,41 @@ using System.Reflection;
 
 namespace Sachssoft.Sasogine;
 
-public abstract class GameApplication : Game, IGameApplication
+public abstract class GameApplicationBase : Game, IGameApplication
 {
+    private readonly IEmbeddedView? _embedded;
+    private readonly ISharedTextureProvider? _sharedTextureProvider;
+
     protected private readonly LocalizationManager _localization;
     protected private readonly GameRegistry _registry;
-    protected private readonly GameResourceManager _resources;
+    protected private readonly AssetStore _resources;
     protected private readonly ISceneManager _scenes;
     protected private readonly IGameSettings? _settings;
 
     private readonly GraphicsDeviceManager _graphicsDeviceManager;
 
-    public GameApplication() : this(null, [])
+    public GameApplicationBase() : this(null, [])
     {
     }
 
-    public GameApplication(params string[] args) : this(null, args)
-    { 
+    public GameApplicationBase(params string[] args) : this(null, args)
+    {
     }
 
-    public GameApplication(GameConfiguration? configuration, params string[] args)
+    public GameApplicationBase(GameConfiguration? configuration, params string[] args)
     {
         if (IGameApplication.Current != null)
             throw new GameException("Game already was started.");
+
+        _embedded = this as IEmbeddedView;
+        _sharedTextureProvider = this as ISharedTextureProvider;
 
         // Optional Configuration: default erstellen, falls null
         Configuration = configuration ?? new GameConfiguration();
 
         _localization = new LocalizationManager(this);
         _registry = CreateRegistry() ?? throw new GameException("Registry creation failed.");
-        _resources = CreateResources() ?? new GameResourceManager(this);
+        _resources = CreateAssets() ?? new AssetStore(this);
         _scenes = CreateScenes() ?? throw new GameException("Scene manager creation failed.");
         _settings = CreateSettings();
 
@@ -53,6 +60,8 @@ public abstract class GameApplication : Game, IGameApplication
         IGameApplication.Current = this;
     }
 
+    public bool IsEmbedded => this is IEmbeddedView;
+
     public GameConfiguration Configuration { get; }
 
     public LocalizationManager Localization => _localization;
@@ -61,7 +70,7 @@ public abstract class GameApplication : Game, IGameApplication
 
     public ISceneManager Scenes => _scenes;
 
-    public GameResourceManager Resources => _resources;
+    public AssetStore Assets => _resources;
 
     public IGameSettings? Settings => _settings;
 
@@ -69,11 +78,11 @@ public abstract class GameApplication : Game, IGameApplication
 
     public bool IsDebugMode { get; set; } = true;
 
-    public static GameApplication Current =>
-        IGameApplication.Current as GameApplication
-        ?? throw new InvalidOperationException("GameApplication not initialized.");
+    public static GameApplicationBase Current =>
+        IGameApplication.Current as GameApplicationBase
+        ?? throw new InvalidOperationException("GameApplicationBase not initialized.");
 
-    public Assembly Assembly =>
+    public virtual Assembly Assembly =>
         Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
 
     protected override sealed void Initialize()
@@ -181,11 +190,15 @@ public abstract class GameApplication : Game, IGameApplication
 
     protected virtual GameRegistry CreateRegistry() => new GameRegistry();
 
-    protected virtual GameResourceManager? CreateResources() => null;
+    protected virtual AssetStore? CreateAssets() => null;
 
     protected abstract ISceneManager CreateScenes();
 
     protected virtual IGameSettings? CreateSettings() => null;
+
+    protected IEmbeddedView? GetEmbedded() => _embedded;
+
+    public ISharedTextureProvider? GetSharedTextureProvider() => _sharedTextureProvider;
 
     private void Window_FileDrop(object? sender, FileDropEventArgs e)
     {

@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Components.Rendering.Camera;
 using System;
-using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Graphics.Rendering
 {
@@ -80,85 +79,85 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
             public Matrix Transform;
 
             public void DrawText(
-                FontSystem fontSystem, 
-                TextRendererStyle style, 
-                string text, 
-                Vector2 startPosition, 
-                float rotation, 
+                FontSystem fontSystem,
+                TextRendererStyle style,
+                string text,
+                Vector2 startPosition,
+                float rotation,
                 Vector2 scale)
             {
-            //    if (GameContext == null || string.IsNullOrEmpty(text)) return;
+                //    if (GameContext == null || string.IsNullOrEmpty(text)) return;
 
-            //    var font = fontSystem.GetFont(style.FontSize);
-            //    Texture2D atlasTexture = font.Te;
+                //    var font = fontSystem.GetFont(style.FontSize);
+                //    Texture2D atlasTexture = font.Te;
 
-            //    // Alle Glyphs für den Text abfragen
-            //    List<Glyph> glyphs = font.GetGlyphs(
-            //        text,
-            //        startPosition,
-            //        scale,
-            //        characterSpacing: style.CharacterSpacing,
-            //        lineSpacing: style.LineSpacing
-            //    );
+                //    // Alle Glyphs für den Text abfragen
+                //    List<Glyph> glyphs = font.GetGlyphs(
+                //        text,
+                //        startPosition,
+                //        scale,
+                //        characterSpacing: style.CharacterSpacing,
+                //        lineSpacing: style.LineSpacing
+                //    );
 
-            //    // Zeilenweise rendern
-            //    Vector2 currentPos = startPosition;
-            //    int glyphIndex = 0;
-            //    string[] lines = text.Split('\n');
+                //    // Zeilenweise rendern
+                //    Vector2 currentPos = startPosition;
+                //    int glyphIndex = 0;
+                //    string[] lines = text.Split('\n');
 
-            //    foreach (var line in lines)
-            //    {
-            //        // Zeilenbreite berechnen für Alignment
-            //        float lineWidth = 0f;
-            //        for (int i = 0; i < line.Length; i++)
-            //            lineWidth += glyphs[glyphIndex + i].XAdvance;
+                //    foreach (var line in lines)
+                //    {
+                //        // Zeilenbreite berechnen für Alignment
+                //        float lineWidth = 0f;
+                //        for (int i = 0; i < line.Length; i++)
+                //            lineWidth += glyphs[glyphIndex + i].XAdvance;
 
-            //        Vector2 lineStart = currentPos;
-            //        switch (style.Alignment)
-            //        {
-            //            case TextHorizontalAlignment.Center:
-            //                lineStart.X -= lineWidth / 2f;
-            //                break;
-            //            case TextHorizontalAlignment.Right:
-            //                lineStart.X -= lineWidth;
-            //                break;
-            //        }
+                //        Vector2 lineStart = currentPos;
+                //        switch (style.Alignment)
+                //        {
+                //            case TextHorizontalAlignment.Center:
+                //                lineStart.X -= lineWidth / 2f;
+                //                break;
+                //            case TextHorizontalAlignment.Right:
+                //                lineStart.X -= lineWidth;
+                //                break;
+                //        }
 
-            //        Vector2 pos = lineStart;
+                //        Vector2 pos = lineStart;
 
-            //        for (int i = 0; i < line.Length; i++)
-            //        {
-            //            Glyph g = glyphs[glyphIndex++];
+                //        for (int i = 0; i < line.Length; i++)
+                //        {
+                //            Glyph g = glyphs[glyphIndex++];
 
-            //            // Quad für die Glyph
-            //            var quad = new QuadPrimitive(
-            //                new Vector2(g.Bounds.X, g.Bounds.Y),
-            //                new Vector2(g.Bounds.Width, g.Bounds.Height) * scale,
-            //                style.Color
-            //            );
+                //            // Quad für die Glyph
+                //            var quad = new QuadPrimitive(
+                //                new Vector2(g.Bounds.X, g.Bounds.Y),
+                //                new Vector2(g.Bounds.Width, g.Bounds.Height) * scale,
+                //                style.Color
+                //            );
 
-            //            // Rotation um Glyph-Zentrum
-            //            Vector2 origin = new Vector2(g.Bounds.Width / 2f, g.Bounds.Height / 2f);
-            //            Matrix rotationMatrix = Matrix.CreateTranslation(-origin.X, -origin.Y, 0) *
-            //                                    Matrix.CreateRotationZ(rotation) *
-            //                                    Matrix.CreateTranslation(pos.X, pos.Y, 0);
+                //            // Rotation um Glyph-Zentrum
+                //            Vector2 origin = new Vector2(g.Bounds.Width / 2f, g.Bounds.Height / 2f);
+                //            Matrix rotationMatrix = Matrix.CreateTranslation(-origin.X, -origin.Y, 0) *
+                //                                    Matrix.CreateRotationZ(rotation) *
+                //                                    Matrix.CreateTranslation(pos.X, pos.Y, 0);
 
-            //            PrimitiveRenderer.Draw(
-            //                quad,
-            //                GameContext,
-            //                g.Texture,
-            //                rotationMatrix * Transform,
-            //                customCamera: CustomCamera,
-            //                customEffect: CustomEffect,
-            //                sourceRect: g.Bounds,
-            //                flip: FlipMode.Vertical
-            //            );
+                //            PrimitiveRenderer.Draw(
+                //                quad,
+                //                GameContext,
+                //                g.Texture,
+                //                rotationMatrix * Transform,
+                //                customCamera: CustomCamera,
+                //                customEffect: CustomEffect,
+                //                sourceRect: g.Bounds,
+                //                flip: FlipMode.Vertical
+                //            );
 
-            //            pos.X += g.XAdvance;
-            //        }
+                //            pos.X += g.XAdvance;
+                //        }
 
-            //        currentPos.Y += font.MeasureString(line, scale).Y + style.LineSpacing;
-            //    }
+                //        currentPos.Y += font.MeasureString(line, scale).Y + style.LineSpacing;
+                //    }
             }
         }
     }

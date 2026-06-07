@@ -23,7 +23,7 @@ public class TaskProgressTracker
     public event EventHandler? Aborted;
     public event EventHandler? Completed;
     public event EventHandler? TaskStarting;
-    public event EventHandler? TaskFinished; 
+    public event EventHandler? TaskFinished;
     public event EventHandler? TaskFailedPermanently;
 
     public void Start()

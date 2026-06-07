@@ -1,5 +1,4 @@
 ﻿using Sachssoft.Sasodoc;
-using System;
 
 namespace Sachssoft.Sasogine.Extensions.Sasodoc
 {

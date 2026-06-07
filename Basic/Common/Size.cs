@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using Microsoft.Xna.Framework;
 
 namespace Sachssoft.Sasogine.Common;
 

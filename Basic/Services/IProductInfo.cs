@@ -1,4 +1,5 @@
 ﻿namespace Sachssoft.Sasogine.Services;
+
 public interface IProductInfo
 {
     int Id { get; }

@@ -1,6 +1,4 @@
-﻿using Sachssoft.Sasogine.Components.Rendering.Animation;
-
-namespace Sachssoft.Sasogine.Components.Rendering.Animation.Timings;
+﻿namespace Sachssoft.Sasogine.Components.Rendering.Animation.Timings;
 
 public sealed class EaseInQuart : AnimationTimingBase
 {

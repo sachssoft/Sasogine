@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Interactions; 
+﻿namespace Sachssoft.Sasogine.Interactions;
 
 public enum MouseWheelState
 {

@@ -5,7 +5,6 @@
 */
 
 using System;
-using System.IO;
 
 namespace Sachssoft.Sasogine;
 

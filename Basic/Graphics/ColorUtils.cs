@@ -6,10 +6,28 @@ namespace Sachssoft.Sasogine.Graphics;
 
 public static class ColorUtils
 {
+    public static string ToHexString(Color color, bool alpha = true)
+    {
+        var r = color.R;
+        var g = color.G;
+        var b = color.B;
+        var a = color.A;
+
+        // Wenn Alpha einbezogen werden soll
+        if (alpha)
+        {
+            return $"#{a:X2}{r:X2}{g:X2}{b:X2}";  // Mit Alpha-Kanal
+        }
+        else
+        {
+            return $"#{r:X2}{g:X2}{b:X2}";  // Ohne Alpha-Kanal
+        }
+    }
+
     /// <summary>
     /// Erstellt eine Color aus einem Hex-String. RRGGBB oder AARRGGBB.
     /// </summary>
-    public static Color FromHex(string hex)
+    public static Color FromHexString(string hex)
     {
         if (string.IsNullOrWhiteSpace(hex))
             throw new ArgumentException("Hex string cannot be null or empty.", nameof(hex));
@@ -81,23 +99,23 @@ public static class ColorUtils
         }
     }
 
-    public static Color ChangeAlpha(Color color, float alpha)
+    public static Color AdjustAlpha(Color color, float alpha)
     {
-        return new Color(color.R, color.G, color.B, (byte)(MathHelper.Clamp(alpha, 0f, 1f) * 255));
+        return new Color(color.R, color.G, color.B, (byte)(float.Clamp(alpha, 0f, 1f) * 255));
     }
 
-    public static Color ChangeRed(Color color, float red)
+    public static Color AdjustRed(Color color, float red)
     {
-        return new Color((byte)(MathHelper.Clamp(red, 0f, 1f) * 255), color.G, color.B, color.A);
+        return new Color((byte)(float.Clamp(red, 0f, 1f) * 255), color.G, color.B, color.A);
     }
 
-    public static Color ChangeGreen(Color color, float green)
+    public static Color AdjustGreen(Color color, float green)
     {
-        return new Color(color.R, (byte)(MathHelper.Clamp(green, 0f, 1f) * 255), color.B, color.A);
+        return new Color(color.R, (byte)(float.Clamp(green, 0f, 1f) * 255), color.B, color.A);
     }
 
-    public static Color ChangeBlue(Color color, float blue)
+    public static Color AdjustBlue(Color color, float blue)
     {
-        return new Color(color.R, color.G, (byte)(MathHelper.Clamp(blue, 0f, 1f) * 255), color.A);
+        return new Color(color.R, color.G, (byte)(float.Clamp(blue, 0f, 1f) * 255), color.A);
     }
 }

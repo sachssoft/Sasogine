@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Diagnostics;
 
@@ -69,6 +68,6 @@ public class Benchmark
         return TimeSpan.Zero;
     }
 
-    public IEnumerable<(string Label, TimeSpan Duration)> GetScopedMeasurements() 
+    public IEnumerable<(string Label, TimeSpan Duration)> GetScopedMeasurements()
         => _scoped_measurements.Select(x => (Label: x.Key, Duration: x.Value));
 }

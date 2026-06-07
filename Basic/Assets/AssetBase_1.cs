@@ -1,6 +1,5 @@
 ﻿using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Components;
-using Sachssoft.Sasogine.Resources.Loaders;
+using Sachssoft.Sasogine.Resources;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -21,7 +20,7 @@ namespace Sachssoft.Sasogine.Assets
         private bool _loaded;          // True if the asset is loaded
         private T? _instance;          // The loaded asset instance
         private readonly object _sync = new(); // Lock object for thread-safety
-        private LoaderBase? _loaderSource;      // Backing field for LoaderSource
+        private ResourceSourceBase? _loaderSource;      // Backing field for LoaderSource
 
         /// <summary>
         /// Fired after the asset instance has been successfully loaded.
@@ -42,7 +41,7 @@ namespace Sachssoft.Sasogine.Assets
         /// Fired when the asset instance changes (e.g., loaded, reloaded, unloaded).
         /// </summary>
         public event EventHandler? InstanceChanged;
-        
+
         protected AssetBase() { }
 
         //public override TDefinition Definition => _definition;
@@ -62,7 +61,7 @@ namespace Sachssoft.Sasogine.Assets
         /// Can be replaced to reload a different source.
         /// Fires <see cref="LoaderSourceChanged"/> when changed.
         /// </summary>
-        public LoaderBase? LoaderSource
+        public ResourceSourceBase? LoaderSource
         {
             get => _loaderSource;
             set
@@ -196,7 +195,7 @@ namespace Sachssoft.Sasogine.Assets
                     return;
 
                 //if (Definition != null)
-                  // ...  
+                // ...  
 
                 if (_instance != null)
                 {

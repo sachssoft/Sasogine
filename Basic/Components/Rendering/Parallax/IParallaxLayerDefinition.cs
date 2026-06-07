@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Assets;
 using Sachssoft.Sasogine.Assets.Graphics;
 using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Graphics;
@@ -14,7 +13,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Parallax
         // Name des Layers
         string Name { get; set; }
 
-        float Depth{ get; set; }
+        float Depth { get; set; }
 
         Reference<Texture2DAsset> Texture { get; set; }
 

@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework.Input;
+using Sachssoft.Sasogine.Platform;
+using System;
 using System.Collections.Generic;
 using System.Windows.Input;
-using System;
-using Sachssoft.Sasogine.Platform;
 
 namespace Sachssoft.Sasogine.Interactions
 {

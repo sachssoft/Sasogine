@@ -1,7 +1,7 @@
-﻿using System;
-using System.Threading;
-using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework.Input;
 using Sachssoft.Sasogine.Inputs;
+using System;
+using System.Threading;
 
 namespace Sachssoft.Sasogine.Platform.Windows
 {

@@ -1,6 +1,4 @@
-﻿using Sachssoft.Sasogine.Components;
-
-namespace Sachssoft.Sasogine.Components.Rendering.Animation
+﻿namespace Sachssoft.Sasogine.Components.Rendering.Animation
 {
     public interface IAnimationDefinition : IComponentDefinition
     {

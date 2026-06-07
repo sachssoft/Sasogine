@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sachssoft.Sasogine.Components.Rendering.Animation
+﻿namespace Sachssoft.Sasogine.Components.Rendering.Animation
 {
     /// <summary>
     /// Animates a rotation over time in degrees.

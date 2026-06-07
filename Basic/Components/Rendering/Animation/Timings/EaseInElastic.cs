@@ -1,5 +1,4 @@
-﻿using Sachssoft.Sasogine.Components.Rendering.Animation;
-using System;
+﻿using System;
 
 namespace Sachssoft.Sasogine.Components.Rendering.Animation.Timings;
 

@@ -1,11 +1,5 @@
 ﻿using Sachssoft.Sasogine.Components.Rendering.Parallax;
 using Sachssoft.Sasogine.Scenes;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Components.Rendering.Atmosphere
 {
@@ -27,12 +21,12 @@ namespace Sachssoft.Sasogine.Components.Rendering.Atmosphere
         // und dadurch deutlich effizienter sind als mehrere Render-Pässe.
         //
         // Ziel: minimale RenderTarget-Anzahl, maximale Nutzung von Shadern.
-        
+
         public AtmosphereComponent() { }
 
         public void Update(RuntimeContext context)
         {
-            
+
         }
 
         public void Draw(RuntimeViewportContext context)

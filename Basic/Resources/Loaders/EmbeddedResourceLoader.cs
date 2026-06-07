@@ -1,5 +1,4 @@
-﻿using Sachssoft.Sasogine.Resources.Loaders;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -7,19 +6,19 @@ using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Resources.Loaders
 {
-    public sealed class EmbeddedResourceLoader : LoaderBase, IFileLoader
+    public sealed class EmbeddedResourceSource : ResourceSourceBase, IFileSource
     {
         // Cache der Ressourcen-Namen für Performance
         private string[]? _cachedResourceNames;
 
-        public EmbeddedResourceLoader() { }
+        public EmbeddedResourceSource() { }
 
-        public EmbeddedResourceLoader(string? filePath)
+        public EmbeddedResourceSource(string? filePath)
         {
             FilePath = filePath;
         }
 
-        public EmbeddedResourceLoader(string? filePath, Assembly assembly)
+        public EmbeddedResourceSource(string? filePath, Assembly assembly)
         {
             FilePath = filePath;
             Assembly = assembly;

@@ -2,11 +2,11 @@
 
 namespace Sachssoft.Sasogine.Resources;
 
-public enum ResourceLoaderType
+public enum ResourceSourceType
 {
     ExternalFile,
-    EmbeddedResource, 
-    
+    EmbeddedResource,
+
     [Obsolete(
         message:
             "Content loader is NOT AOT-/Trimmer-safe!\n" +

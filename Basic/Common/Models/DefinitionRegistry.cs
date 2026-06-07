@@ -1,5 +1,4 @@
-﻿using Sachssoft.Sasogine.Components;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Common

@@ -3,6 +3,6 @@
 namespace Sachssoft.Sasogine.Components
 {
     public interface IComponentDefinition : IEngineObjectDefinition
-    {        
+    {
     }
 }

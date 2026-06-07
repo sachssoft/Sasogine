@@ -1,7 +1,7 @@
-﻿using Microsoft.Xna.Framework.Input;
-using System.Collections.Generic;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using System;
-using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Interactions;
 
@@ -23,7 +23,7 @@ public class MouseInteractionManager : InputInteractionManager<MouseButton>
         : base(new MouseStateWrapper(Mouse.GetState()))
     {
     }
-    
+
     /// <summary>Aktuelle absolute Mausposition</summary>
     public Point Position => _current_position;
 

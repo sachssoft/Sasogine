@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-
-namespace Sachssoft.Sasogine.Components.Rendering.Animation
+﻿namespace Sachssoft.Sasogine.Components.Rendering.Animation
 {
     /// <summary>
     /// Provides extension methods for objects implementing <see cref="IAnimatable"/>

@@ -78,7 +78,7 @@ namespace Sachssoft.Sasogine.Common
                 return true;
             }
 
-            return false;            
+            return false;
         }
 
         public void Add(T item)

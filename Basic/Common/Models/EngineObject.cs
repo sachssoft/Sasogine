@@ -96,7 +96,7 @@ namespace Sachssoft.Sasogine.Common
                 ApplyDefinition();
             }
 
-            _isLoaded = true; 
+            _isLoaded = true;
             return Task.CompletedTask;
         }
 

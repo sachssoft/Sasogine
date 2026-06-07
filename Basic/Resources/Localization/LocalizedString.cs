@@ -11,7 +11,7 @@ namespace Sachssoft.Sasogine.Resources.Localization
 
         public bool IsLoaded => _isLoaded;
 
-        public void Load(CultureInfo culture, GameResourceManager resourceManager, LocalizedEntryData data)
+        public void Load(CultureInfo culture, AssetStore resourceManager, LocalizedEntryData data)
         {
             data.Attributes.TryGetValue("Value", out _singleValue);
 

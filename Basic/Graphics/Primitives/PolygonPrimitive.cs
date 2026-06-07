@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Geometry;
 using System;
-using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Graphics.Primitives
 {

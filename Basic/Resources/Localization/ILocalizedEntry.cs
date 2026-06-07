@@ -19,7 +19,7 @@ namespace Sachssoft.Sasogine.Resources.Localization
         /// <param name="culture">The culture to load the entry for.</param>
         /// <param name="resourceManager">The resource manager to use for loading associated resources.</param>
         /// <param name="data">The data describing the localized entry.</param>
-        void Load(CultureInfo culture, GameResourceManager resourceManager, LocalizedEntryData data);
+        void Load(CultureInfo culture, AssetStore resourceManager, LocalizedEntryData data);
 
         /// <summary>
         /// Gets the value of the entry, selecting the appropriate plural form based on quantity.

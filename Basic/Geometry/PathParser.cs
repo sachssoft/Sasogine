@@ -32,7 +32,6 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 
 namespace Sachssoft.Sasogine.Geometry
 {

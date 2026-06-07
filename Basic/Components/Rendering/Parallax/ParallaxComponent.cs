@@ -1,4 +1,5 @@
 ﻿using Sachssoft.Sasogine.Scenes;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace Sachssoft.Sasogine.Components.Rendering.Parallax
@@ -7,7 +8,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Parallax
     {
         public ParallaxComponent() { }
 
-        public ObservableCollection<IParallaxLayerComponent> Layers { get; } = new ObservableCollection<IParallaxLayerComponent>();
+        public List<IParallaxLayerComponent> Layers { get; } = new List<IParallaxLayerComponent>();
 
         public void Update(RuntimeContext context)
         {

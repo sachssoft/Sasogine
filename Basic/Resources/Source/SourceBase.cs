@@ -1,5 +1,4 @@
-﻿using Sachssoft.Sasogine.Resources.Loaders;
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -11,7 +10,7 @@ namespace Sachssoft.Sasogine.Resources.Source
     /// </summary>
     // Basisklasse für Quellen, die Laden und Speichern unterstützen.
     // Stellt Komfortmethoden für byte[] bereit.
-    public abstract class SourceBase : LoaderBase
+    public abstract class SourceBase : ResourceSourceBase
     {
         /// <summary>
         /// Saves the provided stream synchronously to the underlying source.

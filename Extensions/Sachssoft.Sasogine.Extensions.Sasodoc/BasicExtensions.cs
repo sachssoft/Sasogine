@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Sasodoc;
-using Sachssoft.Sasogine.Graphics.Colors;
+using Sachssoft.Sasogine.Graphics;
 
 namespace Sachssoft.Sasogine.Extensions.Sasodoc
 {
@@ -9,20 +9,20 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
     {
 
         #region Color
-        public static Color ReadColor(this FormatReaderBase reader, string property, Color fallback)
+        public static Color ReadColor(this FormatReaderBase reader, string property, bool alpha = true, Color fallback = default)
         {
             var value = reader.ReadString(property, fallback.ToString());
-            return ColorUtils.TryParse(value, out var result) ? result : fallback;
+            return ColorUtils.TryParse(value, alpha, out var result) ? result : fallback;
         }
 
-        public static void WriteColor(this FormatWriterBase writer, string property, Color value)
+        public static void WriteColor(this FormatWriterBase writer, string property, Color value, bool alpha = true)
         {
-            writer.WriteString(property, value.ToString());
+            writer.WriteString(property, ColorUtils.ToHexString(value, alpha));
         }
         #endregion
 
         #region Vector2
-        public static Vector2 ReadVector2(this FormatReaderBase reader, string property, Vector2 fallback)
+        public static Vector2 ReadVector2(this FormatReaderBase reader, string property, Vector2 fallback = default)
         {
             var rectReader = reader.Read(property);
 
@@ -45,7 +45,7 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
 
 
         #region Vector3
-        public static Vector3 ReadVector3(this FormatReaderBase reader, string property, Vector3 fallback)
+        public static Vector3 ReadVector3(this FormatReaderBase reader, string property, Vector3 fallback = default)
         {
             var rectReader = reader.Read(property);
 
@@ -70,7 +70,7 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
 
 
         #region Vector4
-        public static Vector4 ReadVector4(this FormatReaderBase reader, string property, Vector4 fallback)
+        public static Vector4 ReadVector4(this FormatReaderBase reader, string property, Vector4 fallback = default)
         {
             var rectReader = reader.Read(property);
 

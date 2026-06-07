@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sachssoft.Sasogine.Common
+﻿namespace Sachssoft.Sasogine.Common
 {
     public interface IEngineObjectDefinition
     {

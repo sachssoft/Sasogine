@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Components;
 using System;
 
 namespace Sachssoft.Sasogine.Components.Rendering.Animation

@@ -9,13 +9,13 @@ namespace Sachssoft.Sasogine.Resources.Localization
     public sealed class LocalizationBinding<T> : IDisposable
         where T : class
     {
-        private readonly GameApplication _application;
+        private readonly GameApplicationBase _application;
         private readonly string _key;
         private readonly T? _defaultValue;
         private readonly Action<T?> _setter;
         private bool _disposed;
 
-        internal LocalizationBinding(GameApplication application, string key, T? defaultValue, Action<T?> setter)
+        internal LocalizationBinding(GameApplicationBase application, string key, T? defaultValue, Action<T?> setter)
         {
             _key = key ?? throw new ArgumentNullException(nameof(key));
             _defaultValue = defaultValue;
@@ -35,7 +35,7 @@ namespace Sachssoft.Sasogine.Resources.Localization
         {
             if (_disposed) return;
 
-            var dict = GameApplication.Current.Localization.Entries;
+            var dict = GameApplicationBase.Current.Localization.Entries;
 
             if (!dict.TryGetValue<T>(_key, out var value))
                 value = _defaultValue;

@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 
 namespace Sachssoft.Sasogine.Geometry;
 
@@ -69,7 +68,7 @@ public sealed class PathCollection : IReadOnlyList<Path>, ICloneable
     {
         var paths = new List<Path>();
 
-        foreach(var path  in this)
+        foreach (var path in this)
         {
             paths.Add(path.Transform(transform));
         }

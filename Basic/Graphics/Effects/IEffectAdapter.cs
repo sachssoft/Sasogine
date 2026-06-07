@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Components.Rendering.Camera;
 using System;
-using System.Numerics;
 
 namespace Sachssoft.Sasogine.Graphics
 {

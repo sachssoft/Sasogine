@@ -1,5 +1,4 @@
-﻿using Sachssoft.Sasogine.Resources.Loaders;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -8,14 +7,14 @@ namespace Sachssoft.Sasogine.Resources.Localization
     public sealed class LocalizationManager
     {
         private readonly Dictionary<string, LocalizedDictionary> _dictionaries = new();
-        private readonly GameApplication _application;
+        private readonly GameApplicationBase _application;
         private readonly LocalizedDictionary _emptyDictionary = new LocalizedDictionary();
 
         private CultureInfo _currentCulture = CultureInfo.InvariantCulture;
 
         public event EventHandler? CurrentCultureChanged;
 
-        public LocalizationManager(GameApplication application)
+        public LocalizationManager(GameApplicationBase application)
         {
             _application = application;
         }

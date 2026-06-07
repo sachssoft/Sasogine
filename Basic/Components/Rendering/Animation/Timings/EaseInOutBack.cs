@@ -1,7 +1,4 @@
-﻿using Sachssoft.Sasogine.Components.Rendering.Animation;
-using System;
-
-namespace Sachssoft.Sasogine.Components.Rendering.Animation.Timings;
+﻿namespace Sachssoft.Sasogine.Components.Rendering.Animation.Timings;
 
 public sealed class EaseInOutBack : AnimationTimingBase
 {

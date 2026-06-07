@@ -13,7 +13,7 @@ namespace Sachssoft.Sasogine.Assets.Graphics
         private Vector2 _translation = Vector2.Zero;
         private float _rotation = 0f;
         private Vector2 _scale = Vector2.One;
-        private Vector2 _pivot = Vector2.Zero; 
+        private Vector2 _pivot = Vector2.Zero;
         private Matrix _transformCache = Matrix.Identity;
         private bool _transformDirty = true;
 
@@ -128,7 +128,7 @@ namespace Sachssoft.Sasogine.Assets.Graphics
         {
             base.ApplyDefinitionChange(key);
 
-            switch(key)
+            switch (key)
             {
                 case nameof(ITexture2DDefinition.FilterMode):
                     _filterMode = Definition.FilterMode;
@@ -137,7 +137,7 @@ namespace Sachssoft.Sasogine.Assets.Graphics
                     _addressMode = Definition.AddressMode;
                     break;
                 case nameof(ITexture2DDefinition.Translation):
-                    _translation = Definition.Translation; 
+                    _translation = Definition.Translation;
                     _transformDirty = true;
                     break;
                 case nameof(ITexture2DDefinition.Rotation):

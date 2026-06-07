@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sachssoft.Sasogine.Diagnostics;
+﻿namespace Sachssoft.Sasogine.Diagnostics;
 
 public interface IDebugDisplay
 {

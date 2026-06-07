@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sachssoft.Sasogine.Audio
+﻿namespace Sachssoft.Sasogine.Audio
 {
     public interface ISoundPlayer
     {

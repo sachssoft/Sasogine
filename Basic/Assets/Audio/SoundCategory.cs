@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Sachssoft.Sasogine.Assets.Audio
+﻿namespace Sachssoft.Sasogine.Assets.Audio
 {
     /// <summary>
     /// Bestimmt den Zweck eines Sounds im Spiel.

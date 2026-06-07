@@ -14,8 +14,8 @@ namespace Sachssoft.Sasogine.Assets.Audio
             try
             {
                 ISoundPlayer? instance = null;
-                
-                switch(Definition.FormatType)
+
+                switch (Definition.FormatType)
                 {
                     case SoundFormatType.Auto:
 

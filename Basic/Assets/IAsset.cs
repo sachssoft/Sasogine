@@ -1,4 +1,4 @@
-﻿using Sachssoft.Sasogine.Resources.Loaders;
+﻿using Sachssoft.Sasogine.Resources;
 using System;
 using System.Threading.Tasks;
 
@@ -49,7 +49,7 @@ namespace Sachssoft.Sasogine.Assets
         /// The loader/source used to provide the asset stream.
         /// Can be replaced to reload a different source.
         /// </summary>
-        LoaderBase? LoaderSource { get; set; }
+        ResourceSourceBase? LoaderSource { get; set; }
 
         /// <summary>
         /// The currently loaded asset instance.

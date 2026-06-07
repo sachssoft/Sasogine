@@ -23,7 +23,7 @@ public interface IGameApplication
 
     ISceneManager Scenes { get; }
 
-    GameResourceManager Resources { get; }
+    AssetStore Assets { get; }
 
     GameRegistry Registry { get; }
 

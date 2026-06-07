@@ -1,7 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Sachssoft.Sasogine.Geometry
 {
@@ -76,18 +74,18 @@ namespace Sachssoft.Sasogine.Geometry
             }
             return allPoints;
         }
-        
+
         /// <summary>
-         /// Optimiert die Pfade für Performance:
-         /// - vereinfacht Punkte
-         /// - optional gleichmäßiges Resampling
-         /// - optional leichtes Glätten
-         /// </summary>
+        /// Optimiert die Pfade für Performance:
+        /// - vereinfacht Punkte
+        /// - optional gleichmäßiges Resampling
+        /// - optional leichtes Glätten
+        /// </summary>
         public static PathCollection Optimize(
             this PathCollection collection,
             float simplifyTolerance = 0.5f,
             int? targetPointCount = null,
-            float smoothFactor = 0.0f, 
+            float smoothFactor = 0.0f,
             float smoothMaxAngleDeg = 45f,
             int smoothIterations = 1)
         {
