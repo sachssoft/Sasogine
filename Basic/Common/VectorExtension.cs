@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace Sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Sasogine.Common;
 
 public static class VectorExtension
 {

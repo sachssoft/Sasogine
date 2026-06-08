@@ -6,7 +6,7 @@ using Sachssoft.Sasogine.Scenes;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Sasogine.Graphics.Primitives;
 
 public abstract class PrimitiveBase
 {

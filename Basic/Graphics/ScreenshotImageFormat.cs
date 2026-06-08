@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics.Utils
+﻿namespace Sachssoft.Sasogine.Graphics
 {
     public enum ScreenshotImageFormat
     {

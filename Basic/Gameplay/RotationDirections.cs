@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics;
+﻿namespace Sachssoft.Sasogine.Gameplay;
 
 public enum RotationDirections
 {

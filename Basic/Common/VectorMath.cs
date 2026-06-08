@@ -2,7 +2,7 @@
 using Sachssoft.Sasogine.Geometry;
 using System.Runtime.CompilerServices;
 
-namespace Sachssoft.Sasogine.Math
+namespace Sachssoft.Sasogine.Common
 {
     public static class VectorMath
     {

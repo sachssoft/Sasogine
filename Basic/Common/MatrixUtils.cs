@@ -1,12 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace Sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Sasogine.Common;
 
 /// <summary>
 /// Provides helper methods for creating 2D transformation matrices 
 /// with position, scale, rotation, origin, and depth.
 /// </summary>
-public static class MatrixHelper
+public static class MatrixUtils
 {
     public static Matrix Create(Vector2 position, Vector2 scale, float rotation, float depth = 0f)
     {

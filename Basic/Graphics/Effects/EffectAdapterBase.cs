@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Components.Rendering.Camera;
 using System;
 
-namespace Sachssoft.Sasogine.Graphics
+namespace Sachssoft.Sasogine.Graphics.Effects
 {
     /// <summary>
     /// Base class for wrapping and adapting a MonoGame <see cref="Effect"/>.

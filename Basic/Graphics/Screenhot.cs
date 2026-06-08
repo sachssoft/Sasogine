@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Graphics.Utils
+namespace Sachssoft.Sasogine.Graphics
 {
     public static class Screenshot
     {

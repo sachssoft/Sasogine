@@ -19,7 +19,7 @@ namespace Sachssoft.Sasogine.Graphics.Text
 
         public ResourceSourceBase Loader => _loader;
 
-        public  FontFace CreateFace(string name, FontWeight weightDefinition = FontWeight.Normal, FontStyle styleDefinition = FontStyle.Normal)
+        public FontFace CreateFace(string name, FontWeight weightDefinition = FontWeight.Normal, FontStyle styleDefinition = FontStyle.Normal)
         {
             return new FontFace(_loader, name, weightDefinition, styleDefinition);
         }

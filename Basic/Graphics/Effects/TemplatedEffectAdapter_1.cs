@@ -4,7 +4,7 @@ using Sachssoft.Sasogine.Components.Rendering.Camera;
 using Sachssoft.Sasogine.Graphics.Effects;
 using System;
 
-namespace Sachssoft.Sasogine.Graphics
+namespace Sachssoft.Sasogine.Graphics.Effects
 {
     /// <summary>
     /// Generic adapter for wrapping and controlling any MonoGame <see cref="Effect"/>.

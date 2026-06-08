@@ -4,7 +4,7 @@ using Sachssoft.Sasogine.Components.Rendering.Camera;
 using Sachssoft.Sasogine.Scenes;
 using System;
 
-namespace Sachssoft.Sasogine.Graphics
+namespace Sachssoft.Sasogine.Graphics.Rendering
 {
     public sealed class ModelRenderer
     {

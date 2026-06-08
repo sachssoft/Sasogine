@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Runtime.CompilerServices;
 
-namespace Sachssoft.Sasogine.Math
+namespace Sachssoft.Sasogine.Geometry
 {
     public static class GeometryMath
     {
@@ -9,7 +9,7 @@ namespace Sachssoft.Sasogine.Math
         /// Finds the nearest polygon index to a location in a Path.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void GetNearestPolygon(Vector2 location, Sasogine.Geometry.Path path, out int nearest_polygon_index)
+        public static void GetNearestPolygon(Vector2 location, Path path, out int nearest_polygon_index)
         {
             float nearest_distance = float.PositiveInfinity;
             nearest_polygon_index = -1;

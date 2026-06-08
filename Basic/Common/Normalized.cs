@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Math
+namespace Sachssoft.Sasogine.Common
 {
     public readonly struct Normalized : IEquatable<Normalized>, IComparable<Normalized>
     {

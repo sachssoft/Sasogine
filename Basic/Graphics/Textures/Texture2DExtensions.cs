@@ -1,235 +1,225 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Common;
 using System;
 
 namespace Sachssoft.Sasogine.Graphics;
 
 public static class Texture2DExtensions
 {
-    public static Color[,] GetPixelColors(this Texture2D texture)
+    // ---------------------------
+    // Core Helpers
+    // ---------------------------
+
+    public static Color[] GetPixels(this Texture2D texture)
     {
-        var colors_1d = new Color[texture.Width * texture.Height];
-        var colors_2d = new Color[texture.Width, texture.Height];
+        ArgumentNullException.ThrowIfNull(texture);
 
-        texture.GetData(colors_1d);
+        var data = new Color[texture.Width * texture.Height];
+        texture.GetData(data);
 
-        for (int x = 0; x < texture.Width; x++)
-        {
-            for (int y = 0; y < texture.Height; y++)
-            {
-                colors_2d[x, y] = colors_1d[x + y * texture.Width];
-            }
-        }
-
-        return colors_2d;
+        return data;
     }
 
-    public static void SetPixelColors(this Texture2D texture, Color[,] colors)
+    public static void SetPixels(this Texture2D texture, Color[] data)
     {
-        var colors_1d = new Color[texture.Width * texture.Height];
+        ArgumentNullException.ThrowIfNull(texture);
+        ArgumentNullException.ThrowIfNull(data);
 
-        for (int x = 0; x < texture.Width; x++)
-        {
-            for (int y = 0; y < texture.Height; y++)
-            {
-                colors_1d[x + y * texture.Width] = colors[x, y];
-            }
-        }
+        if (data.Length != texture.Width * texture.Height)
+            throw new ArgumentException("Pixel array size does not match texture dimensions.");
 
-        texture.SetData(colors_1d);
+        texture.SetData(data);
     }
 
-    //public static Texture2D ConvertToNormal(this RenderTarget2D rt)
-    //{
+    // ---------------------------
+    // Copy / Clone
+    // ---------------------------
 
-    //    //var colors = rt.GetPixelColors();
-    //    //var new_tex = new Texture2D(rt.GraphicsDevice, rt.Width, rt.Height);
-    //    //SetPixelColors(new_tex, colors);
-    //    //return new_tex;
-    //}
-
-    public static Texture2D CreateMask(this Texture2D texture, Color mask_color)
-        => CreateMask(texture, mask_color, IGameApplication.Current.GraphicsDevice);
-
-    public static Texture2D CreateMask(this Texture2D texture, Color mask_color, GraphicsDevice graphics_device)
+    public static Texture2D Clone(this Texture2D texture)
     {
-        var mask_tex = new Texture2D(graphics_device, texture.Width, texture.Height);
+        ArgumentNullException.ThrowIfNull(texture);
 
-        var tex_pixels = texture.GetPixelColors();
-        var mask_pixels = new Color[texture.Width, texture.Height];
+        var data = texture.GetPixels();
 
-        for (var y = 0; y < texture.Height; y++)
-        {
-            for (var x = 0; x < texture.Width; x++)
-            {
-                mask_pixels[x, y] = (tex_pixels[x, y] == mask_color) ? Color.Transparent : mask_color;
-            }
-        }
+        var copy = new Texture2D(
+            texture.GraphicsDevice,
+            texture.Width,
+            texture.Height,
+            false,
+            texture.Format);
 
-        mask_tex.SetPixelColors(mask_pixels);
-        return mask_tex;
+        copy.SetData(data);
+
+        return copy;
     }
 
-    public static Texture2D TileCrop(this Texture2D texture, Point cell, Point size)
-        => TileCrop(texture, cell, size, IGameApplication.Current.GraphicsDevice);
+    // ---------------------------
+    // Crop
+    // ---------------------------
 
-    public static Texture2D TileCrop(this Texture2D texture, Point cell, Point size, GraphicsDevice graphics_device)
-        => Crop(texture, new Point(cell.X * size.X, cell.Y * size.Y), size, graphics_device);
-
-    public static Texture2D Crop(this Texture2D texture, Point position, Point size)
-        => Crop(texture, position, size, IGameApplication.Current.GraphicsDevice);
-
-    public static Texture2D Crop(this Texture2D texture, Rectangle sourceRectangle)
-        => Crop(texture, new Point(sourceRectangle.X, sourceRectangle.Y), new Point(sourceRectangle.Width, sourceRectangle.Height), IGameApplication.Current.GraphicsDevice);
-
-    public static Texture2D Crop(this Texture2D texture, Point position, Point size, GraphicsDevice graphics_device)
+    public static Texture2D Crop(this Texture2D texture, Rectangle sourceRect, GraphicsDevice graphicsDevice)
     {
-        if (texture == null)
-            throw new ArgumentNullException(nameof(texture));
-        if (graphics_device == null)
-            throw new ArgumentNullException(nameof(graphics_device));
-        if (size.X <= 0 || size.Y <= 0)
-            throw new ArgumentException("Crop size must be greater than zero.");
+        ArgumentNullException.ThrowIfNull(texture);
+        ArgumentNullException.ThrowIfNull(graphicsDevice);
 
-        // Sicherstellen, dass das Rechteck innerhalb der Textur liegt
-        var sourceRect = new Rectangle(position.X, position.Y, size.X, size.Y);
-        var textureRect = new Rectangle(0, 0, texture.Width, texture.Height);
-        if (!textureRect.Intersects(sourceRect))
-            throw new ArgumentException("Crop rectangle is outside the bounds of the texture.");
+        if (sourceRect.Width <= 0 || sourceRect.Height <= 0)
+            throw new ArgumentException("Crop rectangle must have positive size.");
 
-        // Intersection erzeugen, um Überlappung sicherzustellen (clamping)
-        sourceRect = Rectangle.Intersect(sourceRect, textureRect);
+        var bounds = new Rectangle(0, 0, texture.Width, texture.Height);
+
+        if (!bounds.Intersects(sourceRect))
+            throw new ArgumentException("Crop rectangle is outside texture bounds.");
+
+        sourceRect = Rectangle.Intersect(bounds, sourceRect);
 
         var data = new Color[sourceRect.Width * sourceRect.Height];
         texture.GetData(0, sourceRect, data, 0, data.Length);
 
-        var croppedTexture = new Texture2D(graphics_device, sourceRect.Width, sourceRect.Height);
-        croppedTexture.SetData(data);
+        var result = new Texture2D(
+            graphicsDevice,
+            sourceRect.Width,
+            sourceRect.Height,
+            false,
+            texture.Format);
 
-        return croppedTexture;
+        result.SetData(data);
+
+        return result;
     }
 
+    public static Texture2D Crop(this Texture2D texture, Rectangle sourceRect)
+        => Crop(texture, sourceRect, texture.GraphicsDevice);
 
-    public static Texture2D Clone(this Texture2D texture)
-        => Clone(texture, IGameApplication.Current.GraphicsDevice);
+    // ---------------------------
+    // Tile Crop (SpriteSheet)
+    // ---------------------------
 
-    public static Texture2D Clone(this Texture2D texture, GraphicsDevice graphics_device)
+    public static Texture2D TileCrop(this Texture2D texture, Point cell, PixelSize cellSize, GraphicsDevice graphicsDevice)
     {
-        var width = texture.Width;
-        var height = texture.Height;
+        var rect = new Rectangle(
+            cell.X * cellSize.Width,
+            cell.Y * cellSize.Height,
+            cellSize.Width,
+            cellSize.Height);
 
-        var new_texture = new Texture2D(graphics_device, width, height);
-        var color_data = new Color[width * height];
-
-        texture.GetData(color_data);
-        new_texture.SetData(color_data);
-
-        return new_texture;
+        return Crop(texture, rect, graphicsDevice);
     }
 
-    //public static Texture2D Blend<T>(this Texture2D texture, Color color, float amount)
-    //    where T : IColorBlender, new()
-    //    => Blend<T>(texture, color, amount, IGameApplication.Current.GraphicsDevice);
+    public static Texture2D TileCrop(this Texture2D texture, Point cell, PixelSize cellSize)
+        => TileCrop(texture, cell, cellSize, texture.GraphicsDevice);
 
-    //public static Texture2D Blend<T>(this Texture2D texture, Color color, float amount, GraphicsDevice graphics_device)
-    //   where T : IColorBlender, new()
-    //{
-    //    var blender = new T();
-    //    int width = texture.Width;
-    //    int height = texture.Height;
-    //    var colors = new Color[width * height];
+    // ---------------------------
+    // Premultiply Alpha
+    // ---------------------------
 
-    //    texture.GetData(colors);
+    public static Texture2D ToPremultiplyAlpha(this Texture2D texture)
+    {
+        ArgumentNullException.ThrowIfNull(texture);
 
-    //    for (int i = 0; i < colors.Length; i++)
-    //    {
-    //        colors[i] = blender.Blend(colors[i], color, new ColorRange(amount));
-    //    }
+        var data = texture.GetPixels();
 
-    //    var new_texture = new Texture2D(graphics_device, width, height);
-    //    new_texture.SetData(colors);
-    //    return new_texture;
-    //}
+        for (int i = 0; i < data.Length; i++)
+        {
+            var c = data[i];
+            float a = c.A / 255f;
 
-    //public static Texture2D Adjust<T>(this Texture2D texture, float amount)
-    //    where T : IColorTransformer, new()
-    //    => Adjust<T>(texture, amount, IGameApplication.Current.GraphicsDevice);
+            data[i] = new Color(
+                (byte)MathF.Round(c.R * a),
+                (byte)MathF.Round(c.G * a),
+                (byte)MathF.Round(c.B * a),
+                c.A);
+        }
 
-    //// Nicht-destruktiv – gibt neue Textur zurück
-    //public static Texture2D Adjust<T>(this Texture2D texture, float amount, GraphicsDevice graphics_device)
-    //    where T : IColorTransformer, new()
-    //{
-    //    var transformer = new T();
-    //    int width = texture.Width;
-    //    int height = texture.Height;
-    //    var colors = new Color[width * height];
+        var result = new Texture2D(
+            texture.GraphicsDevice,
+            texture.Width,
+            texture.Height,
+            false,
+            texture.Format);
 
-    //    texture.GetData(colors);
+        result.SetData(data);
 
-    //    for (int i = 0; i < colors.Length; i++)
-    //    {
-    //        colors[i] = transformer.Transform(colors[i], new ColorRange(amount));
-    //    }
+        return result;
+    }
 
-    //    var new_texture = new Texture2D(graphics_device, width, height);
-    //    new_texture.SetData(colors);
-    //    return new_texture;
-    //}
+    // ---------------------------
+    // Binary color mask using predicate (pixel classification)
+    // ---------------------------
 
-    //// Destruktiv – verändert Originaltextur direkt
-    //public static void AdjustInPlace<T>(this Texture2D texture, float amount)
-    //    where T : IColorTransformer, new()
-    //{
-    //    var transformer = new T();
-    //    int width = texture.Width;
-    //    int height = texture.Height;
-    //    var colors = new Color[width * height];
+    public static Texture2D CreateBinaryColorMask(
+        this Texture2D texture,
+        Color matchColor,
+        Color backgroundColor,
+        Func<Color, bool> predicate)
+    {
+        ArgumentNullException.ThrowIfNull(texture);
+        ArgumentNullException.ThrowIfNull(predicate);
 
-    //    texture.GetData(colors);
+        var data = texture.GetPixels();
 
-    //    for (int i = 0; i < colors.Length; i++)
-    //    {
-    //        colors[i] = transformer.Transform(colors[i], new ColorRange(amount));
-    //    }
+        for (int i = 0; i < data.Length; i++)
+        {
+            data[i] = predicate(data[i]) ? matchColor : backgroundColor;
+        }
 
-    //    texture.SetData(colors); // Achtung: ersetzt Originalinhalt!
-    //}
+        var result = new Texture2D(
+            texture.GraphicsDevice,
+            texture.Width,
+            texture.Height,
+            false,
+            texture.Format);
 
-    //public static Texture2D Adjust(this Texture2D texture, ColorTransformerFactory factory)
-    //    => Adjust(texture, factory, IGameApplication.Current.GraphicsDevice);
+        result.SetData(data);
 
-    //public static Texture2D Adjust(this Texture2D texture, ColorTransformerFactory factory, GraphicsDevice graphics_device)
-    //{
-    //    var width = texture.Width;
-    //    var height = texture.Height;
-    //    var colors = new Color[width * height];
+        return result;
+    }
 
-    //    texture.GetData(colors);
+    public static Texture2D CreateBinaryColorMask(
+        this Texture2D texture,
+        Func<Color, bool> predicate)
+    {
+        return CreateBinaryColorMask(
+            texture,
+            Color.White,
+            Color.Black,
+            predicate);
+    }
 
-    //    for (int i = 0; i < colors.Length; i++)
-    //    {
-    //        colors[i] = factory.Transform(colors[i]);
-    //    }
+    public static Texture2D CreateBinaryColorMask(
+        this Texture2D texture,
+        Color matchColor,
+        Color backgroundColor,
+        byte threshold)
+    {
+        ArgumentNullException.ThrowIfNull(texture);
 
-    //    var new_texture = new Texture2D(graphics_device, width, height);
-    //    new_texture.SetData(colors);
-    //    return new_texture;
-    //}
+        var data = texture.GetPixels();
 
-    //public static void AdjustInPlace(this Texture2D texture, ColorTransformerFactory factory)
-    //{
-    //    var width = texture.Width;
-    //    var height = texture.Height;
-    //    var colors = new Color[width * height];
+        for (int i = 0; i < data.Length; i++)
+        {
+            var c = data[i];
 
-    //    texture.GetData(colors);
+            int dr = c.R - matchColor.R;
+            int dg = c.G - matchColor.G;
+            int db = c.B - matchColor.B;
 
-    //    for (int i = 0; i < colors.Length; i++)
-    //    {
-    //        colors[i] = factory.Transform(colors[i]);
-    //    }
+            int distanceSquared = dr * dr + dg * dg + db * db;
 
-    //    texture.SetData(colors);
-    //}
+            data[i] = distanceSquared <= threshold * threshold
+                ? matchColor
+                : backgroundColor;
+        }
 
+        var result = new Texture2D(
+            texture.GraphicsDevice,
+            texture.Width,
+            texture.Height,
+            false,
+            texture.Format);
+
+        result.SetData(data);
+
+        return result;
+    }
 }

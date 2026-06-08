@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Sasogine.Graphics.Rendering;
 
 public enum Alignment
 {
