@@ -1,14 +1,18 @@
 ﻿using Sachssoft.Sasogine.Scenes;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace Sachssoft.Sasogine.Components.Rendering.Parallax
 {
-    public class ParallaxComponent : ComponentBase<IParallaxDefinition>, IDrawableRuntimeComponent
+    public class ParallaxComponent : ComponentBase<ParallaxDefinition>, IDrawableRuntimeComponent
     {
         public ParallaxComponent() { }
 
         public List<IParallaxLayerComponent> Layers { get; } = new List<IParallaxLayerComponent>();
+
+        protected override ParallaxDefinition CreateDefinition()
+        {
+            return new ParallaxDefinition();
+        }
 
         public void Update(RuntimeContext context)
         {

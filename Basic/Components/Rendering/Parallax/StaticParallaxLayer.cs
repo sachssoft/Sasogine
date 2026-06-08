@@ -2,8 +2,13 @@
 
 namespace Sachssoft.Sasogine.Components.Rendering.Parallax
 {
-    public class StaticParallax : ParallaxLayerBase<IStaticParallaxLayerDefinition>
+    public class StaticParallax : ParallaxLayerBase<StaticParallaxLayerDefinition>
     {
+        protected override StaticParallaxLayerDefinition CreateDefinition()
+        {
+            return new StaticParallaxLayerDefinition();
+        }
+
         public override void Draw(RuntimeViewportContext context)
         {
         }

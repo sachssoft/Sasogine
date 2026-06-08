@@ -1,7 +1,6 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 
-namespace Sachssoft.Sasogine.Resources.Factories;
+namespace Sachssoft.Sasogine.FeatureLabs.Resources.Factories;
 
 internal class FloatFactory : ITypeFactory<float, Resource>
 {

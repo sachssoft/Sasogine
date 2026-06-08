@@ -12,7 +12,13 @@ namespace Sachssoft.Sasogine.Common
     public abstract class EngineObject<TDefinition> : IEngineObject
         where TDefinition : class, IEngineObjectDefinition
     {
+        private readonly TDefinition _definition;
         private bool _isLoaded;
+
+        public EngineObject()
+        {
+            _definition = CreateDefinition();
+        }
 
         /// <summary>
         /// The definition instance that configures this element.
@@ -31,10 +37,10 @@ namespace Sachssoft.Sasogine.Common
         // da dies zu Performance-Einbußen führen kann. Alle notwendigen Felder sollten
         // beim Initialisieren oder Laden des Elements kopiert oder gesetzt werden.
         [AllowNull]
-        public TDefinition Definition { get; private set; }
+        public TDefinition Definition => _definition;
 
         [AllowNull]
-        IEngineObjectDefinition IEngineObject.Definition => Definition;
+        IEngineObjectDefinition IEngineObject.Definition => _definition;
 
         /// <summary>
         /// Indicates whether this element has been loaded.
@@ -59,13 +65,13 @@ namespace Sachssoft.Sasogine.Common
         /// </summary>
         public object? DataContext { get; set; }
 
-        public void Initialize(TDefinition definition)
-        {
-            if (Definition != null)
-                throw new InvalidOperationException("Already initialized");
+        //public void Initialize(TDefinition definition)
+        //{
+        //    if (Definition != null)
+        //        throw new InvalidOperationException("Already initialized");
 
-            Definition = definition;
-        }
+        //    Definition = definition;
+        //}
 
         /// <summary>
         /// Loads the element and applies the definition.
@@ -115,6 +121,8 @@ namespace Sachssoft.Sasogine.Common
 
             _isLoaded = false;
         }
+
+        protected abstract TDefinition CreateDefinition();
 
         /// <summary>
         /// Applies the full definition to this element.

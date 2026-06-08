@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Sachssoft.Sasogine.Resources;
+﻿namespace Sachssoft.Sasogine.FeatureLabs.Resources;
 
 public interface IResourceTreeEntry : IResourceEntry
 {

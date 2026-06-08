@@ -14,7 +14,8 @@ namespace Sachssoft.Sasogine.Common
         /// Gets the definition instance that configures this element.
         /// </summary>
         // Liefert die Definition, die dieses Element konfiguriert.
-        IEngineObjectDefinition Definition { get; }
+        // Optional
+        IEngineObjectDefinition? Definition { get; }
 
         /// <summary>
         /// Indicates whether the element has been loaded.

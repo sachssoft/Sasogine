@@ -1,16 +1,16 @@
 ﻿namespace Sachssoft.Sasogine.Assets.Audio
 {
-    public interface ISoundAssetDefinition : IAssetDefinition
+    public class SoundAssetDefinition : AssetDefinitionBase
     {
-        SoundFormatType FormatType { get; set; }
+        public SoundFormatType FormatType { get; set; }
 
-        float Volume { get; set; }
+        public float Volume { get; set; }
 
-        bool IsLooping { get; set; }
+        public bool IsLooping { get; set; }
 
-        float Pitch { get; set; }
+        public float Pitch { get; set; }
 
-        SoundCategory Category { get; set; }
+        public SoundCategory Category { get; set; }
 
     }
 }

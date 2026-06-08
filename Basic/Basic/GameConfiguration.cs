@@ -1,6 +1,5 @@
-﻿namespace Sachssoft.Sasogine.Basic
+﻿namespace Sachssoft.Sasogine;
+
+public class GameConfiguration
 {
-    public class GameConfiguration
-    {
-    }
 }

@@ -4,8 +4,13 @@ using System.IO;
 
 namespace Sachssoft.Sasogine.Assets.Audio
 {
-    public class MusicAsset : AssetBase<IMusicPlayer, IMusicAssetDefinition>
+    public class MusicAsset : AssetBase<IMusicPlayer, MusicAssetDefinition>
     {
+        protected override MusicAssetDefinition CreateDefinition()
+        {
+            return new MusicAssetDefinition();
+        }
+
         protected override IMusicPlayer? Build(Stream stream)
         {
             if (stream == null || stream.Length == 0)

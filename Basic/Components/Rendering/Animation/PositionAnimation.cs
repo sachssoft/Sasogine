@@ -5,12 +5,17 @@ namespace Sachssoft.Sasogine.Components.Rendering.Animation
     /// <summary>
     /// Animates a position over time, moving back and forth along a specified distance.
     /// </summary>
-    public class PositionAnimation : AnimationBase<IPositionAnimationDefinition>
+    public class PositionAnimation : AnimationBase<PositionAnimationDefinition>
     {
         private float _speed;
         private Vector2 _distance;
         private float _progress = 0f;
         private float _direction = 1f;
+
+        protected override PositionAnimationDefinition CreateDefinition()
+        {
+            return new PositionAnimationDefinition();
+        }
 
         public override void ApplyDefinition()
         {
@@ -26,10 +31,10 @@ namespace Sachssoft.Sasogine.Components.Rendering.Animation
 
             switch (key)
             {
-                case nameof(IPositionAnimationDefinition.Speed):
+                case nameof(PositionAnimationDefinition.Speed):
                     _speed = Definition.Speed;
                     break;
-                case nameof(IPositionAnimationDefinition.Distance):
+                case nameof(PositionAnimationDefinition.Distance):
                     _distance = Definition.Distance;
                     break;
             }

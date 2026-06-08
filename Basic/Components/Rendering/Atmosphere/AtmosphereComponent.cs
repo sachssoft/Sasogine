@@ -3,7 +3,7 @@ using Sachssoft.Sasogine.Scenes;
 
 namespace Sachssoft.Sasogine.Components.Rendering.Atmosphere
 {
-    public class AtmosphereComponent : ComponentBase<IParallaxDefinition>, IDrawableRuntimeComponent
+    public class AtmosphereComponent : ComponentBase<AtmosphereDefinition>, IDrawableRuntimeComponent
     {
         // Mehrere RenderTargets sollten möglichst vermieden werden,
         // da jeder RenderTarget-Wechsel zusätzlichen GPU-Overhead verursacht
@@ -23,6 +23,11 @@ namespace Sachssoft.Sasogine.Components.Rendering.Atmosphere
         // Ziel: minimale RenderTarget-Anzahl, maximale Nutzung von Shadern.
 
         public AtmosphereComponent() { }
+
+        protected override AtmosphereDefinition CreateDefinition()
+        {
+            return new AtmosphereDefinition();
+        }
 
         public void Update(RuntimeContext context)
         {

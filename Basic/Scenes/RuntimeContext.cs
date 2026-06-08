@@ -1,5 +1,5 @@
 ﻿using Sachssoft.Sasogine.Components.Rendering.Camera;
-using Sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine.Graphics.Rendering;
 
 namespace Sachssoft.Sasogine.Scenes
 {

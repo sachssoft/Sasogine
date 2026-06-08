@@ -1,7 +1,4 @@
-﻿using Sachssoft.Sasogine.Common;
-using System;
-
-namespace Sachssoft.Sasogine.Resources.Factories;
+﻿namespace Sachssoft.Sasogine.FeatureLabs.Resources.Factories;
 
 internal class InsetsFactory : ITypeFactory<Insets, Resource>
 {

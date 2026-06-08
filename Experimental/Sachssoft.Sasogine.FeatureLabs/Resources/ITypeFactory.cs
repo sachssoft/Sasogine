@@ -1,5 +1,5 @@
 ﻿
-namespace Sachssoft.Sasogine.Resources;
+namespace Sachssoft.Sasogine.FeatureLabs.Resources;
 
 public interface ITypeFactory<T, TEntry>
     where TEntry : class, IResourceEntry

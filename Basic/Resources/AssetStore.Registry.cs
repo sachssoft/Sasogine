@@ -1,5 +1,4 @@
-﻿using FontStashSharp;
-using Microsoft.Xna.Framework.Audio;
+﻿using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Graphics.Text;
 using Sachssoft.Sasogine.Resources.Loaders;

@@ -1,14 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Sachssoft.Sasogine.Graphics.Text;
 
-namespace Sachssoft.Sasogine.Graphics.Text
+namespace Sachssoft.Sasogine.Graphics.Rendering
 {
     public sealed class SpriteBatchTextRenderer
     {
@@ -53,12 +47,12 @@ namespace Sachssoft.Sasogine.Graphics.Text
 
         public void DrawText(
             string text,
-            Font font,
+            FontOptions fontOptions,
             Vector2 position,
             Color color,
             CharacterLayoutOptions? characterLayoutOptions = null)
         {
-            var spriteFont = _fontBackend.GetOrCreateSpriteFont(font);
+            var spriteFont = _fontBackend.GetOrCreateSpriteFont(fontOptions);
 
             spriteFont.DrawText(
                 _spriteBatch,

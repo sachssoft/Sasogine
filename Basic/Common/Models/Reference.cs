@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Sachssoft.Sasogine.Common.Models;
+using System;
 
 namespace Sachssoft.Sasogine.Common
 {
-    public class Reference<T> where T : class, IEngineObject
+    public class Reference<T> : IReference
+        where T : class, IEngineObject
     {
         /// <summary>
         /// Id des referenzierten Objekts
@@ -10,6 +12,8 @@ namespace Sachssoft.Sasogine.Common
         public string? Id { get; set; }
 
         public bool IsEmpty => string.IsNullOrEmpty(Id);
+
+        Type IReference.TargetType => typeof(T);
 
         public T? Resolve(IEngineObjectResolverProvider provider)
         {
@@ -30,6 +34,11 @@ namespace Sachssoft.Sasogine.Common
             }
 
             return result;
+        }
+
+        object? IReference.Resolve(IEngineObjectResolverProvider provider)
+        {
+            return Resolve(provider);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Resources;
+﻿namespace Sachssoft.Sasogine.FeatureLabs.Resources;
 
 public interface IResourceEntry
 {

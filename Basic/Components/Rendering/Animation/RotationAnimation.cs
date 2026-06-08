@@ -3,10 +3,15 @@
     /// <summary>
     /// Animates a rotation over time in degrees.
     /// </summary>
-    public class RotationAnimation : AnimationBase<IRotationAnimationDefinition>
+    public class RotationAnimation : AnimationBase<RotationAnimationDefinition>
     {
         private float _speed;
         private float _currentRotation;
+
+        protected override RotationAnimationDefinition CreateDefinition()
+        {
+            return new RotationAnimationDefinition();
+        }
 
         public override void ApplyDefinition()
         {
@@ -21,7 +26,7 @@
 
             switch (key)
             {
-                case nameof(IRotationAnimationDefinition.Speed):
+                case nameof(RotationAnimationDefinition.Speed):
                     _speed = Definition.Speed;
                     break;
             }

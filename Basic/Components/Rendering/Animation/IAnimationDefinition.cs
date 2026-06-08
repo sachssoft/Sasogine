@@ -1,15 +1,18 @@
 ﻿namespace Sachssoft.Sasogine.Components.Rendering.Animation
 {
-    public interface IAnimationDefinition : IComponentDefinition
+    public class AnimationDefinition : IComponentDefinition
     {
+        public string? Id { get; set; }
 
-        float Speed { get; set; }
+        public string? Class { get; set; }
 
-        int Duration { get; set; }
+        public float Speed { get; set; }
 
-        bool Infinite { get; set; }
+        public int Duration { get; set; }
 
-        int Delay { get; set; }
+        public bool Infinite { get; set; }
+
+        public int Delay { get; set; }
 
     }
 }

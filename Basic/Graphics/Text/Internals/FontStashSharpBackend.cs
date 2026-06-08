@@ -1,4 +1,5 @@
 ﻿using FontStashSharp;
+using Sachssoft.Sasogine.Graphics.Rendering;
 using Sachssoft.Sasogine.Graphics.Text;
 using System;
 using System.Collections.Generic;
@@ -54,10 +55,10 @@ internal class FontStashSharpBackend : IFontBackend
         }
     }
 
-    private FontFace ResolveVariant(Font font)
+    private FontFace ResolveVariant(FontOptions font)
     {
-        if (!_fonts.TryGetValue(font.Name, out var Faces))
-            throw new InvalidOperationException($"Font family not registered: {font.Name}");
+        if (!_fonts.TryGetValue(font.FontName, out var Faces))
+            throw new InvalidOperationException($"FontOptions family not registered: {font.FontName}");
 
         var match = Faces.FirstOrDefault(v =>
             v.Face.WeightDefinition == font.Weight &&
@@ -65,7 +66,7 @@ internal class FontStashSharpBackend : IFontBackend
 
         if (match == null)
             throw new InvalidOperationException(
-                $"FontFace not found: {font.Name} [{font.Weight}, {font.Style}]");
+                $"FontFace not found: {font.FontName} [{font.Weight}, {font.Style}]");
 
         return match.Face;
     }
@@ -81,7 +82,7 @@ internal class FontStashSharpBackend : IFontBackend
 
         foreach (var entryList in _fonts.Values)
         {
-            foreach(var entry in entryList)
+            foreach (var entry in entryList)
             {
                 if (entry.Face == Face)
                 {
@@ -104,7 +105,7 @@ internal class FontStashSharpBackend : IFontBackend
         return font;
     }
 
-    internal SpriteFontBase GetOrCreateSpriteFont(Font font)
+    internal SpriteFontBase GetOrCreateSpriteFont(FontOptions font)
     {
         var Face = ResolveVariant(font);
 

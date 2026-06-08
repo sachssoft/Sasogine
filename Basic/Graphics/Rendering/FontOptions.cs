@@ -1,23 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Sachssoft.Sasogine.Graphics.Text;
+using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Graphics.Text
+namespace Sachssoft.Sasogine.Graphics.Rendering
 {
     /// <summary>
     /// Immutable font descriptor for game rendering.
     /// Contains only style information required for rendering and caching.
     /// Layout-related properties such as text, alignment, and wrap are moved to TextLayout.
     /// </summary>
-    public class Font
+    public class FontOptions
     {
         /// <summary>
         /// The font name
         /// </summary>
-        public required string Name { get; init; }
+        public required string FontName { get; init; }
 
         /// <summary>
         /// The weight of the font (e.g., Normal, Bold).
@@ -44,7 +41,7 @@ namespace Sachssoft.Sasogine.Graphics.Text
         /// Parameterless constructor for Font.
         /// Allows initialization with object initializer syntax.
         /// </summary>
-        public Font()
+        public FontOptions()
         {
         }
 
@@ -56,10 +53,10 @@ namespace Sachssoft.Sasogine.Graphics.Text
         /// <param name="style">The font style</param>
         /// <param name="size">The font size in points (int recommended for cache)</param>
         [SetsRequiredMembers]
-        public Font(string name, FontWeight weight = FontWeight.Normal,
+        public FontOptions(string fontName, FontWeight weight = FontWeight.Normal,
                     FontStyle style = FontStyle.Normal, int size = 16)
         {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
+            FontName = fontName ?? throw new ArgumentNullException(nameof(fontName));
             Weight = weight;
             Style = style;
             Size = size;
@@ -69,14 +66,14 @@ namespace Sachssoft.Sasogine.Graphics.Text
         /// Computes a stable hash code for caching purposes.
         /// </summary>
         public override int GetHashCode()
-            => HashCode.Combine(Name, Weight, Style, Size);
+            => HashCode.Combine(FontName, Weight, Style, Size);
 
         /// <summary>
         /// Compares this Font with another for equality.
         /// </summary>
         public override bool Equals(object? obj)
-            => obj is Font other
-               && Name == other.Name
+            => obj is FontOptions other
+               && FontName == other.FontName
                && Weight == other.Weight
                && Style == other.Style
                && Size == other.Size;
@@ -85,6 +82,6 @@ namespace Sachssoft.Sasogine.Graphics.Text
         /// Returns a readable string representation of the font.
         /// </summary>
         public override string ToString()
-            => $"(Name={Name}, Weight={Weight}, Style={Style}, Size={Size}pt)";
+            => $"(FontName={FontName}, Weight={Weight}, Style={Style}, Size={Size}pt)";
     }
 }

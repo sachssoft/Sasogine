@@ -1,10 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Components.Rendering.Camera;
-using Sachssoft.Sasogine.Graphics.Effects;
 using System;
 
-namespace Sachssoft.Sasogine.Graphics.Effects
+namespace Sachssoft.Sasogine.Graphics.Rendering
 {
     /// <summary>
     /// Generic adapter for wrapping and controlling any MonoGame <see cref="Effect"/>.

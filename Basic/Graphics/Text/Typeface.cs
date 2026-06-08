@@ -12,7 +12,7 @@ namespace Sachssoft.Sasogine.Graphics.Text
     {
         private readonly List<FontFace> _faces = new();
         private readonly Dictionary<FontKey, FontFace> _lookup;
-        
+
         /// <summary>
         /// Immutable record for lookup key (Weight + Style).
         /// </summary>
@@ -33,7 +33,7 @@ namespace Sachssoft.Sasogine.Graphics.Text
         /// </summary>
         /// <param name="name">The font family name</param>
         /// <param name="faces">Array of FontFace instances (must contain at least one)</param>
-        public FontFamily(string name, FontFace[] faces)
+        public FontFamily(string name, params FontFace[] faces)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
 

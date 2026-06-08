@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Graphics.Rendering;
 
 namespace Sachssoft.Sasogine.Graphics.Primitives;

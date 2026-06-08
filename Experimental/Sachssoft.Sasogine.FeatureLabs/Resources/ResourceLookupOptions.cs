@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sachssoft.Sasogine.Resources;
+﻿namespace Sachssoft.Sasogine.FeatureLabs.Resources;
 
 [Flags]
 public enum ResourceLookupOptions

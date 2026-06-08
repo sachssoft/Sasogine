@@ -1,12 +1,6 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Resources.Factories;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Resources;
+namespace Sachssoft.Sasogine.FeatureLabs.Resources;
 
 public class ResourceRegistry
 {

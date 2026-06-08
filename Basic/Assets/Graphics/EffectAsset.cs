@@ -1,13 +1,18 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
 using System.IO;
 
 namespace Sachssoft.Sasogine.Assets.Graphics
 {
-    public class EffectAsset : AssetBase<IEffectAdapter, IEffectDefinition>
+    public class EffectAsset : AssetBase<IEffectAdapter, EffectDefinition>
     {
         public GraphicsDevice? GraphicsDevice { get; set; }
+
+        protected override EffectDefinition CreateDefinition()
+        {
+            return new EffectDefinition();
+        }
 
         protected override IEffectAdapter? Build(Stream stream)
         {
@@ -18,6 +23,9 @@ namespace Sachssoft.Sasogine.Assets.Graphics
             using var ms = new MemoryStream();
             stream.CopyTo(ms);
             byte[] effectBytes = ms.ToArray();
+
+            if (Definition.Template == null)
+                return null;
 
             var effect = Definition.Template.Create();
             effect.GraphicsDevice = GraphicsDevice;

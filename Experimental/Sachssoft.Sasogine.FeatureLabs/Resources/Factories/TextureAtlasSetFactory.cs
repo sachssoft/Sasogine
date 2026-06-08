@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Sachssoft.Sasogine.Resources.Factories;
+﻿namespace Sachssoft.Sasogine.FeatureLabs.Resources.Factories;
 
 internal class TextureAtlasSetFactory : ITypeFactory<TextureAtlasSet, Resource>
 {

@@ -2,8 +2,13 @@
 
 namespace Sachssoft.Sasogine.Components.Rendering.Parallax
 {
-    public class FollowParallaxLayer : ParallaxLayerBase<IFollowParallaxLayerDefinition>
+    public class FollowParallaxLayer : ParallaxLayerBase<FollowParallaxLayerDefinition>
     {
+        protected override FollowParallaxLayerDefinition CreateDefinition()
+        {
+            return new FollowParallaxLayerDefinition();
+        }
+
         public override void Draw(RuntimeViewportContext context)
         {
         }

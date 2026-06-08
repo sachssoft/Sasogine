@@ -1,6 +1,6 @@
 ﻿using Sachssoft.Sasogine.Resources.Source;
 
-namespace Sachssoft.Sasogine.Basic
+namespace Sachssoft.Sasogine
 {
     public interface IGameSettings
     {

@@ -443,7 +443,7 @@ public class Camera2D : CameraBase
     public bool IsVisibleOnScreen(PixelSize size) => IsVisibleOnScreen(Vector2.Zero, size.Vector);
 
     public bool IsVisibleOnScreen(Box box) => IsVisibleOnScreen(box.Min, box.Max);
-    
+
     public bool IsVisibleOnScreen(PixelBox box) => IsVisibleOnScreen(box.Min.ToVector2(), box.Max.ToVector2());
 
 

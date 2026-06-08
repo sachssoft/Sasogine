@@ -1,8 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Graphics;
-using System;
-
-namespace Sachssoft.Sasogine.Resources.Factories;
+﻿namespace Sachssoft.Sasogine.FeatureLabs.Resources.Factories;
 
 internal class ColorFactory : ITypeFactory<Color, Resource>
 {

@@ -3,7 +3,7 @@
 namespace Sachssoft.Sasogine.Components.Rendering.Parallax
 {
     public abstract class ParallaxLayerBase<TDefinition> : ComponentBase<TDefinition>
-        where TDefinition : class, IParallaxLayerDefinition
+        where TDefinition : ParallaxLayerDefinitionBase
     {
         private int _parallaxIndex;
 
@@ -29,7 +29,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Parallax
 
             switch (key)
             {
-                case nameof(IParallaxLayerDefinition.Index):
+                case nameof(ParallaxLayerDefinitionBase.Index):
                     _parallaxIndex = Definition.Index;
                     break;
             }

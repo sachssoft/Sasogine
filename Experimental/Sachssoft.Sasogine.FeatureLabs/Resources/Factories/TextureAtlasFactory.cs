@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sachssoft.Sasogine.Resources.Factories;
+﻿namespace Sachssoft.Sasogine.FeatureLabs.Resources.Factories;
 
 internal class TextureAtlasFactory : ITypeFactory<TextureAtlas, Resource>
 {

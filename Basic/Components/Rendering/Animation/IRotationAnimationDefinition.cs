@@ -1,6 +1,6 @@
 ﻿namespace Sachssoft.Sasogine.Components.Rendering.Animation
 {
-    public interface IRotationAnimationDefinition : IAnimationDefinition
+    public class RotationAnimationDefinition : AnimationDefinition
     {
 
     }

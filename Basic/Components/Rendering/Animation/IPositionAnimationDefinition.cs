@@ -2,10 +2,8 @@
 
 namespace Sachssoft.Sasogine.Components.Rendering.Animation
 {
-    public interface IPositionAnimationDefinition : IAnimationDefinition
+    public class PositionAnimationDefinition : AnimationDefinition
     {
-
-        Vector2 Distance { get; set; }
-
+        public Vector2 Distance { get; set; }
     }
 }

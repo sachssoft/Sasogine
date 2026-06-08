@@ -8,7 +8,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Camera
     /// Base class for 2D or 3D cameras, providing transformation matrices
     /// and screen-to-world/world-to-screen conversion.
     /// </summary>
-    public abstract class CameraBase : ICameraTransform
+    public abstract class CameraBase : ICamera
     {
         private Matrix _world = Matrix.Identity;
         private GraphicsDevice _graphicsDevice;

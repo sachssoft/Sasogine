@@ -1,10 +1,4 @@
-﻿using Sachssoft.Sasogine.Resources.Loaders;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-
-namespace Sachssoft.Sasogine.Resources;
+﻿namespace Sachssoft.Sasogine.FeatureLabs.Resources;
 
 public sealed class ResourceFileSource
 {

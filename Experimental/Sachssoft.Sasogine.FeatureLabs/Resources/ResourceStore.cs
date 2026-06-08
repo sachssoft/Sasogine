@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Resources;
+namespace Sachssoft.Sasogine.FeatureLabs.Resources;
 
 public abstract class ResourceStore : IResourceContainer
 {

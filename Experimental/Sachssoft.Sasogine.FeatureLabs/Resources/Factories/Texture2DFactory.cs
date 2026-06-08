@@ -1,7 +1,4 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using System;
-
-namespace Sachssoft.Sasogine.Resources.Factories;
+﻿namespace Sachssoft.Sasogine.FeatureLabs.Resources.Factories;
 
 internal class Texture2DFactory : ITypeFactory<Texture2D, Resource>
 {

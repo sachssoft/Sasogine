@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Basic;
 using Sachssoft.Sasogine.Embedding;
 using Sachssoft.Sasogine.Resources;
 using Sachssoft.Sasogine.Resources.Localization;
