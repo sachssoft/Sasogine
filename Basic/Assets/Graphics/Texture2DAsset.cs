@@ -19,7 +19,7 @@ namespace Sachssoft.Sasogine.Assets.Graphics
 
         public GraphicsDevice? GraphicsDevice { get; set; }
 
-        protected override Texture2DDefinition CreateDefinition()
+        protected override Texture2DDefinition ResolveDefinition()
         {
             return new Texture2DDefinition();
         }

@@ -6,7 +6,7 @@ namespace Sachssoft.Sasogine.Assets.Audio
 {
     public class SoundAsset : AssetBase<ISoundPlayer, SoundAssetDefinition>
     {
-        protected override SoundAssetDefinition CreateDefinition()
+        protected override SoundAssetDefinition ResolveDefinition()
         {
             return new SoundAssetDefinition();
         }

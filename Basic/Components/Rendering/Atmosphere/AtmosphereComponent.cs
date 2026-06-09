@@ -24,7 +24,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Atmosphere
 
         public AtmosphereComponent() { }
 
-        protected override AtmosphereDefinition CreateDefinition()
+        protected override AtmosphereDefinition ResolveDefinition()
         {
             return new AtmosphereDefinition();
         }

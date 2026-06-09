@@ -12,7 +12,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Animation
         private float _progress = 0f;
         private float _direction = 1f;
 
-        protected override PositionAnimationDefinition CreateDefinition()
+        protected override PositionAnimationDefinition ResolveDefinition()
         {
             return new PositionAnimationDefinition();
         }

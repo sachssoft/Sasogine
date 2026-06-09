@@ -4,7 +4,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Parallax
 {
     public class FollowParallaxLayer : ParallaxLayerBase<FollowParallaxLayerDefinition>
     {
-        protected override FollowParallaxLayerDefinition CreateDefinition()
+        protected override FollowParallaxLayerDefinition ResolveDefinition()
         {
             return new FollowParallaxLayerDefinition();
         }

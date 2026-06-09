@@ -9,7 +9,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Parallax
 
         public List<IParallaxLayerComponent> Layers { get; } = new List<IParallaxLayerComponent>();
 
-        protected override ParallaxDefinition CreateDefinition()
+        protected override ParallaxDefinition ResolveDefinition()
         {
             return new ParallaxDefinition();
         }

@@ -9,7 +9,7 @@ namespace Sachssoft.Sasogine.Assets.Graphics
     {
         public GraphicsDevice? GraphicsDevice { get; set; }
 
-        protected override EffectDefinition CreateDefinition()
+        protected override EffectDefinition ResolveDefinition()
         {
             return new EffectDefinition();
         }

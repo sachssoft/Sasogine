@@ -4,7 +4,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Parallax
 {
     public class ScrollParallaxLayer : ParallaxLayerBase<ScrollParallaxLayerDefinition>
     {
-        protected override ScrollParallaxLayerDefinition CreateDefinition()
+        protected override ScrollParallaxLayerDefinition ResolveDefinition()
         {
             return new ScrollParallaxLayerDefinition();
         }

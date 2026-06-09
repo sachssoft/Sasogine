@@ -8,7 +8,7 @@
         private float _speed;
         private float _currentRotation;
 
-        protected override RotationAnimationDefinition CreateDefinition()
+        protected override RotationAnimationDefinition ResolveDefinition()
         {
             return new RotationAnimationDefinition();
         }
