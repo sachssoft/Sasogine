@@ -3,7 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Resources.Loaders
+namespace Sachssoft.Sasogine.Resources.Sources
 {
     /// <summary>
     /// Loader für Daten von einer URL oder Remote-Quelle.

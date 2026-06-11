@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Resources.Loaders
+namespace Sachssoft.Sasogine.Resources.Sources
 {
     public sealed class EmbeddedResourceSource : ResourceSourceBase, IFileSource
     {

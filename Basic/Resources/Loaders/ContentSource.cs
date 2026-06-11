@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Resources.Loaders
+namespace Sachssoft.Sasogine.Resources.Sources
 {
     public class ContentSource : ResourceSourceBase
     {

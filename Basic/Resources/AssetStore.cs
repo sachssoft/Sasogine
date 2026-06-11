@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Resources.Loaders;
+using Sachssoft.Sasogine.Resources.Sources;
 using System;
 using System.Collections.Generic;
 using System.Globalization;

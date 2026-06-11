@@ -20,7 +20,7 @@ namespace Sachssoft.Sasogine.Assets.Graphics
 
         public Texture2DPatternMode PatternMode { get; set; }
 
-        public Color? DiffuseColor { get; set; }
+        public Color DiffuseColor { get; set; }
 
         public float Opacity { get; set; }
 

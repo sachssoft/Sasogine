@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Resources.Loaders
+namespace Sachssoft.Sasogine.Resources.Sources
 {
     /// <summary>
     /// Loads a file from the local file system.

@@ -1,10 +1,11 @@
-﻿using Sachssoft.Sasogine.Resources.Source;
+﻿using Sachssoft.Sasogine.Resources;
+using Sachssoft.Sasogine.Resources.Sources;
 
 namespace Sachssoft.Sasogine
 {
     public interface IGameSettings
     {
-        SourceBase Source { get; set; }
+        ResourceSourceBase Source { get; set; }
 
         void Load();
 

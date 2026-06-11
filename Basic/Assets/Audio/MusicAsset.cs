@@ -24,12 +24,12 @@ namespace Sachssoft.Sasogine.Assets.Audio
                 {
                     case MusicFormatType.Auto:
 
-                        switch (AudioHelpers.DetectFormat(stream))
+                        switch (AudioDetection.DetectFormat(stream))
                         {
-                            case AudioHelpers.AudioFormatType.Mp3:
+                            case AudioFormatType.Mp3:
                                 instance = new Mp3StreamPlayer(stream);
                                 break;
-                            case AudioHelpers.AudioFormatType.Ogg:
+                            case AudioFormatType.Ogg:
                                 instance = new OggStreamPlayer(stream);
                                 break;
                         }

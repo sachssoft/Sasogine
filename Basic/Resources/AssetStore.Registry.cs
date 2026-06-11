@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Graphics.Text;
-using Sachssoft.Sasogine.Resources.Loaders;
+using Sachssoft.Sasogine.Resources.Sources;
 using System;
 using System.IO;
 using System.Text.Json;

@@ -1,19 +1,13 @@
-﻿using System.IO;
+﻿using Sachssoft.Sasogine.Resources;
+using System.IO;
 
-namespace Sachssoft.Sasogine.Audio
+namespace Sachssoft.Sasogine.Assets.Audio
 {
     /// <summary>
     /// Helper-Klasse zur Erkennung von plattformunabhängigen Audioformaten
     /// </summary>
-    internal static class AudioHelpers
+    public static class AudioDetection
     {
-        public enum AudioFormatType
-        {
-            Unknown = 0,
-            Wav = 1,
-            Ogg = 2,
-            Mp3 = 3,
-        }
 
         /// <summary>
         /// Ermittelt das Audioformat anhand der Magic Bytes des Streams.
