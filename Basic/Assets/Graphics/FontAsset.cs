@@ -4,11 +4,11 @@ using System.IO;
 
 namespace Sachssoft.Sasogine.Assets.Graphics
 {
-    public sealed class FontAsset : AssetBase<FontFace, FontDefinition>
+    public sealed class FontAsset : AssetBase<FontFace, FontAssetDefinition>
     {
-        protected override FontDefinition ResolveDefinition()
+        protected override FontAssetDefinition ResolveDefinition()
         {
-            return new FontDefinition();
+            return new FontAssetDefinition();
         }
 
         protected override FontFace? Build(Stream stream)

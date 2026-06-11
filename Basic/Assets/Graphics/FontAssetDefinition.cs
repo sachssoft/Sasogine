@@ -2,7 +2,7 @@
 
 namespace Sachssoft.Sasogine.Assets.Graphics
 {
-    public class FontDefinition : AssetDefinitionBase
+    public class FontAssetDefinition : AssetDefinitionBase
     {
         public FontWeight WeightDefinition { get; set; }
 

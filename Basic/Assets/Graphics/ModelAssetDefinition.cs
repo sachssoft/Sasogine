@@ -1,6 +1,6 @@
 ﻿namespace Sachssoft.Sasogine.Assets.Graphics
 {
-    public class ModelDefinition : AssetDefinitionBase
+    public class ModelAssetDefinition : AssetDefinitionBase
     {
 
     }

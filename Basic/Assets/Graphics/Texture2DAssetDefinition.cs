@@ -4,7 +4,7 @@ using Sachssoft.Sasogine.Graphics;
 
 namespace Sachssoft.Sasogine.Assets.Graphics
 {
-    public class Texture2DDefinition : AssetDefinitionBase
+    public class Texture2DAssetDefinition : AssetDefinitionBase
     {
         public Texture2DAssetType AssetType { get; set; }
 

@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Sachssoft.Sasogine.Assets.Graphics
 {
-    public class Texture2DAsset : AssetBase<Texture2D, Texture2DDefinition>
+    public class Texture2DAsset : AssetBase<Texture2D, Texture2DAssetDefinition>
     {
         private Texture2DFilterMode _filterMode;
         private Texture2DAddressMode _addressMode;
@@ -19,9 +19,9 @@ namespace Sachssoft.Sasogine.Assets.Graphics
 
         public GraphicsDevice? GraphicsDevice { get; set; }
 
-        protected override Texture2DDefinition ResolveDefinition()
+        protected override Texture2DAssetDefinition ResolveDefinition()
         {
-            return new Texture2DDefinition();
+            return new Texture2DAssetDefinition();
         }
 
         public SamplerState CreateSamplerState()
@@ -135,25 +135,25 @@ namespace Sachssoft.Sasogine.Assets.Graphics
 
             switch (key)
             {
-                case nameof(Texture2DDefinition.FilterMode):
+                case nameof(Texture2DAssetDefinition.FilterMode):
                     _filterMode = Definition.FilterMode;
                     break;
-                case nameof(Texture2DDefinition.AddressMode):
+                case nameof(Texture2DAssetDefinition.AddressMode):
                     _addressMode = Definition.AddressMode;
                     break;
-                case nameof(Texture2DDefinition.Translation):
+                case nameof(Texture2DAssetDefinition.Translation):
                     _translation = Definition.Translation;
                     _transformDirty = true;
                     break;
-                case nameof(Texture2DDefinition.Rotation):
+                case nameof(Texture2DAssetDefinition.Rotation):
                     _rotation = Definition.Rotation;
                     _transformDirty = true;
                     break;
-                case nameof(Texture2DDefinition.Scale):
+                case nameof(Texture2DAssetDefinition.Scale):
                     _scale = Definition.Scale;
                     _transformDirty = true;
                     break;
-                case nameof(Texture2DDefinition.Pivot):
+                case nameof(Texture2DAssetDefinition.Pivot):
                     _pivot = Definition.Pivot;
                     _transformDirty = true;
                     break;

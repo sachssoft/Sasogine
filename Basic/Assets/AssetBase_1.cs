@@ -44,7 +44,7 @@ namespace Sachssoft.Sasogine.Assets
 
         protected AssetBase() { }
 
-        //public override TDefinition Definition => _definition;
+        public string? RelativePath { get; }
 
         /// <summary>
         /// True if an error occurred during loading or building the asset.
@@ -80,20 +80,6 @@ namespace Sachssoft.Sasogine.Assets
         public T? Instance => _instance;
 
         object? IAsset.Instance => _instance;
-
-        ///// <summary>
-        ///// Initializes the component with a registry and creates its definition.
-        ///// </summary>
-        ///// <param name="registry">The registry from which the definition will be created.</param>
-        ///// <exception cref="ArgumentNullException">Thrown if the registry is null.</exception>
-        ///// <exception cref="InvalidOperationException">Thrown if the definition could not be created.</exception>
-        //public void Initialize(AssetDefinitionRegistry registry)
-        //{
-        //    _registry = registry ?? throw new ArgumentNullException(nameof(registry), "Registry cannot be null.");
-
-        //    _definition = (TDefinition)_registry.Create(GetType(), typeof(TDefinition))
-        //                 ?? throw new InvalidOperationException($"Definition for {typeof(TDefinition).Name} could not be created.");
-        //}
 
         /// <summary>
         /// Synchronously loads the asset if not already loaded.

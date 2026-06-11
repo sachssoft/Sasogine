@@ -5,13 +5,13 @@ using System.IO;
 
 namespace Sachssoft.Sasogine.Assets.Graphics
 {
-    public class EffectAsset : AssetBase<IEffectAdapter, EffectDefinition>
+    public class EffectAsset : AssetBase<IEffectAdapter, EffectAssetDefinition>
     {
         public GraphicsDevice? GraphicsDevice { get; set; }
 
-        protected override EffectDefinition ResolveDefinition()
+        protected override EffectAssetDefinition ResolveDefinition()
         {
-            return new EffectDefinition();
+            return new EffectAssetDefinition();
         }
 
         protected override IEffectAdapter? Build(Stream stream)

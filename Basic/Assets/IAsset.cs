@@ -1,4 +1,5 @@
-﻿using Sachssoft.Sasogine.Resources;
+﻿using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Resources;
 using System;
 using System.Threading.Tasks;
 
@@ -8,8 +9,13 @@ namespace Sachssoft.Sasogine.Assets
     /// Base interface for all assets (e.g., Texture2D, Model, Sound).
     /// Provides lifecycle events, synchronous/asynchronous loading, and error handling.
     /// </summary>
-    public interface IAsset
+    public interface IAsset : IEngineObject
     {
+        /// <summary>
+        /// Relative path of the asset within the content or project structure.
+        /// </summary>
+        string? RelativePath { get; }
+
         /// <summary>
         /// Fired after the asset instance has been successfully loaded.
         /// </summary>
@@ -31,11 +37,6 @@ namespace Sachssoft.Sasogine.Assets
         event EventHandler? InstanceChanged;
 
         /// <summary>
-        /// True if the asset instance is currently loaded.
-        /// </summary>
-        bool IsLoaded { get; }
-
-        /// <summary>
         /// True if an error occurred during loading or building.
         /// </summary>
         bool HasError { get; }
@@ -55,20 +56,5 @@ namespace Sachssoft.Sasogine.Assets
         /// The currently loaded asset instance.
         /// </summary>
         object? Instance { get; }
-
-        /// <summary>
-        /// Synchronously loads the asset if not already loaded.
-        /// </summary>
-        void Load();
-
-        /// <summary>
-        /// Asynchronously loads the asset if not already loaded.
-        /// </summary>
-        Task LoadAsync();
-
-        /// <summary>
-        /// Unloads the asset instance and disposes it if necessary.
-        /// </summary>
-        void Unload();
     }
 }

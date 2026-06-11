@@ -18,15 +18,15 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
         #endregion
 
         #region Version
-        public static Version ReadVersion(this FormatReaderBase reader, string property, Version fallback)
+        public static Version? ReadVersion(this FormatReaderBase reader, string property, Version? fallback)
         {
-            var value = reader.ReadString(property, fallback.ToString());
+            var value = reader.ReadString(property, fallback?.ToString());
             return Version.TryParse(value, out var result) ? result : fallback;
         }
 
-        public static void WriteVersion(this FormatWriterBase writer, string property, Version value)
+        public static void WriteVersion(this FormatWriterBase writer, string property, Version? value)
         {
-            writer.WriteString(property, value.ToString());
+            writer.WriteString(property, value?.ToString());
         }
         #endregion
     }
