@@ -1,5 +1,6 @@
 ﻿using Sachssoft.Sasodoc;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Gameplay;
 
 namespace Sachssoft.Sasogine.Extensions.Sasodoc
 {
@@ -226,6 +227,52 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
             childWriter.WriteInt32(nameof(PixelBox.MaxY), value.MaxY);
 
             writer.Write(property, childWriter);
+        }
+        #endregion
+
+        #region TieredScore
+        public static TieredScore<TValue> ReadTieredScore<TValue>(
+            this FormatReaderBase reader,
+            string property,
+            Func<FormatReaderBase, string, TValue> readValueItem,
+            ScoreDirection direction,
+            TieredScore<TValue> fallback = default
+        )
+             where TValue : struct, IComparable<TValue>
+        {
+            if (!reader.Contains(property))
+                return fallback;
+
+            var readerChild = reader.Read(property);
+
+            if (readerChild == null)
+                return fallback;
+
+            var bronze = readValueItem(readerChild, nameof(TieredScore<TValue>.Bronze));
+            var silver = readValueItem(readerChild, nameof(TieredScore<TValue>.Silver));
+            var gold = readValueItem(readerChild, nameof(TieredScore<TValue>.Gold));
+
+            return new TieredScore<TValue>(
+                bronze: bronze,
+                silver: silver,
+                gold: gold,
+                direction: direction
+            );
+        }
+
+        public static void WriteTieredScore<TValue>(
+            this FormatWriterBase writer,
+            string property,
+            TieredScore<TValue> value,
+            Action<FormatWriterBase, string, TValue?> writeValueItem
+        )
+             where TValue : struct, IComparable<TValue>
+        {
+            var writerChild = writer.CreateWriter();
+
+            writeValueItem(writerChild, nameof(TieredScore<TValue>.Bronze), value.Bronze);
+            writeValueItem(writerChild, nameof(TieredScore<TValue>.Silver), value.Silver);
+            writeValueItem(writerChild, nameof(TieredScore<TValue>.Gold), value.Gold);
         }
         #endregion
     }
