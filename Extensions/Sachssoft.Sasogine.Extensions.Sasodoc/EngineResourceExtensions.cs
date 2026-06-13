@@ -1,5 +1,6 @@
 ﻿using Sachssoft.Sasodoc;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Common.Models;
 using Sachssoft.Sasogine.Resources.Localization;
 using System.Globalization;
 
@@ -82,7 +83,7 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
             string property,
             Reference<T>? fallback = null
         )
-            where T : class, IEngineObject
+            where T : class, IEngineReferenceable
         {
             if (!reader.Contains(property))
                 return fallback;
@@ -100,7 +101,7 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
             string property, 
             Reference<T>? value
         )
-            where T : class, IEngineObject
+            where T : class, IEngineReferenceable
         {
             if (value == null)
                 return;

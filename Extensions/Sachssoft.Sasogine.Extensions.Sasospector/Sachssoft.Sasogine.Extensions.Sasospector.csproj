@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Sasospector\Base\Sachssoft.Sasospector\Sachssoft.Sasospector.csproj" />
+    <ProjectReference Include="..\..\Basic\Sachssoft.Sasogine.csproj" />
   </ItemGroup>
 
 </Project>

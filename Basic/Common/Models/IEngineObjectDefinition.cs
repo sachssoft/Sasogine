@@ -1,8 +1,10 @@
-﻿namespace Sachssoft.Sasogine.Common
+﻿using Sachssoft.Sasogine.Common.Models;
+
+namespace Sachssoft.Sasogine.Common
 {
-    public interface IEngineObjectDefinition
+    public interface IEngineObjectDefinition : IEngineReferenceable
     {
-        string? Id { get; set; }
+        new string? Id { get; set; }
 
         string? Class { get; set; }
     }

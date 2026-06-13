@@ -4,7 +4,7 @@ using System;
 namespace Sachssoft.Sasogine.Common
 {
     public class Reference<T> : IReference
-        where T : class, IEngineObject
+        where T : class, IEngineReferenceable
     {
         /// <summary>
         /// Id des referenzierten Objekts

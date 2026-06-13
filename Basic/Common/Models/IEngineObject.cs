@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Sachssoft.Sasogine.Common.Models;
+using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Common
 {
@@ -8,7 +9,7 @@ namespace Sachssoft.Sasogine.Common
     /// </summary>
     // Stellt ein generisches Element in der Engine dar.
     // Bietet Zugriff auf Definition, ID, Klasse, DataContext und Lebenszyklus-Methoden.
-    public interface IEngineObject
+    public interface IEngineObject : IEngineReferenceable
     {
         /// <summary>
         /// Gets the definition instance that configures this element.
@@ -22,12 +23,6 @@ namespace Sachssoft.Sasogine.Common
         /// </summary>
         // Gibt an, ob das Element geladen wurde.
         bool IsLoaded { get; }
-
-        /// <summary>
-        /// Gets the unique identifier of this element.
-        /// </summary>
-        // Liefert die eindeutige ID des Elements.
-        string? Id { get; }
 
         /// <summary>
         /// Gets the class/type name of this element.

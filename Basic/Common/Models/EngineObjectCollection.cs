@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sachssoft.Sasogine.Common.Models;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -31,7 +32,7 @@ namespace Sachssoft.Sasogine.Common
             return null;
         }
 
-        IEngineObject? IEngineObjectResolver.Find(string id)
+        IEngineReferenceable? IEngineObjectResolver.Find(string id)
         {
             return Find(id);
         }
@@ -45,7 +46,7 @@ namespace Sachssoft.Sasogine.Common
             }
         }
 
-        IEnumerable<IEngineObject> IEngineObjectResolver.FindAll(string? @class)
+        IEnumerable<IEngineReferenceable> IEngineObjectResolver.FindAll(string? @class)
         {
             return FindAll(@class);
         }
@@ -68,7 +69,7 @@ namespace Sachssoft.Sasogine.Common
             return false;
         }
 
-        bool IEngineObjectResolver.TryGet(string? id, [MaybeNullWhen(false)] out IEngineObject? result)
+        bool IEngineObjectResolver.TryGet(string? id, [MaybeNullWhen(false)] out IEngineReferenceable? result)
         {
             result = null;
 
