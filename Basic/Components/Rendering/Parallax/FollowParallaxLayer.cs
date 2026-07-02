@@ -9,11 +9,11 @@ namespace Sachssoft.Sasogine.Components.Rendering.Parallax
             return new FollowParallaxLayerDefinition();
         }
 
-        public override void Draw(RuntimeViewportContext context)
+        public override void Update(SceneUpdateContext context)
         {
         }
 
-        public override void Update(RuntimeContext context)
+        public override void Draw(SceneDrawContext context)
         {
         }
     }

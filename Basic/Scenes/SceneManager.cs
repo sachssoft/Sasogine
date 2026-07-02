@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Components.Rendering.Camera;
 using System;
 using System.Collections.Generic;
 
@@ -7,184 +8,175 @@ namespace Sachssoft.Sasogine.Scenes
     public sealed class SceneManager : ISceneManager
     {
         private readonly IGameApplication _application;
-        private readonly IScene _startScene;
-        private readonly SceneConfiguration? _sceneConfiguration;
+        private readonly IScene _mainScene;
+        private readonly SceneConfiguration? _configuration;
 
-        private bool _isInitialized;
+        private readonly List<IScene> _persistentScenes = new();
+
+        private SceneUpdateContext? _sceneUpdateContext;
+        private SceneDrawContext[]? _sceneDrawContexts;
+
+        private bool _isLoaded;
         private IScene _currentScene;
-        private readonly List<IScene> _aliveScenes = new();
 
-        private GameContext? _gameContext;
-        private RuntimeContext? _runtimeContext;
-        private PresentationContext? _presentationContext;
-
-        public SceneManager(IGameApplication application, IScene startScene, SceneConfiguration? configuration = null)
+        public SceneManager(
+            IGameApplication application,
+            IScene mainScene,
+            SceneConfiguration? configuration = null)
         {
             _application = application ?? throw new ArgumentNullException(nameof(application));
-            _startScene = startScene ?? throw new ArgumentNullException(nameof(startScene));
-            _sceneConfiguration = configuration;
+            _mainScene = mainScene ?? throw new ArgumentNullException(nameof(mainScene));
+            _configuration = configuration;
 
-            _currentScene = _startScene;
-
-            //InitializeScene(_currentScene);
+            _currentScene = _mainScene;
         }
 
-        public IScene CurrentScene => _currentScene
-            ?? throw new SceneException(null, "CurrentScene is not initialized.");
+        public bool IsLoaded => _isLoaded;
 
-        public IEnumerable<IScene> ActiveScenes => _aliveScenes.AsReadOnly();
+        public IScene CurrentScene =>
+            _isLoaded
+                ? _currentScene
+                : throw new InvalidOperationException("SceneManager not loaded.");
 
-        public bool IsStartScene => ReferenceEquals(_currentScene, _startScene);
+        public IEnumerable<IScene> ActiveScenes =>
+            _persistentScenes.AsReadOnly();
 
-        private SceneContext CreateContext()
+        public bool IsStartScene => ReferenceEquals(_currentScene, _mainScene);
+
+        // ---------------- INIT ----------------
+
+        public void Load()
         {
-            return new SceneContext
-            {
-                Application = _application,
-                ActiveScenes = _aliveScenes.AsReadOnly()
-            };
+            if (_isLoaded)
+                throw new InvalidOperationException("SceneManager already loaded.");
+
+            InitializeScene(_currentScene);
+
+            _isLoaded = true;
         }
 
         private void InitializeScene(IScene scene)
         {
-            _gameContext = _sceneConfiguration?.ConfigureGameContext?.Invoke(_application, scene) ??
-                    new GameContext(_application);
-            _runtimeContext = null;
+            var cameras = CreateCameras(scene);
 
-            // Wenn Szene Runtime hat, initialisieren
-            if (scene is ISceneWithRuntime logicScene)
+            _sceneUpdateContext = new SceneUpdateContext(
+                _application,
+                scene,
+                cameras
+            );
+
+            _sceneDrawContexts = new SceneDrawContext[scene.ViewCount];
+
+            for (int i = 0; i < cameras.Length; i++)
             {
-                if (logicScene.Runtime == null)
-                    throw new SceneException(logicScene, "Runtime is not initialized for this scene.");
-
-                _runtimeContext = _sceneConfiguration?.ConfigureRuntimeContext?.Invoke(_application, logicScene) ??
-                    new RuntimeContext(_application, logicScene.Runtime);
-
-                logicScene.Runtime.EnsureInitialized(_application);
-                logicScene.Runtime.Load();
+                _sceneDrawContexts[i] = new SceneDrawContext(
+                    _application,
+                    scene,
+                    cameras[i],
+                    scene.CreateEffectAdapter(_application.GraphicsDevice),
+                    i,
+                    cameras.Length
+                );
             }
 
-            // Wenn Szene Presentation hat, initialisieren
-            if (scene is ISceneWithPresentation viewScene)
-            {
-                if (viewScene.Presentation == null)
-                    throw new SceneException(viewScene, "Presentation is not initialized for this scene.");
+            scene.Enter(CreateEventArgs());
 
-                _presentationContext = _sceneConfiguration?.ConfigurePresentationContext?.Invoke(_application, viewScene) ??
-                    new PresentationContext(_application, viewScene);
-
-                viewScene.Presentation.Load();
-            }
+            if (scene.IsPersistent && !_persistentScenes.Contains(scene))
+                _persistentScenes.Add(scene);
 
             scene.Load();
-            scene.OnEnter(CreateContext());
-
-            if (scene.KeepAlive && !_aliveScenes.Contains(scene))
-                _aliveScenes.Add(scene);
         }
 
-        public void Initialize()
+        private ICamera[] CreateCameras(IScene scene)
         {
-            if (_isInitialized)
-                throw new InvalidOperationException("SceneManager already initialized");
-
-            InitializeScene(_currentScene);
-            _isInitialized = true;
+            var cameras = new ICamera[scene.ViewCount];
+            for (int i = 0; i < scene.ViewCount; i++)
+                cameras[i] = scene.CreateCamera(_application.GraphicsDevice, i);
+            return cameras;
         }
+
+        private SceneEnterEventArgs CreateEventArgs()
+        {
+            return new SceneEnterEventArgs(
+                this,
+                _application,
+                _persistentScenes.AsReadOnly());
+        }
+
+        private void EnsureLoaded()
+        {
+            if (!_isLoaded)
+                throw new InvalidOperationException("SceneManager not loaded.");
+        }
+
+        // ---------------- SCENE CONTROL ----------------
 
         public void ChangeScene(IScene newScene)
         {
-            EnsureIsInitialized();
+            EnsureLoaded();
 
             if (newScene == null)
                 throw new ArgumentNullException(nameof(newScene));
 
             if (ReferenceEquals(_currentScene, newScene))
-                throw new SceneException(newScene, "Cannot change to the same scene.");
+                throw new SceneException(newScene, "Cannot switch to same scene.");
 
-            ExitCurrentScene();
-
-            _currentScene = newScene;
-            InitializeScene(_currentScene);
-        }
-
-        private void EnsureIsInitialized()
-        {
-            if (!_isInitialized)
-                throw new InvalidOperationException("SceneManager muss be initialized before it is running");
+            SwitchScene(newScene, forceRemove: false);
         }
 
         public void ExitCurrentScene()
         {
-            EnsureIsInitialized();
+            EnsureLoaded();
 
-            if (_currentScene == null)
-                throw new SceneException(null, "No active scene to exit.");
+            if (ReferenceEquals(_currentScene, _mainScene))
+                throw new SceneException(_currentScene, "Main scene cannot be exited.");
 
-            if (ReferenceEquals(_currentScene, _startScene))
-                throw new SceneException(_currentScene, "The start scene cannot be exited.");
+            SwitchScene(_mainScene, forceRemove: true);
+        }
 
-            if (_currentScene.KeepAlive)
-                throw new SceneException(_currentScene, "Scene cannot be exited because KeepAlive is enabled.");
+        private void SwitchScene(IScene nextScene, bool forceRemove)
+        {
+            // Exit current
+            _currentScene.Exit();
 
-            _currentScene.OnExit();
-            _currentScene.Unload();
+            if (!_currentScene.IsPersistent || forceRemove)
+            {
+                _currentScene.Unload();
+                _persistentScenes.Remove(_currentScene);
+            }
 
-            if (_currentScene is ISceneWithRuntime logicScene)
-                logicScene.Runtime.Unload();
+            // Switch
+            _currentScene = nextScene;
 
-            if (_currentScene is ISceneWithPresentation viewScene)
-                viewScene.Presentation.Unload();
-
-            _currentScene = _startScene;
             InitializeScene(_currentScene);
         }
 
+        // ---------------- UPDATE ----------------
+
         public void Update(GameTime gameTime)
         {
-            EnsureIsInitialized();
+            if (!_isLoaded || _sceneUpdateContext == null)
+                return;
 
-            // 1️) Backend / Runtime zuerst
-            if (_currentScene is ISceneWithRuntime logicScene)
-            {
-                _runtimeContext!.Update(gameTime);
-                logicScene.Runtime.Update(_runtimeContext);
-            }
-
-            // 2️) Szene selbst
-            _gameContext!.Update(gameTime);
-            _currentScene?.Update(_gameContext);
-
-            // 3) Frontend / Präsensation zuetzt
-            if (_currentScene is ISceneWithPresentation viewScene)
-            {
-                _presentationContext!.Update(gameTime);
-                viewScene.Presentation.Update(_presentationContext);
-            }
+            _sceneUpdateContext.SetFrameTime(gameTime);
+            _currentScene.Update(_sceneUpdateContext);
         }
+
+        // ---------------- DRAW ----------------
 
         public void Draw(GameTime gameTime)
         {
-            EnsureIsInitialized();
+            if (!_isLoaded || _sceneDrawContexts == null)
+                return;
 
-            // 1) Backend / Runtime zuerst
-            if (_currentScene is ISceneWithRuntime logicScene)
+            for (int i = 0; i < _currentScene.ViewCount; i++)
             {
-                _runtimeContext!.Update(gameTime);
-                logicScene.Runtime.Draw(_runtimeContext);
-            }
-
-            // 2️) Szene selbst
-            _gameContext!.Update(gameTime);
-            _currentScene?.Draw(_gameContext);
-
-            // 3) Frontend / Präsensation zuetzt
-            if (_currentScene is ISceneWithPresentation viewScene)
-            {
-                _presentationContext!.Update(gameTime);
-                viewScene.Presentation.Draw(_presentationContext);
+                _sceneDrawContexts[i].SetFrameTime(gameTime);
+                _currentScene.Draw(_sceneDrawContexts[i]);
             }
         }
+
+        // ---------------- SYSTEM ----------------
 
         public void ExitApplication()
         {

@@ -1,4 +1,6 @@
-﻿using Sachssoft.Sasogine.Common;
+﻿using Microsoft.Win32;
+using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Gameplay;
 using Sachssoft.Sasospector.Adapters;
 using System.Numerics;
 
@@ -8,7 +10,6 @@ namespace Sachssoft.Sasospector.Registries
     {
         public void Register(InspectorPropertyEditorRegistryBase registry)
         {
-
             registry.RegisterType(typeof(Size),
                 f => f.CreateMultipleValueEditor(
                     defaultDecimalPlaces: null,
@@ -201,6 +202,80 @@ namespace Sachssoft.Sasospector.Registries
                                             x: (int)y[0],
                                             y: (int)y[1],
                                             z: (int)y[2]
+                                         )
+                    )),
+                isFallback: true);
+
+            RegisterLowTieredScore<byte>(registry);
+            RegisterLowTieredScore<sbyte>(registry);
+            RegisterLowTieredScore<short>(registry);
+            RegisterLowTieredScore<ushort>(registry);
+            RegisterLowTieredScore<int>(registry);
+            RegisterLowTieredScore<uint>(registry);
+            RegisterLowTieredScore<long>(registry);
+            RegisterLowTieredScore<ulong>(registry);
+            RegisterLowTieredScore<float>(registry);
+            RegisterLowTieredScore<double>(registry);
+            //RegisterLowTieredScore<TimeSpan>(registry);
+            //RegisterLowTieredScore<DateTime>(registry);
+            RegisterLowTieredScore<Half>(registry);
+
+            RegisterHighTieredScore<byte>(registry);
+            RegisterHighTieredScore<sbyte>(registry);
+            RegisterHighTieredScore<short>(registry);
+            RegisterHighTieredScore<ushort>(registry);
+            RegisterHighTieredScore<int>(registry);
+            RegisterHighTieredScore<uint>(registry);
+            RegisterHighTieredScore<long>(registry);
+            RegisterHighTieredScore<ulong>(registry);
+            RegisterHighTieredScore<float>(registry);
+            RegisterHighTieredScore<double>(registry);
+            //RegisterHighTieredScore<TimeSpan>(registry);
+            //RegisterHighTieredScore<DateTime>(registry);
+            RegisterHighTieredScore<Half>(registry);
+        }
+
+        private static void RegisterLowTieredScore<TValue>(InspectorPropertyEditorRegistryBase registry)
+            where TValue : struct, INumber<TValue>, IMinMaxValue<TValue>
+        {
+            registry.RegisterType(typeof(LowTieredScore<TValue>),
+                f => f.CreateMultipleValueEditor(
+                    defaultDecimalPlaces: null,
+                    adapter: new IndexedFieldPropertyAdapter<LowTieredScore<TValue>>(
+                        uniformFieldType: typeof(TValue),
+                        fieldCount: 3,
+                        castTo: x => [
+                                        new BoundedValue<TValue>(x.Bronze, TValue.MinValue, TValue.MaxValue),
+                                        new BoundedValue<TValue>(x.Silver, TValue.MinValue, TValue.MaxValue),
+                                        new BoundedValue<TValue>(x.Gold, TValue.MinValue, TValue.MaxValue)
+                                     ],
+                        castFrom: y => new LowTieredScore<TValue>(
+                                            bronze: (TValue)y[0],
+                                            silver: (TValue)y[1],
+                                            gold: (TValue)y[2]
+                                         )
+                    )),
+                isFallback: true);
+        }
+
+        private static void RegisterHighTieredScore<TValue>(InspectorPropertyEditorRegistryBase registry)
+            where TValue : struct, INumber<TValue>, IMinMaxValue<TValue>
+        {
+            registry.RegisterType(typeof(HighTieredScore<TValue>),
+                f => f.CreateMultipleValueEditor(
+                    defaultDecimalPlaces: null,
+                    adapter: new IndexedFieldPropertyAdapter<HighTieredScore<TValue>>(
+                        uniformFieldType: typeof(TValue),
+                        fieldCount: 3,
+                        castTo: x => [
+                                        new BoundedValue<TValue>(x.Bronze, TValue.MinValue, TValue.MaxValue),
+                                        new BoundedValue<TValue>(x.Silver, TValue.MinValue, TValue.MaxValue),
+                                        new BoundedValue<TValue>(x.Gold, TValue.MinValue, TValue.MaxValue)
+                                     ],
+                        castFrom: y => new HighTieredScore<TValue>(
+                                            bronze: (TValue)y[0],
+                                            silver: (TValue)y[1],
+                                            gold: (TValue)y[2]
                                          )
                     )),
                 isFallback: true);

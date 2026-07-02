@@ -3,7 +3,7 @@ using Sachssoft.Sasogine.Scenes;
 
 namespace Sachssoft.Sasogine.Components.Rendering.Atmosphere
 {
-    public class AtmosphereComponent : ComponentBase<AtmosphereDefinition>, IDrawableRuntimeComponent
+    public class AtmosphereComponent : ResourceComponentBase<AtmosphereDefinition>, IUpdatableComponent, IDrawableComponent
     {
         // Mehrere RenderTargets sollten möglichst vermieden werden,
         // da jeder RenderTarget-Wechsel zusätzlichen GPU-Overhead verursacht
@@ -24,17 +24,21 @@ namespace Sachssoft.Sasogine.Components.Rendering.Atmosphere
 
         public AtmosphereComponent() { }
 
+        public bool IsEnabled { get; set; } = true;
+
+        public bool IsVisible { get; set; } = true;
+
         protected override AtmosphereDefinition ResolveDefinition()
         {
             return new AtmosphereDefinition();
         }
 
-        public void Update(RuntimeContext context)
+        public void Update(SceneUpdateContext context)
         {
 
         }
 
-        public void Draw(RuntimeViewportContext context)
+        public void Draw(SceneDrawContext context)
         {
         }
 

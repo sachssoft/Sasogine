@@ -1,8 +1,10 @@
-﻿namespace Sachssoft.Sasogine.Components
+﻿using Sachssoft.Sasogine.Scenes;
+
+namespace Sachssoft.Sasogine.Components
 {
-    public abstract class ComponentBase : IResourceComponent
+    public abstract class ResourceComponentBase : IResourceComponent
     {
-        public ComponentBase()
+        public ResourceComponentBase()
         {
         }
 
@@ -21,6 +23,5 @@
 
             IsLoaded = false;
         }
-
     }
 }

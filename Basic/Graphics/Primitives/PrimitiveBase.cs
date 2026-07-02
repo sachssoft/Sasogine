@@ -106,9 +106,9 @@ public abstract class PrimitiveBase
         return (u0, v0, u1, v1);
     }
 
-    public virtual void Update(RuntimeContext context) { }
+    public virtual void Update(SceneUpdateContext context) { }
 
-    public void DrawScoped(RuntimeViewportContext context, Matrix? transform = null, ICamera? customCamera = null, IEffectAdapter? customEffect = null, RenderOptions? options = null)
+    public void DrawScoped(SceneDrawContext context, Matrix? transform = null, ICamera? customCamera = null, IEffectAdapter? customEffect = null, RenderOptions? options = null)
     {
         using (new RenderScope(context, options))
         {
@@ -154,14 +154,14 @@ public abstract class PrimitiveBase
         }
     }
 
-    public void Draw(RuntimeViewportContext context, Matrix? transform = null, ICamera? customCamera = null, IEffectAdapter? customEffectAdapter = null)
+    public void Draw(SceneDrawContext context, Matrix? transform = null, ICamera? customCamera = null, IEffectAdapter? customEffectAdapter = null)
     {
         if (!Visible)
             return;
 
         var graphics = context.GraphicsDevice;
         var effect = customEffectAdapter ?? context.EffectAdapter;
-        var camera = customCamera ?? context.Camera ?? throw new InvalidOperationException("No camera available.");
+        var camera = customCamera ?? context.ViewCamera ?? throw new InvalidOperationException("No camera available.");
 
         if (effect.Effect.IsDisposed)
             throw new InvalidOperationException();

@@ -5,13 +5,15 @@ namespace Sachssoft.Sasogine.Scenes
 {
     public interface ISceneManager
     {
+        bool IsLoaded { get; }
+
         IScene CurrentScene { get; }
 
         IEnumerable<IScene> ActiveScenes { get; }
 
         void ChangeScene(IScene newScene);
 
-        void Initialize();
+        void Load();
 
         void Update(GameTime gameTime);
 

@@ -2,14 +2,14 @@
 
 namespace Sachssoft.Sasogine.Components.Rendering.Parallax
 {
-    public abstract class ParallaxLayerBase<TDefinition> : ComponentBase<TDefinition>
+    public abstract class ParallaxLayerBase<TDefinition> : ResourceComponentBase<TDefinition>
         where TDefinition : ParallaxLayerDefinitionBase
     {
         private int _parallaxIndex;
 
-        public abstract void Draw(RuntimeViewportContext context);
+        public abstract void Update(SceneUpdateContext context);
 
-        public abstract void Update(RuntimeContext context);
+        public abstract void Draw(SceneDrawContext context);
 
         internal protected float GetDeepnessFactor(float cameraDepth)
         {

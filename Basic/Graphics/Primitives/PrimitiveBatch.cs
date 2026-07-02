@@ -43,12 +43,12 @@ public sealed class PrimitiveBatch : IDisposable
         _dirty = true;
     }
 
-    public void Draw(RuntimeViewportContext context, Matrix? transform = null, ICamera? camera = null, IEffectAdapter? customEffectAdapter = null)
+    public void Draw(SceneDrawContext context, Matrix? transform = null, ICamera? camera = null, IEffectAdapter? customEffectAdapter = null)
     {
         if (_primitives.Count == 0) return;
 
-        var effectAdapter = customEffectAdapter ?? context.Runtime.PrimaryEffectAdapter;
-        camera ??= context.Camera ?? throw new InvalidOperationException("No camera available.");
+        var effectAdapter = customEffectAdapter ?? context.EffectAdapter;
+        camera ??= context.ViewCamera ?? throw new InvalidOperationException("No camera available.");
         var graphics = context.GraphicsDevice;
 
         // Berechne Gesamtgrößen

@@ -28,11 +28,11 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
         /// <summary>
         /// Zeichnet das Modell innerhalb eines RenderScopes
         /// </summary>
-        public void Draw(RuntimeViewportContext context, Matrix? transform = null, ICamera? camera = null, IEffectAdapter? customEffect = null)
+        public void Draw(SceneDrawContext context, Matrix? transform = null, ICamera? camera = null, IEffectAdapter? customEffect = null)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var cam = camera ?? context.Camera ?? throw new InvalidOperationException("No camera available.");
+            var cam = camera ?? context.ViewCamera ?? throw new InvalidOperationException("No camera available.");
             var graphics = context.GraphicsDevice;
 
             // Berechne finale Weltmatrix

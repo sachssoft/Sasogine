@@ -230,13 +230,12 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
         }
         #endregion
 
-        #region TieredScore
-        public static TieredScore<TValue> ReadTieredScore<TValue>(
+        #region LowTieredScore
+        public static LowTieredScore<TValue> ReadLowTieredScore<TValue>(
             this FormatReaderBase reader,
             string property,
             Func<FormatReaderBase, string, TValue> readValueItem,
-            ScoreDirection direction,
-            TieredScore<TValue> fallback = default
+            LowTieredScore<TValue> fallback = default
         )
              where TValue : struct, IComparable<TValue>
         {
@@ -248,31 +247,74 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
             if (readerChild == null)
                 return fallback;
 
-            var bronze = readValueItem(readerChild, nameof(TieredScore<TValue>.Bronze));
-            var silver = readValueItem(readerChild, nameof(TieredScore<TValue>.Silver));
-            var gold = readValueItem(readerChild, nameof(TieredScore<TValue>.Gold));
+            var bronze = readValueItem(readerChild, nameof(LowTieredScore<TValue>.Bronze));
+            var silver = readValueItem(readerChild, nameof(LowTieredScore<TValue>.Silver));
+            var gold = readValueItem(readerChild, nameof(LowTieredScore<TValue>.Gold));
 
-            return new TieredScore<TValue>(
+            return new LowTieredScore<TValue>(
                 bronze: bronze,
                 silver: silver,
-                gold: gold,
-                direction: direction
+                gold: gold
             );
         }
 
-        public static void WriteTieredScore<TValue>(
+        public static void WriteLowTieredScore<TValue>(
             this FormatWriterBase writer,
             string property,
-            TieredScore<TValue> value,
+            LowTieredScore<TValue> value,
             Action<FormatWriterBase, string, TValue?> writeValueItem
         )
              where TValue : struct, IComparable<TValue>
         {
             var writerChild = writer.CreateWriter();
 
-            writeValueItem(writerChild, nameof(TieredScore<TValue>.Bronze), value.Bronze);
-            writeValueItem(writerChild, nameof(TieredScore<TValue>.Silver), value.Silver);
-            writeValueItem(writerChild, nameof(TieredScore<TValue>.Gold), value.Gold);
+            writeValueItem(writerChild, nameof(LowTieredScore<TValue>.Bronze), value.Bronze);
+            writeValueItem(writerChild, nameof(LowTieredScore<TValue>.Silver), value.Silver);
+            writeValueItem(writerChild, nameof(LowTieredScore<TValue>.Gold), value.Gold);
+        }
+        #endregion
+
+        #region TieredScore
+        public static HighTieredScore<TValue> ReadHighTieredScore<TValue>(
+            this FormatReaderBase reader,
+            string property,
+            Func<FormatReaderBase, string, TValue> readValueItem,
+            HighTieredScore<TValue> fallback = default
+        )
+             where TValue : struct, IComparable<TValue>
+        {
+            if (!reader.Contains(property))
+                return fallback;
+
+            var readerChild = reader.Read(property);
+
+            if (readerChild == null)
+                return fallback;
+
+            var bronze = readValueItem(readerChild, nameof(HighTieredScore<TValue>.Bronze));
+            var silver = readValueItem(readerChild, nameof(HighTieredScore<TValue>.Silver));
+            var gold = readValueItem(readerChild, nameof(HighTieredScore<TValue>.Gold));
+
+            return new HighTieredScore<TValue>(
+                bronze: bronze,
+                silver: silver,
+                gold: gold
+            );
+        }
+
+        public static void WriteHighTieredScore<TValue>(
+            this FormatWriterBase writer,
+            string property,
+            HighTieredScore<TValue> value,
+            Action<FormatWriterBase, string, TValue?> writeValueItem
+        )
+             where TValue : struct, IComparable<TValue>
+        {
+            var writerChild = writer.CreateWriter();
+
+            writeValueItem(writerChild, nameof(HighTieredScore<TValue>.Bronze), value.Bronze);
+            writeValueItem(writerChild, nameof(HighTieredScore<TValue>.Silver), value.Silver);
+            writeValueItem(writerChild, nameof(HighTieredScore<TValue>.Gold), value.Gold);
         }
         #endregion
     }

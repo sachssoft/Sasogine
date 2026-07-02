@@ -1,26 +1,26 @@
-﻿using Sachssoft.Sasogine.Components;
+﻿using Sachssoft.Sasogine.Scenes;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Scenes
+namespace Sachssoft.Sasogine.Components
 {
-    public sealed class RuntimeComponentCollection : IList<IComponent>
+    public sealed class ComponentCollection : IList<IComponent>
     {
         private IComponent[] _items;
         private int _count;
 
-        private IRuntimeComponent[] _runtimeCache;
+        private IUpdatableComponent[] _updatableCache;
         private int _runtimeCount;
 
-        private IDrawableRuntimeComponent[] _drawableCache;
+        private IDrawableComponent[] _drawableCache;
         private int _drawableCount;
 
-        public RuntimeComponentCollection(int capacity = 16)
+        public ComponentCollection(int capacity = 16)
         {
             _items = new IComponent[capacity];
-            _runtimeCache = new IRuntimeComponent[capacity];
-            _drawableCache = new IDrawableRuntimeComponent[capacity];
+            _updatableCache = new IUpdatableComponent[capacity];
+            _drawableCache = new IDrawableComponent[capacity];
         }
 
         public int Count => _count;
@@ -45,9 +45,9 @@ namespace Sachssoft.Sasogine.Scenes
             }
         }
 
-        public ReadOnlySpan<IRuntimeComponent> RuntimeComponents => _runtimeCache.AsSpan(0, _runtimeCount);
+        public ReadOnlySpan<IUpdatableComponent> UpdatableComponents => _updatableCache.AsSpan(0, _runtimeCount);
 
-        public ReadOnlySpan<IDrawableRuntimeComponent> DrawableComponents => _drawableCache.AsSpan(0, _drawableCount);
+        public ReadOnlySpan<IDrawableComponent> DrawableComponents => _drawableCache.AsSpan(0, _drawableCount);
 
         public void Add(IComponent item)
         {
@@ -105,7 +105,7 @@ namespace Sachssoft.Sasogine.Scenes
         public void Clear()
         {
             Array.Clear(_items, 0, _count);
-            Array.Clear(_runtimeCache, 0, _runtimeCount);
+            Array.Clear(_updatableCache, 0, _runtimeCount);
             Array.Clear(_drawableCache, 0, _drawableCount);
             _count = _runtimeCount = _drawableCount = 0;
         }
@@ -137,7 +137,7 @@ namespace Sachssoft.Sasogine.Scenes
         {
             for (int i = 0; i < _runtimeCount; i++)
             {
-                if (_runtimeCache[i] is IResourceComponent resource && !resource.IsLoaded)
+                if (_updatableCache[i] is IResourceComponent resource && !resource.IsLoaded)
                     resource.Load();
             }
 
@@ -152,7 +152,7 @@ namespace Sachssoft.Sasogine.Scenes
         {
             for (int i = 0; i < _runtimeCount; i++)
             {
-                if (_runtimeCache[i] is IResourceComponent resource && resource.IsLoaded)
+                if (_updatableCache[i] is IResourceComponent resource && resource.IsLoaded)
                     resource.Unload();
             }
 
@@ -163,13 +163,13 @@ namespace Sachssoft.Sasogine.Scenes
             }
         }
 
-        public void ForEachRuntime(RuntimeContext context)
+        public void UpdateForEach(SceneUpdateContext context)
         {
             for (int i = 0; i < _runtimeCount; i++)
-                _drawableCache[i].Update(context);
+                _updatableCache[i].Update(context);
         }
 
-        public void ForEachDrawable(RuntimeViewportContext context)
+        public void DrawForEach(SceneDrawContext context)
         {
             for (int i = 0; i < _drawableCount; i++)
                 _drawableCache[i].Draw(context);
@@ -189,7 +189,7 @@ namespace Sachssoft.Sasogine.Scenes
 
             int newCap = int.Max(_items.Length * 2, min);
             Array.Resize(ref _items, newCap);
-            Array.Resize(ref _runtimeCache, newCap);
+            Array.Resize(ref _updatableCache, newCap);
             Array.Resize(ref _drawableCache, newCap);
         }
 
@@ -197,14 +197,14 @@ namespace Sachssoft.Sasogine.Scenes
 
         private void UpdateCacheAdd(IComponent item)
         {
-            if (item is IRuntimeComponent r) _runtimeCache[_runtimeCount++] = r;
-            if (item is IDrawableRuntimeComponent d) _drawableCache[_drawableCount++] = d;
+            if (item is IUpdatableComponent u) _updatableCache[_runtimeCount++] = u;
+            if (item is IDrawableComponent d) _drawableCache[_drawableCount++] = d;
         }
 
         private void UpdateCacheRemove(IComponent item)
         {
-            if (item is IRuntimeComponent r) RemoveFromCache(_runtimeCache, ref _runtimeCount, r);
-            if (item is IDrawableRuntimeComponent d) RemoveFromCache(_drawableCache, ref _drawableCount, d);
+            if (item is IUpdatableComponent u) RemoveFromCache(_updatableCache, ref _runtimeCount, u);
+            if (item is IDrawableComponent d) RemoveFromCache(_drawableCache, ref _drawableCount, d);
         }
 
         private void UpdateCacheReplace(IComponent oldItem, IComponent newItem)

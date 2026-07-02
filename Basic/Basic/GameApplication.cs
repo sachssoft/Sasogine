@@ -17,7 +17,7 @@ public abstract class GameApplicationBase : Game, IGameApplication
 
     protected private readonly LocalizationManager _localization;
     protected private readonly GameRegistry _registry;
-    protected private readonly AssetStore _resources;
+    protected private readonly AssetStore _assets;
     protected private readonly ISceneManager _scenes;
     protected private readonly IGameSettings? _settings;
 
@@ -44,7 +44,7 @@ public abstract class GameApplicationBase : Game, IGameApplication
 
         _localization = new LocalizationManager(this);
         _registry = CreateRegistry() ?? throw new GameException("Registry creation failed.");
-        _resources = CreateAssets() ?? new AssetStore(this);
+        _assets = CreateAssets() ?? new AssetStore(this);
         _scenes = CreateScenes() ?? throw new GameException("Scene manager creation failed.");
         _settings = CreateSettings();
 
@@ -69,7 +69,7 @@ public abstract class GameApplicationBase : Game, IGameApplication
 
     public ISceneManager Scenes => _scenes;
 
-    public AssetStore Assets => _resources;
+    public AssetStore Assets => _assets;
 
     public IGameSettings? Settings => _settings;
 
@@ -84,13 +84,12 @@ public abstract class GameApplicationBase : Game, IGameApplication
     public virtual Assembly Assembly =>
         Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
 
-    protected override sealed void Initialize()
+    protected override void Initialize()
     {
         if (Window != null)
             RegisterWindowEvents();
 
-        _resources.Initialize();
-        _scenes.Initialize();
+        _assets.Initialize();
 
         base.Initialize();
     }
@@ -133,36 +132,42 @@ public abstract class GameApplicationBase : Game, IGameApplication
         _graphicsDeviceManager.ApplyChanges();
     }
 
-    protected override sealed void LoadContent()
+    protected override void LoadContent()
     {
         _settings?.Load();
-        _resources.Load();
-        _scenes.CurrentScene?.Load();
+        _assets.Load();
+
+        // SceneManager ist allein verantwortlich für Scene-Loading
+        _scenes.Load();
     }
 
-    protected override sealed void UnloadContent()
+    protected override void UnloadContent()
     {
-        _resources.Unload();
+        _assets.Unload();
         base.UnloadContent();
     }
 
-    protected override sealed void Update(GameTime gameTime)
+    protected override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
-        _scenes.Update(gameTime);
+
+        if (_scenes.IsLoaded)
+            _scenes.Update(gameTime);
     }
 
-    protected override sealed void Draw(GameTime gameTime)
+    protected override void Draw(GameTime gameTime)
     {
         base.Draw(gameTime);
-        _scenes.Draw(gameTime);
+
+        if (_scenes.IsLoaded)
+            _scenes.Draw(gameTime);
     }
 
     protected override void OnActivated(object sender, EventArgs args)
     {
         base.OnActivated(sender, args);
 
-        if (_scenes.CurrentScene is IClientActivator activator)
+        if (_scenes.IsLoaded && _scenes.CurrentScene is IClientActivator activator)
             activator.OnClientActivate();
     }
 
@@ -170,17 +175,20 @@ public abstract class GameApplicationBase : Game, IGameApplication
     {
         base.OnDeactivated(sender, args);
 
-        if (_scenes.CurrentScene is IClientActivator activator)
+        if (_scenes.IsLoaded && _scenes.CurrentScene is IClientActivator activator)
             activator.OnClientDeactivate();
     }
 
     protected override void OnExiting(object sender, ExitingEventArgs args)
     {
-        if (_scenes.CurrentScene is IApplicationExitAware exitAware)
-            exitAware.OnApplicationExited();
+        if (_scenes.IsLoaded)
+        {
+            if (_scenes.CurrentScene is IApplicationExitAware exitAware)
+                exitAware.OnApplicationExited();
 
-        foreach (var scene in _scenes.ActiveScenes.ToArray())
-            scene.Unload();
+            foreach (var scene in _scenes.ActiveScenes.ToArray())
+                scene.Unload();
+        }
 
         _settings?.Save();
 

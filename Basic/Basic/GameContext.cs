@@ -32,7 +32,7 @@ namespace Sachssoft.Sasogine
         /// Update the GameContext with the current GameTime.
         /// Automatically updates the internal FrameCounter.
         /// </summary>
-        public void Update(GameTime gameTime)
+        public void SetFrameTime(GameTime gameTime)
         {
             if (gameTime == null)
                 throw new ArgumentNullException(nameof(gameTime));
@@ -45,7 +45,7 @@ namespace Sachssoft.Sasogine
         /// The GameTime associated with this frame.
         /// Throws if Update has not been called yet.
         /// </summary>
-        public GameTime GameTime => _gameTime ?? throw new GameException("GameContext.Update has not been called yet.");
+        public GameTime GameTime => _gameTime ?? throw new GameException("GameContext.SetFrameTime has not been called yet.");
 
         /// <summary>
         /// Elapsed time since the last frame in seconds.

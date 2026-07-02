@@ -14,8 +14,6 @@ namespace Sachssoft.Sasogine.Gameplay
 
         ITieredScore WithValues(object bronze, object silver, object gold);
 
-        ScoreDirection Direction { get; }
-
         TierResult GetResult(object value);
 
     }

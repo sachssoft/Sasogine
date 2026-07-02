@@ -8,7 +8,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Animation
     /// Provides timing, position, rotation, and progress management.
     /// Supports pausing, resetting, and infinite or delayed animations.
     /// </summary>
-    public abstract class AnimationBase<TDefinition> : ComponentBase<TDefinition>, IAnimationComponent
+    public abstract class AnimationBase<TDefinition> : ResourceComponentBase<TDefinition>, IAnimationComponent
         where TDefinition : AnimationDefinition
     {
         private int _duration;
