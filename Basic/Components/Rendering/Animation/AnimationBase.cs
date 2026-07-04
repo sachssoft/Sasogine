@@ -9,7 +9,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Animation
     /// Supports pausing, resetting, and infinite or delayed animations.
     /// </summary>
     public abstract class AnimationBase<TDefinition> : ResourceComponentBase<TDefinition>, IAnimationComponent
-        where TDefinition : AnimationDefinition
+        where TDefinition : AnimationDefinition, new()
     {
         private int _duration;
         private bool _infinite;
@@ -120,31 +120,13 @@ namespace Sachssoft.Sasogine.Components.Rendering.Animation
             return float.Clamp((float)(now - _startTicks) / _duration, 0f, 1f);
         }
 
-        public override void ApplyDefinition()
+        protected override void ConfigureFromDefinition()
         {
-            base.ApplyDefinition();
+            base.ConfigureFromDefinition();
 
             _duration = Definition.Duration;
             _infinite = Definition.Infinite;
             _delay = Definition.Delay;
-        }
-
-        public override void ApplyDefinitionChange(string? key)
-        {
-            base.ApplyDefinitionChange(key);
-
-            switch (key)
-            {
-                case nameof(AnimationDefinition.Duration):
-                    _duration = Definition.Duration;
-                    break;
-                case nameof(AnimationDefinition.Infinite):
-                    _infinite = Definition.Infinite;
-                    break;
-                case nameof(AnimationDefinition.Delay):
-                    _delay = Definition.Delay;
-                    break;
-            }
         }
 
         private void StartTimer() => _startTicks = Environment.TickCount64 + _delay;

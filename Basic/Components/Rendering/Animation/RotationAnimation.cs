@@ -5,31 +5,11 @@
     /// </summary>
     public class RotationAnimation : AnimationBase<RotationAnimationDefinition>
     {
-        private float _speed;
         private float _currentRotation;
 
         protected override RotationAnimationDefinition ResolveDefinition()
         {
             return new RotationAnimationDefinition();
-        }
-
-        public override void ApplyDefinition()
-        {
-            base.ApplyDefinition();
-
-            _speed = Definition.Speed;
-        }
-
-        public override void ApplyDefinitionChange(string? key)
-        {
-            base.ApplyDefinitionChange(key);
-
-            switch (key)
-            {
-                case nameof(RotationAnimationDefinition.Speed):
-                    _speed = Definition.Speed;
-                    break;
-            }
         }
 
         /// <summary>
@@ -41,7 +21,7 @@
         protected override float AddRotationOverride(float elapsedTime)
         {
             // Update rotation based on elapsed time and speed
-            _currentRotation += elapsedTime * -_speed;
+            _currentRotation += elapsedTime * -Definition.Speed;
 
             // Keep rotation in range [0, 360)
             if (_currentRotation >= 360f)

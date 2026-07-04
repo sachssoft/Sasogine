@@ -1,4 +1,0 @@
-- Splash Screen
-- About Screen
-- Settings Screen
-...

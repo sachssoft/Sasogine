@@ -2,7 +2,7 @@
 {
     public class AtmosphereDefinition : IComponentDefinition
     {
-        public string? Id { get ; set; }
+        public string? Id { get; set; }
 
         public string? Class { get; set; }
     }

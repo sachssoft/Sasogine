@@ -88,7 +88,7 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
             if (!reader.Contains(property))
                 return fallback;
 
-            var id = reader.ReadString(property);
+            var id = reader.ReadString(context: property);
 
             return new Reference<T>
             {
@@ -106,7 +106,7 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
             if (value == null)
                 return;
 
-            writer.WriteString(nameof(property), value.Id);
+            writer.WriteString(context: property, value.Id);
         }
         #endregion
     }

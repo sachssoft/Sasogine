@@ -3,7 +3,7 @@
 namespace Sachssoft.Sasogine.Components.Rendering.Parallax
 {
     public abstract class ParallaxLayerBase<TDefinition> : ResourceComponentBase<TDefinition>
-        where TDefinition : ParallaxLayerDefinitionBase
+        where TDefinition : ParallaxLayerDefinitionBase, new()
     {
         private int _parallaxIndex;
 
@@ -16,23 +16,11 @@ namespace Sachssoft.Sasogine.Components.Rendering.Parallax
             return _parallaxIndex / cameraDepth;
         }
 
-        public override void ApplyDefinition()
+        protected override void ConfigureFromDefinition()
         {
-            base.ApplyDefinition();
+            base.ConfigureFromDefinition();
 
             _parallaxIndex = Definition.Index;
-        }
-
-        public override void ApplyDefinitionChange(string? key)
-        {
-            base.ApplyDefinitionChange(key);
-
-            switch (key)
-            {
-                case nameof(ParallaxLayerDefinitionBase.Index):
-                    _parallaxIndex = Definition.Index;
-                    break;
-            }
         }
     }
 }

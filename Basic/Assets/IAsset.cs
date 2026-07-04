@@ -1,7 +1,6 @@
 ﻿using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Resources;
 using System;
-using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Assets
 {

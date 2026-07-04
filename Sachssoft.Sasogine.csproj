@@ -1,0 +1,75 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	
+	<PropertyGroup>
+		<RootNamespace>Sachssoft.Sasogine</RootNamespace>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<Title>Sasogine</Title>
+		<Copyright>© Tobias Sachs (Sachssoft)</Copyright>
+	</PropertyGroup>
+
+	<!-- Windows -->
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
+		<PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.4.1" />
+	</ItemGroup>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
+		<DefineConstants>$(DefineConstants);PLATFORM_WINDOWS;DEVICE_DESKTOP;BACKEND_DX;</DefineConstants>
+	</PropertyGroup>
+	
+	<!-- MacOs -->
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-macos'">
+		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.4.1" />
+	</ItemGroup>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-macos'">
+		<DefineConstants>$(DefineConstants);PLATFORM_MACOS;DEVICE_DESKTOP;BACKEND_GL</DefineConstants>
+	</PropertyGroup>
+
+	<!-- Linux -->
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-linux'">
+		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.4.1" />
+	</ItemGroup>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-linux'">
+		<DefineConstants>$(DefineConstants);PLATFORM_LINUX;DEVICE_DESKTOP;BACKEND_GL</DefineConstants>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
+		<RuntimeIdentifiers>osx-x64;linux-x64</RuntimeIdentifiers>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<TargetFrameworks>net8.0-windows;net8.0</TargetFrameworks>
+		<IsTrimmable>True</IsTrimmable>
+		<IsAotCompatible>True</IsAotCompatible>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>embedded</DebugType>
+		<DefineConstants>$(DefineConstants);SASOGINE</DefineConstants>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>embedded</DebugType>
+		<DefineConstants>$(DefineConstants);SASOGINE</DefineConstants>
+	</PropertyGroup>
+	
+	<ItemGroup>
+	  <Compile Remove="Stream\**" />
+	  <EmbeddedResource Remove="Stream\**" />
+	  <None Remove="Stream\**" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <None Include="Components\Rendering\Parallax\IParallaxLayerComponent.cs" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <PackageReference Include="FontStashSharp.MonoGame" Version="1.5.6" />
+	  <PackageReference Include="LibTessDotNet" Version="1.1.15" />
+	  <PackageReference Include="NLayer" Version="1.16.0" />
+	  <PackageReference Include="NVorbis" Version="0.10.5" />
+	</ItemGroup>
+		
+	<ItemGroup>
+	  <Folder Include="Components\Rendering\Tiles\" />
+	</ItemGroup>
+</Project>

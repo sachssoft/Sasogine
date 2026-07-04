@@ -6,7 +6,7 @@ namespace Sachssoft.Sasogine.Common
 {
     public interface IEngineObjectResolver
     {
-        IEngineReferenceable? Find(string id);
+        IEngineReferenceable? Find(string? id);
 
         IEnumerable<IEngineReferenceable> FindAll(string? @class);
 

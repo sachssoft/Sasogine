@@ -6,7 +6,7 @@ namespace Sachssoft.Sasogine.Assets.Graphics
     public class EffectAssetDefinition : AssetDefinitionBase
     {
 
-       public Template<IEffectAdapter>? Template { get; set; }
+        public Template<IEffectAdapter>? Template { get; set; }
 
     }
 }

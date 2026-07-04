@@ -49,6 +49,20 @@ namespace Sachssoft.Sasogine.Components
 
         public ReadOnlySpan<IDrawableComponent> DrawableComponents => _drawableCache.AsSpan(0, _drawableCount);
 
+        public T? FindOne<T>(int startIndex = 0) where T : class, IComponent
+        {
+            if ((uint)startIndex > (uint)_count)
+                throw new ArgumentOutOfRangeException(nameof(startIndex));
+
+            for (int i = startIndex; i < _count; i++)
+            {
+                if (_items[i] is T component)
+                    return component;
+            }
+
+            return null;
+        }
+
         public void Add(IComponent item)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));

@@ -1,6 +1,6 @@
 ﻿namespace Sachssoft.Sasogine.Common.Models
 {
-    public interface IEngineReferenceable 
+    public interface IEngineReferenceable
     {
         string? Id { get; }
     }

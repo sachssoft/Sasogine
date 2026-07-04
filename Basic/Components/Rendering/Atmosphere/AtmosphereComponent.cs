@@ -1,5 +1,4 @@
-﻿using Sachssoft.Sasogine.Components.Rendering.Parallax;
-using Sachssoft.Sasogine.Scenes;
+﻿using Sachssoft.Sasogine.Scenes;
 
 namespace Sachssoft.Sasogine.Components.Rendering.Atmosphere
 {
@@ -40,16 +39,6 @@ namespace Sachssoft.Sasogine.Components.Rendering.Atmosphere
 
         public void Draw(SceneDrawContext context)
         {
-        }
-
-        public override void ApplyDefinition()
-        {
-            base.ApplyDefinition();
-        }
-
-        public override void ApplyDefinitionChange(string? key)
-        {
-            base.ApplyDefinitionChange(key);
         }
     }
 }

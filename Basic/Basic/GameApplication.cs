@@ -14,6 +14,7 @@ public abstract class GameApplicationBase : Game, IGameApplication
 {
     private readonly IEmbeddedView? _embedded;
     private readonly ISharedTextureProvider? _sharedTextureProvider;
+    private readonly string[] _commandArgs;
 
     protected private readonly LocalizationManager _localization;
     protected private readonly GameRegistry _registry;
@@ -42,6 +43,7 @@ public abstract class GameApplicationBase : Game, IGameApplication
         // Optional Configuration: default erstellen, falls null
         Configuration = configuration ?? new GameConfiguration();
 
+        _commandArgs = args ?? new string[0];
         _localization = new LocalizationManager(this);
         _registry = CreateRegistry() ?? throw new GameException("Registry creation failed.");
         _assets = CreateAssets() ?? new AssetStore(this);
@@ -76,6 +78,8 @@ public abstract class GameApplicationBase : Game, IGameApplication
     public string CurrentDirectory => AppContext.BaseDirectory;
 
     public bool IsDebugMode { get; set; } = true;
+
+    public string[] CommandArgs => _commandArgs;
 
     public static GameApplicationBase Current =>
         IGameApplication.Current as GameApplicationBase

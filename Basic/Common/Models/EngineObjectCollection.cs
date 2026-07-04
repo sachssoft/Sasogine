@@ -18,7 +18,7 @@ namespace Sachssoft.Sasogine.Common
 
         public bool IsReadOnly => false;
 
-        public T? Find(string id)
+        public T? Find(string? id)
         {
             if (string.IsNullOrEmpty(id))
                 throw new ArgumentNullException(nameof(id));
@@ -32,7 +32,7 @@ namespace Sachssoft.Sasogine.Common
             return null;
         }
 
-        IEngineReferenceable? IEngineObjectResolver.Find(string id)
+        IEngineReferenceable? IEngineObjectResolver.Find(string? id)
         {
             return Find(id);
         }

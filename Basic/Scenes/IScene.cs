@@ -8,7 +8,7 @@ namespace Sachssoft.Sasogine.Scenes
     {
         bool IsPersistent { get; } // Keep Alive
         bool IsLoaded { get; }
-        int ViewCount {  get; }
+        int ViewCount { get; }
 
         void Load();
         void Unload();

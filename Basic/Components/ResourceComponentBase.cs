@@ -1,6 +1,4 @@
-﻿using Sachssoft.Sasogine.Scenes;
-
-namespace Sachssoft.Sasogine.Components
+﻿namespace Sachssoft.Sasogine.Components
 {
     public abstract class ResourceComponentBase : IResourceComponent
     {
@@ -8,18 +6,20 @@ namespace Sachssoft.Sasogine.Components
         {
         }
 
-        public bool IsLoaded { get; private set; }
+        public bool IsLoaded { get; protected set; }
 
         public virtual void Load()
         {
-            if (IsLoaded) return;
+            if (IsLoaded) 
+                return;
 
             IsLoaded = true;
         }
 
         public virtual void Unload()
         {
-            if (!IsLoaded) return;
+            if (!IsLoaded) 
+                return;
 
             IsLoaded = false;
         }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Sachssoft.Sasogine.World
 {
     public abstract class EntityBase<TDefinition> : EngineObject<TDefinition>, IEntity
-        where TDefinition : class, IEntityDefinition
+        where TDefinition : class, IEntityDefinition, new()
     {
         //private EntityDefinitionRegistry _registry = null!;
         //private TDefinition _definition = null!;

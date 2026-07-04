@@ -1,5 +1,4 @@
 ﻿using Sachssoft.Sasogine.Resources;
-using Sachssoft.Sasogine.Resources.Sources;
 
 namespace Sachssoft.Sasogine
 {

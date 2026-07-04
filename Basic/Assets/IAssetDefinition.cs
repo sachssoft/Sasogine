@@ -4,6 +4,6 @@ namespace Sachssoft.Sasogine.Assets
 {
     public interface IAssetDefinition : IEngineObjectDefinition
     {
-        string? RelativePath { get; set; } 
+        string? RelativePath { get; set; }
     }
 }

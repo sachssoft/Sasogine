@@ -1,5 +1,4 @@
-﻿using Sachssoft.Sasogine.Resources;
-using System.IO;
+﻿using System.IO;
 
 namespace Sachssoft.Sasogine.Assets.Audio
 {

@@ -6,6 +6,16 @@ namespace Sachssoft.Sasogine.Common
     public class Reference<T> : IReference
         where T : class, IEngineReferenceable
     {
+
+        public Reference()
+        {
+        }
+
+        public Reference(string? id)
+        {
+            Id = id;
+        }
+
         /// <summary>
         /// Id des referenzierten Objekts
         /// </summary>
@@ -39,6 +49,11 @@ namespace Sachssoft.Sasogine.Common
         object? IReference.Resolve(IEngineObjectResolverProvider provider)
         {
             return Resolve(provider);
+        }
+
+        public override string ToString()
+        {
+            return Id ?? string.Empty;
         }
     }
 }

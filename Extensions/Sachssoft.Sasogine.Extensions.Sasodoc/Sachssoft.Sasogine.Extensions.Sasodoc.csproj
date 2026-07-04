@@ -10,8 +10,4 @@
     <PackageReference Include="Sachssoft.Sasodoc" Version="1.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Basic\Sachssoft.Sasogine.csproj" />
-  </ItemGroup>
-
 </Project>

@@ -38,15 +38,5 @@ namespace Sachssoft.Sasogine.Components.Rendering.Parallax
                     layer.Draw(context);
             }
         }
-
-        public override void ApplyDefinition()
-        {
-            base.ApplyDefinition();
-        }
-
-        public override void ApplyDefinitionChange(string? key)
-        {
-            base.ApplyDefinitionChange(key);
-        }
     }
 }

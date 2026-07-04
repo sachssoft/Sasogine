@@ -8,6 +8,7 @@ namespace Sachssoft.Sasogine.Assets.Graphics
 {
     public class Texture2DAsset : AssetBase<Texture2D, Texture2DAssetDefinition>
     {
+        private readonly Func<Texture2DAssetDefinition> _resolveDefinition;
         private Texture2DFilterMode _filterMode;
         private Texture2DAddressMode _addressMode;
         private Vector2 _translation = Vector2.Zero;
@@ -17,12 +18,19 @@ namespace Sachssoft.Sasogine.Assets.Graphics
         private Matrix _transformCache = Matrix.Identity;
         private bool _transformDirty = true;
 
+        public Texture2DAsset()
+        {
+            _resolveDefinition = () => new Texture2DAssetDefinition();
+        }
+
+        public Texture2DAsset(Texture2DAssetDefinition definition)
+        {
+            _resolveDefinition = () => definition;
+        }
+
         public GraphicsDevice? GraphicsDevice { get; set; }
 
-        protected override Texture2DAssetDefinition ResolveDefinition()
-        {
-            return new Texture2DAssetDefinition();
-        }
+        protected override Texture2DAssetDefinition ResolveDefinition() => _resolveDefinition();
 
         public SamplerState CreateSamplerState()
         {
@@ -117,9 +125,9 @@ namespace Sachssoft.Sasogine.Assets.Graphics
             return texture;
         }
 
-        public override void ApplyDefinition()
+        protected override void ConfigureFromDefinition()
         {
-            base.ApplyDefinition();
+            base.ConfigureFromDefinition();
 
             _filterMode = Definition.FilterMode;
             _addressMode = Definition.AddressMode;
@@ -127,37 +135,8 @@ namespace Sachssoft.Sasogine.Assets.Graphics
             _rotation = Definition.Rotation;
             _scale = Definition.Scale;
             _pivot = Definition.Pivot;
-        }
 
-        public override void ApplyDefinitionChange(string? key)
-        {
-            base.ApplyDefinitionChange(key);
-
-            switch (key)
-            {
-                case nameof(Texture2DAssetDefinition.FilterMode):
-                    _filterMode = Definition.FilterMode;
-                    break;
-                case nameof(Texture2DAssetDefinition.AddressMode):
-                    _addressMode = Definition.AddressMode;
-                    break;
-                case nameof(Texture2DAssetDefinition.Translation):
-                    _translation = Definition.Translation;
-                    _transformDirty = true;
-                    break;
-                case nameof(Texture2DAssetDefinition.Rotation):
-                    _rotation = Definition.Rotation;
-                    _transformDirty = true;
-                    break;
-                case nameof(Texture2DAssetDefinition.Scale):
-                    _scale = Definition.Scale;
-                    _transformDirty = true;
-                    break;
-                case nameof(Texture2DAssetDefinition.Pivot):
-                    _pivot = Definition.Pivot;
-                    _transformDirty = true;
-                    break;
-            }
+            _transformDirty = true;
         }
     }
 }

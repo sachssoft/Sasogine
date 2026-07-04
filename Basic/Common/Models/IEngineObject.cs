@@ -9,7 +9,7 @@ namespace Sachssoft.Sasogine.Common
     /// </summary>
     // Stellt ein generisches Element in der Engine dar.
     // Bietet Zugriff auf Definition, ID, Klasse, DataContext und Lebenszyklus-Methoden.
-    public interface IEngineObject : IEngineReferenceable
+    public interface IEngineObject : IEngineReferenceable, IEngineObjectIdentityChanged
     {
         /// <summary>
         /// Gets the definition instance that configures this element.
@@ -53,5 +53,9 @@ namespace Sachssoft.Sasogine.Common
         /// </summary>
         // Entlädt das Element und gibt Ressourcen frei.
         void Unload();
+
+        void Reload();
+
+        Task ReloadAsync();
     }
 }
