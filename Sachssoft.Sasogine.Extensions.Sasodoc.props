@@ -1,0 +1,18 @@
+<Project>
+	<PropertyGroup>
+		<RootNamespace>Sachssoft.Sasogine.Extensions.Sasodoc</RootNamespace>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<Title>Sasodoc For Sasogine</Title>
+		<Copyright>© Tobias Sachs (Sachssoft)</Copyright>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<IsTrimmable>True</IsTrimmable>
+		<IsAotCompatible>True</IsAotCompatible>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Sachssoft.Sasodoc" Version="1.0.0" />
+	</ItemGroup>
+</Project>

@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<Import Project="..\..\..\Sachssoft.Sasogine.Shared.projitems" Label="Shared" />
+	<Import Project="..\..\..\Sachssoft.Sasogine.props" />
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DefineConstants>$(DefineConstants);BACKEND_GL;DEVICE_DESKTOP</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DefineConstants>$(DefineConstants);BACKEND_GL;DEVICE_DESKTOP</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Linux\**" />
+	  <Compile Remove="MacOS\**" />
+	  <Compile Remove="Windows\**" />
+	  <EmbeddedResource Remove="Linux\**" />
+	  <EmbeddedResource Remove="MacOS\**" />
+	  <EmbeddedResource Remove="Windows\**" />
+	  <None Remove="Linux\**" />
+	  <None Remove="MacOS\**" />
+	  <None Remove="Windows\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*">
+			<PrivateAssets>All</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Platform\" />
+	</ItemGroup>
+
+</Project>

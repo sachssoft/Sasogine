@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<Import Project="..\..\..\Sachssoft.Sasogine.Extensions.Sasodoc.Shared.projitems" Label="Shared" />
+	<Import Project="..\..\..\Sachssoft.Sasogine.Extensions.Sasodoc.props" />
+	
+	<PropertyGroup>
+		<RootNamespace>Sachssoft.Sasogine.Extensions.Sasodoc</RootNamespace>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<Title>Sasodoc Extensions For Sasogine</Title>
+		<Copyright>© Tobias Sachs (Sachssoft)</Copyright>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<IsTrimmable>True</IsTrimmable>
+		<IsAotCompatible>True</IsAotCompatible>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*">
+			<PrivateAssets>All</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="Sachssoft.Sasodoc" Version="1.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Sachssoft.Sasogine.DesktopGL\Sachssoft.Sasogine.DesktopGL.csproj" />
+	</ItemGroup>
+
+</Project>

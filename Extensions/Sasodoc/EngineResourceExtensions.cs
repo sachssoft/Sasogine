@@ -2,7 +2,10 @@
 using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Common.Models;
 using Sachssoft.Sasogine.Resources.Localization;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace Sachssoft.Sasogine.Extensions.Sasodoc
 {
@@ -97,8 +100,8 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
         }
 
         public static void WriteReference<T>(
-            this FormatWriterBase writer, 
-            string property, 
+            this FormatWriterBase writer,
+            string property,
             Reference<T>? value
         )
             where T : class, IEngineReferenceable
