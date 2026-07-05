@@ -1,4 +1,6 @@
-﻿namespace Sachssoft.Sasogine.World;
+﻿using Sachssoft.Sasogine.Common;
+
+namespace Sachssoft.Sasogine.World;
 
 public abstract class EntityDefinitionBase : IEntityDefinition
 {
