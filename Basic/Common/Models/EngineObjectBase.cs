@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Common.Models
@@ -65,16 +66,54 @@ namespace Sachssoft.Sasogine.Common.Models
         /// </summary>
         public abstract void Unload();
 
-        public void Reload()
+        public void Reload(ReloadOptions options = ReloadOptions.Full)
         {
-            Unload();
-            Load();
+            if (options.HasFlag(ReloadOptions.ReloadResources) ||
+                options == ReloadOptions.Full)
+            {
+                Unload();
+                Load();
+                return;
+            }
+
+            if (options.HasFlag(ReloadOptions.UpdateDefinition))
+            {
+                ApplyDefinitionChanges();
+            }
+
+            if (options.HasFlag(ReloadOptions.RecreateRuntime))
+            {
+                RebuildRuntime();
+            }
         }
 
-        public async Task ReloadAsync()
+        public async Task ReloadAsync(ReloadOptions options = ReloadOptions.Full)
         {
-            Unload();
-            await LoadAsync();
+            if (options.HasFlag(ReloadOptions.ReloadResources) ||
+                options == ReloadOptions.Full)
+            {
+                Unload();
+                await LoadAsync();
+                return;
+            }
+
+            if (options.HasFlag(ReloadOptions.UpdateDefinition))
+            {
+                ApplyDefinitionChanges();
+            }
+
+            if (options.HasFlag(ReloadOptions.RecreateRuntime))
+            {
+                RebuildRuntime();
+            }
+        }
+
+        protected virtual void ApplyDefinitionChanges()
+        {
+        }
+
+        protected virtual void RebuildRuntime()
+        {
         }
 
         protected void Freeze()

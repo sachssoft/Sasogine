@@ -1,12 +1,57 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Shared.Basic.Graphics;
+using System;
 using System.IO;
 
 namespace Sachssoft.Sasogine.Graphics
 {
     public static class Screenshot
     {
+        private static bool _captureRequested;
+        private static Texture2D? _lastCapture;
         private static Color[]? _buffer;
+
+        #region Capture Request
+
+        public static event EventHandler<ScreenshotRequestEventArgs>? CaptureRequested;
+
+        // Aufgrund des Komponentensystems wird der Screenshot nicht immer korrekt gerendert.
+        // Diese Lösung stellt sicher, dass der Screenshot erst nach vollständigem Frame-Rendering erzeugt wird.
+        public static void RequestCapture()
+        {
+            _captureRequested = true;
+        }
+
+        public static void CaptureIfRequested(GraphicsDevice graphicsDevice)
+        {
+            if (!_captureRequested)
+                return;
+
+            _captureRequested = false;
+
+            _lastCapture?.Dispose();
+
+            int width = graphicsDevice.PresentationParameters.BackBufferWidth;
+            int height = graphicsDevice.PresentationParameters.BackBufferHeight;
+
+            var data = new Color[width * height];
+            graphicsDevice.GetBackBufferData(data);
+
+            _lastCapture = new Texture2D(graphicsDevice, width, height);
+            _lastCapture.SetData(data);
+
+            if (_lastCapture != null)
+                CaptureRequested?.Invoke(null, new ScreenshotRequestEventArgs(_lastCapture));
+        }
+
+        public static Texture2D? ConsumeLastCapture()
+        {
+            var tex = _lastCapture;
+            _lastCapture = null;
+            return tex;
+        }
+        #endregion
 
         // Öffentliche Methoden für Backbuffer und RenderTarget
         public static Texture2D Create(GraphicsDevice graphicsDevice)
