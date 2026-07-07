@@ -1,4 +1,5 @@
 ﻿using Sachssoft.Sasodoc;
+using Sachssoft.Sasogine.Assets;
 using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Common.Models;
 using Sachssoft.Sasogine.Resources.Localization;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Xml;
 
 namespace Sachssoft.Sasogine.Extensions.Sasodoc
 {
@@ -110,6 +112,36 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
                 return;
 
             writer.WriteString(context: property, value.Id);
+        }
+        #endregion
+
+        #region AssetFile
+        public static AssetFile<T>? ReadAssetFile<T>(
+            this FormatReaderBase reader,
+            string property,
+            AssetFile<T>? fallback = null
+        )
+            where T : class, IAsset
+        {
+            if (!reader.Contains(property))
+                return fallback;
+
+            var relativeFilePath = reader.ReadString(context: property);
+
+            return new AssetFile<T>(relativeFilePath);
+        }
+
+        public static void WriteAssetFile<T>(
+            this FormatWriterBase writer,
+            string property,
+            AssetFile<T>? value
+        )
+            where T : class, IAsset
+        {
+            if (value == null)
+                return;
+
+            writer.WriteString(context: property, value.FullRelativePath);
         }
         #endregion
     }

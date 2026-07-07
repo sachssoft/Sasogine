@@ -6,5 +6,5 @@ public abstract class AssetDefinitionBase : IAssetDefinition
 
     public string? Class { get; set; }
 
-    public string? RelativePath { get; set; }
+    public string? RelativeFullPath { get; set; }
 }

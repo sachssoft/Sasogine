@@ -30,10 +30,14 @@ namespace Sachssoft.Sasogine.Graphics
 
         private static int _lastW;
         private static int _lastH;
+        private static int _lastQuality;
+        private static int _lastAntiAliasing;
 
         private static bool _isActive;
 
         public static RenderTarget2D? Current => _renderTarget;
+
+        public static Point Size => _renderTarget == null ? Point.Zero : _renderTarget.Bounds.Size;
 
         public static void Ensure(
             int width,
@@ -51,7 +55,9 @@ namespace Sachssoft.Sasogine.Graphics
 
             if (_renderTarget != null &&
                 width == _lastW &&
-                height == _lastH)
+                height == _lastH &&
+                quality == _lastQuality &&
+                antiAliasing == _lastAntiAliasing)
                 return;
 
             // Qualität 1-100% (entspricht 25% bis 100% der Auflösung)
@@ -82,6 +88,8 @@ namespace Sachssoft.Sasogine.Graphics
 
             _lastW = width;
             _lastH = height;
+            _lastQuality = quality;
+            _lastAntiAliasing = antiAliasing;
         }
 
         public static void Begin(GraphicsDevice graphicsDevice)

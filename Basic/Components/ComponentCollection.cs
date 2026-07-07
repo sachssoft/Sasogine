@@ -177,16 +177,26 @@ namespace Sachssoft.Sasogine.Components
             }
         }
 
-        public void UpdateForEach(SceneUpdateContext context)
+        public void UpdateForEach(SceneUpdateContext context, Func<IUpdatableComponent, bool>? filter = null)
         {
             for (int i = 0; i < _runtimeCount; i++)
-                _updatableCache[i].Update(context);
+            {
+                var updatable = _updatableCache[i];
+
+                if (filter == null || (filter != null && !filter(updatable)))
+                    updatable.Update(context);
+            }
         }
 
-        public void DrawForEach(SceneDrawContext context)
+        public void DrawForEach(SceneDrawContext context, Func<IDrawableComponent, bool>? filter = null)
         {
             for (int i = 0; i < _drawableCount; i++)
-                _drawableCache[i].Draw(context);
+            {
+                var drawable = _drawableCache[i];
+
+                if (filter == null || (filter != null && !filter(drawable)))
+                    drawable.Draw(context);
+            }
         }
 
         public IEnumerator<IComponent> GetEnumerator()

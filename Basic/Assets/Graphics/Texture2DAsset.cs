@@ -1,36 +1,25 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
 using System.IO;
 
 namespace Sachssoft.Sasogine.Assets.Graphics
 {
-    public class Texture2DAsset : AssetBase<Texture2D, Texture2DAssetDefinition>
+    public class Texture2DAsset : AssetBase<Texture2D, ITexture2DAssetDefinition>
     {
-        private readonly Func<Texture2DAssetDefinition> _resolveDefinition;
+        private ITransformable? _transformable;
         private Texture2DFilterMode _filterMode;
         private Texture2DAddressMode _addressMode;
-        private Vector2 _translation = Vector2.Zero;
-        private float _rotation = 0f;
-        private Vector2 _scale = Vector2.One;
-        private Vector2 _pivot = Vector2.Zero;
         private Matrix _transformCache = Matrix.Identity;
         private bool _transformDirty = true;
 
-        public Texture2DAsset()
-        {
-            _resolveDefinition = () => new Texture2DAssetDefinition();
-        }
-
-        public Texture2DAsset(Texture2DAssetDefinition definition)
-        {
-            _resolveDefinition = () => definition;
-        }
-
         public GraphicsDevice? GraphicsDevice { get; set; }
 
-        protected override Texture2DAssetDefinition ResolveDefinition() => _resolveDefinition();
+        public Texture2DAsset() : base() { }
+
+        public Texture2DAsset(ITexture2DAssetDefinition definition) : base(definition) { }
 
         public SamplerState CreateSamplerState()
         {
@@ -65,12 +54,19 @@ namespace Sachssoft.Sasogine.Assets.Graphics
         {
             if (_transformDirty)
             {
-                _transformCache =
-                    Matrix.CreateTranslation(new Vector3(-_pivot, 0f)) *
-                    Matrix.CreateScale(new Vector3(_scale, 1f)) *
-                    Matrix.CreateRotationZ(_rotation) *
-                    Matrix.CreateTranslation(new Vector3(_pivot, 0f)) *
-                    Matrix.CreateTranslation(new Vector3(_translation, 0f));
+                if (_transformable != null)
+                {
+                    _transformCache =
+                        Matrix.CreateTranslation(new Vector3(-_transformable.Pivot, 0f)) *
+                        Matrix.CreateScale(new Vector3(_transformable.Scale, 1f)) *
+                        Matrix.CreateRotationZ(_transformable.Rotation) *
+                        Matrix.CreateTranslation(new Vector3(_transformable.Pivot, 0f)) *
+                        Matrix.CreateTranslation(new Vector3(_transformable.Translation, 0f));
+                }
+                else
+                {
+                    _transformCache = Matrix.Identity;
+                }
 
                 _transformDirty = false;
             }
@@ -131,12 +127,13 @@ namespace Sachssoft.Sasogine.Assets.Graphics
 
             _filterMode = Definition.FilterMode;
             _addressMode = Definition.AddressMode;
-            _translation = Definition.Translation;
-            _rotation = Definition.Rotation;
-            _scale = Definition.Scale;
-            _pivot = Definition.Pivot;
 
-            _transformDirty = true;
+            if (Definition is ITransformable transformable)
+            {
+                _transformable = transformable;
+                _transformDirty = true;
+
+            }
         }
     }
 }

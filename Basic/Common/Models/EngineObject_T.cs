@@ -11,12 +11,18 @@ namespace Sachssoft.Sasogine.Common
     /// </summary>
     /// <typeparam name="TDefinition">Type of definition that drives this element.</typeparam>
     public abstract class EngineObject<TDefinition> : EngineObjectBase, IEngineObject
-        where TDefinition : class, IEngineObjectDefinition, new()
+        where TDefinition : class, IEngineObjectDefinition
     {
         private TDefinition? _definition;
 
         public EngineObject()
         {
+            _definition = null;
+        }
+
+        public EngineObject(TDefinition definition)
+        {
+            _definition = definition;
         }
 
         public event EventHandler<EngineObjectChangedEventArgs>? IdChanged;
@@ -109,7 +115,7 @@ namespace Sachssoft.Sasogine.Common
 
         protected virtual TDefinition ResolveDefinition()
         {
-            return new TDefinition();
+            return _definition!;
         }
 
         /// <summary>

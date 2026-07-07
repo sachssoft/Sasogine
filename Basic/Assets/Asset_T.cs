@@ -13,7 +13,7 @@ namespace Sachssoft.Sasogine.Assets
     /// <typeparam name="T">Concrete type of the asset instance</typeparam>
     public abstract class AssetBase<T, TDefinition> : EngineObject<TDefinition>, IAsset
         where T : class
-        where TDefinition : class, IAssetDefinition, new()
+        where TDefinition : class, IAssetDefinition
     {
         //private AssetDefinitionRegistry _registry = null!;
         //private TDefinition _definition = null!;
@@ -42,7 +42,9 @@ namespace Sachssoft.Sasogine.Assets
         /// </summary>
         public event EventHandler? InstanceChanged;
 
-        public AssetBase() { }
+        public AssetBase() : base() { }
+
+        public AssetBase(TDefinition definition) : base(definition) { }
 
         public string? RelativePath { get; }
 
