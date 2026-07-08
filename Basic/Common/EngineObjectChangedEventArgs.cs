@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Common.Models
+namespace Sachssoft.Sasogine.Common
 {
     public class EngineObjectChangedEventArgs : EventArgs
     {

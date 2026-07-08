@@ -1,4 +1,4 @@
-﻿using Sachssoft.Sasogine.Common.Models;
+﻿using Sachssoft.Sasogine.Components.Models;
 using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Common
@@ -16,7 +16,7 @@ namespace Sachssoft.Sasogine.Common
         /// </summary>
         // Liefert die Definition, die dieses Element konfiguriert.
         // Optional
-        IEngineObjectDefinition? Definition { get; }
+        IDefinition? Definition { get; }
 
         /// <summary>
         /// Indicates whether the element has been loaded.

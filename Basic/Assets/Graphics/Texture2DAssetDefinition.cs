@@ -1,8 +1,8 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Assets.Graphics;
-using Sachssoft.Sasogine.Basic.Components.Models;
-using Sachssoft.Sasogine.Common.Models;
+﻿using Sachssoft.Sasogine;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Graphics;
+using Sachssoft.Sasogine.Components.Models;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

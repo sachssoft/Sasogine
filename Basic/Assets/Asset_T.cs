@@ -83,7 +83,7 @@ namespace Sachssoft.Sasogine.Assets
 
         object? IAsset.Instance => _instance;
 
-        IEngineObjectDefinition? IEngineObject.Definition => Definition;
+        IDefinition? IEngineObject.Definition => Definition;
 
         /// <summary>
         /// Synchronously loads the asset if not already loaded.

@@ -1,4 +1,4 @@
-﻿using Sachssoft.Sasogine.Basic.Components.Models;
+﻿using Sachssoft.Sasogine.Components.Models;
 using Sachssoft.Sasogine.Common;
 using System.ComponentModel;
 

@@ -1,8 +1,8 @@
-﻿using Sachssoft.Sasogine.Basic.Components.Models;
-using System;
+﻿using System;
 using System.ComponentModel;
+using Sachssoft.Sasogine.Components.Models;
 
-namespace Sachssoft.Sasogine.Common.Models
+namespace Sachssoft.Sasogine.Common
 {
     public class EngineObjectDefinition : IEngineObjectDefinition
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Sachssoft.Sasogine.Basic.Components.Models
+namespace Sachssoft.Sasogine.Components.Models
 {
     public static class Categories
     {
@@ -31,6 +31,9 @@ namespace Sachssoft.Sasogine.Basic.Components.Models
         public const string Input = "Input";
         public const string Networking = "Networking";
         public const string Atmosphere = "Atmosphere";
-
+        public const string Design = "Design";
+        public const string Sketch = "Sketch";
+        public const string Behavior = "Behavior";
+        public const string Edit = "Edit";
     }
 }

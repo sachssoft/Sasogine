@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
-namespace Sachssoft.Sasogine.Common.Models
+namespace Sachssoft.Sasogine.Common
 {
     public class EngineObjectManager
     {
@@ -32,7 +32,7 @@ namespace Sachssoft.Sasogine.Common.Models
 
             return _objects.FirstOrDefault(o =>
                 ReferenceEquals(o.Definition, definition) ||
-                (o.Definition?.Id == definition.Id));
+                (o.Definition is IEngineObjectDefinition eod) && eod.Id == definition.Id);
         }
 
         public bool TryFind(IEngineObjectDefinition definition,

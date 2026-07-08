@@ -1,4 +1,4 @@
-﻿using Sachssoft.Sasogine.Common.Models;
+﻿using Sachssoft.Sasogine.Components.Models;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
@@ -11,7 +11,7 @@ namespace Sachssoft.Sasogine.Common
     /// </summary>
     /// <typeparam name="TDefinition">Type of definition that drives this element.</typeparam>
     public abstract class EngineObject<TDefinition> : EngineObjectBase, IEngineObject
-        where TDefinition : class, IEngineObjectDefinition
+        where TDefinition : class, IDefinition
     {
         private TDefinition? _definition;
 
@@ -53,7 +53,7 @@ namespace Sachssoft.Sasogine.Common
             }
         }
 
-        IEngineObjectDefinition? IEngineObject.Definition => Definition;
+        IDefinition? IEngineObject.Definition => Definition;
 
         public override void Load()
         {
@@ -128,20 +128,23 @@ namespace Sachssoft.Sasogine.Common
 
         private void ConfigureFromDefinitionInternal()
         {
-            if (!ReferenceEquals(Id, Definition.Id))
+            if (Definition is IEngineObjectDefinition eod)
             {
-                var oldId = Id;
-                Id = Definition.Id;
-                if (IdChanged != null)
-                    IdChanged(this, new EngineObjectChangedEventArgs(oldId, Id, Class, Class));
-            }
+                if (!ReferenceEquals(Id, eod.Id))
+                {
+                    var oldId = Id;
+                    Id = eod.Id;
+                    if (IdChanged != null)
+                        IdChanged(this, new EngineObjectChangedEventArgs(oldId, Id, Class, Class));
+                }
 
-            if (!ReferenceEquals(Class, Definition.Class))
-            {
-                var oldClass = Class;
-                Class = Definition.Class;
-                if (ClassChanged != null)
-                    ClassChanged(this, new EngineObjectChangedEventArgs(Id, Id, oldClass, Class));
+                if (!ReferenceEquals(Class, eod.Class))
+                {
+                    var oldClass = Class;
+                    Class = eod.Class;
+                    if (ClassChanged != null)
+                        ClassChanged(this, new EngineObjectChangedEventArgs(Id, Id, oldClass, Class));
+                }
             }
         }
     }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace Sachssoft.Sasogine.Resources.Localization
+namespace Sachssoft.Sasogine.Common
 {
     public sealed class CulturedValue<T>
     {

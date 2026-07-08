@@ -1,7 +1,7 @@
 ﻿using Sachssoft.Sasodoc;
 using Sachssoft.Sasogine.Assets;
 using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Common.Models;
+using Sachssoft.Sasogine.Components.Models;
 using Sachssoft.Sasogine.Resources.Localization;
 using System;
 using System.Collections.Generic;

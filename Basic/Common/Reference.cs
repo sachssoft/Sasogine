@@ -1,4 +1,4 @@
-﻿using Sachssoft.Sasogine.Common.Models;
+﻿using Sachssoft.Sasogine.Components.Models;
 using System;
 
 namespace Sachssoft.Sasogine.Common

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Sachssoft.Sasogine.Basic.Components.Models
+namespace Sachssoft.Sasogine.Components.Models
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class PropertyEditorAttribute : Attribute

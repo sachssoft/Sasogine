@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Basic
+namespace Sachssoft.Sasogine
 {
     public static class GameWindowExtensions
     {

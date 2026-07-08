@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Common.Models
+namespace Sachssoft.Sasogine.Common
 {
     public abstract class EngineObjectBase : IEngineReferenceable
     {
