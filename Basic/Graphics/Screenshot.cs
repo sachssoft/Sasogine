@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Shared.Basic.Graphics;
 using System;
 using System.IO;
 

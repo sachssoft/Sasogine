@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Sachssoft.Sasogine.Assets.Graphics
 {
-    public class Texture2DAsset : AssetBase<Texture2D, ITexture2DAssetDefinition>
+    public class Texture2DAsset : AssetBase<Texture2D, Texture2DAssetDefinition>
     {
         private ITransformable? _transformable;
         private Texture2DFilterMode _filterMode;
@@ -19,7 +19,7 @@ namespace Sachssoft.Sasogine.Assets.Graphics
 
         public Texture2DAsset() : base() { }
 
-        public Texture2DAsset(ITexture2DAssetDefinition definition) : base(definition) { }
+        public Texture2DAsset(Texture2DAssetDefinition definition) : base(definition) { }
 
         public SamplerState CreateSamplerState()
         {

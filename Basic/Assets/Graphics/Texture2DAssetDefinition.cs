@@ -1,8 +1,9 @@
-﻿using Sachssoft.Sasogine;
+﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine;
+using Sachssoft.Sasogine.Assets.Audio;
 using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Graphics;
 using Sachssoft.Sasogine.Components.Models;
-using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Graphics;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,7 +11,7 @@ using System.Text;
 
 namespace Sachssoft.Sasogine.Assets.Graphics
 {
-    public class Texture2DAssetDefinition : EngineObjectDefinition, ITexture2DAssetDefinition
+    public class Texture2DAssetDefinition : AssetDefinitionBase<Texture2DAsset>
     {
         [Category(Categories.Appearance)]
         public Texture2DPattern Pattern { get; set; }
@@ -38,8 +39,5 @@ namespace Sachssoft.Sasogine.Assets.Graphics
 
         [Category(Categories.Rendering)]
         public bool UseMipmaps { get; set; }
-
-        [Browsable(false)]
-        public IAssetFile? File { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Sachssoft.Sasogine.Input.Shortcuts;
+﻿using Sachssoft.Sasogine.Input;
 
 namespace Sachssoft.Sasogine.Services.Platform
 {

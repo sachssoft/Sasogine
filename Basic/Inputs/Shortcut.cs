@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Input;
-using Sachssoft.Sasogine.Platform;
+using Sachssoft.Sasogine.Services.Platform;
 using System;
 
 namespace Sachssoft.Sasogine.Input

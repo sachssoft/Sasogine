@@ -3,13 +3,33 @@
 		<RootNamespace>Sachssoft.Sasogine</RootNamespace>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-		<Title>Sasogine</Title>
-		<Copyright>© Tobias Sachs (Sachssoft)</Copyright>
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<IsTrimmable>True</IsTrimmable>
-		<IsAotCompatible>True</IsAotCompatible>
+		<!-- NuGet Metadata -->
+		<VersionPrefix>0.0.1</VersionPrefix>
+		<VersionSuffix>alpha</VersionSuffix>
+		<PackageReleaseNotes>Sasogine Alpha release.</PackageReleaseNotes>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<Authors>Tobias Sachs</Authors>
+		<Description>Sasogine is a lightweight and flexible game engine framework based on MonoGame.</Description>
+		<Copyright>© 2026 Tobias Sachs / Sachssoft</Copyright>
+
+		<!-- NuGet Package -->
+		<PackageTags>MonoGame;GameEngine;Framework</PackageTags>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/sachssoft/Sasogine</PackageProjectUrl>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<GeneratePackageOnBuild Condition="'$(Configuration)'=='Release'">True</GeneratePackageOnBuild>
+
+		<!-- GitHub Repository -->
+		<RepositoryUrl>https://github.com/sachssoft/Sasogine.git</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+
+		<!-- Trimming / AOT -->
+		<IsTrimmable>true</IsTrimmable>
+		<IsAotCompatible>true</IsAotCompatible>
 	</PropertyGroup>
 	
 	<ItemGroup>

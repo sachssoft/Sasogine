@@ -1,8 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFrameworks>net8.0;net9.0</TargetFrameworks>
 		<Nullable>enable</Nullable>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<!-- NuGet Metadata -->
+		<PackageId>Sachssoft.Sasogine.DesktopGL</PackageId>
+		<Title>Sasogine DesktopGL</Title>
+		<Description>Sasogine DesktopGL backend based on MonoGame.</Description>
+		<PackageTags>MonoGame;Sasogine;GameEngine;DesktopGL;OpenGL</PackageTags>
 	</PropertyGroup>
 
 	<Import Project="..\..\..\Sachssoft.Sasogine.props" />
@@ -17,6 +26,10 @@
 
 	<ItemGroup>
 		<Compile Include="..\..\..\Basic\**\*.cs" Links="" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Remove="..\..\..\Basic\Assets\Graphics\ITexture2DAssetDefinition.cs" />
 	</ItemGroup>
 	
 	<ItemGroup>
