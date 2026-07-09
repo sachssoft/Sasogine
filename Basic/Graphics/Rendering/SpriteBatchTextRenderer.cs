@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Graphics.Text;
+using Sachssoft.Sasogine.Graphics.Text.Internals;
 
 namespace Sachssoft.Sasogine.Graphics.Rendering
 {

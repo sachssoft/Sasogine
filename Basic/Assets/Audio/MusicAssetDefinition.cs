@@ -2,7 +2,7 @@
 
 namespace Sachssoft.Sasogine.Assets.Audio
 {
-    public class MusicAssetDefinition : AssetDefinitionBase
+    public class MusicAssetDefinition : AssetDefinitionBase<MusicAsset>
     {
         /// <summary>Format of the music: Auto, OGG, MP3</summary>
         public MusicFormatType FormatType { get; set; }

@@ -40,6 +40,6 @@ namespace Sachssoft.Sasogine.Assets.Graphics
         public bool UseMipmaps { get; set; }
 
         [Browsable(false)]
-        public string? RelativeFullPath { get; set; }
+        public IAssetFile? File { get; set; }
     }
 }

@@ -1,8 +1,10 @@
-﻿namespace Sachssoft.Sasogine.Interactions;
-
-public enum AllowedGamePadTypes
+﻿namespace Sachssoft.Sasogine.Input
 {
-    Unknown = 0,
-    GamePad = 1,
-    ArcadeStick = 2
+
+    public enum AllowedGamePadTypes
+    {
+        Unknown = 0,
+        GamePad = 1,
+        ArcadeStick = 2
+    }
 }

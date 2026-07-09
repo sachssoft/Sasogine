@@ -5,7 +5,7 @@ using Sachssoft.Sasogine.Components.Rendering.Camera;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
 
-namespace Sachssoft.Graphics.Primitives;
+namespace Sachssoft.Sasogine.Graphics.Primitives;
 
 [Obsolete("Maybe QuadPrimitive")]
 public sealed class TilePrimitive : IDisposable

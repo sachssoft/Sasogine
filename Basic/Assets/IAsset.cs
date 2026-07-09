@@ -1,4 +1,5 @@
-﻿using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Sasogine;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Resources;
 using System;
 
@@ -8,7 +9,7 @@ namespace Sachssoft.Sasogine.Assets
     /// Base interface for all assets (e.g., Texture2D, Model, Sound).
     /// Provides lifecycle events, synchronous/asynchronous loading, and error handling.
     /// </summary>
-    public interface IAsset : IEngineObject
+    public interface IAsset : IEngineObject, IAssemblyContract
     {
         /// <summary>
         /// Relative path of the asset within the content or project structure.
@@ -55,5 +56,10 @@ namespace Sachssoft.Sasogine.Assets
         /// The currently loaded asset instance.
         /// </summary>
         object? Instance { get; }
+
+        void IAssemblyContract.Initialize()
+        {
+            // Für Dritte nicht implementierbar
+        }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Inputs
+namespace Sachssoft.Sasogine.Input
 {
     /// <summary>
     /// Interface to execute a vibration command on a device.

@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Sachssoft.Sasogine.Assets
 {
-    public interface IAssetFile : ICloneable
+    public interface IAssetFile : ICloneable, IAssemblyContract
     {
         Type AssetType { get; }
 

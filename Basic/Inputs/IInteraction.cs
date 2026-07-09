@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Interactions
+namespace Sachssoft.Sasogine.Input
 {
     public interface IInteraction
     {

@@ -1,6 +1,6 @@
 ﻿namespace Sachssoft.Sasogine.Assets.Audio
 {
-    public class SoundAssetDefinition : AssetDefinitionBase
+    public class SoundAssetDefinition : AssetDefinitionBase<SoundAsset>
     {
         public SoundFormatType FormatType { get; set; }
 

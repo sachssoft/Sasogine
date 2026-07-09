@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Interactions
+namespace Sachssoft.Sasogine.Input
 {
     public static class InteractionExtensions
     {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Sachssoft.Sasogine;
 
 namespace Sachssoft.Sasogine.Assets
 {
@@ -81,12 +82,37 @@ namespace Sachssoft.Sasogine.Assets
 
         public IAssetFile Clone()
         {
-            return new AssetFile<T>(RelativePath);
+            return new AssetFile<T>(FullRelativePath);
         }
 
         object ICloneable.Clone()
         {
             return Clone();
+        }
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            if (obj is not IAssetFile other)
+                return false;
+
+            return string.Equals(
+                FullRelativePath,
+                other.FullRelativePath,
+                StringComparison.OrdinalIgnoreCase);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(
+                typeof(T),
+                StringComparer.OrdinalIgnoreCase.GetHashCode(FullRelativePath));
+        }
+
+        void IAssemblyContract.Initialize()
+        {
+            // Für Dritte nicht implementierbar
         }
     }
 }

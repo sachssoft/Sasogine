@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace Sachssoft.Sasogine.Shared.Basic.Graphics
+namespace Sachssoft.Sasogine.Graphics
 {
     public class ScreenshotRequestEventArgs : EventArgs
     {

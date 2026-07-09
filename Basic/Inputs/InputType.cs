@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Inputs
+﻿namespace Sachssoft.Sasogine.Input
 {
     /// <summary>
     /// Represents the type of input device currently used or connected.
