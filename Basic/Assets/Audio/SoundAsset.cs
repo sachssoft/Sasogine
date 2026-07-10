@@ -1,4 +1,5 @@
-﻿using Sachssoft.Sasogine.Audio;
+﻿using Sachssoft.Sasogine.Assets.Graphics;
+using Sachssoft.Sasogine.Audio;
 using System;
 using System.IO;
 
@@ -6,6 +7,11 @@ namespace Sachssoft.Sasogine.Assets.Audio
 {
     public class SoundAsset : AssetBase<ISoundPlayer, SoundAssetDefinition>
     {
+
+        public SoundAsset() : base() { }
+
+        public SoundAsset(SoundAssetDefinition definition) : base(definition) { }
+
         protected override SoundAssetDefinition ResolveDefinition()
         {
             return new SoundAssetDefinition();

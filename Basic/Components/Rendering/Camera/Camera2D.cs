@@ -32,7 +32,7 @@ public class Camera2D : CameraBase
     private float _plane_maximum = 10f;
 
     private bool _zoom_ratio_used = true;
-    private float _zoom_factor = 1.3f;
+    private float _baseZoomFactor = 1.3f;
 
     // Einfache Min/Max Zoomwerte
     private float _zoom_minimum = 0.01f;
@@ -162,12 +162,12 @@ public class Camera2D : CameraBase
         protected set => _zoom_ratio_used = value;
     }
 
-    public float ZoomFactor
+    public float BaseZoomFactor
     {
-        get => _zoom_factor;
+        get => _baseZoomFactor;
         set
         {
-            _zoom_factor = value;
+            _baseZoomFactor = value;
             StopZoomAnimation();
         }
     }
@@ -183,7 +183,7 @@ public class Camera2D : CameraBase
 
     public float GetEffectiveZoomFactor()
     {
-        float factor = 1f / _zoom_factor;
+        float factor = 1f / _baseZoomFactor;
 
         if (_zoom_ratio_used)
         {
@@ -204,15 +204,25 @@ public class Camera2D : CameraBase
     {
         var factor = GetEffectiveZoomFactor();
 
-        float width = GraphicsDevice.PresentationParameters.BackBufferWidth * factor * _zoom;
-        float height = GraphicsDevice.PresentationParameters.BackBufferHeight * factor * _zoom;
+        float width = GraphicsDevice.PresentationParameters.BackBufferWidth
+                      * factor
+                      * _zoom;
 
-        return Matrix.CreateOrthographic(width * factor, height * factor, _plane_minimum, _plane_maximum);
+        float height = GraphicsDevice.PresentationParameters.BackBufferHeight
+                       * factor
+                       * _zoom;
+
+        return Matrix.CreateOrthographic(
+            width,
+            height,
+            _plane_minimum,
+            _plane_maximum);
     }
 
     protected override Matrix ViewOverride()
     {
-        return Matrix.Identity;
+        return Matrix.CreateTranslation(
+            new Vector3(-Position, 0f));
     }
 
     protected override Matrix WorldOverride()

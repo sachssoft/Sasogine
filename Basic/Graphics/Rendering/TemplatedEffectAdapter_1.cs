@@ -143,12 +143,16 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
         /// <summary>
         /// Copies matrices from another camera transform into this adapter.
         /// </summary>
-        public void ApplyFrom(ICameraTransform source)
+        public void ApplyTransform(ICameraTransform source)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (source == null) 
+                throw new ArgumentNullException(nameof(source));
+
             Projection = source.Projection;
             View = source.View;
             World = source.World;
+
+            Apply();
         }
 
         /// <summary>

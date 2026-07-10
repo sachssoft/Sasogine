@@ -98,7 +98,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
         /// Copies the camera matrices (Projection, View, World) from another transform provider to this instance.
         /// </summary>
         /// <param name="source">The source camera transform.</param>
-        public void ApplyFrom(ICameraTransform source)
+        public virtual void ApplyTransform(ICameraTransform source)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
 

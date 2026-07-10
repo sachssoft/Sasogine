@@ -196,14 +196,24 @@ public abstract class PrimitiveBase
         _dynamicVertexBuffer.SetData(_vertexBuffer, 0, VertexCount, SetDataOptions.Discard);
         _dynamicIndexBuffer.SetData(_indexBuffer, 0, IndexCount, SetDataOptions.Discard);
 
+        //// Matrizen setzen
+        //effect.World = (transform ?? Matrix.Identity) * camera.World;
+        //effect.View = camera.View;
+        //effect.Projection = camera.Projection;
+        //effect.Apply();
+
+        //EffectSetupCallback?.Invoke(effect, camera, transform);
+        //EffectSetup(effect, camera, transform);
+
         // Matrizen setzen
         effect.World = (transform ?? Matrix.Identity) * camera.World;
         effect.View = camera.View;
         effect.Projection = camera.Projection;
-        effect.Apply();
 
         EffectSetupCallback?.Invoke(effect, camera, transform);
         EffectSetup(effect, camera, transform);
+
+        effect.Apply();
 
         // Fill zeichnen
         if (FillVisible)

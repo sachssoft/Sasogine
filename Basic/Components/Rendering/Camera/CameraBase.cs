@@ -60,7 +60,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Camera
         /// Applies the transformation matrices from another <see cref="ICameraTransform"/>.
         /// </summary>
         /// <param name="source">Source camera transform to apply.</param>
-        public void ApplyFrom(ICameraTransform source)
+        public void ApplyTransform(ICameraTransform source)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
 

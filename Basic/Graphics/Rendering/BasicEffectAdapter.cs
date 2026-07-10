@@ -17,6 +17,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
         // // Speicherung von Parametern, bevor der Effekt existiert
         private Color _color = new Color(Vector3.One);
         private float _opacity = 1f;
+        private Texture2D? _texture;
 
         /// <summary>
         /// The graphics device used to create the underlying BasicEffect.
@@ -58,10 +59,14 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
         /// </summary>
         public Texture2D? Texture
         {
-            get => _effect?.Texture;
+            get => _texture;
+
             set
             {
-                if (_effect != null) _effect.Texture = value; // // direkt anwenden
+                _texture = value;
+
+                if (_effect != null)
+                    _effect.Texture = value;
             }
         }
 
@@ -94,9 +99,10 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
                     _effect = new BasicEffect(GraphicsDevice)
                     {
                         VertexColorEnabled = true,
-                        TextureEnabled = true,
+                        TextureEnabled = _texture != null,
                         DiffuseColor = _color.ToVector3(),
-                        Alpha = _opacity
+                        Alpha = _opacity,
+                        Texture = _texture
                     };
                 }
                 return _effect;
@@ -115,19 +121,24 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
             e.View = View;
             e.World = World;
             e.DiffuseColor = _color.ToVector3();
-            e.Alpha = _opacity;
-            e.Texture = Texture;
+            e.Alpha = _opacity; 
+            e.Texture = _texture;
+            e.TextureEnabled = _texture != null;
         }
 
         /// <summary>
         /// Copies matrices from another camera transform to this adapter.
         /// </summary>
-        public void ApplyFrom(ICameraTransform source)
+        public void ApplyTransform(ICameraTransform source)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
             Projection = source.Projection;
             View = source.View;
             World = source.World;
+
+            Apply();
         }
 
         /// <summary>

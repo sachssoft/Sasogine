@@ -1,11 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Assets.Graphics
 {
     public static class ImageDetection
     {
-
         public static ImageFormatType DetectFormat(Stream stream)
         {
             if (stream == null || stream.Length < 4)
@@ -17,13 +18,38 @@ namespace Sachssoft.Sasogine.Assets.Graphics
             int read = stream.Read(header);
             stream.Position = originalPos;
 
-            if (read < 4)
+            return DetectHeader(header[..read]);
+        }
+
+        public static async ValueTask<ImageFormatType> DetectFormatAsync(
+            Stream stream,
+            CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(stream);
+
+            if (stream.Length < 4)
                 return ImageFormatType.Unknown;
 
-            // =========================
-            // PNG: 89 50 4E 47 0D 0A 1A 0A
-            // =========================
-            if (read >= 8 &&
+            long originalPos = stream.Position;
+
+            byte[] header = new byte[32];
+
+            int read = await stream.ReadAsync(
+                header.AsMemory(),
+                cancellationToken);
+
+            stream.Position = originalPos;
+
+            return DetectHeader(header.AsSpan(0, read));
+        }
+
+        private static ImageFormatType DetectHeader(ReadOnlySpan<byte> header)
+        {
+            if (header.Length < 4)
+                return ImageFormatType.Unknown;
+
+            // PNG
+            if (header.Length >= 8 &&
                 header[0] == 0x89 &&
                 header[1] == 0x50 &&
                 header[2] == 0x4E &&
@@ -32,9 +58,7 @@ namespace Sachssoft.Sasogine.Assets.Graphics
                 return ImageFormatType.Png;
             }
 
-            // =========================
-            // JPG: FF D8 FF
-            // =========================
+            // JPG
             if (header[0] == 0xFF &&
                 header[1] == 0xD8 &&
                 header[2] == 0xFF)
@@ -42,43 +66,32 @@ namespace Sachssoft.Sasogine.Assets.Graphics
                 return ImageFormatType.Jpeg;
             }
 
-            // =========================
-            // BMP: "BM"
-            // =========================
+            // BMP
             if (header[0] == (byte)'B' &&
                 header[1] == (byte)'M')
             {
                 return ImageFormatType.Bmp;
             }
 
-            // =========================
-            // GIF optional (nicht im Enum, aber oft erkannt)
-            // =========================
+            // GIF (ignorieren)
             if (header[0] == (byte)'G' &&
                 header[1] == (byte)'I' &&
                 header[2] == (byte)'F')
             {
-                return ImageFormatType.Unknown; // bewusst ignoriert für deine Engine
+                return ImageFormatType.Unknown;
             }
 
-            // =========================
             // TGA (heuristisch)
-            // =========================
-            // TGA hat keinen festen Magic Header am Anfang
-            // klassisch: uncompressed truecolor = type 2
-            if (read >= 18)
+            if (header.Length >= 18)
             {
                 byte imageType = header[2];
                 if (imageType == 2 || imageType == 10)
                 {
-                    // sehr einfache Heuristik
                     return ImageFormatType.Tga;
                 }
             }
 
-            // =========================
-            // DDS: "DDS "
-            // =========================
+            // DDS
             if (header[0] == (byte)'D' &&
                 header[1] == (byte)'D' &&
                 header[2] == (byte)'S' &&

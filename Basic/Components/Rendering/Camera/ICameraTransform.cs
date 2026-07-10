@@ -28,7 +28,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Camera
         /// to this camera.
         /// </summary>
         /// <param name="source">The source camera providing the matrices.</param>
-        void ApplyFrom(ICameraTransform source);
+        void ApplyTransform(ICameraTransform source);
 
         /// <summary>
         /// Copies the camera matrices (Projection, View, World) from this camera
