@@ -1,4 +1,5 @@
 ﻿using Sachssoft.Sasogine.Scenes;
+using System.Diagnostics.CodeAnalysis;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -35,8 +36,13 @@ namespace Sachssoft.Sasogine.Components
             }
             set
             {
-                if ((uint)index >= (uint)_count) throw new ArgumentOutOfRangeException(nameof(index));
-                if (value == null) throw new ArgumentNullException(nameof(value));
+                if ((uint)index >= (uint)_count)
+                    throw new ArgumentOutOfRangeException(nameof(index));
+
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+
+                CheckDuplicateType(value);
 
                 var old = _items[index];
                 _items[index] = value;
@@ -63,9 +69,45 @@ namespace Sachssoft.Sasogine.Components
             return null;
         }
 
+        public bool TryGet(Type componentType, [MaybeNullWhen(false)] out IComponent? component)
+        {
+            component = null;
+            for (int i = 0; i < _count; i++)
+            {
+                var item = _items[i];
+                if (item.GetType() == componentType)
+                {
+                    component = item;
+                    return true;
+                }
+
+            }
+            return false;
+        }
+
+        public bool TryGet<T>([MaybeNullWhen(false)] out T? component) where T : class, IComponent
+        {
+            component = null;
+            for (int i = 0; i < _count; i++)
+            {
+                var item = _items[i];
+                if (item is T)
+                {
+                    component = (T)item;
+                    return true;
+                }
+
+            }
+            return false;
+        }
+
         public void Add(IComponent item)
         {
-            if (item == null) throw new ArgumentNullException(nameof(item));
+            if (item == null)
+                throw new ArgumentNullException(nameof(item));
+
+            CheckDuplicateType(item);
+
             EnsureCapacity(_count + 1);
             _items[_count++] = item;
             UpdateCacheAdd(item);
@@ -73,8 +115,13 @@ namespace Sachssoft.Sasogine.Components
 
         public void Insert(int index, IComponent item)
         {
-            if (item == null) throw new ArgumentNullException(nameof(item));
-            if ((uint)index > (uint)_count) throw new ArgumentOutOfRangeException(nameof(index));
+            if (item == null)
+                throw new ArgumentNullException(nameof(item));
+
+            if ((uint)index > (uint)_count)
+                throw new ArgumentOutOfRangeException(nameof(index));
+
+            CheckDuplicateType(item);
 
             EnsureCapacity(_count + 1);
             if (index < _count)
@@ -206,6 +253,23 @@ namespace Sachssoft.Sasogine.Components
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        private void CheckDuplicateType(IComponent item, int ignoreIndex = -1)
+        {
+            var type = item.GetType();
+
+            for (int i = 0; i < _count; i++)
+            {
+                if (i == ignoreIndex)
+                    continue;
+
+                if (_items[i].GetType() == type)
+                {
+                    throw new InvalidOperationException(
+                        $"Component type {type.Name} already exists.");
+                }
+            }
+        }
 
         private void EnsureCapacity(int min)
         {

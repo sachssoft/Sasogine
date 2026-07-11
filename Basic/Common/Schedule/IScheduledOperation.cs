@@ -2,7 +2,7 @@
 
 namespace Sachssoft.Sasogine.Common.Schedule;
 
-public interface IDataLoader
+public interface IScheduledOperation
 {
     void Activate();
     void Update();

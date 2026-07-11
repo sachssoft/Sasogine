@@ -9,7 +9,7 @@ namespace Sachssoft.Sasogine.Common.Schedule;
 /// </summary>
 /// 
 
-public class SimulatedDataLoader<T> : IDataLoader
+public class SimulatedDataLoader<T> : IScheduledOperation
 {
     private readonly T _result;
     private readonly int _delayMilliseconds;

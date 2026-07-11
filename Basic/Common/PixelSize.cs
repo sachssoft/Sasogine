@@ -22,8 +22,9 @@ public readonly struct PixelSize : IEquatable<PixelSize>
     public int Width => _width;
     public int Height => _height;
 
-    public Point Point => new(_width, _height);
-    public Vector2 Vector => new(_width, _height);
+    public Point ToPoint() => new(_width, _height);
+    public Vector2 ToVector2() => new(_width, _height);
+    public Vector3 ToVector3() => new(_width, _height, 0f);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(PixelSize other)

@@ -94,8 +94,6 @@ namespace Sachssoft.Sasogine.Graphics
 
         public static void Begin(GraphicsDevice graphicsDevice)
         {
-            Debug.WriteLine("RenderTargetRequest START");
-
             if (_isActive)
                 throw new InvalidOperationException("Begin cannot be called twice without End.");
 
@@ -115,8 +113,6 @@ namespace Sachssoft.Sasogine.Graphics
 
         public static void End()
         {
-            Debug.WriteLine("RenderTargetRequest END");
-
             if (!_isActive)
                 throw new InvalidOperationException("End called without Begin.");
 

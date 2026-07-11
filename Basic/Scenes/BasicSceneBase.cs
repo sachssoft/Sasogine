@@ -4,6 +4,7 @@ using Sachssoft.Sasogine.Components;
 using Sachssoft.Sasogine.Components.Rendering.Camera;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Sachssoft.Sasogine.Scenes
 {

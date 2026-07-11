@@ -1,14 +1,17 @@
 ﻿using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Components;
 using System;
 using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
+using Sachssoft.Sasogine.Scenes;
 
 namespace Sachssoft.Sasogine.World
 {
-    public abstract class EntityBase<TDefinition> : EngineObject<TDefinition>, IEntity
-        where TDefinition : class, IEntityDefinition, new()
+    public abstract class EntityBase<TDefinition> : EngineObject<TDefinition>, IEntity, IComponentProvider, IUpdatableComponent, IDrawableComponent
+        where TDefinition : class, IEntityDefinition
     {
-        //private EntityDefinitionRegistry _registry = null!;
-        //private TDefinition _definition = null!;
+        private readonly ComponentCollection _components;
         private EntityIntegrity _status = EntityIntegrity.Intact;
         private ActivityState _activityState = ActivityState.Idle;
 
@@ -17,7 +20,14 @@ namespace Sachssoft.Sasogine.World
         public event EventHandler? StatusChanged;
         public event EventHandler? ActivityStateChanged;
 
-        protected EntityBase() { }
+        public bool IsEnabled { get; set; }
+
+        public bool IsVisible { get; set; }
+
+        protected EntityBase()
+        {
+            _components = new ComponentCollection();
+        }
 
         //public override TDefinition Definition => _definition;
 
@@ -72,9 +82,21 @@ namespace Sachssoft.Sasogine.World
             Unloaded?.Invoke(this, EventArgs.Empty);
         }
 
-        public virtual void Update(GameContext gameContext)
+        public virtual void Update(SceneUpdateContext context)
         {
-            // ...
+            _components.UpdateForEach(context);
         }
+
+        public virtual void Draw(SceneDrawContext context)
+        {
+            _components.DrawForEach(context);
+        }
+
+        public bool TryGetComponent<T>([MaybeNullWhen(false)] out T component) where T : class, IComponent
+        {
+            return _components.TryGet<T>(out component);
+        }
+
+        protected ComponentCollection Components => _components;
     }
 }

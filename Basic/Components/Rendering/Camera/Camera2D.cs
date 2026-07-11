@@ -448,9 +448,9 @@ public class Camera2D : CameraBase
         return screenBox.Intersects(objectBox);
     }
 
-    public bool IsVisibleOnScreen(Size size) => IsVisibleOnScreen(Vector2.Zero, size.Vector);
+    public bool IsVisibleOnScreen(Size size) => IsVisibleOnScreen(Vector2.Zero, size.ToVector2());
 
-    public bool IsVisibleOnScreen(PixelSize size) => IsVisibleOnScreen(Vector2.Zero, size.Vector);
+    public bool IsVisibleOnScreen(PixelSize size) => IsVisibleOnScreen(Vector2.Zero, size.ToVector2());
 
     public bool IsVisibleOnScreen(Box box) => IsVisibleOnScreen(box.Min, box.Max);
 

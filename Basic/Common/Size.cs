@@ -22,7 +22,8 @@ public readonly struct Size : IEquatable<Size>
     public float Width => _width;
     public float Height => _height;
 
-    public Vector2 Vector => new(_width, _height);
+    public Vector2 ToVector2() => new(_width, _height);
+    public Vector3 ToVector3() => new(_width, _height, 0f);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(Size other)

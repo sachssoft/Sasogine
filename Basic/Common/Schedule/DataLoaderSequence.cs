@@ -5,7 +5,7 @@ namespace Sachssoft.Sasogine.Common.Schedule;
 
 public class DataLoaderSequence<TKey> where TKey : notnull
 {
-    private readonly Dictionary<TKey, IDataLoader> _loaders = new();
+    private readonly Dictionary<TKey, IScheduledOperation> _loaders = new();
     private readonly List<TKey> _keysInOrder = new();
     private Action? _allCompletedCallback;
     private int _currentIndex = -1;
@@ -42,23 +42,23 @@ public class DataLoaderSequence<TKey> where TKey : notnull
         _keysInOrder.Add(key);
     }
 
-    public void Add(TKey key, IDataLoader loader, Action<IDataLoader> completed, Action<Exception?, IDataLoader?> failed)
+    public void Add(TKey key, IScheduledOperation loader, Action<IScheduledOperation> completed, Action<Exception?, IScheduledOperation?> failed)
     {
         if (_loaders.ContainsKey(key))
             throw new ArgumentException($"Key {key} already added");
 
         _loaders[key] = loader;
-        _completedCallbacks[key] = obj => completed((IDataLoader)obj!);
-        _failedCallbacks[key] = (ex, obj) => failed(ex, (IDataLoader?)obj);
+        _completedCallbacks[key] = obj => completed((IScheduledOperation)obj!);
+        _failedCallbacks[key] = (ex, obj) => failed(ex, (IScheduledOperation?)obj);
         _keysInOrder.Add(key);
     }
 
-    public void Add(TKey key, IDataLoader loader)
+    public void Add(TKey key, IScheduledOperation loader)
     {
         Add(key, loader, (obj) => { }, (ex, obj) => { });
     }
 
-    public void Add(TKey key, IDataLoader loader, Action<IDataLoader> completed)
+    public void Add(TKey key, IScheduledOperation loader, Action<IScheduledOperation> completed)
     {
         Add(key, loader, completed, (ex, obj) => { });
     }
