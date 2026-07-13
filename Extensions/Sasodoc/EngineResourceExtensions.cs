@@ -117,27 +117,27 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
         #endregion
 
         #region AssetFile
-        public static TypedAssetFile<T>? ReadAssetFile<T>(
+        public static AssetFile<T>? ReadAssetFile<T>(
             this FormatReaderBase reader,
             string property,
-            TypedAssetFile<T>? fallback = null
+            AssetFile<T>? fallback = null
         )
-            where T : class, IAsset
+            where T : class, IAssetDefinition
         {
             if (!reader.Contains(property))
                 return fallback;
 
             var relativeFilePath = reader.ReadString(context: property);
 
-            return new TypedAssetFile<T>(relativeFilePath);
+            return new AssetFile<T>(relativeFilePath);
         }
 
         public static void WriteAssetFile<T>(
             this FormatWriterBase writer,
             string property,
-            TypedAssetFile<T>? value
+            AssetFile<T>? value
         )
-            where T : class, IAsset
+            where T : class, IAssetDefinition
         {
             if (value == null)
                 return;

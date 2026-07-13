@@ -7,78 +7,137 @@ using Sachssoft.Sasogine.Assets.Graphics;
 namespace Sachssoft.Sasogine.Assets
 {
     /// <summary>
-    /// Resolves asset files into strongly typed <see cref="IAssetFile"/> instances
-    /// based on the contents of a stream.
+    /// Detects asset formats and creates the corresponding asset files
+    /// and asset definitions.
     /// </summary>
     public class AssetResolver : IAssetResolverProvider
     {
         private readonly List<ResolverEntry> _entries = new();
 
-        /// <summary>
-        /// Represents a registered asset resolver entry.
-        /// </summary>
         private sealed class ResolverEntry
         {
-            /// <summary>
-            /// Gets the function used to determine whether the stream matches this resolver.
-            /// </summary>
+            public Type DefinitionType { get; init; } = default!;
+
             public Func<Stream, bool> Match { get; init; } = default!;
 
-            /// <summary>
-            /// Gets the factory function used to create the corresponding asset file.
-            /// </summary>
-            public Func<string, IAssetFile> Factory { get; init; } = default!;
+            public Func<string, IAssetFile> FileFactory { get; init; } = default!;
+
+            public Func<IAssetDefinition> DefinitionFactory { get; init; } = default!;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AssetResolver"/> class
-        /// and registers the default asset resolvers.
+        /// and registers the default asset format resolvers.
         /// </summary>
         public AssetResolver()
         {
             Register(
                 s => ImageDetection.DetectFormat(s) == ImageFormatType.Png,
-                p => new TypedAssetFile<Texture2DAsset>(p));
+                p => new AssetFile<Texture2DAssetDefinition>(p),
+                () => new Texture2DAssetDefinition());
 
             Register(
                 s => ImageDetection.DetectFormat(s) == ImageFormatType.Jpeg,
-                p => new TypedAssetFile<Texture2DAsset>(p));
+                p => new AssetFile<Texture2DAssetDefinition>(p),
+                () => new Texture2DAssetDefinition());
 
             Register(
                 s => AudioDetection.DetectFormat(s) == AudioFormatType.Wav,
-                p => new TypedAssetFile<SoundAsset>(p));
+                p => new AssetFile<SoundAssetDefinition>(p),
+                () => new SoundAssetDefinition());
 
             Register(
                 s => AudioDetection.DetectFormat(s) == AudioFormatType.Ogg,
-                p => new TypedAssetFile<MusicAsset>(p));
+                p => new AssetFile<MusicAssetDefinition>(p),
+                () => new MusicAssetDefinition());
         }
 
         /// <summary>
-        /// Registers a new asset resolver.
+        /// Registers support for an asset format.
         /// </summary>
+        /// <typeparam name="TDefinition">
+        /// Type of the asset definition.
+        /// </typeparam>
         /// <param name="match">
-        /// Function that determines whether the stream matches the asset type.
+        /// Function that determines whether a stream matches the asset format.
         /// </param>
-        /// <param name="factory">
+        /// <param name="fileFactory">
         /// Function that creates the corresponding asset file.
         /// </param>
+        /// <param name="definitionFactory">
+        /// Function that creates the corresponding asset definition.
+        /// </param>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when <paramref name="match"/> or <paramref name="factory"/> is null.
+        /// Thrown when an argument is <see langword="null"/>.
         /// </exception>
-        public void Register(Func<Stream, bool> match, Func<string, IAssetFile> factory)
+        public void Register<TDefinition>(
+            Func<Stream, bool> match,
+            Func<string, AssetFile<TDefinition>> fileFactory,
+            Func<TDefinition> definitionFactory)
+            where TDefinition : class, IAssetDefinition
         {
             ArgumentNullException.ThrowIfNull(match);
-            ArgumentNullException.ThrowIfNull(factory);
+            ArgumentNullException.ThrowIfNull(fileFactory);
+            ArgumentNullException.ThrowIfNull(definitionFactory);
 
             _entries.Add(new ResolverEntry
             {
+                DefinitionType = typeof(TDefinition),
                 Match = match,
-                Factory = factory
+                FileFactory = fileFactory,
+                DefinitionFactory = definitionFactory
             });
         }
 
         /// <summary>
-        /// Resolves a typed asset file from a relative path and stream.
+        /// Resolves an asset file from the specified path and stream.
+        /// </summary>
+        /// <typeparam name="TDefinition">
+        /// Type of the asset definition.
+        /// </typeparam>
+        /// <param name="relativePath">
+        /// Relative path of the asset inside the package.
+        /// </param>
+        /// <param name="stream">
+        /// Stream containing the asset data.
+        /// </param>
+        /// <returns>
+        /// The strongly typed asset file if the format is recognized;
+        /// otherwise, <see langword="null"/>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="relativePath"/> or <paramref name="stream"/>
+        /// is <see langword="null"/>.
+        /// </exception>
+        public AssetFile<TDefinition>? Resolve<TDefinition>(
+            string relativePath,
+            Stream stream)
+            where TDefinition : class, IAssetDefinition
+        {
+            ArgumentNullException.ThrowIfNull(relativePath);
+            ArgumentNullException.ThrowIfNull(stream);
+
+            foreach (var entry in _entries)
+            {
+                if (entry.DefinitionType != typeof(TDefinition))
+                    continue;
+
+                long position = stream.CanSeek ? stream.Position : 0;
+
+                bool matches = entry.Match(stream);
+
+                if (stream.CanSeek)
+                    stream.Position = position;
+
+                if (matches)
+                    return (AssetFile<TDefinition>)entry.FileFactory(relativePath);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Creates an asset file reference from the specified path and stream.
         /// </summary>
         /// <param name="relativePath">
         /// Relative path of the asset inside the package.
@@ -87,13 +146,16 @@ namespace Sachssoft.Sasogine.Assets
         /// Stream containing the asset data.
         /// </param>
         /// <returns>
-        /// A typed asset file if a matching resolver is found; otherwise,
-        /// <see langword="null"/>.
+        /// The asset file reference if the asset format is recognized;
+        /// otherwise, <see langword="null"/>.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when <paramref name="relativePath"/> or <paramref name="stream"/> is null.
+        /// Thrown when <paramref name="relativePath"/> or <paramref name="stream"/>
+        /// is <see langword="null"/>.
         /// </exception>
-        public IAssetFile? Resolve(string relativePath, Stream stream)
+        public IAssetFile? Resolve(
+            string relativePath,
+            Stream stream)
         {
             ArgumentNullException.ThrowIfNull(relativePath);
             ArgumentNullException.ThrowIfNull(stream);
@@ -108,7 +170,64 @@ namespace Sachssoft.Sasogine.Assets
                     stream.Position = position;
 
                 if (matches)
-                    return entry.Factory(relativePath);
+                    return entry.FileFactory(relativePath);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the asset definition for the specified asset file.
+        /// </summary>
+        /// <typeparam name="TDefinition">
+        /// Type of the asset definition.
+        /// </typeparam>
+        /// <param name="file">
+        /// Asset file.
+        /// </param>
+        /// <returns>
+        /// The corresponding asset definition.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="file"/> is <see langword="null"/>.
+        /// </exception>
+        public TDefinition GetDefinition<TDefinition>(AssetFile<TDefinition> file)
+            where TDefinition : class, IAssetDefinition
+        {
+            ArgumentNullException.ThrowIfNull(file);
+
+            foreach (var entry in _entries)
+            {
+                if (entry.DefinitionType == typeof(TDefinition))
+                    return (TDefinition)entry.DefinitionFactory();
+            }
+
+            throw new InvalidOperationException(
+                $"No asset definition factory is registered for '{typeof(TDefinition).FullName}'.");
+        }
+
+        /// <summary>
+        /// Gets the asset definition for the specified asset file.
+        /// </summary>
+        /// <param name="file">
+        /// Asset file reference.
+        /// </param>
+        /// <returns>
+        /// The corresponding asset definition.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="file"/> is <see langword="null"/>.
+        /// </exception>
+        public IAssetDefinition? GetDefinition(IAssetFile file)
+        {
+            ArgumentNullException.ThrowIfNull(file);
+
+            foreach (var entry in _entries)
+            {
+                if (entry.DefinitionType != file.AssetType)
+                    continue;
+
+                return entry.DefinitionFactory();
             }
 
             return null;

@@ -7,11 +7,5 @@ public abstract class AssetDefinitionBase<T> : IAssetDefinition
 
     public string? Class { get; set; }
 
-    public TypedAssetFile<T>? File { get; set; }
-
-    IAssetFile? IAssetDefinition.File
-    {
-        get => File;
-        set => File = (TypedAssetFile<T>?)value;
-    }
+    public IAssetFile? File { get; set; }
 }

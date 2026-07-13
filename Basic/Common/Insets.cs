@@ -11,7 +11,7 @@ public readonly struct Insets
     private readonly float _right;
     private readonly float _bottom;
 
-    public static readonly Insets None = new Insets(0.0f);
+    public static readonly Insets Zero = new Insets(0.0f);
 
     public Insets(float uniform)
     {
@@ -73,7 +73,7 @@ public readonly struct Insets
 
     public static bool TryParse(string? s, out Insets result)
     {
-        result = None;
+        result = Zero;
 
         if (string.IsNullOrWhiteSpace(s))
             return false;
@@ -91,7 +91,7 @@ public readonly struct Insets
                 1 => new Insets(values[0]),
                 2 => new Insets(values[0], values[1]),
                 4 => new Insets(values[0], values[1], values[2], values[3]),
-                _ => None
+                _ => Zero
             };
 
             return values.Length == 1 || values.Length == 2 || values.Length == 4;
