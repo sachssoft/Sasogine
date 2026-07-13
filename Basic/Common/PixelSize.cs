@@ -19,6 +19,14 @@ public readonly struct PixelSize : IEquatable<PixelSize>
         _height = height;
     }
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public PixelSize(Point size)
+    {
+        _width = size.X;
+        _height = size.Y;
+    }
+
     public int Width => _width;
     public int Height => _height;
 

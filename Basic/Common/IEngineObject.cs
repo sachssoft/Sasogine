@@ -53,9 +53,5 @@ namespace Sachssoft.Sasogine.Common
         /// </summary>
         // Entlädt das Element und gibt Ressourcen frei.
         void Unload();
-
-        void Reload(ReloadOptions options = ReloadOptions.Full);
-
-        Task ReloadAsync(ReloadOptions options = ReloadOptions.Full);
     }
 }

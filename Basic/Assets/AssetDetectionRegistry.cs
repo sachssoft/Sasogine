@@ -32,7 +32,7 @@ namespace Sachssoft.Sasogine.Assets
                     await ImageDetection.DetectFormatAsync(s, ct) == ImageFormatType.Jpeg,
                 (p, s) => new Texture2DAssetDefinition
                 {
-                    File = new AssetFile<Texture2DAsset>(p)
+                    File = new TypedAssetFile<Texture2DAsset>(p)
                 });
 
 
@@ -42,7 +42,7 @@ namespace Sachssoft.Sasogine.Assets
                     await ImageDetection.DetectFormatAsync(s, ct) == ImageFormatType.Png,
                 (p, s) => new Texture2DAssetDefinition
                 {
-                    File = new AssetFile<Texture2DAsset>(p)
+                    File = new TypedAssetFile<Texture2DAsset>(p)
                 });
 
 
@@ -52,7 +52,7 @@ namespace Sachssoft.Sasogine.Assets
                     await AudioDetection.DetectFormatAsync(s, ct) == AudioFormatType.Wav,
                 (p, s) => new SoundAssetDefinition
                 {
-                    File = new AssetFile<SoundAsset>(p)
+                    File = new TypedAssetFile<SoundAsset>(p)
                 });
 
 
@@ -62,7 +62,7 @@ namespace Sachssoft.Sasogine.Assets
                     await AudioDetection.DetectFormatAsync(s, ct) == AudioFormatType.Ogg,
                 (p, s) => new MusicAssetDefinition
                 {
-                    File = new AssetFile<MusicAsset>(p)
+                    File = new TypedAssetFile<MusicAsset>(p)
                 });
         }
 

@@ -12,7 +12,7 @@ namespace Sachssoft.Sasogine.Common
     // aktualisiert werden sollen.
     // </remarks>
     [Flags]
-    public enum ReloadOptions
+    public enum DirtyAction
     {
         /// <summary>
         /// No reload operation.

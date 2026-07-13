@@ -5,100 +5,162 @@ using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Input
 {
+    /// <summary>
+    /// Manages mouse interactions including buttons, position tracking,
+    /// movement delta and mouse wheel actions.
+    /// </summary>
     public class MouseInteractionManager : InputInteractionManager<MouseButton>
     {
-        private readonly Dictionary<MouseWheelState, (Action press_action, Action? release_action)> _wheel_actions = new();
-        private MouseWheelState _active_wheel_state = MouseWheelState.None;
-        private int _previous_scroll_value = 0;
-        private Point _current_position;
-        private Point _last_position;
+        private readonly Dictionary<MouseWheelState, (Action pressAction, Action? releaseAction)> _wheelActions = new();
+
+        private MouseWheelState _activeWheelState = MouseWheelState.None;
+
+        private int _previousScrollValue = 0;
+
+        private Point _currentPosition;
+
+        private Point _lastPosition;
+
         private Point _delta;
 
-        public MouseInteractionManager(MouseState initial_state)
-            : base(new MouseStateWrapper(initial_state))
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MouseInteractionManager"/> class
+        /// with the specified initial mouse state.
+        /// </summary>
+        /// <param name="initialState">The initial mouse state.</param>
+        public MouseInteractionManager(MouseState initialState)
+            : base(new MouseStateWrapper(initialState))
         {
         }
 
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MouseInteractionManager"/> class
+        /// using the current mouse state.
+        /// </summary>
         public MouseInteractionManager()
             : base(new MouseStateWrapper(Mouse.GetState()))
         {
         }
 
-        /// <summary>Aktuelle absolute Mausposition</summary>
-        public Point Position => _current_position;
 
-        /// <summary>Veränderung der Mausposition seit letztem Update</summary>
+        /// <summary>
+        /// Gets the current absolute mouse position.
+        /// </summary>
+        public Point Position => _currentPosition;
+
+
+        /// <summary>
+        /// Gets the mouse movement delta since the last update.
+        /// </summary>
         public Point Delta => _delta;
 
-        /// <summary>X-Achsen-Delta</summary>
+
+        /// <summary>
+        /// Gets the mouse movement delta on the X axis.
+        /// </summary>
         public int DeltaX => _delta.X;
 
-        /// <summary>Y-Achsen-Delta</summary>
+
+        /// <summary>
+        /// Gets the mouse movement delta on the Y axis.
+        /// </summary>
         public int DeltaY => _delta.Y;
 
-        public void AddWheel(MouseWheelState wheel_state, Action press_action, Action? release_action = null)
+
+        /// <summary>
+        /// Adds an action for a mouse wheel state.
+        /// </summary>
+        /// <param name="wheelState">The mouse wheel state.</param>
+        /// <param name="pressAction">The action invoked when the state becomes active.</param>
+        /// <param name="releaseAction">The optional action invoked when the state is released.</param>
+        public void AddWheel(
+            MouseWheelState wheelState,
+            Action pressAction,
+            Action? releaseAction = null)
         {
-            _wheel_actions[wheel_state] = (press_action, release_action);
+            _wheelActions[wheelState] = (pressAction, releaseAction);
         }
 
-        //public override void Update(GameContext context)
-        //{
-        //    var elapsed = context.GameTime.ElapsedGameTime;
-        //    Update(Mouse.GetState(), elapsed);
-        //}
 
+        /// <summary>
+        /// Updates the mouse state using the current MonoGame mouse state.
+        /// </summary>
+        /// <param name="gameTime">The current game time information.</param>
         public override void Update(GameTime gameTime)
         {
             Update(Mouse.GetState(), gameTime.ElapsedGameTime);
         }
 
+
+        /// <summary>
+        /// Updates the mouse state using the specified mouse state.
+        /// </summary>
+        /// <param name="state">The current mouse state.</param>
+        /// <param name="elapsed">The elapsed time since the previous update.</param>
         public void Update(MouseState state, TimeSpan elapsed)
         {
-            var current_state_wrapper = new MouseStateWrapper(state);
-            Update(current_state_wrapper, elapsed);
+            var currentStateWrapper = new MouseStateWrapper(state);
 
-            // Positionen aktualisieren
-            _current_position = state.Position;
-            _delta = _current_position - _last_position;
-            _last_position = _current_position;
+            Update(currentStateWrapper, elapsed);
 
-            // Wheel-Logik
-            int current_scroll_value = state.ScrollWheelValue;
-            int delta = current_scroll_value - _previous_scroll_value;
+
+            _currentPosition = state.Position;
+
+            _delta = _currentPosition - _lastPosition;
+
+            _lastPosition = _currentPosition;
+
+
+            int currentScrollValue = state.ScrollWheelValue;
+
+            int scrollDelta = currentScrollValue - _previousScrollValue;
+
 
             MouseWheelState newWheelState = MouseWheelState.None;
-            if (delta > 0)
+
+            if (scrollDelta > 0)
+            {
                 newWheelState = MouseWheelState.Up;
-            else if (delta < 0)
+            }
+            else if (scrollDelta < 0)
+            {
                 newWheelState = MouseWheelState.Down;
-
-            if (newWheelState != _active_wheel_state)
-            {
-                // Release alten Zustand, falls gesetzt
-                if (_active_wheel_state != MouseWheelState.None && _wheel_actions.TryGetValue(_active_wheel_state, out var oldActions))
-                {
-                    oldActions.release_action?.Invoke();
-                }
-
-                // Press neuen Zustand, falls gesetzt und nicht None
-                if (newWheelState != MouseWheelState.None && _wheel_actions.TryGetValue(newWheelState, out var newActions))
-                {
-                    newActions.press_action.Invoke();
-                }
-
-                _active_wheel_state = newWheelState;
-            }
-            else if (newWheelState == MouseWheelState.None && _active_wheel_state != MouseWheelState.None)
-            {
-                // Release, wenn Wheel jetzt None ist und vorher aktiv
-                if (_wheel_actions.TryGetValue(_active_wheel_state, out var releaseActions))
-                {
-                    releaseActions.release_action?.Invoke();
-                }
-                _active_wheel_state = MouseWheelState.None;
             }
 
-            _previous_scroll_value = current_scroll_value;
+
+            if (newWheelState != _activeWheelState)
+            {
+                if (_activeWheelState != MouseWheelState.None &&
+                    _wheelActions.TryGetValue(_activeWheelState, out var oldActions))
+                {
+                    oldActions.releaseAction?.Invoke();
+                }
+
+
+                if (newWheelState != MouseWheelState.None &&
+                    _wheelActions.TryGetValue(newWheelState, out var newActions))
+                {
+                    newActions.pressAction.Invoke();
+                }
+
+
+                _activeWheelState = newWheelState;
+            }
+            else if (newWheelState == MouseWheelState.None &&
+                     _activeWheelState != MouseWheelState.None)
+            {
+                if (_wheelActions.TryGetValue(_activeWheelState, out var releaseActions))
+                {
+                    releaseActions.releaseAction?.Invoke();
+                }
+
+                _activeWheelState = MouseWheelState.None;
+            }
+
+
+            _previousScrollValue = currentScrollValue;
         }
     }
 }

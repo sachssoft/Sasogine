@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Common;
 using System;
 using System.Diagnostics;
 
@@ -28,6 +29,8 @@ namespace Sachssoft.Sasogine.Graphics
         private static GraphicsDevice? _graphicsDevice;
         private static RenderTarget2D? _renderTarget;
 
+        private static PixelSize _renderSize;
+        private static float _resolutionScale;
         private static int _lastW;
         private static int _lastH;
         private static int _lastQuality;
@@ -37,7 +40,9 @@ namespace Sachssoft.Sasogine.Graphics
 
         public static RenderTarget2D? Current => _renderTarget;
 
-        public static Point Size => _renderTarget == null ? Point.Zero : _renderTarget.Bounds.Size;
+        public static PixelSize Size => _renderSize; //_renderTarget == null ? PixelSize.Zero : new(_renderTarget.Bounds.Size);
+
+        public static float ResolutionScale => _resolutionScale;
 
         public static void Ensure(
             int width,
@@ -48,17 +53,30 @@ namespace Sachssoft.Sasogine.Graphics
             int antiAliasing = 0)
         {
             if (_graphicsDevice == null)
+            {
+                _renderSize = PixelSize.Zero;
+                _resolutionScale = 1f;
                 return;
+            }
 
             if (width <= 0 || height <= 0)
+            {
+                _renderSize = PixelSize.Zero;
+                _resolutionScale = 1f;
                 return;
+            }
 
             if (_renderTarget != null &&
                 width == _lastW &&
                 height == _lastH &&
                 quality == _lastQuality &&
                 antiAliasing == _lastAntiAliasing)
+            {
+                _renderSize = PixelSize.Zero;
+                _resolutionScale = 1f;
                 return;
+            }
+
 
             // Qualität 1-100% (entspricht 25% bis 100% der Auflösung)
             float q = int.Clamp(quality, 1, 100) / 100f;
@@ -86,10 +104,14 @@ namespace Sachssoft.Sasogine.Graphics
                 usage: RenderTargetUsage.PlatformContents
             );
 
+            _renderSize = new PixelSize(_renderTarget.Bounds.Size);
+
             _lastW = width;
             _lastH = height;
             _lastQuality = quality;
             _lastAntiAliasing = antiAliasing;
+
+            _resolutionScale = scale;
         }
 
         public static void Begin(GraphicsDevice graphicsDevice)
@@ -128,6 +150,9 @@ namespace Sachssoft.Sasogine.Graphics
         {
             _renderTarget?.Dispose();
             _renderTarget = null;
+
+            _renderSize = PixelSize.Zero;
+            _resolutionScale = 1f;
         }
     }
 }

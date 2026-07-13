@@ -5,7 +5,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Camera
 {
     public interface ICamera : ICameraTransform
     {
-        GraphicsDevice GraphicsDevice { get; }
+        void ApplyViewport(Viewport viewport);
 
         Vector2 ToWorld(Vector2 screenPosition);
 

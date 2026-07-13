@@ -1,30 +1,48 @@
 ﻿using System;
-using System.IO;
 
 namespace Sachssoft.Sasogine.Assets
 {
+    /// <summary>
+    /// Represents a reference to an asset file inside a package.
+    /// </summary>
     public interface IAssetFile : ICloneable, IAssemblyContract
     {
-        Type AssetType { get; }
+        /// <summary>
+        /// Gets the resolved asset type.
+        /// </summary>
+        Type? AssetType { get; }
 
-        // Dateiname ohne Pfad
+        /// <summary>
+        /// Gets the file name without extension.
+        /// </summary>
         string Name { get; }
 
-        // Relativer Pfad zum Asset
+        /// <summary>
+        /// Gets the relative directory path of the asset.
+        /// </summary>
         string RelativePath { get; }
 
-        // Vollständiger relativer Pfad
+        /// <summary>
+        /// Gets the complete relative file path inside the package.
+        /// </summary>
         string FullRelativePath { get; }
 
-        // Format konnte nicht erkannt werden
+        /// <summary>
+        /// Gets a value indicating whether the asset type could not be detected.
+        /// </summary>
         bool IsUnknown { get; }
 
-        // Laden oder Verarbeiten des Assets ist fehlgeschlagen
+        /// <summary>
+        /// Gets the error that occurred while processing the asset.
+        /// </summary>
         Exception? Error { get; }
 
-        // Erstellt das Asset anhand des Resolvers
-        IAsset? Resolve(Stream stream, IAssetResolverProvider resolver);
-
+        /// <summary>
+        /// Creates a copy of this asset file reference.
+        /// </summary>
+        /// <returns>
+        /// A cloned asset file.
+        /// </returns>
         new IAssetFile Clone();
     }
 }

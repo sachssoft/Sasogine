@@ -41,16 +41,5 @@ namespace Sachssoft.Sasogine.Common
             result = Find(definition);
             return result != null;
         }
-
-        public void TryReload(IEngineObjectDefinition definition)
-        {
-            if (definition == null)
-                return;
-
-            if (TryFind(definition, out var obj) && obj is not null)
-            {
-                obj.Reload();
-            }
-        }
     }
 }

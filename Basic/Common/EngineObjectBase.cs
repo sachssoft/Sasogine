@@ -66,54 +66,18 @@ namespace Sachssoft.Sasogine.Common
         /// </summary>
         public abstract void Unload();
 
-        public void Reload(ReloadOptions options = ReloadOptions.Full)
+        public void Reload()
         {
-            if (options.HasFlag(ReloadOptions.ReloadResources) ||
-                options == ReloadOptions.Full)
-            {
-                Unload();
-                Load();
-                return;
-            }
-
-            if (options.HasFlag(ReloadOptions.UpdateDefinition))
-            {
-                ApplyDefinitionChanges();
-            }
-
-            if (options.HasFlag(ReloadOptions.RecreateRuntime))
-            {
-                RebuildRuntime();
-            }
+            Unload();
+            Load();
+            return;
         }
 
-        public async Task ReloadAsync(ReloadOptions options = ReloadOptions.Full)
+        public async Task ReloadAsync()
         {
-            if (options.HasFlag(ReloadOptions.ReloadResources) ||
-                options == ReloadOptions.Full)
-            {
-                Unload();
-                await LoadAsync();
-                return;
-            }
-
-            if (options.HasFlag(ReloadOptions.UpdateDefinition))
-            {
-                ApplyDefinitionChanges();
-            }
-
-            if (options.HasFlag(ReloadOptions.RecreateRuntime))
-            {
-                RebuildRuntime();
-            }
-        }
-
-        protected virtual void ApplyDefinitionChanges()
-        {
-        }
-
-        protected virtual void RebuildRuntime()
-        {
+            Unload();
+            await LoadAsync();
+            return;
         }
 
         protected void Freeze()

@@ -10,8 +10,8 @@ namespace Sachssoft.Sasogine.Components.Rendering.Camera
     /// </summary>
     public abstract class CameraBase : ICamera
     {
+        private Viewport _viewport;
         private Matrix _world = Matrix.Identity;
-        private GraphicsDevice _graphicsDevice;
         private Matrix _projection;
         private Matrix _view;
 
@@ -19,15 +19,9 @@ namespace Sachssoft.Sasogine.Components.Rendering.Camera
         /// Initializes a new instance of the <see cref="CameraBase"/> class.
         /// </summary>
         /// <param name="graphicsDevice">Graphics device used for viewport operations.</param>
-        public CameraBase(GraphicsDevice graphicsDevice)
+        public CameraBase()
         {
-            _graphicsDevice = graphicsDevice;
         }
-
-        /// <summary>
-        /// Gets the graphics device associated with this camera.
-        /// </summary>
-        public GraphicsDevice GraphicsDevice => _graphicsDevice;
 
         /// <summary>
         /// Gets the projection matrix of the camera.
@@ -56,6 +50,13 @@ namespace Sachssoft.Sasogine.Components.Rendering.Camera
             private set => _world = value;
         }
 
+        protected Viewport Viewport => _viewport;
+
+        public void ApplyViewport(Viewport viewport)
+        {
+            _viewport = viewport;
+        }
+
         /// <summary>
         /// Applies the transformation matrices from another <see cref="ICameraTransform"/>.
         /// </summary>
@@ -76,7 +77,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Camera
         /// <returns>Corresponding world coordinates.</returns>
         public virtual Vector2 ToWorld(Vector2 screenPosition)
         {
-            var unprojected = _graphicsDevice.Viewport.Unproject(
+            var unprojected = _viewport.Unproject(
                 new Vector3(screenPosition, 0f),
                 _projection,
                 _view,
@@ -92,7 +93,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Camera
         /// <returns>Corresponding screen coordinates in pixels.</returns>
         public virtual Vector2 ToScreen(Vector2 worldPosition)
         {
-            var projected = _graphicsDevice.Viewport.Project(
+            var projected = _viewport.Project(
                 new Vector3(worldPosition, 0f),
                 _projection,
                 _view,

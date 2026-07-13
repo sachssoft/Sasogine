@@ -1,94 +1,91 @@
 ﻿using System;
-using System.IO;
 using Sachssoft.Sasogine;
 
 namespace Sachssoft.Sasogine.Assets
 {
-    public sealed class AssetFile<T> : IAssetFile
-        where T : class, IAsset
+    /// <summary>
+    /// Represents an asset file reference inside a package.
+    /// </summary>
+    public class AssetFile : IAssetFile
     {
-        private bool _wasResolved;
-        private T? _asset;
-        private Exception? _error;
-
-        public AssetFile(string? relativeFilePath)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AssetFile"/> class.
+        /// </summary>
+        /// <param name="relativeFilePath">
+        /// Relative path of the asset inside the package.
+        /// </param>
+        public AssetFile(string relativeFilePath)
         {
             if (string.IsNullOrWhiteSpace(relativeFilePath))
                 throw new ArgumentException("Invalid asset file path.", nameof(relativeFilePath));
 
-            // Plattform unabhängig machen
             relativeFilePath = relativeFilePath.Replace('\\', '/');
-
-            if (relativeFilePath.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
-                throw new ArgumentException("Asset path contains invalid characters.", nameof(relativeFilePath));
-
-            var fileName = Path.GetFileName(relativeFilePath);
-
-            if (fileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
-                throw new ArgumentException("Asset filename contains invalid characters.", nameof(relativeFilePath));
 
             FullRelativePath = relativeFilePath;
 
-            Name = Path.GetFileNameWithoutExtension(relativeFilePath);
+            Name = System.IO.Path.GetFileNameWithoutExtension(relativeFilePath);
 
-            var directory = Path.GetDirectoryName(relativeFilePath);
+            var directory = System.IO.Path.GetDirectoryName(relativeFilePath);
+
             RelativePath = directory?.Replace('\\', '/') ?? string.Empty;
         }
 
-        public Type AssetType => typeof(T);
+        /// <summary>
+        /// Gets the detected asset type.
+        /// </summary>
+        public Type? AssetType { get; internal set; }
 
+        /// <summary>
+        /// Gets the asset name without extension.
+        /// </summary>
         public string Name { get; }
 
+        /// <summary>
+        /// Gets the directory path inside the package.
+        /// </summary>
         public string RelativePath { get; }
 
+        /// <summary>
+        /// Gets the complete relative file path inside the package.
+        /// </summary>
         public string FullRelativePath { get; }
 
-        public bool IsUnknown { get; private set; }
+        /// <summary>
+        /// Gets a value indicating whether the asset type is unknown.
+        /// </summary>
+        public bool IsUnknown { get; internal set; }
 
-        public Exception? Error => _error;
+        /// <summary>
+        /// Gets the error that occurred during processing.
+        /// </summary>
+        public Exception? Error { get; internal set; }
 
-        public T? Resolve(Stream stream, IAssetResolverProvider resolver)
+
+        /// <summary>
+        /// Creates a strongly typed asset file representation.
+        /// </summary>
+        public TypedAssetFile<T> As<T>()
+            where T : class, IAsset
         {
-            if (_wasResolved)
-                return _asset;
-
-            _wasResolved = true;
-
-            try
-            {
-                var result = resolver.Resolve(stream);
-
-                if (result is T typedAsset)
-                {
-                    _asset = typedAsset;
-                }
-                else
-                {
-                    IsUnknown = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                _error = ex;
-            }
-
-            return _asset;
+            return new TypedAssetFile<T>(FullRelativePath);
         }
 
-        IAsset? IAssetFile.Resolve(Stream stream, IAssetResolverProvider resolver)
-        {
-            return Resolve(stream, resolver);
-        }
 
+        /// <summary>
+        /// Creates a copy of this asset file reference.
+        /// </summary>
         public IAssetFile Clone()
         {
-            return new AssetFile<T>(FullRelativePath);
+            return new AssetFile(FullRelativePath);
         }
+
 
         object ICloneable.Clone()
         {
             return Clone();
         }
+
+
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(this, obj))
@@ -103,16 +100,16 @@ namespace Sachssoft.Sasogine.Assets
                 StringComparison.OrdinalIgnoreCase);
         }
 
+
         public override int GetHashCode()
         {
-            return HashCode.Combine(
-                typeof(T),
-                StringComparer.OrdinalIgnoreCase.GetHashCode(FullRelativePath));
+            return StringComparer.OrdinalIgnoreCase.GetHashCode(FullRelativePath);
         }
+
 
         void IAssemblyContract.Initialize()
         {
-            // Für Dritte nicht implementierbar
+            // Internal initialization only.
         }
     }
 }

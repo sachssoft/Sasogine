@@ -8,28 +8,28 @@ namespace Sachssoft.Sasogine.Input
 
     public abstract class InputInteractionManager<TButton> where TButton : struct, Enum
     {
-        protected static readonly TButton[] _all_buttons = Enum.GetValues<TButton>().Cast<TButton>().ToArray();
+        protected static readonly TButton[] _allButtons = Enum.GetValues<TButton>().Cast<TButton>().ToArray();
 
-        protected IInputState<TButton> _previous_state;
+        protected IInputState<TButton> _previousState;
 
-        private readonly Dictionary<HashSet<TButton>, (Action press_action, Action? release_action)> _combo_actions = new(new HashSetComparer<TButton>());
+        private readonly Dictionary<HashSet<TButton>, (Action pressAction, Action? releaseAction)> _combo_actions = new(new HashSetComparer<TButton>());
         private readonly List<HashSet<TButton>> _active_combos = new();
         private readonly List<SequenceEntry> _sequences = new();
 
-        public InputInteractionManager(IInputState<TButton> initial_state)
+        public InputInteractionManager(IInputState<TButton> initialState)
         {
-            _previous_state = initial_state ?? throw new ArgumentNullException(nameof(initial_state));
+            _previousState = initialState ?? throw new ArgumentNullException(nameof(initialState));
         }
 
-        public void AddCombination(IEnumerable<TButton> buttons, Action press_action, Action? release_action = null)
+        public void AddCombination(IEnumerable<TButton> buttons, Action pressAction, Action? releaseAction = null)
         {
             var button_set = new HashSet<TButton>(buttons);
-            _combo_actions[button_set] = (press_action, release_action);
+            _combo_actions[button_set] = (pressAction, releaseAction);
         }
 
-        public void Add(TButton button, Action press_action, Action? release_action = null)
+        public void Add(TButton button, Action pressAction, Action? releaseAction = null)
         {
-            AddCombination(new[] { button }, press_action, release_action);
+            AddCombination(new[] { button }, pressAction, releaseAction);
         }
 
         public void RemoveCombination(IEnumerable<TButton> buttons)
@@ -54,14 +54,14 @@ namespace Sachssoft.Sasogine.Input
             _active_combos.Clear();
         }
 
-        public void ClearActiveCombinations(bool trigger_release_actions = true)
+        public void ClearActiveCombinations(bool triggerReleaseActions = true)
         {
-            if (trigger_release_actions)
+            if (triggerReleaseActions)
             {
                 foreach (var combo in _active_combos)
                 {
                     if (_combo_actions.TryGetValue(combo, out var actions))
-                        actions.release_action?.Invoke();
+                        actions.releaseAction?.Invoke();
                 }
             }
 
@@ -82,15 +82,15 @@ namespace Sachssoft.Sasogine.Input
             ClearSequences();
         }
 
-        public void RemoveActiveCombination(IEnumerable<TButton> buttons, bool trigger_release = true)
+        public void RemoveActiveCombination(IEnumerable<TButton> buttons, bool triggerRelease = true)
         {
-            var button_set = new HashSet<TButton>(buttons);
-            var match = _active_combos.FirstOrDefault(c => c.SetEquals(button_set));
+            var buttonSet = new HashSet<TButton>(buttons);
+            var match = _active_combos.FirstOrDefault(c => c.SetEquals(buttonSet));
 
             if (match != null)
             {
-                if (trigger_release && _combo_actions.TryGetValue(match, out var actions))
-                    actions.release_action?.Invoke();
+                if (triggerRelease && _combo_actions.TryGetValue(match, out var actions))
+                    actions.releaseAction?.Invoke();
 
                 _active_combos.Remove(match);
             }
@@ -111,7 +111,7 @@ namespace Sachssoft.Sasogine.Input
                 var (press_action, release_action) = kvp.Value;
 
                 bool is_pressed_now = combo.All(b => currentState.IsButtonDown(b));
-                bool was_pressed_before = combo.All(b => _previous_state.IsButtonDown(b));
+                bool was_pressed_before = combo.All(b => _previousState.IsButtonDown(b));
 
                 if (is_pressed_now && !was_pressed_before)
                 {
@@ -131,10 +131,10 @@ namespace Sachssoft.Sasogine.Input
 
             foreach (var seq in _sequences)
             {
-                seq.Update(currentState, _previous_state, elapsed);
+                seq.Update(currentState, _previousState, elapsed);
             }
 
-            _previous_state = currentState;
+            _previousState = currentState;
         }
 
         protected class SequenceEntry
@@ -188,7 +188,7 @@ namespace Sachssoft.Sasogine.Input
 
             private bool AnyOtherButtonPressed(IInputState<TButton> current, IInputState<TButton> previous, TButton exclude)
             {
-                foreach (var btn in _all_buttons)
+                foreach (var btn in _allButtons)
                 {
                     if (btn.Equals(exclude))
                         continue;
