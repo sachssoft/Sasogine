@@ -1,33 +1,63 @@
 # Sachssoft Sasogine
 
-Sasogine is a lightweight game engine based on MonoGame.
+Sasogine is a lightweight and extensible game engine built on top of **MonoGame**.
 
 ## Features
 
-### Common
-- Useful struct types such as Box, Insets, etc., which are not available in MonoGame
-- Object definition architecture
-- Geometry utilities
+### Asset System
+- Audio Assets
+- Graphics Assets
+- Model Assets
+- Data Assets
 
-### Management
-- Asset system
-- Scene management
-- Optional runtime layer (backend) and presentation layer (frontend) for scenes
-- Component system
+### Scene System
+- Scene Management
+- Components
+- Component Services
 
-### Audio
-- Custom audio player implementation
+### Object and Definition Model
+- Definition and Runtime Objects
+- Definition-Based Creation
 
-### Graphics
-- Camera system
-- Texture atlases
-- Primitive rendering
-- Parallaxes
-- Font system
-- Embedded rendering host (supports UI frameworks such as Avalonia, WPF, WinForms, etc.)
+### Gameplay System
+- Gameplay Formats
+- Participants
+- Randomization
+- Tier Systems
+- Rules
 
-### Gameplay
-- Tiered scoring system
-- Participant system
-- Random utilities
-- Formatted HUD and UI display system
+### Geometry System
+- Geometric Primitives
+- Mathematical Utilities
+- Spatial Operations
+
+### Graphics System
+Supported graphics features:
+
+- Texture Atlases
+- Primitive Rendering
+- Text and Font System
+- Rendering Pipeline
+
+### Input and Interaction System
+- Input Handling
+- User Interaction
+- Device Support
+
+### Resource System
+- Resource Loading
+- Multiple Resource Sources
+- Custom Resource Providers
+
+### Application Services
+Platform-independent service interfaces:
+
+- Platform Services
+- Monetization Services
+- External Integrations
+
+### World and Entity System
+- World Management
+- Entity Management
+- Object-Oriented Entity Architecture
+- Entity Interaction

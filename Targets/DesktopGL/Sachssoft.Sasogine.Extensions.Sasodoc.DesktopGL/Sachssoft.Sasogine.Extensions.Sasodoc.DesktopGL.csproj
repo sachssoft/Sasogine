@@ -1,24 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFrameworks>net8.0;net9.0;net10.0;</TargetFrameworks>
+		<PackageOutputPath>..\..\..\Packages</PackageOutputPath>
 		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+		<!-- AOT / Trimming -->
+		<IsTrimmable>true</IsTrimmable>
+		<IsAotCompatible>true</IsAotCompatible>
+		<EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+		<EnableAotAnalyzer>true</EnableAotAnalyzer>
 	</PropertyGroup>
 
-	<Import Project="..\..\..\Sachssoft.Sasogine.Extensions.Sasodoc.Shared.projitems" Label="Shared" />
+	<Import Project="..\..\..\Extensions\Sachssoft.Sasogine.Extensions.Sasodoc.Shared.projitems" Label="Shared" />
 	<Import Project="..\..\..\Sachssoft.Sasogine.Extensions.Sasodoc.props" />
 	
 	<PropertyGroup>
 		<RootNamespace>Sachssoft.Sasogine.Extensions.Sasodoc</RootNamespace>
-		<Nullable>enable</Nullable>
-		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>Sasodoc Extensions For Sasogine</Title>
 		<Copyright>© Tobias Sachs (Sachssoft)</Copyright>
-	</PropertyGroup>
-
-	<PropertyGroup>
-		<IsTrimmable>True</IsTrimmable>
-		<IsAotCompatible>True</IsAotCompatible>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -26,10 +27,7 @@
 			<PrivateAssets>All</PrivateAssets>
 		</PackageReference>
 		<PackageReference Include="Sachssoft.Sasodoc" Version="1.0.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\Sachssoft.Sasogine.DesktopGL\Sachssoft.Sasogine.DesktopGL.csproj" />
+		<PackageReference Include="Sachssoft.Sasogine.DesktopGL" Version="0.0.1-alpha" />
 	</ItemGroup>
 
 </Project>

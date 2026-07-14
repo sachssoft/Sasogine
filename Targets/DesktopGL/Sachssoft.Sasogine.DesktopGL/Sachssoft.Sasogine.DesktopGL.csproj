@@ -1,41 +1,46 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+		<TargetFrameworks>net8.0;net9.0;net10.0;</TargetFrameworks>
+		<PackageOutputPath>..\..\..\Packages</PackageOutputPath>
 		<Nullable>enable</Nullable>
-		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-	</PropertyGroup>
 
-	<PropertyGroup>
-		<!-- NuGet Metadata -->
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+
 		<PackageId>Sachssoft.Sasogine.DesktopGL</PackageId>
 		<Title>Sasogine DesktopGL</Title>
-		<Description>Sasogine DesktopGL backend based on MonoGame.</Description>
-		<PackageTags>MonoGame;Sasogine;GameEngine;DesktopGL;OpenGL</PackageTags>
+		<Description>
+			Sasogine DesktopGL backend based on MonoGame.
+		</Description>
+
+		<PackageTags>
+			MonoGame;Sasogine;GameEngine;DesktopGL;OpenGL
+		</PackageTags>
 	</PropertyGroup>
 
 	<Import Project="..\..\..\Sachssoft.Sasogine.props" />
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DefineConstants>$(DefineConstants);BACKEND_GL;DEVICE_DESKTOP</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<DefineConstants>$(DefineConstants);BACKEND_GL;DEVICE_DESKTOP</DefineConstants>
+	<PropertyGroup>
+		<DefineConstants>
+			$(DefineConstants);
+			BACKEND_GL;
+			DEVICE_DESKTOP
+		</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Include="..\..\..\Basic\**\*.cs" Links="" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Compile Remove="..\..\..\Basic\Assets\Graphics\ITexture2DAssetDefinition.cs" />
+		<Compile Include="..\..\..\Basic\**\*.cs">
+			<LinkBase>Basic</LinkBase>
+		</Compile>
 	</ItemGroup>
 	
 	<ItemGroup>
-		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*">
-			<PrivateAssets>All</PrivateAssets>
-		</PackageReference>
+		<!--<None Include="..\..\..\README.md" Pack="true" PackagePath="/" />-->
+		<None Include="..\..\..\..\LICENSE.md" Pack="true" PackagePath="/" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.4.1" />
 	</ItemGroup>
 
 </Project>

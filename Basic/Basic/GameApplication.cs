@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Embedding;
 using Sachssoft.Sasogine.Resources;
 using Sachssoft.Sasogine.Resources.Localization;
 using Sachssoft.Sasogine.Scenes;
@@ -12,8 +11,6 @@ namespace Sachssoft.Sasogine;
 
 public abstract class GameApplicationBase : Game, IGameApplication
 {
-    private readonly IEmbeddedView? _embedded;
-    private readonly ISharedTextureProvider? _sharedTextureProvider;
     private readonly string[] _commandArgs;
 
     protected private readonly LocalizationManager _localization;
@@ -37,9 +34,6 @@ public abstract class GameApplicationBase : Game, IGameApplication
         if (IGameApplication.Current != null)
             throw new GameException("Game already was started.");
 
-        _embedded = this as IEmbeddedView;
-        _sharedTextureProvider = this as ISharedTextureProvider;
-
         // Optional Configuration: default erstellen, falls null
         Configuration = configuration ?? new GameConfiguration();
 
@@ -60,8 +54,6 @@ public abstract class GameApplicationBase : Game, IGameApplication
 
         IGameApplication.Current = this;
     }
-
-    public bool IsEmbedded => this is IEmbeddedView;
 
     public GameConfiguration Configuration { get; }
 
@@ -206,10 +198,6 @@ public abstract class GameApplicationBase : Game, IGameApplication
     protected abstract ISceneManager CreateScenes();
 
     protected virtual IGameSettings? CreateSettings() => null;
-
-    protected IEmbeddedView? GetEmbedded() => _embedded;
-
-    public ISharedTextureProvider? GetSharedTextureProvider() => _sharedTextureProvider;
 
     private void Window_FileDrop(object? sender, FileDropEventArgs e)
     {

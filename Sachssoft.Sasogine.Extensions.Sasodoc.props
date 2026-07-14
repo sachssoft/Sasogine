@@ -1,18 +1,79 @@
 <Project>
-	<PropertyGroup>
-		<RootNamespace>Sachssoft.Sasogine.Extensions.Sasodoc</RootNamespace>
-		<Nullable>enable</Nullable>
-		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-		<Title>Sasodoc For Sasogine</Title>
-		<Copyright>© Tobias Sachs (Sachssoft)</Copyright>
-	</PropertyGroup>
 
 	<PropertyGroup>
-		<IsTrimmable>True</IsTrimmable>
-		<IsAotCompatible>True</IsAotCompatible>
+		<!-- General -->
+		<RootNamespace>Sachssoft.Sasogine.Extensions.Sasodoc</RootNamespace>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+		<!-- AOT / Trimming -->
+		<IsTrimmable>true</IsTrimmable>
+		<IsAotCompatible>true</IsAotCompatible>
+		<EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+		<EnableAotAnalyzer>true</EnableAotAnalyzer>
+
+		<!-- Documentation -->
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
+
+
+	<PropertyGroup>
+		<!-- NuGet Metadata -->
+		<VersionPrefix>0.0.1</VersionPrefix>
+		<VersionSuffix>alpha</VersionSuffix>
+
+		<Authors>Tobias Sachs</Authors>
+		<Description>
+			Sasodoc extensions for Sasogine based on MonoGame DesktopGL.
+		</Description>
+
+		<PackageReleaseNotes>
+			Sasodoc Extensions Alpha release for Sasogine.
+		</PackageReleaseNotes>
+
+		<Copyright>© 2025-2026 Tobias Sachs (Sachssoft)</Copyright>
+
+		<!-- Package -->
+		<PackageTags>
+			Sasogine;Sasodoc;MonoGame;GameEngine;Framework;AOT;Trimming
+		</PackageTags>
+
+		<!--<PackageReadmeFile>README.md</PackageReadmeFile>-->
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+
+		<PackageProjectUrl>
+			https://github.com/sachssoft/Sasogine
+		</PackageProjectUrl>
+
+		<GeneratePackageOnBuild Condition="'$(Configuration)'=='Release'">
+			true
+		</GeneratePackageOnBuild>
+
+
+		<!-- Source Repository -->
+		<RepositoryUrl>
+			https://github.com/sachssoft/Sasogine.git
+		</RepositoryUrl>
+
+		<RepositoryType>git</RepositoryType>
+
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<None Include="$(MSBuildThisFileDirectory)LICENSE.md"
+			  Pack="true"
+			  PackagePath="\" />
+
+		<None Include="$(MSBuildThisFileDirectory)README.md"
+			  Pack="true"
+			  PackagePath="\" />
+	</ItemGroup>
+
 
 	<ItemGroup>
 		<PackageReference Include="Sachssoft.Sasodoc" Version="1.0.0" />
+		<PackageReference Include="Sachssoft.Sasogine.DesktopGL" Version="0.0.1-alpha" />
 	</ItemGroup>
+
 </Project>

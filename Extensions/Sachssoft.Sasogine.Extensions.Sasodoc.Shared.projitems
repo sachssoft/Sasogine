@@ -9,6 +9,14 @@
     <Import_RootNamespace>Sachssoft.Sasogine.Extensions.Sasodoc.Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)BasicExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EngineExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EngineResourceExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Sasodoc\**\*.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FactoryRegistry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ISerialization.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SerializationBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SerializationRegistry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SystemExtensions.cs" />
   </ItemGroup>
- </Project>
+</Project>
