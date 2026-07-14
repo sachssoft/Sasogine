@@ -2,6 +2,10 @@
 
 Sasogine is a lightweight and extensible game engine built on top of **MonoGame**.
 
+> [!WARNING]
+> Sasogine is in early alpha stage. Not all features are complete yet.
+> APIs and features may change, be replaced, or removed in future releases.
+
 ## Documentation
 
 - **License**: See [LICENSE.md](LICENSE.md)
