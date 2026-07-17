@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Components.Rendering.Camera;
+using Sachssoft.Sasogine.Graphics.Camera;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using Sachssoft.Sasogine.Scenes;
 using System;
@@ -66,7 +66,7 @@ public abstract class PrimitiveBase
     public abstract int VertexCount { get; }
     public abstract int IndexCount { get; }
 
-    public Action<IEffectAdapter, ICamera, Matrix?>? EffectSetupCallback { get; set; }
+    public Action<IShader, ICamera, Matrix?>? EffectSetupCallback { get; set; }
 
     // Methods
     public void MarkDirty() => _dirty = true;
@@ -108,7 +108,7 @@ public abstract class PrimitiveBase
 
     public virtual void Update(SceneUpdateContext context) { }
 
-    public void DrawScoped(SceneDrawContext context, Matrix? transform = null, ICamera? customCamera = null, IEffectAdapter? customEffect = null, RenderOptions? options = null)
+    public void DrawScoped(SceneDrawContext context, Matrix? transform = null, ICamera? customCamera = null, IShader? customEffect = null, RenderOptions? options = null)
     {
         using (new RenderScope(context, options))
         {
@@ -154,7 +154,7 @@ public abstract class PrimitiveBase
         }
     }
 
-    public void Draw(SceneDrawContext context, Matrix? transform = null, ICamera? customCamera = null, IEffectAdapter? customEffectAdapter = null)
+    public void Draw(SceneDrawContext context, Matrix? transform = null, ICamera? customCamera = null, IShader? customEffectAdapter = null)
     {
         if (!Visible)
             return;
@@ -206,9 +206,14 @@ public abstract class PrimitiveBase
         //EffectSetup(effect, camera, transform);
 
         // Matrizen setzen
-        effect.World = (transform ?? Matrix.Identity) * camera.World;
-        effect.View = camera.View;
-        effect.Projection = camera.Projection;
+        //effect.World = (transform ?? Matrix.Identity) * camera.World;
+        //effect.View = camera.View;
+        //effect.Projection = camera.Projection;
+        if (effect is IShaderTransform shaderTransform)
+        {
+            shaderTransform.Camera = camera;
+            shaderTransform.Transform = transform ?? Matrix.Identity;
+        }
 
         EffectSetupCallback?.Invoke(effect, camera, transform);
         EffectSetup(effect, camera, transform);
@@ -252,7 +257,7 @@ public abstract class PrimitiveBase
         }
     }
 
-    protected virtual void EffectSetup(IEffectAdapter effect, ICamera camera, Matrix? transform)
+    protected virtual void EffectSetup(IShader effect, ICamera camera, Matrix? transform)
     {
         // Unterklassen können überschreiben
     }

@@ -19,7 +19,7 @@
 
 	<PropertyGroup>
 		<!-- NuGet Metadata -->
-		<VersionPrefix>0.0.1</VersionPrefix>
+		<VersionPrefix>0.0.2</VersionPrefix>
 		<VersionSuffix>alpha</VersionSuffix>
 
 		<Authors>Tobias Sachs</Authors>

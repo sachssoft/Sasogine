@@ -1,7 +1,6 @@
-﻿using Sachssoft.Sasogine.Common;
-using System;
+﻿using System;
 
-namespace Sachssoft.Sasogine.Basic.Common
+namespace Sachssoft.Sasogine.Common
 {
     /// <summary>
     /// Provides extension methods for working with definitions.

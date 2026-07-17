@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Components.Rendering.Camera;
+using Sachssoft.Sasogine.Graphics.Camera;
 using Sachssoft.Sasogine.Scenes;
 using System;
 
@@ -23,12 +23,12 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
         /// <summary>
         /// Optionaler Effekt-Override
         /// </summary>
-        public Action<IEffectAdapter, ICamera, Matrix?>? EffectSetupCallback { get; set; }
+        public Action<IShader, ICamera, Matrix?>? ShaderSetupCallback { get; set; }
 
         /// <summary>
         /// Zeichnet das Modell innerhalb eines RenderScopes
         /// </summary>
-        public void Draw(SceneDrawContext context, Matrix? transform = null, ICamera? camera = null, IEffectAdapter? customEffect = null)
+        public void Draw(SceneDrawContext context, Matrix? transform = null, ICamera? camera = null, IShader? customEffect = null)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
@@ -42,14 +42,20 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
             {
                 foreach (var effectBase in mesh.Effects)
                 {
-                    if (effectBase is IEffectAdapter effect)
+                    if (effectBase is IShader shader)
                     {
-                        effect.World = finalWorld;
-                        effect.View = cam.View;
-                        effect.Projection = cam.Projection;
+                        if (shader is IShaderTransform shaderTransform)
+                        {
+                            shaderTransform.Camera = cam;
+                            shaderTransform.Transform = finalWorld;
 
-                        EffectSetupCallback?.Invoke(effect, cam, finalWorld);
-                        effect.Apply();
+                            //effect.World = finalWorld;
+                            //effect.View = cam.View;
+                            //effect.Projection = cam.Projection;
+                        }
+
+                        ShaderSetupCallback?.Invoke(shader, cam, finalWorld);
+                        shader.Apply();
                     }
                     else if (effectBase is BasicEffect basic)
                     {
@@ -57,7 +63,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
                         basic.View = cam.View;
                         basic.Projection = cam.Projection;
 
-                        EffectSetupCallback?.Invoke(null, cam, finalWorld); // optional für BasicEffect
+                        ShaderSetupCallback?.Invoke(null, cam, finalWorld); // optional für BasicEffect
                         basic.CurrentTechnique.Passes[0].Apply();
                     }
                 }

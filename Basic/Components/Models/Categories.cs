@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Sachssoft.Sasogine.Components.Models
+﻿namespace Sachssoft.Sasogine.Components.Models
 {
     public static class Categories
     {
@@ -22,7 +18,7 @@ namespace Sachssoft.Sasogine.Components.Models
         public const string Rendering = "Rendering";
         public const string Audio = "Audio";
         public const string Transform = "Transform";
-        public const string Miscelleaneous = "Miscelleaneous"; 
+        public const string Miscelleaneous = "Miscelleaneous";
         public const string Assets = "Assets";
         public const string Appearance = "Appearance";
         public const string Physics = "Physics";

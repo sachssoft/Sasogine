@@ -4,12 +4,15 @@ using System;
 namespace Sachssoft.Sasogine.Components.Rendering.Animation
 {
     /// <summary>
-    /// Represents the base class for all animations.
-    /// Provides timing, position, rotation, and progress management.
-    /// Supports pausing, resetting, and infinite or delayed animations.
+    /// Provides a base implementation for animation components with timing,
+    /// progress tracking, position and rotation handling.
+    ///
+    /// Supports delayed starts, pausing, resetting, finite durations,
+    /// and infinite animations. Derived classes implement custom animation
+    /// behavior by overriding position and rotation calculation methods.
     /// </summary>
     public abstract class AnimationBase<TDefinition> : ResourceComponentBase<TDefinition>, IAnimationComponent
-        where TDefinition : AnimationDefinition, new()
+        where TDefinition : AnimationDefinition
     {
         private int _duration;
         private bool _infinite;
@@ -18,6 +21,16 @@ namespace Sachssoft.Sasogine.Components.Rendering.Animation
         private float _startRotation;
         private bool _pause;
         private long _startTicks;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AnimationBase{TDefinition}"/> class.
+        /// </summary>
+        /// <param name="definition">
+        /// The animation definition containing configuration data.
+        /// </param>
+        protected AnimationBase(TDefinition definition) : base(definition)
+        {
+        }
 
         /// <summary>
         /// Starts the animation at the specified position and rotation.
@@ -93,20 +106,23 @@ namespace Sachssoft.Sasogine.Components.Rendering.Animation
         protected virtual float AddRotationOverride(float elapsedTime) => 0f;
 
         /// <summary>
-        /// Returns the initial position of the animation.
+        /// Gets the initial position from which the animation started.
         /// </summary>
         protected Vector2 StartPosition => _startPosition;
 
         /// <summary>
-        /// Returns the initial rotation of the animation in degrees.
+        /// Gets the initial rotation from which the animation started.
         /// </summary>
         protected float StartRotation => _startRotation;
 
         /// <summary>
-        /// Calculates the progress of the animation as a value between 0 and 1.
-        /// Returns 0 if not started, 1 if finished or infinite.
+        /// Calculates the normalized animation progress between 0 and 1.
+        /// Returns 0 before the animation starts and 1 when the animation has completed
+        /// or runs indefinitely.
         /// </summary>
-        /// <returns>Normalized progress value (0..1).</returns>
+        /// <returns>
+        /// A normalized progress value in the range 0..1.
+        /// </returns>
         protected float GetProgress()
         {
             long now = Environment.TickCount64;

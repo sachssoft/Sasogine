@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Components.Rendering.Camera;
+using Sachssoft.Sasogine.Graphics.Camera;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using Sachssoft.Sasogine.Scenes;
 using System;
@@ -43,7 +43,7 @@ public sealed class PrimitiveBatch : IDisposable
         _dirty = true;
     }
 
-    public void Draw(SceneDrawContext context, Matrix? transform = null, ICamera? camera = null, IEffectAdapter? customEffectAdapter = null)
+    public void Draw(SceneDrawContext context, Matrix? transform = null, ICamera? camera = null, IShader? customEffectAdapter = null)
     {
         if (_primitives.Count == 0) return;
 
@@ -98,9 +98,14 @@ public sealed class PrimitiveBatch : IDisposable
         _indexBuffer.SetData(_indexArray, 0, totalIndices, SetDataOptions.Discard);
 
         // Matrizen setzen
-        effectAdapter.World = transform ?? Matrix.Identity * camera.World;
-        effectAdapter.View = camera.View;
-        effectAdapter.Projection = camera.Projection;
+        if (effectAdapter is IShaderTransform shaderTransform)
+        {
+            shaderTransform.Camera = camera;
+            shaderTransform.Transform = transform ?? Matrix.Identity;
+        }
+        //effectAdapter.World = transform ?? Matrix.Identity * camera.World;
+        //effectAdapter.View = camera.View;
+        //effectAdapter.Projection = camera.Projection;
         effectAdapter.Apply();
 
         foreach (var pass in effectAdapter.CurrentTechnique.Passes)

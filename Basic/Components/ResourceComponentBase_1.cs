@@ -3,8 +3,10 @@
 namespace Sachssoft.Sasogine.Components
 {
     public abstract class ResourceComponentBase<TDefinition> : EngineObject<TDefinition>, IResourceComponent
-        where TDefinition : class, IComponentDefinition, new()
+        where TDefinition : class, IComponentDefinition
     {
-        protected ResourceComponentBase() { }
+        protected ResourceComponentBase(TDefinition definition) : base(definition)
+        {
+        }
     }
 }

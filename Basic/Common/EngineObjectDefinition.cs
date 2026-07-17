@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Sachssoft.Sasogine.Components.Models;
+using System;
 using System.ComponentModel;
-using Sachssoft.Sasogine.Components.Models;
 
 namespace Sachssoft.Sasogine.Common
 {

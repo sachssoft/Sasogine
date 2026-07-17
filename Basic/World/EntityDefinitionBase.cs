@@ -1,5 +1,4 @@
 ﻿using Sachssoft.Sasogine.Components.Models;
-using Sachssoft.Sasogine.Common;
 using System.ComponentModel;
 
 namespace Sachssoft.Sasogine.World;

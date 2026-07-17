@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sachssoft.Sasogine.Common
+﻿namespace Sachssoft.Sasogine.Common
 {
     /// <summary>
     /// Tracks whether a value or definition has changed.

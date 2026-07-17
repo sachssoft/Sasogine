@@ -1,5 +1,4 @@
-﻿using Sachssoft.Sasogine;
-using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Resources;
 using System;
 

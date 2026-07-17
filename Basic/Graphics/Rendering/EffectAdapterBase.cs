@@ -1,63 +1,90 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Components.Rendering.Camera;
+using Sachssoft.Sasogine.Graphics.Camera;
 using System;
 
 namespace Sachssoft.Sasogine.Graphics.Rendering
 {
     /// <summary>
-    /// Base class for wrapping and adapting a MonoGame <see cref="Effect"/>.
-    /// Provides common properties such as camera matrices, texture, color, opacity, and effect techniques.
+    /// Base class for implementing a shader based on a MonoGame <see cref="Effect"/>.
+    /// Provides common shader state such as camera transformation, texture, color,
+    /// opacity, and effect technique handling.
+    ///
+    /// Shader properties only store the current state. Derived classes should apply
+    /// the state to the underlying effect inside <see cref="Apply"/>.
     /// </summary>
-    public abstract class EffectAdapterBase : IEffectAdapter, IDisposable, ICloneable
+    public abstract class ShaderBase : IShader, IDisposable, ICloneable
     {
         private readonly Effect _effect;
 
+        private Texture2D? _texture;
+        private Color _color = Color.White;
+        private float _opacity = 1f;
+        private ICameraTransform? _camera;
+
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="EffectAdapterBase"/> class.
+        /// Initializes a new instance of the <see cref="ShaderBase"/> class.
         /// </summary>
         /// <param name="effect">The underlying MonoGame effect.</param>
-        protected EffectAdapterBase(Effect effect)
+        protected ShaderBase(Effect effect)
         {
             _effect = effect ?? throw new ArgumentNullException(nameof(effect));
         }
 
-        public GraphicsDevice GraphicsDevice { get; set; } = null!; // // garantiert später gesetzt
 
         /// <summary>
-        /// Gets the wrapped <see cref="Effect"/> instance.
+        /// Gets or sets the graphics device used by this shader.
+        /// </summary>
+        public GraphicsDevice GraphicsDevice { get; set; } = null!;
+
+
+        /// <summary>
+        /// Gets the underlying MonoGame <see cref="Effect"/> instance.
         /// </summary>
         public Effect Effect => _effect;
 
-        /// <summary>
-        /// Gets or sets the projection matrix.
-        /// </summary>
-        public virtual Matrix Projection { get; set; } = Matrix.Identity;
 
         /// <summary>
-        /// Gets or sets the view matrix.
+        /// Gets or sets the camera transformation used by this shader.
+        /// Camera values are read when <see cref="Apply"/> is called.
         /// </summary>
-        public virtual Matrix View { get; set; } = Matrix.Identity;
+        public virtual ICameraTransform? Camera
+        {
+            get => _camera;
+            set => _camera = value;
+        }
+
 
         /// <summary>
-        /// Gets or sets the world matrix.
+        /// Gets or sets the texture used by this shader.
         /// </summary>
-        public virtual Matrix World { get; set; } = Matrix.Identity;
+        public virtual Texture2D? Texture
+        {
+            get => _texture;
+            set => _texture = value;
+        }
+
 
         /// <summary>
-        /// Gets or sets the texture used by this effect.
+        /// Gets or sets the base color applied by this shader.
         /// </summary>
-        public virtual Texture2D? Texture { get; set; } = null;
+        public virtual Color Color
+        {
+            get => _color;
+            set => _color = value;
+        }
+
 
         /// <summary>
-        /// Gets or sets the base color.
+        /// Gets or sets the opacity factor (0..1) applied by this shader.
         /// </summary>
-        public virtual Color Color { get; set; } = Color.White;
+        public virtual float Opacity
+        {
+            get => _opacity;
+            set => _opacity = MathHelper.Clamp(value, 0f, 1f);
+        }
 
-        /// <summary>
-        /// Gets or sets the opacity factor (0..1).
-        /// </summary>
-        public virtual float Opacity { get; set; } = 1f;
 
         /// <summary>
         /// Gets or sets the current effect technique.
@@ -68,56 +95,33 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
             set => _effect.CurrentTechnique = value;
         }
 
+
         /// <summary>
-        /// Creates a copy of this adapter with the same configuration.
+        /// Creates a copy of this shader with the same configuration.
         /// </summary>
-        /// <returns>A new <see cref="EffectAdapter"/> instance.</returns>
-        public abstract EffectAdapterBase Clone();
+        /// <returns>A new shader instance.</returns>
+        public abstract ShaderBase Clone();
+
 
         object ICloneable.Clone() => Clone();
 
+
         /// <summary>
-        /// Applies the configured effect parameters to the inner effect.
-        /// Override in derived classes to bind matrices, texture, color, etc.
+        /// Applies the current shader state to the underlying effect.
+        /// Derived classes should override this method to bind effect-specific parameters.
         /// </summary>
         public virtual void Apply()
         {
-            // Example: derived classes can set shader parameters here
-            // e.g., _effect.Parameters["WorldViewProjection"]?.SetValue(World * View * Projection);
+            // Derived classes apply shader parameters here.
         }
 
+
         /// <summary>
-        /// Releases the underlying effect and associated resources.
+        /// Disposes the underlying effect and releases resources.
         /// </summary>
         public virtual void Dispose()
         {
             _effect.Dispose();
-        }
-
-        /// <summary>
-        /// Copies the camera matrices (Projection, View, World) from another transform provider to this instance.
-        /// </summary>
-        /// <param name="source">The source camera transform.</param>
-        public virtual void ApplyTransform(ICameraTransform source)
-        {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-
-            Projection = source.Projection;
-            View = source.View;
-            World = source.World;
-        }
-
-        /// <summary>
-        /// Copies the camera matrices (Projection, View, World) from this instance to another transform provider.
-        /// </summary>
-        /// <param name="target">The target camera transform.</param>
-        public void CopyTo(ICameraTransform target)
-        {
-            if (target == null) throw new ArgumentNullException(nameof(target));
-
-            target.Projection = Projection;
-            target.View = View;
-            target.World = World;
         }
     }
 }

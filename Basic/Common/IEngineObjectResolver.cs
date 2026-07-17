@@ -1,5 +1,4 @@
-﻿using Sachssoft.Sasogine.Components.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Sachssoft.Sasogine.Common

@@ -3,9 +3,16 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Sachssoft.Sasogine.Graphics.Rendering
 {
+    /// <summary>
+    /// Defines rendering state options used to configure the graphics pipeline.
+    /// Includes blending, depth handling, culling, fill mode, texture sampling,
+    /// and optional scissor clipping.
+    /// </summary>
     public class RenderOptions
     {
-        // --- Default ---
+        /// <summary>
+        /// Default rendering options for general 2D rendering.
+        /// </summary>
         public static readonly RenderOptions Default = new RenderOptions
         {
             AlphaBlend = true,
@@ -17,7 +24,10 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
             ScissorRectangle = null
         };
 
-        // --- Opaque ---
+
+        /// <summary>
+        /// Rendering options for opaque geometry.
+        /// </summary>
         public static readonly RenderOptions Opaque = new RenderOptions
         {
             AlphaBlend = false,
@@ -29,7 +39,10 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
             ScissorRectangle = null
         };
 
-        // --- Transparent ---
+
+        /// <summary>
+        /// Rendering options for transparent objects using alpha blending.
+        /// </summary>
         public static readonly RenderOptions AlphaBlended = new RenderOptions
         {
             AlphaBlend = true,
@@ -41,7 +54,11 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
             ScissorRectangle = null
         };
 
-        // --- Overlay / UI / Parallax (Premultiplied) ---
+
+        /// <summary>
+        /// Rendering options for scene overlays, UI elements, and parallax layers
+        /// using premultiplied alpha blending.
+        /// </summary>
         public static readonly RenderOptions ScenePremultiplied = new RenderOptions
         {
             AlphaBlend = true,
@@ -53,7 +70,10 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
             ScissorRectangle = null
         };
 
-        // --- Straight Alpha ---
+
+        /// <summary>
+        /// Rendering options for scene elements using standard straight alpha blending.
+        /// </summary>
         public static readonly RenderOptions SceneStraightAlpha = new RenderOptions
         {
             AlphaBlend = true,
@@ -65,18 +85,46 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
             ScissorRectangle = null
         };
 
-        // --- Properties ---
-        public DepthMode Depth { get; set; } = DepthMode.Disabled;
-        public bool AlphaBlend { get; set; } = true;
-        public bool PremultipliedAlpha { get; set; } = true;
-        public CullMode CullMode { get; set; } = CullMode.None;
-        public FillMode FillMode { get; set; } = FillMode.Solid;
-        public SamplerState SamplerState { get; set; } = SamplerState.PointClamp;
 
         /// <summary>
-        /// Optionales ScissorRectangle für das Rendern.
-        /// Wird in RenderScope aktiviert, falls gesetzt.
+        /// Gets or sets the depth buffer behavior.
         /// </summary>
-        public Rectangle? ScissorRectangle { get; set; } = null;
+        public DepthMode Depth { get; set; } = DepthMode.Disabled;
+
+
+        /// <summary>
+        /// Gets or sets whether alpha blending is enabled.
+        /// </summary>
+        public bool AlphaBlend { get; set; } = true;
+
+
+        /// <summary>
+        /// Gets or sets whether premultiplied alpha blending is used.
+        /// </summary>
+        public bool PremultipliedAlpha { get; set; } = true;
+
+
+        /// <summary>
+        /// Gets or sets the face culling mode.
+        /// </summary>
+        public CullMode CullMode { get; set; } = CullMode.None;
+
+
+        /// <summary>
+        /// Gets or sets the polygon fill mode.
+        /// </summary>
+        public FillMode FillMode { get; set; } = FillMode.Solid;
+
+
+        /// <summary>
+        /// Gets or sets the texture sampling state.
+        /// </summary>
+        public SamplerState SamplerState { get; set; } = SamplerState.PointClamp;
+
+
+        /// <summary>
+        /// Gets or sets the optional scissor rectangle used for clipping rendering output.
+        /// </summary>
+        public Rectangle? ScissorRectangle { get; set; }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Sachssoft.Sasogine.Geometry;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Common.Schedule

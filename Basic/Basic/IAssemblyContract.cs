@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Sachssoft.Sasogine
+﻿namespace Sachssoft.Sasogine
 {
     // Markiert einen Vertrag, der nur von der eigenen Assembly
     // implementiert werden darf.

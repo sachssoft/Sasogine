@@ -1,6 +1,4 @@
-﻿using Sachssoft.Sasogine;
-using Sachssoft.Sasogine.Geometry;
-using System;
+﻿using System;
 using System.IO;
 
 namespace Sachssoft.Sasogine.Assets

@@ -1,7 +1,4 @@
-﻿using Sachssoft.Sasogine.Assets;
-using Sachssoft.Sasogine.Geometry;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace Sachssoft.Sasogine.Assets

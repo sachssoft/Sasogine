@@ -1,13 +1,18 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Basic.Components.Rendering.Camera;
 using Sachssoft.Sasogine.Components;
-using Sachssoft.Sasogine.Components.Rendering.Camera;
+using Sachssoft.Sasogine.Graphics.Camera;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Sachssoft.Sasogine.Scenes
 {
+    /// <summary>
+    /// Provides a basic implementation of a game scene.
+    /// Handles scene lifecycle, component management, updating,
+    /// rendering, and default camera/effect creation.
+    /// </summary>
     public abstract class BasicSceneBase : IScene
     {
         private readonly ComponentCollection _components = new();
@@ -18,47 +23,93 @@ namespace Sachssoft.Sasogine.Scenes
         private bool _loaded;
         private bool _disposed;
 
+
+        /// <summary>
+        /// Gets a value indicating whether this scene remains loaded
+        /// when it is no longer active.
+        /// </summary>
         public virtual bool IsPersistent => false;
 
+
+        /// <summary>
+        /// Gets the collection of components managed by this scene.
+        /// </summary>
         public ComponentCollection Components => _components;
 
+
+        /// <summary>
+        /// Gets a value indicating whether the scene has been loaded.
+        /// </summary>
         public bool IsLoaded => _loaded;
 
+
+        /// <summary>
+        /// Gets the number of views rendered by this scene.
+        /// </summary>
         public int ViewCount { get; } = 1;
 
+
+        /// <summary>
+        /// Gets the game application associated with this scene.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when the scene has not been initialized.
+        /// </exception>
         public IGameApplication Application =>
-            _application ?? throw new InvalidOperationException("Scene not initialized.");
+            _application ?? throw new InvalidOperationException(
+                "Scene not initialized.");
 
-        public Color BackgroundColor { get; set; } = Color.CornflowerBlue;
 
-        public abstract ICamera CreateCamera(GraphicsDevice graphicsDevice);
+        /// <summary>
+        /// Gets or sets the color used when clearing the render target.
+        /// </summary>
+        public Color BackgroundColor { get; set; } =
+            Color.CornflowerBlue;
 
-        ICamera IScene.CreateCamera(GraphicsDevice graphicsDevice, int index)
+
+        /// <summary>
+        /// Creates the camera used by a specific player in this scene.
+        /// Override this method to provide custom camera behavior,
+        /// such as player-specific cameras or split-screen views.
+        /// </summary>
+        /// <param name="graphicsDevice">
+        /// The graphics device used by the camera.
+        /// </param>
+        /// <param name="index">
+        /// The zero-based player index this camera belongs to.
+        /// </param>
+        /// <returns>
+        /// A camera instance assigned to the specified player.
+        /// </returns>
+        public abstract ICamera CreateCamera(
+            GraphicsDevice graphicsDevice,
+            int index);
+
+
+        /// <summary>
+        /// Creates the rendering effect adapter used by this scene.
+        /// </summary>
+        /// <param name="graphicsDevice">
+        /// The graphics device used for rendering.
+        /// </param>
+        /// <returns>
+        /// A default basic effect adapter.
+        /// </returns>
+        public virtual IShader CreateShader(
+            GraphicsDevice graphicsDevice)
         {
-            return CreateCamera(graphicsDevice);
-        }
-
-        public virtual IEffectAdapter CreateEffectAdapter(GraphicsDevice graphicsDevice)
-        {
-            return new BasicEffectAdapter
+            return new BasicShader
             {
                 GraphicsDevice = graphicsDevice
             };
         }
 
-        // ---------------- INIT ----------------
 
-        //SceneContext IScene.ConfigureContext(IGameApplication application)
-        //{
-        //    return new SceneContext(
-        //        application: application,
-        //        scene: this,
-        //        camera: CreateCamera(application.GraphicsDevice),
-        //        effectAdapter: CreateDefaultEffectAdapter(application.GraphicsDevice)
-        //    );
-        //}
-
-        internal void EnsureInitialized(IGameApplication application)
+        /// <summary>
+        /// Initializes the scene with the specified application instance.
+        /// </summary>
+        internal void EnsureInitialized(
+            IGameApplication application)
         {
             if (_application != null)
                 return;
@@ -67,8 +118,10 @@ namespace Sachssoft.Sasogine.Scenes
             _graphicsDevice = application.GraphicsDevice;
         }
 
-        // ---------------- LIFECYCLE ----------------
 
+        /// <summary>
+        /// Loads all resources required by the scene.
+        /// </summary>
         public virtual void Load()
         {
             if (_loaded)
@@ -77,6 +130,10 @@ namespace Sachssoft.Sasogine.Scenes
             _loaded = true;
         }
 
+
+        /// <summary>
+        /// Releases all resources owned by the scene.
+        /// </summary>
         public virtual void Unload()
         {
             if (!_loaded)
@@ -85,32 +142,61 @@ namespace Sachssoft.Sasogine.Scenes
             _loaded = false;
         }
 
-        public virtual void Enter(SceneEnterEventArgs args)
+
+        /// <summary>
+        /// Called when this scene becomes active.
+        /// </summary>
+        /// <param name="args">
+        /// Provides information about the scene activation.
+        /// </param>
+        public virtual void Enter(
+            SceneEnterEventArgs args)
         {
             EnsureInitialized(args.Application);
         }
 
-        public virtual void Exit() { }
 
-        // ---------------- UPDATE ----------------
+        /// <summary>
+        /// Called when this scene is no longer active.
+        /// </summary>
+        public virtual void Exit()
+        {
+        }
 
-        public virtual void Update(SceneUpdateContext context)
+
+        /// <summary>
+        /// Updates all scene components.
+        /// </summary>
+        /// <param name="context">
+        /// Provides update information and active cameras.
+        /// </param>
+        public virtual void Update(
+            SceneUpdateContext context)
         {
             _components.UpdateForEach(context);
         }
 
-        // ---------------- DRAW ----------------
 
-        public virtual void Draw(SceneDrawContext context)
+        /// <summary>
+        /// Draws the scene and all registered components.
+        /// </summary>
+        /// <param name="context">
+        /// Provides rendering information and active camera.
+        /// </param>
+        public virtual void Draw(
+            SceneDrawContext context)
         {
             var gd = context.GraphicsDevice;
+
             gd.Clear(BackgroundColor);
 
             _components.DrawForEach(context);
         }
 
-        // ---------------- DISPOSE ----------------
 
+        /// <summary>
+        /// Releases all resources used by this scene.
+        /// </summary>
         public void Dispose()
         {
             if (_disposed)

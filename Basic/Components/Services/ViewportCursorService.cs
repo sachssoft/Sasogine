@@ -1,11 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Sachssoft.Sasogine;
 using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Components.Rendering.Camera;
-using System;
-using System.Diagnostics;
 
 namespace Sachssoft.Sasogine.Components.Services
 {
@@ -29,8 +24,14 @@ namespace Sachssoft.Sasogine.Components.Services
         private Vector2 _viewportCursorPosition;
         private Vector2 _screenPosition;
         private Vector2 _worldPosition;
+        private PixelBounds _viewport;
+        private PixelSize _renderSize;
 
         public Vector2 ViewportPosition => _viewportCursorPosition;
+
+        public PixelBounds Viewport => _viewport;
+
+        public PixelSize RenderSize => _renderSize;
 
         public Vector2 ScreenPosition => _screenPosition;
 
@@ -55,6 +56,8 @@ namespace Sachssoft.Sasogine.Components.Services
                     viewportCursorPosition.Y / screenScale.Y * viewportScale.Y);
 
             _screenPosition = screenCursorPosition;
+            _viewport = viewport;
+            _renderSize = renderSize;
 
             //Console.Clear();
             //Console.WriteLine("Render Size {0}", renderSize);

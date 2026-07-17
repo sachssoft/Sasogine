@@ -3,24 +3,57 @@
 namespace Sachssoft.Sasogine.Components.Rendering.Animation
 {
     /// <summary>
-    /// Animates a position over time, moving back and forth along a specified distance.
+    /// Provides a position animation that moves an object back and forth
+    /// along a defined distance over time.
+    ///
+    /// The animation automatically reverses direction when reaching the
+    /// start or end position.
     /// </summary>
     public class PositionAnimation : AnimationBase<PositionAnimationDefinition>
     {
         private float _progress = 0f;
         private float _direction = 1f;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PositionAnimation"/> class
+        /// using a default animation definition.
+        /// </summary>
+        public PositionAnimation() : base(new PositionAnimationDefinition())
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PositionAnimation"/> class.
+        /// </summary>
+        /// <param name="definition">
+        /// The definition containing animation configuration data.
+        /// </param>
+        public PositionAnimation(PositionAnimationDefinition definition) : base(definition)
+        {
+        }
+
+        /// <summary>
+        /// Creates a default position animation definition.
+        /// </summary>
+        /// <returns>
+        /// A new <see cref="PositionAnimationDefinition"/> instance.
+        /// </returns>
         protected override PositionAnimationDefinition ResolveDefinition()
         {
             return new PositionAnimationDefinition();
         }
 
         /// <summary>
-        /// Overrides the position calculation for this animation.
-        /// Updates the progress and calculates the new position based on distance.
+        /// Calculates the current position offset based on animation progress.
+        /// The movement is interpolated between the start and target distance
+        /// and reverses direction at the limits.
         /// </summary>
-        /// <param name="elapsedTime">Elapsed time since the last update in milliseconds.</param>
-        /// <returns>New position vector relative to the start position.</returns>
+        /// <param name="elapsedTime">
+        /// The elapsed time since the previous update in milliseconds.
+        /// </param>
+        /// <returns>
+        /// The calculated position offset relative to the animation start position.
+        /// </returns>
         protected override Vector2 AddPositionOverride(float elapsedTime)
         {
             // Calculate progress increment based on speed and elapsed time

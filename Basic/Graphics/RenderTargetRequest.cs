@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
 using System;
-using System.Diagnostics;
 
 namespace Sachssoft.Sasogine.Graphics
 {

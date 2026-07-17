@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Components.Rendering.Camera;
+using Sachssoft.Sasogine.Graphics.Camera;
 using Sachssoft.Sasogine.Graphics.Rendering;
 
 namespace Sachssoft.Sasogine.Graphics.Primitives
@@ -60,7 +60,7 @@ namespace Sachssoft.Sasogine.Graphics.Primitives
             }
         }
 
-        protected override void EffectSetup(IEffectAdapter effect, ICamera camera, Matrix? transform)
+        protected override void EffectSetup(IShader effect, ICamera camera, Matrix? transform)
         {
             effect.Color = FillColor;
         }

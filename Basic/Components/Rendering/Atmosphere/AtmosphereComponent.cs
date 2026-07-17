@@ -2,8 +2,15 @@
 
 namespace Sachssoft.Sasogine.Components.Rendering.Atmosphere
 {
+    /// <summary>
+    /// Provides an atmosphere rendering component that manages atmospheric
+    /// effects and participates in scene updates and rendering.
+    ///
+    /// The component is designed to combine multiple visual atmosphere effects
+    /// through shader-based rendering while minimizing render target switches.
+    /// </summary>
     public class AtmosphereComponent : ResourceComponentBase<AtmosphereDefinition>, IUpdatableComponent, IDrawableComponent
-    {
+    {   
         // Mehrere RenderTargets sollten möglichst vermieden werden,
         // da jeder RenderTarget-Wechsel zusätzlichen GPU-Overhead verursacht
         // (State Changes, Memory Bandwidth und Pipeline Flushes).
@@ -21,22 +28,67 @@ namespace Sachssoft.Sasogine.Components.Rendering.Atmosphere
         //
         // Ziel: minimale RenderTarget-Anzahl, maximale Nutzung von Shadern.
 
-        public AtmosphereComponent() { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AtmosphereComponent"/> class
+        /// using a default atmosphere definition.
+        /// </summary>
+        public AtmosphereComponent() : this(new AtmosphereDefinition())
+        {
+        }
 
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AtmosphereComponent"/> class.
+        /// </summary>
+        /// <param name="definition">
+        /// The atmosphere definition containing configuration data.
+        /// </param>
+        public AtmosphereComponent(AtmosphereDefinition definition) : base(definition)
+        {
+        }
+
+
+        /// <summary>
+        /// Gets or sets whether the atmosphere component participates in updates.
+        /// </summary>
         public bool IsEnabled { get; set; } = true;
 
+
+        /// <summary>
+        /// Gets or sets whether the atmosphere component is rendered.
+        /// </summary>
         public bool IsVisible { get; set; } = true;
 
+
+        /// <summary>
+        /// Creates a default atmosphere definition when no definition is available.
+        /// </summary>
+        /// <returns>
+        /// A new default <see cref="AtmosphereDefinition"/> instance.
+        /// </returns>
         protected override AtmosphereDefinition ResolveDefinition()
         {
             return new AtmosphereDefinition();
         }
 
+
+        /// <summary>
+        /// Updates the atmosphere state.
+        /// </summary>
+        /// <param name="context">
+        /// Provides scene update information.
+        /// </param>
         public void Update(SceneUpdateContext context)
         {
-
         }
 
+
+        /// <summary>
+        /// Draws atmospheric effects.
+        /// </summary>
+        /// <param name="context">
+        /// Provides scene rendering information.
+        /// </param>
         public void Draw(SceneDrawContext context)
         {
         }

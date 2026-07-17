@@ -1,6 +1,4 @@
-﻿using Sachssoft.Sasogine.Components.Models;
-
-namespace Sachssoft.Sasogine.Common
+﻿namespace Sachssoft.Sasogine.Common
 {
     public interface IEngineObjectDefinition : IDefinition, IEngineReferenceable
     {

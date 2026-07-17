@@ -5,4 +5,6 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
+	<Import Project="..\Sachssoft.Sasogine.Extensions.Sasodoc.Shared.projitems" Label="Shared" />
+
 </Project>

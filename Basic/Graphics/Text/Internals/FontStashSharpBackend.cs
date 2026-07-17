@@ -1,6 +1,5 @@
 ﻿using FontStashSharp;
 using Sachssoft.Sasogine.Graphics.Rendering;
-using Sachssoft.Sasogine.Graphics.Text;
 using System;
 using System.Collections.Generic;
 using System.Linq;

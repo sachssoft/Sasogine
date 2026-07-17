@@ -172,7 +172,7 @@ namespace Sachssoft.Sasogine.Input
             if (index < 0 || index > max_enum_value)
             {
 #if DEBUG
-            Debug.WriteLine($"[Interaction] WARN: Enum-Wert {interaction} ({index}) außerhalb des gültigen Bereichs 0..{max_enum_value}");
+                Debug.WriteLine($"[Interaction] WARN: Enum-Wert {interaction} ({index}) außerhalb des gültigen Bereichs 0..{max_enum_value}");
 #endif
                 group = bit = -1;
                 return false;

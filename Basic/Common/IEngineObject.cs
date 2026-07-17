@@ -1,5 +1,4 @@
-﻿using Sachssoft.Sasogine.Components.Models;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Common
 {

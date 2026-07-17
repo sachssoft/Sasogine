@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Scenes;
+﻿using Sachssoft.Sasogine.Scenes;
 using System;
 using System.Collections;
 using System.Collections.Generic;

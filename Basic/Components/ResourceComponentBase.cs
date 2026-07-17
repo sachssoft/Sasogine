@@ -10,7 +10,7 @@
 
         public virtual void Load()
         {
-            if (IsLoaded) 
+            if (IsLoaded)
                 return;
 
             IsLoaded = true;
@@ -18,7 +18,7 @@
 
         public virtual void Unload()
         {
-            if (!IsLoaded) 
+            if (!IsLoaded)
                 return;
 
             IsLoaded = false;
