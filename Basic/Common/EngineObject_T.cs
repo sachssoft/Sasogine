@@ -1,5 +1,4 @@
-﻿using Sachssoft.Sasogine.Components.Models;
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
@@ -14,11 +13,6 @@ namespace Sachssoft.Sasogine.Common
         where TDefinition : class, IDefinition
     {
         private TDefinition? _definition;
-
-        public EngineObject()
-        {
-            _definition = null;
-        }
 
         public EngineObject(TDefinition definition)
         {
