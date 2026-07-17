@@ -47,7 +47,7 @@ public sealed class PrimitiveBatch : IDisposable
     {
         if (_primitives.Count == 0) return;
 
-        var effectAdapter = customEffectAdapter ?? context.EffectAdapter;
+        var effectAdapter = customEffectAdapter ?? context.Shader;
         camera ??= context.ViewCamera ?? throw new InvalidOperationException("No camera available.");
         var graphics = context.GraphicsDevice;
 

@@ -24,8 +24,8 @@ namespace Sachssoft.Sasogine.Scenes
         /// <param name="viewCamera">
         /// The camera used for rendering the current view.
         /// </param>
-        /// <param name="effectAdapter">
-        /// The effect adapter used for rendering operations.
+        /// <param name="shader">
+        /// The shader used for rendering operations.
         /// </param>
         /// <param name="viewIndex">
         /// The zero-based index of the current view.
@@ -43,7 +43,7 @@ namespace Sachssoft.Sasogine.Scenes
             IGameApplication application,
             IScene scene,
             ICamera viewCamera,
-            IShader effectAdapter,
+            IShader shader,
             int viewIndex,
             int viewCount,
             float frameCounterSmoothing = 0.1f,
@@ -52,7 +52,7 @@ namespace Sachssoft.Sasogine.Scenes
         {
             Scene = scene ?? throw new ArgumentNullException(nameof(scene));
             ViewCamera = viewCamera ?? throw new ArgumentNullException(nameof(viewCamera));
-            EffectAdapter = effectAdapter ?? throw new ArgumentNullException(nameof(effectAdapter));
+            Shader = shader ?? throw new ArgumentNullException(nameof(shader));
             ViewIndex = viewIndex;
             ViewCount = viewCount;
         }
@@ -83,9 +83,9 @@ namespace Sachssoft.Sasogine.Scenes
 
 
         /// <summary>
-        /// Gets the effect adapter used for rendering operations.
+        /// Gets the shader used for rendering operations.
         /// </summary>
-        public IShader EffectAdapter { get; }
+        public IShader Shader { get; }
 
 
         /// <summary>

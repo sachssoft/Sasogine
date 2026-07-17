@@ -14,10 +14,13 @@ namespace Sachssoft.Sasogine.Basic.Components.Rendering.Camera
     /// </summary>
     public class Camera2D : EngineObject<Camera2DDefinition>, ICamera2D
     {
+        private const float ZoomMinConstant = 0.01f;
+        private const float ScaleMinConstant = 0.001f;
+
         private Viewport _viewport;
 
         private Vector2 _position;
-        private float _zoom;
+        private float _zoom = 1f;
         private float _rotation;
 
         private float _baseZoomFactor = 1f;
@@ -34,10 +37,9 @@ namespace Sachssoft.Sasogine.Basic.Components.Rendering.Camera
         private float _rotationMinimum = float.MinValue;
         private float _rotationMaximum = float.MaxValue;
 
-        private Matrix _projection;
-        private Matrix _view;
+        private Matrix _projection = Matrix.Identity;
+        private Matrix _view = Matrix.Identity;
         private Matrix _world = Matrix.Identity;
-
 
         /// <summary>
         /// Initializes a new camera with default settings.
@@ -65,11 +67,15 @@ namespace Sachssoft.Sasogine.Basic.Components.Rendering.Camera
             get => _position;
             set
             {
-                _position = Vector2.Clamp(
+                var position = Vector2.Clamp(
                     value,
                     PositionMinimum,
                     PositionMaximum);
 
+                if (_position == position)
+                    return;
+
+                _position = position;
                 UpdateMatrices();
             }
         }
@@ -111,11 +117,15 @@ namespace Sachssoft.Sasogine.Basic.Components.Rendering.Camera
             get => _zoom;
             set
             {
-                _zoom = MathHelper.Clamp(
+                var zoom = MathHelper.Clamp(
                     value,
                     ZoomMinimum,
                     ZoomMaximum);
 
+                if (Math.Abs(_zoom - zoom) < float.Epsilon)
+                    return;
+
+                _zoom = zoom;
                 UpdateMatrices();
             }
         }
@@ -130,7 +140,7 @@ namespace Sachssoft.Sasogine.Basic.Components.Rendering.Camera
             set
             {
                 _baseZoomFactor = Math.Max(
-                    0.001f,
+                    ScaleMinConstant,
                     value);
 
                 UpdateMatrices();
@@ -146,10 +156,16 @@ namespace Sachssoft.Sasogine.Basic.Components.Rendering.Camera
             get => _zoomMinimum;
             set
             {
-                _zoomMinimum = value;
-                Zoom = _zoom;
+                _zoomMinimum = Math.Max(ZoomMinConstant, value);
+
+                if (_zoom < _zoomMinimum)
+                {
+                    _zoom = _zoomMinimum;
+                    UpdateMatrices();
+                }
             }
         }
+
 
 
         /// <summary>
@@ -160,8 +176,13 @@ namespace Sachssoft.Sasogine.Basic.Components.Rendering.Camera
             get => _zoomMaximum;
             set
             {
-                _zoomMaximum = value;
-                Zoom = _zoom;
+                _zoomMaximum = Math.Max(_zoomMinimum, value);
+
+                if (_zoom > _zoomMaximum)
+                {
+                    _zoom = _zoomMaximum;
+                    UpdateMatrices();
+                }
             }
         }
 
@@ -235,6 +256,9 @@ namespace Sachssoft.Sasogine.Basic.Components.Rendering.Camera
         /// </summary>
         public void ApplyViewport(Viewport viewport)
         {
+            if (viewport.Width <= 0 || viewport.Height <= 0)
+                return;
+
             _viewport = viewport;
             UpdateMatrices();
         }
@@ -282,6 +306,9 @@ namespace Sachssoft.Sasogine.Basic.Components.Rendering.Camera
         /// </summary>
         protected virtual void UpdateMatrices()
         {
+            if (_viewport.Width <= 0 || _viewport.Height <= 0)
+                return;
+
             _projection =
                 Matrix.CreateOrthographicOffCenter(
                     0,
@@ -291,11 +318,9 @@ namespace Sachssoft.Sasogine.Basic.Components.Rendering.Camera
                     -1,
                     1);
 
-
             var center = new Vector2(
                 _viewport.Width * 0.5f,
                 _viewport.Height * 0.5f);
-
 
             _view =
                 Matrix.CreateTranslation(
@@ -308,8 +333,7 @@ namespace Sachssoft.Sasogine.Basic.Components.Rendering.Camera
                     center.Y,
                     0f)
                 *
-                Matrix.CreateRotationZ(
-                    Rotation)
+                Matrix.CreateRotationZ(Rotation)
                 *
                 Matrix.CreateScale(
                     BaseZoomFactor * Zoom,

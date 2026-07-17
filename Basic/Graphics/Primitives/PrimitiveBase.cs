@@ -160,7 +160,7 @@ public abstract class PrimitiveBase
             return;
 
         var graphics = context.GraphicsDevice;
-        var effect = customEffectAdapter ?? context.EffectAdapter;
+        var effect = customEffectAdapter ?? context.Shader;
         var camera = customCamera ?? context.ViewCamera ?? throw new InvalidOperationException("No camera available.");
 
         if (effect.Effect.IsDisposed)

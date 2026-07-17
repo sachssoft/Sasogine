@@ -21,6 +21,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
         private Color _color = Color.White;
         private float _opacity = 1f;
         private ICameraTransform? _camera;
+        private Matrix _transform = Matrix.Identity;
 
 
         /// <summary>
@@ -53,6 +54,15 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
         {
             get => _camera;
             set => _camera = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the local world transformation matrix used by this shader.
+        /// </summary>
+        public Matrix Transform
+        {
+            get => _transform;
+            set => _transform = value;
         }
 
 
