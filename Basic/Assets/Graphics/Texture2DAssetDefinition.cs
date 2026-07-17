@@ -1,13 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine;
-using Sachssoft.Sasogine.Assets.Audio;
-using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Components.Models;
 using Sachssoft.Sasogine.Graphics;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Text;
 
 namespace Sachssoft.Sasogine.Assets.Graphics
 {

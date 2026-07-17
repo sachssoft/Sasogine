@@ -17,7 +17,7 @@ namespace Sachssoft.Sasogine.Assets.Graphics
 
         public GraphicsDevice? GraphicsDevice { get; set; }
 
-        public Texture2DAsset() : base() { }
+        public Texture2DAsset() : base(new Texture2DAssetDefinition()) { }
 
         public Texture2DAsset(Texture2DAssetDefinition definition) : base(definition) { }
 
@@ -57,10 +57,10 @@ namespace Sachssoft.Sasogine.Assets.Graphics
                 if (_transformable != null)
                 {
                     _transformCache =
-                        Matrix.CreateTranslation(new Vector3(-_transformable.Pivot, 0f)) *
+                        Matrix.CreateTranslation(new Vector3(-_transformable.Origin, 0f)) *
                         Matrix.CreateScale(new Vector3(_transformable.Scale, 1f)) *
                         Matrix.CreateRotationZ(_transformable.Rotation) *
-                        Matrix.CreateTranslation(new Vector3(_transformable.Pivot, 0f)) *
+                        Matrix.CreateTranslation(new Vector3(_transformable.Origin, 0f)) *
                         Matrix.CreateTranslation(new Vector3(_transformable.Translation, 0f));
                 }
                 else

@@ -6,7 +6,7 @@ namespace Sachssoft.Sasogine.Assets.Audio
 {
     public class MusicAsset : AssetBase<IMusicPlayer, MusicAssetDefinition>
     {
-        public MusicAsset() : base() { }
+        public MusicAsset() : base(new MusicAssetDefinition()) { }
 
         public MusicAsset(MusicAssetDefinition definition) : base(definition) { }
 
