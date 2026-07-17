@@ -42,8 +42,6 @@ namespace Sachssoft.Sasogine.Assets
         /// </summary>
         public event EventHandler? InstanceChanged;
 
-        public AssetBase() : base() { }
-
         public AssetBase(TDefinition definition) : base(definition) { }
 
         public string? RelativePath { get; }
