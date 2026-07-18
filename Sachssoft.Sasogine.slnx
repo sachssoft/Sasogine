@@ -9,9 +9,7 @@
     <Project Path="Examples/Sachssoft.Sasogine.Example.Primitives/Sachssoft.Sasogine.Example.Primitives.csproj" />
     <Project Path="Examples/Sachssoft.Sasogine.Example.Surface/Sachssoft.Sasogine.Example.UI.csproj" />
   </Folder>
-  <Folder Name="/Experminental/">
-    <Project Path="Sachssoft.Sasogine.Experimental.Embedding/Sachssoft.Sasogine.Experimental.Embedding.csproj" Id="439d3e85-5967-40b8-9a01-79ee4007fd6f" />
-  </Folder>
+  <Folder Name="/Experminental/" />
   <Folder Name="/Extensions/">
     <Project Path="Extensions/Sachssoft.Sasogine.Extensions.Sasodoc.Shared.shproj" Id="81200792-eb1a-4da6-a5b6-5424a520a252" />
     <Project Path="Extensions/Sachssoft.Sasogine.Extensions.Sasodoc/Sachssoft.Sasogine.Extensions.Sasodoc.csproj" Id="02c50c23-72d4-46c2-aaf6-f067d4fe6ee3" />

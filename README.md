@@ -11,12 +11,20 @@ Sasogine is a lightweight and extensible game engine built on top of **[MonoGame
 - **License**: See [LICENSE.md](LICENSE.md)
 - **Changelog**: See [CHANGELOG.md](CHANGELOG.md)
 
+## Requirements
+
+- MonoGame 3.8.4.1
+- .NET 8.0
+
 ## Downloads
 
-| Platform | Status | NuGet |
-|----------|--------|-------|
-| DesktopGL | Available | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.DesktopGL) |
-| WindowsDX | Coming soon | - |
+| Platform | Graphics API | Status | NuGet |
+|----------|---------------|--------|-------|
+| DesktopGL | OpenGL 3.0+ | Available | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.DesktopGL) |
+| WindowsDX | DirectX 11+ | Coming soon | - |
+| Vulkan | Vulkan 1.1+ | Planned | Not implemented yet |
+
+> **Future Note:** Sasogine may become a standalone engine in the future, with MonoGame maintained as a separate backend.
 
 ## Features
 
