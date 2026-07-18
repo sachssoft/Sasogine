@@ -35,14 +35,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Remove="..\..\..\Basic\Basic\GameService.cs" />
 	  <Compile Remove="..\..\..\Basic\Scenes\SceneConfiguration.cs" />
 	  <Compile Remove="..\..\..\Basic\Scenes\SceneViewportContext.cs" />
 	  <Compile Remove="..\..\..\Basic\Scenes\ViewportSceneBase.cs" />
 	</ItemGroup>
 	
 	<ItemGroup>
-		<!--<None Include="..\..\..\README.md" Pack="true" PackagePath="/" />-->
-		<None Include="..\..\..\..\LICENSE.md" Pack="true" PackagePath="/" />
+		<None Include="..\..\..\README.md" Pack="true" PackagePath="/" />
+		<None Include="..\..\..\LICENSE.md" Pack="true" PackagePath="/" />
 	</ItemGroup>
 
 	<ItemGroup>
