@@ -11,6 +11,13 @@ Sasogine is a lightweight and extensible game engine built on top of **[MonoGame
 - **License**: See [LICENSE.md](LICENSE.md)
 - **Changelog**: See [CHANGELOG.md](CHANGELOG.md)
 
+## Downloads
+
+| Platform | Status | NuGet |
+|----------|--------|-------|
+| DesktopGL | Available | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.DesktopGL) |
+| WindowsDX | Coming soon | - |
+
 ## Features
 
 ### Asset System
