@@ -37,12 +37,12 @@ Sasogine is a lightweight and extensible game engine built on top of **[MonoGame
 
 | Memory Game | Space Shooter |
 |-|-|
-| <span style="font-size: small; color: green;">Beginner</span> | <span style="font-size: small; color: green;">Beginner</span> |
+| <sub>🟢 Beginner</sub> | <sub>🟢 Beginner</sub> |
 | Coming soon | Coming soon |
 
 | Object Editor | Shader Fun |
 |-|-|
-| <span style="font-size: small; color: orange;">Intermediate</span> | <span style="font-size: small; color: red;">Advanced</span> |
+| <sub>🟠 Intermediate</sub> | <sub>🔴 Advanced</sub> |
 | Coming soon | Coming soon |
 
 ## Features
