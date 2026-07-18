@@ -13,6 +13,14 @@ public readonly struct PixelSize : IEquatable<PixelSize>
     public static readonly PixelSize Zero = new PixelSize(0, 0);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public PixelSize(int uniform)
+    {
+        _width = uniform;
+        _height = uniform;
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public PixelSize(int width, int height)
     {
         _width = width;

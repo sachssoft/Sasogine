@@ -12,6 +12,14 @@ public readonly struct Size : IEquatable<Size>
 
     public static readonly Size Zero = new Size(0f, 0f);
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Size(float uniform)
+    {
+        _width = uniform;
+        _height = uniform;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Size(float width, float height)
     {
