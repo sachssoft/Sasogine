@@ -1,30 +1,72 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Sachssoft.Sasogine.Common;
 
 /// <summary>
-/// Repräsentiert eine unveränderliche 2D-Gitterkoordinate (X, Y).
-/// Wird für Tilemaps, Grid-Systeme, Pathfinding und Chunk-basierte Welten verwendet.
+/// Repräsentiert eine unveränderliche diskrete 2D-Koordinate (X, Y)
+/// für rasterbasierte Systeme.
+/// 
+/// Coordinate2 wird verwendet, um Positionen innerhalb eines
+/// zweidimensionalen Gitters zu beschreiben, beispielsweise für:
+/// - Tilemaps
+/// - Level-Editoren
+/// - Chunk-Systeme
+/// - Pathfinding
+/// - Grid-basierte Spiele
+/// - zellenbasierte Simulationen
+/// 
+/// Die Struktur arbeitet ausschließlich mit ganzzahligen Werten
+/// und repräsentiert keine kontinuierlichen Weltpositionen.
+/// Für Welt-, Bildschirm- oder Physikkoordinaten sollten Vector2
+/// oder Point verwendet werden.
 /// </summary>
 /// <remarks>
-/// Diese Struktur ist für diskrete Rasterlogik gedacht und nicht für kontinuierliche Geometrie.
-/// Sie arbeitet rein integer-basiert und ist damit stabil für deterministische Spielsysteme.
+/// Coordinate2 eignet sich besonders für diskrete Spiellogik,
+/// bei der jede Position eine einzelne Zelle eines Rasters darstellt.
+/// 
+/// Die Struktur bietet Hilfsfunktionen für:
+/// - Rasterkonvertierung zwischen Weltposition und Zelle
+/// - Nachbarschaftsabfragen
+/// - Richtungsberechnungen
+/// - Rotation und Spiegelung
+/// - Distanzberechnung
+/// - Index-Konvertierung für lineare Speicherstrukturen
+/// 
+/// Durch die unveränderliche readonly-Struktur ist Coordinate2
+/// sicher für deterministische Systeme und kann effizient als
+/// Werttyp verwendet werden.
 /// </remarks>
 public readonly struct Coordinate2
 {
-    /// <summary>Koordinate (0,0).</summary>
+    #region Constants
+
+    /// <summary>
+    /// Gets the coordinate (0,0).
+    /// </summary>
     public static Coordinate2 Zero => new(0, 0);
 
-    /// <summary>Koordinate (1,1).</summary>
+    /// <summary>
+    /// Gets the coordinate (1,1).
+    /// </summary>
     public static Coordinate2 One => new(1, 1);
 
-    /// <summary>Einheitsvektor X (1,0).</summary>
+    /// <summary>
+    /// Gets the unit direction on the X axis (1,0).
+    /// </summary>
     public static Coordinate2 UnitX => new(1, 0);
 
-    /// <summary>Einheitsvektor Y (0,1).</summary>
+    /// <summary>
+    /// Gets the unit direction on the Y axis (0,1).
+    /// </summary>
     public static Coordinate2 UnitY => new(0, 1);
+
+    #endregion
+
+    #region Constructors
+
 
     /// <summary>Erstellt eine neue 2D-Koordinate.</summary>
     public Coordinate2(int x, int y)
@@ -40,18 +82,6 @@ public readonly struct Coordinate2
         Y = point.Y;
     }
 
-    /// <summary>X-Komponente (Spalte im Grid).</summary>
-    public int X { get; }
-
-    /// <summary>Y-Komponente (Zeile im Grid).</summary>
-    public int Y { get; }
-
-    /// <summary>Alias für X (Spalte).</summary>
-    public int Column => X;
-
-    /// <summary>Alias für Y (Zeile).</summary>
-    public int Row => Y;
-
     /// <summary>Zerlegt die Koordinate in X und Y.</summary>
     public void Deconstruct(out int x, out int y)
     {
@@ -59,91 +89,263 @@ public readonly struct Coordinate2
         y = Y;
     }
 
-    /// <summary>Linker Nachbar.</summary>
-    public Coordinate2 Left => new(X - 1, Y);
-
-    /// <summary>Rechter Nachbar.</summary>
-    public Coordinate2 Right => new(X + 1, Y);
-
-    /// <summary>Oberer Nachbar.</summary>
-    public Coordinate2 Up => new(X, Y - 1);
-
-    /// <summary>Unterer Nachbar.</summary>
-    public Coordinate2 Down => new(X, Y + 1);
-
-    /// <summary>Konvertiert in MonoGame Point.</summary>
-    public Point ToPoint() => new(X, Y);
-
-    /// <summary>Konvertiert in Vector2 im Grid-Space.</summary>
-    public Vector2 ToVector2() => new(X, Y);
-
-    /// <summary>Konvertiert in Weltposition basierend auf Tilegröße.</summary>
-    public Vector2 ToVector2(Vector2 tileSize)
-        => new(X * tileSize.X, Y * tileSize.Y);
-
-    /// <summary>Ändert nur X.</summary>
+    /// <summary>
+    /// Creates a copy of this coordinate with a new X component.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Coordinate2 WithX(int x) => new(x, Y);
 
-    /// <summary>Ändert nur Y.</summary>
+    /// <summary>
+    /// Creates a copy of this coordinate with a new Y component.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Coordinate2 WithY(int y) => new(X, y);
 
-    /// <summary>Prüft, ob außerhalb eines Gitters liegt.</summary>
+    #endregion
+
+    #region Properties
+
+    /// <summary>
+    /// Gets the horizontal grid coordinate.
+    /// </summary>
+    public int X { get; }
+
+    /// <summary>
+    /// Gets the vertical grid coordinate.
+    /// </summary>
+    public int Y { get; }
+
+    /// <summary>
+    /// Gets the X component as a column index.
+    /// </summary>
+    public int Column => X;
+
+    /// <summary>
+    /// Gets the Y component as a row index.
+    /// </summary>
+    public int Row => Y;
+
+    /// <summary>
+    /// Gets the coordinate of the neighboring cell to the left.
+    /// </summary>
+    public Coordinate2 Left => new(X - 1, Y);
+
+    /// <summary>
+    /// Gets the coordinate of the neighboring cell to the right.
+    /// </summary>
+    public Coordinate2 Right => new(X + 1, Y);
+
+    /// <summary>
+    /// Gets the coordinate of the neighboring cell above.
+    /// </summary>
+    public Coordinate2 Up => new(X, Y - 1);
+
+    /// <summary>
+    /// Gets the coordinate of the neighboring cell below.
+    /// </summary>
+    public Coordinate2 Down => new(X, Y + 1);
+
+    #endregion
+
+    #region Grid Operations
+
+    /// <summary>
+    /// Converts a world position into a grid coordinate using snap rules.
+    /// Even tile sizes snap to the nearest tile center.
+    /// Odd tile sizes snap to the containing tile.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Coordinate2 Snap(Vector2 position, Size tileSize)
+    {
+        int x = tileSize.Width % 2 == 0 ?
+            (int)float.Round(position.X / tileSize.Width) :
+            (int)float.Floor(position.X / tileSize.Width);
+
+        int y = tileSize.Height % 2 == 0 ?
+            (int)float.Round(position.Y / tileSize.Height) :
+            (int)float.Floor(position.Y / tileSize.Height);
+
+        return new Coordinate2(x, y);
+    }
+
+    /// <summary>
+    /// Converts a world position into the containing grid cell.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Coordinate2 Floor(Vector2 position, Size tileSize)
+    {
+        int x = (int)float.Floor(position.X / tileSize.Width);
+        int y = (int)float.Floor(position.Y / tileSize.Height);
+
+        return new Coordinate2(x, y);
+    }
+
+    /// <summary>
+    /// Converts a world position into the nearest grid cell.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Coordinate2 Round(Vector2 position, Size tileSize)
+    {
+        int x = (int)float.Round(position.X / tileSize.Width);
+        int y = (int)float.Round(position.Y / tileSize.Height);
+
+        return new Coordinate2(x, y);
+    }
+
+    /// <summary>
+    /// Converts a world position into the next grid cell.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Coordinate2 Ceiling(Vector2 position, Size tileSize)
+    {
+        int x = (int)float.Ceiling(position.X / tileSize.Width);
+        int y = (int)float.Ceiling(position.Y / tileSize.Height);
+
+        return new Coordinate2(x, y);
+    }
+
+    /// <summary>
+    /// Rotates the coordinate 90 degrees clockwise.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector2 Center(Size tileSize)
+    {
+        return new Vector2(
+            (X + 0.5f) * tileSize.Width,
+            (Y + 0.5f) * tileSize.Height);
+    }
+
+    /// <summary>
+    /// Converts this coordinate into a MonoGame Point.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Point ToPoint() => new(X, Y);
+
+    /// <summary>
+    /// Converts this coordinate into a Vector2 in grid space.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector2 ToVector2() => new(X, Y);
+
+    /// <summary>
+    /// Converts this coordinate into a world position using a tile size.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector2 ToVector2(Size tileSize)
+        => new(X * tileSize.Width, Y * tileSize.Height);
+
+    /// <summary>
+    /// Converts this coordinate into a linear array index.
+    /// </summary>
+    /// <param name="width">The width of the grid.</param>
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int ToIndex(int width)
+        // z.b. tiles[position.ToIndex(mapWidth)]
+        => Y * width + X;
+
+    /// <summary>
+    /// Creates a coordinate from a linear array index.
+    /// </summary>
+    /// <param name="index">The array index.</param>
+    /// <param name="width">The width of the grid.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Coordinate2 FromIndex(
+        int index,
+        int width)
+    {
+        return new(
+            index % width,
+            index / width);
+    }
+
+    #endregion
+
+    #region Operations
+
+    /// <summary>
+    /// Determines whether this coordinate is outside the specified grid bounds.
+    /// </summary>
     public bool IsOutOfBorder(int columns, int rows)
         => X < 0 || Y < 0 || X >= columns || Y >= rows;
 
-    /// <summary>Prüft, ob (0,0).</summary>
+    /// <summary>
+    /// Determines whether this coordinate is inside the specified grid size.
+    /// </summary>
+    public bool IsInside(
+    Coordinate2 size)
+    {
+        return X >= 0 &&
+               Y >= 0 &&
+               X < size.X &&
+               Y < size.Y;
+    }
+
+    /// <summary>
+    /// Determines whether this coordinate is equal to (0,0).
+    /// </summary>
     public bool IsZero() => X == 0 && Y == 0;
 
-    /// <summary>Manhattan-Distanz.</summary>
+    /// <summary>
+    /// Calculates the Manhattan distance to another coordinate.
+    /// </summary>
     public int ManhattanDistance(Coordinate2 other)
         => int.Abs(X - other.X) + int.Abs(Y - other.Y);
 
-    /// <summary>Euklidische Distanz.</summary>
+    /// <summary>
+    /// Calculates the Euclidean distance to another coordinate.
+    /// </summary>
     public float EuclideanDistance(Coordinate2 other)
-        => float.Sqrt(float.Pow(X - other.X, 2) + float.Pow(Y - other.Y, 2));
+    {
+        int dx = X - other.X;
+        int dy = Y - other.Y;
 
-    /// <summary>Verschiebt um Offset.</summary>
+        return MathF.Sqrt(dx * dx + dy * dy);
+    }
+
+    /// <summary>
+    /// Creates a new coordinate by adding an offset.
+    /// </summary>
     public Coordinate2 Add(int x, int y) => new(X + x, Y + y);
 
-    /// <summary>Verschiebt um andere Koordinate.</summary>
+    /// <summary>
+    /// Creates a new coordinate by adding another coordinate.
+    /// </summary>
     public Coordinate2 Add(Coordinate2 other) => new(X + other.X, Y + other.Y);
 
-    /// <summary>Begrenzt auf min/max Bereich.</summary>
-    public static Coordinate2 Clamp(Coordinate2 value, Coordinate2 min, Coordinate2 max)
-        => new(
-            int.Clamp(value.X, min.X, max.X),
-            int.Clamp(value.Y, min.Y, max.Y)
-        );
+    /// <summary>
+    /// Moves this coordinate by the specified direction.
+    /// </summary>
+    public Coordinate2 Move(Coordinate2 direction)
+    => new(X + direction.X, Y + direction.Y);
 
-    /// <summary>Kleinste Komponente.</summary>
-    public static Coordinate2 Min(Coordinate2 a, Coordinate2 b)
-        => new(int.Min(a.X, b.X), int.Min(a.Y, b.Y));
+    /// <summary>
+    /// Calculates the direction from one coordinate to another.
+    /// </summary>
+    public static Coordinate2 DirectionTo(
+    Coordinate2 from,
+    Coordinate2 to)
+    {
+        return new(
+            Math.Sign(to.X - from.X),
+            Math.Sign(to.Y - from.Y));
+    }
 
-    /// <summary>Größte Komponente.</summary>
-    public static Coordinate2 Max(Coordinate2 a, Coordinate2 b)
-        => new(int.Max(a.X, b.X), int.Max(a.Y, b.Y));
-
-    /// <summary>Negiert die Koordinate.</summary>
-    public Coordinate2 Negative() => new(-X, -Y);
-
-    /// <summary>Spiegelt horizontal.</summary>
-    public Coordinate2 FlipHorizontal(int width) => new(width - 1 - X, Y);
-
-    /// <summary>Spiegelt vertikal.</summary>
-    public Coordinate2 FlipVertical(int height) => new(X, height - 1 - Y);
-
-    /// <summary>Spiegelt beide Achsen.</summary>
-    public Coordinate2 FlipBoth(int width, int height) => new(width - 1 - X, height - 1 - Y);
-
-    /// <summary>Normalisiert Richtung auf -1,0,1.</summary>
+    /// <summary>
+    /// Normalizes the coordinate components to -1, 0 or 1.
+    /// </summary>
     public Coordinate2 NormalizeDirection()
     {
         int nx = X == 0 ? 0 : (X > 0 ? 1 : -1);
         int ny = Y == 0 ? 0 : (Y > 0 ? 1 : -1);
         return new(nx, ny);
     }
-
-    /// <summary>Gibt Nachbarn zurück (4 oder 8 Richtungen).</summary>
+    /// <summary>
+    /// Gets the neighboring coordinates.
+    /// </summary>
+    /// <param name="includeDiagonals">
+    /// Indicates whether diagonal neighbors should be included.
+    /// </param>
     public IEnumerable<Coordinate2> GetNeighbors(bool includeDiagonals = false)
     {
         yield return this + UnitY.Negative();
@@ -160,28 +362,147 @@ public readonly struct Coordinate2
         }
     }
 
-    /// <summary>String Darstellung "X,Y".</summary>
+    #endregion
+
+    #region Transformations
+
+    /// <summary>
+    /// Clamps a coordinate between minimum and maximum values.
+    /// </summary>
+    public static Coordinate2 Clamp(Coordinate2 value, Coordinate2 min, Coordinate2 max)
+        => new(
+            int.Clamp(value.X, min.X, max.X),
+            int.Clamp(value.Y, min.Y, max.Y)
+        );
+
+    /// <summary>
+    /// Returns a coordinate with the smallest components of two coordinates.
+    /// </summary>
+    public static Coordinate2 Min(Coordinate2 a, Coordinate2 b)
+        => new(int.Min(a.X, b.X), int.Min(a.Y, b.Y));
+
+    /// <summary>
+    /// Returns a coordinate with the largest components of two coordinates.
+    /// </summary>
+    public static Coordinate2 Max(Coordinate2 a, Coordinate2 b)
+        => new(int.Max(a.X, b.X), int.Max(a.Y, b.Y));
+
+    /// <summary>
+    /// Returns the coordinate with inverted components.
+    /// </summary>
+    public Coordinate2 Negative() => new(-X, -Y);
+
+    /// <summary>
+    /// Mirrors the coordinate horizontally.
+    /// </summary>
+    public Coordinate2 FlipHorizontal(int width) => new(width - 1 - X, Y);
+
+    /// <summary>
+    /// Mirrors the coordinate vertically.
+    /// </summary>
+    public Coordinate2 FlipVertical(int height) => new(X, height - 1 - Y);
+
+    /// <summary>
+    /// Mirrors the coordinate on both axes.
+    /// </summary>
+    public Coordinate2 FlipBoth(int width, int height) => new(width - 1 - X, height - 1 - Y);
+
+    /// <summary>
+    /// Rotates the coordinate 90 degrees clockwise.
+    /// </summary>
+    public Coordinate2 Rotate90()
+    => new(-Y, X);
+
+    /// <summary>
+    /// Rotates the coordinate 180 degrees.
+    /// </summary>
+    public Coordinate2 Rotate180()
+        => new(-X, -Y);
+
+    /// <summary>
+    /// Rotates the coordinate 270 degrees clockwise.
+    /// </summary>
+    public Coordinate2 Rotate270()
+        => new(Y, -X);
+
+    #endregion
+
+    #region Operators
+
+    /// <summary>
+    /// Determines whether two coordinates are equal.
+    /// </summary>
+    public static bool operator ==(Coordinate2 a, Coordinate2 b) => a.Equals(b);
+
+    /// <summary>
+    /// Determines whether two coordinates are different.
+    /// </summary>
+    public static bool operator !=(Coordinate2 a, Coordinate2 b) => !a.Equals(b);
+
+    /// <summary>
+    /// Adds two coordinates.
+    /// </summary>
+    public static Coordinate2 operator +(Coordinate2 a, Coordinate2 b) => new(a.X + b.X, a.Y + b.Y);
+
+    /// <summary>
+    /// Subtracts one coordinate from another.
+    /// </summary>
+    public static Coordinate2 operator -(Coordinate2 a, Coordinate2 b) => new(a.X - b.X, a.Y - b.Y);
+
+    /// <summary>
+    /// Negates a coordinate.
+    /// </summary>
+    public static Coordinate2 operator -(Coordinate2 v) => new(-v.X, -v.Y);
+
+    /// <summary>
+    /// Multiplies a coordinate by a scalar value.
+    /// </summary>
+    public static Coordinate2 operator *(Coordinate2 v, int s) => new(v.X * s, v.Y * s);
+
+    /// <summary>
+    /// Divides a coordinate by a scalar value.
+    /// </summary>
+    public static Coordinate2 operator /(Coordinate2 v, int s) => new(v.X / s, v.Y / s);
+
+    /// <summary>
+    /// Converts a Point into a Coordinate2.
+    /// </summary>
+    public static implicit operator Coordinate2(Point p) => new(p.X, p.Y);
+
+    /// <summary>
+    /// Converts a Coordinate2 into a Point.
+    /// </summary>
+    public static explicit operator Point(Coordinate2 c) => new(c.X, c.Y);
+
+    /// <summary>
+    /// Converts a Vector2 into a Coordinate2.
+    /// </summary>
+    public static implicit operator Coordinate2(Vector2 v) => new((int)v.X, (int)v.Y);
+
+    /// <summary>
+    /// Converts a Coordinate2 into a Vector2.
+    /// </summary>
+    public static explicit operator Vector2(Coordinate2 c) => new(c.X, c.Y);
+
+    #endregion
+
+    #region #region Overrides
+
+    /// <summary>
+    /// Returns a string representation in the format "X,Y".
+    /// </summary>
     public override string ToString() => $"{X},{Y}";
 
-    /// <summary>Gleichheitsvergleich.</summary>
+    /// <summary>
+    /// Determines whether this coordinate equals another object.
+    /// </summary>
     public override bool Equals(object? obj)
         => obj is Coordinate2 c && c.X == X && c.Y == Y;
 
-    /// <summary>Hashcode.</summary>
+    /// <summary>
+    /// Returns the hash code for this coordinate.
+    /// </summary>
     public override int GetHashCode() => HashCode.Combine(X, Y);
 
-    public static bool operator ==(Coordinate2 a, Coordinate2 b) => a.Equals(b);
-    public static bool operator !=(Coordinate2 a, Coordinate2 b) => !a.Equals(b);
-
-    public static Coordinate2 operator +(Coordinate2 a, Coordinate2 b) => new(a.X + b.X, a.Y + b.Y);
-    public static Coordinate2 operator -(Coordinate2 a, Coordinate2 b) => new(a.X - b.X, a.Y - b.Y);
-    public static Coordinate2 operator -(Coordinate2 v) => new(-v.X, -v.Y);
-    public static Coordinate2 operator *(Coordinate2 v, int s) => new(v.X * s, v.Y * s);
-    public static Coordinate2 operator /(Coordinate2 v, int s) => new(v.X / s, v.Y / s);
-
-    public static implicit operator Coordinate2(Point p) => new(p.X, p.Y);
-    public static explicit operator Point(Coordinate2 c) => new(c.X, c.Y);
-
-    public static implicit operator Coordinate2(Vector2 v) => new((int)v.X, (int)v.Y);
-    public static explicit operator Vector2(Coordinate2 c) => new(c.X, c.Y);
+    #endregion
 }
