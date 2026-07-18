@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 > This is an early alpha release. Not all planned features are implemented yet. APIs and features may change in future releases.
 
 ## [0.0.3-alpha] - 2026-07-xx
+- [Bug] Fixed missing `IShaderTransform` in `ShaderBase` required for automatic default camera assignment in primitives.
 
 ## [0.0.2-alpha] - 2026-07-18
 
