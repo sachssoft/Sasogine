@@ -35,6 +35,10 @@ public readonly struct Box : IEquatable<Box>
     public Vector2 Max => new Vector2(_maxX, _maxY);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Bounds ToBounds()
+        => new Bounds(_minX, _minY, _maxX - _minX, _maxY - _minY);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(float x, float y)
         => x >= _minX && x < _maxX && y >= _minY && y < _maxY;
 

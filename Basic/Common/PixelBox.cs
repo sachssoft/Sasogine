@@ -35,6 +35,10 @@ public readonly struct PixelBox : IEquatable<PixelBox>
     public Point Max => new Point(_maxX, _maxY);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public PixelBounds ToBounds()
+        => new PixelBounds(_minX, _minY, _maxX - _minX, _maxY - _minY);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(int x, int y)
         => x >= _minX && x < _maxX && y >= _minY && y < _maxY;
 
