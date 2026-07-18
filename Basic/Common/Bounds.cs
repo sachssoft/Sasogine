@@ -43,6 +43,9 @@ public readonly struct Bounds : IEquatable<Bounds>
     public Vector2 Size => new Vector2(Width, Height);
     public Vector2 Location => new Vector2(_left, _top);
 
+    public Box ToBox()
+        => new Box(_left, _top, _right, _bottom);
+
     // Performance-optimierte Equals
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(Bounds other)

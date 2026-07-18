@@ -46,6 +46,10 @@ public readonly struct PixelBounds : IEquatable<PixelBounds>
     public Point Location => new Point(_left, _top);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public PixelBox ToBox()
+        => new PixelBox(_left, _top, _right, _bottom);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(PixelBounds other)
         => _left == other._left &&
            _top == other._top &&
