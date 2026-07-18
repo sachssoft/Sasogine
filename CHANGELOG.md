@@ -4,10 +4,12 @@ All notable changes to this project will be documented in this file.
 
 > This is an early alpha release. Not all planned features are implemented yet. APIs and features may change in future releases.
 
-## [0.0.2-alpha] - 2026-07-xx
+## [0.0.3-alpha] - 2026-07-xx
+
+## [0.0.2-alpha] - 2026-07-18
 
 - [Added] Add `Viewport` and `RenderSize` properties to `ViewportCursorService`.
-- [Added] Add `GameServiceManager` to `GameConfiguration`.
+- [Added] Add `Service` to `GameConfiguration`.
 - [Added] Add `ToBox` to `Bounds` and `PixelBounds`.
 - [Added] Add `ToBounds` to `Box` and `PixelBox`.
 - [Added] Add constructors with a uniform parameter to `Size` and `PixelSize`.
