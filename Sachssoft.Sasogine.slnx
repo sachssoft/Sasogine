@@ -22,6 +22,7 @@
     <Project Path="Platforms/Sachssoft.Sasogine.Platform.Windows/Sachssoft.Sasogine.Platform.Windows.csproj" />
   </Folder>
   <Folder Name="/Projektmappenelemente/">
+    <File Path="Anleitung.txt" />
     <File Path="CHANGELOG.md" />
     <File Path="LICENSE.md" />
     <File Path="README.md" />
