@@ -1,0 +1,5 @@
+Update Anleitung:
+
+# PowerShell z.B.
+
+dotnet nuget push "Packages\Sachssoft.Sasogine.DesktopGL.0.0.2-alpha.nupkg" --source https://api.nuget.org/v3/index.json --api-key DEIN_API_KEY
