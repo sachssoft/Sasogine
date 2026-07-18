@@ -12,6 +12,7 @@ namespace Sachssoft.Sasogine;
 public abstract class GameApplicationBase : Game, IGameApplication
 {
     private readonly string[] _commandArgs;
+    private readonly GameServiceManager _services;
 
     protected private readonly LocalizationManager _localization;
     protected private readonly GameRegistry _registry;
@@ -39,12 +40,13 @@ public abstract class GameApplicationBase : Game, IGameApplication
 
         _commandArgs = args ?? new string[0];
         _localization = new LocalizationManager(this);
-        _registry = CreateRegistry() ?? throw new GameException("Registry creation failed.");
-        _assets = CreateAssets() ?? new AssetStore(this);
-        _scenes = CreateScenes() ?? throw new GameException("Scene manager creation failed.");
-        _settings = CreateSettings();
+        _registry = CreateRegistry(Configuration) ?? throw new GameException("Registry creation failed.");
+        _assets = CreateAssets(Configuration) ?? new AssetStore(this);
+        _settings = CreateSettings(Configuration);
+        _scenes = CreateScenes(Configuration) ?? throw new GameException("Scene manager creation failed.");
 
         _graphicsDeviceManager = ConfigureGraphicsDevice();
+        // Monogame Services (ab Version 2 wird Monogame losgelöst)
         Services.AddService(typeof(GraphicsDeviceManager), _graphicsDeviceManager);
         _graphicsDeviceManager.ApplyChanges();
 
@@ -191,13 +193,13 @@ public abstract class GameApplicationBase : Game, IGameApplication
         base.OnExiting(sender, args);
     }
 
-    protected virtual GameRegistry CreateRegistry() => new GameRegistry();
+    protected virtual GameRegistry CreateRegistry(GameConfiguration configuration) => new GameRegistry();
 
-    protected virtual AssetStore? CreateAssets() => null;
+    protected virtual AssetStore? CreateAssets(GameConfiguration configuration) => null;
 
-    protected abstract ISceneManager CreateScenes();
+    protected abstract ISceneManager CreateScenes(GameConfiguration configuration);
 
-    protected virtual IGameSettings? CreateSettings() => null;
+    protected virtual IGameSettings? CreateSettings(GameConfiguration configuration) => null;
 
     private void Window_FileDrop(object? sender, FileDropEventArgs e)
     {
