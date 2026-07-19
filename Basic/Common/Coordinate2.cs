@@ -228,11 +228,67 @@ public readonly struct Coordinate2
     public Vector2 ToVector2() => new(X, Y);
 
     /// <summary>
-    /// Converts this coordinate into a world position using a tile size.
+    /// Converts this coordinate into a Vector2 position using a uniform tile size.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector2 ToVector2(int tileSize)
+        => new(X * tileSize, Y * tileSize);
+
+    /// <summary>
+    /// Converts this coordinate into a Vector2 position using a uniform tile size.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector2 ToVector2(float tileSize)
+        => new(X * tileSize, Y * tileSize);
+
+    /// <summary>
+    /// Converts this coordinate into a Vector2 position using the specified tile size.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector2 ToVector2(Size tileSize)
         => new(X * tileSize.Width, Y * tileSize.Height);
+
+    /// <summary>
+    /// Converts this coordinate into a Vector2 position using the specified pixel size.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector2 ToVector2(PixelSize tileSize)
+        => new(X * tileSize.Width, Y * tileSize.Height);
+
+    /// <summary>
+    /// Converts this coordinate into a Vector3 in grid space with the specified layer.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector3 ToVector3(float layer)
+        => new(X, Y, layer);
+
+    /// <summary>
+    /// Converts this coordinate into a Vector3 position using a uniform tile size and layer.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector3 ToVector3(int tileSize, float layer)
+        => new(X * tileSize, Y * tileSize, layer);
+
+    /// <summary>
+    /// Converts this coordinate into a Vector3 position using a uniform tile size and layer.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector3 ToVector3(float tileSize, float layer)
+        => new(X * tileSize, Y * tileSize, layer);
+
+    /// <summary>
+    /// Converts this coordinate into a Vector3 position using the specified pixel size and layer.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector3 ToVector3(PixelSize tileSize, float layer)
+        => new(X * tileSize.Width, Y * tileSize.Height, layer);
+
+    /// <summary>
+    /// Converts this coordinate into a Vector3 position using the specified tile size and layer.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector3 ToVector3(Size tileSize, float layer)
+        => new(X * tileSize.Width, Y * tileSize.Height, layer);
 
     /// <summary>
     /// Converts this coordinate into a linear array index.
