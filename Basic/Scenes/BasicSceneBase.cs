@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Basic.Components.Rendering.Camera;
+using Sachssoft.Sasogine.Basic.Scenes;
 using Sachssoft.Sasogine.Components;
 using Sachssoft.Sasogine.Graphics.Camera;
 using Sachssoft.Sasogine.Graphics.Rendering;
@@ -23,6 +24,18 @@ namespace Sachssoft.Sasogine.Scenes
         private bool _loaded;
         private bool _disposed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BasicSceneBase"/> class
+        /// with the specified runtime mode.
+        /// </summary>
+        /// <param name="runtimeMode">
+        /// Defines the execution mode of this scene.
+        /// </param>
+        protected BasicSceneBase(
+            RuntimeMode runtimeMode = RuntimeMode.Game)
+        {
+            RuntimeMode = runtimeMode;
+        }
 
         /// <summary>
         /// Gets a value indicating whether this scene remains loaded
@@ -48,6 +61,10 @@ namespace Sachssoft.Sasogine.Scenes
         /// </summary>
         public int ViewCount { get; } = 1;
 
+        /// <summary>
+        /// Gets the runtime mode in which the scene is executed.
+        /// </summary>
+        public RuntimeMode RuntimeMode { get; }
 
         /// <summary>
         /// Gets the game application associated with this scene.

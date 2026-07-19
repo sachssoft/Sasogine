@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Basic.Scenes;
 using Sachssoft.Sasogine.Graphics.Camera;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
@@ -51,8 +52,11 @@ namespace Sachssoft.Sasogine.Scenes
             : base(application, frameCounterSmoothing, frameCounterFastWeight)
         {
             Scene = scene ?? throw new ArgumentNullException(nameof(scene));
+            RuntimeMode = Scene.RuntimeMode;
+
             ViewCamera = viewCamera ?? throw new ArgumentNullException(nameof(viewCamera));
             Shader = shader ?? throw new ArgumentNullException(nameof(shader));
+
             ViewIndex = viewIndex;
             ViewCount = viewCount;
         }
@@ -61,6 +65,11 @@ namespace Sachssoft.Sasogine.Scenes
         /// Gets the scene currently being rendered.
         /// </summary>
         public IScene Scene { get; }
+
+        /// <summary>
+        /// Gets the runtime mode of the current scene.
+        /// </summary>
+        public RuntimeMode RuntimeMode { get; }
 
 
         /// <summary>

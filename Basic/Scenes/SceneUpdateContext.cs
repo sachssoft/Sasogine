@@ -1,4 +1,5 @@
-﻿using Sachssoft.Sasogine.Graphics.Camera;
+﻿using Sachssoft.Sasogine.Basic.Scenes;
+using Sachssoft.Sasogine.Graphics.Camera;
 using System;
 
 namespace Sachssoft.Sasogine.Scenes
@@ -37,6 +38,8 @@ namespace Sachssoft.Sasogine.Scenes
         {
             Scene = scene ?? throw new ArgumentNullException(nameof(scene));
             Cameras = cameras ?? throw new ArgumentNullException(nameof(cameras));
+
+            RuntimeMode = Scene.RuntimeMode;
         }
 
 
@@ -50,5 +53,10 @@ namespace Sachssoft.Sasogine.Scenes
         /// Gets the cameras associated with the current update cycle.
         /// </summary>
         public ICamera[] Cameras { get; }
+
+        /// <summary>
+        /// Gets the runtime mode of the current scene.
+        /// </summary>
+        public RuntimeMode RuntimeMode { get; }
     }
 }
