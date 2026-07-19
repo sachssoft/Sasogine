@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ## [0.0.3-alpha] - 2026-07-xx
 - [Added] Add `RuntimeMode` support for scene execution modes.
 - [Added] Add `Vector3` conversion support to `Coordinate2`.
+- [Added] Add `IPlatformFileStore` service for platform-specific resource source handling.
 - [Changed] Extend `Coordinate2` with additional `Vector2` conversion overloads.
 - [Bug] Fixed missing `IShaderTransform` in `ShaderBase` required for automatic default camera assignment in primitives.
 
