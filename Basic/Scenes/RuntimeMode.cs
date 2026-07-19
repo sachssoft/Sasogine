@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Basic.Scenes;
+﻿namespace Sachssoft.Sasogine.Scenes;
 
 /// <summary>
 /// Defines the execution mode of the runtime environment.
