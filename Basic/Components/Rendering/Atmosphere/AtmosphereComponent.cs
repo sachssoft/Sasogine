@@ -10,7 +10,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Atmosphere
     /// through shader-based rendering while minimizing render target switches.
     /// </summary>
     public class AtmosphereComponent : ResourceComponentBase<AtmosphereDefinition>, IUpdatableComponent, IDrawableComponent
-    {   
+    {
         // Mehrere RenderTargets sollten möglichst vermieden werden,
         // da jeder RenderTarget-Wechsel zusätzlichen GPU-Overhead verursacht
         // (State Changes, Memory Bandwidth und Pipeline Flushes).

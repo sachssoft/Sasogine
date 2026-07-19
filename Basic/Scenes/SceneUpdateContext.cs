@@ -1,5 +1,4 @@
-﻿using Sachssoft.Sasogine.Basic.Scenes;
-using Sachssoft.Sasogine.Graphics.Camera;
+﻿using Sachssoft.Sasogine.Graphics.Camera;
 using System;
 
 namespace Sachssoft.Sasogine.Scenes

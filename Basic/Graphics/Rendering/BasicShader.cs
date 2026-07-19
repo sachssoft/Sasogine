@@ -23,7 +23,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
 
         private Color _color = Color.White;
         private float _opacity = 1f;
-        private Texture2D? _texture; 
+        private Texture2D? _texture;
         private ICameraTransform? _camera;
         private Matrix _transform = Matrix.Identity;
 
