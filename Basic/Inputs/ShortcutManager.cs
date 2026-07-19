@@ -10,9 +10,9 @@ namespace Sachssoft.Sasogine.Input
     {
         private readonly Dictionary<ICommand, List<Shortcut>> _command_shortcuts;
         private readonly Dictionary<(ICommand, Shortcut), bool> _pressed_shortcuts;
-        private readonly IPlatformModifier _modifierService;
+        private readonly IPlatformKeyModifiers _modifierService;
 
-        public ShortcutManager(IPlatformModifier modifierService = null)
+        public ShortcutManager(IPlatformKeyModifiers modifierService = null)
         {
             _command_shortcuts = new Dictionary<ICommand, List<Shortcut>>();
             _pressed_shortcuts = new Dictionary<(ICommand, Shortcut), bool>();

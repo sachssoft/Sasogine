@@ -34,7 +34,7 @@ namespace Sachssoft.Sasogine.Input
 
         public Buttons GamepadButton { get; set; }
 
-        public string ToString(IPlatformModifier? service = null)
+        public string ToString(IPlatformKeyModifiers? service = null)
         {
             if (service == null)
             {
@@ -61,7 +61,7 @@ namespace Sachssoft.Sasogine.Input
             return ToString(null);
         }
 
-        public static bool TryParse(string? str, IPlatformModifier service, out Shortcut shortcut)
+        public static bool TryParse(string? str, IPlatformKeyModifiers service, out Shortcut shortcut)
         {
             shortcut = default;
             if (string.IsNullOrWhiteSpace(str))
@@ -139,7 +139,7 @@ namespace Sachssoft.Sasogine.Input
             return TryParse(str, null, out shortcut);
         }
 
-        public static Shortcut Parse(string str, IPlatformModifier? service = null)
+        public static Shortcut Parse(string str, IPlatformKeyModifiers? service = null)
         {
             if (TryParse(str, service, out var shortcut))
                 return shortcut;
