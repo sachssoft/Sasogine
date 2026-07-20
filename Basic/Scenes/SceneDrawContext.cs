@@ -7,7 +7,7 @@ namespace Sachssoft.Sasogine.Scenes
 {
     /// <summary>
     /// Provides contextual information required during scene rendering.
-    /// Contains the current scene, active camera, rendering effect adapter,
+    /// Contains the current scene, runtime settings, active camera, shader,
     /// frame information, and viewport information for multi-view rendering.
     /// </summary>
     public class SceneDrawContext : GameContext
@@ -22,16 +22,16 @@ namespace Sachssoft.Sasogine.Scenes
         /// The scene currently being rendered.
         /// </param>
         /// <param name="viewCamera">
-        /// The camera used for rendering the current view.
+        /// The camera assigned to the current rendering view.
         /// </param>
         /// <param name="shader">
-        /// The shader used for rendering operations.
+        /// The shader used during scene rendering.
         /// </param>
         /// <param name="viewIndex">
-        /// The zero-based index of the current view.
+        /// The zero-based index of the current rendering view.
         /// </param>
         /// <param name="viewCount">
-        /// The total number of active views.
+        /// The total number of rendering views managed by the scene.
         /// </param>
         /// <param name="frameCounterSmoothing">
         /// The smoothing factor used for frame timing calculations.
@@ -51,13 +51,21 @@ namespace Sachssoft.Sasogine.Scenes
             : base(application, frameCounterSmoothing, frameCounterFastWeight)
         {
             Scene = scene ?? throw new ArgumentNullException(nameof(scene));
-            RuntimeMode = Scene.RuntimeMode;
 
             ViewCamera = viewCamera ?? throw new ArgumentNullException(nameof(viewCamera));
             Shader = shader ?? throw new ArgumentNullException(nameof(shader));
 
             ViewIndex = viewIndex;
             ViewCount = viewCount;
+
+            RuntimeMode = RuntimeMode.Game;
+            RuntimeOptions = RuntimeOptions.None;
+
+            if (Scene is ISceneRuntimeSettings runtimeSettings)
+            {
+                RuntimeMode = runtimeSettings.RuntimeMode;
+                RuntimeOptions = runtimeSettings.RuntimeOptions;
+            }
         }
 
         /// <summary>
@@ -66,48 +74,49 @@ namespace Sachssoft.Sasogine.Scenes
         public IScene Scene { get; }
 
         /// <summary>
-        /// Gets the runtime mode of the current scene.
+        /// Gets the runtime mode that defines how the current scene is executed.
         /// </summary>
         public RuntimeMode RuntimeMode { get; }
 
+        /// <summary>
+        /// Gets the optional runtime features enabled for the current scene execution.
+        /// </summary>
+        public RuntimeOptions RuntimeOptions { get; }
 
         /// <summary>
-        /// Gets the camera used for rendering the current view.
+        /// Gets the camera assigned to the current rendering view.
         /// </summary>
         public ICamera ViewCamera { get; }
 
-
         /// <summary>
-        /// Gets the zero-based index of the current view.
+        /// Gets the zero-based index of the current rendering view.
         /// Used for multi-view or split-screen rendering.
         /// </summary>
         public int ViewIndex { get; }
 
-
         /// <summary>
-        /// Gets the total number of active views.
+        /// Gets the total number of rendering views managed by the scene.
         /// </summary>
         public int ViewCount { get; }
 
-
         /// <summary>
-        /// Gets the shader used for rendering operations.
+        /// Gets the shader used during scene rendering.
         /// </summary>
         public IShader Shader { get; }
 
 
         /// <summary>
-        /// Calculates the viewport rectangle for the current view.
-        /// Supports single view and split-screen layouts with up to four views.
+        /// Calculates the viewport rectangle assigned to the current rendering view.
+        /// Supports single-view and split-screen layouts with up to four views.
         /// </summary>
         /// <param name="screenBounds">
-        /// The available screen area used as the base rectangle.
+        /// The available screen area used as the base viewport region.
         /// </param>
         /// <returns>
         /// The viewport rectangle assigned to the current view.
         /// </returns>
         /// <exception cref="NotSupportedException">
-        /// Thrown when the requested view configuration is not supported.
+        /// Thrown when the configured view count or view index is not supported.
         /// </exception>
         public Rectangle GetViewport(Rectangle screenBounds)
         {

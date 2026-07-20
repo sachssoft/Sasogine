@@ -20,7 +20,7 @@ All notable changes to this project will be documented in this file.
 </small>
 
 ## [0.0.3-alpha] - 2026-07-xx
-- [Feature] Add `RuntimeMode` support for scene execution modes.
+- [Feature] Add scene runtime settings for game modes and options, such as enabling debug features.
 - [Feature] Add `Vector3` conversion support to `Coordinate2`.
 - [Feature] Add `IPlatformFileStore` service for platform-specific resource source handling.
 - [Change] Rename `IPlatformModifier` to `IPlatformKeyModifiers` and clarify platform-specific keyboard modifier handling.

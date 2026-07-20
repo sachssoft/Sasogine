@@ -12,7 +12,7 @@ namespace Sachssoft.Sasogine.Scenes
     /// Handles scene lifecycle, component management, updating,
     /// rendering, and default camera/effect creation.
     /// </summary>
-    public abstract class BasicSceneBase : IScene
+    public abstract class BasicSceneBase : IScene, ISceneRuntimeSettings
     {
         private readonly ComponentCollection _components = new();
 
@@ -23,16 +23,10 @@ namespace Sachssoft.Sasogine.Scenes
         private bool _disposed;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BasicSceneBase"/> class
-        /// with the specified runtime mode.
+        /// Initializes a new instance of the <see cref="BasicSceneBase"/> class.
         /// </summary>
-        /// <param name="runtimeMode">
-        /// Defines the execution mode of this scene.
-        /// </param>
-        protected BasicSceneBase(
-            RuntimeMode runtimeMode = RuntimeMode.Game)
+        protected BasicSceneBase()
         {
-            RuntimeMode = runtimeMode;
         }
 
         /// <summary>
@@ -62,7 +56,12 @@ namespace Sachssoft.Sasogine.Scenes
         /// <summary>
         /// Gets the runtime mode in which the scene is executed.
         /// </summary>
-        public RuntimeMode RuntimeMode { get; }
+        public virtual RuntimeMode RuntimeMode { get; } = RuntimeMode.Game;
+
+        /// <summary>
+        /// Gets the optional runtime features enabled for the scene.
+        /// </summary>
+        public virtual RuntimeOptions RuntimeOptions { get; } = RuntimeOptions.None;
 
         /// <summary>
         /// Gets the game application associated with this scene.

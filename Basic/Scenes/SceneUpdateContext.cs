@@ -5,7 +5,7 @@ namespace Sachssoft.Sasogine.Scenes
 {
     /// <summary>
     /// Provides contextual information required during scene updates.
-    /// Contains the current scene and the cameras associated with the update cycle.
+    /// Contains the current scene, runtime settings, and cameras associated with the update cycle.
     /// </summary>
     public class SceneUpdateContext : GameContext
     {
@@ -19,7 +19,7 @@ namespace Sachssoft.Sasogine.Scenes
         /// The scene currently being updated.
         /// </param>
         /// <param name="cameras">
-        /// The cameras managed by the scene update cycle.
+        /// The cameras associated with the scene update cycle.
         /// </param>
         /// <param name="frameCounterSmoothing">
         /// The smoothing factor used for frame timing calculations.
@@ -38,24 +38,34 @@ namespace Sachssoft.Sasogine.Scenes
             Scene = scene ?? throw new ArgumentNullException(nameof(scene));
             Cameras = cameras ?? throw new ArgumentNullException(nameof(cameras));
 
-            RuntimeMode = Scene.RuntimeMode;
-        }
+            RuntimeMode = RuntimeMode.Game;
+            RuntimeOptions = RuntimeOptions.None;
 
+            if (Scene is ISceneRuntimeSettings runtimeSettings)
+            {
+                RuntimeMode = runtimeSettings.RuntimeMode;
+                RuntimeOptions = runtimeSettings.RuntimeOptions;
+            }
+        }
 
         /// <summary>
         /// Gets the scene currently being updated.
         /// </summary>
         public IScene Scene { get; }
 
-
         /// <summary>
-        /// Gets the cameras associated with the current update cycle.
+        /// Gets the cameras associated with the current scene update cycle.
         /// </summary>
         public ICamera[] Cameras { get; }
 
         /// <summary>
-        /// Gets the runtime mode of the current scene.
+        /// Gets the runtime mode that defines how the current scene is executed.
         /// </summary>
         public RuntimeMode RuntimeMode { get; }
+
+        /// <summary>
+        /// Gets the optional runtime features enabled for the current scene execution.
+        /// </summary>
+        public RuntimeOptions RuntimeOptions { get; }
     }
 }

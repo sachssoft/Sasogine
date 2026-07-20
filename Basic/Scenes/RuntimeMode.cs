@@ -21,11 +21,6 @@ public enum RuntimeMode
     Preview,
 
     /// <summary>
-    /// Debug mode with additional diagnostic features.
-    /// </summary>
-    Debug,
-
-    /// <summary>
     /// Simulation mode for testing systems such as physics or logic.
     /// </summary>
     Simulation,

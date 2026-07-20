@@ -27,11 +27,6 @@ namespace Sachssoft.Sasogine.Scenes
         int ViewCount { get; }
 
         /// <summary>
-        /// Gets the runtime mode in which the scene is executed.
-        /// </summary>
-        RuntimeMode RuntimeMode { get; }
-
-        /// <summary>
         /// Loads all resources required by this scene.
         /// </summary>
         void Load();
