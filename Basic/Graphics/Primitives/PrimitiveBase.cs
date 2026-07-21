@@ -8,6 +8,7 @@ using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Graphics.Primitives;
 
+[Obsolete("Remove soon")]
 public abstract class PrimitiveBase
 {
     // Fields
@@ -154,13 +155,17 @@ public abstract class PrimitiveBase
         }
     }
 
-    public void Draw(SceneDrawContext context, Matrix? transform = null, ICamera? customCamera = null, IShader? customEffectAdapter = null)
+    public void Draw(
+        SceneDrawContext context, 
+        Matrix? transform = null, 
+        ICamera? customCamera = null, 
+        IShader? customEffectAdapter = null)
     {
         if (!Visible)
             return;
 
         var graphics = context.GraphicsDevice;
-        var effect = customEffectAdapter ?? context.Shader;
+        var effect = customEffectAdapter ?? context.DefaultMaterial.Shader;
         var camera = customCamera ?? context.ViewCamera ?? throw new InvalidOperationException("No camera available.");
 
         if (effect.Effect.IsDisposed)

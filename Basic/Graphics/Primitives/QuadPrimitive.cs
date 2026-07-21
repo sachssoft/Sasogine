@@ -1,9 +1,11 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Graphics.Rendering;
 
 namespace Sachssoft.Sasogine.Graphics.Primitives;
 
+[Obsolete("Remove Soon")]
 public class QuadPrimitive : PrimitiveBase
 {
     private Vector2 _position;

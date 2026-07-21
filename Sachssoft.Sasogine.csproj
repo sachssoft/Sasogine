@@ -7,4 +7,8 @@
 		<Title>Sasogine</Title>
 		<Copyright>© Tobias Sachs (Sachssoft)</Copyright>
 	</PropertyGroup>
+	
+	<ItemGroup>
+	  <Folder Include="Basic\Graphics\Primitives\Meshes\" />
+	</ItemGroup>
 </Project>
