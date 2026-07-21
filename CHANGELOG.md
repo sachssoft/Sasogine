@@ -24,6 +24,7 @@ All notable changes to this project will be documented in this file.
 - [Feature] Add `Vector3` conversion support to `Coordinate2`.
 - [Feature] Add `IPlatformFileStore` service for platform-specific resource source handling.
 - [Feature] Introduce a new lightweight material system.
+- [Feature] Expand CameraExtensions with world-space calculations.
 - [Change] Refactor the primitive architecture by separating and reorganizing primitive classes.
 - [Change] Replace scene-level shader management with default materials. Shader handling is now moved to the material layer.
 - [Change] Rename `IPlatformModifier` to `IPlatformKeyModifiers` and clarify platform-specific keyboard modifier handling.
