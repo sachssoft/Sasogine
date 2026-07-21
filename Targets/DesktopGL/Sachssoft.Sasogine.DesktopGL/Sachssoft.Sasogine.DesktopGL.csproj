@@ -33,14 +33,6 @@
 			<LinkBase>Basic</LinkBase>
 		</Compile>
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Compile Remove="..\..\..\Basic\Basic\GameService.cs" />
-	  <Compile Remove="..\..\..\Basic\Graphics\Primitives\GridPrimitive.cs" />
-	  <Compile Remove="..\..\..\Basic\Scenes\SceneConfiguration.cs" />
-	  <Compile Remove="..\..\..\Basic\Scenes\SceneViewportContext.cs" />
-	  <Compile Remove="..\..\..\Basic\Scenes\ViewportSceneBase.cs" />
-	</ItemGroup>
 	
 	<ItemGroup>
 		<None Include="..\..\..\README.md" Pack="true" PackagePath="/" />
