@@ -19,10 +19,13 @@ All notable changes to this project will be documented in this file.
 
 </small>
 
-## [0.0.3-alpha] - 2026-07-xx
+## [0.0.3-alpha] - (In progress)
 - [Feature] Add scene runtime settings for game modes and options, such as enabling debug features.
 - [Feature] Add `Vector3` conversion support to `Coordinate2`.
 - [Feature] Add `IPlatformFileStore` service for platform-specific resource source handling.
+- [Feature] Introduce a new lightweight material system.
+- [Change] Refactor the primitive architecture by separating and reorganizing primitive classes.
+- [Change] Replace scene-level shader management with default materials. Shader handling is now moved to the material layer.
 - [Change] Rename `IPlatformModifier` to `IPlatformKeyModifiers` and clarify platform-specific keyboard modifier handling.
 - [Improve] Extend `Coordinate2` with additional `Vector2` conversion overloads.
 - [Bug] Fixed missing `IShaderTransform` in `ShaderBase` required for automatic default camera assignment in primitives.
