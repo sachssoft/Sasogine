@@ -19,7 +19,10 @@ All notable changes to this project will be documented in this file.
 
 </small>
 
-## [0.0.3-alpha] - (In progress)
+## [0.0.4-alpha] - (End of August 2026)
+- Planned
+
+## [0.0.3-alpha] - In Progress (Target: 2026-07-28)
 - [Feature] Add scene runtime settings for game modes and options, such as enabling debug features.
 - [Feature] Add `Vector3` conversion support to `Coordinate2`.
 - [Feature] Add `IPlatformFileStore` service for platform-specific resource source handling.
