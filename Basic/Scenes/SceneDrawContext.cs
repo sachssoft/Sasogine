@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Graphics.Camera;
+using Sachssoft.Sasogine.Graphics.Materials;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
 
@@ -7,8 +8,9 @@ namespace Sachssoft.Sasogine.Scenes
 {
     /// <summary>
     /// Provides contextual information required during scene rendering.
-    /// Contains the current scene, runtime settings, active camera, shader,
-    /// frame information, and viewport information for multi-view rendering.
+    /// Contains the current scene, runtime settings, active camera,
+    /// default material, frame information, and viewport information
+    /// for multi-view rendering.
     /// </summary>
     public class SceneDrawContext : GameContext
     {
@@ -24,8 +26,8 @@ namespace Sachssoft.Sasogine.Scenes
         /// <param name="viewCamera">
         /// The camera assigned to the current rendering view.
         /// </param>
-        /// <param name="shader">
-        /// The shader used during scene rendering.
+        /// <param name="defaultMaterial">
+        /// The default material used when a primitive does not provide a custom material.
         /// </param>
         /// <param name="viewIndex">
         /// The zero-based index of the current rendering view.
@@ -43,7 +45,7 @@ namespace Sachssoft.Sasogine.Scenes
             IGameApplication application,
             IScene scene,
             ICamera viewCamera,
-            IShader shader,
+            IMaterial defaultMaterial,
             int viewIndex,
             int viewCount,
             float frameCounterSmoothing = 0.1f,
@@ -53,7 +55,7 @@ namespace Sachssoft.Sasogine.Scenes
             Scene = scene ?? throw new ArgumentNullException(nameof(scene));
 
             ViewCamera = viewCamera ?? throw new ArgumentNullException(nameof(viewCamera));
-            Shader = shader ?? throw new ArgumentNullException(nameof(shader));
+            DefaultMaterial = defaultMaterial ?? throw new ArgumentNullException(nameof(defaultMaterial));
 
             ViewIndex = viewIndex;
             ViewCount = viewCount;
@@ -100,10 +102,9 @@ namespace Sachssoft.Sasogine.Scenes
         public int ViewCount { get; }
 
         /// <summary>
-        /// Gets the shader used during scene rendering.
+        /// Gets the default material used when a primitive does not provide a custom material.
         /// </summary>
-        public IShader Shader { get; }
-
+        public IMaterial DefaultMaterial { get; }
 
         /// <summary>
         /// Calculates the viewport rectangle assigned to the current rendering view.

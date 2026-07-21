@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Components;
 using Sachssoft.Sasogine.Graphics.Camera;
+using Sachssoft.Sasogine.Graphics.Materials;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
 
@@ -101,21 +102,23 @@ namespace Sachssoft.Sasogine.Scenes
 
 
         /// <summary>
-        /// Creates the rendering effect adapter used by this scene.
+        /// Creates the default material used for rendering this scene.
         /// </summary>
         /// <param name="graphicsDevice">
-        /// The graphics device used for rendering.
+        /// The graphics device used by the material.
         /// </param>
         /// <returns>
-        /// A default basic effect adapter.
+        /// A default diffuse material for scene rendering.
         /// </returns>
-        public virtual IShader CreateShader(
+        public virtual IMaterial CreateDefaultMaterial(
             GraphicsDevice graphicsDevice)
         {
-            return new BasicShader
+            var shader = new BasicShader
             {
                 GraphicsDevice = graphicsDevice
             };
+
+            return new DiffuseMaterial(shader);
         }
 
 

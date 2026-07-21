@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Graphics.Camera;
+using Sachssoft.Sasogine.Graphics.Materials;
 using Sachssoft.Sasogine.Graphics.Rendering;
 
 namespace Sachssoft.Sasogine.Scenes
@@ -89,15 +90,15 @@ namespace Sachssoft.Sasogine.Scenes
 
 
         /// <summary>
-        /// Creates the shader instance used for rendering this scene.
+        /// Creates the default material used for rendering this scene.
         /// </summary>
         /// <param name="graphicsDevice">
-        /// The graphics device used by the shader.
+        /// The graphics device used by the material.
         /// </param>
         /// <returns>
-        /// A shader instance for scene rendering.
+        /// A default material instance for scene rendering.
         /// </returns>
-        IShader CreateShader(
+        IMaterial CreateDefaultMaterial(
             GraphicsDevice graphicsDevice);
     }
 }

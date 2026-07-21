@@ -124,7 +124,7 @@ namespace Sachssoft.Sasogine.Scenes
                         _application,
                         scene,
                         cameras[i],
-                        scene.CreateShader(
+                        scene.CreateDefaultMaterial(
                             _application.GraphicsDevice),
                         i,
                         cameras.Length);
