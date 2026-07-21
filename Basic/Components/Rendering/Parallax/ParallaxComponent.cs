@@ -1,7 +1,7 @@
 ﻿using Sachssoft.Sasogine.Scenes;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Rendering.Parallax
+namespace Sachssoft.Sasogine.Components.Rendering.Parallaxes
 {
     /// <summary>
     /// Provides a parallax rendering component that manages multiple

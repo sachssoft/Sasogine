@@ -3,7 +3,7 @@ using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Components.Models;
 using System.ComponentModel;
 
-namespace Sachssoft.Sasogine.Basic.Components.Rendering.Camera
+namespace Sachssoft.Sasogine.Components.Rendering.Cameras
 {
     /// <summary>
     /// Defines the default configuration values for a 2D camera.

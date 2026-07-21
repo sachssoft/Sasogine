@@ -1,7 +1,7 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Graphics.Rendering;
+using System;
 
 namespace Sachssoft.Sasogine.Graphics.Primitives;
 

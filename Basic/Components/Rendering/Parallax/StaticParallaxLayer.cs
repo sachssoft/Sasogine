@@ -1,6 +1,6 @@
 ﻿using Sachssoft.Sasogine.Scenes;
 
-namespace Sachssoft.Sasogine.Components.Rendering.Parallax
+namespace Sachssoft.Sasogine.Components.Rendering.Parallaxes
 {
     /// <summary>
     /// Provides a static parallax layer that remains fixed during camera movement.

@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace Sachssoft.Sasogine.Graphics.Camera
+namespace Sachssoft.Sasogine.Graphics.Cameras
 {
     /// <summary>
     /// Defines a camera that provides transformation data and camera operations.

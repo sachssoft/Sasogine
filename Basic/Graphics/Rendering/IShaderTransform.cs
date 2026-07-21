@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Graphics.Camera;
+using Sachssoft.Sasogine.Graphics.Cameras;
 
 namespace Sachssoft.Sasogine.Graphics.Rendering
 {

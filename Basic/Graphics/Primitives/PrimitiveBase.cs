@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Graphics.Camera;
+using Sachssoft.Sasogine.Graphics.Cameras;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using Sachssoft.Sasogine.Scenes;
 using System;
@@ -156,9 +156,9 @@ public abstract class PrimitiveBase
     }
 
     public void Draw(
-        SceneDrawContext context, 
-        Matrix? transform = null, 
-        ICamera? customCamera = null, 
+        SceneDrawContext context,
+        Matrix? transform = null,
+        ICamera? customCamera = null,
         IShader? customEffectAdapter = null)
     {
         if (!Visible)

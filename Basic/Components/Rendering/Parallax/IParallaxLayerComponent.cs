@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Components.Rendering.Parallax
+﻿namespace Sachssoft.Sasogine.Components.Rendering.Parallaxes
 {
     public interface IParallaxLayerComponent : IUpdatableComponent, IDrawableComponent
     {

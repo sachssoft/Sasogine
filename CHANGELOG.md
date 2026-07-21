@@ -27,6 +27,7 @@ All notable changes to this project will be documented in this file.
 - [Change] Refactor the primitive architecture by separating and reorganizing primitive classes.
 - [Change] Replace scene-level shader management with default materials. Shader handling is now moved to the material layer.
 - [Change] Rename `IPlatformModifier` to `IPlatformKeyModifiers` and clarify platform-specific keyboard modifier handling.
+- [Change] Refactor and clean up namespaces
 - [Improve] Extend `Coordinate2` with additional `Vector2` conversion overloads.
 - [Bug] Fixed missing `IShaderTransform` in `ShaderBase` required for automatic default camera assignment in primitives.
 

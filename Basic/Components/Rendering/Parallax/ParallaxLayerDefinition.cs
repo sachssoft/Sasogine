@@ -3,7 +3,7 @@ using Sachssoft.Sasogine.Assets.Graphics;
 using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Graphics.Rendering;
 
-namespace Sachssoft.Sasogine.Components.Rendering.Parallax
+namespace Sachssoft.Sasogine.Components.Rendering.Parallaxes
 {
     public class ParallaxLayerDefinitionBase : IComponentDefinition
     {

@@ -1,6 +1,6 @@
 ﻿using Sachssoft.Sasogine.Scenes;
 
-namespace Sachssoft.Sasogine.Components.Rendering.Parallax
+namespace Sachssoft.Sasogine.Components.Rendering.Parallaxes
 {
     /// <summary>
     /// Provides a base implementation for a parallax layer component.

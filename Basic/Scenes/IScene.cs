@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Graphics.Camera;
+using Sachssoft.Sasogine.Graphics.Cameras;
 using Sachssoft.Sasogine.Graphics.Materials;
-using Sachssoft.Sasogine.Graphics.Rendering;
 
 namespace Sachssoft.Sasogine.Scenes
 {

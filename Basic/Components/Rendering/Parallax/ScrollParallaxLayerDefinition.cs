@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace Sachssoft.Sasogine.Components.Rendering.Parallax
+namespace Sachssoft.Sasogine.Components.Rendering.Parallaxes
 {
     public class ScrollParallaxLayerDefinition : ParallaxLayerDefinitionBase
     {

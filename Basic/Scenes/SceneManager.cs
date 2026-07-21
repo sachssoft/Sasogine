@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Graphics.Camera;
+using Sachssoft.Sasogine.Graphics.Cameras;
 using System;
 using System.Collections.Generic;
 

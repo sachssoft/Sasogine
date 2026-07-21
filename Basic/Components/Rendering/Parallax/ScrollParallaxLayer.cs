@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Scenes;
 
-namespace Sachssoft.Sasogine.Components.Rendering.Parallax
+namespace Sachssoft.Sasogine.Components.Rendering.Parallaxes
 {
     /// <summary>
     /// Provides a parallax layer that scrolls continuously with a defined speed.

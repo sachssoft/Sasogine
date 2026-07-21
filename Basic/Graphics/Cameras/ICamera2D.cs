@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace Sachssoft.Sasogine.Graphics.Camera
+namespace Sachssoft.Sasogine.Graphics.Cameras
 {
     /// <summary>
     /// Defines a two-dimensional camera with position and zoom control.
