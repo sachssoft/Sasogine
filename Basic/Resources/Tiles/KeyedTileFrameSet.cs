@@ -2,6 +2,7 @@
 using Sachssoft.Sasogine.Common;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Sachssoft.Sasogine.Resources;
 
@@ -45,16 +46,14 @@ public sealed class KeyedTileFrameSet : ITileFrameSet
     /// </summary>
     public Texture2DAsset Asset { get; }
 
-
     /// <summary>
-    /// Gets all registered tile frames.
+    /// Gets all string keys used to identify the registered tile frames.
     /// </summary>
-    public IEnumerable<TileFrame> Frames
-        => _frames.Values;
+    public IEnumerable<string> Keys
+        => _frames.Keys;
 
-
-    TileFrame ITileFrameSet.this[object key]
-        => this[(string)key];
+    IEnumerable<object> ITileFrameSet.Keys 
+        => _frames.Keys;
 
 
     /// <summary>
@@ -65,6 +64,9 @@ public sealed class KeyedTileFrameSet : ITileFrameSet
     /// </param>
     public TileFrame this[string key]
         => _frames[key];
+
+    TileFrame ITileFrameSet.this[object key]
+        => this[(string)key];
 
 
     /// <summary>

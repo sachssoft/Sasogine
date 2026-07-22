@@ -1,4 +1,5 @@
 ﻿using Sachssoft.Sasogine.Assets.Graphics;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Resources;
@@ -30,4 +31,9 @@ public interface ITileFrameSet : IEnumerable<TileFrame>
     /// The tile frame associated with the specified key.
     /// </returns>
     TileFrame this[object key] { get; }
+
+    /// <summary>
+    /// Gets all keys used to identify the registered tile frames.
+    /// </summary>
+    IEnumerable<object> Keys { get; }
 }

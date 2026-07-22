@@ -2,6 +2,7 @@
 using Sachssoft.Sasogine.Common;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Sachssoft.Sasogine.Resources;
 
@@ -54,9 +55,11 @@ public sealed class SequentialTileFrameSet : ITileFrameSet
     /// </summary>
     public int Count => _frames.Count;
 
-    TileFrame ITileFrameSet.this[object key]
-        => this[(int)key];
+    IEnumerable<object> ITileFrameSet.Keys
+        => Enumerable.Range(0, _frames.Count).Cast<object>();
 
+    TileFrame ITileFrameSet.this[object key] 
+        => this[(int)key];
 
     /// <summary>
     /// Gets the frame at the specified zero-based index.
@@ -66,7 +69,6 @@ public sealed class SequentialTileFrameSet : ITileFrameSet
     /// </param>
     public TileFrame this[int index]
         => _frames[index];
-
 
     /// <summary>
     /// Adds a new frame to the end of the frame sequence.

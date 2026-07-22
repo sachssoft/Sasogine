@@ -3,6 +3,7 @@ using Sachssoft.Sasogine.Common;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Sachssoft.Sasogine.Resources;
 
@@ -54,6 +55,9 @@ public sealed class IndexedTileFrameSet<TEnum> : ITileFrameSet
     /// Gets all enum keys of the registered tile frames.
     /// </summary>
     public IEnumerable<TEnum> Indices => _frames.Keys;
+
+    IEnumerable<object> ITileFrameSet.Keys
+        => _frames.Keys.Cast<object>();
 
     TileFrame ITileFrameSet.this[object key]
         => this[(TEnum)key];
