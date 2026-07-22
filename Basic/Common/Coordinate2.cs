@@ -256,6 +256,13 @@ public readonly struct Coordinate2
         => new(X * tileSize.Width, Y * tileSize.Height);
 
     /// <summary>
+    /// Converts this coordinate into a Vector2 position using the specified tile size.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector2 ToVector2(Vector2 tileSize)
+        => new(X * tileSize.X, Y * tileSize.Y);
+
+    /// <summary>
     /// Converts this coordinate into a Vector3 in grid space with the specified layer.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
