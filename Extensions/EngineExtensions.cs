@@ -275,6 +275,58 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
         }
         #endregion
 
+        #region Coordinate2
+        public static Coordinate2 ReadCoordinate2(this FormatReaderBase reader, string property, Coordinate2 fallback)
+        {
+            var childReader = reader.Read(property);
+
+            if (childReader == null)
+                return fallback;
+
+            var x = childReader.ReadInt32(nameof(Coordinate2.X), fallback.X);
+            var y = childReader.ReadInt32(nameof(Coordinate2.Y), fallback.Y);
+
+            return (new Coordinate2(x, y));
+        }
+
+        public static void WriteCoordinate2(this FormatWriterBase writer, string property, Coordinate2 value)
+        {
+            var childWriter = writer.CreateWriter();
+
+            childWriter.WriteInt32(nameof(Coordinate2.X), value.X);
+            childWriter.WriteInt32(nameof(Coordinate2.Y), value.Y);
+
+            writer.Write(property, childWriter);
+        }
+        #endregion
+
+        #region Coordinate3
+        public static Coordinate3 ReadCoordinate3(this FormatReaderBase reader, string property, Coordinate3 fallback)
+        {
+            var childReader = reader.Read(property);
+
+            if (childReader == null)
+                return fallback;
+
+            var x = childReader.ReadInt32(nameof(Coordinate3.X), fallback.X);
+            var y = childReader.ReadInt32(nameof(Coordinate3.Y), fallback.Y);
+            var z = childReader.ReadInt32(nameof(Coordinate3.Z), fallback.Z);
+
+            return (new Coordinate3(x, y, z));
+        }
+
+        public static void WriteCoordinate3(this FormatWriterBase writer, string property, Coordinate3 value)
+        {
+            var childWriter = writer.CreateWriter();
+
+            childWriter.WriteInt32(nameof(Coordinate3.X), value.X);
+            childWriter.WriteInt32(nameof(Coordinate3.Y), value.Y);
+            childWriter.WriteInt32(nameof(Coordinate3.Z), value.Z);
+
+            writer.Write(property, childWriter);
+        }
+        #endregion
+
         #region TieredScore
         public static HighTieredScore<TValue> ReadHighTieredScore<TValue>(
             this FormatReaderBase reader,
