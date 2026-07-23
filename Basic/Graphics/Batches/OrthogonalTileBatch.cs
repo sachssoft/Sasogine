@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Graphics.Cameras;
-using Sachssoft.Sasogine.Graphics.Rendering;
+using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Graphics.Rendering.Batches;
 
@@ -44,23 +43,15 @@ public sealed class OrthogonalTileBatch : TileBatchBase
     /// <summary>
     /// Adds a tile at a grid coordinate.
     /// </summary>
-    /// <param name="coordinate">
-    /// Tile grid coordinate.
-    /// </param>
-    /// <param name="sourceRect">
-    /// Texture region inside the tile atlas.
-    /// </param>
-    /// <param name="color">
-    /// Tile color multiplier.
-    /// </param>
     public void AddTile(
-        Point coordinate,
+        Coordinate2 coordinate,
         Rectangle sourceRect,
         Color color)
     {
         AddTile(
             coordinate.X,
             coordinate.Y,
+            new TileTransform(),
             sourceRect,
             color);
     }
@@ -69,18 +60,24 @@ public sealed class OrthogonalTileBatch : TileBatchBase
     /// <summary>
     /// Adds a tile at a grid coordinate.
     /// </summary>
-    /// <param name="x">
-    /// Horizontal tile coordinate.
-    /// </param>
-    /// <param name="y">
-    /// Vertical tile coordinate.
-    /// </param>
-    /// <param name="sourceRect">
-    /// Texture region inside the tile atlas.
-    /// </param>
-    /// <param name="color">
-    /// Tile color multiplier.
-    /// </param>
+    public void AddTile(
+        Coordinate2 coordinate,
+        TileTransform transform,
+        Rectangle sourceRect,
+        Color color)
+    {
+        AddTile(
+            coordinate.X,
+            coordinate.Y,
+            transform,
+            sourceRect,
+            color);
+    }
+
+
+    /// <summary>
+    /// Adds a tile at a grid coordinate.
+    /// </summary>
     public void AddTile(
         int x,
         int y,
@@ -88,36 +85,48 @@ public sealed class OrthogonalTileBatch : TileBatchBase
         Color color)
     {
         AddTile(
-            new Vector2(
-                x * _tileSize.X,
-                y * _tileSize.Y),
+            x,
+            y,
+            new TileTransform(),
             sourceRect,
             color);
     }
 
 
     /// <summary>
-    /// Adds a tile at a world position.
+    /// Adds a tile at a grid coordinate with transformation.
     /// </summary>
     public void AddTile(
-        Vector2 position,
+        int x,
+        int y,
+        TileTransform transform,
         Rectangle sourceRect,
         Color color)
     {
-        Matrix transform =
+        Vector2 position =
+            new Vector2(
+                x * _tileSize.X,
+                y * _tileSize.Y);
+
+
+        TileTransform tileTransform =
+            transform with
+            {
+                Position = position
+            };
+
+
+        Matrix matrix =
             Matrix.CreateScale(
                 _tileSize.X,
                 _tileSize.Y,
                 1f)
             *
-            Matrix.CreateTranslation(
-                position.X,
-                position.Y,
-                0f);
+            tileTransform.ToMatrix();
 
 
         AddQuad(
-            transform,
+            matrix,
             sourceRect,
             color);
     }

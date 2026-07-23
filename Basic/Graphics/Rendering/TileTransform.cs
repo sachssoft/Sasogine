@@ -20,7 +20,6 @@ public readonly struct TileTransform : IMatrixProvider
     {
         Position = Vector2.Zero;
         Offset = Vector2.Zero;
-        TileSize = Vector2.One;
         Rotation = 0f;
         Origin = Vector2.Zero;
     }
@@ -41,7 +40,6 @@ public readonly struct TileTransform : IMatrixProvider
     {
         Position = position;
         Offset = Vector2.Zero;
-        TileSize = tileSize;
         Rotation = 0f;
         Origin = Vector2.Zero;
     }
@@ -53,9 +51,6 @@ public readonly struct TileTransform : IMatrixProvider
     /// <param name="position">
     /// World position of the tile.
     /// </param>
-    /// <param name="tileSize">
-    /// Size of the tile.
-    /// </param>
     /// <param name="rotation">
     /// Rotation in radians.
     /// </param>
@@ -64,13 +59,11 @@ public readonly struct TileTransform : IMatrixProvider
     /// </param>
     public TileTransform(
         Vector2 position,
-        Vector2 tileSize,
         float rotation,
         Vector2 origin)
     {
         Position = position;
         Offset = Vector2.Zero;
-        TileSize = tileSize;
         Rotation = rotation;
         Origin = origin;
     }
@@ -86,12 +79,6 @@ public readonly struct TileTransform : IMatrixProvider
     /// Gets an additional offset applied to the tile position.
     /// </summary>
     public Vector2 Offset { get; init; }
-
-
-    /// <summary>
-    /// Gets the size of the tile in pixels.
-    /// </summary>
-    public Vector2 TileSize { get; init; }
 
 
     /// <summary>
@@ -119,11 +106,6 @@ public readonly struct TileTransform : IMatrixProvider
                 -Origin.X,
                 -Origin.Y,
                 0f)
-            *
-            Matrix.CreateScale(
-                TileSize.X,
-                TileSize.Y,
-                1f)
             *
             Matrix.CreateRotationZ(
                 Rotation)

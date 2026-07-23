@@ -30,6 +30,7 @@ All notable changes to this project will be documented in this file.
 - [Feature] Expand CameraExtensions with world-space calculations.
 - [Feature] Added specialized texture frame set support for tile-based rendering.
 - [Feature] Introduced `IMatrixProvider` interface and added `QuadTransform` and `TileTransform` implementations for flexible rendering transformations.
+- [Feature] Introduced Tile Batch System for tile-based rendering
 - [Change] Refactor the primitive architecture by separating and reorganizing primitive classes.
 - [Change] Replace scene-level shader management with default materials. Shader handling is now moved to the material layer.
 - [Change] Rename `IPlatformModifier` to `IPlatformKeyModifiers` and clarify platform-specific keyboard modifier handling.
