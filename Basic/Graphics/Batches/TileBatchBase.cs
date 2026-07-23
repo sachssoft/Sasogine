@@ -25,19 +25,19 @@ public abstract class TileBatchBase : IDisposable
     private VertexPositionColorNormalTexture[] _vertices;
     private int[] _indices;
 
-    private DynamicVertexBuffer _vertexBuffer;
-    private IndexBuffer _indexBuffer;
+    private DynamicVertexBuffer? _vertexBuffer;
+    private IndexBuffer? _indexBuffer;
+
+    private bool _isBegun; 
+    private bool _disposed;
 
     private int _capacity;
-
     private int _tileCount;
     private int _vertexCount;
 
     private IShader? _shader;
     private ICamera? _camera;
-
     private Texture2D? _texture;
-
 
     /// <summary>
     /// Creates a new tile batch.
@@ -70,7 +70,6 @@ public abstract class TileBatchBase : IDisposable
         CreateBuffers();
     }
 
-
     /// <summary>
     /// Starts rendering.
     /// </summary>
@@ -79,14 +78,24 @@ public abstract class TileBatchBase : IDisposable
         ICamera camera,
         Texture2D? texture = null)
     {
+        ThrowIfDisposed();
+
+        if (_isBegun)
+            throw new InvalidOperationException(
+                "Batch is already active. Call End() before Begin().");
+
+        _shader = shader ?? throw new ArgumentNullException(nameof(shader));
+        _camera = camera ?? throw new ArgumentNullException(nameof(camera));
+
         _shader = shader;
         _camera = camera;
         _texture = texture;
 
         _tileCount = 0;
         _vertexCount = 0;
-    }
 
+        _isBegun = true;
+    }
 
     /// <summary>
     /// Adds a textured quad using a transformation matrix.
@@ -96,6 +105,12 @@ public abstract class TileBatchBase : IDisposable
         Rectangle sourceRect,
         Color color)
     {
+        ThrowIfDisposed();
+
+        if (!_isBegun)
+            throw new InvalidOperationException(
+                "Batch must be started with Begin() before adding tiles.");
+
         EnsureCapacity();
 
         int vertex =
@@ -165,11 +180,9 @@ public abstract class TileBatchBase : IDisposable
         _tileCount++;
         _vertexCount += 4;
     }
-
-
     private Vector2 GetUV(
-        int x,
-        int y)
+    int x,
+    int y)
     {
         if (_texture == null)
             return Vector2.Zero;
@@ -179,8 +192,6 @@ public abstract class TileBatchBase : IDisposable
             x / (float)_texture.Width,
             y / (float)_texture.Height);
     }
-
-
     private static VertexPositionColorNormalTexture CreateVertex(
         Vector3 position,
         Color color,
@@ -197,31 +208,19 @@ public abstract class TileBatchBase : IDisposable
             uv);
     }
 
-
     private void EnsureCapacity()
     {
         if (_tileCount < _capacity)
             return;
 
-
         _capacity *= 2;
 
-
-        Array.Resize(
-            ref _vertices,
-            _capacity * 4);
-
-
-        Array.Resize(
-            ref _indices,
-            _capacity * 6);
-
+        Array.Resize(ref _vertices, _capacity * 4);
+        Array.Resize(ref _indices, _capacity * 6);
 
         BuildIndices();
-
         CreateBuffers();
     }
-
 
     private void BuildIndices()
     {
@@ -230,27 +229,14 @@ public abstract class TileBatchBase : IDisposable
             int vertex = i * 4;
             int index = i * 6;
 
-
-            _indices[index + 0] =
-                vertex + 0;
-
-            _indices[index + 1] =
-                vertex + 1;
-
-            _indices[index + 2] =
-                vertex + 2;
-
-            _indices[index + 3] =
-                vertex + 2;
-
-            _indices[index + 4] =
-                vertex + 3;
-
-            _indices[index + 5] =
-                vertex + 0;
+            _indices[index + 0] = vertex + 0;
+            _indices[index + 1] = vertex + 1;
+            _indices[index + 2] = vertex + 2;
+            _indices[index + 3] = vertex + 2;
+            _indices[index + 4] = vertex + 3;
+            _indices[index + 5] = vertex + 0;
         }
     }
-
 
     private void CreateBuffers()
     {
@@ -265,14 +251,12 @@ public abstract class TileBatchBase : IDisposable
                 _vertices.Length,
                 BufferUsage.WriteOnly);
 
-
         _indexBuffer =
             new IndexBuffer(
                 _graphicsDevice,
                 IndexElementSize.ThirtyTwoBits,
                 _indices.Length,
                 BufferUsage.WriteOnly);
-
 
         _indexBuffer.SetData(
             _indices);
@@ -284,67 +268,87 @@ public abstract class TileBatchBase : IDisposable
     /// </summary>
     public virtual void End()
     {
-        if (_shader == null ||
+        ThrowIfDisposed();
+
+        if (!_isBegun)
+            throw new InvalidOperationException(
+                "Batch has not been started. Call Begin() first.");
+
+        try
+        {
+            if (_shader == null ||
             _camera == null ||
             _tileCount == 0)
-            return;
+                return;
 
-
-        _vertexBuffer.SetData(
-            _vertices,
-            0,
-            _vertexCount,
-            SetDataOptions.Discard);
-
-
-        _graphicsDevice.SetVertexBuffer(
-            _vertexBuffer);
-
-
-        _graphicsDevice.Indices =
-            _indexBuffer;
-
-
-        if (_shader is IShaderTransform transform)
-        {
-            transform.Camera =
-                _camera;
-
-            transform.Transform =
-                Matrix.Identity;
-        }
-
-
-        _shader.Texture =
-            _texture;
-
-        _shader.Color =
-            Color.White;
-
-
-        _shader.Apply();
-
-
-        foreach (var pass in _shader.CurrentTechnique.Passes)
-        {
-            pass.Apply();
-
-            _graphicsDevice.DrawIndexedPrimitives(
-                PrimitiveType.TriangleList,
+            _vertexBuffer.SetData(
+                _vertices,
                 0,
-                0,
-                _tileCount * 2);
+                _vertexCount,
+                SetDataOptions.Discard);
+
+            _graphicsDevice.SetVertexBuffer(
+                _vertexBuffer);
+
+            _graphicsDevice.Indices = _indexBuffer;
+
+            if (_shader is IShaderTransform transform)
+            {
+                transform.Camera = _camera;
+                transform.Transform = Matrix.Identity;
+            }
+
+            _shader.Texture = _texture;
+            _shader.Color = Color.White;
+
+            _shader.Apply();
+
+            foreach (var pass in _shader.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+
+                _graphicsDevice.DrawIndexedPrimitives(
+                    PrimitiveType.TriangleList,
+                    0,
+                    0,
+                    _tileCount * 2);
+            }
         }
+        finally
+        {
+            _tileCount = 0;
+            _vertexCount = 0;
 
-
-        _tileCount = 0;
-        _vertexCount = 0;
+            _isBegun = false;
+        }
     }
 
-
+    /// <summary>
+    /// Releases all graphics resources used by this tile batch.
+    /// </summary>
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown when the tile batch has already been disposed.
+    /// </exception>
     public void Dispose()
     {
+        if (_disposed)
+        {
+            throw new ObjectDisposedException(
+                nameof(TileBatchBase));
+        }
+
         _vertexBuffer.Dispose();
         _indexBuffer.Dispose();
+
+        _disposed = true;
+    }
+
+    private void ThrowIfDisposed()
+    {
+        if (_disposed)
+        {
+            throw new ObjectDisposedException(
+                nameof(TileBatchBase));
+        }
     }
 }
