@@ -8,7 +8,7 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
     public static class EngineExtensions
     {
         #region Size
-        public static Size ReadSize(this FormatReaderBase reader, string property, Size fallback)
+        public static Size ReadSize(this FormatReaderBase reader, string property, Size fallback = default)
         {
             var childReader = reader.Read(property);
 
@@ -33,7 +33,7 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
         #endregion
 
         #region PixelSize
-        public static PixelSize ReadPixelSize(this FormatReaderBase reader, string property, PixelSize fallback)
+        public static PixelSize ReadPixelSize(this FormatReaderBase reader, string property, PixelSize fallback = default)
         {
             var childReader = reader.Read(property);
 
@@ -58,7 +58,7 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
         #endregion
 
         #region Insets
-        public static Insets ReadInsets(this FormatReaderBase reader, string property, Insets fallback)
+        public static Insets ReadInsets(this FormatReaderBase reader, string property, Insets fallback = default)
         {
             var childReader = reader.Read(property);
 
@@ -87,7 +87,7 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
         #endregion
 
         #region PixelInsets
-        public static PixelInsets ReadPixelInsets(this FormatReaderBase reader, string property, PixelInsets fallback)
+        public static PixelInsets ReadPixelInsets(this FormatReaderBase reader, string property, PixelInsets fallback = default)
         {
             var childReader = reader.Read(property);
 
@@ -116,7 +116,7 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
         #endregion
 
         #region Bounds
-        public static Bounds ReadBounds(this FormatReaderBase reader, string property, Bounds fallback)
+        public static Bounds ReadBounds(this FormatReaderBase reader, string property, Bounds fallback = default)
         {
             var childReader = reader.Read(property);
 
@@ -174,7 +174,7 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
         #endregion
 
         #region Box
-        public static Box ReadBox(this FormatReaderBase reader, string property, Box fallback)
+        public static Box ReadBox(this FormatReaderBase reader, string property, Box fallback = default)
         {
             var childReader = reader.Read(property);
 
@@ -203,7 +203,7 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
         #endregion
 
         #region PixelBox
-        public static PixelBox ReadPixelBox(this FormatReaderBase reader, string property, PixelBox fallback)
+        public static PixelBox ReadPixelBox(this FormatReaderBase reader, string property, PixelBox fallback = default)
         {
             var childReader = reader.Read(property);
 
@@ -276,7 +276,7 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
         #endregion
 
         #region Coordinate2
-        public static Coordinate2 ReadCoordinate2(this FormatReaderBase reader, string property, Coordinate2 fallback)
+        public static Coordinate2 ReadCoordinate2(this FormatReaderBase reader, string property, Coordinate2 fallback = default)
         {
             var childReader = reader.Read(property);
 
@@ -301,7 +301,7 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
         #endregion
 
         #region Coordinate3
-        public static Coordinate3 ReadCoordinate3(this FormatReaderBase reader, string property, Coordinate3 fallback)
+        public static Coordinate3 ReadCoordinate3(this FormatReaderBase reader, string property, Coordinate3 fallback = default)
         {
             var childReader = reader.Read(property);
 
