@@ -20,7 +20,7 @@ All notable changes to this project will be documented in this file.
 </small>
 
 ## [0.0.4-alpha] - (End of August 2026)
-- Planned
+(Planned)
 
 ## [0.0.3-alpha] - In Progress (Target: 2026-07-28)
 - [Feature] Add scene runtime settings for game modes and options, such as enabling debug features.
@@ -31,6 +31,7 @@ All notable changes to this project will be documented in this file.
 - [Feature] Added specialized texture frame set support for tile-based rendering.
 - [Feature] Introduced `IMatrixProvider` interface and added `QuadTransform` and `TileTransform` implementations for flexible rendering transformations.
 - [Feature] Introduced Tile Batch System for tile-based rendering
+- [Feature] Introduced the Tile World System
 - [Change] Refactor the primitive architecture by separating and reorganizing primitive classes.
 - [Change] Replace scene-level shader management with default materials. Shader handling is now moved to the material layer.
 - [Change] Rename `IPlatformModifier` to `IPlatformKeyModifiers` and clarify platform-specific keyboard modifier handling.
