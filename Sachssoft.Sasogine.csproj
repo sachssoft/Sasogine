@@ -9,6 +9,7 @@
 	</PropertyGroup>
 	
 	<ItemGroup>
+	  <Folder Include="Basic\Graphics\Tiles\" />
 	  <Folder Include="Basic\Graphics\Primitives\Meshes\" />
 	</ItemGroup>
 </Project>
