@@ -66,12 +66,12 @@ namespace Sachssoft.Sasogine.World.Tiles
         /// <summary>
         /// Gets the number of columns in the tile map.
         /// </summary>
-        public short Columns { get; }
+        public short Columns => _columns;
 
         /// <summary>
         /// Gets the number of rows in the tile map.
         /// </summary>
-        public short Rows { get; }
+        public short Rows => _rows;
 
         /// <summary>
         /// Gets the total number of tile cells per layer.
