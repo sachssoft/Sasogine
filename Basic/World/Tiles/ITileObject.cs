@@ -8,7 +8,7 @@ namespace Sachssoft.Sasogine.World.Tiles
     /// Represents a runtime tile object stored in a tile map.
     /// A tile object contains a definition and can create independent copies of itself.
     /// </summary>
-    public interface ITileObject
+    public interface ITileObject : ICloneable
     {
         /// <summary>
         /// Gets the definition that describes this tile object.
@@ -19,6 +19,6 @@ namespace Sachssoft.Sasogine.World.Tiles
         /// Creates a copy of this tile object.
         /// </summary>
         /// <returns>A cloned tile object.</returns>
-        ITileObject Clone();
+        new ITileObject Clone();
     }
 }
