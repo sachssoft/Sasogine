@@ -15,8 +15,8 @@ namespace Sachssoft.Sasogine.World.Tiles
     public abstract class TileMapBase<TTile>
         where TTile : class, ITileObject
     {
-        private readonly TTile[][] _tiles;
-        private readonly TTile _defaultTileCache;
+        private readonly TTile?[][] _tiles;
+        private readonly TTile? _defaultTileCache;
         private readonly int _layerCount;
         private short _columns;
         private short _rows;
@@ -38,7 +38,9 @@ namespace Sachssoft.Sasogine.World.Tiles
             if (layerCount <= 0)
                 throw new ArgumentOutOfRangeException(nameof(layerCount));
 
-            _defaultTileCache = CreateDefaultTile();
+            _defaultTileCache = AllowNullTiles
+                ? null!
+                : CreateDefaultTile();
 
             _columns = columns;
             _rows = rows;
@@ -54,7 +56,7 @@ namespace Sachssoft.Sasogine.World.Tiles
 
                 Array.Fill(
                     _tiles[i],
-                    CreateDefaultTile());
+                    GetFallbackTile());
             }
         }
 
@@ -79,13 +81,18 @@ namespace Sachssoft.Sasogine.World.Tiles
         public int TileCount => _columns * _rows;
 
         /// <summary>
+        /// Gets a value indicating whether <c>null</c> tiles are allowed.
+        /// </summary>
+        protected virtual bool AllowNullTiles => false;
+
+        /// <summary>
         /// Gets the tile object at the specified layer and tile coordinates.
         /// </summary>
         /// <param name="layerIndex">The layer index.</param>
         /// <param name="x">The horizontal tile coordinate.</param>
         /// <param name="y">The vertical tile coordinate.</param>
         /// <returns>The tile object located at the specified position.</returns>
-        public TTile GetTile(int layerIndex, int x, int y)
+        public TTile? GetTile(int layerIndex, int x, int y)
         {
             ValidateCell(x, y);
 
@@ -98,7 +105,7 @@ namespace Sachssoft.Sasogine.World.Tiles
         /// <param name="layerIndex">The layer index.</param>
         /// <param name="cell">The tile coordinate.</param>
         /// <returns>The tile object located at the specified position.</returns>
-        public TTile GetTile(int layerIndex, Coordinate2 cell)
+        public TTile? GetTile(int layerIndex, Coordinate2 cell)
             => GetTile(layerIndex, cell.X, cell.Y);
 
         /// <summary>
@@ -107,7 +114,7 @@ namespace Sachssoft.Sasogine.World.Tiles
         /// <param name="layerIndex">The layer index.</param>
         /// <param name="index">The zero-based tile index.</param>
         /// <returns>The tile object located at the specified index.</returns>
-        public TTile GetTile(int layerIndex, int index)
+        public TTile? GetTile(int layerIndex, int index)
         {
             ValidateLayer(layerIndex);
 
@@ -129,7 +136,8 @@ namespace Sachssoft.Sasogine.World.Tiles
             ValidateCell(x, y);
             ValidateLayer(layerIndex);
 
-            _tiles[layerIndex][GetIndex(x, y)] = tile ?? CreateDefaultTile();
+            _tiles[layerIndex][GetIndex(x, y)] =
+                tile ?? GetFallbackTile()!;
         }
 
         /// <summary>
@@ -152,7 +160,7 @@ namespace Sachssoft.Sasogine.World.Tiles
 
                 for (int j = 0; j < tiles.Length; j++)
                 {
-                    tiles[j] = CreateDefaultTile();
+                    tiles[j] = GetFallbackTile();
                 }
             }
         }
@@ -177,11 +185,11 @@ namespace Sachssoft.Sasogine.World.Tiles
 
             for (int i = 0; i < _tiles.Length; i++)
             {
-                var tiles = new TTile[tileCount];
+                var tiles = new TTile?[tileCount];
 
                 for (int j = 0; j < tiles.Length; j++)
                 {
-                    tiles[j] = CreateDefaultTile();
+                    tiles[j] = GetFallbackTile();
                 }
 
                 _tiles[i] = tiles;
@@ -217,11 +225,11 @@ namespace Sachssoft.Sasogine.World.Tiles
             for (int layer = 0; layer < LayerCount; layer++)
             {
                 var oldTiles = _tiles[layer];
-                var newTiles = new TTile[newTileCount];
+                var newTiles = new TTile?[newTileCount];
 
                 Array.Fill(
                     newTiles,
-                    CreateDefaultTile());
+                    GetFallbackTile());
 
 
                 int columnDifference = newColumns - oldColumns;
@@ -304,7 +312,7 @@ namespace Sachssoft.Sasogine.World.Tiles
 
                 Array.Fill(
                     newTiles,
-                    CreateDefaultTile());
+                    GetFallbackTile());
 
                 for (int y = 0; y < Rows; y++)
                 {
@@ -341,11 +349,11 @@ namespace Sachssoft.Sasogine.World.Tiles
             for (int layerIndex = 0; layerIndex < LayerCount; layerIndex++)
             {
                 var oldTiles = _tiles[layerIndex];
-                var newTiles = new TTile[newColumns * Rows];
+                var newTiles = new TTile?[newColumns * Rows];
 
                 Array.Fill(
                     newTiles,
-                    CreateDefaultTile());
+                    GetFallbackTile());
 
                 for (int y = 0; y < Rows; y++)
                 {
@@ -388,7 +396,7 @@ namespace Sachssoft.Sasogine.World.Tiles
 
                 Array.Fill(
                     newTiles,
-                    CreateDefaultTile());
+                    GetFallbackTile());
 
                 int targetRow = 0;
 
@@ -430,11 +438,11 @@ namespace Sachssoft.Sasogine.World.Tiles
             for (int layerIndex = 0; layerIndex < LayerCount; layerIndex++)
             {
                 var oldTiles = _tiles[layerIndex];
-                var newTiles = new TTile[newColumns * Rows];
+                var newTiles = new TTile?[newColumns * Rows];
 
                 Array.Fill(
                     newTiles,
-                    CreateDefaultTile());
+                    GetFallbackTile());
 
                 for (int y = 0; y < Rows; y++)
                 {
@@ -520,6 +528,19 @@ namespace Sachssoft.Sasogine.World.Tiles
                 return false;
 
             return newColumns < Columns;
+        }
+
+        /// <summary>
+        /// Returns the tile that should be stored when no tile is specified.
+        /// </summary>
+        /// <returns>
+        /// The fallback tile, or <see langword="null"/> if null tiles are allowed.
+        /// </returns>
+        protected virtual TTile? GetFallbackTile()
+        {
+            return AllowNullTiles
+                ? null
+                : CreateDefaultTile();
         }
 
         /// <summary>
