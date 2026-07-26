@@ -7,16 +7,13 @@ namespace Sachssoft.Sasogine.World.Tiles
 {
     /// <summary>
     /// Represents a generic layered tile map that stores and manages tile objects.
-    /// Supports multiple layers, tile access, resizing, and editing operations.
+    /// Supports multiple layers, tile access, resizing, editing operations,
+    /// and automatic fallback tile creation.
     /// </summary>
-    /// <typeparam name="TTile">
-    /// The type of tile object stored in the tile map.
-    /// </typeparam>
     public abstract class TileMapBase<TTile>
         where TTile : class, ITileObject
     {
         private readonly TTile?[][] _tiles;
-        private readonly TTile? _defaultTileCache;
         private readonly int _layerCount;
         private short _columns;
         private short _rows;
@@ -38,25 +35,18 @@ namespace Sachssoft.Sasogine.World.Tiles
             if (layerCount <= 0)
                 throw new ArgumentOutOfRangeException(nameof(layerCount));
 
-            _defaultTileCache = AllowNullTiles
-                ? null!
-                : CreateDefaultTile();
-
             _columns = columns;
             _rows = rows;
             _layerCount = layerCount;
 
             int tileCount = columns * rows;
 
-            _tiles = new TTile[layerCount][];
+            _tiles = new TTile?[layerCount][];
 
             for (int i = 0; i < layerCount; i++)
             {
-                _tiles[i] = new TTile[tileCount];
-
-                Array.Fill(
-                    _tiles[i],
-                    GetFallbackTile());
+                _tiles[i] = new TTile?[tileCount];
+                FillLayer(i);
             }
         }
 
@@ -81,8 +71,13 @@ namespace Sachssoft.Sasogine.World.Tiles
         public int TileCount => _columns * _rows;
 
         /// <summary>
-        /// Gets a value indicating whether <c>null</c> tiles are allowed.
+        /// Gets a value indicating whether null tile references are allowed
+        /// inside the tile map.
         /// </summary>
+        /// <remarks>
+        /// When disabled, missing tiles are automatically replaced by tiles
+        /// created through <see cref="CreateDefaultTile(int, int, int)"/>.
+        /// </remarks>
         protected virtual bool AllowNullTiles => false;
 
         /// <summary>
@@ -94,6 +89,7 @@ namespace Sachssoft.Sasogine.World.Tiles
         /// <returns>The tile object located at the specified position.</returns>
         public TTile? GetTile(int layerIndex, int x, int y)
         {
+            ValidateLayer(layerIndex);
             ValidateCell(x, y);
 
             return _tiles[layerIndex][GetIndex(x, y)];
@@ -137,7 +133,7 @@ namespace Sachssoft.Sasogine.World.Tiles
             ValidateLayer(layerIndex);
 
             _tiles[layerIndex][GetIndex(x, y)] =
-                tile ?? GetFallbackTile()!;
+                tile ?? GetFallbackTile(layerIndex, x, y)!;
         }
 
         /// <summary>
@@ -154,13 +150,16 @@ namespace Sachssoft.Sasogine.World.Tiles
         /// </summary>
         public void Clear()
         {
-            for (int i = 0; i < _tiles.Length; i++)
+            for (int layer = 0; layer < _tiles.Length; layer++)
             {
-                var tiles = _tiles[i];
+                var tiles = _tiles[layer];
 
                 for (int j = 0; j < tiles.Length; j++)
                 {
-                    tiles[j] = GetFallbackTile();
+                    int x = j % Columns;
+                    int y = j / Columns;
+
+                    tiles[j] = GetFallbackTile(layer, x, y);
                 }
             }
         }
@@ -172,28 +171,25 @@ namespace Sachssoft.Sasogine.World.Tiles
         /// <param name="newRows">The new number of rows.</param>
         public void Reset(short newColumns, short newRows)
         {
-            if (newColumns <= 0)
-                throw new ArgumentOutOfRangeException(nameof(newColumns));
-
-            if (newRows <= 0)
-                throw new ArgumentOutOfRangeException(nameof(newRows));
-
-            _columns = newColumns;
-            _rows = newRows;
+            ValidateSize(newColumns, newRows);
 
             int tileCount = checked(newColumns * newRows);
 
-            for (int i = 0; i < _tiles.Length; i++)
+            for (int layer = 0; layer < _tiles.Length; layer++)
             {
                 var tiles = new TTile?[tileCount];
 
-                for (int j = 0; j < tiles.Length; j++)
-                {
-                    tiles[j] = GetFallbackTile();
-                }
+                Fill(
+                    tiles,
+                    layer,
+                    newColumns,
+                    newRows);
 
-                _tiles[i] = tiles;
+                _tiles[layer] = tiles;
             }
+
+            _columns = newColumns;
+            _rows = newRows;
         }
 
         /// <summary>
@@ -227,10 +223,7 @@ namespace Sachssoft.Sasogine.World.Tiles
                 var oldTiles = _tiles[layer];
                 var newTiles = new TTile?[newTileCount];
 
-                Array.Fill(
-                    newTiles,
-                    GetFallbackTile());
-
+                Fill(newTiles, layer, newColumns, newRows);
 
                 int columnDifference = newColumns - oldColumns;
                 int rowDifference = newRows - oldRows;
@@ -299,24 +292,32 @@ namespace Sachssoft.Sasogine.World.Tiles
         /// <param name="row">The row index where the new row is inserted.</param>
         public void InsertRow(int row)
         {
+            if (Rows == short.MaxValue)
+                throw new InvalidOperationException(
+                    "Maximum row count reached.");
+
             if (row < 0 || row > Rows)
                 throw new ArgumentOutOfRangeException(nameof(row));
 
-            short newRows = (short)Math.Clamp(Rows + 1, 0, short.MaxValue);
+            short newRows = (short)(Rows + 1);
+
             int newSize = checked(Columns * newRows);
 
             for (int layerIndex = 0; layerIndex < LayerCount; layerIndex++)
             {
                 var oldTiles = _tiles[layerIndex];
-                var newTiles = new TTile[newSize];
+                var newTiles = new TTile?[newSize];
 
-                Array.Fill(
+                Fill(
                     newTiles,
-                    GetFallbackTile());
+                    layerIndex,
+                    Columns,
+                    newRows);
 
                 for (int y = 0; y < Rows; y++)
                 {
                     int sourceIndex = y * Columns;
+
                     int targetIndex = y < row
                         ? y * Columns
                         : (y + 1) * Columns;
@@ -341,19 +342,25 @@ namespace Sachssoft.Sasogine.World.Tiles
         /// <param name="column">The column index where the new column is inserted.</param>
         public void InsertColumn(int column)
         {
+            if (Columns == short.MaxValue)
+                throw new InvalidOperationException(
+                    "Maximum column count reached.");
+
             if (column < 0 || column > Columns)
                 throw new ArgumentOutOfRangeException(nameof(column));
 
-            short newColumns = (short)Math.Clamp(Columns + 1, 0, short.MaxValue);
+            short newColumns = (short)(Columns + 1);
 
             for (int layerIndex = 0; layerIndex < LayerCount; layerIndex++)
             {
                 var oldTiles = _tiles[layerIndex];
                 var newTiles = new TTile?[newColumns * Rows];
 
-                Array.Fill(
+                Fill(
                     newTiles,
-                    GetFallbackTile());
+                    layerIndex,
+                    newColumns,
+                    Rows);
 
                 for (int y = 0; y < Rows; y++)
                 {
@@ -361,7 +368,10 @@ namespace Sachssoft.Sasogine.World.Tiles
                     {
                         int source = y * Columns + x;
 
-                        int targetX = x < column ? x : x + 1;
+                        int targetX = x < column
+                            ? x
+                            : x + 1;
+
                         int target = y * newColumns + targetX;
 
                         newTiles[target] = oldTiles[source];
@@ -381,22 +391,26 @@ namespace Sachssoft.Sasogine.World.Tiles
         public void RemoveRow(int row)
         {
             if (Rows <= 1)
-                throw new InvalidOperationException("Cannot remove the last row.");
+                throw new InvalidOperationException(
+                    "Cannot remove the last row.");
 
             if (row < 0 || row >= Rows)
                 throw new ArgumentOutOfRangeException(nameof(row));
 
-            short newRows = (short)Math.Clamp(Rows - 1, 0, short.MaxValue);
+            short newRows = (short)(Rows - 1);
+
             int newSize = checked(Columns * newRows);
 
             for (int layerIndex = 0; layerIndex < LayerCount; layerIndex++)
             {
                 var oldTiles = _tiles[layerIndex];
-                var newTiles = new TTile[newSize];
+                var newTiles = new TTile?[newSize];
 
-                Array.Fill(
+                Fill(
                     newTiles,
-                    GetFallbackTile());
+                    layerIndex,
+                    Columns,
+                    newRows);
 
                 int targetRow = 0;
 
@@ -428,21 +442,24 @@ namespace Sachssoft.Sasogine.World.Tiles
         public void RemoveColumn(int column)
         {
             if (Columns <= 1)
-                throw new InvalidOperationException("Cannot remove the last column.");
+                throw new InvalidOperationException(
+                    "Cannot remove the last column.");
 
             if (column < 0 || column >= Columns)
                 throw new ArgumentOutOfRangeException(nameof(column));
 
-            short newColumns = (short)Math.Clamp(Columns - 1, 0, short.MaxValue);
+            short newColumns = (short)(Columns - 1);
 
             for (int layerIndex = 0; layerIndex < LayerCount; layerIndex++)
             {
                 var oldTiles = _tiles[layerIndex];
                 var newTiles = new TTile?[newColumns * Rows];
 
-                Array.Fill(
+                Fill(
                     newTiles,
-                    GetFallbackTile());
+                    layerIndex,
+                    newColumns,
+                    Rows);
 
                 for (int y = 0; y < Rows; y++)
                 {
@@ -531,26 +548,60 @@ namespace Sachssoft.Sasogine.World.Tiles
         }
 
         /// <summary>
-        /// Returns the tile that should be stored when no tile is specified.
+        /// Gets the tile that is stored when no tile instance is provided.
         /// </summary>
+        /// <param name="layer">
+        /// The layer index for which the fallback tile is requested.
+        /// </param>
+        /// <param name="x">
+        /// The horizontal tile coordinate.
+        /// </param>
+        /// <param name="y">
+        /// The vertical tile coordinate.
+        /// </param>
         /// <returns>
-        /// The fallback tile, or <see langword="null"/> if null tiles are allowed.
+        /// Returns <see langword="null"/> when null tiles are allowed;
+        /// otherwise returns a newly created default tile.
         /// </returns>
-        protected virtual TTile? GetFallbackTile()
+        /// <remarks>
+        /// This method contains the internal fallback logic and cannot be overridden.
+        /// Derived classes should override <see cref="CreateDefaultTile(int, int, int)"/>
+        /// to provide custom default tile instances.
+        /// </remarks>
+        protected TTile GetFallbackTile(
+            int layer,
+            int x,
+            int y)
         {
-            return AllowNullTiles
-                ? null
-                : CreateDefaultTile();
+            if (AllowNullTiles)
+                return null!;
+
+            return CreateDefaultTile(layer, x, y)
+                ?? throw new InvalidOperationException(
+                    "CreateDefaultTile must return a tile when null tiles are disabled.");
         }
 
         /// <summary>
-        /// Creates a new default tile object.
+        /// Creates a new default tile instance.
         /// </summary>
-        /// <returns>A new default tile instance.</returns>
-        protected virtual TTile CreateDefaultTile()
-        {
-            return (TTile)_defaultTileCache.Clone();
-        }
+        /// <param name="layer">
+        /// The layer index where the tile will be placed.
+        /// </param>
+        /// <param name="x">
+        /// The horizontal tile coordinate.
+        /// </param>
+        /// <param name="y">
+        /// The vertical tile coordinate.
+        /// </param>
+        /// <returns>
+        /// A new default tile instance, or <see langword="null"/> when
+        /// <see cref="AllowNullTiles"/> is enabled.
+        /// </returns>
+        /// <remarks>
+        /// This method is called by the tile map whenever a tile is missing
+        /// and a fallback tile is required.
+        /// </remarks>
+        protected abstract TTile? CreateDefaultTile(int layer, int x, int y);
 
         /// <summary>
         /// Converts tile coordinates into a zero-based linear tile index.
@@ -560,6 +611,8 @@ namespace Sachssoft.Sasogine.World.Tiles
         /// <returns>The linear index of the tile.</returns>
         public int GetIndex(int column, int row)
         {
+            ValidateCell(column, row);
+
             return row * Columns + column;
         }
 
@@ -576,6 +629,47 @@ namespace Sachssoft.Sasogine.World.Tiles
 
             if (y < 0 || y >= Rows)
                 throw new ArgumentOutOfRangeException(nameof(y));
+        }
+
+        private static void ValidateSize(
+            int columns,
+            int rows)
+        {
+            if (columns <= 0 || columns > short.MaxValue)
+                throw new ArgumentOutOfRangeException(nameof(columns));
+
+            if (rows <= 0 || rows > short.MaxValue)
+                throw new ArgumentOutOfRangeException(nameof(rows));
+
+            if ((long)columns * rows > int.MaxValue)
+                throw new ArgumentOutOfRangeException(
+                    "Tile map is too large.");
+        }
+
+        private void FillLayer(int layerIndex)
+        {
+            Fill(
+                _tiles[layerIndex],
+                layerIndex,
+                Columns,
+                Rows);
+        }
+
+
+        private void Fill(
+            TTile?[] tiles,
+            int layer,
+            int columns,
+            int rows)
+        {
+            for (int y = 0; y < rows; y++)
+            {
+                for (int x = 0; x < columns; x++)
+                {
+                    tiles[y * columns + x] =
+                        GetFallbackTile(layer, x, y);
+                }
+            }
         }
     }
 }
