@@ -1,7 +1,8 @@
 name: 📌 Task
 description: Create a task, refactor, improvement, or change
-title: ""
-labels: []
+title: "TASK: "
+labels:
+  - task
 assignees:
   - Sachssoft
 
@@ -27,3 +28,9 @@ body:
       placeholder: "Describe the task."
     validations:
       required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: "📎 Additional information"
+      placeholder: "Add more details, screenshots, or examples."
