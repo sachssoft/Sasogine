@@ -1,19 +1,22 @@
 name: ❓ Question
-description: Submit a question or inquiry about the project
+description: Ask a question
 title: "QUESTION: "
 labels:
   - question
-assignees: []
+assignees:
+  - Sachssoft
 
 body:
-  - type: input
-    id: title
+  - type: textarea
+    id: question
     attributes:
-      label: "📝 Title"
-      placeholder: "Enter the question title"
+      label: "❓ Question"
+      placeholder: "Describe your question."
+    validations:
+      required: true
 
   - type: textarea
-    id: description
+    id: context
     attributes:
-      label: "📖 Description"
-      placeholder: "Describe your question in detail"
+      label: "📄 Context"
+      placeholder: "Add any relevant context, code, or examples."
