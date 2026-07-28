@@ -19,10 +19,19 @@ All notable changes to this project will be documented in this file.
 
 </small>
 
-## [0.0.4-alpha] - (End of August 2026)
-(Planned)
+| Status | Feature | Target Version |
+|---|---|---|
+| Planned | `MeshBatch` renderer for efficient mesh rendering. | 0.0.4-alpha |
+| Planned | `ShapeBatch` for rectangles, ellipses, polygons, lines, and curves. | 0.0.4-alpha |
+| Planned | Additional material types. | 0.0.4-alpha |
+| Planned | Frame Set System extensions. | 0.0.4-alpha |
+| Planned | Stability improvements and performance optimizations. | 0.0.4-alpha |
+| Planned | `FontBatch` with automatic TTF-to-texture conversion. | 0.0.4-alpha or later |
+| Considered | `GeometryBatch` for SVG-like shapes (experimental, only if needed). | 0.0.5-alpha or later |
 
-## [0.0.3-alpha] - In Progress (Target: 2026-07-28)
+## [0.0.4-alpha] - In Progress (Target: End of August 2026)
+
+## [0.0.3-alpha] - 2026-07-28
 - [Feature] Added scene runtime settings for game modes and options, such as enabling debug features.
 - [Feature] Added `Vector3` conversion support to `Coordinate2`.
 - [Feature] Added `IPlatformFileStore` service for platform-specific resource source handling.
