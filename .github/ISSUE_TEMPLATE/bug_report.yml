@@ -1,50 +1,40 @@
-name: 🐞 Bug Report
-description: Melde einen Fehler im Projekt
+name: 🐛 Bug Report
+description: Report a bug or unexpected behavior
 title: "BUG: "
 labels:
   - bug
-assignees: []
+assignees:
+  - Sachssoft
 
 body:
-  - type: dropdown
-    id: praefix
-    attributes:
-      label: "Präfix wählen"
-      options:
-        - label: "EDITOR"
-        - label: "CHALLENGE"
-        - label: "UI"
-        - label: "CORE"
-  - type: input
-    id: beschreibung
-    attributes:
-      label: "📝 Beschreibung"
-      placeholder: "Was ist das Problem?"
   - type: textarea
-    id: schritte
+    id: description
     attributes:
-      label: "🧪 Schritte zur Reproduktion"
-      description: "Liste der Schritte, um den Bug nachzustellen"
+      label: "📝 Description"
+      placeholder: "Describe the bug and what happened."
+    validations:
+      required: true
+
   - type: textarea
-    id: erwartetes
+    id: steps
     attributes:
-      label: "🧭 Erwartetes Verhalten"
+      label: "🔁 Steps to reproduce"
+      placeholder: "Describe the steps to reproduce the bug."
+
   - type: textarea
-    id: umgebung
+    id: expected
     attributes:
-      label: "🧰 Umgebung / Version / Branch"
-  - type: checkboxes
-    id: tasks
-    attributes:
-      label: "✅ Aufträge"
-      options:
-        - label: "Fehler reproduzieren"
-        - label: "Ursache analysieren"
-        - label: "Fix implementieren"
-        - label: "Test schreiben"
-        - label: "Review"
+      label: "✅ Expected behavior"
+      placeholder: "What should happen instead?"
+
   - type: textarea
-    id: hinweise
+    id: screenshot
     attributes:
-      label: "💡 Hinweise"
-      description: "Screenshots, Logs oder zusätzliche Informationen"
+      label: "📷 Screenshot"
+      placeholder: "Drag and drop a screenshot here."
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: "📎 Additional information"
+      placeholder: "Add logs, error messages, or other details."
