@@ -2,15 +2,15 @@ name: 🚀 Feature Request
 description: Suggest a new feature
 title: "FEATURE: "
 labels:
-  - enhancement
+  - feature
 assignees:
   - Sachssoft
 
 body:
-  - type: input
+  - type: textarea
     id: description
     attributes:
       label: "📝 Description"
-      placeholder: "What should this feature do?"
+      placeholder: "Describe the feature and what it should do."
     validations:
       required: true
