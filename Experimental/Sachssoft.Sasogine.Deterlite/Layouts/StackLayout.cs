@@ -1,7 +1,5 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Layouts;
-using System;
 
 namespace Sachssoft.Sasogine.Presentation.Layouts;
 

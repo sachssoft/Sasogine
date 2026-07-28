@@ -1,8 +1,4 @@
 using Box2D.Comparers;
-using JetBrains.Annotations;
-using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace Box2D;
 
@@ -44,7 +40,7 @@ struct ChainShapeId : IEquatable<ChainShapeId>, IComparable<ChainShapeId>
 public partial class ChainShape : IEquatable<ChainShape>, IComparable<ChainShape>
 {
     internal ChainShapeId id;
-    
+
     internal ChainShape(ChainShapeId id)
     {
         this.id = id;
@@ -62,7 +58,7 @@ public partial class ChainShape : IEquatable<ChainShape>, IComparable<ChainShape
         b2DestroyChain(id);
         chainShapes.Remove(id);
     }
-    
+
     /// <summary>
     /// Gets the world that owns this chain shape
     /// </summary>
@@ -70,7 +66,7 @@ public partial class ChainShape : IEquatable<ChainShape>, IComparable<ChainShape
     public unsafe World World => Valid ? World.GetWorld(b2Chain_GetWorld(id)) : throw new InvalidOperationException("Chain shape is not valid");
 
     private Shape[]? segments = null;
-    
+
     /// <summary>
     /// The chain segments
     /// </summary>
@@ -93,13 +89,13 @@ public partial class ChainShape : IEquatable<ChainShape>, IComparable<ChainShape
                 int written;
                 fixed (Shape* p = buffer)
                     written = b2Chain_GetSegments(id, p, buffer.Length);
-                
+
                 segments = buffer[..written];
             }
             return segments.AsSpan();
         }
     }
-    
+
     /// <summary>
     /// The chain friction
     /// </summary>
@@ -113,7 +109,7 @@ public partial class ChainShape : IEquatable<ChainShape>, IComparable<ChainShape
             b2Chain_SetFriction(id, value);
         }
     }
-    
+
     /// <summary>
     /// The chain restitution (bounciness)
     /// </summary>
@@ -127,7 +123,7 @@ public partial class ChainShape : IEquatable<ChainShape>, IComparable<ChainShape
             b2Chain_SetRestitution(id, value);
         }
     }
-    
+
     /// <summary>
     /// The chain material
     /// </summary>
@@ -141,7 +137,7 @@ public partial class ChainShape : IEquatable<ChainShape>, IComparable<ChainShape
             b2Chain_SetMaterial(id, value);
         }
     }
-    
+
     /// <summary>
     /// Checks if the chain shape is valid
     /// </summary>
@@ -177,9 +173,9 @@ public partial class ChainShape : IEquatable<ChainShape>, IComparable<ChainShape
             return world0Comparison;
         return id.generation.CompareTo(other.id.generation);
     }
-    
+
     private static Dictionary<ChainShapeId, ChainShape> chainShapes = new();
-    
+
     internal static ChainShape GetChain(ChainShapeId id)
     {
         if (!chainShapes.TryGetValue(id, out ChainShape? chainShape))

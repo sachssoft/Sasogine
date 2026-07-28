@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-
-namespace Sachssoft.Sasogine.Presentation.Input
+﻿namespace Sachssoft.Sasogine.Presentation.Input
 {
     public class MouseStateInfo
     {

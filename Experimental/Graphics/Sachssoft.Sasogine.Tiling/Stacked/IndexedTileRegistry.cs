@@ -1,7 +1,4 @@
 ﻿using Sachssoft.Sasogine.Tiling;
-using System.Collections.Generic;
-
-using System;
 using Sachssoft.Sasogine.Tiling.Stacked;
 
 /// <summary>

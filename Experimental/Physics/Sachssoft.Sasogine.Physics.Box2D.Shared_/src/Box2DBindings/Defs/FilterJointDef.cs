@@ -1,5 +1,3 @@
-using JetBrains.Annotations;
-
 namespace Box2D;
 
 /// <summary>
@@ -29,7 +27,7 @@ public sealed class FilterJointDef
         get => GetObjectAtPointer(_internal.UserData);
         set => SetObjectAtPointer(ref _internal.UserData, value);
     }
-    
+
     /// <summary>
     /// Constructs a new filter joint definition with the supplied values.
     /// </summary>
@@ -45,12 +43,12 @@ public sealed class FilterJointDef
         BodyB = bodyB;
         UserData = userData;
     }
-    
+
     /// <summary>
     /// Constructs a filter joint definition with the default values.
     /// </summary>
     public FilterJointDef()
     {
-        _internal = new ();
+        _internal = new();
     }
 }

@@ -1,5 +1,3 @@
-using JetBrains.Annotations;
-
 namespace Box2D;
 
 /// <summary>
@@ -607,12 +605,12 @@ public static class HexColorExtensions
     /// Gets the red component of the color.
     /// </summary>
     public static byte Red(this HexColor color) => (byte)((uint)color >> 16);
-    
+
     /// <summary>
     /// Gets the green component of the color.
     /// </summary>
     public static byte Green(this HexColor color) => (byte)((uint)color >> 8);
-    
+
     /// <summary>
     /// Gets the blue component of the color.
     /// </summary>

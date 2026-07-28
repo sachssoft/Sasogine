@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 //! \internal
@@ -55,9 +53,9 @@ struct WeldJointDefInternal
 
     [FieldOffset(64)]
     private readonly int internalValue;
-    
+
     private static unsafe WeldJointDefInternal Default => b2DefaultWeldJointDef();
-    
+
     public WeldJointDefInternal()
     {
         this = Default;

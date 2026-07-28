@@ -1,5 +1,3 @@
-using JetBrains.Annotations;
-
 namespace Box2D;
 
 /// <summary>
@@ -12,7 +10,7 @@ public sealed class ShapeDef
 {
     //! \internal
     internal ShapeDefInternal _internal = new();
-    
+
     /// <summary>
     /// Use this to store application specific shape data.
     /// </summary>
@@ -105,7 +103,7 @@ public sealed class ShapeDef
         get => _internal.UpdateBodyMass != 0;
         set => _internal.UpdateBodyMass = value ? (byte)1 : (byte)0;
     }
-    
+
     /// <summary>
     /// Construct a shape definition with the supplied values.
     /// </summary>
@@ -145,7 +143,7 @@ public sealed class ShapeDef
         UpdateBodyMass = updateBodyMass;
         UserData = userData;
     }
-    
+
     /// <summary>
     /// Construct a shape definition with the default values.
     /// </summary>

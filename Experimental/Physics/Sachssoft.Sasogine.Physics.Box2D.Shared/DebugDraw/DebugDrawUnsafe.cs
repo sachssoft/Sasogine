@@ -1,5 +1,4 @@
 using Box2D.Delegates.Unsafe;
-using JetBrains.Annotations;
 
 namespace Box2D;
 
@@ -10,7 +9,7 @@ namespace Box2D;
 public sealed class DebugDrawUnsafe : DebugDraw
 {
     internal override ref DebugDrawInternal Internal => ref @internal;
-    
+
     /// <summary>
     /// Callback function to draw a closed polygon provided in CCW order.
     /// </summary>
@@ -42,7 +41,7 @@ public sealed class DebugDrawUnsafe : DebugDraw
     {
         set => @internal.DrawSolidCircle = value;
     }
-        
+
     /// <summary>
     /// Callback function to draw a solid capsule.
     /// </summary>

@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Editor.Tiles.Tools;
+﻿using Sachssoft.Sasogine.Editor.Tiles.Tools;
 using Sachssoft.Sasogine.Tiling;
 
 public sealed class EditorToolEllipseRegion : IEditorToolShapeRegion

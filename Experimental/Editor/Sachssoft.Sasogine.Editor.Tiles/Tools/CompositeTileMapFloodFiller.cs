@@ -1,8 +1,6 @@
-﻿using Sachssoft.Sasogine.Tiling.Composite;
-using System.Collections.Generic;
-using System;
+﻿using Sachssoft.Sasogine.Editor.Tiles.Tools;
 using Sachssoft.Sasogine.Tiling;
-using Sachssoft.Sasogine.Editor.Tiles.Tools;
+using Sachssoft.Sasogine.Tiling.Composite;
 
 public delegate object? GetTileValueFloodFillerDelegate(CompositeTileBase tile);
 public delegate void ReplaceTileFloodFillerDelegate(CompositeTileBase tile, object? target_value);

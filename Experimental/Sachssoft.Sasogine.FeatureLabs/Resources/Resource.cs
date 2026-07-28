@@ -1,7 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-
-namespace Sachssoft.Sasogine.FeatureLabs.Resources;
+﻿namespace Sachssoft.Sasogine.FeatureLabs.Resources;
 
 public class Resource : IResourceTreeEntry, ITypedResource, IDisposable
 {

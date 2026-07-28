@@ -1,8 +1,4 @@
-﻿using Microsoft.Xna.Framework.Input;
-using Sachssoft.Sasogine.Interactions;
-using System.Collections.Generic;
-
-namespace Sachssoft.Sasogine.Platform.Windows
+﻿namespace Sachssoft.Sasogine.Platform.Windows
 {
     public class WindowsModifierKeyService : IPlatformModifier
     {

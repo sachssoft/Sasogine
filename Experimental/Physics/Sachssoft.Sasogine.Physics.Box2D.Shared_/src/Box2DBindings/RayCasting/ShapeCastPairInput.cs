@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -39,9 +36,9 @@ public struct ShapeCastPairInput
     /// The fraction of the translation to consider, typically 1
     /// </summary>
     public float MaxFraction;
-    
+
     private byte canEncroach;
-    
+
     /// <summary>
     /// Allows shapes with a radius to move slightly closer if already touching
     /// </summary>
@@ -50,7 +47,7 @@ public struct ShapeCastPairInput
         get => canEncroach != 0;
         set => canEncroach = value ? (byte)1 : (byte)0;
     }
-    
+
     /// <summary>
     /// Constructs a new ShapeCastPairInput object with the given parameters.
     /// </summary>
@@ -71,7 +68,7 @@ public struct ShapeCastPairInput
         MaxFraction = maxFraction;
         this.canEncroach = canEncroach ? (byte)1 : (byte)0;
     }
-    
+
     /// <summary>
     /// Constructs a new ShapeCastPairInput object with default values.
     /// </summary>

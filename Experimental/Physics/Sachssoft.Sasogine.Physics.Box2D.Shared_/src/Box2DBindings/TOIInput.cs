@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -32,7 +30,7 @@ public struct TOIInput
     /// Defines the sweep interval [0, maxFraction]
     /// </summary>
     public float MaxFraction;
-    
+
     /// <summary>
     /// Constructs a new TOIInput object with the given parameters.
     /// </summary>
@@ -49,7 +47,7 @@ public struct TOIInput
         SweepB = sweepB;
         MaxFraction = maxFraction;
     }
-    
+
     /// <summary>
     /// Constructs a new TOIInput object with default values.
     /// </summary>

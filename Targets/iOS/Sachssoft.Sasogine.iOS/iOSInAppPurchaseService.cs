@@ -1,11 +1,4 @@
-﻿using System;
-using StoreKit;
-using Foundation;
-
-namespace Sachssoft.Sasogine.Platform.iOS;
-
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿namespace Sachssoft.Sasogine.Platform.iOS;
 
 public class iOSInAppPurchaseService : NSObject, IInAppPurchaseService, ISKPaymentTransactionObserver
 {

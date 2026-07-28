@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -24,7 +21,7 @@ public struct ExplosionDef
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DefaultExplosionDef")]
     private static extern ExplosionDef b2DefaultExplosionDef();
 #endif
-    
+
     /// <summary>
     /// Mask bits to filter shapes
     /// </summary>
@@ -51,12 +48,12 @@ public struct ExplosionDef
     /// may be negative for implosions.
     /// </summary>
     public float ImpulsePerLength;
-    
+
     /// <summary>
     /// The default explosion definition.
     /// </summary>
     private static unsafe ExplosionDef Default => b2DefaultExplosionDef();
-    
+
     /// <summary>
     /// Creates a new explosion definition with the default values.
     /// </summary>
@@ -64,7 +61,7 @@ public struct ExplosionDef
     {
         this = Default;
     }
-    
+
     /// <summary>
     /// Creates a new explosion definition with the specified values.
     /// </summary>
@@ -82,5 +79,5 @@ public struct ExplosionDef
         Falloff = falloff;
         ImpulsePerLength = impulsePerLength;
     }
-    
+
 }

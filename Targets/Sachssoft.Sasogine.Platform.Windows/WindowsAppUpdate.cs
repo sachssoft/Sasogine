@@ -1,9 +1,4 @@
-﻿using Sachssoft.Sasogine.Services;
-using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-
-namespace Sachssoft.Sasogine.Platform.Windows
+﻿namespace Sachssoft.Sasogine.Platform.Windows
 {
     /// <summary>
     /// Desktop implementation of <see cref="IAppUpdateService"/> that checks a webpage for updates

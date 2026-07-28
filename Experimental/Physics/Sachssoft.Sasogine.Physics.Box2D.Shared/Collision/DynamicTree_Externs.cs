@@ -1,6 +1,3 @@
-using System;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 unsafe partial struct DynamicTree
@@ -155,13 +152,13 @@ unsafe partial struct DynamicTree
 
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DynamicTree_Query")]
     private static extern TreeStats b2DynamicTree_Query(in DynamicTree tree, AABB aabb, uint64_t maskBits, TreeQueryNintCallback callback, nint context);
-    
+
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DynamicTree_RayCast")]
     private static extern TreeStats b2DynamicTree_RayCast(in DynamicTree tree, in RayCastInput input, uint64_t maskBits, TreeRayCastNintCallback callback, nint context);
 
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DynamicTree_GetHeight")]
     private static extern int b2DynamicTree_GetHeight(in DynamicTree tree);
-    
+
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DynamicTree_GetAreaRatio")]
     private static extern float b2DynamicTree_GetAreaRatio(in DynamicTree tree);
 

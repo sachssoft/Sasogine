@@ -1,8 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.Runtime.CompilerServices;
-
-namespace Sachssoft.Sasogine.Tiling.Stacked;
+﻿namespace Sachssoft.Sasogine.Tiling.Stacked;
 
 public unsafe static class TileDataExtensions
 {

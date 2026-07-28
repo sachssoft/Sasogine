@@ -1,7 +1,4 @@
-﻿using Sachssoft.Sasodoc;
-using System;
-
-namespace Sachssoft.Sasogine.Extensions.Sasodoc
+﻿namespace Sachssoft.Sasogine.Extensions.Sasodoc
 {
     public abstract class SerializationBase<T> : ISerialization
         where T : class

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-
-namespace Sachssoft.Sasogine.Tiling.Stacked;
+﻿namespace Sachssoft.Sasogine.Tiling.Stacked;
 
 public interface ITileElementRegistry : IEnumerable<ITileElement>
 {

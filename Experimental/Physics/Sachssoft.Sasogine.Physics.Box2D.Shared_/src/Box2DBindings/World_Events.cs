@@ -24,7 +24,7 @@ public partial class World
                 BodyMove?.Invoke(bodyMoveEvent);
         }
     }
-    
+
     /// <summary>
     /// Event handler for sensor begin touch events
     /// </summary>
@@ -47,7 +47,7 @@ public partial class World
                 SensorBeginTouch?.Invoke(sensorBeginTouchEvent);
         }
     }
-    
+
     /// <summary>
     /// Event handler for sensor end touch events
     /// </summary>
@@ -70,7 +70,7 @@ public partial class World
                 SensorEndTouch?.Invoke(sensorEndTouchEvent);
         }
     }
-    
+
     /// <summary>
     /// Event handler for contact begin touch events
     /// </summary>
@@ -93,7 +93,7 @@ public partial class World
                 ContactBeginTouch?.Invoke(contactBeginTouchEvent);
         }
     }
-    
+
     /// <summary>
     /// Event handler for contact end touch events
     /// </summary>
@@ -106,7 +106,7 @@ public partial class World
     /// <i>Note: This is not called for all contact shapes, only for those that are valid. The number of events may be different to those found in the world's ContactEvents.</i>
     /// </remarks>
     public ContactEndTouchEventHandler? ContactEndTouch;
-    
+
     private unsafe void ContactEndTouchTaskCallback(int startIndex, int endIndex, uint workerIndex, nint events)
     {
         for (int i = startIndex; i < endIndex; i++)
@@ -116,12 +116,12 @@ public partial class World
                 ContactEndTouch?.Invoke(contactEndTouchEvent);
         }
     }
-    
+
     /// <summary>
     /// Event handler for contact hit events
     /// </summary>
     public delegate void ContactHitEventHandler(in ContactHitEvent @event);
-    
+
     /// <summary>
     /// The contact hit event handler. This is called when a contact hits another shape.
     /// </summary>
@@ -129,7 +129,7 @@ public partial class World
     /// <i>Note: This is not called for all contact shapes, only for those that are valid. The number of events may be different to those found in the world's ContactEvents.</i>
     /// </remarks>
     public ContactHitEventHandler? ContactHit;
-    
+
     private unsafe void ContactHitTaskCallback(int startIndex, int endIndex, uint workerIndex, nint events)
     {
         for (int i = startIndex; i < endIndex; i++)

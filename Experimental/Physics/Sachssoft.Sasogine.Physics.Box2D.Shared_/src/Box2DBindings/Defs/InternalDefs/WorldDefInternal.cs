@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 //! \internal
@@ -37,7 +35,7 @@ struct WorldDefInternal
 
     [FieldOffset(24)]
     internal float MaxContactPushSpeed;
-    
+
     [FieldOffset(28)]
     internal float MaximumLinearSpeed;
 
@@ -70,9 +68,9 @@ struct WorldDefInternal
 
     [FieldOffset(88)]
     private readonly int internalValue;
-    
+
     private static unsafe WorldDefInternal Default => b2DefaultWorldDef();
-    
+
     public WorldDefInternal()
     {
         this = Default;

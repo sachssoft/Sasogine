@@ -1,7 +1,3 @@
-using JetBrains.Annotations;
-using System;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -43,19 +39,19 @@ public partial struct AABB : IEquatable<AABB>
         LowerBound = lowerBound;
         UpperBound = upperBound;
     }
-    
+
     /// <summary>
     /// The width of the AABB
     /// </summary>
     /// <remarks>This is not an editable property. You must modify the lower and upper bounds to change the width.</remarks>
     public float Width => UpperBound.X - LowerBound.X;
-    
+
     /// <summary>
     /// The height of the AABB
     /// </summary>
     /// <remarks>This is not an editable property. You must modify the lower and upper bounds to change the height.</remarks>
     public float Height => UpperBound.Y - LowerBound.Y;
-    
+
     /// <summary>
     /// Returns a string representation of the AABB
     /// </summary>
@@ -64,7 +60,7 @@ public partial struct AABB : IEquatable<AABB>
     {
         return $"AABB(Lower: {LowerBound}, Upper: {UpperBound}, Width: {Width}, Height: {Height})";
     }
-    
+
     /// <summary>
     /// Checks if this AABB is equal to another AABB
     /// </summary>
@@ -72,21 +68,21 @@ public partial struct AABB : IEquatable<AABB>
     /// <returns>True if the AABBs are equal, false otherwise</returns>
     public bool Equals(AABB other) =>
         LowerBound.Equals(other.LowerBound) && UpperBound.Equals(other.UpperBound);
-        
+
     /// <summary>
     /// Checks if this AABB is equal to another object
     /// </summary>
     /// <param name="obj">The object to compare to</param>
     /// <returns>True if the object is an AABB and is equal to this AABB, false otherwise</returns>
     public override bool Equals(object? obj) => obj is AABB other && Equals(other);
-        
+
     /// <summary>
     /// Returns a hash code for this AABB
     /// </summary>
     /// <returns>A hash code for this AABB</returns>
     public override int GetHashCode() =>
         HashCode.Combine(LowerBound, UpperBound);
-    
+
     /// <summary>
     /// Compute the bounding box of an array of circles
     /// </summary>
@@ -96,10 +92,10 @@ public partial struct AABB : IEquatable<AABB>
             throw new ArgumentNullException(nameof(points));
 
         var aabb = new AABB
-            {
-                LowerBound = points[0],
-                UpperBound = points[0]
-            };
+        {
+            LowerBound = points[0],
+            UpperBound = points[0]
+        };
 
         for (int i = 1; i < points.Length; ++i)
         {
@@ -131,6 +127,6 @@ public partial struct AABB : IEquatable<AABB>
     /// <param name="b">The second AABB</param>
     /// <returns>True if the AABBs overlap, false otherwise</returns>
     public static bool Overlaps(AABB a, AABB b) =>
-        !( b.LowerBound.X > a.UpperBound.X || b.LowerBound.Y > a.UpperBound.Y ||
-            a.LowerBound.X > b.UpperBound.X || a.LowerBound.Y > b.UpperBound.Y );
+        !(b.LowerBound.X > a.UpperBound.X || b.LowerBound.Y > a.UpperBound.Y ||
+            a.LowerBound.X > b.UpperBound.X || a.LowerBound.Y > b.UpperBound.Y);
 }

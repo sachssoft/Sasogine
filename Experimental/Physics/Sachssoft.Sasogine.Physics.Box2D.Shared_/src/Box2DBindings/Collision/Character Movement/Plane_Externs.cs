@@ -1,6 +1,3 @@
-using System;
-using System.Runtime.InteropServices;
-
 namespace Box2D.Character_Movement;
 
 partial struct Plane
@@ -19,7 +16,7 @@ partial struct Plane
         b2IsValidPlane = (delegate* unmanaged[Cdecl]<Plane, byte>)ptr;
     }
 #else
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2IsValidPlane")]
-        private static extern byte b2IsValidPlane(Plane a);
+    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2IsValidPlane")]
+    private static extern byte b2IsValidPlane(Plane a);
 #endif
 }

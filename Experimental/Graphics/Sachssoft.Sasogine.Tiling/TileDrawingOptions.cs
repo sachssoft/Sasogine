@@ -1,6 +1,3 @@
-using Microsoft.Xna.Framework;
-using System;
-
 namespace Sachssoft.Sasogine.Graphics.Rendering
 {
     /// <summary>

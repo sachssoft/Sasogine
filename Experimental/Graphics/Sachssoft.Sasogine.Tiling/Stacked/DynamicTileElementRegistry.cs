@@ -1,8 +1,5 @@
 ﻿using Sachssoft.Sasogine.Tiling;
 using Sachssoft.Sasogine.Tiling.Stacked;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 
 /// <summary>

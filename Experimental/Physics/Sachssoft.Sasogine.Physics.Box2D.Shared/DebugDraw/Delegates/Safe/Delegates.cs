@@ -1,5 +1,3 @@
-using System;
-
 namespace Box2D.Delegates.Safe;
 
 /// <summary>
@@ -41,8 +39,8 @@ public delegate void DrawSegmentDelegateSafe(Vec2 p1, Vec2 p2, HexColor color);
 /// <param name="radius">The radius</param>
 /// <param name="color">The color</param>
 public delegate void DrawSolidCapsuleDelegateSafe(Vec2 p1, Vec2 p2, float radius, HexColor color);
-    
-    
+
+
 /// <summary>
 /// Draw a solid circle.
 /// </summary>
@@ -50,8 +48,8 @@ public delegate void DrawSolidCapsuleDelegateSafe(Vec2 p1, Vec2 p2, float radius
 /// <param name="radius">The radius</param>
 /// <param name="color">The color</param>
 public delegate void DrawSolidCircleDelegateSafe(Transform transform, float radius, HexColor color);
-    
-    
+
+
 /// <summary>
 /// Draw a solid closed polygon provided in CCW order.
 /// </summary>
@@ -60,7 +58,7 @@ public delegate void DrawSolidCircleDelegateSafe(Transform transform, float radi
 /// <param name="radius">The radius</param>
 /// <param name="color">The color</param>
 public delegate void DrawSolidPolygonDelegateSafe(Transform transform, ReadOnlySpan<Vec2> vertices, float radius, HexColor color);
-    
+
 /// <summary>
 /// Draw a string in world space
 /// </summary>
@@ -68,8 +66,8 @@ public delegate void DrawSolidPolygonDelegateSafe(Transform transform, ReadOnlyS
 /// <param name="text">The string</param>
 /// <param name="color">The color</param>
 public delegate void DrawStringDelegateSafe(Vec2 position, string? text, HexColor color);
-    
-    
+
+
 /// <summary>
 /// Draw a transform.
 /// </summary>

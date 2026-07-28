@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -23,7 +21,8 @@ namespace Box2D;
 /// <param name="manifold">The manifold</param>
 /// <param name="context">The context</param>
 /// <returns>true if the contact should be enabled, false otherwise</returns>
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)] [return:MarshalAs(UnmanagedType.I1)]
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+[return: MarshalAs(UnmanagedType.I1)]
 public delegate bool PreSolveCallback<in TContext>(Shape shapeA, Shape shapeB, Manifold manifold, TContext context) where TContext : class;
 
 /// <summary>
@@ -47,7 +46,8 @@ public delegate bool PreSolveCallback<in TContext>(Shape shapeA, Shape shapeB, M
 /// <param name="manifold">The manifold</param>
 /// <param name="context">The context</param>
 /// <returns>true if the contact should be enabled, false otherwise</returns>
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)] [return:MarshalAs(UnmanagedType.I1)]
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+[return: MarshalAs(UnmanagedType.I1)]
 public delegate bool PreSolveRefCallback<TContext>(Shape shapeA, Shape shapeB, Manifold manifold, ref TContext context) where TContext : unmanaged;
 
 /// <summary>
@@ -71,7 +71,8 @@ public delegate bool PreSolveRefCallback<TContext>(Shape shapeA, Shape shapeB, M
 /// <param name="manifold">The manifold</param>
 /// <param name="context">The context</param>
 /// <returns>true if the contact should be enabled, false otherwise</returns>
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)] [return:MarshalAs(UnmanagedType.I1)]
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+[return: MarshalAs(UnmanagedType.I1)]
 public delegate bool PreSolveNintCallback(Shape shapeA, Shape shapeB, nint manifold, nint context);
 
 /// <summary>
@@ -94,5 +95,6 @@ public delegate bool PreSolveNintCallback(Shape shapeA, Shape shapeB, nint manif
 /// <param name="shapeB">The second Shape</param>
 /// <param name="manifold">The manifold</param>
 /// <returns>true if the contact should be enabled, false otherwise</returns>
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)] [return:MarshalAs(UnmanagedType.I1)]
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+[return: MarshalAs(UnmanagedType.I1)]
 public delegate bool PreSolveCallback(Shape shapeA, Shape shapeB, Manifold manifold);

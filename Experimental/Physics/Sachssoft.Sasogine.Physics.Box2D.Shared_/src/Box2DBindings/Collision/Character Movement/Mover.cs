@@ -1,7 +1,3 @@
-using JetBrains.Annotations;
-using System;
-using System.Runtime.InteropServices;
-
 namespace Box2D.Character_Movement;
 
 /// <summary>
@@ -23,7 +19,7 @@ public partial class Mover
             throw new ArgumentNullException(nameof(planes));
         return b2SolvePlanes(targetDelta, planes, planes.Length);
     }
-    
+
     /// <summary>
     /// Solves the position of a mover that satisfies the given collision planes.
     /// </summary>
@@ -38,7 +34,7 @@ public partial class Mover
             throw new ArgumentNullException(nameof(planes));
         return b2SolvePlanes(targetDelta, planes, planeCount);
     }
-    
+
     /// <summary>
     /// Clips the velocity against the given collision planes. Planes with zero push or clipVelocity
     /// set to false are skipped.
@@ -54,7 +50,7 @@ public partial class Mover
 
         return b2ClipVector(vector, planes, planes.Length);
     }
-    
+
     /// <summary>
     /// Clips the velocity against the given collision planes. Planes with zero push or clipVelocity
     /// set to false are skipped.
@@ -68,7 +64,7 @@ public partial class Mover
     {
         if (planes is not { Length: not 0 })
             throw new ArgumentNullException(nameof(planes));
-        
+
         return b2ClipVector(vector, planes, planeCount);
     }
 }

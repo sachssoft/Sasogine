@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-
-namespace Sachssoft.Sasogine.Presentation.Rendering
+﻿namespace Sachssoft.Sasogine.Presentation.Rendering
 {
     public static class RenderingExtensions
     {

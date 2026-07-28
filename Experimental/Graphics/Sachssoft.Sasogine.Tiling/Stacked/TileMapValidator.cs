@@ -1,7 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using System;
-
-namespace Sachssoft.Sasogine.Tiling.Stacked;
+﻿namespace Sachssoft.Sasogine.Tiling.Stacked;
 
 public static class TileMapValidator
 {

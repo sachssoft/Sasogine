@@ -8,7 +8,7 @@ namespace Box2D.Delegates.Unsafe;
 /// <param name="color">The color</param>
 /// <param name="context">The context</param>
 public delegate void DrawCircleDelegate(Vec2 center, float radius, HexColor color, nint context);
-    
+
 /// <summary>
 /// Draw a point.
 /// </summary>
@@ -65,7 +65,7 @@ public delegate void DrawSolidCircleDelegate(Transform transform, float radius, 
 /// <param name="color">The color</param>
 /// <param name="context">The context</param>
 public unsafe delegate void DrawSolidPolygonDelegate(Transform transform, Vec2* vertices, int vertexCount, float radius, HexColor color, nint context);
- 
+
 /// <summary>
 /// Draw a string in world space
 /// </summary>

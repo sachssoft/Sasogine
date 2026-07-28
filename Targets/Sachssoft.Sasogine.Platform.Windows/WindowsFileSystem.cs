@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace Sachssoft.Sasogine.Platform.Windows
+﻿namespace Sachssoft.Sasogine.Platform.Windows
 {
     public class WindowsFileSystem : IFileSystemService
     {

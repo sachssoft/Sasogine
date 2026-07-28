@@ -1,6 +1,3 @@
-using System;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -27,7 +24,7 @@ public readonly unsafe struct Manifold
     /// The number of contacts points, will be 0, 1, or 2
     /// </summary>
     private readonly int pointCount;
-    
+
     /// <summary>
     /// The manifold points, up to two are possible in 2D
     /// </summary>

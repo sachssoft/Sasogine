@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Graphics.Primitives;
-using Sachssoft.Sasogine.Graphics.Rendering;
+﻿using Sachssoft.Sasogine.Graphics.Rendering;
 
 namespace Sachssoft.Sasogine.Tiling;
 
@@ -21,6 +19,6 @@ public class TileRendererContext
     public void Draw(Texture2D? texture, Coordinate coord, TileDrawingOptions? options = null)
     {
         if (texture != null)
-        _tile_renderer.DrawTile(_tile_primitive, texture, coord, options);
+            _tile_renderer.DrawTile(_tile_primitive, texture, coord, options);
     }
 }

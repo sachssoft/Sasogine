@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -62,7 +59,7 @@ public readonly struct ManifoldPoint
     public readonly ushort Id;
 
     private readonly byte persisted;
-    
+
     /// <summary>
     /// Did this contact point exist the previous step?
     /// </summary>

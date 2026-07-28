@@ -1,7 +1,5 @@
 ﻿using Sachssoft.Sasogine.Tiling;
 using Sachssoft.Sasogine.Tiling.Stacked;
-using System;
-using System.Collections.Generic;
 
 // TileData ohne Daten
 public unsafe struct TileInstance<TFlags> : ITileInstanceWithFlags<TFlags> where TFlags : unmanaged, Enum

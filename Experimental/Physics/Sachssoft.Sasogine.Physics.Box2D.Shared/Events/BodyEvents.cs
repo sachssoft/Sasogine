@@ -1,7 +1,3 @@
-using JetBrains.Annotations;
-using System;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -19,6 +15,6 @@ public readonly unsafe ref struct BodyEvents
     /// Array of move events
     /// </summary>
     public ReadOnlySpan<BodyMoveEvent> MoveEvents => new(moveEvents, moveCount);
-    
+
     internal readonly int moveCount;
 }

@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D.Character_Movement;
 
 static partial class Mover
@@ -19,11 +17,11 @@ static partial class Mover
         b2ClipVector = (delegate* unmanaged[Cdecl]<Vec2, CollisionPlane[], int, Vec2>)clipPtr;
     }
 #else
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2SolvePlanes")]
-        private static extern PlaneSolverResult b2SolvePlanes(Vec2 position, [In] CollisionPlane[] planes, int count);
+    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2SolvePlanes")]
+    private static extern PlaneSolverResult b2SolvePlanes(Vec2 position, [In] CollisionPlane[] planes, int count);
 
-        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ClipVector")]
-        private static extern Vec2 b2ClipVector(Vec2 vector, [In] CollisionPlane[] planes, int count);
+    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ClipVector")]
+    private static extern Vec2 b2ClipVector(Vec2 vector, [In] CollisionPlane[] planes, int count);
 #endif
 
 }

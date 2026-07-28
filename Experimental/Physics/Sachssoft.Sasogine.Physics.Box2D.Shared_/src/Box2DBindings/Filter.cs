@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -22,7 +20,7 @@ public struct Filter
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DefaultFilter")]
     private static extern Filter b2DefaultFilter();
 #endif
-    
+
     /// <summary>
     /// The collision category bits. Normally you would just set one bit. The category bits should
     /// represent your application object types. For example:
@@ -59,7 +57,7 @@ public struct Filter
     /// and apply that group index to all shapes on the ragdoll.
     /// </summary>
     public int GroupIndex;
-    
+
     /// <summary>
     /// Creates a filter with the default values.
     /// </summary>

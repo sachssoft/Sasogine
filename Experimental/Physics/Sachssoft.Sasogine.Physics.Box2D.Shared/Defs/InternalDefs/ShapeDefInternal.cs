@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 //! \internal
@@ -19,25 +17,25 @@ struct ShapeDefInternal
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DefaultShapeDef")]
     private static extern ShapeDefInternal b2DefaultShapeDef();
 #endif
-    
-    [FieldOffset( 0)]
+
+    [FieldOffset(0)]
     internal nint UserData;
-    
-    [FieldOffset( 8)]
+
+    [FieldOffset(8)]
     internal SurfaceMaterial Material;
-    
+
     [FieldOffset(32)]
     internal float Density;
 
     [FieldOffset(40)]
     internal Filter Filter; // 20 bytes
-    
+
     [FieldOffset(64)]
     internal byte IsSensor;
 
     [FieldOffset(65)]
     internal byte EnableSensorEvents;
-    
+
     [FieldOffset(66)]
     internal byte EnableContactEvents;
 
@@ -55,9 +53,9 @@ struct ShapeDefInternal
 
     [FieldOffset(72)]
     internal readonly int internalValue;
-    
+
     private static unsafe ShapeDefInternal Default => b2DefaultShapeDef();
-    
+
     public ShapeDefInternal()
     {
         this = Default;

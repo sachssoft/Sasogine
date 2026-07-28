@@ -1,6 +1,4 @@
-﻿using Sachssoft.Sasogine.Components;
-
-namespace Sachssoft.Sasogine.Rendering.Parallax
+﻿namespace Sachssoft.Sasogine.Rendering.Parallax
 {
     public sealed class ParallaxDefinition : ComponentDefinitionBase
     {

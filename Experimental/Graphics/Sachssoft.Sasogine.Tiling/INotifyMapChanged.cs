@@ -4,6 +4,6 @@
     {
 
         event NotifyMapChangedEventHandler? MapChanged;
-        
+
     }
 }

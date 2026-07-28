@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 //! \internal
@@ -21,7 +19,7 @@ struct RevoluteJointDefInternal
 #endif
 
     internal Body BodyA;
-    
+
     internal Body BodyB;
 
     internal Vec2 LocalAnchorA;
@@ -29,7 +27,7 @@ struct RevoluteJointDefInternal
     internal Vec2 LocalAnchorB;
 
     internal float ReferenceAngle;
-    
+
     internal float TargetAngle;
 
     internal byte EnableSpring;
@@ -58,9 +56,9 @@ struct RevoluteJointDefInternal
 
     // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
     private readonly int internalValue;
-    
+
     private static unsafe RevoluteJointDefInternal Default => b2DefaultRevoluteJointDef();
-    
+
     public RevoluteJointDefInternal()
     {
         this = Default;

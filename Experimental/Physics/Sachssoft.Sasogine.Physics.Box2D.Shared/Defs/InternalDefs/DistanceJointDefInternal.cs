@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 //! \internal
@@ -19,7 +17,7 @@ struct DistanceJointDefInternal
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DefaultDistanceJointDef")]
     private static extern DistanceJointDefInternal b2DefaultDistanceJointDef();
 #endif
-    
+
     internal Body BodyA;
 
     internal Body BodyB;
@@ -49,11 +47,11 @@ struct DistanceJointDefInternal
     internal float MotorSpeed;
 
     internal byte CollideConnected;
-    
+
     internal nint UserData;
 
     internal readonly int internalValue;
-    
+
     private static unsafe DistanceJointDefInternal Default => b2DefaultDistanceJointDef();
 
     public DistanceJointDefInternal()

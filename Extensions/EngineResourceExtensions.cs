@@ -2,13 +2,10 @@
 using Sachssoft.Sasogine.Assets;
 using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Common.Localization;
-using Sachssoft.Sasogine.Components.Models;
-using Sachssoft.Sasogine.Resources.Localization;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Xml;
 
 namespace Sachssoft.Sasogine.Extensions.Sasodoc
 {

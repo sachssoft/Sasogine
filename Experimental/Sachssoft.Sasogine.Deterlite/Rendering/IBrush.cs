@@ -2,7 +2,7 @@
 
 namespace Sachssoft.Sasogine.Presentation.Rendering
 {
-    public interface IBrush 
+    public interface IBrush
     {
         void Render(Bounds bounds, IRenderContext context);
     }

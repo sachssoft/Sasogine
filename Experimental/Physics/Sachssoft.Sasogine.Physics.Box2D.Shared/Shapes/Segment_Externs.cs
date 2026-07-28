@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D
 {
     partial struct Segment
@@ -24,17 +22,17 @@ namespace Box2D
         b2SegmentDistance = (delegate* unmanaged[Cdecl]<Vec2, Vec2, Vec2, Vec2, SegmentDistanceResult>)p3;
     }
 #else
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ComputeSegmentAABB")]
-    private static extern AABB b2ComputeSegmentAABB(in Segment shape, Transform transform);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ComputeSegmentAABB")]
+        private static extern AABB b2ComputeSegmentAABB(in Segment shape, Transform transform);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RayCastSegment")]
-    private static extern CastOutput b2RayCastSegment(in RayCastInput input, in Segment shape, byte oneSided);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RayCastSegment")]
+        private static extern CastOutput b2RayCastSegment(in RayCastInput input, in Segment shape, byte oneSided);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ShapeCastSegment")]
-    private static extern CastOutput b2ShapeCastSegment(in ShapeCastInput input, in Segment shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ShapeCastSegment")]
+        private static extern CastOutput b2ShapeCastSegment(in ShapeCastInput input, in Segment shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2SegmentDistance")]
-    private static extern SegmentDistanceResult b2SegmentDistance(Vec2 p1, Vec2 q1, Vec2 p2, Vec2 q2);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2SegmentDistance")]
+        private static extern SegmentDistanceResult b2SegmentDistance(Vec2 p1, Vec2 q1, Vec2 p2, Vec2 q2);
 #endif 
     }
 }

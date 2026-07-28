@@ -1,7 +1,3 @@
-using JetBrains.Annotations;
-using System;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -13,7 +9,7 @@ public abstract class DebugDrawGenericBase<TContext> : DebugDraw where TContext 
     private TContext context;
 
     private bool initialized;
-    
+
     /// <summary>
     /// Constructor for DebugDrawGenericBase.
     /// </summary>
@@ -35,7 +31,7 @@ public abstract class DebugDrawGenericBase<TContext> : DebugDraw where TContext 
         DrawJointExtras = true;
         DrawMass = true;
     }
-    
+
     //! \internal
     internal override unsafe ref DebugDrawInternal Internal
     {
@@ -66,7 +62,7 @@ public abstract class DebugDrawGenericBase<TContext> : DebugDraw where TContext 
                     DrawString(p, str, color, context);
                 };
             }
-            
+
             return ref @internal;
         }
     }
@@ -75,42 +71,42 @@ public abstract class DebugDrawGenericBase<TContext> : DebugDraw where TContext 
     /// Callback function to draw a closed polygon provided in CCW order.
     /// </summary>
     protected abstract void DrawPolygon(ReadOnlySpan<Vec2> vertices, HexColor color, TContext context);
-    
+
     /// <summary>
     /// Callback function to draw a solid closed polygon provided in CCW order.
     /// </summary>
     protected abstract void DrawSolidPolygon(Transform transform, ReadOnlySpan<Vec2> vertices, float radius, HexColor color, TContext context);
-    
+
     /// <summary>
     /// Callback function to draw a circle.
     /// </summary>
     protected abstract void DrawCircle(Vec2 center, float radius, HexColor color, TContext context);
-    
+
     /// <summary>
     /// Callback function to draw a solid circle.
     /// </summary>
     protected abstract void DrawSolidCircle(Transform transform, float radius, HexColor color, TContext context);
-    
+
     /// <summary>
     /// Callback function to draw a solid capsule.
     /// </summary>
     protected abstract void DrawSolidCapsule(Vec2 center1, Vec2 center2, float radius, HexColor color, TContext context);
-    
+
     /// <summary>
     /// Callback function to draw a line segment.
     /// </summary>
     protected abstract void DrawSegment(Vec2 p1, Vec2 p2, HexColor color, TContext context);
-    
+
     /// <summary>
     /// Callback function to draw a transform. Choose your own length scale.
     /// </summary>
     protected abstract void DrawTransform(Transform transform, TContext context);
-    
+
     /// <summary>
     /// Callback function to draw a point.
     /// </summary>
     protected abstract void DrawPoint(Vec2 p, float size, HexColor color, TContext context);
-    
+
     /// <summary>
     /// Callback function to draw a string in world space
     /// </summary>

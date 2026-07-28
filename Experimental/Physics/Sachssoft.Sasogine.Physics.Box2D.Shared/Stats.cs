@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -22,7 +19,7 @@ public static class Stats
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2GetByteCount")]
     private static extern int b2GetByteCount();
 #endif
-    
+
     /// <summary>
     /// Get the number of bytes allocated by Box2D
     /// </summary>

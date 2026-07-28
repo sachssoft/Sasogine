@@ -1,7 +1,3 @@
-using JetBrains.Annotations;
-using System.Collections.Specialized;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -25,7 +21,7 @@ public struct MassData
     /// The rotational inertia of the shape about the local origin.
     /// </summary>
     public float RotationalInertia;
-    
+
     /// <summary>
     /// Returns a string representation of the mass data.
     /// </summary>
@@ -33,7 +29,7 @@ public struct MassData
     {
         return $"MassData(Mass={Mass}, Center={Center}, RotationalInertia={RotationalInertia})";
     }
-    
+
     /// <summary>
     /// Constructs a new mass data object.
     /// </summary>
@@ -46,7 +42,7 @@ public struct MassData
         Center = center ?? Vec2.Zero;
         RotationalInertia = rotationalInertia;
     }
-    
+
     /// <summary>
     /// Constructs a new mass data object with default values.
     /// </summary>

@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -8,12 +5,12 @@ namespace Box2D;
 /// the user moves a rigid body with a cursor.
 /// </summary>
 [PublicAPI]
-public sealed partial class MouseJoint:Joint
+public sealed partial class MouseJoint : Joint
 {
 
     internal MouseJoint(JointId id) : base(id)
     { }
-    
+
     /// <summary>
     /// The target point on this mouse joint
     /// </summary>
@@ -39,7 +36,7 @@ public sealed partial class MouseJoint:Joint
         get => b2MouseJoint_GetSpringDampingRatio(id);
         set => b2MouseJoint_SetSpringDampingRatio(id, value);
     }
-    
+
     /// <summary>
     /// The maximum force on this mouse joint
     /// </summary>

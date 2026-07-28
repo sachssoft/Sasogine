@@ -1,8 +1,4 @@
-﻿using System;
-using System.Management;
-using Microsoft.Xna.Framework;
-
-namespace Sachssoft.Sasogine.Platform.Windows
+﻿namespace Sachssoft.Sasogine.Platform.Windows
 {
     /// <summary>
     /// Fully implemented MonoGame Windows device info service.

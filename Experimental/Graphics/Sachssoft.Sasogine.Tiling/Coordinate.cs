@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-
-using System;
-using Microsoft.Xna.Framework;
-
-namespace Sachssoft.Sasogine.Tiling;
+﻿namespace Sachssoft.Sasogine.Tiling;
 
 /// <summary>
 /// Stellt eine unveränderliche 2D-Koordinate mit ganzzahligen X- und Y-Werten dar,

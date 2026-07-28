@@ -1,5 +1,3 @@
-using JetBrains.Annotations;
-
 namespace Box2D;
 
 /// <summary>
@@ -170,7 +168,7 @@ public sealed class WheelJointDef
         CollideConnected = collideConnected;
         UserData = userData;
     }
-    
+
     /// <summary>
     /// Construct a wheel joint definition with the default values
     /// </summary>
@@ -178,5 +176,5 @@ public sealed class WheelJointDef
     {
         _internal = new();
     }
-    
+
 }

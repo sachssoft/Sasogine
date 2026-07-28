@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -14,13 +11,13 @@ public sealed partial class WheelJoint : Joint
 {
     internal WheelJoint(JointId id) : base(id)
     { }
-    
+
     /// <summary>
     /// Enable/disable the wheel joint spring
     /// </summary>
     /// <param name="enableSpring">True to enable the spring, false to disable the spring</param>
     public unsafe void EnableSpring(bool enableSpring) => b2WheelJoint_EnableSpring(id, enableSpring ? (byte)1 : (byte)0);
-    
+
     /// <summary>
     /// Gets or sets wheel joint spring enabled state
     /// </summary>
@@ -39,7 +36,7 @@ public sealed partial class WheelJoint : Joint
         get => b2WheelJoint_GetSpringHertz(id);
         set => b2WheelJoint_SetSpringHertz(id, value);
     }
-    
+
     /// <summary>
     /// The wheel joint damping ratio, non-dimensional
     /// </summary>
@@ -48,7 +45,7 @@ public sealed partial class WheelJoint : Joint
         get => b2WheelJoint_GetSpringDampingRatio(id);
         set => b2WheelJoint_SetSpringDampingRatio(id, value);
     }
-    
+
     /// <summary>
     /// The wheel joint limit enabled flag
     /// </summary>
@@ -57,24 +54,24 @@ public sealed partial class WheelJoint : Joint
         get => b2WheelJoint_IsLimitEnabled(id) != 0;
         set => b2WheelJoint_EnableLimit(id, value ? (byte)1 : (byte)0);
     }
-    
+
     /// <summary>
     /// Set the wheel joint limits
     /// </summary>
     /// <param name="lower">The lower limit</param>
     /// <param name="upper">The upper limit</param>
     public unsafe void SetLimits(float lower, float upper) => b2WheelJoint_SetLimits(id, lower, upper);
-    
+
     /// <summary>
     /// The lower wheel joint limit
     /// </summary>
     public unsafe float LowerLimit => b2WheelJoint_GetLowerLimit(id);
-    
+
     /// <summary>
     /// The upper wheel joint limit
     /// </summary>
     public unsafe float UpperLimit => b2WheelJoint_GetUpperLimit(id);
-    
+
     /// <summary>
     /// The wheel joint motor enabled flag
     /// </summary>
@@ -83,7 +80,7 @@ public sealed partial class WheelJoint : Joint
         get => b2WheelJoint_IsMotorEnabled(id) != 0;
         set => b2WheelJoint_EnableMotor(id, value ? (byte)1 : (byte)0);
     }
-    
+
     /// <summary>
     /// The wheel joint motor speed in radians per second
     /// </summary>
@@ -92,7 +89,7 @@ public sealed partial class WheelJoint : Joint
         get => b2WheelJoint_GetMotorSpeed(id);
         set => b2WheelJoint_SetMotorSpeed(id, value);
     }
-    
+
     /// <summary>
     /// The wheel joint maximum motor torque, usually in newton-meters
     /// </summary>
@@ -101,7 +98,7 @@ public sealed partial class WheelJoint : Joint
         get => b2WheelJoint_GetMaxMotorTorque(id);
         set => b2WheelJoint_SetMaxMotorTorque(id, value);
     }
-    
+
     /// <summary>
     /// The current wheel joint motor torque, usually in newton-meters
     /// </summary>

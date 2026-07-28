@@ -1,9 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Graphics.Primitives;
+﻿using Sachssoft.Sasogine.Graphics.Rendering;
 using Sachssoft.Sasogine.Tiling;
-using System;
-using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Graphics.Rendering;
 
 namespace Sachssoft.Sasogine.Editor.Tiles.Tools;
 

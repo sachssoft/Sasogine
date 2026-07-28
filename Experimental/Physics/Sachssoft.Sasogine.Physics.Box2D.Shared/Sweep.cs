@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -50,7 +47,7 @@ public struct Sweep
     /// Ending world rotation
     /// </summary>
     public Rotation Q2;
-    
+
     /// <summary>
     /// Get the transform at a specific time.
     /// </summary>

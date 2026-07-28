@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D
 {
     public partial class WeldJoint
@@ -36,29 +34,29 @@ namespace Box2D
         b2WeldJoint_GetAngularDampingRatio = (delegate* unmanaged[Cdecl]<JointId, float>)p9;
     }
 #else
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2WeldJoint_SetLinearHertz")]
-    private static extern void b2WeldJoint_SetLinearHertz(JointId jointId, float hertz);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2WeldJoint_SetLinearHertz")]
+        private static extern void b2WeldJoint_SetLinearHertz(JointId jointId, float hertz);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2WeldJoint_GetLinearHertz")]
-    private static extern float b2WeldJoint_GetLinearHertz(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2WeldJoint_GetLinearHertz")]
+        private static extern float b2WeldJoint_GetLinearHertz(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2WeldJoint_SetLinearDampingRatio")]
-    private static extern void b2WeldJoint_SetLinearDampingRatio(JointId jointId, float dampingRatio);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2WeldJoint_SetLinearDampingRatio")]
+        private static extern void b2WeldJoint_SetLinearDampingRatio(JointId jointId, float dampingRatio);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2WeldJoint_GetLinearDampingRatio")]
-    private static extern float b2WeldJoint_GetLinearDampingRatio(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2WeldJoint_GetLinearDampingRatio")]
+        private static extern float b2WeldJoint_GetLinearDampingRatio(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2WeldJoint_SetAngularHertz")]
-    private static extern void b2WeldJoint_SetAngularHertz(JointId jointId, float hertz);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2WeldJoint_SetAngularHertz")]
+        private static extern void b2WeldJoint_SetAngularHertz(JointId jointId, float hertz);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2WeldJoint_GetAngularHertz")]
-    private static extern float b2WeldJoint_GetAngularHertz(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2WeldJoint_GetAngularHertz")]
+        private static extern float b2WeldJoint_GetAngularHertz(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2WeldJoint_SetAngularDampingRatio")]
-    private static extern void b2WeldJoint_SetAngularDampingRatio(JointId jointId, float dampingRatio);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2WeldJoint_SetAngularDampingRatio")]
+        private static extern void b2WeldJoint_SetAngularDampingRatio(JointId jointId, float dampingRatio);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2WeldJoint_GetAngularDampingRatio")]
-    private static extern float b2WeldJoint_GetAngularDampingRatio(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2WeldJoint_GetAngularDampingRatio")]
+        private static extern float b2WeldJoint_GetAngularDampingRatio(JointId jointId);
 #endif
     }
 }

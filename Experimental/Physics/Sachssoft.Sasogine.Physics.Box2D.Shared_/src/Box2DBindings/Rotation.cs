@@ -1,7 +1,3 @@
-using JetBrains.Annotations;
-using System;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -19,12 +15,12 @@ public partial struct Rotation : IEquatable<Rotation>
     /// Sine component of the rotation.
     /// </summary>
     public float Sin;
-    
+
     /// <summary>
     /// Identity rotation (0 degrees).
     /// </summary>
     public static readonly Rotation Identity = new()
-            { Cos = 1, Sin = 0 };
+    { Cos = 1, Sin = 0 };
 
     /// <summary>
     /// Checks if this rotation is valid.
@@ -49,17 +45,17 @@ public partial struct Rotation : IEquatable<Rotation>
         Cos = MathF.Cos(radians);
         Sin = MathF.Sin(radians);
     }
-     
+
     /// <summary>
     /// Implicitly converts a tuple of (cos, sin) to a Rotation.
     /// </summary>
     public static implicit operator Rotation((float Cos, float Sin) tuple) => new() { Cos = tuple.Cos, Sin = tuple.Sin };
-    
+
     /// <summary>
     /// Implicitly converts a Rotation to a tuple of (cos, sin).
     /// </summary>
     public static implicit operator (float, float)(Rotation rotation) => (rotation.Cos, rotation.Sin);
-    
+
     /// <summary>
     /// Implicitly converts a float (angle in radians) to a Rotation.
     /// </summary>
@@ -69,7 +65,7 @@ public partial struct Rotation : IEquatable<Rotation>
     /// Implicitly converts a Rotation to a float (angle in radians).
     /// </summary>
     public static implicit operator float(Rotation rotation) => MathF.Atan2(rotation.Sin, rotation.Cos);
-    
+
     /// <summary>
     /// Returns a string representation of the rotation.
     /// </summary>
@@ -77,7 +73,7 @@ public partial struct Rotation : IEquatable<Rotation>
     {
         return $"Rot(Cos: {Cos}, Sin: {Sin}, Rad: {GetAngle()}, Deg: {GetAngle() * 180 / MathF.PI})";
     }
-    
+
     /// <summary>
     /// Returns the angle of the rotation in radians.
     /// </summary>
@@ -88,12 +84,12 @@ public partial struct Rotation : IEquatable<Rotation>
     /// Checks if this rotation is equal to another rotation.
     /// </summary>
     public bool Equals(Rotation other) => Cos.Equals(other.Cos) && Sin.Equals(other.Sin);
-    
+
     /// <summary>
     /// Checks if this rotation is equal to another object.
     /// </summary>
     public override bool Equals(object? obj) => obj is Rotation other && Equals(other);
-    
+
     /// <summary>
     /// Returns a hash code for this rotation.
     /// </summary>

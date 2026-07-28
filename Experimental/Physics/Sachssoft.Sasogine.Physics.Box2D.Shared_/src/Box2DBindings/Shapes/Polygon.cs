@@ -1,7 +1,3 @@
-using JetBrains.Annotations;
-using System;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -16,7 +12,7 @@ namespace Box2D;
 [PublicAPI]
 public unsafe partial struct Polygon
 {
-    
+
     private fixed float vertices[MAX_POLYGON_VERTICES * 2];
 
     private fixed float normals[MAX_POLYGON_VERTICES * 2];
@@ -49,7 +45,7 @@ public unsafe partial struct Polygon
     {
         if (points.Length > MAX_POLYGON_VERTICES)
             throw new ArgumentOutOfRangeException(nameof(points), $"Count must be less than {MAX_POLYGON_VERTICES}");
-        
+
         this = MakePolygon(points, radius);
     }
 
@@ -61,7 +57,7 @@ public unsafe partial struct Polygon
         get
         {
             fixed (float* ptr = vertices)
-                return new(ptr,count);
+                return new(ptr, count);
         }
     }
 
@@ -73,7 +69,7 @@ public unsafe partial struct Polygon
         get
         {
             fixed (float* ptr = normals)
-                return new(ptr,count);
+                return new(ptr, count);
         }
     }
 
@@ -95,11 +91,11 @@ public unsafe partial struct Polygon
     /// <b>Warning: Do not manually fill in the hull data, it must come directly from b2ComputeHull</b>
     /// </remarks>
     public static Polygon MakePolygon(in Hull hull, float radius) => MakePolygon_(in hull, radius);
-    
+
     /// <summary>
     /// Make an offset convex polygon from a set of points. This will create a hull and assert if it is not valid.
     /// </summary>
-    public static  Polygon MakeOffsetPolygon(Span<Vec2> points, Vec2 position, Rotation rotation)
+    public static Polygon MakeOffsetPolygon(Span<Vec2> points, Vec2 position, Rotation rotation)
     {
         if (points.Length > MAX_POLYGON_VERTICES)
             throw new ArgumentOutOfRangeException(nameof(points), $"Count must be less than {MAX_POLYGON_VERTICES}");
@@ -114,31 +110,31 @@ public unsafe partial struct Polygon
     /// <b>Warning: Do not manually fill in the hull data, it must come directly from b2ComputeHull</b>
     /// </remarks>
     public static Polygon MakeOffsetPolygon(in Hull hull, Vec2 position, Rotation rotation) => MakeOffsetPolygon_(in hull, position, rotation);
-    
+
     /// <summary>
     /// Make an offset convex polygon from a set of points. This will create a hull and assert if it is not valid.
     /// </summary>
-    public static  Polygon MakeOffsetRoundedPolygon(Span<Vec2> points, Vec2 position, Rotation rotation, float radius)
+    public static Polygon MakeOffsetRoundedPolygon(Span<Vec2> points, Vec2 position, Rotation rotation, float radius)
     {
         if (points.Length > MAX_POLYGON_VERTICES)
             throw new ArgumentOutOfRangeException(nameof(points), $"Count must be less than {MAX_POLYGON_VERTICES}");
         var hull = Hull.Compute(points);
         return MakeOffsetRoundedPolygon(hull, position, rotation, radius);
     }
-    
+
     /// <summary>
     /// Make a square polygon, bypassing the need for a convex hull.
     /// </summary>
     /// <param name="halfWidth">the half-width</param>
     public static Polygon MakeSquare(float halfWidth) => MakeSquare_(halfWidth);
-    
+
     /// <summary>
     /// Make a box (rectangle) polygon, bypassing the need for a convex hull.
     /// </summary>
     /// <param name="halfWidth">the half-width (x-axis)</param>
     /// <param name="halfHeight">the half-height (y-axis)</param>
     public static Polygon MakeBox(float halfWidth, float halfHeight) => MakeBox_(halfWidth, halfHeight);
-    
+
     /// <summary>
     /// Make a rounded box, bypassing the need for a convex hull.
     /// </summary>
@@ -146,7 +142,7 @@ public unsafe partial struct Polygon
     /// <param name="halfHeight">the half-height (y-axis)</param>
     /// <param name="radius">the radius of the rounded extension</param>
     public static Polygon MakeRoundedBox(float halfWidth, float halfHeight, float radius) => MakeRoundedBox_(halfWidth, halfHeight, radius);
-    
+
     /// <summary>
     /// Make an offset box, bypassing the need for a convex hull.
     /// </summary>
@@ -155,7 +151,7 @@ public unsafe partial struct Polygon
     /// <param name="center">the local center of the box</param>
     /// <param name="rotation">the local rotation of the box</param>
     public static Polygon MakeOffsetBox(float halfWidth, float halfHeight, Vec2 center, Rotation rotation) => MakeOffsetBox_(halfWidth, halfHeight, center, rotation);
-    
+
     /// <summary>
     /// Make an offset rounded box, bypassing the need for a convex hull.
     /// </summary>
@@ -165,7 +161,7 @@ public unsafe partial struct Polygon
     /// <param name="rotation">the local rotation of the box</param>
     /// <param name="radius">the radius of the rounded extension</param>
     public static Polygon MakeOffsetRoundedBox(float halfWidth, float halfHeight, Vec2 center, Rotation rotation, float radius) => MakeOffsetRoundedBox_(halfWidth, halfHeight, center, rotation, radius);
-    
+
     /// <summary>
     /// Make an offset convex polygon from a convex hull. This will assert if the hull is not valid.
     /// </summary>
@@ -188,7 +184,7 @@ public unsafe partial struct Polygon
     /// Test this point for overlap with a convex polygon in local space
     /// </summary>
     public bool TestPoint(in Vec2 point) => PointInPolygon_(point, in this) != 0;
-  
+
     /// <summary>
     /// Ray cast versus this polygon shape in local space. Initial overlap is treated as a miss.
     /// </summary>

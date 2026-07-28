@@ -1,7 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
-
-namespace Sachssoft.Sasogine.Platform.Windows
+﻿namespace Sachssoft.Sasogine.Platform.Windows
 {
     public class WindowsClipboard : IClipboardService
     {
@@ -9,7 +6,7 @@ namespace Sachssoft.Sasogine.Platform.Windows
 
         public void Clear()
         {
-                WindowsClear();
+            WindowsClear();
 
             _lastStoredText = null;
         }
@@ -24,7 +21,7 @@ namespace Sachssoft.Sasogine.Platform.Windows
             if (_lastStoredText != null)
                 return _lastStoredText;
 
-                return WindowsGetData();
+            return WindowsGetData();
         }
 
         public void SetData(string format, object? data)
@@ -37,7 +34,7 @@ namespace Sachssoft.Sasogine.Platform.Windows
             else if (data != null)
                 throw new NotSupportedException("Only string or byte[] are supported in AOT mode.");
 
-                WindowsSetData(text);
+            WindowsSetData(text);
 
             _lastStoredText = text;
         }

@@ -1,8 +1,4 @@
-﻿using Sachssoft.Sasogine.Presentation.Styling;
-using System;
-using System.Diagnostics.CodeAnalysis;
-
-namespace Sachssoft.Sasogine.Presentation.Rendering
+﻿namespace Sachssoft.Sasogine.Presentation.Rendering
 {
     /// <summary>
     /// Immutable font descriptor for game rendering.

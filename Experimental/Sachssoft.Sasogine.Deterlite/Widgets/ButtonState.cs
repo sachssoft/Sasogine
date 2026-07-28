@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sachssoft.Sasogine.Presentation.Widgets;
+﻿namespace Sachssoft.Sasogine.Presentation.Widgets;
 
 [Flags]
 public enum ButtonState

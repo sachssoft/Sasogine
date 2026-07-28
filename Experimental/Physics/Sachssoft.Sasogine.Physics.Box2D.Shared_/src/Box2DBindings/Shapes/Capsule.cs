@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -31,7 +28,7 @@ public partial struct Capsule
     /// the two centers plus twice the radius.
     /// </summary>
     public float Length => (Vec2.Distance(Center1, Center2) + 2 * Radius);
-    
+
     /// <summary>
     /// Construct a capsule shape with two centers and a radius
     /// </summary>
@@ -41,22 +38,22 @@ public partial struct Capsule
         Center2 = center2;
         Radius = radius;
     }
-    
+
     /// <summary>
     /// Compute mass properties of this capsule
     /// </summary>
     public unsafe MassData ComputeMass(float density) => ComputeCapsuleMass(in this, density);
-    
+
     /// <summary>
     /// Compute the bounding box of this transformed capsule
     /// </summary>
     public unsafe AABB ComputeAABB(in Transform transform) => ComputeCapsuleAABB(in this, transform);
-    
+
     /// <summary>
     /// Test a point for overlap with this capsule in local space
     /// </summary>
     public unsafe bool TestPoint(in Vec2 point) => PointInCapsule(point, in this) != 0;
-    
+
     /// <summary>
     /// Ray cast versus this capsule shape in local space. Initial overlap is treated as a miss.
     /// </summary>

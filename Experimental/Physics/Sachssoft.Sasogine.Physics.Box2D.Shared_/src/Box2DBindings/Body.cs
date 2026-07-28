@@ -1,9 +1,4 @@
 using Box2D.Comparers;
-using JetBrains.Annotations;
-using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace Box2D;
 
@@ -18,7 +13,7 @@ public partial struct Body : IEquatable<Body>, IComparable<Body>
     internal int index1;
     internal ushort world0;
     internal ushort generation;
-    
+
     /// <summary>
     /// Create a body in the supplied world using the supplied BodyDef
     /// </summary>
@@ -104,7 +99,7 @@ public partial struct Body : IEquatable<Body>, IComparable<Body>
             return world0Comparison;
         return generation.CompareTo(other.generation);
     }
-    
+
     /// <summary>
     /// Destroy this body.
     /// </summary>

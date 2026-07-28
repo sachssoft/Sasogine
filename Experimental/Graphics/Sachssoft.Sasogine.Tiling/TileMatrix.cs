@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sachssoft.Sasogine.Tiling;
+﻿namespace Sachssoft.Sasogine.Tiling;
 
 public class TileMatrix<TTile> : ITileMatrix
 {
@@ -10,8 +8,8 @@ public class TileMatrix<TTile> : ITileMatrix
     private readonly int _rows;
 
     public TileMatrix(
-        Coordinate coordinate, 
-        int columns, 
+        Coordinate coordinate,
+        int columns,
         int rows,
         Func<Coordinate, TTile?> get_tile,
         Func<TTile?, TTile?, int>? match = null)

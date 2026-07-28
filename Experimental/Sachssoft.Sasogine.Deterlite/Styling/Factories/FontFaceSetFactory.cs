@@ -1,7 +1,4 @@
-﻿using Sachssoft.Sasogine.Resources;
-using System.Collections.Generic;
-
-namespace Sachssoft.Sasogine.Presentation.Styling.Factories;
+﻿namespace Sachssoft.Sasogine.Presentation.Styling.Factories;
 
 internal class FontFaceSetFactory : ITypeFactory<FontFaceSet, Resource>
 {

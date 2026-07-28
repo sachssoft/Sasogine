@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D
 {
     partial class MotorJoint
@@ -42,35 +40,35 @@ namespace Box2D
         b2MotorJoint_GetCorrectionFactor = (delegate* unmanaged[Cdecl]<JointId, float>)p9;
     }
 #else
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_SetLinearOffset")]
-    private static extern void b2MotorJoint_SetLinearOffset(JointId jointId, Vec2 linearOffset);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_SetLinearOffset")]
+        private static extern void b2MotorJoint_SetLinearOffset(JointId jointId, Vec2 linearOffset);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_GetLinearOffset")]
-    private static extern Vec2 b2MotorJoint_GetLinearOffset(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_GetLinearOffset")]
+        private static extern Vec2 b2MotorJoint_GetLinearOffset(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_SetAngularOffset")]
-    private static extern void b2MotorJoint_SetAngularOffset(JointId jointId, float angularOffset);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_SetAngularOffset")]
+        private static extern void b2MotorJoint_SetAngularOffset(JointId jointId, float angularOffset);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_GetAngularOffset")]
-    private static extern float b2MotorJoint_GetAngularOffset(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_GetAngularOffset")]
+        private static extern float b2MotorJoint_GetAngularOffset(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_SetMaxForce")]
-    private static extern void b2MotorJoint_SetMaxForce(JointId jointId, float maxForce);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_SetMaxForce")]
+        private static extern void b2MotorJoint_SetMaxForce(JointId jointId, float maxForce);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_GetMaxForce")]
-    private static extern float b2MotorJoint_GetMaxForce(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_GetMaxForce")]
+        private static extern float b2MotorJoint_GetMaxForce(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_SetMaxTorque")]
-    private static extern void b2MotorJoint_SetMaxTorque(JointId jointId, float maxTorque);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_SetMaxTorque")]
+        private static extern void b2MotorJoint_SetMaxTorque(JointId jointId, float maxTorque);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_GetMaxTorque")]
-    private static extern float b2MotorJoint_GetMaxTorque(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_GetMaxTorque")]
+        private static extern float b2MotorJoint_GetMaxTorque(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_SetCorrectionFactor")]
-    private static extern void b2MotorJoint_SetCorrectionFactor(JointId jointId, float factor);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_SetCorrectionFactor")]
+        private static extern void b2MotorJoint_SetCorrectionFactor(JointId jointId, float factor);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_GetCorrectionFactor")]
-    private static extern float b2MotorJoint_GetCorrectionFactor(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MotorJoint_GetCorrectionFactor")]
+        private static extern float b2MotorJoint_GetCorrectionFactor(JointId jointId);
 #endif
     }
 }

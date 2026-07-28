@@ -1,6 +1,3 @@
-using System;
-using System.Runtime.InteropServices;
-
 namespace Box2D
 {
     partial struct Shape
@@ -153,147 +150,147 @@ namespace Box2D
             b2Shape_SetSurfaceMaterial = (delegate* unmanaged[Cdecl]<Shape, SurfaceMaterial, void>)p45;
             b2Shape_GetSurfaceMaterial = (delegate* unmanaged[Cdecl]<Shape, SurfaceMaterial>)p46;
         }
-        #else
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DestroyShape")]
-    private static extern void b2DestroyShape(Shape shape, byte updateBodyMass);
+#else
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DestroyShape")]
+        private static extern void b2DestroyShape(Shape shape, byte updateBodyMass);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_IsValid")]
-    private static extern byte b2Shape_IsValid(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_IsValid")]
+        private static extern byte b2Shape_IsValid(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetType")]
-    private static extern ShapeType b2Shape_GetType(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetType")]
+        private static extern ShapeType b2Shape_GetType(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetBody")]
-    private static extern Body b2Shape_GetBody(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetBody")]
+        private static extern Body b2Shape_GetBody(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetWorld")]
-    private static extern WorldId b2Shape_GetWorld(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetWorld")]
+        private static extern WorldId b2Shape_GetWorld(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_IsSensor")]
-    private static extern byte b2Shape_IsSensor(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_IsSensor")]
+        private static extern byte b2Shape_IsSensor(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_EnableSensorEvents")]
-    private static extern void b2Shape_EnableSensorEvents(Shape shape, byte flag);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_EnableSensorEvents")]
+        private static extern void b2Shape_EnableSensorEvents(Shape shape, byte flag);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_AreSensorEventsEnabled")]
-    private static extern byte b2Shape_AreSensorEventsEnabled(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_AreSensorEventsEnabled")]
+        private static extern byte b2Shape_AreSensorEventsEnabled(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetUserData")]
-    private static extern void b2Shape_SetUserData(Shape shape, nint userData);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetUserData")]
+        private static extern void b2Shape_SetUserData(Shape shape, nint userData);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetUserData")]
-    private static extern nint b2Shape_GetUserData(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetUserData")]
+        private static extern nint b2Shape_GetUserData(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetDensity")]
-    private static extern void b2Shape_SetDensity(Shape shape, float density, byte updateBodyMass);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetDensity")]
+        private static extern void b2Shape_SetDensity(Shape shape, float density, byte updateBodyMass);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetDensity")]
-    private static extern float b2Shape_GetDensity(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetDensity")]
+        private static extern float b2Shape_GetDensity(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetFriction")]
-    private static extern void b2Shape_SetFriction(Shape shape, float friction);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetFriction")]
+        private static extern void b2Shape_SetFriction(Shape shape, float friction);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetFriction")]
-    private static extern float b2Shape_GetFriction(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetFriction")]
+        private static extern float b2Shape_GetFriction(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetRestitution")]
-    private static extern void b2Shape_SetRestitution(Shape shape, float restitution);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetRestitution")]
+        private static extern void b2Shape_SetRestitution(Shape shape, float restitution);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetRestitution")]
-    private static extern float b2Shape_GetRestitution(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetRestitution")]
+        private static extern float b2Shape_GetRestitution(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetMaterial")]
-    private static extern void b2Shape_SetMaterial(Shape shape, int material);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetMaterial")]
+        private static extern void b2Shape_SetMaterial(Shape shape, int material);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetMaterial")]
-    private static extern int b2Shape_GetMaterial(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetMaterial")]
+        private static extern int b2Shape_GetMaterial(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetFilter")]
-    private static extern Filter b2Shape_GetFilter(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetFilter")]
+        private static extern Filter b2Shape_GetFilter(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetFilter")]
-    private static extern void b2Shape_SetFilter(Shape shape, Filter filter);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetFilter")]
+        private static extern void b2Shape_SetFilter(Shape shape, Filter filter);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_EnableContactEvents")]
-    private static extern void b2Shape_EnableContactEvents(Shape shape, byte flag);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_EnableContactEvents")]
+        private static extern void b2Shape_EnableContactEvents(Shape shape, byte flag);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_AreContactEventsEnabled")]
-    private static extern byte b2Shape_AreContactEventsEnabled(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_AreContactEventsEnabled")]
+        private static extern byte b2Shape_AreContactEventsEnabled(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_EnablePreSolveEvents")]
-    private static extern void b2Shape_EnablePreSolveEvents(Shape shape, byte flag);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_EnablePreSolveEvents")]
+        private static extern void b2Shape_EnablePreSolveEvents(Shape shape, byte flag);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_ArePreSolveEventsEnabled")]
-    private static extern byte b2Shape_ArePreSolveEventsEnabled(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_ArePreSolveEventsEnabled")]
+        private static extern byte b2Shape_ArePreSolveEventsEnabled(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_EnableHitEvents")]
-    private static extern void b2Shape_EnableHitEvents(Shape shape, byte flag);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_EnableHitEvents")]
+        private static extern void b2Shape_EnableHitEvents(Shape shape, byte flag);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_AreHitEventsEnabled")]
-    private static extern byte b2Shape_AreHitEventsEnabled(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_AreHitEventsEnabled")]
+        private static extern byte b2Shape_AreHitEventsEnabled(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_TestPoint")]
-    private static extern byte b2Shape_TestPoint(Shape shape, Vec2 point);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_TestPoint")]
+        private static extern byte b2Shape_TestPoint(Shape shape, Vec2 point);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_RayCast")]
-    private static extern CastOutput b2Shape_RayCast(Shape shape, in RayCastInput input);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_RayCast")]
+        private static extern CastOutput b2Shape_RayCast(Shape shape, in RayCastInput input);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetCircle")]
-    private static extern Circle b2Shape_GetCircle(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetCircle")]
+        private static extern Circle b2Shape_GetCircle(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetSegment")]
-    private static extern Segment b2Shape_GetSegment(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetSegment")]
+        private static extern Segment b2Shape_GetSegment(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetChainSegment")]
-    private static extern ChainSegment b2Shape_GetChainSegment(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetChainSegment")]
+        private static extern ChainSegment b2Shape_GetChainSegment(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetCapsule")]
-    private static extern Capsule b2Shape_GetCapsule(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetCapsule")]
+        private static extern Capsule b2Shape_GetCapsule(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetPolygon")]
-    private static extern Polygon b2Shape_GetPolygon(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetPolygon")]
+        private static extern Polygon b2Shape_GetPolygon(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetCircle")]
-    private static extern void b2Shape_SetCircle(Shape shape, in Circle circle);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetCircle")]
+        private static extern void b2Shape_SetCircle(Shape shape, in Circle circle);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetCapsule")]
-    private static extern void b2Shape_SetCapsule(Shape shape, in Capsule capsule);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetCapsule")]
+        private static extern void b2Shape_SetCapsule(Shape shape, in Capsule capsule);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetSegment")]
-    private static extern void b2Shape_SetSegment(Shape shape, in Segment segment);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetSegment")]
+        private static extern void b2Shape_SetSegment(Shape shape, in Segment segment);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetPolygon")]
-    private static extern void b2Shape_SetPolygon(Shape shape, in Polygon polygon);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetPolygon")]
+        private static extern void b2Shape_SetPolygon(Shape shape, in Polygon polygon);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetParentChain")]
-    private static extern ChainShapeId b2Shape_GetParentChain(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetParentChain")]
+        private static extern ChainShapeId b2Shape_GetParentChain(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetContactCapacity")]
-    private static extern int b2Shape_GetContactCapacity(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetContactCapacity")]
+        private static extern int b2Shape_GetContactCapacity(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetContactData")]
-    private static extern unsafe int b2Shape_GetContactData(Shape shape, ContactData* contactData, int capacity);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetContactData")]
+        private static extern unsafe int b2Shape_GetContactData(Shape shape, ContactData* contactData, int capacity);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetSensorCapacity")]
-    private static extern int b2Shape_GetSensorCapacity(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetSensorCapacity")]
+        private static extern int b2Shape_GetSensorCapacity(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetSensorOverlaps")]
-    private static extern unsafe int b2Shape_GetSensorOverlaps(Shape shape, Shape* overlaps, int capacity);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetSensorOverlaps")]
+        private static extern unsafe int b2Shape_GetSensorOverlaps(Shape shape, Shape* overlaps, int capacity);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetAABB")]
-    private static extern AABB b2Shape_GetAABB(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetAABB")]
+        private static extern AABB b2Shape_GetAABB(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetMassData")]
-    private static extern MassData b2Shape_GetMassData(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetMassData")]
+        private static extern MassData b2Shape_GetMassData(Shape shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetClosestPoint")]
-    private static extern Vec2 b2Shape_GetClosestPoint(Shape shape, Vec2 target);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetClosestPoint")]
+        private static extern Vec2 b2Shape_GetClosestPoint(Shape shape, Vec2 target);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetSurfaceMaterial")]
-    private static extern void b2Shape_SetSurfaceMaterial(Shape shape, SurfaceMaterial surfaceMaterial);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_SetSurfaceMaterial")]
+        private static extern void b2Shape_SetSurfaceMaterial(Shape shape, SurfaceMaterial surfaceMaterial);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetSurfaceMaterial")]
-    private static extern SurfaceMaterial b2Shape_GetSurfaceMaterial(Shape shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Shape_GetSurfaceMaterial")]
+        private static extern SurfaceMaterial b2Shape_GetSurfaceMaterial(Shape shape);
 #endif
     }
 }

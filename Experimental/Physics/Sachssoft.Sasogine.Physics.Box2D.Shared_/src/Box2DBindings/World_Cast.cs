@@ -1,17 +1,16 @@
 using Box2D.Character_Movement;
-using System.Runtime.InteropServices;
 
 namespace Box2D;
 
 public partial class World
 {
-#region CallbackThunks
+    #region CallbackThunks
     private static float CastResultThunk(Shape shape, Vec2 point, Vec2 normal, float fraction, nint ctx)
     {
         var callback = (CastResultCallback)GCHandle.FromIntPtr(ctx).Target!;
         return callback(shape, point, normal, fraction);
     }
-    
+
     private static unsafe float CastResultThunk<TContext>(Shape shape, Vec2 point, Vec2 normal, float fraction, nint ctx) where TContext : class
     {
         var contextBuffer = (nint*)ctx;
@@ -33,7 +32,7 @@ public partial class World
         var callback = (PlaneResultCallback)GCHandle.FromIntPtr(context).Target!;
         return callback(shape, plane);
     }
-    
+
     private static unsafe bool PlaneResultThunk<TContext>(Shape shape, in PlaneResult plane, nint context) where TContext : class
     {
         var contextBuffer = (nint*)context;
@@ -41,7 +40,7 @@ public partial class World
         var callback = (PlaneResultCallback<TContext>)GCHandle.FromIntPtr(contextBuffer[1]).Target!;
         return callback(shape, plane, contextObj);
     }
-    
+
     private static unsafe bool PlaneResultRefThunk<TContext>(Shape shape, in PlaneResult plane, nint context) where TContext : unmanaged
     {
         var contextBuffer = (nint*)context;
@@ -57,7 +56,7 @@ public partial class World
         var callback = (OverlapResultCallback<TContext>)GCHandle.FromIntPtr(contextBuffer[1]).Target!;
         return callback(shape, context);
     }
-    
+
     private static unsafe bool OverlapResultRefThunk<TContext>(Shape shape, nint ptr) where TContext : unmanaged
     {
         var contextBuffer = (nint*)ptr;
@@ -72,9 +71,9 @@ public partial class World
         return callback(shape);
     }
 
-#endregion
+    #endregion
 
-#region RayCastClosest
+    #region RayCastClosest
 
     /// <summary>
     /// Cast a ray into the world to collect the closest hit. This is a convenience function. Ignores initial overlap.
@@ -86,9 +85,9 @@ public partial class World
     /// <remarks>This is less general than b2World_CastRay() and does not allow for custom filtering</remarks>
     public unsafe RayResult CastRayClosest(Vec2 origin, Vec2 translation, QueryFilter filter) => b2World_CastRayClosest(id, origin, translation, filter);
 
-#endregion
+    #endregion
 
-#region CastRay
+    #region CastRay
 
     /// <summary>
     /// Cast a ray into the world to collect shapes in the path of the ray.
@@ -143,7 +142,7 @@ public partial class World
             }
         }
     }
-    
+
     /// <summary>
     /// Cast a ray into the world to collect shapes in the path of the ray.
     /// </summary>
@@ -183,9 +182,9 @@ public partial class World
         return b2World_CastRay(id, origin, translation, filter, callback, context);
     }
 
-#endregion
+    #endregion
 
-#region CastShape
+    #region CastShape
 
     /// <summary>
     /// Cast a shape through the world. Similar to a cast ray except that a shape is cast instead of a point.
@@ -236,7 +235,7 @@ public partial class World
             }
         }
     }
-    
+
     /// <summary>
     /// Cast a shape through the world. Similar to a cast ray except that a shape is cast instead of a point.
     /// </summary>
@@ -270,9 +269,9 @@ public partial class World
         return b2World_CastShape(id, in proxy, translation, filter, callback, context);
     }
 
-#endregion
+    #endregion
 
-#region CastMover
+    #region CastMover
 
     /// <summary>
     /// Cast a capsule mover through the world. This is a special shape cast that handles sliding along other shapes while reducing clipping.
@@ -284,9 +283,9 @@ public partial class World
     public unsafe float CastMover(in Capsule mover, Vec2 translation, QueryFilter filter) =>
         b2World_CastMover(id, in mover, translation, filter);
 
-#endregion
+    #endregion
 
-#region CollideMover
+    #region CollideMover
 
     /// <summary>
     /// Collide a capsule mover with the world, gathering collision planes that can be fed to b2SolvePlanes. Useful for kinematic character movement.
@@ -300,7 +299,7 @@ public partial class World
         nint* contextBuffer = stackalloc nint[2];
         contextBuffer[0] = GCHandle.ToIntPtr(GCHandle.Alloc(context));
         contextBuffer[1] = GCHandle.ToIntPtr(GCHandle.Alloc(callback));
-        
+
         try
         {
             b2World_CollideMover(id, in mover, filter, PlaneResultThunk<TContext>, (nint)contextBuffer);
@@ -311,7 +310,7 @@ public partial class World
             GCHandle.FromIntPtr(contextBuffer[1]).Free();
         }
     }
-    
+
     /// <summary>
     /// Collide a capsule mover with the world, gathering collision planes that can be fed to b2SolvePlanes. Useful for kinematic character movement.
     /// </summary>
@@ -366,9 +365,9 @@ public partial class World
     public void CollideMover(in Capsule mover, QueryFilter filter, PlaneResultNintCallback callback, nint context) =>
         b2World_CollideMover(id, in mover, filter, callback, context);
 
-#endregion
+    #endregion
 
-#region OverlapAABB
+    #region OverlapAABB
 
     /// <summary>
     /// Overlap test for all shapes that *potentially* overlap the provided AABB
@@ -382,7 +381,7 @@ public partial class World
         nint* contextBuffer = stackalloc nint[2];
         contextBuffer[0] = GCHandle.ToIntPtr(GCHandle.Alloc(context));
         contextBuffer[1] = GCHandle.ToIntPtr(GCHandle.Alloc(callback));
-        
+
         try
         {
             return b2World_OverlapAABB(id, aabb, filter, OverlapResultThunk<TContext>, (nint)contextBuffer);
@@ -418,7 +417,7 @@ public partial class World
             }
         }
     }
-    
+
     /// <summary>
     /// Overlap test for all shapes that *potentially* overlap the provided AABB
     /// </summary>
@@ -428,7 +427,7 @@ public partial class World
     public TreeStats OverlapAABB(AABB aabb, QueryFilter filter, ref OverlapResultCallback callback)
     {
         nint contextBuffer = GCHandle.ToIntPtr(GCHandle.Alloc(callback));
-        
+
         try
         {
             return b2World_OverlapAABB(id, aabb, filter, OverlapResultThunk, contextBuffer);
@@ -451,9 +450,9 @@ public partial class World
         return b2World_OverlapAABB(id, aabb, filter, callback, context);
     }
 
-#endregion
+    #endregion
 
-#region OverlapShape
+    #region OverlapShape
 
     /// <summary>
     /// Overlap test for all shapes that overlap the provided shape proxy
@@ -477,7 +476,7 @@ public partial class World
             GCHandle.FromIntPtr(contextBuffer[1]).Free();
         }
     }
-    
+
     /// <summary>
     /// Overlap test for all shapes that overlap the provided shape proxy
     /// </summary>
@@ -534,5 +533,5 @@ public partial class World
         }
     }
 
-#endregion
+    #endregion
 }

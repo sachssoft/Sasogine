@@ -1,9 +1,4 @@
 ﻿using Sachssoft.Sasogine.Tiling;
-using System.Buffers;
-using System.Collections.Generic;
-
-using System;
-using System.Diagnostics.CodeAnalysis;
 using Sachssoft.Sasogine.Tiling.Stacked;
 
 /// <summary>

@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D
 {
     partial struct Body
@@ -222,215 +220,215 @@ namespace Box2D
             b2CreateChain = (delegate* unmanaged[Cdecl]<Body, in ChainDefInternal, ChainShapeId>)p69;
         }
 #else
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DestroyBody")]
-    private static extern void b2DestroyBody(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DestroyBody")]
+        private static extern void b2DestroyBody(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_IsValid")]
-    private static extern byte b2Body_IsValid(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_IsValid")]
+        private static extern byte b2Body_IsValid(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetType")]
-    private static extern BodyType b2Body_GetType(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetType")]
+        private static extern BodyType b2Body_GetType(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetType")]
-    private static extern void b2Body_SetType(Body bodyId, BodyType type);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetType")]
+        private static extern void b2Body_SetType(Body bodyId, BodyType type);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetName")]
-    private static extern void b2Body_SetName(Body bodyId, string? name);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetName")]
+        private static extern void b2Body_SetName(Body bodyId, string? name);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetName")]
-    private static extern nint b2Body_GetName(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetName")]
+        private static extern nint b2Body_GetName(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetUserData")]
-    private static extern void b2Body_SetUserData(Body bodyId, nint userData);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetUserData")]
+        private static extern void b2Body_SetUserData(Body bodyId, nint userData);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetUserData")]
-    private static extern nint b2Body_GetUserData(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetUserData")]
+        private static extern nint b2Body_GetUserData(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetPosition")]
-    private static extern Vec2 b2Body_GetPosition(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetPosition")]
+        private static extern Vec2 b2Body_GetPosition(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetRotation")]
-    private static extern Rotation b2Body_GetRotation(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetRotation")]
+        private static extern Rotation b2Body_GetRotation(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetTransform")]
-    private static extern Transform b2Body_GetTransform(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetTransform")]
+        private static extern Transform b2Body_GetTransform(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetTransform")]
-    private static extern void b2Body_SetTransform(Body bodyId, Vec2 position, Rotation rotation);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetTransform")]
+        private static extern void b2Body_SetTransform(Body bodyId, Vec2 position, Rotation rotation);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetLocalPoint")]
-    private static extern Vec2 b2Body_GetLocalPoint(Body bodyId, Vec2 worldPoint);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetLocalPoint")]
+        private static extern Vec2 b2Body_GetLocalPoint(Body bodyId, Vec2 worldPoint);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetWorldPoint")]
-    private static extern Vec2 b2Body_GetWorldPoint(Body bodyId, Vec2 localPoint);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetWorldPoint")]
+        private static extern Vec2 b2Body_GetWorldPoint(Body bodyId, Vec2 localPoint);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetLocalVector")]
-    private static extern Vec2 b2Body_GetLocalVector(Body bodyId, Vec2 worldVector);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetLocalVector")]
+        private static extern Vec2 b2Body_GetLocalVector(Body bodyId, Vec2 worldVector);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetWorldVector")]
-    private static extern Vec2 b2Body_GetWorldVector(Body bodyId, Vec2 localVector);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetWorldVector")]
+        private static extern Vec2 b2Body_GetWorldVector(Body bodyId, Vec2 localVector);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetLinearVelocity")]
-    private static extern void b2Body_SetLinearVelocity(Body bodyId, Vec2 linearVelocity);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetLinearVelocity")]
+        private static extern void b2Body_SetLinearVelocity(Body bodyId, Vec2 linearVelocity);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetLinearVelocity")]
-    private static extern Vec2 b2Body_GetLinearVelocity(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetLinearVelocity")]
+        private static extern Vec2 b2Body_GetLinearVelocity(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetAngularVelocity")]
-    private static extern float b2Body_GetAngularVelocity(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetAngularVelocity")]
+        private static extern float b2Body_GetAngularVelocity(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetAngularVelocity")]
-    private static extern void b2Body_SetAngularVelocity(Body bodyId, float angularVelocity);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetAngularVelocity")]
+        private static extern void b2Body_SetAngularVelocity(Body bodyId, float angularVelocity);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetTargetTransform")]
-    private static extern void b2Body_SetTargetTransform(Body bodyId, Transform target, float timeStep);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetTargetTransform")]
+        private static extern void b2Body_SetTargetTransform(Body bodyId, Transform target, float timeStep);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetLocalPointVelocity")]
-    private static extern Vec2 b2Body_GetLocalPointVelocity(Body bodyId, Vec2 localPoint);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetLocalPointVelocity")]
+        private static extern Vec2 b2Body_GetLocalPointVelocity(Body bodyId, Vec2 localPoint);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetWorldPointVelocity")]
-    private static extern Vec2 b2Body_GetWorldPointVelocity(Body bodyId, Vec2 worldPoint);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetWorldPointVelocity")]
+        private static extern Vec2 b2Body_GetWorldPointVelocity(Body bodyId, Vec2 worldPoint);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_ApplyForce")]
-    private static extern void b2Body_ApplyForce(Body bodyId, Vec2 force, Vec2 point, byte wake);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_ApplyForce")]
+        private static extern void b2Body_ApplyForce(Body bodyId, Vec2 force, Vec2 point, byte wake);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_ApplyForceToCenter")]
-    private static extern void b2Body_ApplyForceToCenter(Body bodyId, Vec2 force, byte wake);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_ApplyForceToCenter")]
+        private static extern void b2Body_ApplyForceToCenter(Body bodyId, Vec2 force, byte wake);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_ApplyTorque")]
-    private static extern void b2Body_ApplyTorque(Body bodyId, float torque, byte wake);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_ApplyTorque")]
+        private static extern void b2Body_ApplyTorque(Body bodyId, float torque, byte wake);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_ApplyLinearImpulse")]
-    private static extern void b2Body_ApplyLinearImpulse(Body bodyId, Vec2 impulse, Vec2 point, byte wake);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_ApplyLinearImpulse")]
+        private static extern void b2Body_ApplyLinearImpulse(Body bodyId, Vec2 impulse, Vec2 point, byte wake);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_ApplyLinearImpulseToCenter")]
-    private static extern void b2Body_ApplyLinearImpulseToCenter(Body bodyId, Vec2 impulse, byte wake);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_ApplyLinearImpulseToCenter")]
+        private static extern void b2Body_ApplyLinearImpulseToCenter(Body bodyId, Vec2 impulse, byte wake);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_ApplyAngularImpulse")]
-    private static extern void b2Body_ApplyAngularImpulse(Body bodyId, float impulse, byte wake);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_ApplyAngularImpulse")]
+        private static extern void b2Body_ApplyAngularImpulse(Body bodyId, float impulse, byte wake);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetMass")]
-    private static extern float b2Body_GetMass(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetMass")]
+        private static extern float b2Body_GetMass(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetRotationalInertia")]
-    private static extern float b2Body_GetRotationalInertia(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetRotationalInertia")]
+        private static extern float b2Body_GetRotationalInertia(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetLocalCenterOfMass")]
-    private static extern Vec2 b2Body_GetLocalCenterOfMass(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetLocalCenterOfMass")]
+        private static extern Vec2 b2Body_GetLocalCenterOfMass(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetWorldCenterOfMass")]
-    private static extern Vec2 b2Body_GetWorldCenterOfMass(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetWorldCenterOfMass")]
+        private static extern Vec2 b2Body_GetWorldCenterOfMass(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetMassData")]
-    private static extern void b2Body_SetMassData(Body bodyId, MassData massData);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetMassData")]
+        private static extern void b2Body_SetMassData(Body bodyId, MassData massData);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetMassData")]
-    private static extern MassData b2Body_GetMassData(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetMassData")]
+        private static extern MassData b2Body_GetMassData(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_ApplyMassFromShapes")]
-    private static extern void b2Body_ApplyMassFromShapes(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_ApplyMassFromShapes")]
+        private static extern void b2Body_ApplyMassFromShapes(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetLinearDamping")]
-    private static extern void b2Body_SetLinearDamping(Body bodyId, float linearDamping);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetLinearDamping")]
+        private static extern void b2Body_SetLinearDamping(Body bodyId, float linearDamping);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetLinearDamping")]
-    private static extern float b2Body_GetLinearDamping(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetLinearDamping")]
+        private static extern float b2Body_GetLinearDamping(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetAngularDamping")]
-    private static extern void b2Body_SetAngularDamping(Body bodyId, float angularDamping);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetAngularDamping")]
+        private static extern void b2Body_SetAngularDamping(Body bodyId, float angularDamping);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetAngularDamping")]
-    private static extern float b2Body_GetAngularDamping(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetAngularDamping")]
+        private static extern float b2Body_GetAngularDamping(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetGravityScale")]
-    private static extern void b2Body_SetGravityScale(Body bodyId, float gravityScale);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetGravityScale")]
+        private static extern void b2Body_SetGravityScale(Body bodyId, float gravityScale);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetGravityScale")]
-    private static extern float b2Body_GetGravityScale(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetGravityScale")]
+        private static extern float b2Body_GetGravityScale(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_IsAwake")]
-    private static extern byte b2Body_IsAwake(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_IsAwake")]
+        private static extern byte b2Body_IsAwake(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetAwake")]
-    private static extern void b2Body_SetAwake(Body bodyId, byte awake);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetAwake")]
+        private static extern void b2Body_SetAwake(Body bodyId, byte awake);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_EnableSleep")]
-    private static extern void b2Body_EnableSleep(Body bodyId, byte enableSleep);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_EnableSleep")]
+        private static extern void b2Body_EnableSleep(Body bodyId, byte enableSleep);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_IsSleepEnabled")]
-    private static extern byte b2Body_IsSleepEnabled(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_IsSleepEnabled")]
+        private static extern byte b2Body_IsSleepEnabled(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetSleepThreshold")]
-    private static extern void b2Body_SetSleepThreshold(Body bodyId, float sleepThreshold);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetSleepThreshold")]
+        private static extern void b2Body_SetSleepThreshold(Body bodyId, float sleepThreshold);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetSleepThreshold")]
-    private static extern float b2Body_GetSleepThreshold(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetSleepThreshold")]
+        private static extern float b2Body_GetSleepThreshold(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_IsEnabled")]
-    private static extern byte b2Body_IsEnabled(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_IsEnabled")]
+        private static extern byte b2Body_IsEnabled(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_Disable")]
-    private static extern void b2Body_Disable(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_Disable")]
+        private static extern void b2Body_Disable(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_Enable")]
-    private static extern void b2Body_Enable(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_Enable")]
+        private static extern void b2Body_Enable(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetFixedRotation")]
-    private static extern void b2Body_SetFixedRotation(Body bodyId, byte flag);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetFixedRotation")]
+        private static extern void b2Body_SetFixedRotation(Body bodyId, byte flag);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_IsFixedRotation")]
-    private static extern byte b2Body_IsFixedRotation(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_IsFixedRotation")]
+        private static extern byte b2Body_IsFixedRotation(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetBullet")]
-    private static extern void b2Body_SetBullet(Body bodyId, byte flag);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_SetBullet")]
+        private static extern void b2Body_SetBullet(Body bodyId, byte flag);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_IsBullet")]
-    private static extern byte b2Body_IsBullet(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_IsBullet")]
+        private static extern byte b2Body_IsBullet(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_EnableContactEvents")]
-    private static extern void b2Body_EnableContactEvents(Body bodyId, byte flag);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_EnableContactEvents")]
+        private static extern void b2Body_EnableContactEvents(Body bodyId, byte flag);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_EnableHitEvents")]
-    private static extern void b2Body_EnableHitEvents(Body bodyId, byte flag);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_EnableHitEvents")]
+        private static extern void b2Body_EnableHitEvents(Body bodyId, byte flag);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetWorld")]
-    private static extern WorldId b2Body_GetWorld(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetWorld")]
+        private static extern WorldId b2Body_GetWorld(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetShapeCount")]
-    private static extern int b2Body_GetShapeCount(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetShapeCount")]
+        private static extern int b2Body_GetShapeCount(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetShapes")]
-    private static extern unsafe int b2Body_GetShapes(Body bodyId, Shape* shapeArray, int capacity);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetShapes")]
+        private static extern unsafe int b2Body_GetShapes(Body bodyId, Shape* shapeArray, int capacity);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetJointCount")]
-    private static extern int b2Body_GetJointCount(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetJointCount")]
+        private static extern int b2Body_GetJointCount(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetJoints")]
-    private static extern unsafe int b2Body_GetJoints(Body bodyId, JointId* jointArray, int capacity);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetJoints")]
+        private static extern unsafe int b2Body_GetJoints(Body bodyId, JointId* jointArray, int capacity);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetContactCapacity")]
-    private static extern int b2Body_GetContactCapacity(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetContactCapacity")]
+        private static extern int b2Body_GetContactCapacity(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetContactData")]
-    private static extern unsafe int b2Body_GetContactData(Body bodyId, ContactData* contactData, int capacity);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_GetContactData")]
+        private static extern unsafe int b2Body_GetContactData(Body bodyId, ContactData* contactData, int capacity);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_ComputeAABB")]
-    private static extern AABB b2Body_ComputeAABB(Body bodyId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Body_ComputeAABB")]
+        private static extern AABB b2Body_ComputeAABB(Body bodyId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2CreateCircleShape")]
-    private static extern Shape b2CreateCircleShape(Body bodyId, in ShapeDefInternal def, in Circle circle);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2CreateCircleShape")]
+        private static extern Shape b2CreateCircleShape(Body bodyId, in ShapeDefInternal def, in Circle circle);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2CreateSegmentShape")]
-    private static extern Shape b2CreateSegmentShape(Body bodyId, in ShapeDefInternal def, in Segment segment);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2CreateSegmentShape")]
+        private static extern Shape b2CreateSegmentShape(Body bodyId, in ShapeDefInternal def, in Segment segment);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2CreateCapsuleShape")]
-    private static extern Shape b2CreateCapsuleShape(Body bodyId, in ShapeDefInternal def, in Capsule capsule);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2CreateCapsuleShape")]
+        private static extern Shape b2CreateCapsuleShape(Body bodyId, in ShapeDefInternal def, in Capsule capsule);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2CreatePolygonShape")]
-    private static extern Shape b2CreatePolygonShape(Body bodyId, in ShapeDefInternal def, in Polygon polygon);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2CreatePolygonShape")]
+        private static extern Shape b2CreatePolygonShape(Body bodyId, in ShapeDefInternal def, in Polygon polygon);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2CreateChain")]
-    private static extern ChainShapeId b2CreateChain(Body bodyId, in ChainDefInternal def);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2CreateChain")]
+        private static extern ChainShapeId b2CreateChain(Body bodyId, in ChainDefInternal def);
 #endif
     }
 }

@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Concurrent;
-using System.Runtime.InteropServices;
-using System.Threading;
-using JetBrains.Annotations;
-
 namespace Box2D;
 
 /// <summary>
@@ -65,7 +59,8 @@ public static class Parallelism
                 {
                     foreach (var job in jobQueue!.GetConsumingEnumerable())
                         job.Execute();
-                }catch (ThreadInterruptedException)
+                }
+                catch (ThreadInterruptedException)
                 {
                     // Thread was interrupted, exit gracefully
                 }
@@ -74,7 +69,8 @@ public static class Parallelism
                     // Handle exceptions from worker threads
                     Console.WriteLine($"Worker thread exception: {ex}");
                 }
-            }) { IsBackground = true };
+            })
+            { IsBackground = true };
             workers[i].Start();
         }
     }
@@ -152,7 +148,7 @@ public static class Parallelism
         CountdownEventPool.Return(countdown); // Return to pool
         handle.Free();
     }
-    
+
     static class CountdownEventPool
     {
         private static readonly ConcurrentBag<CountdownEvent> pool = new();

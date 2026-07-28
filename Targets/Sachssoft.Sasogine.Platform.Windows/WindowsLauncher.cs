@@ -1,9 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using Sachssoft.Sasogine.Platform;
-
-namespace Sachssoft.Sasogine.Platform.Windows
+﻿namespace Sachssoft.Sasogine.Platform.Windows
 {
     /// <summary>
     /// Windows implementation of ILauncherService.

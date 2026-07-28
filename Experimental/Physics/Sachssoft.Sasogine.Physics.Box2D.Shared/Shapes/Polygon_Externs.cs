@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D
 {
     partial struct Polygon
@@ -54,47 +52,47 @@ namespace Box2D
             ShapeCastPolygon_ = (delegate* unmanaged[Cdecl]<in ShapeCastInput, in Polygon, CastOutput>)p13;
         }
 #else
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MakePolygon")]
-    private static extern Polygon MakePolygon_(in Hull hull, float radius);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MakePolygon")]
+        private static extern Polygon MakePolygon_(in Hull hull, float radius);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MakeOffsetPolygon")]
-    private static extern Polygon MakeOffsetPolygon_(in Hull hull, Vec2 position, Rotation rotation);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MakeOffsetPolygon")]
+        private static extern Polygon MakeOffsetPolygon_(in Hull hull, Vec2 position, Rotation rotation);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MakeOffsetRoundedPolygon")]
-    private static extern Polygon MakeOffsetRoundedPolygon_(in Hull hull, Vec2 position, Rotation rotation, float radius);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MakeOffsetRoundedPolygon")]
+        private static extern Polygon MakeOffsetRoundedPolygon_(in Hull hull, Vec2 position, Rotation rotation, float radius);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MakeSquare")]
-    private static extern Polygon MakeSquare_(float halfWidth);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MakeSquare")]
+        private static extern Polygon MakeSquare_(float halfWidth);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MakeBox")]
-    private static extern Polygon MakeBox_(float halfWidth, float halfHeight);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MakeBox")]
+        private static extern Polygon MakeBox_(float halfWidth, float halfHeight);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MakeRoundedBox")]
-    private static extern Polygon MakeRoundedBox_(float halfWidth, float halfHeight, float radius);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MakeRoundedBox")]
+        private static extern Polygon MakeRoundedBox_(float halfWidth, float halfHeight, float radius);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MakeOffsetBox")]
-    private static extern Polygon MakeOffsetBox_(float halfWidth, float halfHeight, Vec2 center, Rotation rotation);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MakeOffsetBox")]
+        private static extern Polygon MakeOffsetBox_(float halfWidth, float halfHeight, Vec2 center, Rotation rotation);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MakeOffsetRoundedBox")]
-    private static extern Polygon MakeOffsetRoundedBox_(float halfWidth, float halfHeight, Vec2 center, Rotation rotation, float radius);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MakeOffsetRoundedBox")]
+        private static extern Polygon MakeOffsetRoundedBox_(float halfWidth, float halfHeight, Vec2 center, Rotation rotation, float radius);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2TransformPolygon")]
-    private static extern Polygon TransformPolygon_(Transform transform, in Polygon polygon);
-    
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ComputePolygonMass")]
-    private static extern MassData ComputePolygonMass_(in Polygon shape, float density);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2TransformPolygon")]
+        private static extern Polygon TransformPolygon_(Transform transform, in Polygon polygon);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ComputePolygonAABB")]
-    private static extern AABB ComputePolygonAABB_(in Polygon shape, Transform transform);
-    
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2PointInPolygon")]
-    private static extern byte PointInPolygon_(Vec2 point, in Polygon shape);
-    
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RayCastPolygon")]
-    private static extern CastOutput RayCastPolygon_(in RayCastInput input, in Polygon shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ComputePolygonMass")]
+        private static extern MassData ComputePolygonMass_(in Polygon shape, float density);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ShapeCastPolygon")]
-    private static extern CastOutput ShapeCastPolygon_(in ShapeCastInput input, in Polygon shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ComputePolygonAABB")]
+        private static extern AABB ComputePolygonAABB_(in Polygon shape, Transform transform);
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2PointInPolygon")]
+        private static extern byte PointInPolygon_(Vec2 point, in Polygon shape);
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RayCastPolygon")]
+        private static extern CastOutput RayCastPolygon_(in RayCastInput input, in Polygon shape);
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ShapeCastPolygon")]
+        private static extern CastOutput ShapeCastPolygon_(in ShapeCastInput input, in Polygon shape);
 #endif
     }
 }

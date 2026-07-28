@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -25,7 +22,7 @@ public ref struct QueryFilter
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DefaultQueryFilter")]
     private static extern QueryFilter b2DefaultQueryFilter();
 #endif
-    
+
     /// <summary>
     /// The collision category bits of this query. Normally you would just set one bit.
     /// </summary>
@@ -45,7 +42,7 @@ public ref struct QueryFilter
         CategoryBits = categoryBits;
         MaskBits = maskBits;
     }
-    
+
     /// <summary>
     /// Default constructor for the query filter. This will set the filter to the default settings.
     /// </summary>

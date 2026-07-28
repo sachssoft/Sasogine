@@ -1,5 +1,3 @@
-using System;
-
 namespace Box2D.Delegates.Generic;
 
 /// <summary>
@@ -10,7 +8,7 @@ namespace Box2D.Delegates.Generic;
 /// <param name="color">The color</param>
 /// <param name="context">The context</param>
 public delegate void DrawCircleDelegate<in TContext>(Vec2 center, float radius, HexColor color, TContext context) where TContext : class;
-    
+
 /// <summary>
 /// Draw a point.
 /// </summary>
@@ -65,7 +63,7 @@ public delegate void DrawSolidCircleDelegate<in TContext>(Transform transform, f
 /// <param name="color">The color</param>
 /// <param name="context">The context</param>
 public delegate void DrawSolidPolygonDelegate<in TContext>(Transform transform, ReadOnlySpan<Vec2> vertices, float radius, HexColor color, TContext context) where TContext : class;
- 
+
 /// <summary>
 /// Draw a string in world space
 /// </summary>

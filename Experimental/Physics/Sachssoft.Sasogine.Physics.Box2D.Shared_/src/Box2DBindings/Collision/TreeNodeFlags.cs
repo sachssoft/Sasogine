@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System;
-
 namespace Box2D;
 
 /// <summary>

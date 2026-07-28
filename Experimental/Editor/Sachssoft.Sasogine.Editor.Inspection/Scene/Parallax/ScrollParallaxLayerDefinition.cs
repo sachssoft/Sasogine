@@ -1,12 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Assets;
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Components;
-using Sachssoft.Sasogine.Components.Rendering;
-using Sachssoft.Sasogine.Graphics;
-using System;
-
-namespace Sachssoft.Sasogine.Rendering.Parallax
+﻿namespace Sachssoft.Sasogine.Rendering.Parallax
 {
     public class ScrollParallaxLayerDefinition : IScrollParallaxLayerDefinition
     {

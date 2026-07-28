@@ -1,6 +1,4 @@
 using Box2D;
-using System.Linq;
-using Vec2 = System.Numerics.Vector2;
 
 namespace UnitTests;
 

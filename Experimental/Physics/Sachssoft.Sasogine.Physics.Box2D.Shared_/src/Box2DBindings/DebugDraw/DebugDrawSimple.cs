@@ -1,6 +1,4 @@
 using Box2D.Delegates.Safe;
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
 
 namespace Box2D;
 

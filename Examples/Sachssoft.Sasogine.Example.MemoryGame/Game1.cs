@@ -1,8 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-
-namespace Sachssoft.Sasogine.Example.MemoryGame
+﻿namespace Sachssoft.Sasogine.Example.MemoryGame
 {
     public class Game1 : Game
     {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sachssoft.Sasogine.Presentation.Rendering
+﻿namespace Sachssoft.Sasogine.Presentation.Rendering
 {
     [Flags]
     public enum VisualState

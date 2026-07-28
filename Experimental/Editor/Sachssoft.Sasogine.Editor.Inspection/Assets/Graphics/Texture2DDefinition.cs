@@ -1,8 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Documents;
-using Sachssoft.Sasofly.Inspection;
-using Sachssoft.Sasogine.Assets.Graphics;
+﻿using Sachssoft.Sasogine.Assets.Graphics;
 using Sachssoft.Sasogine.Graphics;
 
 namespace Sachssoft.Sasogine.Inspection.Assets.Graphics

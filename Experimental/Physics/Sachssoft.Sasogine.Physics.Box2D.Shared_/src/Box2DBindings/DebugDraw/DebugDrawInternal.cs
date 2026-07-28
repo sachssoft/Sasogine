@@ -1,5 +1,4 @@
 using Box2D.Delegates.Unsafe;
-using System.Runtime.InteropServices;
 
 namespace Box2D;
 
@@ -23,7 +22,7 @@ struct DebugDrawInternal
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DefaultDebugDraw")]
     public static extern DebugDrawInternal b2DefaultDebugDraw();
 #endif
-    
+
     /// <summary>
     /// Callback function to draw a closed polygon provided in CCW order.
     /// </summary>
@@ -35,25 +34,25 @@ struct DebugDrawInternal
     /// </summary>
     [FieldOffset(8)]
     internal DrawSolidPolygonDelegate DrawSolidPolygon;
-    
+
     /// <summary>
     /// Callback function to draw a circle.
     /// </summary>
     [FieldOffset(16)]
     internal DrawCircleDelegate DrawCircle;
-    
+
     /// <summary>
     /// Callback function to draw a solid circle.
     /// </summary>
     [FieldOffset(24)]
     internal DrawSolidCircleDelegate DrawSolidCircle;
-    
+
     /// <summary>
     /// Callback function to draw a solid capsule.
     /// </summary>
     [FieldOffset(32)]
     internal DrawSolidCapsuleDelegate DrawSolidCapsule;
-    
+
     /// <summary>
     /// Callback function to draw a line segment.
     /// </summary>
@@ -149,7 +148,7 @@ struct DebugDrawInternal
     /// </summary>
     [FieldOffset(98)]
     internal byte DrawContactImpulses;
-    
+
     /// <summary>
     /// Option to draw contact friction impulses
     /// </summary>
@@ -161,13 +160,13 @@ struct DebugDrawInternal
     /// </summary>
     [FieldOffset(100)]
     internal byte DrawContactFeatures;
-    
+
     /// <summary>
     /// Option to draw contact friction impulses
     /// </summary>
     [FieldOffset(101)]
     internal byte DrawIslands;
-    
+
     /// <summary>
     /// User context that is passed as an argument to drawing callback functions
     /// </summary>

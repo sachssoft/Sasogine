@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System;
-
 namespace Box2D;
 
 /// <summary>
@@ -16,7 +13,7 @@ public sealed class PrismaticJointDef
 {
     //! \internal
     internal PrismaticJointDefInternal _internal = new();
-    
+
     /// <summary>
     /// The first attached body
     /// </summary>
@@ -52,7 +49,7 @@ public sealed class PrismaticJointDef
     /// to this translation.
     /// </summary>
     public ref float TargetTranslation => ref _internal.TargetTranslation;
-    
+
     /// <summary>
     /// Enable a linear spring along the prismatic joint axis
     /// </summary>
@@ -127,7 +124,7 @@ public sealed class PrismaticJointDef
         get => GetObjectAtPointer(_internal.UserData);
         set => SetObjectAtPointer(ref _internal.UserData, value);
     }
-    
+
     /// <summary>
     /// Construct a prismatic joint definition with the supplied values
     /// </summary>
@@ -186,7 +183,7 @@ public sealed class PrismaticJointDef
         CollideConnected = collideConnected;
         UserData = userData;
     }
-    
+
     /// <summary>
     /// Construct a prismatic joint definition with the supplied values
     /// </summary>
@@ -247,7 +244,7 @@ public sealed class PrismaticJointDef
         CollideConnected = collideConnected;
         UserData = userData;
     }
-    
+
     /// <summary>
     /// Construct a prismatic joint definition with the default values
     /// </summary>
