@@ -1,29 +1,29 @@
-name: 📝 Task
-description: Submit a task or assignment for the project
-title: "TASK: "
-labels:
-  - task
-assignees: []
+name: 📌 Task
+description: Create a task, refactor, improvement, or change
+title: ""
+labels: []
+assignees:
+  - Sachssoft
 
 body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: "🏷️ Type"
+      options:
+        - Feature
+        - Bug
+        - Question
+        - Refactor
+        - Improvement
+        - Change
+    validations:
+      required: true
+
   - type: textarea
     id: description
     attributes:
-      label: "📖 Description"
-      placeholder: "Describe the task or issue"
-
-  - type: checkboxes
-    id: todo
-    attributes:
-      label: "📌 To-Do"
-      options:
-        - label: "Test"
-        - label: "Refactor / Improvement needed"
-        - label: "Analysis"
-        - label: "Design / Layout"
-        - label: "Documentation"
-        - label: "Add Feature"
-        - label: "Bug Fix"
-        - label: "Optimization / Performance"
-        - label: "Review"
-        - label: "Other"
+      label: "📝 Description"
+      placeholder: "Describe the task."
+    validations:
+      required: true
