@@ -1,5 +1,4 @@
 ﻿using Sachssoft.Sasogine.Graphics.Rendering;
-using System;
 
 namespace Sachssoft.Sasogine.Tiling.Composite;
 

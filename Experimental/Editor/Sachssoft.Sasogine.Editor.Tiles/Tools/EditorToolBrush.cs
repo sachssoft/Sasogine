@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework.Input;
 using Sachssoft.Sasogine.Tiling;
 
 namespace Sachssoft.Sasogine.Editor.Tiles.Tools;

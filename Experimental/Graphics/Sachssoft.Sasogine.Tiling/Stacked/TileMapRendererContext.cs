@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Graphics.Primitives;
-using Sachssoft.Sasogine.Graphics.Rendering;
+﻿using Sachssoft.Sasogine.Graphics.Rendering;
 
 namespace Sachssoft.Sasogine.Tiling.Stacked;
 

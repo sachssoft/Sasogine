@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-
-namespace Sachssoft.Sasogine.Presentation.Layouts
+﻿namespace Sachssoft.Sasogine.Presentation.Layouts
 {
     /// <summary>
     /// Einfache Transformation: Translation + Scale, immutable, Matrix gecached.

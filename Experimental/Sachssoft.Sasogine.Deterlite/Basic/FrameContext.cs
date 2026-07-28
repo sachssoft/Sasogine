@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Presentation.Input;
+﻿using Sachssoft.Sasogine.Presentation.Input;
 using Sachssoft.Sasogine.Presentation.Layouts;
 using Sachssoft.Sasogine.Presentation.Rendering;
 

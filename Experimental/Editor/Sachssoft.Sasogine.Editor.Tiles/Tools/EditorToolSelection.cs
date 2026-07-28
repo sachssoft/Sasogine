@@ -1,11 +1,6 @@
-using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Graphics.Primitives;
-using Sachssoft.Sasogine.Editor.Tiling;
-using Sachssoft.Sasogine.Tiling;
-using Sachssoft.Sasogine;
-using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Graphics.Rendering;
 using Sachssoft.Sasogine.Editor.Tiles.Tools;
+using Sachssoft.Sasogine.Graphics.Rendering;
+using Sachssoft.Sasogine.Tiling;
 
 public class EditorToolSelection : EditorToolCursor
 {

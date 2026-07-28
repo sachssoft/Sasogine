@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -38,12 +35,12 @@ public struct RayCastInput
     /// The maximum fraction of the translation to consider, typically 1
     /// </summary>
     public float MaxFraction;
-    
+
     /// <summary>
     /// Validate this ray cast input data (NaN, etc)
     /// </summary>
     public unsafe bool Valid => b2IsValidRay(this) != 0;
-    
+
     /// <summary>
     /// Constructs a new RayCastInput object with the given parameters.
     /// </summary>
@@ -56,7 +53,7 @@ public struct RayCastInput
         Translation = translation;
         MaxFraction = maxFraction;
     }
-    
+
     /// <summary>
     /// Constructs a new RayCastInput object with default values.
     /// </summary>

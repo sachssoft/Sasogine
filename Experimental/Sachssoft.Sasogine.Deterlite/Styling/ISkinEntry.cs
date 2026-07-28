@@ -1,7 +1,4 @@
 ﻿using Sachssoft.Sasogine.Resources;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Sachssoft.Sasogine.Presentation.Styling
 {

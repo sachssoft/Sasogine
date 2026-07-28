@@ -1,9 +1,4 @@
-﻿using Microsoft.Xna.Framework.Input;
-using Sachssoft.Sasogine.Inputs;
-using System;
-using System.Collections.Generic;
-
-namespace Sachssoft.Sasogine.Platform.Windows
+﻿namespace Sachssoft.Sasogine.Platform.Windows
 {
     /// <summary>
     /// Windows implementation of IVibrationService using MonoGame XInput.

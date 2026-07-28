@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System;
-
 namespace Box2D;
 
 /// <summary>
@@ -17,7 +14,7 @@ public sealed class RevoluteJointDef
 {
     //! \internal
     internal RevoluteJointDefInternal _internal = new();
-    
+
     /// <summary>
     /// The first attached body
     /// </summary>
@@ -43,7 +40,7 @@ public sealed class RevoluteJointDef
     /// This defines the zero angle for the joint limit.
     /// </summary>
     public ref float ReferenceAngle => ref _internal.ReferenceAngle;
-    
+
     /// <summary>
     /// The target angle for the joint in radians. The spring-damper will drive
     /// to this angle.
@@ -58,7 +55,7 @@ public sealed class RevoluteJointDef
         get => _internal.EnableSpring != 0;
         set => _internal.EnableSpring = value ? (byte)1 : (byte)0;
     }
-    
+
     /// <summary>
     /// The spring stiffness Hertz, cycles per second
     /// </summary>
@@ -120,7 +117,7 @@ public sealed class RevoluteJointDef
         get => _internal.CollideConnected != 0;
         set => _internal.CollideConnected = value ? (byte)1 : (byte)0;
     }
-    
+
     /// <summary>
     /// User data
     /// </summary>
@@ -129,7 +126,7 @@ public sealed class RevoluteJointDef
         get => GetObjectAtPointer(_internal.UserData);
         set => SetObjectAtPointer(ref _internal.UserData, value);
     }
-    
+
     /// <summary>
     /// Construct a revolute joint definition with the supplied values
     /// </summary>
@@ -183,10 +180,10 @@ public sealed class RevoluteJointDef
         MaxMotorTorque = maxMotorTorque;
         MotorSpeed = motorSpeed;
         CollideConnected = collideConnected;
-        
+
         UserData = userData;
     }
-    
+
     /// <summary>
     /// Construct a revolute joint definition with the supplied values
     /// </summary>
@@ -242,10 +239,10 @@ public sealed class RevoluteJointDef
         MaxMotorTorque = maxMotorTorque;
         MotorSpeed = motorSpeed;
         CollideConnected = collideConnected;
-        
+
         UserData = userData;
     }
-    
+
     /// <summary>
     /// Construct a revolute joint definition with the default values
     /// </summary>

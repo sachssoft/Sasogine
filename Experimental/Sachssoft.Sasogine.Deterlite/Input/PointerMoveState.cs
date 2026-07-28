@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sachssoft.Sasogine.Presentation.Input
+﻿namespace Sachssoft.Sasogine.Presentation.Input
 {
     [Flags]
     public enum PointerMoveState

@@ -1,5 +1,3 @@
-using JetBrains.Annotations;
-
 namespace Box2D;
 
 /// <summary>
@@ -13,7 +11,7 @@ public sealed class MouseJointDef
 {
     //! \internal
     internal MouseJointDefInternal _internal = new();
-    
+
     /// <summary>
     /// The first attached body. This is assumed to be static.
     /// </summary>
@@ -61,7 +59,7 @@ public sealed class MouseJointDef
         get => GetObjectAtPointer(_internal.UserData);
         set => SetObjectAtPointer(ref _internal.UserData, value);
     }
-    
+
     /// <summary>
     /// Construct a mouse joint definition with the supplied values
     /// </summary>
@@ -92,7 +90,7 @@ public sealed class MouseJointDef
         CollideConnected = collideConnected;
         UserData = userData;
     }
-    
+
     /// <summary>
     /// Construct a mouse joint definition with the default values
     /// </summary>

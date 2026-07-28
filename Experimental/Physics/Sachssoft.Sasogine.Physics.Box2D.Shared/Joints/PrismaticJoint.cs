@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -43,8 +40,8 @@ public sealed partial class PrismaticJoint : Joint
         get => b2PrismaticJoint_GetSpringDampingRatio(id);
         set => b2PrismaticJoint_SetSpringDampingRatio(id, value);
     }
-    
-    
+
+
     /// <summary>
     /// The prismatic joint spring target translation
     /// </summary>
@@ -69,12 +66,12 @@ public sealed partial class PrismaticJoint : Joint
     /// <param name="lower">The lower prismatic joint limit</param>
     /// <param name="upper">The upper prismatic joint limit</param>
     public unsafe void SetLimits(float lower, float upper) => b2PrismaticJoint_SetLimits(id, lower, upper);
-    
+
     /// <summary>
     /// The lower joint limit of this prismatic joint
     /// </summary>
     public unsafe float LowerLimit => b2PrismaticJoint_GetLowerLimit(id);
-    
+
     /// <summary>
     /// The upper joint limit of this prismatic joint
     /// </summary>
@@ -106,7 +103,7 @@ public sealed partial class PrismaticJoint : Joint
         get => b2PrismaticJoint_GetMaxMotorForce(id);
         set => b2PrismaticJoint_SetMaxMotorForce(id, value);
     }
-    
+
     /// <summary>
     /// The prismatic joint current motor force
     /// </summary>
@@ -115,7 +112,7 @@ public sealed partial class PrismaticJoint : Joint
     /// <summary>
     /// The current joint translation
     /// </summary>
-    public unsafe float Translation =>  b2PrismaticJoint_GetTranslation(id);
+    public unsafe float Translation => b2PrismaticJoint_GetTranslation(id);
 
     /// <summary>
     /// The current joint translation speed

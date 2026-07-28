@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Tiling;
+﻿using Sachssoft.Sasogine.Tiling;
 
 namespace Sachssoft.Sasogine.Editor.Tiles.Tools;
 

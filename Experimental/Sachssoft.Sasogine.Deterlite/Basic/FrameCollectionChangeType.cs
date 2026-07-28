@@ -1,5 +1,6 @@
 ﻿namespace Sachssoft.Sasogine.Presentation
-{    public enum FrameCollectionChangeType
+{
+    public enum FrameCollectionChangeType
     {
         None = 0,
         Added = 1,

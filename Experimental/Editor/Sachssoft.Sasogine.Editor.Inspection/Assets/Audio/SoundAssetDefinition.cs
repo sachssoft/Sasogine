@@ -1,7 +1,4 @@
-﻿using Sachssoft.Sasofly.Inspection;
-using Sachssoft.Sasogine.Assets.Audio;
-
-namespace Sachssoft.Sasogine.Inspection.Assets.Audio
+﻿namespace Sachssoft.Sasogine.Inspection.Assets.Audio
 {
     public class SoundAssetDefinition : AssetDefinition, ISoundAssetDefinition, ITypeRegistry
     {

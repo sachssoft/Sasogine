@@ -16,15 +16,15 @@ public class BodySetUserDataTests
 
         WorldDef worldDef = WorldDef.Default;
         World world = World.CreateWorld(worldDef);
-        
+
         BodyDef bodyDef = new BodyDef
         {
             Type = BodyType.Dynamic,
             Position = new System.Numerics.Vector2(0f, 0f)
         };
-        
+
         Body body = world.CreateBody(bodyDef);
-        
+
         // Set a value type as user data
         body.UserData = 42;
 
@@ -33,7 +33,7 @@ public class BodySetUserDataTests
 
         if (error is not null) Assert.Fail(error);
     }
-    
+
     [Fact]
     public void ShouldBeAbleToSetNintUserData()
     {
@@ -46,17 +46,17 @@ public class BodySetUserDataTests
 
         WorldDef worldDef = WorldDef.Default;
         World world = World.CreateWorld(worldDef);
-        
+
         BodyDef bodyDef = new BodyDef
-            {
-                Type = BodyType.Dynamic,
-                Position = new System.Numerics.Vector2(0f, 0f)
-            };
-        
+        {
+            Type = BodyType.Dynamic,
+            Position = new System.Numerics.Vector2(0f, 0f)
+        };
+
         Body body = world.CreateBody(bodyDef);
-        
+
         nint data = 123456789;
-        
+
         // Set a value type as user data
         body.UserData = data;
 
@@ -65,5 +65,5 @@ public class BodySetUserDataTests
 
         if (error is not null) Assert.Fail(error);
     }
-    
+
 }

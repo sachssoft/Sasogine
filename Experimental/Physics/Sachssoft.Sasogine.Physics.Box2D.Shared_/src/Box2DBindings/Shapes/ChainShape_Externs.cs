@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D
 {
     partial class ChainShape
@@ -45,38 +43,38 @@ namespace Box2D
         b2Chain_IsValid =         (delegate* unmanaged[Cdecl]<ChainShapeId, byte>)p10;
     }
 #else
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DestroyChain")]
-    private static extern void b2DestroyChain(ChainShapeId chainId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DestroyChain")]
+        private static extern void b2DestroyChain(ChainShapeId chainId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_GetWorld")]
-    private static extern WorldId b2Chain_GetWorld(ChainShapeId chainId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_GetWorld")]
+        private static extern WorldId b2Chain_GetWorld(ChainShapeId chainId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_GetSegmentCount")]
-    private static extern int b2Chain_GetSegmentCount(ChainShapeId chainId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_GetSegmentCount")]
+        private static extern int b2Chain_GetSegmentCount(ChainShapeId chainId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_GetSegments")]
-    private static extern unsafe int b2Chain_GetSegments(ChainShapeId chainId, [In] Shape* segmentArray, int capacity);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_GetSegments")]
+        private static extern unsafe int b2Chain_GetSegments(ChainShapeId chainId, [In] Shape* segmentArray, int capacity);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_SetFriction")]
-    private static extern void b2Chain_SetFriction(ChainShapeId chainId, float friction);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_SetFriction")]
+        private static extern void b2Chain_SetFriction(ChainShapeId chainId, float friction);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_GetFriction")]
-    private static extern float b2Chain_GetFriction(ChainShapeId chainId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_GetFriction")]
+        private static extern float b2Chain_GetFriction(ChainShapeId chainId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_SetRestitution")]
-    private static extern void b2Chain_SetRestitution(ChainShapeId chainId, float restitution);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_SetRestitution")]
+        private static extern void b2Chain_SetRestitution(ChainShapeId chainId, float restitution);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_GetRestitution")]
-    private static extern float b2Chain_GetRestitution(ChainShapeId chainId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_GetRestitution")]
+        private static extern float b2Chain_GetRestitution(ChainShapeId chainId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_SetMaterial")]
-    private static extern void b2Chain_SetMaterial(ChainShapeId chainId, int material);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_SetMaterial")]
+        private static extern void b2Chain_SetMaterial(ChainShapeId chainId, int material);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_GetMaterial")]
-    private static extern int b2Chain_GetMaterial(ChainShapeId chainId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_GetMaterial")]
+        private static extern int b2Chain_GetMaterial(ChainShapeId chainId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_IsValid")]
-    private static extern byte b2Chain_IsValid(ChainShapeId chainId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Chain_IsValid")]
+        private static extern byte b2Chain_IsValid(ChainShapeId chainId);
 #endif
     }
 }

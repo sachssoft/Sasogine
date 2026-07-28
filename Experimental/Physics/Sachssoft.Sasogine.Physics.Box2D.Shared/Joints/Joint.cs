@@ -1,7 +1,3 @@
-using JetBrains.Annotations;
-using System;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -43,7 +39,7 @@ public partial class Joint
 
         }
     }
-    
+
     /// <summary>
     /// Destroys this joint
     /// </summary>
@@ -209,7 +205,7 @@ public partial class Joint
     /// <exception cref="InvalidOperationException">If the joint is not valid</exception>
     public unsafe (float hertz, float dampingRatio) ConstraintTuning
     {
-        get 
+        get
         {
             if (!Valid)
                 throw new InvalidOperationException("Joint is not valid");
@@ -223,5 +219,5 @@ public partial class Joint
             b2Joint_SetConstraintTuning(id, value.hertz, value.dampingRatio);
         }
     }
-    
+
 }

@@ -1,6 +1,4 @@
-﻿using Sachssoft.Sasogine.Common.Performance;
-using Sachssoft.Sasogine.Presentation.Rendering;
-using Sachssoft.Sasogine.Resources;
+﻿using Sachssoft.Sasogine.Presentation.Rendering;
 
 namespace Sachssoft.Sasogine.Presentation.Styling.Factories;
 

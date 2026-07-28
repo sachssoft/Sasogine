@@ -1,7 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using System;
-
-namespace Sachssoft.Sasogine.Tiling;
+﻿namespace Sachssoft.Sasogine.Tiling;
 
 /// <summary>
 /// Definiert einen rechteckigen Koordinatenbereich (Scope) mit unterem und oberem Eckpunkt.

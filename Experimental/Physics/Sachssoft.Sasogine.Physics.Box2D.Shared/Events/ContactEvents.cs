@@ -1,7 +1,3 @@
-using JetBrains.Annotations;
-using System;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -14,21 +10,21 @@ namespace Box2D;
 public readonly unsafe struct ContactEvents
 {
     internal readonly ContactBeginTouchEvent* beginEvents;
-	
+
     /// <summary>
     /// Array of begin touch events
     /// </summary>
     public ReadOnlySpan<ContactBeginTouchEvent> BeginEvents => new(beginEvents, beginCount);
 
     internal readonly ContactEndTouchEvent* endEvents;
-	
+
     /// <summary>
     /// Array of end touch events
     /// </summary>
     public ReadOnlySpan<ContactEndTouchEvent> EndEvents => new(endEvents, endCount);
 
     internal readonly ContactHitEvent* hitEvents;
-	
+
     /// <summary>
     /// Array of hit events
     /// </summary>

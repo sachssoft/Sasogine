@@ -1,5 +1,3 @@
-using JetBrains.Annotations;
-
 namespace Box2D;
 
 /// <summary>
@@ -14,7 +12,7 @@ public sealed class WeldJointDef
 {
     //! \internal
     internal WeldJointDefInternal _internal = new();
-    
+
     /// <summary>
     /// The first attached body
     /// </summary>
@@ -77,7 +75,7 @@ public sealed class WeldJointDef
         get => GetObjectAtPointer(_internal.UserData);
         set => SetObjectAtPointer(ref _internal.UserData, value);
     }
-    
+
     /// <summary>
     /// Construct a weld joint definition with the supplied values
     /// </summary>
@@ -117,7 +115,7 @@ public sealed class WeldJointDef
         CollideConnected = collideConnected;
         UserData = userData;
     }
-    
+
     /// <summary>
     /// Construct a weld joint definition with the default values
     /// </summary>

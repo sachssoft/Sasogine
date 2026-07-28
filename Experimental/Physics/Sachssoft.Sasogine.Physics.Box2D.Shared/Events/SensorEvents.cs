@@ -1,7 +1,3 @@
-using JetBrains.Annotations;
-using System;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -18,9 +14,9 @@ public readonly unsafe ref struct SensorEvents
     internal readonly SensorEndTouchEvent* endEvents;
 
     internal readonly int beginCount;
-	
+
     internal readonly int endCount;
-	
+
     /// <summary>
     /// Array of sensor begin touch events
     /// </summary>

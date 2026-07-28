@@ -1,11 +1,8 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Presentation.Input;
 using Sachssoft.Sasogine.Presentation.Layouts;
 using Sachssoft.Sasogine.Presentation.Rendering;
 using Sachssoft.Sasogine.Presentation.Styling;
-using System;
 
 namespace Sachssoft.Sasogine.Presentation
 {

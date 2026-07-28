@@ -1,7 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
-namespace Sachssoft.Sasogine.Presentation.Styling
+﻿namespace Sachssoft.Sasogine.Presentation.Styling
 {
     [StructLayout(LayoutKind.Auto)]
     public readonly struct StyleProperty<T>

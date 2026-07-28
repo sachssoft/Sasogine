@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 //! \internal
@@ -19,9 +17,9 @@ struct MouseJointDefInternal
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DefaultMouseJointDef")]
     private static extern MouseJointDefInternal b2DefaultMouseJointDef();
 #endif
-    
+
     internal Body BodyA;
-    
+
     internal Body BodyB;
 
     internal Vec2 Target;
@@ -38,9 +36,9 @@ struct MouseJointDefInternal
 
     // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
     private readonly int internalValue;
-    
+
     private static unsafe MouseJointDefInternal Default => b2DefaultMouseJointDef();
-    
+
     public MouseJointDefInternal()
     {
         this = Default;

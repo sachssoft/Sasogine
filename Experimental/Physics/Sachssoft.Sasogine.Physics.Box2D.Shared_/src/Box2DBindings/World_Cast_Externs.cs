@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 partial class World
@@ -99,5 +97,5 @@ partial class World
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2World_OverlapShape")]
     private static extern TreeStats b2World_OverlapShape(WorldId worldId, in ShapeProxy proxy, QueryFilter filter, OverlapResultNintCallback fcn, nint context);
 #endif
-    
+
 }

@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 //! \internal
@@ -19,9 +17,9 @@ struct FilterJointDefInternal
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DefaultNullJointDef")]
     private static extern FilterJointDefInternal b2DefaultNullJointDef();
 #endif
-    
+
     internal Body BodyA;
-    
+
     internal Body BodyB;
 
     internal nint UserData;
@@ -30,7 +28,7 @@ struct FilterJointDefInternal
     private readonly int internalValue;
 
     private static unsafe FilterJointDefInternal Default => b2DefaultNullJointDef();
-    
+
     public FilterJointDefInternal()
     {
         this = Default;

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Sachssoft.Sasogine.Extensions.Sasodoc
+﻿namespace Sachssoft.Sasogine.Extensions.Sasodoc
 {
     public sealed class FactoryRegistry<TObject>
         where TObject : class

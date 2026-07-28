@@ -1,5 +1,3 @@
-using JetBrains.Annotations;
-
 namespace Box2D;
 
 /// <summary>
@@ -12,7 +10,7 @@ public sealed class MotorJointDef
 {
     //! \internal
     internal MotorJointDefInternal _internal = new();
-    
+
     /// <summary>
     /// The first attached body
     /// </summary>
@@ -56,7 +54,7 @@ public sealed class MotorJointDef
         get => _internal.CollideConnected != 0;
         set => _internal.CollideConnected = (byte)(value ? 1 : 0);
     }
-    
+
     /// <summary>
     /// Use this to store application specific shape data.
     /// </summary>
@@ -65,7 +63,7 @@ public sealed class MotorJointDef
         get => GetObjectAtPointer(_internal.UserData);
         set => SetObjectAtPointer(ref _internal.UserData, value);
     }
-    
+
     /// <summary>
     /// Construct a motor joint definition with the supplied values
     /// </summary>
@@ -99,7 +97,7 @@ public sealed class MotorJointDef
         CollideConnected = collideConnected;
         UserData = userData;
     }
-    
+
     /// <summary>
     /// Construct a motor joint definition with the default values
     /// </summary>

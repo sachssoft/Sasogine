@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -28,7 +26,7 @@ public readonly ref struct RayResult
     /// Fraction along the ray length where the hit occurred (0 = start, 1 = end).
     /// </summary>
     public readonly float Fraction;
-    
+
     /// <summary>
     /// Number of broad-phase nodes visited during traversal.
     /// </summary>
@@ -38,9 +36,9 @@ public readonly ref struct RayResult
     /// Number of leaf nodes (shapes) visited during traversal.
     /// </summary>
     public readonly int LeafVisits;
-    
+
     private readonly byte hit;
-    
+
     /// <summary>
     /// True if the ray intersects a shape.
     /// </summary>

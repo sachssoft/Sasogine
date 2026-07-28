@@ -1,6 +1,4 @@
 ﻿using Sachssoft.Sasogine.Presentation.Rendering;
-using Sachssoft.Sasogine.Resources;
-using System;
 
 namespace Sachssoft.Sasogine.Presentation.Styling.Factories;
 

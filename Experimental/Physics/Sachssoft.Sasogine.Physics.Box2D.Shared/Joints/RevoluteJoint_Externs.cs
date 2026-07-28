@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D
 {
     partial class RevoluteJoint
@@ -75,68 +73,68 @@ namespace Box2D
             b2RevoluteJoint_GetTargetAngle = (delegate* unmanaged[Cdecl]<JointId, float>)p20;
         }
 #else
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_EnableSpring")]
-    private static extern void b2RevoluteJoint_EnableSpring(JointId jointId, byte enableSpring);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_EnableSpring")]
+        private static extern void b2RevoluteJoint_EnableSpring(JointId jointId, byte enableSpring);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_IsSpringEnabled")]
-    private static extern byte b2RevoluteJoint_IsSpringEnabled(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_IsSpringEnabled")]
+        private static extern byte b2RevoluteJoint_IsSpringEnabled(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_SetSpringHertz")]
-    private static extern void b2RevoluteJoint_SetSpringHertz(JointId jointId, float hertz);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_SetSpringHertz")]
+        private static extern void b2RevoluteJoint_SetSpringHertz(JointId jointId, float hertz);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_GetSpringHertz")]
-    private static extern float b2RevoluteJoint_GetSpringHertz(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_GetSpringHertz")]
+        private static extern float b2RevoluteJoint_GetSpringHertz(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_SetSpringDampingRatio")]
-    private static extern void b2RevoluteJoint_SetSpringDampingRatio(JointId jointId, float dampingRatio);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_SetSpringDampingRatio")]
+        private static extern void b2RevoluteJoint_SetSpringDampingRatio(JointId jointId, float dampingRatio);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_GetSpringDampingRatio")]
-    private static extern float b2RevoluteJoint_GetSpringDampingRatio(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_GetSpringDampingRatio")]
+        private static extern float b2RevoluteJoint_GetSpringDampingRatio(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_GetAngle")]
-    private static extern float b2RevoluteJoint_GetAngle(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_GetAngle")]
+        private static extern float b2RevoluteJoint_GetAngle(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_EnableLimit")]
-    private static extern void b2RevoluteJoint_EnableLimit(JointId jointId, byte enableLimit);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_EnableLimit")]
+        private static extern void b2RevoluteJoint_EnableLimit(JointId jointId, byte enableLimit);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_IsLimitEnabled")]
-    private static extern byte b2RevoluteJoint_IsLimitEnabled(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_IsLimitEnabled")]
+        private static extern byte b2RevoluteJoint_IsLimitEnabled(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_SetLimits")]
-    private static extern void b2RevoluteJoint_SetLimits(JointId jointId, float lower, float upper);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_SetLimits")]
+        private static extern void b2RevoluteJoint_SetLimits(JointId jointId, float lower, float upper);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_GetLowerLimit")]
-    private static extern float b2RevoluteJoint_GetLowerLimit(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_GetLowerLimit")]
+        private static extern float b2RevoluteJoint_GetLowerLimit(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_GetUpperLimit")]
-    private static extern float b2RevoluteJoint_GetUpperLimit(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_GetUpperLimit")]
+        private static extern float b2RevoluteJoint_GetUpperLimit(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_EnableMotor")]
-    private static extern void b2RevoluteJoint_EnableMotor(JointId jointId, byte enableMotor);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_EnableMotor")]
+        private static extern void b2RevoluteJoint_EnableMotor(JointId jointId, byte enableMotor);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_IsMotorEnabled")]
-    private static extern byte b2RevoluteJoint_IsMotorEnabled(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_IsMotorEnabled")]
+        private static extern byte b2RevoluteJoint_IsMotorEnabled(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_SetMotorSpeed")]
-    private static extern void b2RevoluteJoint_SetMotorSpeed(JointId jointId, float motorSpeed);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_SetMotorSpeed")]
+        private static extern void b2RevoluteJoint_SetMotorSpeed(JointId jointId, float motorSpeed);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_GetMotorSpeed")]
-    private static extern float b2RevoluteJoint_GetMotorSpeed(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_GetMotorSpeed")]
+        private static extern float b2RevoluteJoint_GetMotorSpeed(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_GetMotorTorque")]
-    private static extern float b2RevoluteJoint_GetMotorTorque(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_GetMotorTorque")]
+        private static extern float b2RevoluteJoint_GetMotorTorque(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_SetMaxMotorTorque")]
-    private static extern void b2RevoluteJoint_SetMaxMotorTorque(JointId jointId, float torque);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_SetMaxMotorTorque")]
+        private static extern void b2RevoluteJoint_SetMaxMotorTorque(JointId jointId, float torque);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_GetMaxMotorTorque")]
-    private static extern float b2RevoluteJoint_GetMaxMotorTorque(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_GetMaxMotorTorque")]
+        private static extern float b2RevoluteJoint_GetMaxMotorTorque(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_SetTargetAngle")]
-    private static extern void b2RevoluteJoint_SetTargetAngle(JointId jointId, float angle);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_SetTargetAngle")]
+        private static extern void b2RevoluteJoint_SetTargetAngle(JointId jointId, float angle);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_GetTargetAngle")]
-    private static extern float b2RevoluteJoint_GetTargetAngle(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RevoluteJoint_GetTargetAngle")]
+        private static extern float b2RevoluteJoint_GetTargetAngle(JointId jointId);
 #endif
     }
 }

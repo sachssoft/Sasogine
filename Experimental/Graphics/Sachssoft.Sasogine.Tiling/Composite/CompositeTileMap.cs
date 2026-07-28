@@ -1,8 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Graphics.Primitives;
-using Sachssoft.Sasogine.Graphics.Rendering;
-using System;
-using System.Threading;
+﻿using Sachssoft.Sasogine.Graphics.Rendering;
 
 namespace Sachssoft.Sasogine.Tiling.Composite;
 

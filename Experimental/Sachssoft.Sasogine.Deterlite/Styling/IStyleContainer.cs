@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Sachssoft.Sasogine.Presentation.Styling
+﻿namespace Sachssoft.Sasogine.Presentation.Styling
 {
     public interface IStyleContainer
     {

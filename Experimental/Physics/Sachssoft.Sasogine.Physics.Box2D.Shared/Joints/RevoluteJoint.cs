@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -47,8 +44,8 @@ public sealed partial class RevoluteJoint : Joint
         get => b2RevoluteJoint_GetSpringDampingRatio(id);
         set => b2RevoluteJoint_SetSpringDampingRatio(id, value);
     }
-    
-    
+
+
     /// <summary>
     /// The revolute joint spring target angle in radians
     /// </summary>

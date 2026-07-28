@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -23,14 +20,14 @@ public readonly struct BodyMoveEvent
     /// The transform of the body
     /// </summary>
     public readonly Transform Transform;
-    
+
     /// <summary>
     /// The body that moved
     /// </summary>
     public readonly Body Body;
-    
+
     private readonly nint userData;
-    
+
     /// <summary>
     /// The user data associated with the body
     /// </summary>
@@ -40,7 +37,7 @@ public readonly struct BodyMoveEvent
     /// The body went to sleep
     /// </summary>
     private readonly byte fellAsleep;
-    
+
     /// <summary>
     /// The body went to sleep
     /// </summary>

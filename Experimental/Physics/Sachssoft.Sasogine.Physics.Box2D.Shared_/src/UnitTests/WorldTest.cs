@@ -1,7 +1,4 @@
 using Box2D;
-using JetBrains.Annotations;
-using System.Numerics;
-using Xunit;
 
 namespace UnitTests
 {
@@ -9,7 +6,7 @@ namespace UnitTests
     [Collection("Sequential")]
     public class WorldTest
     {
-                [Fact]
+        [Fact]
         public void CreateWorld_ShouldInitializeCorrectly()
         {
             var worldDef = new WorldDef();

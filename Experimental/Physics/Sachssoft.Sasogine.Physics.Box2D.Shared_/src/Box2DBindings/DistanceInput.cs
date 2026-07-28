@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -29,7 +27,7 @@ public struct DistanceInput
     public Transform TransformB;
 
     private byte useRadii;
-    
+
     /// <summary>
     /// Should the proxy radius be considered?
     /// </summary>
@@ -38,7 +36,7 @@ public struct DistanceInput
         get => useRadii != 0;
         set => useRadii = value ? (byte)1 : (byte)0;
     }
-    
+
     /// <summary>
     /// Constructs a new DistanceInput object with the given parameters.
     /// </summary>
@@ -55,7 +53,7 @@ public struct DistanceInput
         TransformB = transformB;
         this.useRadii = useRadii ? (byte)1 : (byte)0;
     }
-    
+
     /// <summary>
     /// Constructs a new DistanceInput object with default values.
     /// </summary>

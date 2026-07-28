@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-namespace Sachssoft.Sasogine.Resources;
+﻿namespace Sachssoft.Sasogine.Resources;
 
 public sealed class PropertySet : IEnumerable<(string Name, object? Value)>
 {

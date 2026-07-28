@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 partial class World
@@ -213,7 +211,7 @@ partial class World
 
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2World_Step")]
     private static extern void b2World_Step(WorldId worldId, float timeStep, int subStepCount);
-    
+
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2World_Draw")]
     private static extern void b2World_Draw(WorldId worldId, ref DebugDrawInternal draw);
 
@@ -333,7 +331,7 @@ partial class World
 
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2CreateWheelJoint")]
     private static extern JointId b2CreateWheelJoint(WorldId worldId, in WheelJointDefInternal def);
-    
+
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DestroyWorld")]
     private static extern void b2DestroyWorld(WorldId worldId);
 

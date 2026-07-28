@@ -1,6 +1,4 @@
-using System.Runtime.InteropServices;
-
-namespace  Box2D.Character_Movement;
+namespace Box2D.Character_Movement;
 
 /// <summary>
 /// These are collision planes that can be fed to b2SolvePlanes. Normally
@@ -26,7 +24,7 @@ public struct CollisionPlane
     public float Push;
 
     private byte clipVelocity;
-    
+
     /// <summary>
     /// Indicates if b2ClipVector should clip against this plane. Should be false for soft collision.
     /// </summary>
@@ -35,7 +33,7 @@ public struct CollisionPlane
         get => clipVelocity != 0;
         set => clipVelocity = value ? (byte)1 : (byte)0;
     }
-    
+
     /// <summary>
     /// Constructs a new CollisionPlane object with the given parameters.
     /// </summary>
@@ -50,7 +48,7 @@ public struct CollisionPlane
         Push = push;
         this.clipVelocity = clipVelocity ? (byte)1 : (byte)0;
     }
-    
+
     /// <summary>
     /// Constructs a new CollisionPlane object with default values.
     /// </summary>

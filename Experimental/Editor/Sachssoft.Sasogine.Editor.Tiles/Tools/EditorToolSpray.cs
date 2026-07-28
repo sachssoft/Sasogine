@@ -1,7 +1,5 @@
-using Sachssoft.Sasogine.Editor.Tiling;
-using Sachssoft.Sasogine.Tiling;
-using System;
 using Sachssoft.Sasogine.Editor.Tiles.Tools;
+using Sachssoft.Sasogine.Tiling;
 
 public class EditorToolSpray : EditorToolBrush
 {

@@ -1,5 +1,4 @@
 using Box2D;
-using System.Linq;
 
 namespace UnitTests;
 
@@ -22,7 +21,7 @@ public class ConcurrentHashSetTests
     public void Enumeration_ReturnsAllItems()
     {
         var set = new ConcurrentHashSet<int>();
-        foreach (int i in Enumerable.Range(0,5))
+        foreach (int i in Enumerable.Range(0, 5))
             set.Add(i);
         var items = set.Items.ToList();
         Assert.Equal(5, items.Count);

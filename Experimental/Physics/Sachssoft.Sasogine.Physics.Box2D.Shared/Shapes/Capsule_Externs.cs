@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D
 {
     partial struct Capsule
@@ -27,20 +25,20 @@ namespace Box2D
         ShapeCastCapsule = (delegate* unmanaged[Cdecl]<in ShapeCastInput, in Capsule, CastOutput>)p4;
     }
 #else
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ComputeCapsuleMass")]
-    private static extern MassData ComputeCapsuleMass(in Capsule shape, float density);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ComputeCapsuleMass")]
+        private static extern MassData ComputeCapsuleMass(in Capsule shape, float density);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ComputeCapsuleAABB")]
-    private static extern AABB ComputeCapsuleAABB(in Capsule shape, Transform transform);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ComputeCapsuleAABB")]
+        private static extern AABB ComputeCapsuleAABB(in Capsule shape, Transform transform);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2PointInCapsule")]
-    private static extern byte PointInCapsule(Vec2 point, in Capsule shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2PointInCapsule")]
+        private static extern byte PointInCapsule(Vec2 point, in Capsule shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RayCastCapsule")]
-    private static extern CastOutput RayCastCapsule(in RayCastInput input, in Capsule shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RayCastCapsule")]
+        private static extern CastOutput RayCastCapsule(in RayCastInput input, in Capsule shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ShapeCastCapsule")]
-    private static extern CastOutput ShapeCastCapsule(in ShapeCastInput input, in Capsule shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ShapeCastCapsule")]
+        private static extern CastOutput ShapeCastCapsule(in ShapeCastInput input, in Capsule shape);
 #endif
     }
 }

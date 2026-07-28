@@ -1,5 +1,3 @@
-using JetBrains.Annotations;
-
 namespace Box2D;
 
 /// <summary>
@@ -14,7 +12,7 @@ public sealed class DistanceJointDef
 {
     //! \internal
     internal DistanceJointDefInternal _internal = new();
-    
+
     /// <summary>
     /// The first attached body
     /// </summary>
@@ -106,7 +104,7 @@ public sealed class DistanceJointDef
         get => _internal.CollideConnected != 0;
         set => _internal.CollideConnected = (byte)(value ? 1 : 0);
     }
-    
+
     /// <summary>
     /// Use this to store application specific shape data.
     /// </summary>
@@ -115,7 +113,7 @@ public sealed class DistanceJointDef
         get => GetObjectAtPointer(_internal.UserData);
         set => SetObjectAtPointer(ref _internal.UserData, value);
     }
-    
+
     /// <summary>
     /// Construct a distance joint definition with the supplied values
     /// </summary>
@@ -168,10 +166,10 @@ public sealed class DistanceJointDef
         MaxMotorForce = maxMotorForce;
         MotorSpeed = motorSpeed;
         CollideConnected = collideConnected;
-        
+
         UserData = userData;
     }
-    
+
     /// <summary>
     /// Construct a distance joint definition with the default values
     /// </summary>
@@ -179,5 +177,5 @@ public sealed class DistanceJointDef
     {
         _internal = new();
     }
-    
+
 }

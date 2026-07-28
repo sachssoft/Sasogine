@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 //! \internal
@@ -19,7 +17,7 @@ struct MotorJointDefInternal
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DefaultMotorJointDef")]
     private static extern MotorJointDefInternal b2DefaultMotorJointDef();
 #endif
-    
+
     /// <summary>
     /// The first attached body
     /// </summary>
@@ -69,12 +67,12 @@ struct MotorJointDefInternal
     /// Used internally to detect a valid definition. DO NOT SET.
     /// </summary>
     internal readonly int internalValue;
-    
+
     /// <summary>
     /// The default motor joint definition.
     /// </summary>
     private static unsafe MotorJointDefInternal Default => b2DefaultMotorJointDef();
-    
+
     /// <summary>
     /// Creates a motor joint definition with the default values.
     /// </summary>

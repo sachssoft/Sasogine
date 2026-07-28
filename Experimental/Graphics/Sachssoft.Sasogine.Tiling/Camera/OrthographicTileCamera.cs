@@ -1,9 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Graphics;
-using System;
-
-namespace Sachssoft.Sasogine.Tiling.Camera;
+﻿namespace Sachssoft.Sasogine.Tiling.Camera;
 
 public class OrthographicTileCamera : FollowableCamera2D
 {

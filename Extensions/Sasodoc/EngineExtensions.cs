@@ -1,7 +1,5 @@
-﻿using Sachssoft.Sasodoc;
-using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Gameplay;
-using System;
 
 namespace Sachssoft.Sasogine.Extensions.Sasodoc
 {

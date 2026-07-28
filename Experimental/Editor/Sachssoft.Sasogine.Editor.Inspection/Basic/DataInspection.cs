@@ -1,10 +1,4 @@
-﻿using Sachssoft.Sasofly.Inspection;
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Components;
-using System;
-using System.ComponentModel;
-
-namespace Sachssoft.Sasogine.Inspection
+﻿namespace Sachssoft.Sasogine.Inspection
 {
     public abstract class DataInspection : NotifyingElement, IElementDefinition
     {

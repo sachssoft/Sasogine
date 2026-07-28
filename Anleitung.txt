@@ -1,5 +1,11 @@
-Update Anleitung:
+DLL Erstellen Anleitung:
 
-# PowerShell z.B.
+PowerShell:
 
-dotnet nuget push "Packages\Sachssoft.Sasogine.DesktopGL.0.0.2-alpha.nupkg" --source https://api.nuget.org/v3/index.json --api-key DEIN_API_KEY
+1) cd Projektordner-Pfad
+2) dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.DesktopGL\Sachssoft.Sasogine.DesktopGL.csproj -c Release -o .\Packages
+
+Update:
+3) dotnet nuget push ".\Packages\Sachssoft.Sasogine.DesktopGL.0.0.3-alpha.nupkg" `
+    --api-key DEIN_NUGET_API_KEY `
+    --source "https://api.nuget.org/v3/index.json"

@@ -1,7 +1,3 @@
-using JetBrains.Annotations;
-using System;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -12,9 +8,9 @@ namespace Box2D;
 [PublicAPI]
 public unsafe struct ShapeProxy
 {
-    private fixed float points[MAX_POLYGON_VERTICES*2];
+    private fixed float points[MAX_POLYGON_VERTICES * 2];
     private int count;
-    
+
     /// <summary>
     /// The radius of the shape.
     /// </summary>
@@ -39,8 +35,8 @@ public unsafe struct ShapeProxy
                 value.CopyTo(new(ptr, count * 2));
         }
     }
-    
-    
+
+
     /// <summary>
     /// Constructs a new ShapeProxy object with the given parameters.
     /// </summary>
@@ -55,11 +51,11 @@ public unsafe struct ShapeProxy
             throw new ArgumentException($"Cannot set more than {MAX_POLYGON_VERTICES} points");
         if (points.Length < 1)
             throw new ArgumentOutOfRangeException(nameof(points), "Must have at least 1 point");
-        
+
         Points = points;
         Radius = radius;
     }
-    
+
     /// <summary>
     /// Constructs a new ShapeProxy object with default values.
     /// </summary>

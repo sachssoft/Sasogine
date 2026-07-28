@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
-using System;
+﻿using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Presentation.Layouts
 {
@@ -55,7 +53,7 @@ namespace Sachssoft.Sasogine.Presentation.Layouts
 
         // Width: NaN -> 0, negative -> 0
         public static float ResolveDimension(float value)
-        {            
+        {
             if (!float.IsNaN(value) && value < 0f)
             {
                 return 0f; // Negative Werte sind nicht erlaubt

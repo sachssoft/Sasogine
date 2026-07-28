@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System;
-
 namespace Box2D;
 
 /// <summary>
@@ -84,7 +81,7 @@ public class Gears
 
         return gear;
     }
-    
+
     /// <summary>
     /// Calculate the closest possible pitch radius, number of teeth and resulting gear ratio for a new gear based on the current gear pitch radius, number of teeth, and a gear ratio.
     /// </summary>
@@ -102,7 +99,7 @@ public class Gears
         float newRatio = (float)newTeeth / teeth;
         return (newPitchRadius, newTeeth, newRatio);
     }
-    
+
     /// <summary>
     /// Calculate compatible gear metrics for a second gear with matching circular pitch,
     /// based on a desired gear ratio and known tooth length of the first gear.
@@ -144,5 +141,5 @@ public class Gears
         return (newPitchRadius, newTeeth, safeToothLengthB, centreDistance);
     }
 
-    
+
 }

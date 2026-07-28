@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace Sachssoft.Sasogine.Experimental
+﻿namespace Sachssoft.Sasogine.Experimental
 {
     public class GameContext
     {

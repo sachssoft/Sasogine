@@ -1,5 +1,4 @@
 ﻿using Sachssoft.Sasogine.Experimental.Platform;
-using System;
 
 namespace Sachssoft.Sasogine.Experimental
 {

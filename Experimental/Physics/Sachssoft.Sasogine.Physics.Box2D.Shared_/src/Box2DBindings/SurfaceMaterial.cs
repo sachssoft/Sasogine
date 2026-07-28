@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -55,7 +52,7 @@ public struct SurfaceMaterial
     /// Custom debug draw color.
     /// </summary>
     public HexColor CustomColor;
-    
+
     /// <summary>
     /// Construct a surface material with the default values.
     /// </summary>

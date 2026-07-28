@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -13,7 +10,7 @@ public sealed partial class MotorJoint : Joint
 {
     internal MotorJoint(JointId id) : base(id)
     { }
-    
+
     /// <summary>
     /// The linear offset target on this motor joint
     /// </summary>
@@ -50,7 +47,7 @@ public sealed partial class MotorJoint : Joint
         get => b2MotorJoint_GetMaxTorque(id);
         set => b2MotorJoint_SetMaxTorque(id, value);
     }
-    
+
     /// <summary>
     /// The correction factor on this motor joint
     /// </summary>

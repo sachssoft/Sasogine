@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 //! \internal
@@ -19,10 +17,10 @@ struct WheelJointDefInternal
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DefaultWheelJointDef")]
     private static extern WheelJointDefInternal b2DefaultWheelJointDef();
 #endif
-    
+
     [FieldOffset(0)]
     internal Body BodyA;
-    
+
     [FieldOffset(8)]
     internal Body BodyB;
 
@@ -70,9 +68,9 @@ struct WheelJointDefInternal
 
     [FieldOffset(88)]
     private readonly int internalValue;
-    
+
     private static unsafe WheelJointDefInternal Default => b2DefaultWheelJointDef();
-    
+
     public WheelJointDefInternal()
     {
         this = Default;

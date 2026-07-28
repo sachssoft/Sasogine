@@ -1,8 +1,4 @@
-﻿using Sachssoft.Sasofly.Inspection;
-using Sachssoft.Sasofly.Inspection.Descriptors;
-using Sachssoft.Sasogine.Components.Rendering.Animation;
-
-namespace Sachssoft.Sasogine.Inspection.Scene
+﻿namespace Sachssoft.Sasogine.Inspection.Scene
 {
     public abstract class AnimationDefinitionBase : DataInspection, IAnimationDefinition
     {

@@ -1,9 +1,4 @@
 using Box2D.Comparers;
-using JetBrains.Annotations;
-using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace Box2D;
 
@@ -17,7 +12,7 @@ public partial struct Shape : IEquatable<Shape>, IComparable<Shape>
     internal int index1;
     internal ushort world0;
     internal ushort generation;
-    
+
     /// <summary>
     /// Create a shape on the specified body with the specified definition.
     /// </summary>
@@ -28,7 +23,7 @@ public partial struct Shape : IEquatable<Shape>, IComparable<Shape>
     {
         this = body.CreateShape(def, circle);
     }
-    
+
     /// <summary>
     /// Create a shape on the specified body with the specified definition.
     /// </summary>
@@ -39,7 +34,7 @@ public partial struct Shape : IEquatable<Shape>, IComparable<Shape>
     {
         this = body.CreateShape(def, segment);
     }
-    
+
     /// <summary>
     /// Create a shape on the specified body with the specified definition.
     /// </summary>
@@ -50,7 +45,7 @@ public partial struct Shape : IEquatable<Shape>, IComparable<Shape>
     {
         this = body.CreateShape(def, capsule);
     }
-    
+
     /// <summary>
     /// Create a shape on the specified body with the specified definition.
     /// </summary>
@@ -61,21 +56,21 @@ public partial struct Shape : IEquatable<Shape>, IComparable<Shape>
     {
         this = body.CreateShape(def, polygon);
     }
-    
+
     /// <summary>
     /// Default comparer for Shape instances. This is used for sorting and
     /// comparing shapes. Using the default comparer is recommended
     /// to avoid boxing and unboxing overhead.
     /// </summary>
     public static IComparer<Shape> DefaultComparer { get; } = ShapeComparer.Instance;
-    
+
     /// <summary>
     /// Default equality comparer for Shape instances. This is used for
     /// comparing shapes. Using the default equality comparer is recommended
     /// to avoid boxing and unboxing overhead.
     /// </summary>
     public static IEqualityComparer<Shape> DefaultEqualityComparer { get; } = ShapeComparer.Instance;
-    
+
     /// <summary>
     /// Checks if this Shape and another Shape refer to the same shape
     /// </summary>
@@ -96,7 +91,7 @@ public partial struct Shape : IEquatable<Shape>, IComparable<Shape>
     /// </summary>
     /// <returns>true if this shape and the other shape refer to the same shape</returns>
     public static bool operator ==(Shape left, Shape right) => left.Equals(right);
-    
+
     /// <summary>
     /// Checks if this shape and another shape refer to different shapes
     /// </summary>
@@ -247,7 +242,7 @@ public partial struct Shape : IEquatable<Shape>, IComparable<Shape>
         }
     }
 
-    
+
     /// <summary>
     /// Gets/sets the surface material for this shape
     /// </summary>
@@ -303,7 +298,7 @@ public partial struct Shape : IEquatable<Shape>, IComparable<Shape>
         set
         {
             if (!Valid)
-                throw new InvalidOperationException( "Shape is not valid");
+                throw new InvalidOperationException("Shape is not valid");
             b2Shape_EnablePreSolveEvents(this, value ? (byte)1 : (byte)0);
         }
     }
@@ -414,7 +409,7 @@ public partial struct Shape : IEquatable<Shape>, IComparable<Shape>
             if (!Valid)
                 throw new InvalidOperationException("Shape is not valid");
             int needed = b2Shape_GetContactCapacity(this);
-            ContactData[] buffer = 
+            ContactData[] buffer =
 #if NET5_0_OR_GREATER
                 GC.AllocateUninitializedArray<ContactData>(needed);
 #else
@@ -443,7 +438,7 @@ public partial struct Shape : IEquatable<Shape>, IComparable<Shape>
             if (!Valid)
                 throw new InvalidOperationException("Shape is not valid");
             int needed = b2Shape_GetSensorCapacity(this);
-            Shape[] buffer = 
+            Shape[] buffer =
 #if NET5_0_OR_GREATER
                 GC.AllocateUninitializedArray<Shape>(needed);
 #else
@@ -563,7 +558,7 @@ public partial struct Shape : IEquatable<Shape>, IComparable<Shape>
         count = 0;
         return (Vec2*)0;
     }
-    
+
     public int CompareTo(Shape other)
     {
         int index1Comparison = index1.CompareTo(other.index1);

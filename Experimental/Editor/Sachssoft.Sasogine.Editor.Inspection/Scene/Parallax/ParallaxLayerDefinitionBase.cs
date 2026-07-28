@@ -1,7 +1,4 @@
-﻿using Sachssoft.Sasofly.Inspection;
-using Sachssoft.Sasogine.Components;
-
-namespace Sachssoft.Sasogine.Rendering.Parallax
+﻿namespace Sachssoft.Sasogine.Rendering.Parallax
 {
     public abstract class ParallaxLayerDefinitionBase : IParla
     {

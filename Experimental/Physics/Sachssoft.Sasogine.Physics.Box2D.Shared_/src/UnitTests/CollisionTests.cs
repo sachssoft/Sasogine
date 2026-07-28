@@ -1,5 +1,4 @@
 using Box2D;
-using Vec2 = System.Numerics.Vector2;
 
 namespace UnitTests
 {
@@ -44,7 +43,7 @@ namespace UnitTests
             // Act: Simulate for 60 steps (1 second)
             bool collided = false;
 
-            for (int i = 0; i < 60; i++) 
+            for (int i = 0; i < 60; i++)
             {
                 world.Step(TimeStep);
 

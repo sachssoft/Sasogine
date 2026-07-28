@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -28,17 +25,17 @@ public partial struct Circle
         Center = center;
         Radius = radius;
     }
-    
+
     /// <summary>
     /// Compute mass properties of this circle
     /// </summary>
     public unsafe MassData ComputeMass(float density) => b2ComputeCircleMass(this, density);
-    
+
     /// <summary>
     /// Compute the bounding box of this transformed circle
     /// </summary>
     public unsafe AABB ComputeAABB(in Transform transform) => b2ComputeCircleAABB(this, transform);
-    
+
     /// <summary>
     /// Test a point for overlap with this circle in local space
     /// </summary>
@@ -47,7 +44,7 @@ public partial struct Circle
     /// <summary>
     /// Ray cast versus this circle shape in local space. Initial overlap is treated as a miss.
     /// </summary>
-    public unsafe CastOutput RayCast(in RayCastInput input) => b2RayCastCircle(input, this); 
+    public unsafe CastOutput RayCast(in RayCastInput input) => b2RayCastCircle(input, this);
 
     /// <summary>
     /// Shape cast versus this circle. Initial overlap is treated as a miss.

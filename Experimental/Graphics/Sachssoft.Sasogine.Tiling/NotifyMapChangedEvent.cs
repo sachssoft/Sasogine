@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sachssoft.Sasogine.Tiling
+﻿namespace Sachssoft.Sasogine.Tiling
 {
     // Delegate für das Event
     public delegate void NotifyMapChangedEventHandler(object? sender, NotifyMapChangedEventArgs args);

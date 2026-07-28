@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
-
 namespace Box2D.Character_Movement;
 
 /// <summary>
@@ -19,7 +16,7 @@ public readonly struct PlaneResult
     /// The collision point on the shape.
     /// </summary>
     public readonly Vec2 Point;
-    
+
     private readonly byte hit;
 
     /// <summary>

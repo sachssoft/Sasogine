@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -31,7 +28,7 @@ public readonly struct CastOutput
     public readonly int Iterations;
 
     private readonly byte hit;
-    
+
     /// <summary>
     /// Did the cast hit?
     /// </summary>

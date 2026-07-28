@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D
 {
     public partial struct Circle
@@ -27,20 +25,20 @@ namespace Box2D
         b2ShapeCastCircle = (delegate* unmanaged[Cdecl]<in ShapeCastInput, in Circle, CastOutput>)p4;
     }
 #else
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ComputeCircleMass")]
-    private static extern MassData b2ComputeCircleMass(in Circle shape, float density);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ComputeCircleMass")]
+        private static extern MassData b2ComputeCircleMass(in Circle shape, float density);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ComputeCircleAABB")]
-    private static extern AABB b2ComputeCircleAABB(in Circle shape, in Transform transform);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ComputeCircleAABB")]
+        private static extern AABB b2ComputeCircleAABB(in Circle shape, in Transform transform);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2PointInCircle")]
-    private static extern byte b2PointInCircle(in Vec2 point, in Circle shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2PointInCircle")]
+        private static extern byte b2PointInCircle(in Vec2 point, in Circle shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RayCastCircle")]
-    private static extern CastOutput b2RayCastCircle(in RayCastInput input, in Circle shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2RayCastCircle")]
+        private static extern CastOutput b2RayCastCircle(in RayCastInput input, in Circle shape);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ShapeCastCircle")]
-    private static extern CastOutput b2ShapeCastCircle(in ShapeCastInput input, in Circle shape);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ShapeCastCircle")]
+        private static extern CastOutput b2ShapeCastCircle(in ShapeCastInput input, in Circle shape);
 #endif
     }
 }

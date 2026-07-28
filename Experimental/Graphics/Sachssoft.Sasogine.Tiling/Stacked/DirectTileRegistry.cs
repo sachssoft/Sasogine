@@ -1,6 +1,4 @@
 ﻿using Sachssoft.Sasogine.Tiling;
-using System;
-using System.Runtime.CompilerServices;
 
 /// <summary>
 /// Eine speicher- und performance-optimierte Registry für Tile-Elemente mit fester Kapazität.

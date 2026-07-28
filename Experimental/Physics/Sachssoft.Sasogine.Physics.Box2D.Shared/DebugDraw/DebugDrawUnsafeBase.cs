@@ -1,5 +1,3 @@
-using JetBrains.Annotations;
-
 namespace Box2D;
 
 /// <summary>
@@ -14,7 +12,7 @@ public abstract class DebugDrawUnsafeBase : DebugDraw
     /// Constructor for DebugDrawUnsafeBase.
     /// </summary>
     protected DebugDrawUnsafeBase()
-    { 
+    {
         DrawBodyNames = true;
         DrawBounds = true;
         DrawShapes = true;

@@ -1,11 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Input.Touch;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-
-namespace Sachssoft.Sasogine.Presentation.Input
+﻿namespace Sachssoft.Sasogine.Presentation.Input
 {
     public sealed class InputManager
     {

@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasodoc;
-using Sachssoft.Sasogine.Graphics;
+﻿using Sachssoft.Sasogine.Graphics;
 
 namespace Sachssoft.Sasogine.Extensions.Sasodoc
 {

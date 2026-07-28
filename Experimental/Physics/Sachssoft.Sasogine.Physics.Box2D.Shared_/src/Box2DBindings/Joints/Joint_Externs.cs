@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D
 {
     partial class Joint
@@ -87,80 +85,80 @@ namespace Box2D
         b2Joint_GetConstraintTuning = (delegate* unmanaged[Cdecl]<JointId, out float, out float, void>)p24;
     }
 #else
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DestroyJoint")]
-    private static extern void b2DestroyJoint(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DestroyJoint")]
+        private static extern void b2DestroyJoint(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_IsValid")]
-    private static extern byte b2Joint_IsValid(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_IsValid")]
+        private static extern byte b2Joint_IsValid(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetType")]
-    private static extern JointType b2Joint_GetType(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetType")]
+        private static extern JointType b2Joint_GetType(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetBodyA")]
-    private static extern Body b2Joint_GetBodyA(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetBodyA")]
+        private static extern Body b2Joint_GetBodyA(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetBodyB")]
-    private static extern Body b2Joint_GetBodyB(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetBodyB")]
+        private static extern Body b2Joint_GetBodyB(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetWorld")]
-    private static extern WorldId b2Joint_GetWorld(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetWorld")]
+        private static extern WorldId b2Joint_GetWorld(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetLocalAnchorA")]
-    private static extern Vec2 b2Joint_GetLocalAnchorA(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetLocalAnchorA")]
+        private static extern Vec2 b2Joint_GetLocalAnchorA(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetLocalAnchorB")]
-    private static extern Vec2 b2Joint_GetLocalAnchorB(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetLocalAnchorB")]
+        private static extern Vec2 b2Joint_GetLocalAnchorB(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_SetCollideConnected")]
-    private static extern void b2Joint_SetCollideConnected(JointId jointId, byte shouldCollide);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_SetCollideConnected")]
+        private static extern void b2Joint_SetCollideConnected(JointId jointId, byte shouldCollide);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetCollideConnected")]
-    private static extern byte b2Joint_GetCollideConnected(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetCollideConnected")]
+        private static extern byte b2Joint_GetCollideConnected(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_SetUserData")]
-    private static extern void b2Joint_SetUserData(JointId jointId, nint userData);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_SetUserData")]
+        private static extern void b2Joint_SetUserData(JointId jointId, nint userData);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetUserData")]
-    private static extern nint b2Joint_GetUserData(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetUserData")]
+        private static extern nint b2Joint_GetUserData(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_WakeBodies")]
-    private static extern void b2Joint_WakeBodies(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_WakeBodies")]
+        private static extern void b2Joint_WakeBodies(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetConstraintForce")]
-    private static extern Vec2 b2Joint_GetConstraintForce(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetConstraintForce")]
+        private static extern Vec2 b2Joint_GetConstraintForce(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetConstraintTorque")]
-    private static extern float b2Joint_GetConstraintTorque(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetConstraintTorque")]
+        private static extern float b2Joint_GetConstraintTorque(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_SetLocalAnchorA")]
-    private static extern void b2Joint_SetLocalAnchorA(JointId jointId, Vec2 localAnchor);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_SetLocalAnchorA")]
+        private static extern void b2Joint_SetLocalAnchorA(JointId jointId, Vec2 localAnchor);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_SetLocalAnchorB")]
-    private static extern void b2Joint_SetLocalAnchorB(JointId jointId, Vec2 localAnchor);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_SetLocalAnchorB")]
+        private static extern void b2Joint_SetLocalAnchorB(JointId jointId, Vec2 localAnchor);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetReferenceAngle")]
-    private static extern float b2Joint_GetReferenceAngle(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetReferenceAngle")]
+        private static extern float b2Joint_GetReferenceAngle(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_SetReferenceAngle")]
-    private static extern void b2Joint_SetReferenceAngle(JointId jointId, float angleInRadians);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_SetReferenceAngle")]
+        private static extern void b2Joint_SetReferenceAngle(JointId jointId, float angleInRadians);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_SetLocalAxisA")]
-    private static extern void b2Joint_SetLocalAxisA(JointId jointId, Vec2 localAxis);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_SetLocalAxisA")]
+        private static extern void b2Joint_SetLocalAxisA(JointId jointId, Vec2 localAxis);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetLocalAxisA")]
-    private static extern Vec2 b2Joint_GetLocalAxisA(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetLocalAxisA")]
+        private static extern Vec2 b2Joint_GetLocalAxisA(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetLinearSeparation")]
-    private static extern float b2Joint_GetLinearSeparation(JointId jointId);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetLinearSeparation")]
+        private static extern float b2Joint_GetLinearSeparation(JointId jointId);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetAngularSeparation")]
-    private static extern float b2Joint_GetAngularSeparation(JointId jointId);
-        
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_SetConstraintTuning")]
-    private static extern void b2Joint_SetConstraintTuning(JointId jointId, float linearTuning, float angularTuning);
-        
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetConstraintTuning")]
-    private static extern void b2Joint_GetConstraintTuning(JointId jointId, out float linearTuning, out float angularTuning);
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetAngularSeparation")]
+        private static extern float b2Joint_GetAngularSeparation(JointId jointId);
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_SetConstraintTuning")]
+        private static extern void b2Joint_SetConstraintTuning(JointId jointId, float linearTuning, float angularTuning);
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Joint_GetConstraintTuning")]
+        private static extern void b2Joint_GetConstraintTuning(JointId jointId, out float linearTuning, out float angularTuning);
 #endif
     }
 }

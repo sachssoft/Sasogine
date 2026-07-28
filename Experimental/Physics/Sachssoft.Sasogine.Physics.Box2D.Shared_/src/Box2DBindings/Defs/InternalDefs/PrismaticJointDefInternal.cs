@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 //! \internal
@@ -19,7 +17,7 @@ struct PrismaticJointDefInternal
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DefaultPrismaticJointDef")]
     private static extern PrismaticJointDefInternal b2DefaultPrismaticJointDef();
 #endif
-    
+
     internal Body BodyA;
 
     internal Body BodyB;
@@ -31,7 +29,7 @@ struct PrismaticJointDefInternal
     internal Vec2 LocalAxisA;
 
     internal float ReferenceAngle;
-    
+
     internal float TargetTranslation;
 
     internal byte EnableSpring;
@@ -58,9 +56,9 @@ struct PrismaticJointDefInternal
 
     // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
     private readonly int internalValue;
-    
+
     private static unsafe PrismaticJointDefInternal Default => b2DefaultPrismaticJointDef();
-    
+
     public PrismaticJointDefInternal()
     {
         this = Default;

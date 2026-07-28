@@ -1,8 +1,3 @@
-using System;
-using System.IO;
-using System.Reflection;
-using System.Runtime.InteropServices;
-
 namespace Box2D
 {
     partial class Core
@@ -104,83 +99,83 @@ namespace Box2D
         /// Compute the distance between two line segments, clamping at the end points if needed.
         /// </summary>
         public static unsafe SegmentDistanceResult SegmentDistance(in Vec2 p1, in Vec2 q1, in Vec2 p2, in Vec2 q2) => b2SegmentDistance(p1, q1, p2, q2);
-    #else 
+#else
 
-    /// <summary>
-    /// Get the current version of Box2D
-    /// </summary>
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2GetVersion")]
-    public static extern Box2DVersion GetVersion();
-    
-    /// <summary>
-    /// Get the absolute number of system ticks. The value is platform specific.
-    /// </summary>
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2GetTicks")]
-    public static extern ulong GetTicks();
-    
-    /// <summary>
-    /// Get the milliseconds passed from an initial tick value.
-    /// </summary>
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2GetMilliseconds")]
-    public static extern float GetMilliseconds(ulong ticks);
-    
-    /// <summary>
-    /// Get the milliseconds passed from an initial tick value. Resets the passed in
-    /// value to the current tick value.
-    /// </summary>
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2GetMillisecondsAndReset")]
-    public static extern float GetMillisecondsAndReset(ref ulong ticks);
-    
-    /// <summary>
-    /// Yield to be used in a busy loop.
-    /// </summary>
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Yield")]
-    public static extern void Yield();
+        /// <summary>
+        /// Get the current version of Box2D
+        /// </summary>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2GetVersion")]
+        public static extern Box2DVersion GetVersion();
 
-    /// <summary>
-    /// Simple djb2 hash function for determinism testing
-    /// </summary>
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Hash")]
-    public static extern uint Hash(uint hash, byte[] data, int count);
-    
-    /// <summary>
-    /// Compute the distance between two line segments, clamping at the end points if needed.
-    /// </summary>
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2SegmentDistance")]
-    public static extern SegmentDistanceResult SegmentDistance(in Vec2 p1, in Vec2 q1, in Vec2 p2, in Vec2 q2);
-    
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ShapeDistance")]
-    private static extern unsafe DistanceOutput b2ShapeDistance(in DistanceInput input, ref SimplexCache cache, Simplex* simplexes, int simplexCapacity);
+        /// <summary>
+        /// Get the absolute number of system ticks. The value is platform specific.
+        /// </summary>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2GetTicks")]
+        public static extern ulong GetTicks();
 
-    /// <summary>
-    /// Perform a linear shape cast of shape B moving and shape A fixed. Determines the hit point, normal, and translation fraction.
-    /// </summary>
-    /// <remarks>
-    /// Initially touching shapes are treated as a miss.
-    /// </remarks>
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ShapeCast")]
-    public static extern CastOutput ShapeCast(in ShapeCastPairInput input);
+        /// <summary>
+        /// Get the milliseconds passed from an initial tick value.
+        /// </summary>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2GetMilliseconds")]
+        public static extern float GetMilliseconds(ulong ticks);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MakeProxy")]
-    private static extern unsafe ShapeProxy b2MakeProxy(Vec2* points, int count, float radius);
-    
-    /// <summary>
-    /// Compute the upper bound on time before two shapes penetrate. Time is represented as
-    /// a fraction between [0,tMax]. This uses a swept separating axis and may miss some intermediate,
-    /// non-tunneling collisions. If you change the time interval, you should call this function
-    /// again.
-    /// </summary>
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2TimeOfImpact")]
-    public static extern TOIOutput TimeOfImpact(in TOIInput input);
-    
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2SetLengthUnitsPerMeter")]
-    private static extern void b2SetLengthUnitsPerMeter(float lengthUnitsPerMeter);
+        /// <summary>
+        /// Get the milliseconds passed from an initial tick value. Resets the passed in
+        /// value to the current tick value.
+        /// </summary>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2GetMillisecondsAndReset")]
+        public static extern float GetMillisecondsAndReset(ref ulong ticks);
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2GetLengthUnitsPerMeter")]
-    private static extern float b2GetLengthUnitsPerMeter();
+        /// <summary>
+        /// Yield to be used in a busy loop.
+        /// </summary>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Yield")]
+        public static extern void Yield();
 
-    [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2SetAssertFcn")]
-    private static extern void b2SetAssertFcn(nint assertFcn);
+        /// <summary>
+        /// Simple djb2 hash function for determinism testing
+        /// </summary>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2Hash")]
+        public static extern uint Hash(uint hash, byte[] data, int count);
+
+        /// <summary>
+        /// Compute the distance between two line segments, clamping at the end points if needed.
+        /// </summary>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2SegmentDistance")]
+        public static extern SegmentDistanceResult SegmentDistance(in Vec2 p1, in Vec2 q1, in Vec2 p2, in Vec2 q2);
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ShapeDistance")]
+        private static extern unsafe DistanceOutput b2ShapeDistance(in DistanceInput input, ref SimplexCache cache, Simplex* simplexes, int simplexCapacity);
+
+        /// <summary>
+        /// Perform a linear shape cast of shape B moving and shape A fixed. Determines the hit point, normal, and translation fraction.
+        /// </summary>
+        /// <remarks>
+        /// Initially touching shapes are treated as a miss.
+        /// </remarks>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ShapeCast")]
+        public static extern CastOutput ShapeCast(in ShapeCastPairInput input);
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2MakeProxy")]
+        private static extern unsafe ShapeProxy b2MakeProxy(Vec2* points, int count, float radius);
+
+        /// <summary>
+        /// Compute the upper bound on time before two shapes penetrate. Time is represented as
+        /// a fraction between [0,tMax]. This uses a swept separating axis and may miss some intermediate,
+        /// non-tunneling collisions. If you change the time interval, you should call this function
+        /// again.
+        /// </summary>
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2TimeOfImpact")]
+        public static extern TOIOutput TimeOfImpact(in TOIInput input);
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2SetLengthUnitsPerMeter")]
+        private static extern void b2SetLengthUnitsPerMeter(float lengthUnitsPerMeter);
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2GetLengthUnitsPerMeter")]
+        private static extern float b2GetLengthUnitsPerMeter();
+
+        [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2SetAssertFcn")]
+        private static extern void b2SetAssertFcn(nint assertFcn);
 #endif
     }
 }

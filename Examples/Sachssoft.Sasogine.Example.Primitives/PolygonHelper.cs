@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Geometry;
-using System;
+﻿using Sachssoft.Sasogine.Geometry;
 
 namespace Sachssoft.Sasogine.Example.Primitives
 {

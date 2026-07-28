@@ -1,12 +1,5 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using nkast.Aether.Physics2D.Collision.Shapes;
-using Sachssoft.Graphics.Primitives;
-using Sachssoft.Sasogine.Geometry;
-using Sachssoft.Sasogine.Graphics;
+﻿using Sachssoft.Sasogine.Geometry;
 using Sachssoft.Sasogine.Graphics.Primitives;
-using Sachssoft.Sasogine.Interactions;
-using System.Diagnostics;
 
 namespace Sachssoft.Sasogine.Example.Primitives
 {

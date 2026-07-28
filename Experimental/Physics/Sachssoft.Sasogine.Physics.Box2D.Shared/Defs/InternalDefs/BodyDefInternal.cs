@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 //! \internal
@@ -19,7 +17,7 @@ struct BodyDefInternal
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2DefaultBodyDef")]
     private static extern BodyDefInternal b2DefaultBodyDef();
 #endif
-    
+
     internal BodyType Type;
 
     internal Vec2 Position;
@@ -37,9 +35,9 @@ struct BodyDefInternal
     internal float GravityScale;
 
     internal float SleepThreshold;
-    
+
     internal nint Name;
-	
+
     internal nint UserData;
 
     internal byte EnableSleep;
@@ -56,7 +54,7 @@ struct BodyDefInternal
 
     // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
     private readonly int internalValue;
-    
+
     private static unsafe BodyDefInternal Default => b2DefaultBodyDef();
 
     public BodyDefInternal()

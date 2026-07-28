@@ -1,8 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasofly.Inspection;
-using Sachssoft.Sasogine.Components.Rendering.Animation;
-
-namespace Sachssoft.Sasogine.Inspection.Scene
+﻿namespace Sachssoft.Sasogine.Inspection.Scene
 {
     public class PositionAnimationDefinition : AnimationDefinitionBase, IPositionAnimationDefinition
     {

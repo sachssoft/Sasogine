@@ -1,5 +1,4 @@
-﻿using System;
-using Sachssoft.Sasogine.Common.Performance;
+﻿using Sachssoft.Sasogine.Common.Performance;
 using Sachssoft.Sasogine.Scenes;
 
 namespace Sachssoft.Sasogine.Presentation

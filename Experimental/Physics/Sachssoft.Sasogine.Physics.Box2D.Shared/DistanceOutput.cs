@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -22,7 +20,7 @@ public readonly ref struct DistanceOutput
     /// Normal vector that points from A to B. Invalid if distance is zero.
     /// </summary>
     public readonly Vec2 Normal;
-    
+
     /// <summary>
     /// The final distance, zero if overlapped
     /// </summary>

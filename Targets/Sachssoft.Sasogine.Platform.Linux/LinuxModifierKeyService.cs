@@ -1,8 +1,4 @@
-﻿using Microsoft.Xna.Framework.Input;
-using Sachssoft.Sasogine.Interactions;
-using System.Collections.Generic;
-
-namespace Sachssoft.Sasogine.Services.Platforms
+﻿namespace Sachssoft.Sasogine.Services.Platforms
 {
     public class LinuxModifierKeyService : IPlatformModifierService
     {

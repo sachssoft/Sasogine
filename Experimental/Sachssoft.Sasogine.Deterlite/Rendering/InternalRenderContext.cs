@@ -1,16 +1,9 @@
-﻿using FontStashSharp;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Graphics;
+﻿using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Presentation.Layouts;
 using Sachssoft.Sasogine.Presentation.Styling;
 using Sachssoft.Sasogine.Resources;
-using System;
-using System.Collections.Generic;
 
 using Bounds = Sachssoft.Sasogine.Common.Bounds;
-using FSSBounds = FontStashSharp.Bounds;
 
 namespace Sachssoft.Sasogine.Presentation.Rendering;
 
@@ -29,7 +22,7 @@ internal sealed class InternalRenderContext : IRenderContext, IDisposable
 
     private Skin _skin = null!;
 
-    private readonly Dictionary<Font, FontSystem> _fontSystems = new(); 
+    private readonly Dictionary<Font, FontSystem> _fontSystems = new();
     private readonly Dictionary<Font, SpriteFontBase> _fontCache = new();
 
     public InternalRenderContext(Workspace workspace)

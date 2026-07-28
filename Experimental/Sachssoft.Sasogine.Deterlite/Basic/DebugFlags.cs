@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sachssoft.Sasogine.Presentation
+﻿namespace Sachssoft.Sasogine.Presentation
 {
     [Flags]
     public enum DebugFlags

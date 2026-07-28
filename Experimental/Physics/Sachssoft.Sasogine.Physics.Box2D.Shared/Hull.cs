@@ -1,7 +1,3 @@
-using JetBrains.Annotations;
-using System;
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 /// <summary>
@@ -33,11 +29,11 @@ public ref struct Hull
     [DllImport(libraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "b2ValidateHull")]
     private static extern byte b2ValidateHull(in Hull hull);
 #endif
-    
+
     private unsafe fixed float points[MAX_POLYGON_VERTICES * 2];
 
     private int count;
-    
+
     /// <summary>
     /// Computes a hull from a set of points. This is a copy constructor.
     /// </summary>
@@ -51,7 +47,7 @@ public ref struct Hull
     {
         this = Compute(points);
     }
-    
+
     /// <summary>
     /// The final points of the hull
     /// </summary>
@@ -63,12 +59,12 @@ public ref struct Hull
             {
                 if (count > MAX_POLYGON_VERTICES)
                     throw new ArgumentOutOfRangeException(nameof(count), $"Count cannot be greater than {MAX_POLYGON_VERTICES}");
-                
+
                 return new(ptr, count);
             }
         }
     }
-    
+
     /// <summary>
     /// Compute the convex hull of a set of points. Returns an empty hull if it fails.
     /// Some failure cases:
@@ -87,11 +83,11 @@ public ref struct Hull
     {
         if (points.Length > MAX_POLYGON_VERTICES)
             throw new ArgumentException($"Hull can only contain up to {MAX_POLYGON_VERTICES} points");
-        
+
         fixed (Vec2* pointsPtr = points)
             return b2ComputeHull(pointsPtr, points.Length);
     }
-    
+
     /// <summary>
     /// Determines if this hull is valid. Checks for:
     /// <ul>

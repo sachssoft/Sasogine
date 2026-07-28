@@ -1,9 +1,4 @@
 using Box2D.Comparers;
-using JetBrains.Annotations;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 #if NET9_0_OR_GREATER
 using System.Threading;
 #endif
@@ -46,7 +41,7 @@ public sealed partial class World
     internal readonly ConcurrentHashSet<Body> bodies = new();
 
     private static bool initialized;
-    
+
     private bool parallelEvents = false;
 
     /// <summary>
@@ -110,10 +105,10 @@ public sealed partial class World
             contactHitTaskCallback = ContactHitTaskCallback;
             contactHitTaskCallbackPointer = Marshal.GetFunctionPointerForDelegate(contactHitTaskCallback);
         }
-        
+
         parallelEvents = def.EnableParallelEvents;
     }
-    
+
     /// <summary>
     /// Destroy this world
     /// </summary>
@@ -135,7 +130,7 @@ public sealed partial class World
 
         worlds.TryRemove(id, out _);
     }
-    
+
     /// <summary>
     /// World id validation. Provides validation for up to 64K allocations.
     /// </summary>
@@ -178,7 +173,7 @@ public sealed partial class World
     private readonly nint contactEndTouchTaskCallbackPointer;
     private readonly TaskCallback contactHitTaskCallback = null!;
     private readonly nint contactHitTaskCallbackPointer;
-    
+
     /// <summary>
     /// Simulate a world for one time step. This performs collision detection, integration, and constraint solution.
     /// </summary>
@@ -188,9 +183,9 @@ public sealed partial class World
     {
         if (!Valid)
             throw new InvalidOperationException("World is not valid");
-        
+
         Span<nint> tasks = stackalloc nint[6];
-        
+
         lock (WorldLock)
         {
             b2World_Step(id, timeStep, subStepCount);
@@ -270,11 +265,11 @@ public sealed partial class World
                                 ContactHit.Invoke(in e);
             }
         }
-        
+
         foreach (nint t in tasks)
             if (t != 0) Parallelism.DefaultFinish(t, 0);
     }
-    
+
     /// <summary>
     /// Call this to draw shapes and other debug draw data
     /// </summary>
@@ -585,7 +580,7 @@ public sealed partial class World
     /// <remarks><i>Note: Advanced feature</i></remarks>
     public unsafe void SetContactTuning(float hertz, float dampingRatio, float pushSpeed) =>
         b2World_SetContactTuning(id, hertz, dampingRatio, pushSpeed);
-    
+
     /// <summary>
     /// The maximum linear speed.
     /// </summary>
@@ -599,7 +594,7 @@ public sealed partial class World
             b2World_SetMaximumLinearSpeed(id, value);
         }
     }
-    
+
     /// <summary>
     /// Enable/disable constraint warm starting. Advanced feature for testing. Disabling warm starting greatly reduces stability and provides no performance gain.
     /// </summary>

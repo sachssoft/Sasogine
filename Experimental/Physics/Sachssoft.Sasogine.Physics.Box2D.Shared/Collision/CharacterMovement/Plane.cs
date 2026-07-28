@@ -1,7 +1,3 @@
-using JetBrains.Annotations;
-using System;
-using System.Runtime.InteropServices;
-
 namespace Box2D.Character_Movement;
 
 /// <summary>
@@ -20,7 +16,7 @@ public partial struct Plane
     /// The offset of the plane.
     /// </summary>
     public float Offset;
-    
+
     /// <summary>
     /// Checks if the plane is valid.
     /// </summary>
@@ -29,7 +25,7 @@ public partial struct Plane
     /// A plane is valid if its normal is a unit vector and it is not NaN or infinity.<br/>
     /// </remarks>
     public unsafe bool Valid => b2IsValidPlane(this) != 0;
-    
+
     /// <summary>
     /// Constructs a new Plane object with the given parameters.
     /// </summary>
@@ -47,7 +43,7 @@ public partial struct Plane
         Normal = normal;
         Offset = offset;
     }
-    
+
     /// <summary>
     /// Constructs a new Plane object with default values.
     /// </summary>

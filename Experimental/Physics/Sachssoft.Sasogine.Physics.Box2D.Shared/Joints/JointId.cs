@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace Box2D;
 
 [StructLayout(LayoutKind.Sequential)]

@@ -1,6 +1,4 @@
-﻿using FontStashSharp;
-
-namespace Sachssoft.Sasogine.Example.Primitives
+﻿namespace Sachssoft.Sasogine.Example.Primitives
 {
     public class PrimitiveExampleAssets : GameAssetManager
     {

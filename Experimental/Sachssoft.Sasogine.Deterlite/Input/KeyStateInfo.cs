@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework.Input;
-
-namespace Sachssoft.Sasogine.Presentation.Input
+﻿namespace Sachssoft.Sasogine.Presentation.Input
 {
     public class KeyStateInfo
     {
