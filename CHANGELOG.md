@@ -23,45 +23,45 @@ All notable changes to this project will be documented in this file.
 (Planned)
 
 ## [0.0.3-alpha] - In Progress (Target: 2026-07-28)
-- [Feature] Add scene runtime settings for game modes and options, such as enabling debug features.
-- [Feature] Add `Vector3` conversion support to `Coordinate2`.
-- [Feature] Add `IPlatformFileStore` service for platform-specific resource source handling.
-- [Feature] Introduce a new lightweight material system.
-- [Feature] Expand CameraExtensions with world-space calculations.
+- [Feature] Added scene runtime settings for game modes and options, such as enabling debug features.
+- [Feature] Added `Vector3` conversion support to `Coordinate2`.
+- [Feature] Added `IPlatformFileStore` service for platform-specific resource source handling.
+- [Feature] Introduced a new lightweight material system.
+- [Feature] Expanded CameraExtensions with world-space calculations.
 - [Feature] Added specialized texture frame set support for tile-based rendering.
 - [Feature] Introduced `IMatrixProvider` interface and added `QuadTransform` and `TileTransform` implementations for flexible rendering transformations.
-- [Feature] Introduced Tile Batch System for tile-based rendering
-- [Feature] Introduced the Tile World System
-- [Change] Refactor the primitive architecture by separating and reorganizing primitive classes.
-- [Change] Replace scene-level shader management with default materials. Shader handling is now moved to the material layer.
-- [Change] Rename `IPlatformModifier` to `IPlatformKeyModifiers` and clarify platform-specific keyboard modifier handling.
-- [Change] Refactor and clean up namespaces
-- [Change] Primitive System marked obsolete. Redesign planned next version.
-- [Improve] Extend `Coordinate2` with additional `Vector2` conversion overloads.
-- [Bug] Fixed missing `IShaderTransform` in `ShaderBase` required for automatic default camera assignment in primitives.
+- [Feature] Introduced an efficient batch rendering system with support for tile-based rendering.
+- [Feature] Introduced the Tile World System.
+- [Feature] Added GPU mesh rendering support with `IMesh` and `MeshRenderer`.
+- [Feature] Introduced mesh generator utilities for creating reusable GPU meshes.
+- [Change] Replaced scene-level shader management with default materials. Shader handling is now moved to the material layer.
+- [Change] Renamed `IPlatformModifier` to `IPlatformKeyModifiers` and clarified platform-specific keyboard modifier handling.
+- [Change] Refactored and cleaned up namespaces.
+- [Change] Replaced the Primitive System with the new GPU-based Mesh rendering system.
+- [Change] Texture Atlas System marked obsolete. Replaced by the Frame Set System in the next release.
+- [Improve] Extended `Coordinate2` with additional `Vector2` conversion overloads.
+- [Bug] Fixed missing `IShaderTransform` implementation in `ShaderBase`, required for automatic default camera assignment in primitives.
 
 ## [0.0.2-alpha] - 2026-07-18
-
-- [Feature] Add `Viewport` and `RenderSize` properties to `ViewportCursorService`.
-- [Feature] Add `Service` to `GameConfiguration`.
-- [Feature] Add `ToBox` to `Bounds` and `PixelBounds`.
-- [Feature] Add `ToBounds` to `Box` and `PixelBox`.
-- [Feature] Add constructors with a uniform parameter to `Size` and `PixelSize`.
-- [Change] Rename `EffectAdapter` to `Shader` for future graphics backend independence.
-- [Change] Remove several unused and unstable classes.
-- [Change] Refactor `PackageContextService` change event handling.
-- [Improve] Improve Camera System Architecture and transformation handling.
-- [Improve] Improve instance creation with a single `GameConfiguration` parameter for better access.
-- [Improve] Improve Scene System architecture and add missing summaries.
-- [Improve] Improve shader transformation handling by separating camera and object transforms.
+- [Feature] Added `Viewport` and `RenderSize` properties to `ViewportCursorService`.
+- [Feature] Added `Service` to `GameConfiguration`.
+- [Feature] Added `ToBox` methods to `Bounds` and `PixelBounds`.
+- [Feature] Added `ToBounds` methods to `Box` and `PixelBox`.
+- [Feature] Added constructors with a uniform parameter to `Size` and `PixelSize`.
+- [Change] Renamed `EffectAdapter` to `Shader` for future graphics backend independence.
+- [Change] Removed several unused and unstable classes.
+- [Change] Refactored `PackageContextService` change event handling.
+- [Improve] Improved Camera System architecture and transformation handling.
+- [Improve] Improved instance creation by using a single `GameConfiguration` parameter for better access.
+- [Improve] Improved Scene System architecture and added missing summaries.
+- [Improve] Improved shader transformation handling by separating camera and object transforms.
 - [Improve] Extended and improved the `Coordinate2` structure.
-- [Bug] Fix scene manager creation order by creating it after settings initialization.
-- [Bug] Fix undefined asset definitions during asset construction.
-- [Bug] Fix incorrect world transformation handling.
-- [Bug] Fix rendering inconsistencies caused by mixed camera and object transformations.
+- [Bug] Fixed scene manager creation order by creating it after settings initialization.
+- [Bug] Fixed undefined asset definitions during asset construction.
+- [Bug] Fixed incorrect world transformation handling.
+- [Bug] Fixed rendering inconsistencies caused by mixed camera and object transformations.
 
 ## [0.0.1-alpha] - 2026-07-14
-
 - [Feature] Initial alpha release
 - [Feature] Initial Sasogine engine framework release
 
