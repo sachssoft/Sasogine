@@ -1,0 +1,22 @@
+name: 💡 Idea
+description: Suggest an idea
+title: "IDEA: "
+labels:
+  - idea
+assignees:
+  - Sachssoft
+
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: "💡 Idea"
+      placeholder: "Describe your idea."
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: "📄 Context"
+      placeholder: "Add details or examples."
