@@ -21,6 +21,9 @@ namespace Sachssoft.Sasogine.Resources;
 /// <typeparam name="TEnumKey">
 /// The enum type used as the key for texture atlas frame mappings.
 /// </typeparam>
+[Obsolete(
+    "This type will be replaced by IndexedFrameSet. " +
+    "Use IndexedTileFrameSet for tile-specific atlas resources.")]
 public class IndexedTextureAtlas<TEnumKey> : TextureAtlas
     where TEnumKey : struct, Enum
 {

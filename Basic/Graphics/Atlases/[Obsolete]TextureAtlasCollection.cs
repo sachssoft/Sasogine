@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Resources;
 
+[Obsolete("This type will be removed.")]
 public class TextureAtlasCollection
 {
     private readonly List<TextureAtlas> _atlases = new();

@@ -1,6 +1,7 @@
 ﻿namespace Sachssoft.Sasogine.Resources;
 
 using Microsoft.Xna.Framework;
+using System;
 
 /// <summary>
 /// Represents a single sprite frame within a texture atlas.
@@ -12,6 +13,8 @@ using Microsoft.Xna.Framework;
 /// The class supports common atlas features such as trimmed frames, pivot points,
 /// and rotated atlas entries (for example Starling or LibGDX style formats).
 /// </summary>
+[Obsolete(
+    "Removed in a future release. Use KeyedFrameSet or KeyedTileFrameSet with FrameData or TileFrameData.")]
 public sealed class TextureAtlasFrame
 {
     /// <summary>

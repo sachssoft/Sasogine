@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Resources
 {
+    [Obsolete("Replaced by NinePatchFrameData")]
     public class NinePatchRegion : ITextureRegion
     {
         private readonly Rectangle[] _regions;

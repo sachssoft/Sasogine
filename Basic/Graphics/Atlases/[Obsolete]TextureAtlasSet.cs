@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Resources;
 
+[Obsolete(
+    "This type is obsolete and has been replaced by KeyedFrameSet or similar frame set types.")]
 public sealed class TextureAtlasSet
 {
     private readonly HashSet<TextureAtlas> _atlases = new();

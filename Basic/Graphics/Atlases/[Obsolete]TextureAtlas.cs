@@ -9,6 +9,7 @@ using System.Xml.Linq;
 
 namespace Sachssoft.Sasogine.Resources;
 
+[Obsolete("Replaced by KeyedFrameSet or similar types.")]
 public class TextureAtlas
 {
     private Texture2D _texture;
