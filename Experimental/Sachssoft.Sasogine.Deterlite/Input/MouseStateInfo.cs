@@ -1,9 +1,0 @@
-﻿namespace Sachssoft.Sasogine.Presentation.Input
-{
-    public class MouseStateInfo
-    {
-        public Vector2 Position { get; internal set; }
-        public MouseDeltaState Delta { get; internal set; } = MouseDeltaState.None;
-        public MouseInteractionState Interaction { get; internal set; } = MouseInteractionState.None;
-    }
-}
