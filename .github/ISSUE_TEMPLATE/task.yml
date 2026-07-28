@@ -2,7 +2,9 @@ name: 📌 Task
 description: Create a task, refactor, improvement, or change
 title: "TASK: "
 labels:
-  - task
+  - refactor
+  - impreovement
+  - change
 assignees:
   - Sachssoft
 
@@ -12,9 +14,6 @@ body:
     attributes:
       label: "🏷️ Type"
       options:
-        - Feature
-        - Bug
-        - Question
         - Refactor
         - Improvement
         - Change
