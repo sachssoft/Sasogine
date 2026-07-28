@@ -1,7 +1,5 @@
 ﻿using Sachssoft.Sasogine.Common;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Sachssoft.Sasogine.World.Tiles
 {
