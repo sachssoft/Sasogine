@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Graphics.Cameras;
-using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
 
 
@@ -18,7 +17,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches;
 /// shaders and quad generation. Derived classes are responsible for
 /// converting tile coordinates into world transformations.
 /// </remarks>
-public abstract class TileBatchBase : IDisposable
+public abstract class QuadBatchBase : IDisposable
 {
     private readonly GraphicsDevice _graphicsDevice;
 
@@ -28,11 +27,11 @@ public abstract class TileBatchBase : IDisposable
     private DynamicVertexBuffer? _vertexBuffer;
     private IndexBuffer? _indexBuffer;
 
-    private bool _isBegun; 
+    private bool _isBegun;
     private bool _disposed;
 
     private int _capacity;
-    private int _tileCount;
+    private int _quadCount;
     private int _vertexCount;
 
     private IShader? _shader;
@@ -48,7 +47,7 @@ public abstract class TileBatchBase : IDisposable
     /// <param name="initialCapacity">
     /// Initial tile capacity.
     /// </param>
-    protected TileBatchBase(
+    protected QuadBatchBase(
         GraphicsDevice graphicsDevice,
         int initialCapacity = 1024)
     {
@@ -87,11 +86,9 @@ public abstract class TileBatchBase : IDisposable
         _shader = shader ?? throw new ArgumentNullException(nameof(shader));
         _camera = camera ?? throw new ArgumentNullException(nameof(camera));
 
-        _shader = shader;
-        _camera = camera;
         _texture = texture;
 
-        _tileCount = 0;
+        _quadCount = 0;
         _vertexCount = 0;
 
         _isBegun = true;
@@ -109,12 +106,12 @@ public abstract class TileBatchBase : IDisposable
 
         if (!_isBegun)
             throw new InvalidOperationException(
-                "Batch must be started with Begin() before adding tiles.");
+                "Batch must be started with Begin() before adding quads.");
 
         EnsureCapacity();
 
         int vertex =
-            _tileCount * 4;
+            _quadCount * 4;
 
 
         Vector3 normal =
@@ -177,9 +174,10 @@ public abstract class TileBatchBase : IDisposable
                 uv3);
 
 
-        _tileCount++;
+        _quadCount++;
         _vertexCount += 4;
     }
+
     private Vector2 GetUV(
     int x,
     int y)
@@ -192,6 +190,7 @@ public abstract class TileBatchBase : IDisposable
             x / (float)_texture.Width,
             y / (float)_texture.Height);
     }
+
     private static VertexPositionColorNormalTexture CreateVertex(
         Vector3 position,
         Color color,
@@ -210,7 +209,7 @@ public abstract class TileBatchBase : IDisposable
 
     private void EnsureCapacity()
     {
-        if (_tileCount < _capacity)
+        if (_quadCount < _capacity)
             return;
 
         _capacity *= 2;
@@ -278,7 +277,7 @@ public abstract class TileBatchBase : IDisposable
         {
             if (_shader == null ||
             _camera == null ||
-            _tileCount == 0)
+            _quadCount == 0)
                 return;
 
             _vertexBuffer.SetData(
@@ -311,12 +310,12 @@ public abstract class TileBatchBase : IDisposable
                     PrimitiveType.TriangleList,
                     0,
                     0,
-                    _tileCount * 2);
+                    _quadCount * 2);
             }
         }
         finally
         {
-            _tileCount = 0;
+            _quadCount = 0;
             _vertexCount = 0;
 
             _isBegun = false;
@@ -334,11 +333,11 @@ public abstract class TileBatchBase : IDisposable
         if (_disposed)
         {
             throw new ObjectDisposedException(
-                nameof(TileBatchBase));
+                nameof(QuadBatchBase));
         }
 
-        _vertexBuffer.Dispose();
-        _indexBuffer.Dispose();
+        _vertexBuffer?.Dispose();
+        _indexBuffer?.Dispose();
 
         _disposed = true;
     }
@@ -348,7 +347,7 @@ public abstract class TileBatchBase : IDisposable
         if (_disposed)
         {
             throw new ObjectDisposedException(
-                nameof(TileBatchBase));
+                nameof(QuadBatchBase));
         }
     }
 }
