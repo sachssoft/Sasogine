@@ -1,118 +1,179 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Graphics.Rendering;
 
 namespace Sachssoft.Sasogine.Graphics.Rendering;
 
 /// <summary>
-/// Represents a transformation for tile based rendering.
+/// Represents a local transformation applied to an individual tile.
 /// </summary>
 /// <remarks>
-/// A tile transform uses a tile size instead of a generic scale value.
-/// It supports position, offset, rotation and origin based transformations
-/// and can be converted into a rendering matrix.
+/// A tile transformation is applied after the tile grid position has been
+/// calculated by the tile batch.
+/// 
+/// The tile coordinate defines the world position inside the grid, while this
+/// transformation provides local modifications for the individual tile.
+/// 
+/// Supported transformations:
+/// <list type="bullet">
+/// <item>
+/// <description>
+/// Offset moves the tile relative to its grid position.
+/// </description>
+/// </item>
+/// <item>
+/// <description>
+/// Scale changes the local tile size.
+/// </description>
+/// </item>
+/// <item>
+/// <description>
+/// Rotation rotates the tile around its local pivot.
+/// </description>
+/// </item>
+/// <item>
+/// <description>
+/// Pivot defines the normalized point used for scaling and rotation.
+/// </description>
+/// </item>
+/// </list>
+/// 
+/// The local pivot is independent from the tile grid pivot configured by the
+/// tile batch.
 /// </remarks>
-public readonly struct TileTransform : IMatrixProvider
+public readonly struct TileTransform
 {
     /// <summary>
-    /// Creates an empty tile transform.
+    /// Creates a default tile transformation.
     /// </summary>
+    /// <remarks>
+    /// Default values:
+    /// <list type="bullet">
+    /// <item>
+    /// <description>Scale = (1,1)</description>
+    /// </item>
+    /// <item>
+    /// <description>Rotation = 0</description>
+    /// </item>
+    /// <item>
+    /// <description>Offset = (0,0)</description>
+    /// </item>
+    /// <item>
+    /// <description>Pivot = (0.5,0.5)</description>
+    /// </item>
+    /// </list>
+    /// </remarks>
     public TileTransform()
     {
-        Position = Vector2.Zero;
-        Offset = Vector2.Zero;
+        Scale = Vector2.One;
         Rotation = 0f;
-        Origin = Vector2.Zero;
+        Offset = Vector2.Zero;
+        Pivot = new Vector2(0.5f);
     }
 
 
     /// <summary>
-    /// Creates a tile transform with position and tile size.
+    /// Creates a tile transformation.
     /// </summary>
-    /// <param name="position">
-    /// World position of the tile.
-    /// </param>
-    /// <param name="tileSize">
-    /// Size of the tile.
-    /// </param>
-    public TileTransform(
-        Vector2 position,
-        Vector2 tileSize)
-    {
-        Position = position;
-        Offset = Vector2.Zero;
-        Rotation = 0f;
-        Origin = Vector2.Zero;
-    }
-
-
-    /// <summary>
-    /// Creates a tile transform with full transformation settings.
-    /// </summary>
-    /// <param name="position">
-    /// World position of the tile.
+    /// <param name="scale">
+    /// Local scale of the tile.
     /// </param>
     /// <param name="rotation">
-    /// Rotation in radians.
+    /// Rotation angle in radians.
     /// </param>
-    /// <param name="origin">
-    /// Rotation origin.
+    /// <param name="offset">
+    /// Local position offset.
     /// </param>
     public TileTransform(
-        Vector2 position,
+        Vector2 scale,
         float rotation,
-        Vector2 origin)
+        Vector2 offset)
     {
-        Position = position;
-        Offset = Vector2.Zero;
+        Scale = scale;
         Rotation = rotation;
-        Origin = origin;
+        Offset = offset;
+        Pivot = new Vector2(0.5f);
     }
 
 
     /// <summary>
-    /// Gets the world position of the tile.
+    /// Creates a tile transformation with a custom pivot.
     /// </summary>
-    public Vector2 Position { get; init; }
+    /// <param name="scale">
+    /// Local scale of the tile.
+    /// </param>
+    /// <param name="rotation">
+    /// Rotation angle in radians.
+    /// </param>
+    /// <param name="offset">
+    /// Local position offset.
+    /// </param>
+    /// <param name="pivot">
+    /// Normalized local pivot point used for rotation and scaling.
+    /// </param>
+    public TileTransform(
+        Vector2 scale,
+        float rotation,
+        Vector2 offset,
+        Vector2 pivot)
+    {
+        Scale = scale;
+        Rotation = rotation;
+        Offset = offset;
+        Pivot = pivot;
+    }
 
 
     /// <summary>
-    /// Gets an additional offset applied to the tile position.
+    /// Gets an identity tile transformation.
     /// </summary>
-    public Vector2 Offset { get; init; }
+    public static readonly TileTransform Identity = new();
 
 
     /// <summary>
-    /// Gets the rotation angle in radians.
+    /// Gets the local scale of the tile.
+    /// </summary>
+    public Vector2 Scale { get; init; }
+
+
+    /// <summary>
+    /// Gets the local rotation angle in radians.
     /// </summary>
     public float Rotation { get; init; }
 
 
     /// <summary>
-    /// Gets the origin point used as rotation and scaling pivot.
+    /// Gets the normalized local pivot point used for scaling and rotation.
     /// </summary>
-    public Vector2 Origin { get; init; }
+    /// <remarks>
+    /// Values range from 0 to 1.
+    /// 
+    /// Examples:
+    /// <list type="bullet">
+    /// <item>
+    /// <description>(0,0) = top-left</description>
+    /// </item>
+    /// <item>
+    /// <description>(0.5,0.5) = center</description>
+    /// </item>
+    /// <item>
+    /// <description>(1,1) = bottom-right</description>
+    /// </item>
+    /// </list>
+    /// 
+    /// This pivot affects only local transformation and does not modify
+    /// the tile grid position.
+    /// </remarks>
+    public Vector2 Pivot { get; init; }
 
 
     /// <summary>
-    /// Converts this tile transformation into a graphics matrix.
+    /// Gets the local offset inside the tile grid position.
     /// </summary>
-    /// <returns>
-    /// A matrix representing the tile transformation.
-    /// </returns>
-    public Matrix ToMatrix()
-    {
-        return
-            Matrix.CreateTranslation(
-                -Origin.X,
-                -Origin.Y,
-                0f)
-            *
-            Matrix.CreateRotationZ(
-                Rotation)
-            *
-            Matrix.CreateTranslation(
-                Position.X + Offset.X,
-                Position.Y + Offset.Y,
-                0f);
-    }
+    /// <remarks>
+    /// The offset is applied after the tile coordinate has been converted
+    /// into a world position.
+    /// 
+    /// The offset only moves the tile and does not change the rotation or
+    /// scaling origin.
+    /// </remarks>
+    public Vector2 Offset { get; init; }
 }
