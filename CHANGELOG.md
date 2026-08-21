@@ -19,7 +19,10 @@ All notable changes to this project will be documented in this file.
 
 </small>
 
-## [0.0.4-alpha] - In Progress (Target: End of August 2026)
+## [0.0.4-alpha] - In Progress
+
+## [0.0.3.1-alpha] - 2026-08-21
+- [Feature] Added InteractionFlags for exposing interaction states to tool components.
 
 ## [0.0.3-alpha] - 2026-07-28
 - [Feature] Added scene runtime settings for game modes and options, such as enabling debug features.

@@ -9,6 +9,8 @@
 	</PropertyGroup>
 	
 	<ItemGroup>
+	  <Folder Include="Basic\Components\Tools\SelectionTool\" />
+	  <Folder Include="Basic\Components\Tools\VectorEditor\" />
 	  <Folder Include="Basic\Graphics\Tiles\" />
 	</ItemGroup>
 </Project>
