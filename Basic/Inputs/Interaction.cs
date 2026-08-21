@@ -159,6 +159,32 @@ namespace Sachssoft.Sasogine.Input
             }
         }
 
+        // V. 0.0.4-alpha: Neue Methode, die den aktuellen Interaktionszustand als Flags zurückgibt.
+
+        /// <summary>
+        /// Gets the current interaction state as <see cref="InteractionFlags"/>.
+        /// </summary>
+        /// <param name="interaction">The interaction to query.</param>
+        /// <returns>
+        /// The flags representing the current state of the interaction.
+        /// Returns <see cref="InteractionFlags.None"/> when the interaction is inactive.
+        /// </returns>
+        public InteractionFlags GetFlags(TEnum interaction)
+        {
+            InteractionFlags flags = InteractionFlags.None;
+
+            if (IsPressed(interaction))
+                flags |= InteractionFlags.IsPressed;
+
+            if (WasJustPressed(interaction))
+                flags |= InteractionFlags.WasJustPressed;
+
+            if (WasJustReleased(interaction))
+                flags |= InteractionFlags.WasJustReleased;
+
+            return flags;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int UnsafeIndex(TEnum value)
         {
