@@ -4,7 +4,7 @@
 
 	<PropertyGroup>
 		<!-- General -->
-		<RootNamespace>Sachssoft.Sasogine</RootNamespace>
+		<RootNamespace>Sachssoft.Sasogine.Toolkit</RootNamespace>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
@@ -19,26 +19,21 @@
 
 		<!-- NuGet Metadata -->
 		<Description>
-			Sasogine is a lightweight and flexible game engine framework based on MonoGame.
+			Reusable components and tools for the Sasogine game engine.
 		</Description>
 
 		<PackageReleaseNotes>
-			Sasogine Alpha release.
+			Sasogine Toolkit Alpha release.
 		</PackageReleaseNotes>
 
 		<PackageTags>
-			MonoGame;GameEngine;Framework;AOT;Trimming
+			Sasogine;Toolkit;Components;Tools;MonoGame;GameEngine;Framework;AOT;Trimming
 		</PackageTags>
-
-		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="FontStashSharp.MonoGame" Version="1.5.6" />
-		<PackageReference Include="LibTessDotNet" Version="1.1.15" />
-		<PackageReference Include="Clipper2" Version="2.0.0" />
-		<PackageReference Include="NLayer" Version="1.16.0" />
-		<PackageReference Include="NVorbis" Version="0.10.5" />
+		<PackageReference Include="Sachssoft.Sasogine.DesktopGL"
+						  Version="$(VersionPrefix)-$(VersionSuffix)" />
 	</ItemGroup>
 
 </Project>

@@ -27,7 +27,8 @@
 			<PrivateAssets>All</PrivateAssets>
 		</PackageReference>
 		<PackageReference Include="Sachssoft.Sasodoc" Version="1.0.0" />
-		<PackageReference Include="Sachssoft.Sasogine.DesktopGL" Version="0.0.1-alpha" />
+		<PackageReference Include="Sachssoft.Sasogine.DesktopGL"
+						  Version="$(VersionPrefix)-$(VersionSuffix)" />
 	</ItemGroup>
 
 </Project>

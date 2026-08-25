@@ -1,16 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	
 	<PropertyGroup>
-		<RootNamespace>Sachssoft.Sasogine</RootNamespace>
+		<!--<RootNamespace>Sachssoft.Sasogine</RootNamespace>
 		<Nullable>enable</Nullable>
-		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>-->
 		<Title>Sasogine</Title>
 		<Copyright>© Tobias Sachs (Sachssoft)</Copyright>
 	</PropertyGroup>
+
+	<PropertyGroup>
+		<IsTestProject>false</IsTestProject>
+		<BuildProjectReferences>false</BuildProjectReferences>
+		<BuildProject>false</BuildProject>
+		<DisableBuild>true</DisableBuild>
+	</PropertyGroup>
+
+	<Target Name="Build" Condition="'$(DisableBuild)' == 'true'">
+	</Target>
 	
 	<ItemGroup>
-	  <Folder Include="Basic\Components\Tools\SelectionTool\" />
-	  <Folder Include="Basic\Components\Tools\VectorEditor\" />
-	  <Folder Include="Basic\Graphics\Tiles\" />
+	  <Folder Include="Projects\Basic\Graphics\Tiles\" />
+	  <Folder Include="Projects\Toolkit\Shaders\" />
+	  <Folder Include="Projects\Toolkit\Tools\ObjectInsertTool\" />
 	</ItemGroup>
 </Project>

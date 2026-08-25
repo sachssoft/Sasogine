@@ -7,7 +7,7 @@
 
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 
-		<PackageId>Sachssoft.Sasogine.DesktopGL</PackageId>
+		<PackageId>Sachssoft.Sasogine.UI.DesktopGL</PackageId>
 		<Title>Sasogine DesktopGL</Title>
 		<Description>
 			Sasogine DesktopGL backend based on MonoGame.
@@ -18,7 +18,7 @@
 		</PackageTags>
 	</PropertyGroup>
 
-	<Import Project="..\..\..\Sachssoft.Sasogine.props" />
+	<Import Project="..\..\..\Sachssoft.Sasogine.UI.props" />
 
 	<PropertyGroup>
 		<DefineConstants>
@@ -29,8 +29,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Include="..\..\..\Projects\Basic\**\*.cs">
-			<LinkBase>Basic</LinkBase>
+		<Compile Include="..\..\..\Projects\UI\**\*.cs">
+			<LinkBase>UI</LinkBase>
 		</Compile>
 	</ItemGroup>
 	
@@ -40,7 +40,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5.1" />
+		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.4.1" />
 	</ItemGroup>
 
 </Project>

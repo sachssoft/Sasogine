@@ -1,0 +1,33 @@
+<Project>
+	<PropertyGroup>
+		<!-- NuGet Metadata -->
+		<VersionPrefix>0.0.4</VersionPrefix>
+		<VersionSuffix>alpha</VersionSuffix>
+
+		<Authors>Tobias Sachs</Authors>
+		<Copyright>© 2025-2026 Tobias Sachs (Sachssoft)</Copyright>
+
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+
+		<PackageProjectUrl>https://github.com/sachssoft/Sasogine</PackageProjectUrl>
+
+		<GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">
+			true
+		</GeneratePackageOnBuild>
+
+		<!-- Source Repository -->
+		<RepositoryUrl>https://github.com/sachssoft/Sasogine.git</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="$(MSBuildThisFileDirectory)LICENSE.md"
+			  Pack="true"
+			  PackagePath="\" />
+
+		<None Include="$(MSBuildThisFileDirectory)README.md"
+			  Pack="true"
+			  PackagePath="\" />
+	</ItemGroup>
+</Project>
