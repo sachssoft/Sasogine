@@ -14,23 +14,20 @@
     <Project Path="Extensions/Sachssoft.Sasogine.Extensions.Sasodoc.Shared.shproj" Id="81200792-eb1a-4da6-a5b6-5424a520a252" />
     <Project Path="Extensions/Sachssoft.Sasogine.Extensions.Sasodoc/Sachssoft.Sasogine.Extensions.Sasodoc.csproj" Id="02c50c23-72d4-46c2-aaf6-f067d4fe6ee3" />
   </Folder>
+  <Folder Name="/Info/">
+    <File Path="Anleitung.txt" />
+  </Folder>
   <Folder Name="/Platforms/">
     <Project Path="Platforms/Sachssoft.Sasogine.Platform.Linux/Sachssoft.Sasogine.Platform.Linux.csproj" />
     <Project Path="Platforms/Sachssoft.Sasogine.Platform.MacOs/Sachssoft.Sasogine.Platform.MacOs.csproj" />
     <Project Path="Platforms/Sachssoft.Sasogine.Platform.Windows/Sachssoft.Sasogine.Platform.Windows.csproj" />
   </Folder>
-  <Folder Name="/Projektmappenelemente/">
-    <File Path="Anleitung.txt" />
-    <File Path="CHANGELOG.md" />
-    <File Path="LICENSE.md" />
-    <File Path="README.md" />
-    <File Path="Sachssoft.Sasogine.Extensions.Sasodoc.props" />
-    <File Path="Sachssoft.Sasogine.props" />
-  </Folder>
   <Folder Name="/Targets/" />
   <Folder Name="/Targets/DesktopGL/">
     <Project Path="Targets/DesktopGL/Sachssoft.Sasogine.DesktopGL/Sachssoft.Sasogine.DesktopGL.csproj" />
     <Project Path="Targets/DesktopGL/Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL/Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL.csproj" />
+    <Project Path="Targets/DesktopGL/Sachssoft.Sasogine.Toolkit.DesktopGL/Sachssoft.Sasogine.Toolkit.DesktopGL.csproj" />
+    <Project Path="Targets/DesktopGL/Sachssoft.Sasogine.UI.DesktopGL/Sachssoft.Sasogine.UI.DesktopGL.csproj" />
   </Folder>
   <Folder Name="/Targets/WindowsDX/" />
 </Solution>
