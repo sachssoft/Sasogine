@@ -1,0 +1,20 @@
+﻿using Microsoft.Xna.Framework;
+
+namespace Sachssoft.Sasogine.Components.Tools.Selection
+{
+    /// <summary>
+    /// Represents a selection target that can be moved by the Selection Tool.
+    /// </summary>
+    public interface ISelectionMovable : ISelectionTarget
+    {
+        /// <summary>
+        /// Gets or sets the position of the selection target.
+        /// </summary>
+        Vector2 Position { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether movement is currently allowed.
+        /// </summary>
+        bool AllowMove { get; }
+    }
+}
