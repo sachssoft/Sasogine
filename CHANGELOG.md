@@ -19,7 +19,17 @@ All notable changes to this project will be documented in this file.
 
 </small>
 
-## [0.0.4-alpha] - In Progress
+## [0.0.5-alpha] - In progress
+- [Feature] **Toolkit**: Added a Vector Path Tool with `VectorPathTool` for creating and editing vector paths.
+- [Feature] **Toolkit**: Added Selection and Transformation Tools with `SelectionTool` for editing and transforming objects.
+- [Feature] **Toolkit**: Added object insertion support with `ObjectInsertTool` for creating and placing objects in the editor.
+
+## [0.0.4.1-alpha] - 2026-08-28
+- [Feature] Introduced gameplay capability interfaces.
+- [Feature] Added gameplay capabilities for movement, rotation, and enable state.
+- [Feature] Introduced Selection Tool content interfaces and added selection, locking, movement, rotation, scaling, and resizing support.
+
+## [0.0.4-alpha] - 2026-08-25
 - [Feature] Introduced a new Tool System based on `ToolComponentBase` for managing interactive editor tools and their lifecycle.
 - [Feature] Introduced the geometry batch `ShapeBatch` for efficient rendering of shapes with fewer draw calls.
 - [Feature] Added geometry samplers for Catmull-Rom, B-Spline, and Hermite curves.
