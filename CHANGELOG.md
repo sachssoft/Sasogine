@@ -43,7 +43,7 @@ All notable changes to this project will be documented in this file.
 - [Improve] Added 32-bit index support to `Mesh<TVertex>`.
 - [Improve] Improved path processing and geometry caching.
 - [Improve] Improved path tools for multi-polygon paths.
-- 
+
 ## [0.0.3.1-alpha] - 2026-08-21
 - [Feature] Added `InteractionFlags` for exposing interaction states to tool components.
 
