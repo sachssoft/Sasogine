@@ -17,10 +17,19 @@
 
 	<Target Name="Build" Condition="'$(DisableBuild)' == 'true'">
 	</Target>
+
+	<ItemGroup>
+	  <Compile Remove="Projects\Basic\Components\Tools\Selection\SelectionExtensions.cs" />
+	</ItemGroup>
 	
 	<ItemGroup>
 	  <Folder Include="Projects\Basic\Graphics\Tiles\" />
 	  <Folder Include="Projects\Toolkit\Shaders\" />
 	  <Folder Include="Projects\Toolkit\Tools\ObjectInsertTool\" />
+	  <Folder Include="Projects\UI\" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <None Include="Projects\Basic\Components\Tools\Selection\SelectionExtensions.cs" />
 	</ItemGroup>
 </Project>
