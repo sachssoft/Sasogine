@@ -1,5 +1,8 @@
 ﻿namespace Sachssoft.Sasogine.Graphics.Rendering;
 
+// Für mehrere Batches vorgesehen, aktuell jedoch noch nicht implementiert.
+// Die Implementierung ist für die nächste Version geplant.
+
 /// <summary>
 /// Defines how draw calls are batched and ordered during rendering.
 /// </summary>
