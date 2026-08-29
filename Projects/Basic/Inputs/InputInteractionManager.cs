@@ -5,76 +5,213 @@ using System.Linq;
 
 namespace Sachssoft.Sasogine.Input
 {
-
+    /// <summary>
+    /// Manages button combinations and button sequences for an input state.
+    /// </summary>
+    /// <typeparam name="TButton">
+    /// The button type used by the input state.
+    /// </typeparam>
     public abstract class InputInteractionManager<TButton> where TButton : struct, Enum
     {
-        protected static readonly TButton[] _allButtons = Enum.GetValues<TButton>().Cast<TButton>().ToArray();
+        private static readonly TButton[] _allButtons =
+            Enum.GetValues<TButton>().Cast<TButton>().ToArray();
 
+        /// <summary>
+        /// Gets the input state from the previous update.
+        /// </summary>
         protected IInputState<TButton> _previousState;
 
-        private readonly Dictionary<HashSet<TButton>, (Action pressAction, Action? releaseAction)> _combo_actions = new(new HashSetComparer<TButton>());
-        private readonly List<HashSet<TButton>> _active_combos = new();
+        private readonly List<CombinationEntry> _comboActions = new();
+        private readonly List<CombinationEntry> _activeCombos = new();
         private readonly List<SequenceEntry> _sequences = new();
 
-        public InputInteractionManager(IInputState<TButton> initialState)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InputInteractionManager{TButton}"/> class.
+        /// </summary>
+        /// <param name="initialState">
+        /// The initial input state used as the previous state for the first update.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="initialState"/> is <see langword="null"/>.
+        /// </exception>
+        protected InputInteractionManager(
+            IInputState<TButton> initialState)
         {
-            _previousState = initialState ?? throw new ArgumentNullException(nameof(initialState));
+            _previousState =
+                initialState ??
+                throw new ArgumentNullException(nameof(initialState));
         }
 
-        public void AddCombination(IEnumerable<TButton> buttons, Action pressAction, Action? releaseAction = null)
+        /// <summary>
+        /// Adds a button combination with a press action and an optional release action.
+        /// </summary>
+        /// <param name="buttons">
+        /// The buttons that must be pressed simultaneously.
+        /// </param>
+        /// <param name="pressAction">
+        /// The action invoked when the combination becomes pressed.
+        /// </param>
+        /// <param name="releaseAction">
+        /// The optional action invoked when the combination is released.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="buttons"/> or <paramref name="pressAction"/> is
+        /// <see langword="null"/>.
+        /// </exception>
+        public void AddCombination(
+            IEnumerable<TButton> buttons,
+            Action pressAction,
+            Action? releaseAction = null)
         {
-            var button_set = new HashSet<TButton>(buttons);
-            _combo_actions[button_set] = (pressAction, releaseAction);
+            ArgumentNullException.ThrowIfNull(buttons);
+            ArgumentNullException.ThrowIfNull(pressAction);
+
+            var buttonSet =
+                new HashSet<TButton>(buttons);
+
+            _comboActions.Add(
+                new CombinationEntry(
+                    buttonSet,
+                    pressAction,
+                    releaseAction));
         }
 
-        public void Add(TButton button, Action pressAction, Action? releaseAction = null)
+        /// <summary>
+        /// Adds a single button with a press action and an optional release action.
+        /// </summary>
+        /// <param name="button">
+        /// The button to register.
+        /// </param>
+        /// <param name="pressAction">
+        /// The action invoked when the button becomes pressed.
+        /// </param>
+        /// <param name="releaseAction">
+        /// The optional action invoked when the button is released.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="pressAction"/> is <see langword="null"/>.
+        /// </exception>
+        public void Add(
+            TButton button,
+            Action pressAction,
+            Action? releaseAction = null)
         {
-            AddCombination(new[] { button }, pressAction, releaseAction);
+            AddCombination(
+                new[] { button },
+                pressAction,
+                releaseAction);
         }
 
-        public void RemoveCombination(IEnumerable<TButton> buttons)
+        /// <summary>
+        /// Removes all registered combinations that contain exactly the specified buttons.
+        /// </summary>
+        /// <param name="buttons">
+        /// The buttons that identify the combinations to remove.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="buttons"/> is <see langword="null"/>.
+        /// </exception>
+        public void RemoveCombination(
+            IEnumerable<TButton> buttons)
         {
-            var button_set = new HashSet<TButton>(buttons);
-            _combo_actions.Remove(button_set);
+            ArgumentNullException.ThrowIfNull(buttons);
+
+            var buttonSet =
+                new HashSet<TButton>(buttons);
+
+            _comboActions.RemoveAll(
+                entry => entry.Buttons.SetEquals(buttonSet));
+
+            _activeCombos.RemoveAll(
+                entry => entry.Buttons.SetEquals(buttonSet));
         }
 
-        public void AddSequence(IList<TButton> sequence, Action action, TimeSpan? timeout = null)
+        /// <summary>
+        /// Adds a button sequence that invokes an action when completed.
+        /// </summary>
+        /// <param name="sequence">
+        /// The buttons that must be pressed in the specified order.
+        /// </param>
+        /// <param name="action">
+        /// The action invoked when the sequence is completed.
+        /// </param>
+        /// <param name="timeout">
+        /// The maximum time allowed between sequence buttons.
+        /// If <see langword="null"/>, one second is used.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="sequence"/> or <paramref name="action"/> is
+        /// <see langword="null"/>.
+        /// </exception>
+        public void AddSequence(
+            IList<TButton> sequence,
+            Action action,
+            TimeSpan? timeout = null)
         {
-            _sequences.Add(new SequenceEntry(sequence, action, timeout ?? TimeSpan.FromSeconds(1)));
+            _sequences.Add(
+                new SequenceEntry(
+                    sequence,
+                    action,
+                    timeout ?? TimeSpan.FromSeconds(1)));
         }
 
-        public void RemoveSequence(IList<TButton> sequence)
+        /// <summary>
+        /// Removes a previously registered button sequence.
+        /// </summary>
+        /// <param name="sequence">
+        /// The button sequence to remove.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="sequence"/> is <see langword="null"/>.
+        /// </exception>
+        public void RemoveSequence(
+            IList<TButton> sequence)
         {
-            _sequences.RemoveAll(s => s.Sequence.SequenceEqual(sequence));
+            ArgumentNullException.ThrowIfNull(sequence);
+
+            _sequences.RemoveAll(
+                entry => entry.Sequence.SequenceEqual(sequence));
         }
 
+        /// <summary>
+        /// Removes all registered button combinations.
+        /// </summary>
         public void ClearCombinations()
         {
-            _combo_actions.Clear();
-            _active_combos.Clear();
+            _comboActions.Clear();
+            _activeCombos.Clear();
         }
 
-        public void ClearActiveCombinations(bool triggerReleaseActions = true)
+        /// <summary>
+        /// Clears all currently active combinations.
+        /// </summary>
+        /// <param name="triggerReleaseActions">
+        /// <see langword="true"/> to invoke the release action of each active combination.
+        /// </param>
+        public void ClearActiveCombinations(
+            bool triggerReleaseActions = true)
         {
             if (triggerReleaseActions)
             {
-                foreach (var combo in _active_combos)
+                foreach (var entry in _activeCombos)
                 {
-                    if (_combo_actions.TryGetValue(combo, out var actions))
-                        actions.releaseAction?.Invoke();
+                    entry.ReleaseAction?.Invoke();
                 }
             }
 
-            _active_combos.Clear();
+            _activeCombos.Clear();
         }
 
+        /// <summary>
+        /// Removes all registered button sequences.
+        /// </summary>
         public void ClearSequences()
         {
             _sequences.Clear();
         }
 
         /// <summary>
-        /// Löscht alle Kombinationen, aktiven Kombinationen und Sequenzen.
+        /// Clears all registered combinations, active combinations and sequences.
         /// </summary>
         public void Clear()
         {
@@ -82,144 +219,304 @@ namespace Sachssoft.Sasogine.Input
             ClearSequences();
         }
 
-        public void RemoveActiveCombination(IEnumerable<TButton> buttons, bool triggerRelease = true)
+        /// <summary>
+        /// Removes an active button combination.
+        /// </summary>
+        /// <param name="buttons">
+        /// The buttons identifying the active combination.
+        /// </param>
+        /// <param name="triggerRelease">
+        /// <see langword="true"/> to invoke the combination's release action.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="buttons"/> is <see langword="null"/>.
+        /// </exception>
+        public void RemoveActiveCombination(
+            IEnumerable<TButton> buttons,
+            bool triggerRelease = true)
         {
-            var buttonSet = new HashSet<TButton>(buttons);
-            var match = _active_combos.FirstOrDefault(c => c.SetEquals(buttonSet));
+            ArgumentNullException.ThrowIfNull(buttons);
 
-            if (match != null)
+            var buttonSet =
+                new HashSet<TButton>(buttons);
+
+            for (int i = _activeCombos.Count - 1; i >= 0; i--)
             {
-                if (triggerRelease && _combo_actions.TryGetValue(match, out var actions))
-                    actions.releaseAction?.Invoke();
+                var entry =
+                    _activeCombos[i];
 
-                _active_combos.Remove(match);
+                if (!entry.Buttons.SetEquals(buttonSet))
+                    continue;
+
+                if (triggerRelease)
+                {
+                    entry.ReleaseAction?.Invoke();
+                }
+
+                _activeCombos.RemoveAt(i);
             }
         }
 
-        public void Update(GameContext context) => Update(context.GameTime);
-
-        public abstract void Update(GameTime gameTime);
-
-        protected void Update(IInputState<TButton> currentState, TimeSpan elapsed)
+        /// <summary>
+        /// Updates the interaction manager using the current game context.
+        /// </summary>
+        /// <param name="context">
+        /// The current game context.
+        /// </param>
+        public void Update(
+            GameContext context)
         {
-            if (currentState == null)
-                throw new ArgumentNullException(nameof(currentState));
+            ArgumentNullException.ThrowIfNull(context);
 
-            foreach (var kvp in _combo_actions)
+            Update(context.GameTime);
+        }
+
+        /// <summary>
+        /// Updates the interaction manager using the current game time.
+        /// </summary>
+        /// <param name="gameTime">
+        /// The current game time.
+        /// </param>
+        public abstract void Update(
+            GameTime gameTime);
+
+        /// <summary>
+        /// Updates the interaction manager using the current input state.
+        /// </summary>
+        /// <param name="currentState">
+        /// The current input state.
+        /// </param>
+        /// <param name="elapsed">
+        /// The elapsed time since the previous update.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="currentState"/> is <see langword="null"/>.
+        /// </exception>
+        protected void Update(
+            IInputState<TButton> currentState,
+            TimeSpan elapsed)
+        {
+            ArgumentNullException.ThrowIfNull(currentState);
+
+            foreach (var entry in _comboActions)
             {
-                var combo = kvp.Key;
-                var (press_action, release_action) = kvp.Value;
+                var isPressedNow =
+                    entry.Buttons.All(
+                        button => currentState.IsButtonDown(button));
 
-                bool is_pressed_now = combo.All(b => currentState.IsButtonDown(b));
-                bool was_pressed_before = combo.All(b => _previousState.IsButtonDown(b));
+                var wasPressedBefore =
+                    entry.Buttons.All(
+                        button => _previousState.IsButtonDown(button));
 
-                if (is_pressed_now && !was_pressed_before)
+                if (isPressedNow && !wasPressedBefore)
                 {
-                    press_action.Invoke();
-                    if (!_active_combos.Any(c => c.SetEquals(combo)))
-                        _active_combos.Add(combo);
-                }
-                else if (!is_pressed_now && was_pressed_before)
-                {
-                    if (_active_combos.Any(c => c.SetEquals(combo)))
+                    entry.PressAction.Invoke();
+
+                    if (!_activeCombos.Contains(entry))
                     {
-                        release_action?.Invoke();
-                        _active_combos.RemoveAll(c => c.SetEquals(combo));
+                        _activeCombos.Add(entry);
+                    }
+                }
+                else if (!isPressedNow && wasPressedBefore)
+                {
+                    if (_activeCombos.Remove(entry))
+                    {
+                        entry.ReleaseAction?.Invoke();
                     }
                 }
             }
 
-            foreach (var seq in _sequences)
+            foreach (var sequence in _sequences)
             {
-                seq.Update(currentState, _previousState, elapsed);
+                sequence.Update(
+                    currentState,
+                    _previousState,
+                    elapsed);
             }
 
             _previousState = currentState;
         }
 
-        protected class SequenceEntry
+        /// <summary>
+        /// Represents a registered button combination and its associated actions.
+        /// </summary>
+        protected class CombinationEntry
         {
-            public IList<TButton> Sequence { get; }
-            public Action Action { get; }
-            public TimeSpan Timeout { get; }
+            /// <summary>
+            /// Gets the buttons that make up the combination.
+            /// </summary>
+            public HashSet<TButton> Buttons { get; }
 
-            private int _current_index = 0;
-            private TimeSpan _time_since_last_button = TimeSpan.Zero;
+            /// <summary>
+            /// Gets the action invoked when the combination is pressed.
+            /// </summary>
+            public Action PressAction { get; }
 
-            public SequenceEntry(IList<TButton> sequence, Action action, TimeSpan timeout)
+            /// <summary>
+            /// Gets the optional action invoked when the combination is released.
+            /// </summary>
+            public Action? ReleaseAction { get; }
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="CombinationEntry"/> class.
+            /// </summary>
+            /// <param name="buttons">
+            /// The buttons that make up the combination.
+            /// </param>
+            /// <param name="pressAction">
+            /// The action invoked when the combination is pressed.
+            /// </param>
+            /// <param name="releaseAction">
+            /// The optional action invoked when the combination is released.
+            /// </param>
+            public CombinationEntry(
+                HashSet<TButton> buttons,
+                Action pressAction,
+                Action? releaseAction)
             {
-                Sequence = sequence ?? throw new ArgumentNullException(nameof(sequence));
-                Action = action ?? throw new ArgumentNullException(nameof(action));
-                Timeout = timeout;
-            }
-
-            public void Update(IInputState<TButton> current, IInputState<TButton> previous, TimeSpan elapsed)
-            {
-                _time_since_last_button += elapsed;
-
-                if (_time_since_last_button > Timeout)
-                {
-                    _current_index = 0;
-                    _time_since_last_button = TimeSpan.Zero;
-                }
-
-                if (_current_index >= Sequence.Count)
-                    return;
-
-                var button_to_match = Sequence[_current_index];
-
-                if (current.IsButtonDown(button_to_match) && previous.IsButtonUp(button_to_match))
-                {
-                    _current_index++;
-                    _time_since_last_button = TimeSpan.Zero;
-
-                    if (_current_index == Sequence.Count)
-                    {
-                        Action.Invoke();
-                        _current_index = 0;
-                    }
-                }
-                else if (AnyOtherButtonPressed(current, previous, button_to_match))
-                {
-                    _current_index = 0;
-                    _time_since_last_button = TimeSpan.Zero;
-                }
-            }
-
-            private bool AnyOtherButtonPressed(IInputState<TButton> current, IInputState<TButton> previous, TButton exclude)
-            {
-                foreach (var btn in _allButtons)
-                {
-                    if (btn.Equals(exclude))
-                        continue;
-
-                    if (current.IsButtonDown(btn) && previous.IsButtonUp(btn))
-                        return true;
-                }
-
-                return false;
+                Buttons = buttons;
+                PressAction = pressAction;
+                ReleaseAction = releaseAction;
             }
         }
 
-        private class HashSetComparer<T> : IEqualityComparer<HashSet<T>>
+        /// <summary>
+        /// Represents a registered button sequence.
+        /// </summary>
+        protected class SequenceEntry
         {
-            public bool Equals(HashSet<T>? x, HashSet<T>? y)
+            /// <summary>
+            /// Gets the buttons that make up the sequence.
+            /// </summary>
+            public IList<TButton> Sequence { get; }
+
+            /// <summary>
+            /// Gets the action invoked when the sequence is completed.
+            /// </summary>
+            public Action Action { get; }
+
+            /// <summary>
+            /// Gets the maximum time allowed between sequence buttons.
+            /// </summary>
+            public TimeSpan Timeout { get; }
+
+            private int _currentIndex;
+            private TimeSpan _timeSinceLastButton;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="SequenceEntry"/> class.
+            /// </summary>
+            /// <param name="sequence">
+            /// The buttons that make up the sequence.
+            /// </param>
+            /// <param name="action">
+            /// The action invoked when the sequence is completed.
+            /// </param>
+            /// <param name="timeout">
+            /// The maximum time allowed between sequence buttons.
+            /// </param>
+            /// <exception cref="ArgumentNullException">
+            /// Thrown when <paramref name="sequence"/> or <paramref name="action"/> is
+            /// <see langword="null"/>.
+            /// </exception>
+            public SequenceEntry(
+                IList<TButton> sequence,
+                Action action,
+                TimeSpan timeout)
             {
-                if (x == null && y == null) return true;
-                if (x == null || y == null) return false;
-                return x.SetEquals(y);
+                Sequence = sequence ?? throw new ArgumentNullException(nameof(sequence));
+                Action = action ?? throw new ArgumentNullException(nameof(action));
+
+                Timeout = timeout;
             }
 
-            public int GetHashCode(HashSet<T>? obj)
+            /// <summary>
+            /// Updates the sequence using the current and previous input states.
+            /// </summary>
+            /// <param name="current">
+            /// The current input state.
+            /// </param>
+            /// <param name="previous">
+            /// The previous input state.
+            /// </param>
+            /// <param name="elapsed">
+            /// The elapsed time since the previous update.
+            /// </param>
+            public void Update(
+                IInputState<TButton> current,
+                IInputState<TButton> previous,
+                TimeSpan elapsed)
             {
-                if (obj == null)
-                    return 0;
+                _timeSinceLastButton += elapsed;
 
-                int hash = 0;
-                foreach (var item in obj)
-                    hash ^= item?.GetHashCode() ?? 0;
+                if (_timeSinceLastButton > Timeout)
+                {
+                    _currentIndex = 0;
+                    _timeSinceLastButton = TimeSpan.Zero;
+                }
 
-                return hash;
+                if (_currentIndex >= Sequence.Count)
+                    return;
+
+                var buttonToMatch =
+                    Sequence[_currentIndex];
+
+                if (current.IsButtonDown(buttonToMatch) &&
+                    previous.IsButtonUp(buttonToMatch))
+                {
+                    _currentIndex++;
+                    _timeSinceLastButton = TimeSpan.Zero;
+
+                    if (_currentIndex == Sequence.Count)
+                    {
+                        Action.Invoke();
+                        _currentIndex = 0;
+                    }
+                }
+                else if (AnyOtherButtonPressed(
+                    current,
+                    previous,
+                    buttonToMatch))
+                {
+                    _currentIndex = 0;
+                    _timeSinceLastButton = TimeSpan.Zero;
+                }
+            }
+
+            /// <summary>
+            /// Determines whether another button was just pressed.
+            /// </summary>
+            /// <param name="current">
+            /// The current input state.
+            /// </param>
+            /// <param name="previous">
+            /// The previous input state.
+            /// </param>
+            /// <param name="exclude">
+            /// The button that is currently expected by the sequence.
+            /// </param>
+            /// <returns>
+            /// <see langword="true"/> if another button was just pressed;
+            /// otherwise, <see langword="false"/>.
+            /// </returns>
+            private bool AnyOtherButtonPressed(
+                IInputState<TButton> current,
+                IInputState<TButton> previous,
+                TButton exclude)
+            {
+                foreach (var button in _allButtons)
+                {
+                    if (button.Equals(exclude))
+                        continue;
+
+                    if (current.IsButtonDown(button) &&
+                        previous.IsButtonUp(button))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
             }
         }
     }
