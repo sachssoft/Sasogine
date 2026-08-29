@@ -23,6 +23,13 @@ All notable changes to this project will be documented in this file.
 - [Feature] **Toolkit**: Added a Vector Path Tool with `VectorPathTool` for creating and editing vector paths.
 - [Feature] **Toolkit**: Added Selection and Transformation Tools with `SelectionTool` for editing and transforming objects.
 - [Feature] **Toolkit**: Added object insertion support with `ObjectInsertTool` for creating and placing objects in the editor.
+- [Feature] Added missing enum-based `IndexedFrameSet`.
+- [Change] Removed incorrect rendering properties.
+- [Change] Removed legacy Texture Atlas System.
+- [Change] Removed `abstract` from `Mesh<TVertex>` and changed constructors from `protected` to `public`.
+- [Improve] Added constructors to `BasicShader`, including an overload that accepts a `GraphicsDevice`.
+- [Bug] Fixed `DiffuseMaterial.Apply()` not applying the shader.
+- [Bug] Fixed multiple actions registered for the same input combination being overwritten.
 
 ## [0.0.4.1-alpha] - 2026-08-28
 - [Feature] Introduced gameplay capability interfaces.
