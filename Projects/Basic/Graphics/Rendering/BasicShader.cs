@@ -27,6 +27,25 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
         private ICameraTransform? _camera;
         private Matrix _transform = Matrix.Identity;
 
+        /// <summary> 
+        /// Initializes a new instance of the <see cref="BasicShader"/> class. 
+        /// The <see cref="GraphicsDevice"/> must be assigned before the first 
+        /// access to <see cref="Effect"/>. 
+        /// </summary> 
+        public BasicShader() { }
+
+        /// <summary> 
+        /// Initializes a new instance of the <see cref="BasicShader"/> class 
+        /// using the specified graphics device. 
+        /// </summary> 
+        /// <param name="graphicsDevice"> 
+        /// The graphics device used to create the underlying <see cref="BasicEffect"/>. 
+        /// </param> 
+        public BasicShader(GraphicsDevice graphicsDevice)
+        {
+            GraphicsDevice = graphicsDevice;
+        }
+
         /// <summary>
         /// The graphics device used to create the underlying BasicEffect.
         /// Must be assigned before first access to <see cref="Effect"/>.
