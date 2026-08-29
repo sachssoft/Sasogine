@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net8.0;net9.0;net10.0;</TargetFrameworks>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<Import Project="..\..\..\Sachssoft.Sasogine.props" />
+
+	<ItemGroup>
+		<Compile Include="..\..\..\Projects\Experimental\**\*.cs">
+			<LinkBase>Experimental</LinkBase>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Sachssoft.Sasogine.DesktopGL"
+						  Version="0.0.4.1-alpha" />
+	</ItemGroup>
+
+</Project>
