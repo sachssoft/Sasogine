@@ -43,6 +43,7 @@ namespace Sachssoft.Sasogine.Graphics.Materials
         {
             Shader.Color = Color;
             Shader.Texture = Texture;
+            Shader.Apply();
         }
     }
 }
