@@ -6,36 +6,68 @@ using System;
 
 namespace Sachssoft.Sasogine.Graphics.Rendering
 {
+    /// <summary>
+    /// Provides rendering functionality for a <see cref="Model"/>.
+    /// </summary>
     public sealed class ModelRenderer
     {
         private readonly Model _model;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ModelRenderer"/> class.
+        /// </summary>
+        /// <param name="model">The model to render.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="model"/> is <see langword="null"/>.
+        /// </exception>
         public ModelRenderer(Model model)
         {
             _model = model ?? throw new ArgumentNullException(nameof(model));
         }
 
         /// <summary>
-        /// Weltmatrix des Modells
+        /// Gets or sets the world transformation matrix of the model.
         /// </summary>
         public Matrix World { get; set; } = Matrix.Identity;
 
         /// <summary>
-        /// Optionaler Effekt-Override
+        /// Gets or sets an optional callback that is invoked before a shader is applied.
         /// </summary>
         public Action<IShader, ICamera, Matrix?>? ShaderSetupCallback { get; set; }
 
         /// <summary>
-        /// Zeichnet das Modell innerhalb eines RenderScopes
+        /// Draws the model using the specified drawing context.
         /// </summary>
-        public void Draw(SceneDrawContext context, Matrix? transform = null, ICamera? camera = null, IShader? customEffect = null)
+        /// <param name="context">The drawing context used to render the model.</param>
+        /// <param name="transform">
+        /// An optional transformation matrix applied in addition to <see cref="World"/>.
+        /// </param>
+        /// <param name="camera">
+        /// The camera used for rendering. If <see langword="null"/>, the camera from
+        /// <paramref name="context"/> is used.
+        /// </param>
+        /// <param name="customEffect">
+        /// An optional custom shader used for rendering.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="context"/> is <see langword="null"/>.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when no camera is available for rendering.
+        /// </exception>
+        public void Draw(
+            SceneDrawContext context,
+            Matrix? transform = null,
+            ICamera? camera = null,
+            IShader? customEffect = null)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var cam = camera ?? context.ViewCamera ?? throw new InvalidOperationException("No camera available.");
+            var cam = camera ?? context.ViewCamera
+                ?? throw new InvalidOperationException("No camera available.");
+
             var graphics = context.GraphicsDevice;
 
-            // Berechne finale Weltmatrix
             Matrix finalWorld = (transform ?? Matrix.Identity) * World;
 
             foreach (var mesh in _model.Meshes)
@@ -48,10 +80,6 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
                         {
                             shaderTransform.Camera = cam;
                             shaderTransform.Transform = finalWorld;
-
-                            //effect.World = finalWorld;
-                            //effect.View = cam.View;
-                            //effect.Projection = cam.Projection;
                         }
 
                         ShaderSetupCallback?.Invoke(shader, cam, finalWorld);
@@ -63,7 +91,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
                         basic.View = cam.View;
                         basic.Projection = cam.Projection;
 
-                        ShaderSetupCallback?.Invoke(null, cam, finalWorld); // optional für BasicEffect
+                        ShaderSetupCallback?.Invoke(null, cam, finalWorld);
                         basic.CurrentTechnique.Passes[0].Apply();
                     }
                 }
