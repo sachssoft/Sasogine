@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+		<PackageOutputPath>..\..\..\Packages</PackageOutputPath>
+		<Nullable>enable</Nullable>
+
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+
+		<PackageId>Sachssoft.Sasogine.Markup</PackageId>
+		<Title>Sasogine Markup</Title>
+		<Description>
+			Markup support for the Sasogine game engine.
+		</Description>
+
+		<PackageTags>
+			Sasogine;Markup;XML;GameEngine;Framework
+		</PackageTags>
+	</PropertyGroup>
+
+	<Import Project="..\..\..\Sachssoft.Sasogine.props" />
+
+	<ItemGroup>
+		<Compile Include="..\..\..\Projects\Markup\**\*.cs">
+			<LinkBase>Markup</LinkBase>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\..\README.md" Pack="true" PackagePath="/" />
+		<None Include="..\..\..\LICENSE.md" Pack="true" PackagePath="/" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.4.1" />
+	</ItemGroup>
+
+</Project>
