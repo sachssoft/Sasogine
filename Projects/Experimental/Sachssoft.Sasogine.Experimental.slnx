@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/Resources/">
+    <File Path="Resources/Binding.cs" />
+    <File Path="Resources/Category.cs" />
+    <File Path="Resources/IResourceContainer.cs" />
+    <File Path="Resources/IResourceEntry.cs" />
+    <File Path="Resources/IResourceLoader.cs" />
+    <File Path="Resources/IResourceTreeEntry.cs" />
+    <File Path="Resources/ITextureRegionResource.cs" />
+    <File Path="Resources/ITypedResource.cs" />
+    <File Path="Resources/ITypeFactory.cs" />
+    <File Path="Resources/PropertySet.cs" />
+    <File Path="Resources/Resource.cs" />
+    <File Path="Resources/ResourceFileSource.cs" />
+    <File Path="Resources/ResourceLookupOptions.cs" />
+    <File Path="Resources/ResourceRegistry.cs" />
+    <File Path="Resources/ResourceStore.cs" />
+  </Folder>
+  <Folder Name="/UI/" />
+</Solution>
