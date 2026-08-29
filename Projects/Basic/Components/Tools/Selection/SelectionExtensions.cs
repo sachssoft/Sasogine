@@ -374,7 +374,6 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
 		public static bool IsMovable(this IDefinition definition)
 		{
 			return definition is ISelectionMovableDefinition movable
-				&& movable.AllowMove
 				&& !movable.IsLocked;
 		}
 
@@ -431,10 +430,6 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
 				throw new InvalidOperationException(
 					$"Definition of type '{definition.GetType().Name}' is locked.");
 
-			if (!movable.AllowMove)
-				throw new InvalidOperationException(
-					$"Definition of type '{definition.GetType().Name}' does not allow movement.");
-
 			movable.Position = position;
 		}
 
@@ -469,8 +464,7 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
 		public static bool TryMove(this IDefinition definition, Vector2 position)
 		{
 			if (definition is not ISelectionMovableDefinition movable
-				|| movable.IsLocked
-				|| !movable.AllowMove)
+				|| movable.IsLocked)
 				return false;
 
 			movable.Position = position;
@@ -507,7 +501,6 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
 		public static bool IsRotatable(this IDefinition definition)
 		{
 			return definition is ISelectionRotatableDefinition rotatable
-				&& rotatable.AllowRotate
 				&& !rotatable.IsLocked;
 		}
 
@@ -612,10 +605,6 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
 				throw new InvalidOperationException(
 					$"Definition of type '{definition.GetType().Name}' is locked.");
 
-			if (!rotatable.AllowRotate)
-				throw new InvalidOperationException(
-					$"Definition of type '{definition.GetType().Name}' does not allow rotation.");
-
 			rotatable.Rotation = rotation;
 		}
 
@@ -634,10 +623,6 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
 			if (rotatable.IsLocked)
 				throw new InvalidOperationException(
 					$"Definition of type '{definition.GetType().Name}' is locked.");
-
-			if (!rotatable.AllowRotate)
-				throw new InvalidOperationException(
-					$"Definition of type '{definition.GetType().Name}' does not allow rotation.");
 
 			rotatable.RotationPivot = rotationPivot;
 			rotatable.Rotation = rotation;
@@ -715,8 +700,7 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
 		public static bool TryRotate(this IDefinition definition, float rotation)
 		{
 			if (definition is not ISelectionRotatableDefinition rotatable
-				|| rotatable.IsLocked
-				|| !rotatable.AllowRotate)
+				|| rotatable.IsLocked)
 				return false;
 
 			rotatable.Rotation = rotation;
@@ -732,8 +716,7 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
 			Vector2 rotationPivot)
 		{
 			if (definition is not ISelectionRotatableDefinition rotatable
-				|| rotatable.IsLocked
-				|| !rotatable.AllowRotate)
+				|| rotatable.IsLocked)
 				return false;
 
 			rotatable.RotationPivot = rotationPivot;
@@ -772,7 +755,6 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
 		public static bool IsScalable(this IDefinition definition)
 		{
 			return definition is ISelectionScalableDefinition scalable
-				&& scalable.AllowScale
 				&& !scalable.IsLocked;
 		}
 
@@ -829,10 +811,6 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
 				throw new InvalidOperationException(
 					$"Definition of type '{definition.GetType().Name}' is locked.");
 
-			if (!scalable.AllowScale)
-				throw new InvalidOperationException(
-					$"Definition of type '{definition.GetType().Name}' does not allow scaling.");
-
 			scalable.Scale = scale;
 		}
 
@@ -870,8 +848,7 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
 		public static bool TryScale(this IDefinition definition, Vector2 scale)
 		{
 			if (definition is not ISelectionScalableDefinition scalable
-				|| scalable.IsLocked
-				|| !scalable.AllowScale)
+				|| scalable.IsLocked)
 				return false;
 
 			scalable.Scale = scale;
@@ -908,7 +885,6 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
 		public static bool IsResizable(this IDefinition definition)
 		{
 			return definition is ISelectionResizableDefinition resizable
-				&& resizable.AllowResize
 				&& !resizable.IsLocked;
 		}
 
@@ -965,10 +941,6 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
 				throw new InvalidOperationException(
 					$"Definition of type '{definition.GetType().Name}' is locked.");
 
-			if (!resizable.AllowResize)
-				throw new InvalidOperationException(
-					$"Definition of type '{definition.GetType().Name}' does not allow resizing.");
-
 			resizable.Size = size;
 		}
 
@@ -1006,8 +978,7 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
 		public static bool TryResize(this IDefinition definition, Size size)
 		{
 			if (definition is not ISelectionResizableDefinition resizable
-				|| resizable.IsLocked
-				|| !resizable.AllowResize)
+				|| resizable.IsLocked)
 				return false;
 
 			resizable.Size = size;

@@ -12,10 +12,5 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// Gets or sets the size of the selection target.
         /// </summary>
         Size Size { get; set; }
-
-        /// <summary>
-        /// Gets a value indicating whether resizing is allowed.
-        /// </summary>
-        bool AllowResize { get; }
     }
 }

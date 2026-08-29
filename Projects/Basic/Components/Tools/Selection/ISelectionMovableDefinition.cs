@@ -11,10 +11,5 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// Gets or sets the position of the selection target.
         /// </summary>
         Vector2 Position { get; set; }
-
-        /// <summary>
-        /// Gets a value indicating whether movement is allowed.
-        /// </summary>
-        bool AllowMove { get; }
     }
 }
