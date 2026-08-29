@@ -13,6 +13,26 @@ namespace Sachssoft.Sasogine.Graphics.Rendering;
 /// </summary>
 public static class MeshRenderer
 {
+    /// <summary>
+    /// Draws a mesh using the default material and optional camera and transform settings
+    /// from the specified drawing context.
+    /// </summary>
+    /// <param name="context">The scene drawing context used for rendering.</param>
+    /// <param name="mesh">The mesh to draw.</param>
+    /// <param name="shader">
+    /// The shader used to render the mesh. If <see langword="null"/>, the shader
+    /// from the default material is used.
+    /// </param>
+    /// <param name="camera">
+    /// The camera transform used for rendering. If <see langword="null"/>, the
+    /// view camera from the drawing context is used.
+    /// </param>
+    /// <param name="transform">
+    /// The world transformation applied to the mesh.
+    /// </param>
+    /// <param name="primitiveType">
+    /// The primitive type used to interpret the mesh indices.
+    /// </param>
     public static void Draw(
         SceneDrawContext context,
         IMesh mesh,
@@ -30,8 +50,20 @@ public static class MeshRenderer
     }
 
     /// <summary>
-    /// Draws a mesh using the specified material.
+    /// Draws a mesh using the specified shader.
     /// </summary>
+    /// <param name="graphicsDevice">The graphics device used for rendering.</param>
+    /// <param name="mesh">The mesh to draw.</param>
+    /// <param name="shader">The shader used to render the mesh.</param>
+    /// <param name="camera">
+    /// The camera transform used for rendering.
+    /// </param>
+    /// <param name="transform">
+    /// The world transformation applied to the mesh.
+    /// </param>
+    /// <param name="primitiveType">
+    /// The primitive type used to interpret the mesh indices.
+    /// </param>
     public static void Draw(
         GraphicsDevice graphicsDevice,
         IMesh mesh,

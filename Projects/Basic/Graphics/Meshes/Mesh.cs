@@ -9,7 +9,7 @@ namespace Sachssoft.Sasogine.Graphics.Meshes;
 /// <typeparam name="TVertex">
 /// The vertex type stored in the mesh. Must implement <see cref="IVertexType"/>.
 /// </typeparam>
-public abstract class Mesh<TVertex> : IMesh
+public class Mesh<TVertex> : IMesh
     where TVertex : struct, IVertexType
 {
     /// <summary>
@@ -43,9 +43,9 @@ public abstract class Mesh<TVertex> : IMesh
     /// The vertex data of the mesh.
     /// </param>
     /// <param name="indices">
-    /// The 16-bit index data defining the mesh primitives.
+    /// The 16-bit index data of the mesh.
     /// </param>
-    protected Mesh(
+    public Mesh(
         GraphicsDevice graphicsDevice,
         TVertex[] vertices,
         short[] indices)
@@ -81,9 +81,9 @@ public abstract class Mesh<TVertex> : IMesh
     /// The vertex data of the mesh.
     /// </param>
     /// <param name="indices">
-    /// The 32-bit index data defining the mesh primitives.
+    /// The 32-bit index data of the mesh.
     /// </param>
-    protected Mesh(
+    public Mesh(
         GraphicsDevice graphicsDevice,
         TVertex[] vertices,
         int[] indices)
