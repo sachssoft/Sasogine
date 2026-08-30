@@ -37,7 +37,7 @@ All notable changes to this project will be documented in this file.
 - [Improve] Refactored selection capability interfaces (`ISelectionMovable`, `ISelectionResizable`, `ISelectionRotatable`) into separate 2D and 3D variants.
 - [Bug] Fixed `DiffuseMaterial.Apply()` not applying the shader.
 - [Bug] Fixed multiple actions registered for the same input combination being overwritten.
-- 
+
 ## [0.0.4.1-alpha] - 2026-08-28
 - [Feature] Introduced gameplay capability interfaces.
 - [Feature] Added gameplay capabilities for movement, rotation, and enable state.
