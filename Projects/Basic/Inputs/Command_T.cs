@@ -7,7 +7,7 @@ namespace Sachssoft.Sasogine.Input
     /// Represents an executable command with a typed parameter.
     /// </summary>
     /// <typeparam name="T">The type of the command parameter.</typeparam>
-    public sealed class Command<T> : ICommand
+    public class Command<T> : ICommand
     {
         private readonly Action<T?> _execute;
         private readonly Func<T?, bool>? _canExecute;
@@ -35,7 +35,7 @@ namespace Sachssoft.Sasogine.Input
         /// <summary>
         /// Gets whether the command can currently be executed.
         /// </summary>
-        public bool CanExecute(object? parameter)
+        public virtual bool CanExecute(object? parameter)
         {
             return _canExecute?.Invoke((T?)parameter) ?? true;
         }
@@ -43,7 +43,7 @@ namespace Sachssoft.Sasogine.Input
         /// <summary>
         /// Executes the command if it can currently be executed.
         /// </summary>
-        public void Execute(object? parameter)
+        public virtual void Execute(object? parameter)
         {
             if (CanExecute(parameter))
                 _execute((T?)parameter);
@@ -52,7 +52,7 @@ namespace Sachssoft.Sasogine.Input
         /// <summary>
         /// Notifies listeners that <see cref="CanExecute"/> may have changed.
         /// </summary>
-        public void RaiseCanExecuteChanged()
+        public virtual void RaiseCanExecuteChanged()
         {
             CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }
