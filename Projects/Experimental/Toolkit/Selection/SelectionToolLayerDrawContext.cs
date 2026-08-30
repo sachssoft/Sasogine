@@ -24,7 +24,7 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         {
             var halfSize = _selectionTool.HandleSize / 2f;
 
-            var bounds = new Bounds(
+            var bounds = new Bounds2(
                 position.X - halfSize,
                 position.Y - halfSize,
                 _selectionTool.HandleSize,

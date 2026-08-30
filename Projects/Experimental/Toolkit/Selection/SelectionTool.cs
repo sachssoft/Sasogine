@@ -64,11 +64,11 @@ namespace Sachssoft.Sasogine.Components.Tools
             : this(targetsSource, graphicsDevice)
         {
             if (rotation)
-                Layer = new SelectionToolTransformLayer(this);
+                Layer = new SelectionToolTransformLayer();
             else if (resize)
-                Layer = new SelectionToolMoveResizeLayer(this);
+                Layer = new SelectionToolMoveResizeLayer();
             else if (move)
-                Layer = new SelectionToolMoveLayer(this);
+                Layer = new SelectionToolMoveLayer();
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace Sachssoft.Sasogine.Components.Tools
 
         public bool EnableSnap { get; set; } = true;
 
-        public Size GridSize { get; set; } = new Size(10f);
+        public Size2 GridSize { get; set; } = new Size2(10f);
 
         public Color SelectionColor { get; set; } = Color.DodgerBlue;
 
@@ -135,8 +135,8 @@ namespace Sachssoft.Sasogine.Components.Tools
                 HandleActionPressed();
             }
 
-            Layer?.Update(
-                new SelectionToolLayerUpdateContext(this));
+            //Layer?.Update(
+            //    new SelectionToolLayerUpdateContext(this));
 
             if (_interactions.Action.HasFlag(
                 InteractionFlags.WasJustReleased))
@@ -176,7 +176,7 @@ namespace Sachssoft.Sasogine.Components.Tools
                 return;
             }
 
-            SelectedNode = Layer?.HitTest(_cursorPosition);
+            //SelectedNode = Layer?.HitTest(_cursorPosition);
         }
 
         protected virtual void HandleActionReleased()
@@ -186,7 +186,7 @@ namespace Sachssoft.Sasogine.Components.Tools
 
         protected virtual void CancelInteraction()
         {
-            Layer?.Cancel();
+            //Layer?.Cancel();
 
             SelectedNode = null;
             DeselectAll();
@@ -233,8 +233,8 @@ namespace Sachssoft.Sasogine.Components.Tools
 
             DrawSelections();
 
-            Layer?.Draw(
-                new SelectionToolLayerDrawContext(this));
+            //Layer?.Draw(
+            //    new SelectionToolLayerDrawContext(this));
 
             _fillBatch.End();
             _lineBatch.End();
@@ -281,29 +281,29 @@ namespace Sachssoft.Sasogine.Components.Tools
             object obj)
         {
             Vector2 position = Vector2.Zero;
-            Size size = Size.Zero;
+            Size2 size = Size2.Zero;
             float rotation = 0f;
 
             if (obj is ISelectionTarget selectionTarget)
             {
-                if (selectionTarget is ISelectionMovable movable)
+                if (selectionTarget is ISelectionMovable2 movable)
                     position = movable.Position;
 
-                if (selectionTarget is ISelectionResizable resizable)
+                if (selectionTarget is ISelectionResizable2 resizable)
                     size = resizable.Size;
 
-                if (selectionTarget is ISelectionRotatable rotatable)
+                if (selectionTarget is ISelectionRotatable2 rotatable)
                     rotation = rotatable.Rotation;
             }
             else if (obj is ISelectionTargetDefinition definition)
             {
-                if (definition is ISelectionMovableDefinition movableDefinition)
+                if (definition is ISelectionMovable2Definition movableDefinition)
                     position = movableDefinition.Position;
 
-                if (definition is ISelectionResizableDefinition resizableDefinition)
+                if (definition is ISelectionResizable2Definition resizableDefinition)
                     size = resizableDefinition.Size;
 
-                if (definition is ISelectionRotatableDefinition rotatableDefinition)
+                if (definition is ISelectionRotatable2Definition rotatableDefinition)
                     rotation = rotatableDefinition.Rotation;
             }
             else
@@ -433,7 +433,7 @@ namespace Sachssoft.Sasogine.Components.Tools
         {
             if (target is ISelectionTarget selectionTarget)
             {
-                if (selectionTarget is ISelectionMovable movable &&
+                if (selectionTarget is ISelectionMovable2 movable &&
                     movable.AllowMove)
                 {
                     movable.Position += delta;
@@ -443,7 +443,7 @@ namespace Sachssoft.Sasogine.Components.Tools
             }
 
             if (target is ISelectionTargetDefinition definition &&
-                definition is ISelectionMovableDefinition movableDefinition)
+                definition is ISelectionMovable2Definition movableDefinition)
             {
                 movableDefinition.Position += delta;
             }
@@ -491,29 +491,29 @@ namespace Sachssoft.Sasogine.Components.Tools
             object target)
         {
             Vector2 targetPosition = Vector2.Zero;
-            Size targetSize = Size.Zero;
+            Size2 targetSize = Size2.Zero;
             float rotation = 0f;
 
             if (target is ISelectionTarget selectionTarget)
             {
-                if (selectionTarget is ISelectionMovable movable)
+                if (selectionTarget is ISelectionMovable2 movable)
                     targetPosition = movable.Position;
 
-                if (selectionTarget is ISelectionResizable resizable)
+                if (selectionTarget is ISelectionResizable2 resizable)
                     targetSize = resizable.Size;
 
-                if (selectionTarget is ISelectionRotatable rotatable)
+                if (selectionTarget is ISelectionRotatable2 rotatable)
                     rotation = rotatable.Rotation;
             }
             else if (target is ISelectionTargetDefinition definition)
             {
-                if (definition is ISelectionMovableDefinition movableDefinition)
+                if (definition is ISelectionMovable2Definition movableDefinition)
                     targetPosition = movableDefinition.Position;
 
-                if (definition is ISelectionResizableDefinition resizableDefinition)
+                if (definition is ISelectionResizable2Definition resizableDefinition)
                     targetSize = resizableDefinition.Size;
 
-                if (definition is ISelectionRotatableDefinition rotatableDefinition)
+                if (definition is ISelectionRotatable2Definition rotatableDefinition)
                     rotation = rotatableDefinition.Rotation;
             }
             else

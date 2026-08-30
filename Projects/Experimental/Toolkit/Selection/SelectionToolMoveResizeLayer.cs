@@ -21,47 +21,47 @@ public sealed class SelectionToolMoveResizeLayer : SelectionToolLayer
         _moveNode = new SelectionToolNode(
             SelectionToolNodeShape.Quad,
             Vector2.Zero,
-            new Size(8f));
+            new Size2(8f));
 
         _topLeftCornerNode = new SelectionToolNode(
             SelectionToolNodeShape.Quad,
             Vector2.Zero,
-            new Size(8f));
+            new Size2(8f));
 
         _topRightCornerNode = new SelectionToolNode(
             SelectionToolNodeShape.Quad,
             Vector2.Zero,
-            new Size(8f));
+            new Size2(8f));
 
         _bottomLeftCornerNode = new SelectionToolNode(
             SelectionToolNodeShape.Quad,
             Vector2.Zero,
-            new Size(8f));
+            new Size2(8f));
 
         _bottomRightCornerNode = new SelectionToolNode(
             SelectionToolNodeShape.Quad,
             Vector2.Zero,
-            new Size(8f));
+            new Size2(8f));
 
         _topEdgeNode = new SelectionToolNode(
             SelectionToolNodeShape.Quad,
             Vector2.Zero,
-            new Size(8f));
+            new Size2(8f));
 
         _leftEdgeNode = new SelectionToolNode(
             SelectionToolNodeShape.Quad,
             Vector2.Zero,
-            new Size(8f));
+            new Size2(8f));
 
         _rightEdgeNode = new SelectionToolNode(
             SelectionToolNodeShape.Quad,
             Vector2.Zero,
-            new Size(8f));
+            new Size2(8f));
 
         _bottomEdgeNode = new SelectionToolNode(
             SelectionToolNodeShape.Quad,
             Vector2.Zero,
-            new Size(8f));
+            new Size2(8f));
 
         Nodes.Add(_moveNode);
         Nodes.Add(_topLeftCornerNode);
@@ -74,7 +74,7 @@ public sealed class SelectionToolMoveResizeLayer : SelectionToolLayer
         Nodes.Add(_bottomEdgeNode);
     }
 
-    protected override void OnNodeInteract(
+    internal protected override void OnNodeInteract(
         SelectionToolNode node)
     {
         if (ReferenceEquals(node, _moveNode))

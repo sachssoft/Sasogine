@@ -40,7 +40,7 @@ public sealed class SelectionToolMoveLayer : SelectionToolLayer
     private void UpdateMoveNode(
         ISelectionTarget? target)
     {
-        if (target is not ISelectionMovable movable)
+        if (target is not ISelectionMovable2 movable)
             return;
 
         _moveNode.Position = movable.Position;

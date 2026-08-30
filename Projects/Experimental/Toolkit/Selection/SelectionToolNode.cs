@@ -16,7 +16,7 @@ public sealed class SelectionToolNode
     public SelectionToolNode(
         SelectionToolNodeShape shape,
         Vector2 position,
-        Size size,
+        Size2 size,
         bool supportsMultipleTargets = false)
     {
         Shape = shape;
@@ -29,7 +29,7 @@ public sealed class SelectionToolNode
 
     public Vector2 Position { get; set; }
 
-    public Size Size { get; set; }
+    public Size2 Size { get; set; }
 
     public bool SupportsMultipleTargets { get; }
 }

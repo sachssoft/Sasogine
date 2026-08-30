@@ -37,7 +37,7 @@ namespace Sachssoft.Sasogine.Components.Tools
         private readonly List<(VectorNode Node, Vector2 Position)> _movingNodes = [];
         private bool _initialized;
         private IMesh _testQuad;
-        private Box? _insertRect;
+        private Box2? _insertRect;
         private VectorPath? _drawingPath; 
         private IVectorSegment? _drawingSegment;
 
@@ -75,7 +75,7 @@ namespace Sachssoft.Sasogine.Components.Tools
 
         public VectorPathToolMode Mode { get; set; } = VectorPathToolMode.Selection;
         public Func<IVectorSegment>? SegmentFactory { get; set; }
-        public Func<Bounds, VectorPath>? PathFactory { get; set; }
+        public Func<Bounds2, VectorPath>? PathFactory { get; set; }
 
         public bool SnapGridEnabled { get; set; } = true;
         public bool ShowControlNodes { get; set; } = true;
@@ -84,9 +84,9 @@ namespace Sachssoft.Sasogine.Components.Tools
 
         public bool AllowConnectToClosedPath { get; set; } = false;
 
-        public Size GridSize { get; set; } = new Size(10f);
-        public Size PointSize { get; set; } = new Size(10f);
-        public Size VertexSize { get; set; } = new Size(1f);
+        public Size2 GridSize { get; set; } = new Size2(10f);
+        public Size2 PointSize { get; set; } = new Size2(10f);
+        public Size2 VertexSize { get; set; } = new Size2(1f);
 
         public float LineThickness { get; set; } = 2f;
         public float ControlLineThickness { get; set; } = 1f;
@@ -435,7 +435,7 @@ namespace Sachssoft.Sasogine.Components.Tools
                         {
                             if (!_insertRect.HasValue)
                             {
-                                _insertRect = new Box(
+                                _insertRect = new Box2(
                                     position.X,
                                     position.Y,
                                     position.X,
@@ -455,7 +455,7 @@ namespace Sachssoft.Sasogine.Components.Tools
                                         start.Y + MathF.CopySign(size, delta.Y));
                                 }
 
-                                _insertRect = new Box(
+                                _insertRect = new Box2(
                                     start.X,
                                     start.Y,
                                     position.X,
@@ -740,7 +740,7 @@ namespace Sachssoft.Sasogine.Components.Tools
                 // Start Node
                 if (IsInEllipse(
                     touchedPosition,
-                    new Bounds(
+                    new Bounds2(
                         path.Start.Position.X,
                         path.Start.Position.Y,
                         PointSize.Width,
@@ -759,7 +759,7 @@ namespace Sachssoft.Sasogine.Components.Tools
                     {
                         if (IsInEllipse(
                             touchedPosition,
-                            new Bounds(
+                            new Bounds2(
                                 controlNode.Position.X,
                                 controlNode.Position.Y,
                                 PointSize.Width,
@@ -775,7 +775,7 @@ namespace Sachssoft.Sasogine.Components.Tools
                     // End Node
                     if (IsInEllipse(
                         touchedPosition,
-                        new Bounds(
+                        new Bounds2(
                             segment.Node.Position.X,
                             segment.Node.Position.Y,
                             PointSize.Width,
@@ -1058,7 +1058,7 @@ namespace Sachssoft.Sasogine.Components.Tools
         {
             return IsInEllipse(
                 position,
-                new Bounds(
+                new Bounds2(
                     node.Position.X,
                     node.Position.Y,
                     PointSize.Width,
@@ -1371,7 +1371,7 @@ namespace Sachssoft.Sasogine.Components.Tools
             if (isStart)
             {
                 _pointBatch.AddStrokeEllipse(
-                    new Sasogine.Common.Bounds(position.X, position.Y, pointSize.X, pointSize.Y),
+                    new Sasogine.Common.Bounds2(position.X, position.Y, pointSize.X, pointSize.Y),
                     StrokedPointThickness,
                     LineJoin.Round,
                     _transform
@@ -1380,7 +1380,7 @@ namespace Sachssoft.Sasogine.Components.Tools
             else
             {
                 _pointBatch.AddFillEllipse(
-                    new Sasogine.Common.Bounds(position.X, position.Y, pointSize.X, pointSize.Y),
+                    new Sasogine.Common.Bounds2(position.X, position.Y, pointSize.X, pointSize.Y),
                     _transform
                 );
             }
@@ -1393,7 +1393,7 @@ namespace Sachssoft.Sasogine.Components.Tools
                 var ringSize = selectionPointSize +
                     new Vector2((ringThickness + ringGap) * 2f);
                 _pointBatch.AddStrokeEllipse(
-                    new Sasogine.Common.Bounds(
+                    new Sasogine.Common.Bounds2(
                         position.X - ringThickness - ringGap,
                         position.Y - ringThickness - ringGap,
                         ringSize.X,
@@ -1411,7 +1411,7 @@ namespace Sachssoft.Sasogine.Components.Tools
         {
             var pointSize = PointSize.ToVector2();
             _pointBatch.AddFillRectangle(
-                new Sasogine.Common.Bounds(position.X, position.Y, pointSize.X, pointSize.Y),
+                new Sasogine.Common.Bounds2(position.X, position.Y, pointSize.X, pointSize.Y),
                 _transform
             );
 
@@ -1423,7 +1423,7 @@ namespace Sachssoft.Sasogine.Components.Tools
                 var ringSize = selectionPointSize +
                     new Vector2((ringThickness + ringGap) * 2f);
                 _pointBatch.AddStrokeRectangle(
-                    new Sasogine.Common.Bounds(
+                    new Sasogine.Common.Bounds2(
                         position.X - ringThickness - ringGap,
                         position.Y - ringThickness - ringGap,
                         ringSize.X,
@@ -1472,7 +1472,7 @@ namespace Sachssoft.Sasogine.Components.Tools
 
         private static bool IsInEllipse(
             Vector2 point,
-            Bounds bounds)
+            Bounds2 bounds)
         {
             float centerX = bounds.X + bounds.Width / 2f;
             float centerY = bounds.Y + bounds.Height / 2f;

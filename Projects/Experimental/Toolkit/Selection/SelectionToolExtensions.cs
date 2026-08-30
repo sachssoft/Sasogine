@@ -23,12 +23,12 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
             ArgumentNullException.ThrowIfNull(target);
 
             return CreateMatrix(
-                target is ISelectionResizable resizable ? resizable.Size : null,
-                target is ISelectionScalable scalable ? scalable.Scale : null,
-                target is ISelectionRotatable rotatable
+                target is ISelectionResizable2 resizable ? resizable.Size : null,
+                target is ISelectionScalable2 scalable ? scalable.Scale : null,
+                target is ISelectionRotatable2 rotatable
                     ? (rotatable.Rotation, rotatable.RotationPivot)
                     : null,
-                target is ISelectionMovable movable ? movable.Position : null);
+                target is ISelectionMovable2 movable ? movable.Position : null);
         }
 
         /// <summary>
@@ -48,12 +48,12 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
             ArgumentNullException.ThrowIfNull(obj);
 
             return CreateMatrix(
-                obj is ISelectionResizable resizable ? resizable.Size : null,
-                obj is ISelectionScalable scalable ? scalable.Scale : null,
-                obj is ISelectionRotatable rotatable
+                obj is ISelectionResizable2 resizable ? resizable.Size : null,
+                obj is ISelectionScalable2 scalable ? scalable.Scale : null,
+                obj is ISelectionRotatable2 rotatable
                     ? (rotatable.Rotation, rotatable.RotationPivot)
                     : null,
-                obj is ISelectionMovable movable ? movable.Position : null);
+                obj is ISelectionMovable2 movable ? movable.Position : null);
         }
 
         /// <summary>
@@ -73,16 +73,16 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
             ArgumentNullException.ThrowIfNull(definition);
 
             return CreateDefinitionMatrix(
-                definition is ISelectionResizableDefinition resizable
+                definition is ISelectionResizable2Definition resizable
                     ? resizable.Size
                     : null,
-                definition is ISelectionScalableDefinition scalable
+                definition is ISelectionScalable2Definition scalable
                     ? scalable.Scale
                     : null,
-                definition is ISelectionRotatableDefinition rotatable
+                definition is ISelectionRotatable2Definition rotatable
                     ? (rotatable.Rotation, rotatable.RotationPivot)
                     : null,
-                definition is ISelectionMovableDefinition movable
+                definition is ISelectionMovable2Definition movable
                     ? movable.Position
                     : null);
         }
@@ -104,22 +104,22 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
             ArgumentNullException.ThrowIfNull(definition);
 
             return CreateDefinitionMatrix(
-                definition is ISelectionResizableDefinition resizable
+                definition is ISelectionResizable2Definition resizable
                     ? resizable.Size
                     : null,
-                definition is ISelectionScalableDefinition scalable
+                definition is ISelectionScalable2Definition scalable
                     ? scalable.Scale
                     : null,
-                definition is ISelectionRotatableDefinition rotatable
+                definition is ISelectionRotatable2Definition rotatable
                     ? (rotatable.Rotation, rotatable.RotationPivot)
                     : null,
-                definition is ISelectionMovableDefinition movable
+                definition is ISelectionMovable2Definition movable
                     ? movable.Position
                     : null);
         }
 
         private static Matrix CreateMatrix(
-            Size? size,
+            Size2? size,
             Vector2? scale,
             (float Rotation, Vector2 Pivot)? rotation,
             Vector2? position)
@@ -171,7 +171,7 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         }
 
         private static Matrix CreateDefinitionMatrix(
-            Size? size,
+            Size2? size,
             Vector2? scale,
             (float Rotation, Vector2 Pivot)? rotation,
             Vector2? position)
