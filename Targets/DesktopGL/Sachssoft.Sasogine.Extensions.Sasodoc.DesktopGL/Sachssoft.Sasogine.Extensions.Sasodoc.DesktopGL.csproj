@@ -13,7 +13,6 @@
 		<EnableAotAnalyzer>true</EnableAotAnalyzer>
 	</PropertyGroup>
 
-	<Import Project="..\..\..\Extensions\Sachssoft.Sasogine.Extensions.Sasodoc.Shared.projitems" Label="Shared" />
 	<Import Project="..\..\..\Sachssoft.Sasogine.Extensions.Sasodoc.props" />
 	
 	<PropertyGroup>
@@ -21,6 +20,12 @@
 		<Title>Sasodoc Extensions For Sasogine</Title>
 		<Copyright>© Tobias Sachs (Sachssoft)</Copyright>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="..\..\..\Extensions\Sasodoc\**\*.cs">
+			<LinkBase>Files</LinkBase>
+		</Compile>
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*">
