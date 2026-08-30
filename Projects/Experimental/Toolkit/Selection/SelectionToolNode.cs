@@ -6,23 +6,19 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection;
 public sealed class SelectionToolNode
 {
     public SelectionToolNode(
-        SelectionToolNodeShape shape,
-        bool supportsMultipleTargets = false)
+        SelectionToolNodeShape shape)
     {
         Shape = shape;
-        SupportsMultipleTargets = supportsMultipleTargets;
     }
 
     public SelectionToolNode(
         SelectionToolNodeShape shape,
         Vector2 position,
-        Size2 size,
-        bool supportsMultipleTargets = false)
+        Size2 size)
     {
         Shape = shape;
         Position = position;
         Size = size;
-        SupportsMultipleTargets = supportsMultipleTargets;
     }
 
     public SelectionToolNodeShape Shape { get; }
@@ -31,5 +27,5 @@ public sealed class SelectionToolNode
 
     public Size2 Size { get; set; }
 
-    public bool SupportsMultipleTargets { get; }
+    public bool IsVisible { get; set; } = true;
 }
