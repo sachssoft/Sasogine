@@ -1,0 +1,39 @@
+<Project>
+
+	<Import Project="Sachssoft.Sasogine.Package.props" />
+
+	<PropertyGroup>
+		<!-- General -->
+		<RootNamespace>Sachssoft.Sasogine.Resources.Markup</RootNamespace>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+		<!-- AOT / Trimming -->
+		<IsTrimmable>true</IsTrimmable>
+		<IsAotCompatible>true</IsAotCompatible>
+		<EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+		<EnableAotAnalyzer>true</EnableAotAnalyzer>
+
+		<!-- Documentation -->
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+		<!-- NuGet Metadata -->
+		<Description>
+			Markup loading support for resources in the Sasogine game engine.
+		</Description>
+
+		<PackageReleaseNotes>
+			Sasogine Resources Markup Alpha release.
+		</PackageReleaseNotes>
+
+		<PackageTags>
+			Sasogine;Markup;Resources;XML;JSON;FrameSet;TextureAtlas;MonoGame;GameEngine;Framework;AOT;Trimming
+		</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Sachssoft.Sasogine.DesktopGL"
+						  Version="$(VersionPrefix)-$(VersionSuffix)" />
+	</ItemGroup>
+
+</Project>
