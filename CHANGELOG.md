@@ -19,18 +19,25 @@ All notable changes to this project will be documented in this file.
 
 </small>
 
-## [0.0.5-alpha] - In progress
+## [0.1.0-alpha] - In progress
 - [Feature] **Toolkit**: Added a Vector Path Tool with `VectorPathTool` for creating and editing vector paths.
 - [Feature] **Toolkit**: Added Selection and Transformation Tools with `SelectionTool` for editing and transforming objects.
 - [Feature] **Toolkit**: Added object insertion support with `ObjectInsertTool` for creating and placing objects in the editor.
+
+## [0.0.5-alpha] - 2026-08-30
 - [Feature] Added missing enum-based `IndexedFrameSet`.
+- [Feature] Added `Command` and generic `Command<T>` implementations with execution conditions and `CanExecuteChanged` notifications.
 - [Change] Removed incorrect rendering properties.
 - [Change] Removed legacy Texture Atlas System.
 - [Change] Removed `abstract` from `Mesh<TVertex>` and changed constructors from `protected` to `public`.
+- [Change] Refactored dimension-dependent types into explicit 2D and 3D variants.
 - [Improve] Added constructors to `BasicShader`, including an overload that accepts a `GraphicsDevice`.
+- [Improve] Extended `Size` and `PixelSize` with additional arithmetic operators and immutable methods.
+- [Improve] Extended `ISelectionTarget` with new `ISelectionTarget2D` and `ISelectionTarget3D` interfaces.
+- [Improve] Refactored selection capability interfaces (`ISelectionMovable`, `ISelectionResizable`, `ISelectionRotatable`) into separate 2D and 3D variants.
 - [Bug] Fixed `DiffuseMaterial.Apply()` not applying the shader.
 - [Bug] Fixed multiple actions registered for the same input combination being overwritten.
-
+- 
 ## [0.0.4.1-alpha] - 2026-08-28
 - [Feature] Introduced gameplay capability interfaces.
 - [Feature] Added gameplay capabilities for movement, rotation, and enable state.

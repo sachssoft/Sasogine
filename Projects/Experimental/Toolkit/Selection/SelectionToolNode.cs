@@ -1,0 +1,35 @@
+﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
+
+namespace Sachssoft.Sasogine.Components.Tools.Selection;
+
+public sealed class SelectionToolNode
+{
+    public SelectionToolNode(
+        SelectionToolNodeShape shape,
+        bool supportsMultipleTargets = false)
+    {
+        Shape = shape;
+        SupportsMultipleTargets = supportsMultipleTargets;
+    }
+
+    public SelectionToolNode(
+        SelectionToolNodeShape shape,
+        Vector2 position,
+        Size size,
+        bool supportsMultipleTargets = false)
+    {
+        Shape = shape;
+        Position = position;
+        Size = size;
+        SupportsMultipleTargets = supportsMultipleTargets;
+    }
+
+    public SelectionToolNodeShape Shape { get; }
+
+    public Vector2 Position { get; set; }
+
+    public Size Size { get; set; }
+
+    public bool SupportsMultipleTargets { get; }
+}

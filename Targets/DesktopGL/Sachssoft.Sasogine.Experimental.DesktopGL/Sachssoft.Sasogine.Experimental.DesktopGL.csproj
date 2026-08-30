@@ -14,8 +14,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Sachssoft.Sasogine.DesktopGL"
-						  Version="0.0.4.1-alpha" />
+	  <Compile Remove="..\..\..\Projects\Experimental\Toolkit\Selection\SelectionToolResizeHandle.cs" />
+	  <Compile Remove="..\..\..\Projects\Experimental\Toolkit\Selection\SelectionToolResizeNode.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Sachssoft.Sasogine.DesktopGL" Version="0.0.4.1-alpha" />
 	</ItemGroup>
 
 </Project>
