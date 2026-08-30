@@ -68,7 +68,7 @@ public sealed class IndexedFrameSet<TEnum> : IFrameSet
     public void Add(
         TEnum index,
         Point position,
-        PixelSize size)
+        PixelSize2 size)
     {
         _frames.Add(
             index,

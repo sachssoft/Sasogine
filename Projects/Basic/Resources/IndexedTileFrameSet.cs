@@ -32,7 +32,7 @@ public sealed class IndexedTileFrameSet<TEnum> : ITileFrameSet
     /// Texture asset containing the tile frames.
     /// </param>
     public IndexedTileFrameSet(
-        PixelSize tileSize,
+        PixelSize2 tileSize,
         Texture2DAsset asset)
     {
         TileSize = tileSize;
@@ -43,7 +43,7 @@ public sealed class IndexedTileFrameSet<TEnum> : ITileFrameSet
     /// <summary>
     /// Gets the tile size used by this frame set.
     /// </summary>
-    public PixelSize TileSize { get; }
+    public PixelSize2 TileSize { get; }
 
 
     /// <summary>

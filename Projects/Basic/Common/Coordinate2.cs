@@ -155,7 +155,7 @@ public readonly struct Coordinate2
     /// Odd tile sizes snap to the containing tile.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Coordinate2 Snap(Vector2 position, Size tileSize)
+    public static Coordinate2 Snap(Vector2 position, Size2 tileSize)
     {
         int x = tileSize.Width % 2 == 0 ?
             (int)float.Round(position.X / tileSize.Width) :
@@ -172,7 +172,7 @@ public readonly struct Coordinate2
     /// Converts a world position into the containing grid cell.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Coordinate2 Floor(Vector2 position, Size tileSize)
+    public static Coordinate2 Floor(Vector2 position, Size2 tileSize)
     {
         int x = (int)float.Floor(position.X / tileSize.Width);
         int y = (int)float.Floor(position.Y / tileSize.Height);
@@ -184,7 +184,7 @@ public readonly struct Coordinate2
     /// Converts a world position into the nearest grid cell.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Coordinate2 Round(Vector2 position, Size tileSize)
+    public static Coordinate2 Round(Vector2 position, Size2 tileSize)
     {
         int x = (int)float.Round(position.X / tileSize.Width);
         int y = (int)float.Round(position.Y / tileSize.Height);
@@ -196,7 +196,7 @@ public readonly struct Coordinate2
     /// Converts a world position into the next grid cell.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Coordinate2 Ceiling(Vector2 position, Size tileSize)
+    public static Coordinate2 Ceiling(Vector2 position, Size2 tileSize)
     {
         int x = (int)float.Ceiling(position.X / tileSize.Width);
         int y = (int)float.Ceiling(position.Y / tileSize.Height);
@@ -208,7 +208,7 @@ public readonly struct Coordinate2
     /// Rotates the coordinate 90 degrees clockwise.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Vector2 Center(Size tileSize)
+    public Vector2 Center(Size2 tileSize)
     {
         return new Vector2(
             (X + 0.5f) * tileSize.Width,
@@ -245,14 +245,14 @@ public readonly struct Coordinate2
     /// Converts this coordinate into a Vector2 position using the specified tile size.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Vector2 ToVector2(Size tileSize)
+    public Vector2 ToVector2(Size2 tileSize)
         => new(X * tileSize.Width, Y * tileSize.Height);
 
     /// <summary>
     /// Converts this coordinate into a Vector2 position using the specified pixel size.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Vector2 ToVector2(PixelSize tileSize)
+    public Vector2 ToVector2(PixelSize2 tileSize)
         => new(X * tileSize.Width, Y * tileSize.Height);
 
     /// <summary>
@@ -287,14 +287,14 @@ public readonly struct Coordinate2
     /// Converts this coordinate into a Vector3 position using the specified pixel size and layer.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Vector3 ToVector3(PixelSize tileSize, float layer)
+    public Vector3 ToVector3(PixelSize2 tileSize, float layer)
         => new(X * tileSize.Width, Y * tileSize.Height, layer);
 
     /// <summary>
     /// Converts this coordinate into a Vector3 position using the specified tile size and layer.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Vector3 ToVector3(Size tileSize, float layer)
+    public Vector3 ToVector3(Size2 tileSize, float layer)
         => new(X * tileSize.Width, Y * tileSize.Height, layer);
 
     /// <summary>

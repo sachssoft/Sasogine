@@ -24,14 +24,14 @@ namespace Sachssoft.Sasogine.Components.Services
         private Vector2 _viewportCursorPosition;
         private Vector2 _screenPosition;
         private Vector2 _worldPosition;
-        private PixelBounds _viewport;
-        private PixelSize _renderSize;
+        private PixelBounds2 _viewport;
+        private PixelSize2 _renderSize;
 
         public Vector2 ViewportPosition => _viewportCursorPosition;
 
-        public PixelBounds Viewport => _viewport;
+        public PixelBounds2 Viewport => _viewport;
 
-        public PixelSize RenderSize => _renderSize;
+        public PixelSize2 RenderSize => _renderSize;
 
         public Vector2 ScreenPosition => _screenPosition;
 
@@ -42,9 +42,9 @@ namespace Sachssoft.Sasogine.Components.Services
 
         public void Update(
             GraphicsDevice graphicsDevice,
-            PixelBounds viewport,
+            PixelBounds2 viewport,
             Point viewportCursorPosition,
-            PixelSize renderSize)
+            PixelSize2 renderSize)
         {
 
             var screenScale = renderSize.ToVector2() / graphicsDevice.Viewport.Bounds.Size.ToVector2();

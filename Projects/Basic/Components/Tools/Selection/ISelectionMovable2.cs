@@ -5,7 +5,7 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
     /// <summary>
     /// Represents a selection target that can be moved by the Selection Tool.
     /// </summary>
-    public interface ISelectionMovable : ISelectionTarget
+    public interface ISelectionMovable2 : ISelectionTarget2
     {
         /// <summary>
         /// Gets or sets the position of the selection target.

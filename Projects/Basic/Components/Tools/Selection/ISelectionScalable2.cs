@@ -5,7 +5,7 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
     /// <summary>
     /// Represents a selection target that can be scaled by the Selection Tool.
     /// </summary>
-    public interface ISelectionScalable : ISelectionTarget
+    public interface ISelectionScalable2 : ISelectionTarget2
     {
         /// <summary>
         /// Gets or sets the scale of the selection target.

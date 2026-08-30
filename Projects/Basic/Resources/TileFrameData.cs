@@ -24,7 +24,7 @@ public readonly struct TileFrameData : ISourceRegion
     /// Atlas cell coordinate of the tile frame.
     /// </param>
     public TileFrameData(
-        PixelSize size,
+        PixelSize2 size,
         Coordinate2 cell)
     {
         Size = size;
@@ -41,7 +41,7 @@ public readonly struct TileFrameData : ISourceRegion
     /// <summary>
     /// Gets the size of the tile in pixels.
     /// </summary>
-    public PixelSize Size { get; }
+    public PixelSize2 Size { get; }
 
 
     /// <summary>

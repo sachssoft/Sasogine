@@ -31,7 +31,7 @@ public sealed class SequentialTileFrameSet : ITileFrameSet
     /// Texture asset containing the tile frames.
     /// </param>
     public SequentialTileFrameSet(
-        PixelSize tileSize,
+        PixelSize2 tileSize,
         Texture2DAsset asset)
     {
         TileSize = tileSize;
@@ -42,7 +42,7 @@ public sealed class SequentialTileFrameSet : ITileFrameSet
     /// <summary>
     /// Gets the tile size used by this frame set.
     /// </summary>
-    public PixelSize TileSize { get; }
+    public PixelSize2 TileSize { get; }
 
 
     /// <summary>

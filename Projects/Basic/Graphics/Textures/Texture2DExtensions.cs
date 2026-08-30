@@ -95,7 +95,7 @@ public static class Texture2DExtensions
     // Tile Crop (SpriteSheet)
     // ---------------------------
 
-    public static Texture2D TileCrop(this Texture2D texture, Point cell, PixelSize cellSize, GraphicsDevice graphicsDevice)
+    public static Texture2D TileCrop(this Texture2D texture, Point cell, PixelSize2 cellSize, GraphicsDevice graphicsDevice)
     {
         var rect = new Rectangle(
             cell.X * cellSize.Width,
@@ -106,7 +106,7 @@ public static class Texture2DExtensions
         return Crop(texture, rect, graphicsDevice);
     }
 
-    public static Texture2D TileCrop(this Texture2D texture, Point cell, PixelSize cellSize)
+    public static Texture2D TileCrop(this Texture2D texture, Point cell, PixelSize2 cellSize)
         => TileCrop(texture, cell, cellSize, texture.GraphicsDevice);
 
     // ---------------------------

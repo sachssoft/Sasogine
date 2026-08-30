@@ -114,7 +114,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         // =========================================================================
 
         public void AddFillRectangle(
-            Bounds bounds)
+            Bounds2 bounds)
         {
             AddFillRectangle(
                 bounds,
@@ -122,7 +122,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         }
 
         public void AddFillRectangle(
-            Bounds bounds,
+            Bounds2 bounds,
             Matrix transform)
         {
             CheckBegin();
@@ -170,7 +170,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         // =========================================================================
 
         public void AddStrokeRectangle(
-            Bounds bounds,
+            Bounds2 bounds,
             float thickness)
         {
             AddStrokeRectangle(
@@ -181,7 +181,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         }
 
         public void AddStrokeRectangle(
-            Bounds bounds,
+            Bounds2 bounds,
             float thickness,
             LineJoin join)
         {
@@ -193,7 +193,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         }
 
         public void AddStrokeRectangle(
-            Bounds bounds,
+            Bounds2 bounds,
             float thickness,
             LineJoin join,
             Matrix transform)
@@ -611,7 +611,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         // =========================================================================
 
         public void AddFillEllipse(
-            Bounds bounds,
+            Bounds2 bounds,
             int segments = 32)
         {
             AddFillEllipse(
@@ -621,7 +621,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         }
 
         public void AddFillEllipse(
-            Bounds bounds,
+            Bounds2 bounds,
             Matrix transform,
             int segments = 32)
         {
@@ -738,7 +738,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         // =========================================================================
 
         public void AddStrokeEllipse(
-            Bounds bounds,
+            Bounds2 bounds,
             float thickness,
             int segments = 32)
         {
@@ -751,7 +751,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         }
 
         public void AddStrokeEllipse(
-            Bounds bounds,
+            Bounds2 bounds,
             float thickness,
             LineJoin join,
             int segments = 32)
@@ -765,7 +765,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         }
 
         public void AddStrokeEllipse(
-            Bounds bounds,
+            Bounds2 bounds,
             float thickness,
             LineJoin join,
             Matrix transform,

@@ -25,7 +25,7 @@ public readonly struct FrameData : ISourceRegion
     /// </param>
     public FrameData(
         Point location,
-        PixelSize size)
+        PixelSize2 size)
     {
         Location = location;
         Size = size;
@@ -47,7 +47,7 @@ public readonly struct FrameData : ISourceRegion
     /// <summary>
     /// Gets the size of the frame in pixels.
     /// </summary>
-    public PixelSize Size { get; }
+    public PixelSize2 Size { get; }
 
 
     /// <summary>

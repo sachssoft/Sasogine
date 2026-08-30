@@ -28,7 +28,7 @@ namespace Sachssoft.Sasogine.Graphics
         private static GraphicsDevice? _graphicsDevice;
         private static RenderTarget2D? _renderTarget;
 
-        private static PixelSize _renderSize;
+        private static PixelSize2 _renderSize;
         private static float _resolutionScale;
         private static int _lastW;
         private static int _lastH;
@@ -39,7 +39,7 @@ namespace Sachssoft.Sasogine.Graphics
 
         public static RenderTarget2D? Current => _renderTarget;
 
-        public static PixelSize Size => _renderSize; //_renderTarget == null ? PixelSize.Zero : new(_renderTarget.Bounds.Size);
+        public static PixelSize2 Size => _renderSize; //_renderTarget == null ? PixelSize.Zero : new(_renderTarget.Bounds.Size);
 
         public static float ResolutionScale => _resolutionScale;
 
@@ -53,14 +53,14 @@ namespace Sachssoft.Sasogine.Graphics
         {
             if (_graphicsDevice == null)
             {
-                _renderSize = PixelSize.Zero;
+                _renderSize = PixelSize2.Zero;
                 _resolutionScale = 1f;
                 return;
             }
 
             if (width <= 0 || height <= 0)
             {
-                _renderSize = PixelSize.Zero;
+                _renderSize = PixelSize2.Zero;
                 _resolutionScale = 1f;
                 return;
             }
@@ -71,7 +71,7 @@ namespace Sachssoft.Sasogine.Graphics
                 quality == _lastQuality &&
                 antiAliasing == _lastAntiAliasing)
             {
-                _renderSize = PixelSize.Zero;
+                _renderSize = PixelSize2.Zero;
                 _resolutionScale = 1f;
                 return;
             }
@@ -103,7 +103,7 @@ namespace Sachssoft.Sasogine.Graphics
                 usage: RenderTargetUsage.PlatformContents
             );
 
-            _renderSize = new PixelSize(_renderTarget.Bounds.Size);
+            _renderSize = new PixelSize2(_renderTarget.Bounds.Size);
 
             _lastW = width;
             _lastH = height;
@@ -150,7 +150,7 @@ namespace Sachssoft.Sasogine.Graphics
             _renderTarget?.Dispose();
             _renderTarget = null;
 
-            _renderSize = PixelSize.Zero;
+            _renderSize = PixelSize2.Zero;
             _resolutionScale = 1f;
         }
     }

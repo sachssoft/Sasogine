@@ -63,7 +63,7 @@ namespace Sachssoft.Sasogine.Graphics.Cameras
         /// A <see cref="Box"/> containing the minimum and maximum world-space coordinates
         /// visible through the camera.
         /// </returns>
-        public static Box GetWorldBounds(
+        public static Box2 GetWorldBounds(
             this ICamera2D camera2D,
             Viewport screenViewport)
         {
@@ -103,7 +103,7 @@ namespace Sachssoft.Sasogine.Graphics.Cameras
                 float.Max(topLeft.Y, topRight.Y),
                 float.Max(bottomLeft.Y, bottomRight.Y));
 
-            return new Box(minX, minY, maxX, maxY);
+            return new Box2(minX, minY, maxX, maxY);
         }
 
         /// <summary>

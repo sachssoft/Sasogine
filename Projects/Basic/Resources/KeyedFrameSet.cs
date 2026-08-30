@@ -73,7 +73,7 @@ public sealed class KeyedFrameSet : IFrameSet
     public void Add(
         string key,
         Point position,
-        PixelSize size)
+        PixelSize2 size)
     {
         _frames.Add(
             key,

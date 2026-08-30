@@ -6,11 +6,11 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
     /// <summary>
     /// Defines the resizing properties of a selection target.
     /// </summary>
-    public interface ISelectionResizableDefinition : ISelectionTargetDefinition
+    public interface ISelectionResizable2Definition : ISelectionTarget2Definition
     {
         /// <summary>
         /// Gets or sets the size of the selection target.
         /// </summary>
-        Size Size { get; set; }
+        Size2 Size { get; set; }
     }
 }

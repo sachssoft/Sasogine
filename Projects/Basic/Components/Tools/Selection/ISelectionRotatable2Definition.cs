@@ -3,9 +3,9 @@
 namespace Sachssoft.Sasogine.Components.Tools.Selection
 {
     /// <summary>
-    /// Represents a selection target that can be rotated by the Selection Tool.
+    /// Defines the rotation properties of a selection target.
     /// </summary>
-    public interface ISelectionRotatable : ISelectionTarget
+    public interface ISelectionRotatable2Definition : ISelectionTarget2Definition
     {
         /// <summary>
         /// Gets or sets the rotation of the selection target.
@@ -16,10 +16,5 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// Gets or sets the pivot point used for rotating the selection target.
         /// </summary>
         Vector2 RotationPivot { get; set; }
-
-        /// <summary>
-        /// Gets a value indicating whether rotation is allowed.
-        /// </summary>
-        bool AllowRotate { get; }
     }
 }
