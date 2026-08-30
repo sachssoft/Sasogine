@@ -7,7 +7,7 @@
 
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 
-		<PackageId>Sachssoft.Sasogine.Markup</PackageId>
+		<PackageId>Sachssoft.Sasogine.Markup.DesktopGL</PackageId>
 		<Title>Sasogine Markup</Title>
 		<Description>
 			Markup support for the Sasogine game engine.

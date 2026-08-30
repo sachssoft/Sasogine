@@ -43,7 +43,7 @@ dotnet nuget push ".\Packages\Sachssoft.Sasogine.DesktopGL.<version>.nupkg" `
 ```
 
 ```powershell
-dotnet nuget push ".\Packages\Sachssoft.Sasogine.Markup.<version>.nupkg" `
+dotnet nuget push ".\Packages\Sachssoft.Sasogine.Markup.DesktopGL.<version>.nupkg" `
     --api-key YOUR_NUGET_API_KEY `
     --source "https://api.nuget.org/v3/index.json"
 ```
