@@ -1,11 +1,10 @@
-﻿using Sachssoft.Sasogine.Markup.Internal;
-using Sachssoft.Sasogine.Resources;
+﻿using Sachssoft.Sasogine.Resources.Markup.Internal;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Sachssoft.Sasogine.Markup
+namespace Sachssoft.Sasogine.Resources.Markup
 {
     /// <summary>
     /// Provides a base class for loading frame set documents.

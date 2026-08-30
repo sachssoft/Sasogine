@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Markup
+﻿namespace Sachssoft.Sasogine.Resources.Markup
 {
     /// <summary>
     /// Specifies the supported document formats.

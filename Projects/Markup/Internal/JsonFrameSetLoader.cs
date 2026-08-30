@@ -1,11 +1,10 @@
 ﻿using Sachssoft.Sasogine.Resources;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Text.Json;
 
-namespace Sachssoft.Sasogine.Markup.Internal
+namespace Sachssoft.Sasogine.Resources.Markup.Internal
 {
     internal sealed class JsonFrameSetLoader : FrameSetLoader
     {
@@ -20,77 +19,74 @@ namespace Sachssoft.Sasogine.Markup.Internal
 
             using var document = JsonDocument.Parse(stream);
 
-            if (!document.RootElement.TryGetProperty(
-                    "frames",
-                    out var frames))
-            {
+            var root = document.RootElement;
+
+            if (!root.TryGetProperty("frames", out var frames))
                 throw new InvalidDataException(
                     "The JSON document does not contain a 'frames' property.");
-            }
 
             if (frames.ValueKind != JsonValueKind.Array)
-            {
                 throw new InvalidDataException(
                     "The 'frames' property must be an array.");
-            }
 
             foreach (var frame in frames.EnumerateArray())
             {
+                var frameData = GetRequiredObject(frame, "frame");
+                var spriteSourceSize = GetObject(frame, "spriteSourceSize");
+                var sourceSize = GetObject(frame, "sourceSize");
+                var pivot = GetObject(frame, "pivot");
+
                 yield return new FrameSetEntry
                 {
                     Name = GetRequiredString(frame, "filename"),
 
-                    X = GetRequiredInt(
-                        frame.GetProperty("frame"),
-                        "x"),
+                    X = GetRequiredInt(frameData, "x"),
+                    Y = GetRequiredInt(frameData, "y"),
+                    Width = GetRequiredInt(frameData, "w"),
+                    Height = GetRequiredInt(frameData, "h"),
 
-                    Y = GetRequiredInt(
-                        frame.GetProperty("frame"),
-                        "y"),
+                    IsRotated = GetBool(frame, "rotated"),
+                    IsTrimmed = GetBool(frame, "trimmed"),
 
-                    Width = GetRequiredInt(
-                        frame.GetProperty("frame"),
-                        "w"),
+                    SpriteSourceX = GetInt(spriteSourceSize, "x"),
+                    SpriteSourceY = GetInt(spriteSourceSize, "y"),
+                    SpriteSourceWidth = GetInt(spriteSourceSize, "w"),
+                    SpriteSourceHeight = GetInt(spriteSourceSize, "h"),
 
-                    Height = GetRequiredInt(
-                        frame.GetProperty("frame"),
-                        "h"),
+                    SourceWidth = GetInt(sourceSize, "w"),
+                    SourceHeight = GetInt(sourceSize, "h"),
 
-                    PivotX = GetFloat(
-                        frame,
-                        "pivot",
-                        "x"),
-
-                    PivotY = GetFloat(
-                        frame,
-                        "pivot",
-                        "y"),
-
-                    OffsetX = GetInt(
-                        frame,
-                        "spriteSourceSize",
-                        "x"),
-
-                    OffsetY = GetInt(
-                        frame,
-                        "spriteSourceSize",
-                        "y"),
-
-                    OriginalWidth = GetInt(
-                        frame,
-                        "sourceSize",
-                        "w"),
-
-                    OriginalHeight = GetInt(
-                        frame,
-                        "sourceSize",
-                        "h"),
-
-                    IsRotated = GetBool(
-                        frame,
-                        "rotated")
+                    PivotX = GetFloat(pivot, "x"),
+                    PivotY = GetFloat(pivot, "y")
                 };
             }
+        }
+
+        private static JsonElement GetRequiredObject(
+            JsonElement element,
+            string name)
+        {
+            if (!element.TryGetProperty(name, out var property) ||
+                property.ValueKind != JsonValueKind.Object)
+            {
+                throw new InvalidDataException(
+                    $"Missing or invalid object property '{name}'.");
+            }
+
+            return property;
+        }
+
+        private static JsonElement? GetObject(
+            JsonElement element,
+            string name)
+        {
+            if (!element.TryGetProperty(name, out var property) ||
+                property.ValueKind != JsonValueKind.Object)
+            {
+                return null;
+            }
+
+            return property;
         }
 
         private static string GetRequiredString(
@@ -124,34 +120,26 @@ namespace Sachssoft.Sasogine.Markup.Internal
         }
 
         private static int GetInt(
-            JsonElement element,
-            string objectName,
-            string propertyName)
+            JsonElement? element,
+            string name)
         {
-            if (!element.TryGetProperty(objectName, out var parent) ||
-                parent.ValueKind != JsonValueKind.Object)
-            {
+            if (!element.HasValue)
                 return 0;
-            }
 
-            return parent.TryGetProperty(propertyName, out var property) &&
+            return element.Value.TryGetProperty(name, out var property) &&
                    property.TryGetInt32(out var value)
                 ? value
                 : 0;
         }
 
         private static float GetFloat(
-            JsonElement element,
-            string objectName,
-            string propertyName)
+            JsonElement? element,
+            string name)
         {
-            if (!element.TryGetProperty(objectName, out var parent) ||
-                parent.ValueKind != JsonValueKind.Object)
-            {
+            if (!element.HasValue)
                 return 0f;
-            }
 
-            return parent.TryGetProperty(propertyName, out var property) &&
+            return element.Value.TryGetProperty(name, out var property) &&
                    property.TryGetSingle(out var value)
                 ? value
                 : 0f;

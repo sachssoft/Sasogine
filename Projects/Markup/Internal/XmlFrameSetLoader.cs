@@ -5,7 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Xml.Linq;
 
-namespace Sachssoft.Sasogine.Markup.Internal
+namespace Sachssoft.Sasogine.Resources.Markup.Internal
 {
     internal sealed class XmlFrameSetLoader : FrameSetLoader
     {
@@ -35,14 +35,20 @@ namespace Sachssoft.Sasogine.Markup.Internal
                     Height = GetInt(element, "h"),
                     PivotX = GetFloat(element, "pX"),
                     PivotY = GetFloat(element, "pY"),
-                    OffsetX = GetInt(element, "oX"),
-                    OffsetY = GetInt(element, "oY"),
-                    OriginalWidth = GetInt(element, "oW"),
-                    OriginalHeight = GetInt(element, "oH"),
+                    SpriteSourceX = GetInt(element, "oX"),
+                    SpriteSourceY = GetInt(element, "oY"),
+                    SpriteSourceWidth = GetInt(element, "w"),
+                    SpriteSourceHeight = GetInt(element, "h"),
+                    SourceWidth = GetInt(element, "oW"),
+                    SourceHeight = GetInt(element, "oH"),
                     IsRotated = string.Equals(
                         element.Attribute("r")?.Value,
                         "y",
-                        StringComparison.OrdinalIgnoreCase)
+                        StringComparison.OrdinalIgnoreCase),
+                    IsTrimmed = GetInt(element, "oX") != 0 ||
+                                GetInt(element, "oY") != 0 ||
+                                GetInt(element, "w") != GetInt(element, "oW") ||
+                                GetInt(element, "h") != GetInt(element, "oH")
                 };
             }
         }

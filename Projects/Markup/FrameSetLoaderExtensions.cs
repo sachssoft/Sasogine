@@ -4,7 +4,7 @@ using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Resources;
 using System;
 
-namespace Sachssoft.Sasogine.Markup
+namespace Sachssoft.Sasogine.Resources.Markup
 {
     /// <summary>
     /// Provides extension methods for converting loaded frame set data

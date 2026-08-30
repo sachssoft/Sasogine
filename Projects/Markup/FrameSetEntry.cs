@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Markup
+﻿namespace Sachssoft.Sasogine.Resources.Markup
 {
     /// <summary>
     /// Represents a single frame entry loaded from a frame set markup document.
