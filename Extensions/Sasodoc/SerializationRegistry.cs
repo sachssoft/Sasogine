@@ -1,4 +1,6 @@
 ﻿using Sachssoft.Sasogine.Common;
+using System;
+using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Extensions.Sasodoc
 {

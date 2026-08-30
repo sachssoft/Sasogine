@@ -1,4 +1,7 @@
-﻿namespace Sachssoft.Sasogine.Extensions.Sasodoc
+﻿using Sachssoft.Sasodoc;
+using System;
+
+namespace Sachssoft.Sasogine.Extensions.Sasodoc
 {
     public static class SystemExtensions
     {

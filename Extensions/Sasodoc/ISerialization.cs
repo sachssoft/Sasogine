@@ -1,4 +1,6 @@
-﻿namespace Sachssoft.Sasogine.Extensions.Sasodoc
+﻿using Sachssoft.Sasodoc;
+
+namespace Sachssoft.Sasogine.Extensions.Sasodoc
 {
     public interface ISerialization
     {
