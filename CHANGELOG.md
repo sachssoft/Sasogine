@@ -25,6 +25,8 @@ All notable changes to this project will be documented in this file.
 - [Feature] **Toolkit**: Added object insertion support with `ObjectInsertTool` for creating and placing objects in the editor.
 
 ## [0.0.5-alpha] - 2026-08-30
+- [Feature] **Markup**: Introduced markup support for Sasogine.
+- [Feature] **Markup**: Added support for loading `IndexedFrameSet` and `KeyedFrameSet`.
 - [Feature] Added missing enum-based `IndexedFrameSet`.
 - [Feature] Added `Command` and generic `Command<T>` implementations with execution conditions and `CanExecuteChanged` notifications.
 - [Change] Removed incorrect rendering properties.
