@@ -1,97 +1,115 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Common.Performance
 {
-    // Lightweight Buffer für Werteänderungen.
-    // ------------------------------------------------------------------------------------------------------
-    // Diese Struktur speichert den alten Wert (OldValue) und den aktuellenneuen Wert (NewValue).
-    // Sie wird typischerweise in der Game-Update-Schleife verwendet, um Änderungen framebasiert zu erkennen.
-
-    // Vorteile gegenüber Event-Handlern:
-    // - Sehr performant, da keine Events oder Delegates aufgerufen werden.
-    // - Keine Heap-Allocation (Struct statt Class), minimaler Speicherverbrauch.
-    // - Ideal für häufige Updates in MonoGame (z.B.Score, Position, Status).
-
     /// <summary>
     /// Lightweight buffer holding old and new values.
-    /// 
+    ///
     /// Tracks changes of a value frame-by-frame or per update.
-    /// The first assignment (via <see cref="Set"/> or <see cref="EnsureChange"/>)
-    /// will always mark a change (returns true) to ensure initialization logic runs.
-    /// 
+    /// The first assignment via <see cref="EnsureChange"/> always marks a change
+    /// to ensure initialization logic runs.
+    ///
     /// Advantages over events:
-    /// - Very performant (no delegates/events called)
-    /// - Struct-based, no heap allocation
-    /// - Ideal for frequent updates in MonoGame or gameplay loops (score, position, status)
+    /// - Very performant, no delegates or events
+    /// - Struct-based, no heap allocation for the buffer itself
+    /// - Works with any type
+    /// - Ideal for frequent updates in game loops
     /// </summary>
     /// <typeparam name="T">Type of the buffered value.</typeparam>
-    public struct ValueBuffer<T>
+    public struct ValueBuffer<T> : IEquatable<ValueBuffer<T>>
     {
         private bool _wasEnsured;
 
-        /// <summary>Previous value.</summary>
+        /// <summary>
+        /// Previous value.
+        /// </summary>
         public T OldValue { get; private set; }
 
-        /// <summary>Current / new value.</summary>
+        /// <summary>
+        /// Current value.
+        /// </summary>
         public T NewValue { get; private set; }
 
-        /// <summary>True if OldValue and NewValue differ.</summary>
-        public bool HasChanged => !EqualityComparer<T>.Default.Equals(OldValue, NewValue);
-
-        /// <summary>True if the buffer has never been set or ensured.</summary>
-        public bool WasEnsured => _wasEnsured;
+        /// <summary>
+        /// True if OldValue and NewValue differ.
+        /// </summary>
+        public readonly bool HasChanged =>
+            !EqualityComparer<T>.Default.Equals(OldValue, NewValue);
 
         /// <summary>
-        /// Initializes the buffer as empty (first set will initialize both Old and New).
+        /// True if the buffer has already been initialized or ensured.
+        /// </summary>
+        public readonly bool WasEnsured => _wasEnsured;
+
+        /// <summary>
+        /// Initializes an empty buffer.
         /// </summary>
         public ValueBuffer()
         {
             OldValue = default!;
             NewValue = default!;
+            _wasEnsured = false;
+        }
+
+        /// <summary>
+        /// Initializes the buffer with the specified value.
+        /// OldValue and NewValue are initialized with the same value.
+        /// </summary>
+        public ValueBuffer(T value)
+        {
+            OldValue = value;
+            NewValue = value;
+            _wasEnsured = true;
         }
 
         /// <summary>
         /// Explicitly sets a new value.
-        /// Updates OldValue to the previous NewValue.
-        /// First assignment initializes both Old and New.
+        /// OldValue becomes the previous NewValue.
         /// </summary>
         public void Set(T value)
         {
             OldValue = NewValue;
             NewValue = value;
+            _wasEnsured = true;
         }
 
         /// <summary>
-        /// Checks if the value changed and automatically updates OldValue -> NewValue if it did.
-        /// Returns true if a change occurred, or if it's the first assignment.
+        /// Checks whether the specified value differs from the current value.
+        ///
+        /// Returns true when the value changed or when the buffer
+        /// has not yet been initialized.
         /// </summary>
         public bool EnsureChange(T value)
         {
-            if (!_wasEnsured || !EqualityComparer<T>.Default.Equals(NewValue, value))
-            {
-                OldValue = NewValue;
-                NewValue = value;
-                _wasEnsured = true;
-                return true;
-            }
-            return false;
+            if (_wasEnsured &&
+                EqualityComparer<T>.Default.Equals(NewValue, value))
+                return false;
+
+            OldValue = NewValue;
+            NewValue = value;
+            _wasEnsured = true;
+
+            return true;
         }
 
         /// <summary>
-        /// Resets both OldValue and NewValue to the specified value.
-        /// Marks first assignment as handled.
+        /// Resets OldValue and NewValue to the specified value.
+        /// The buffer is considered initialized afterwards.
         /// </summary>
         public void Reset(T value)
         {
             OldValue = value;
             NewValue = value;
+            _wasEnsured = true;
         }
-                
+
         /// <summary>
         /// Checks whether the value changed and consumes the change.
+        ///
         /// Returns true only once for the current change.
         /// </summary>
-        public bool ConsumeChange() // 0.0.4-alpha
+        public bool ConsumeChange()
         {
             if (!HasChanged)
                 return false;
@@ -100,8 +118,87 @@ namespace Sachssoft.Sasogine.Common.Performance
             return true;
         }
 
+        /// <summary>
+        /// Returns the current value.
+        /// </summary>
+        public readonly T Get() => NewValue;
+
         /// <inheritdoc/>
-        public override string ToString() => $"Old: {OldValue}, New: {NewValue}, First: {_wasEnsured}";
+        public readonly bool Equals(ValueBuffer<T> other) =>
+            EqualityComparer<T>.Default.Equals(NewValue, other.NewValue);
+
+        /// <inheritdoc/>
+        public override readonly bool Equals(object? obj) =>
+            obj is ValueBuffer<T> other && Equals(other);
+
+        /// <inheritdoc/>
+        public override readonly int GetHashCode() =>
+            NewValue is null
+                ? 0
+                : EqualityComparer<T>.Default.GetHashCode(NewValue);
+
+        /// <summary>
+        /// Implicitly creates a ValueBuffer from a value.
+        /// </summary>
+        public static implicit operator ValueBuffer<T>(T value) =>
+            new(value);
+
+        /// <summary>
+        /// Implicitly returns the current value.
+        /// </summary>
+        public static implicit operator T(ValueBuffer<T> buffer) =>
+            buffer.NewValue;
+
+        /// <summary>
+        /// Compares two buffers by their current value.
+        /// </summary>
+        public static bool operator ==(
+            ValueBuffer<T> left,
+            ValueBuffer<T> right) =>
+            left.Equals(right);
+
+        /// <summary>
+        /// Compares two buffers by their current value.
+        /// </summary>
+        public static bool operator !=(
+            ValueBuffer<T> left,
+            ValueBuffer<T> right) =>
+            !left.Equals(right);
+
+        /// <summary>
+        /// Compares the current buffer value with a value of type T.
+        /// </summary>
+        public static bool operator ==(
+            ValueBuffer<T> left,
+            T right) =>
+            EqualityComparer<T>.Default.Equals(left.NewValue, right);
+
+        /// <summary>
+        /// Compares the current buffer value with a value of type T.
+        /// </summary>
+        public static bool operator !=(
+            ValueBuffer<T> left,
+            T right) =>
+            !EqualityComparer<T>.Default.Equals(left.NewValue, right);
+
+        /// <summary>
+        /// Compares a value of type T with the current buffer value.
+        /// </summary>
+        public static bool operator ==(
+            T left,
+            ValueBuffer<T> right) =>
+            EqualityComparer<T>.Default.Equals(left, right.NewValue);
+
+        /// <summary>
+        /// Compares a value of type T with the current buffer value.
+        /// </summary>
+        public static bool operator !=(
+            T left,
+            ValueBuffer<T> right) =>
+            !EqualityComparer<T>.Default.Equals(left, right.NewValue);
+
+        /// <inheritdoc/>
+        public override readonly string ToString() =>
+            $"Old: {OldValue}, New: {NewValue}, Ensured: {_wasEnsured}";
     }
 }
-

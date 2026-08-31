@@ -3,22 +3,35 @@ using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Common
 {
+    /// <summary>
+    /// Provides the non-generic base implementation for engine objects.
+    ///
+    /// Defines common runtime state such as loading, identification,
+    /// classification, user-defined context, and object freezing.
+    /// </summary>
     public abstract class EngineObjectBase : IEngineReferenceable
     {
         private string? _id;
         private string? _class;
-        private bool _isFrozen = false;
-
-        internal EngineObjectBase() { }
+        private bool _isFrozen;
 
         /// <summary>
-        /// Indicates whether this element has been loaded.
+        /// Initializes a new instance of the <see cref="EngineObjectBase"/> class.
+        /// </summary>
+        internal EngineObjectBase()
+        {
+        }
+
+        /// <summary>
+        /// Gets whether this engine object has been loaded.
         /// </summary>
         public bool IsLoaded { get; private protected set; }
 
         /// <summary>
-        /// Unique identifier for this element.
-        /// Set automatically from the Definition. Read-only at runtime.
+        /// Gets the unique identifier of this engine object.
+        ///
+        /// The identifier is typically assigned from the object's definition
+        /// during loading and cannot be changed publicly at runtime.
         /// </summary>
         public string? Id
         {
@@ -31,8 +44,10 @@ namespace Sachssoft.Sasogine.Common
         }
 
         /// <summary>
-        /// Classification or category of this element.
-        /// Set automatically from the Definition. Read-only at runtime.
+        /// Gets the classification or category of this engine object.
+        ///
+        /// The class is typically assigned from the object's definition
+        /// during loading and cannot be changed publicly at runtime.
         /// </summary>
         public string? Class
         {
@@ -45,52 +60,83 @@ namespace Sachssoft.Sasogine.Common
         }
 
         /// <summary>
-        /// Optional user-defined context associated with this element.
-        /// Can hold any object, e.g., editor metadata, runtime state, or scripting data.
+        /// Gets or sets optional user-defined data associated with this engine object.
+        ///
+        /// This can be used to store editor metadata, runtime state,
+        /// scripting data, or other application-specific information.
         /// </summary>
         public object? DataContext { get; set; }
 
+        /// <summary>
+        /// Gets whether this engine object has been frozen.
+        /// </summary>
         public bool IsFrozen => _isFrozen;
 
         /// <summary>
-        /// Loads the element and applies the definition.
-        /// Hooks up definition change events.
+        /// Loads and initializes the engine object.
         /// </summary>
         public abstract void Load();
 
+        /// <summary>
+        /// Asynchronously loads and initializes the engine object.
+        /// </summary>
+        /// <returns>
+        /// A task representing the asynchronous load operation.
+        /// </returns>
         public abstract Task LoadAsync();
 
         /// <summary>
-        /// Unloads the element and detaches definition change events.
+        /// Unloads the engine object and releases or resets load-related state.
         /// </summary>
         public abstract void Unload();
 
+        /// <summary>
+        /// Reloads the engine object by unloading and loading it again.
+        /// </summary>
         public void Reload()
         {
             Unload();
             Load();
-            return;
         }
 
+        /// <summary>
+        /// Asynchronously reloads the engine object by unloading it and
+        /// asynchronously loading it again.
+        /// </summary>
+        /// <returns>
+        /// A task representing the asynchronous reload operation.
+        /// </returns>
         public async Task ReloadAsync()
         {
             Unload();
             await LoadAsync();
-            return;
         }
 
+        /// <summary>
+        /// Freezes this engine object and prevents further modifications
+        /// to protected immutable state.
+        ///
+        /// Calling this method more than once has no effect.
+        /// </summary>
         protected void Freeze()
         {
             if (_isFrozen)
-                throw new InvalidOperationException("Object is already frozen.");
+                return;
 
             _isFrozen = true;
         }
 
+        /// <summary>
+        /// Throws an exception when this engine object is frozen.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when the object is frozen.
+        /// </exception>
         protected void ThrowIfFrozen()
         {
             if (_isFrozen)
-                throw new InvalidOperationException("Object is frozen and immutable.");
+                throw new InvalidOperationException(
+                    "Object is frozen and immutable.");
         }
     }
 }
