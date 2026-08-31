@@ -14,7 +14,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Sachssoft.Sasogine.DesktopGL" Version="0.0.5-alpha" />
+		<PackageReference Include="Sachssoft.Sasogine.DesktopGL" Version="0.0.5.1-alpha" />
 	</ItemGroup>
 
 </Project>
