@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Assets;
 using Sachssoft.Sasogine.Resources.Sources;
 using System;
 using System.Collections.Generic;
@@ -8,12 +9,27 @@ using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Resources;
 
+// Konzept:
+// Globale statische Typ-Registry
+// - Alle bekannten Asset-/Resource-Typen werden zentral registriert.
+// - Typregistrierung erfolgt zur Build-Zeit aus Markup und generierten Informationen.
+// - Ein Project-Build-Task / Source Generator erzeugt die benötigten Registrierungen.
+// - Third-Party-Libraries können eigene Registrierungen bereitstellen.
+// - Registrierungen aus externen Libraries werden in die globale Registry übernommen.
+// - Keine Typensuche per Reflection zur Laufzeit.
+// - Keine Abhängigkeit der Typregistrierung von einer AssetStore-Instanz.
+// - AOT-Kompatibilität ist eine grundlegende Anforderung.
+// - Die Anwendung selbst muss nicht zwingend als AOT kompiliert werden.
+
 public partial class AssetStore
 {
+    [Obsolete]
     private static readonly Dictionary<Type, Delegate> _registeredLoaders = new Dictionary<Type, Delegate>();
+    [Obsolete]
     private static readonly Dictionary<Type, object> _registeredFactories = new Dictionary<Type, object>();
 
     // Culture-specific assets: CultureInfo → Key → ResourceEntry
+    [Obsolete]
     private readonly Dictionary<CultureInfo, Dictionary<string, object>> _items =
         new Dictionary<CultureInfo, Dictionary<string, object>>();
 
@@ -34,6 +50,7 @@ public partial class AssetStore
         set => _gameApplication.Content.RootDirectory = value;
     }
 
+    [Obsolete]
     public static void RegisterLoader<TLoader>(Func<AssetStore, string, TLoader> factory)
         where TLoader : ResourceSourceBase
     {
@@ -43,6 +60,7 @@ public partial class AssetStore
         _registeredLoaders[typeof(TLoader)] = factory;
     }
 
+    [Obsolete]
     private TLoader CreateLoader<TLoader>(string path) where TLoader : ResourceSourceBase
     {
         if (!_registeredLoaders.TryGetValue(typeof(TLoader), out var factory))
@@ -51,6 +69,7 @@ public partial class AssetStore
         return (TLoader)factory.DynamicInvoke(this, path)!;
     }
 
+    [Obsolete]
     public static void RegisterType<TData>(
         Func<AssetStore, ResourceSourceBase, TData>? syncFactory = null,
         Func<AssetStore, ResourceSourceBase, Task<TData>>? asyncFactory = null)
@@ -70,21 +89,30 @@ public partial class AssetStore
 
     // ------------------------ ADD ------------------------
 
+    [Obsolete]
     public void Add(string key, string path, ResourceSourceType type = ResourceSourceType.ExternalFile)
     {
         Add<Stream>(key, path, null, type);
     }
 
+    // Konzept:
+    //public void Add(string key, ResourceSourceBase resourceSource)
+    //{
+    //}
+
+    [Obsolete]
     public void Add(string key, string path, CultureInfo? culture, ResourceSourceType type = ResourceSourceType.ExternalFile)
     {
         Add<Stream>(key, path, culture, type);
     }
 
+    [Obsolete]
     public void Add<TData>(string key, string path, ResourceSourceType type = ResourceSourceType.ExternalFile)
     {
         Add<TData>(key, path, null, type);
     }
 
+    [Obsolete]
     public void Add<TData>(string key, string path, CultureInfo? culture, ResourceSourceType type = ResourceSourceType.ExternalFile)
     {
         culture ??= CultureInfo.InvariantCulture;
@@ -105,6 +133,7 @@ public partial class AssetStore
         }
     }
 
+    [Obsolete]
     public void Add<TData, TLoader>(string key, string path, CultureInfo? culture = null)
         where TLoader : ResourceSourceBase
     {
@@ -129,6 +158,7 @@ public partial class AssetStore
         cultureDict[key] = new ResourceEntry(factory);
     }
 
+    [Obsolete]
     private void AddContent<TData>(string key, string path, CultureInfo? culture = null)
     {
         culture ??= CultureInfo.InvariantCulture;
@@ -147,6 +177,7 @@ public partial class AssetStore
         cultureDict[key] = new ResourceEntry(factory);
     }
 
+    [Obsolete]
     public void AddAsync<TData, TLoader>(string key, string path, CultureInfo? culture = null)
         where TLoader : ResourceSourceBase
     {
@@ -172,21 +203,25 @@ public partial class AssetStore
         cultureDict[key] = new ResourceEntryAsync(factory);
     }
 
+    [Obsolete]
     public void AddAsync(string key, string path, ResourceSourceType type = ResourceSourceType.ExternalFile)
     {
         AddAsync<Stream>(key, path, null, type);
     }
 
+    [Obsolete]
     public void AddAsync(string key, string path, CultureInfo? culture = null, ResourceSourceType type = ResourceSourceType.ExternalFile)
     {
         AddAsync<Stream>(key, path, culture, type);
     }
 
+    [Obsolete]
     public void AddAsync<TData>(string key, string path, ResourceSourceType type = ResourceSourceType.ExternalFile)
     {
         AddAsync<TData>(key, path, null, type);
     }
 
+    [Obsolete]
     public void AddAsync<TData>(string key, string path, CultureInfo? culture = null, ResourceSourceType type = ResourceSourceType.ExternalFile)
     {
         culture ??= CultureInfo.InvariantCulture;
@@ -211,6 +246,7 @@ public partial class AssetStore
         }
     }
 
+    [Obsolete]
     private void AddAsyncContent<TData>(string key, string path, CultureInfo culture)
     {
         if (!_items.TryGetValue(culture, out var cultureDict))
@@ -226,16 +262,25 @@ public partial class AssetStore
 
     // ------------------------ LOAD ------------------------
 
+    [Obsolete]
     public TData Load<TData>(string key, CultureInfo? culture = null)
     {
         return (TData)Load(key, culture);
     }
 
+    // Konzept:
+    //public TAsset Load<TAsset>(string key, CultureInfo? culture = null)
+    //    where TAsset : IAsset
+    //{
+    //}
+
+    [Obsolete]
     public Stream LoadStream(string key, CultureInfo? culture = null)
     {
         return (Stream)Load(key, culture);
     }
 
+    [Obsolete]
     public object Load(string key, CultureInfo? culture = null)
     {
         culture ??= CultureInfo.CurrentCulture;
@@ -267,12 +312,14 @@ public partial class AssetStore
             $"Asset '{key}' not found for culture '{culture.Name}' or any parent culture.");
     }
 
+    [Obsolete]
     public async Task<TData?> LoadAsync<TData>(string key, CultureInfo? culture = null)
     {
         var obj = await LoadAsync(key, culture);
         return (TData?)obj;
     }
 
+    [Obsolete]
     public async Task<object?> LoadAsync(string key, CultureInfo? culture = null)
     {
         culture ??= CultureInfo.CurrentCulture;
@@ -310,15 +357,23 @@ public partial class AssetStore
     /// <summary>
     /// Fügt einen Asset hinzu und lädt ihn sofort synchron.
     /// </summary>
+    [Obsolete]
     public TData AddAndLoad<TData>(string key, string path, CultureInfo? culture = null, ResourceSourceType type = ResourceSourceType.Content)
     {
         Add<TData>(key, path, culture, type);
         return Load<TData>(key, culture);
     }
 
+    // Konzept:
+    //public TAsset AddAndLoad<TAsset>(string key, CultureInfo? culture = null)
+    //    where TAsset : IAsset
+    //{
+    //}
+
     /// <summary>
     /// Fügt einen Asset hinzu und lädt ihn sofort asynchron.
     /// </summary>
+    [Obsolete]
     public async Task<TData?> AddAndLoadAsync<TData>(string key, string path, CultureInfo? culture = null, ResourceSourceType type = ResourceSourceType.Content)
     {
         await Task.Yield(); // optional: minimaler async Kontext
@@ -328,6 +383,7 @@ public partial class AssetStore
 
     // ------------------------ WRAPPER ------------------------
 
+    [Obsolete]
     private class FactoryWrapper<TData>
     {
         public Func<AssetStore, ResourceSourceBase, TData>? SyncFactory { get; }
@@ -358,6 +414,7 @@ public partial class AssetStore
         }
     }
 
+    [Obsolete]
     private class ResourceEntry
     {
         private readonly Func<object?> _factory;
@@ -385,6 +442,7 @@ public partial class AssetStore
         public bool IsLoaded => _loaded;
     }
 
+    [Obsolete]
     private class ResourceEntryAsync
     {
         private readonly Func<Task<object?>> _factory;
