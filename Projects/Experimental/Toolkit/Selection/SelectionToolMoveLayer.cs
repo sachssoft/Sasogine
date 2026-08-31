@@ -1,113 +1,52 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Components.Tools.Selection;
 
 /// <summary>
-/// Provides a selection layer that allows selected targets to be moved.
+/// Provides a selection layer that allows selected targets to be moved,
+/// optionally snapping their positions to the configured grid.
 /// </summary>
 public sealed class SelectionToolMoveLayer : SelectionToolLayer
 {
-    private readonly SelectionToolNode _moveNode;
+    private readonly SelectionToolMoveHelper _move;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SelectionToolMoveLayer"/> class.
     /// </summary>
     public SelectionToolMoveLayer()
     {
-        _moveNode = new SelectionToolNode(
-            SelectionToolNodeShape.Quad)
-        {
-            IsVisible = true
-        };
-
-        Nodes.Add(_moveNode);
+        _move = new SelectionToolMoveHelper();
+        Nodes.Add(_move.Node);
     }
 
-    /// <summary>
-    /// Updates the move node to match the specified target or definition.
-    /// The node position is always relative to the target and therefore remains at the origin.
-    /// </summary>
-    /// <param name="target">
-    /// The runtime selection target, if available.
-    /// </param>
-    /// <param name="definition">
-    /// The selection target definition, if available.
-    /// </param>
+    /// <inheritdoc/>
     protected internal override void OnTargetInvalidated(
+        SelectionToolLayerContext context,
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
     {
-        if (target != null)
-        {
-            _moveNode.Position = Vector2.Zero;
-            _moveNode.Size = target.Size;
-            return;
-        }
-
-        if (definition != null)
-        {
-            _moveNode.Position = Vector2.Zero;
-            _moveNode.Size = definition.Size;
-            return;
-        }
-
-        _moveNode.Position = Vector2.Zero;
-        _moveNode.Size = Size2.Zero;
+        _move.OnTargetInvalidated(
+            context,
+            target,
+            definition);
     }
 
-    /// <summary>
-    /// Determines whether the move node can be used for the specified target.
-    /// </summary>
-    /// <param name="node">
-    /// The selection tool node.
-    /// </param>
-    /// <param name="target">
-    /// The runtime selection target, if available.
-    /// </param>
-    /// <param name="definition">
-    /// The selection target definition, if available.
-    /// </param>
-    /// <returns>
-    /// <see langword="true"/> if the target supports movement; otherwise,
-    /// <see langword="false"/>.
-    /// </returns>
+    /// <inheritdoc/>
     protected internal override bool AllowHandle(
         SelectionToolNode node,
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
     {
-        return (target is ISelectionMovable2 movable &&
-                movable.AllowMove) ||
-               definition is ISelectionMovable2Definition;
+        return _move.AllowHandle(
+            node,
+            target,
+            definition);
     }
 
-    /// <summary>
-    /// Moves the target and other selected targets by the specified delta.
-    /// </summary>
-    /// <param name="node">
-    /// The selection tool node being interacted with.
-    /// </param>
-    /// <param name="target">
-    /// The primary runtime selection target, if available.
-    /// </param>
-    /// <param name="definition">
-    /// The primary selection target definition, if available.
-    /// </param>
-    /// <param name="otherSelectedTargets">
-    /// The other selected runtime targets.
-    /// </param>
-    /// <param name="otherSelectedTargetDefinitions">
-    /// The definitions of the other selected targets.
-    /// </param>
-    /// <param name="cursorPosition">
-    /// The current cursor position.
-    /// </param>
-    /// <param name="delta">
-    /// The movement delta since the previous interaction.
-    /// </param>
+    /// <inheritdoc/>
     protected internal override void OnNodeInteract(
+        SelectionToolLayerContext context,
         SelectionToolNode node,
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition,
@@ -116,44 +55,14 @@ public sealed class SelectionToolMoveLayer : SelectionToolLayer
         Vector2 cursorPosition,
         Vector2 delta)
     {
-        if (!ReferenceEquals(node, _moveNode))
-            return;
-
-        if (delta == Vector2.Zero)
-            return;
-
-        if (target is ISelectionMovable2 movable &&
-            movable.AllowMove)
-        {
-            movable.Position += delta;
-        }
-
-        if (definition is ISelectionMovable2Definition movableDefinition)
-        {
-            movableDefinition.Position += delta;
-        }
-
-        if (otherSelectedTargets != null)
-        {
-            foreach (var otherTarget in otherSelectedTargets)
-            {
-                if (otherTarget is ISelectionMovable2 otherMovable &&
-                    otherMovable.AllowMove)
-                {
-                    otherMovable.Position += delta;
-                }
-            }
-        }
-
-        if (otherSelectedTargetDefinitions != null)
-        {
-            foreach (var otherDefinition in otherSelectedTargetDefinitions)
-            {
-                if (otherDefinition is ISelectionMovable2Definition otherMovableDefinition)
-                {
-                    otherMovableDefinition.Position += delta;
-                }
-            }
-        }
+        _move.OnNodeInteract(
+            context,
+            node,
+            target,
+            definition,
+            otherSelectedTargets,
+            otherSelectedTargetDefinitions,
+            cursorPosition,
+            delta);
     }
 }

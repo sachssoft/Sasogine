@@ -136,6 +136,7 @@ public class SelectionTool : ToolBase
                 Layer != null)
             {
                 Layer.OnNodeInteract(
+                    GetLayerContext(),
                     _selectedNode,
                     _activeTarget,
                     _activeDefinition,
@@ -156,6 +157,29 @@ public class SelectionTool : ToolBase
 
     protected virtual void HandleActionPressed()
     {
+        if (TryHitSelectedNode(
+        _cursorPosition,
+        out var selectedNode,
+        out var selectedTarget,
+        out var selectedDefinition))
+        {
+            _activeTarget = selectedTarget;
+            _activeDefinition = selectedDefinition;
+            _selectedNode = selectedNode;
+
+            Layer!.OnNodeInteract(
+                GetLayerContext(),
+                selectedNode!,
+                selectedTarget,
+                selectedDefinition,
+                GetOtherSelectedTargets(selectedTarget),
+                GetOtherSelectedTargetDefinitions(selectedDefinition),
+                _cursorPosition,
+                Vector2.Zero);
+
+            return;
+        }
+
         var hit = HitTest(_cursorPosition);
 
         if (hit.Targets.Count == 0)
@@ -220,6 +244,7 @@ public class SelectionTool : ToolBase
         _selectedNode = node;
 
         Layer?.OnNodeInteract(
+            GetLayerContext(),
             node,
             target,
             definition,
@@ -244,16 +269,38 @@ public class SelectionTool : ToolBase
         DeselectAll();
     }
 
-    protected virtual SelectionToolNode? HitTestNode(
-        Vector2 position)
+    //protected virtual SelectionToolNode? HitTestNode(
+    //    Vector2 position)
+    //{
+    //    if (Layer == null)
+    //        return null;
+
+    //    foreach (var node in Layer.Nodes)
+    //    {
+    //        //if (!node.IsVisible)
+    //        //    continue;
+
+    //        if (IsInNode(
+    //            position,
+    //            node,
+    //            _activeTarget,
+    //            _activeDefinition))
+    //        {
+    //            return node;
+    //        }
+    //    }
+
+    //    return null;
+    //}
+
+    protected virtual SelectionToolNode? HitTestNode(Vector2 position)
     {
         if (Layer == null)
             return null;
 
-        foreach (var node in Layer.Nodes)
+        for (int i = Layer.Nodes.Count - 1; i >= 0; i--)
         {
-            if (!node.IsVisible)
-                continue;
+            var node = Layer.Nodes[i];
 
             if (IsInNode(
                 position,
@@ -266,6 +313,66 @@ public class SelectionTool : ToolBase
         }
 
         return null;
+    }
+
+    private bool TryHitSelectedNode(
+    Vector2 position,
+    out SelectionToolNode? node,
+    out ISelectionTarget2? target,
+    out ISelectionTarget2Definition? definition)
+    {
+        node = null;
+        target = null;
+        definition = null;
+
+        if (Layer == null)
+            return false;
+
+        var context = GetLayerContext();
+
+        foreach (var pair in GetTargetPairs())
+        {
+            bool isSelected =
+                pair.Target?.IsSelected == true ||
+                pair.Definition?.IsSelected == true;
+
+            if (!isSelected)
+                continue;
+
+            Layer.OnTargetInvalidated(
+                context,
+                pair.Target,
+                pair.Definition);
+
+            for (int i = Layer.Nodes.Count - 1; i >= 0; i--)
+            {
+                var currentNode = Layer.Nodes[i];
+
+                if (!IsInNode(
+                    position,
+                    currentNode,
+                    pair.Target,
+                    pair.Definition))
+                {
+                    continue;
+                }
+
+                if (!Layer.AllowHandle(
+                    currentNode,
+                    pair.Target,
+                    pair.Definition))
+                {
+                    continue;
+                }
+
+                node = currentNode;
+                target = pair.Target;
+                definition = pair.Definition;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected virtual bool IsInNode(
@@ -294,6 +401,7 @@ public class SelectionTool : ToolBase
             return;
 
         Layer.OnTargetInvalidated(
+            GetLayerContext(),
             _activeTarget,
             _activeDefinition);
     }
@@ -454,6 +562,8 @@ public class SelectionTool : ToolBase
         if (Layer == null)
             return;
 
+        var layerContext = GetLayerContext();
+
         foreach (var pair in GetTargetPairs())
         {
             bool isSelected =
@@ -464,6 +574,7 @@ public class SelectionTool : ToolBase
                 continue;
 
             Layer.OnTargetInvalidated(
+                layerContext,
                 pair.Target,
                 pair.Definition);
 
@@ -791,6 +902,14 @@ public class SelectionTool : ToolBase
         return new Vector2(
             MathF.Round(position.X / GridSize.Width) * GridSize.Width,
             MathF.Round(position.Y / GridSize.Height) * GridSize.Height);
+    }
+
+    protected virtual SelectionToolLayerContext GetLayerContext()
+    {
+        return new SelectionToolLayerContext(
+            EnableSnap,
+            GridSize,
+            HandleSize);
     }
 
     private readonly struct TargetPair

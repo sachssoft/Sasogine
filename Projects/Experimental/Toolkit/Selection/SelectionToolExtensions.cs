@@ -119,12 +119,16 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         }
 
         private static Matrix CreateMatrix(
-            Size2? size,
-            Vector2? scale,
-            (float Rotation, Vector2 Pivot)? rotation,
-            Vector2? position)
+    Size2? size,
+    Vector2? scale,
+    (float Rotation, Vector2 Pivot)? rotation,
+    Vector2? position)
         {
             var matrix = Matrix.Identity;
+
+            var actualSize = size.HasValue
+                ? size.Value.ToVector2()
+                : Vector2.One;
 
             if (size.HasValue)
             {
@@ -141,13 +145,17 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
                     new Vector3(
                         scale.Value,
                         1f));
+
+                actualSize *= scale.Value;
             }
 
             if (rotation.HasValue)
             {
+                var pivot = actualSize * rotation.Value.Pivot;
+
                 matrix *= Matrix.CreateTranslation(
                     new Vector3(
-                        -rotation.Value.Pivot,
+                        -pivot,
                         0f));
 
                 matrix *= Matrix.CreateRotationZ(
@@ -155,7 +163,7 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
 
                 matrix *= Matrix.CreateTranslation(
                     new Vector3(
-                        rotation.Value.Pivot,
+                        pivot,
                         0f));
             }
 
@@ -178,6 +186,10 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         {
             var matrix = Matrix.Identity;
 
+            var actualSize = size.HasValue
+                ? size.Value.ToVector2()
+                : Vector2.One;
+
             if (size.HasValue)
             {
                 matrix *= Matrix.CreateScale(
@@ -193,13 +205,17 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
                     new Vector3(
                         scale.Value,
                         1f));
+
+                actualSize *= scale.Value;
             }
 
             if (rotation.HasValue)
             {
+                var pivot = actualSize * rotation.Value.Pivot;
+
                 matrix *= Matrix.CreateTranslation(
                     new Vector3(
-                        -rotation.Value.Pivot,
+                        -pivot,
                         0f));
 
                 matrix *= Matrix.CreateRotationZ(
@@ -207,7 +223,7 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
 
                 matrix *= Matrix.CreateTranslation(
                     new Vector3(
-                        rotation.Value.Pivot,
+                        pivot,
                         0f));
             }
 
