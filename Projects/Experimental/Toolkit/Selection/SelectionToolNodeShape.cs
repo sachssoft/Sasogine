@@ -1,16 +1,17 @@
-﻿using Sachssoft.Sasogine.Components.Tools;
-using Sachssoft.Sasogine.Components.Tools.Selection;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Xna.Framework;
+﻿namespace Sachssoft.Sasogine.Components.Tools.Selection;
 
-namespace Sachssoft.Sasogine.Components.Tools.Selection
+/// <summary>
+/// Specifies the visual shape used to represent a selection tool interaction node.
+/// </summary>
+public enum SelectionToolNodeShape
 {
-    public enum SelectionToolNodeShape
-    {
-        Quad,
-        Circle
-    }
+    /// <summary>
+    /// Represents a rectangular interaction node.
+    /// </summary>
+    Quad,
 
+    /// <summary>
+    /// Represents a circular interaction node.
+    /// </summary>
+    Circle
 }

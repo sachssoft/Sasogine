@@ -95,13 +95,13 @@ internal sealed class SelectionToolMoveHelper
 
         Vector2 newPosition;
 
-        if (context.EnableSnap)
+        if (context.EnableGridSnap)
         {
             newPosition = _dragStartPosition +
                 cursorPosition -
                 _dragStartCursorPosition;
 
-            var gridSize = context.GridSize;
+            var gridSize = context.GridSnapStep;
 
             if (gridSize.Width > 0f)
                 newPosition.X = MathF.Round(

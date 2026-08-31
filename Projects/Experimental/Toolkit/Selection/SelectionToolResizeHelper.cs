@@ -19,9 +19,9 @@ internal sealed class SelectionToolResizeHelper
     private readonly SelectionToolNode[] _nodes;
 
     private SelectionToolNode? _dragNode;
-    private Vector2 _dragStartCursorPosition;
-    private Vector2 _dragStartPosition;
     private Size2 _dragStartSize;
+    private Vector2 _dragOffset;
+    private Vector2 _appliedOriginOffset;
 
     public SelectionToolResizeHelper()
     {
@@ -112,65 +112,61 @@ internal sealed class SelectionToolResizeHelper
         if (!IsNode(node))
             return false;
 
-        return (target is ISelectionResizable2 resizable &&
-                resizable.AllowResize) ||
+        return target is ISelectionResizable2 resizable &&
+               resizable.AllowResize ||
                definition is ISelectionResizable2Definition;
     }
 
-    public void OnNodeInteract(
+    public bool OnNodeInteract(
         SelectionToolLayerContext context,
         SelectionToolNode node,
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition,
         Vector2 cursorPosition,
-        Vector2 delta)
+        Vector2 delta,
+        out Vector2 originOffset,
+        out Size2 oldSize,
+        out Size2 newSize)
     {
-        if (!IsNode(node))
-            return;
+        originOffset = Vector2.Zero;
+        oldSize = Size2.Zero;
+        newSize = Size2.Zero;
 
-        Vector2 currentPosition;
+        if (!IsNode(node))
+            return false;
+
         Size2 currentSize;
 
         if (target is ISelectionResizable2 resizable &&
             resizable.AllowResize)
         {
-            currentPosition = target is ISelectionMovable2 movable
-                ? movable.Position
-                : Vector2.Zero;
-
             currentSize = resizable.Size;
         }
         else if (definition is ISelectionResizable2Definition resizableDefinition)
         {
-            currentPosition = definition is ISelectionMovable2Definition movableDefinition
-                ? movableDefinition.Position
-                : Vector2.Zero;
-
             currentSize = resizableDefinition.Size;
         }
         else
         {
-            return;
+            return false;
         }
 
         if (delta == Vector2.Zero ||
             !ReferenceEquals(_dragNode, node))
         {
             _dragNode = node;
-            _dragStartCursorPosition = cursorPosition;
-            _dragStartPosition = currentPosition;
             _dragStartSize = currentSize;
-            return;
+            _dragOffset = Vector2.Zero;
+            _appliedOriginOffset = Vector2.Zero;
+            return false;
         }
 
-        var dragDelta =
-            cursorPosition -
-            _dragStartCursorPosition;
+        _dragOffset += delta;
 
-        float left = _dragStartPosition.X;
-        float top = _dragStartPosition.Y;
-        float right = left + _dragStartSize.Width;
-        float bottom = top + _dragStartSize.Height;
+        float left = 0f;
+        float top = 0f;
+        float right = _dragStartSize.Width;
+        float bottom = _dragStartSize.Height;
 
         bool resizeLeft =
             ReferenceEquals(node, _topLeftCornerNode) ||
@@ -193,43 +189,51 @@ internal sealed class SelectionToolResizeHelper
             ReferenceEquals(node, _bottomRightCornerNode);
 
         if (resizeLeft)
-            left += dragDelta.X;
+            left += _dragOffset.X;
 
         if (resizeRight)
-            right += dragDelta.X;
+            right += _dragOffset.X;
 
         if (resizeTop)
-            top += dragDelta.Y;
+            top += _dragOffset.Y;
 
         if (resizeBottom)
-            bottom += dragDelta.Y;
+            bottom += _dragOffset.Y;
 
-        if (context.EnableSnap)
+        if (context.EnableGridSnap)
         {
-            if (context.GridSize.Width > 0f)
+            if (context.GridSnapStep.Width > 0f)
             {
                 if (resizeLeft)
+                {
                     left = MathF.Round(
-                        left / context.GridSize.Width) *
-                        context.GridSize.Width;
+                        left / context.GridSnapStep.Width) *
+                        context.GridSnapStep.Width;
+                }
 
                 if (resizeRight)
+                {
                     right = MathF.Round(
-                        right / context.GridSize.Width) *
-                        context.GridSize.Width;
+                        right / context.GridSnapStep.Width) *
+                        context.GridSnapStep.Width;
+                }
             }
 
-            if (context.GridSize.Height > 0f)
+            if (context.GridSnapStep.Height > 0f)
             {
                 if (resizeTop)
+                {
                     top = MathF.Round(
-                        top / context.GridSize.Height) *
-                        context.GridSize.Height;
+                        top / context.GridSnapStep.Height) *
+                        context.GridSnapStep.Height;
+                }
 
                 if (resizeBottom)
+                {
                     bottom = MathF.Round(
-                        bottom / context.GridSize.Height) *
-                        context.GridSize.Height;
+                        bottom / context.GridSnapStep.Height) *
+                        context.GridSnapStep.Height;
+                }
             }
         }
 
@@ -239,11 +243,19 @@ internal sealed class SelectionToolResizeHelper
         if (bottom < top)
             bottom = top;
 
-        var newPosition = new Vector2(
+        var totalOriginOffset = new Vector2(
             left,
             top);
 
-        var newSize = new Size2(
+        originOffset =
+            totalOriginOffset -
+            _appliedOriginOffset;
+
+        _appliedOriginOffset = totalOriginOffset;
+
+        oldSize = currentSize;
+
+        newSize = new Size2(
             right - left,
             bottom - top);
 
@@ -251,21 +263,12 @@ internal sealed class SelectionToolResizeHelper
             targetResizable.AllowResize)
         {
             targetResizable.Size = newSize;
-
-            if (target is ISelectionMovable2 targetMovable &&
-                targetMovable.AllowMove)
-            {
-                targetMovable.Position = newPosition;
-            }
         }
 
         if (definition is ISelectionResizable2Definition definitionResizable)
-        {
             definitionResizable.Size = newSize;
 
-            if (definition is ISelectionMovable2Definition definitionMovable)
-                definitionMovable.Position = newPosition;
-        }
+        return true;
     }
 
     private bool IsNode(SelectionToolNode node)

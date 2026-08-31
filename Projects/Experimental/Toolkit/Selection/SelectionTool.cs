@@ -12,29 +12,57 @@ using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Components.Tools;
 
+/// <summary>
+/// Provides an interactive tool for selecting and transforming selection targets.
+/// </summary>
+/// <remarks>
+/// The selection tool supports selecting one or multiple targets and delegates
+/// transformation behavior such as moving, resizing, and rotating to the configured
+/// <see cref="SelectionToolLayer"/>.
+/// 
+/// Targets may either implement <see cref="ISelectionTarget2"/> directly or expose
+/// an <see cref="ISelectionTarget2Definition"/> through an <see cref="IEngineObject"/>.
+/// </remarks>
 public class SelectionTool : ToolBase
 {
-    internal readonly ShapeBatch _lineBatch;
-    internal readonly ShapeBatch _pointBatch;
+    private readonly ShapeBatch _lineBatch;
+    private readonly ShapeBatch _pointBatch;
     private readonly ShapeBatch _fillBatch;
+
     private readonly BasicShader _lineShader;
     private readonly BasicShader _pointShader;
     private readonly BasicShader _fillShader;
 
-    internal Vector2 _cursorPosition;
-    internal bool _isInViewport;
-    internal SelectionToolInteractions? _interactions;
+    private Vector2 _cursorPosition;
+    private bool _isInViewport;
+    private SelectionToolInteractions? _interactions;
 
     private Vector2 _lastCursorPosition;
     private SelectionToolNode? _selectedNode;
     private ISelectionTarget2? _activeTarget;
     private ISelectionTarget2Definition? _activeDefinition;
 
-    private SelectionToolLayer? _layer = null;
-    private bool _invalidateLayer = false;
+    private SelectionToolLayer? _layer;
+    private bool _invalidateLayer; 
+    
+    private bool _isAreaSelecting;
+    private Vector2 _areaSelectionStart;
+    private Vector2 _areaSelectionEnd;
 
-
-    public SelectionTool(IEnumerable targetsSource, GraphicsDevice graphicsDevice)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SelectionTool"/> class.
+    /// </summary>
+    /// <param name="targetsSource">The source containing the selectable targets.</param>
+    /// <param name="graphicsDevice">
+    /// The graphics device used to create the rendering resources required by the tool.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="targetsSource"/> or
+    /// <paramref name="graphicsDevice"/> is <see langword="null"/>.
+    /// </exception>
+    public SelectionTool(
+        IEnumerable targetsSource,
+        GraphicsDevice graphicsDevice)
     {
         ArgumentNullException.ThrowIfNull(targetsSource);
         ArgumentNullException.ThrowIfNull(graphicsDevice);
@@ -45,11 +73,39 @@ public class SelectionTool : ToolBase
         _pointBatch = new ShapeBatch(graphicsDevice);
         _fillBatch = new ShapeBatch(graphicsDevice);
 
-        _lineShader = new BasicShader { GraphicsDevice = graphicsDevice };
-        _pointShader = new BasicShader { GraphicsDevice = graphicsDevice };
-        _fillShader = new BasicShader { GraphicsDevice = graphicsDevice };
+        _lineShader = new BasicShader
+        {
+            GraphicsDevice = graphicsDevice
+        };
+
+        _pointShader = new BasicShader
+        {
+            GraphicsDevice = graphicsDevice
+        };
+
+        _fillShader = new BasicShader
+        {
+            GraphicsDevice = graphicsDevice
+        };
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SelectionTool"/> class
+    /// with a predefined transformation layer.
+    /// </summary>
+    /// <param name="targetsSource">The source containing the selectable targets.</param>
+    /// <param name="graphicsDevice">
+    /// The graphics device used to create the rendering resources required by the tool.
+    /// </param>
+    /// <param name="move">
+    /// Indicates whether moving targets should be supported.
+    /// </param>
+    /// <param name="resize">
+    /// Indicates whether resizing targets should be supported.
+    /// </param>
+    /// <param name="rotation">
+    /// Indicates whether rotating targets should be supported.
+    /// </param>
     public SelectionTool(
         IEnumerable targetsSource,
         GraphicsDevice graphicsDevice,
@@ -66,42 +122,131 @@ public class SelectionTool : ToolBase
             Layer = new SelectionToolMoveLayer();
     }
 
+    /// <summary>
+    /// Gets or sets the layer that defines the available transformation
+    /// handles and interaction behavior.
+    /// </summary>
     public SelectionToolLayer? Layer
     {
         get => _layer;
         set
         {
-            if (_layer == value) return;
+            if (_layer == value)
+                return;
+
             _layer = value;
             _invalidateLayer = true;
         }
     }
+
+    /// <summary>
+    /// Gets the interaction node that is currently being manipulated.
+    /// </summary>
     public SelectionToolNode? SelectedNode
     {
         get => _selectedNode;
         internal set => _selectedNode = value;
     }
 
+    /// <summary>
+    /// Gets the source containing the selectable targets.
+    /// </summary>
     public IEnumerable TargetsSource { get; }
-    public bool EnableSnap { get; set; } = true;
-    public Size2 GridSize { get; set; } = new Size2(10f);
+
+    /// <summary>
+    /// Gets or sets a value indicating whether grid-based snapping is enabled.
+    /// </summary>
+    public bool EnableGridSnap { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the horizontal and vertical step used for grid-based snapping.
+    /// </summary>
+    public Size2 GridSnapStep { get; set; } = new Size2(10f);
+
+    /// <summary>
+    /// Gets or sets a value indicating whether angle-based snapping is enabled.
+    /// </summary>
+    public bool EnableAngleSnap { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the angular snapping step in radians.
+    /// </summary>
+    public float AngleSnapStep { get; set; } = MathHelper.ToRadians(15f);
+
+    /// <summary>
+    /// Gets or sets a value indicating whether pivot snapping is enabled.
+    /// </summary>
+    public bool EnablePivotSnap { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the normalized horizontal and vertical snapping step
+    /// used when modifying the transformation pivot.
+    /// </summary>
+    public Vector2 PivotSnapStep { get; set; } = new Vector2(0.1f);
+
+    /// <summary>
+    /// Gets or sets a value indicating whether rectangular area selection is enabled.
+    /// </summary>
+    public bool EnableAreaSelection { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether targets that only intersect the
+    /// rectangular area selection can also be selected.
+    /// </summary>
+    public bool AllowAreaSelectionIntersection { get; set; }
+
+    /// <summary>
+    /// Gets or sets the color used to draw selection outlines.
+    /// </summary>
     public Color SelectionColor { get; set; } = Color.DodgerBlue;
+
+    /// <summary>
+    /// Gets or sets the color used to draw interaction handles.
+    /// </summary>
     public Color HandleColor { get; set; } = Color.White;
+
+    /// <summary>
+    /// Gets or sets the thickness of selection outlines.
+    /// </summary>
     public float LineThickness { get; set; } = 2f;
+
+    /// <summary>
+    /// Gets or sets the size of selection interaction handles.
+    /// </summary>
     public float HandleSize { get; set; } = 8f;
 
-    public virtual void SetInteractions(SelectionToolInteractions interactions)
+    /// <summary>
+    /// Sets the interaction bindings used by the selection tool.
+    /// </summary>
+    /// <param name="interactions">The interaction bindings to use.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="interactions"/> is <see langword="null"/>.
+    /// </exception>
+    public void SetInteractions(SelectionToolInteractions interactions)
     {
         ArgumentNullException.ThrowIfNull(interactions);
         _interactions = interactions;
     }
 
-    public virtual void SetCursorPosition(Vector2 position, bool isInViewport = true)
+    /// <summary>
+    /// Sets the current cursor position and viewport state.
+    /// </summary>
+    /// <param name="position">The current cursor position.</param>
+    /// <param name="isInViewport">
+    /// Indicates whether the cursor is currently inside the active viewport.
+    /// </param>
+    public void SetCursorPosition(
+        Vector2 position,
+        bool isInViewport = true)
     {
         _cursorPosition = position;
         _isInViewport = isInViewport;
     }
 
+    /// <summary>
+    /// Updates selection and transformation interactions.
+    /// </summary>
+    /// <param name="context">The current scene update context.</param>
     public virtual void Update(SceneUpdateContext context)
     {
         if (!_isInViewport || _interactions == null)
@@ -129,21 +274,28 @@ public class SelectionTool : ToolBase
 
         if (action.HasFlag(InteractionFlags.IsPressed))
         {
-            var delta = _cursorPosition - _lastCursorPosition;
-
-            if (_selectedNode != null &&
-                (_activeTarget != null || _activeDefinition != null) &&
-                Layer != null)
+            if (_isAreaSelecting)
             {
-                Layer.OnNodeInteract(
-                    GetLayerContext(),
-                    _selectedNode,
-                    _activeTarget,
-                    _activeDefinition,
-                    GetOtherSelectedTargets(_activeTarget),
-                    GetOtherSelectedTargetDefinitions(_activeDefinition),
-                    _cursorPosition,
-                    delta);
+                _areaSelectionEnd = _cursorPosition;
+            }
+            else
+            {
+                var delta = _cursorPosition - _lastCursorPosition;
+
+                if (_selectedNode != null &&
+                    (_activeTarget != null || _activeDefinition != null) &&
+                    Layer != null)
+                {
+                    Layer.OnNodeInteract(
+                        GetLayerContext(),
+                        _selectedNode,
+                        _activeTarget,
+                        _activeDefinition,
+                        GetOtherSelectedTargets(_activeTarget),
+                        GetOtherSelectedTargetDefinitions(_activeDefinition),
+                        _cursorPosition,
+                        delta);
+                }
             }
 
             _lastCursorPosition = _cursorPosition;
@@ -155,13 +307,13 @@ public class SelectionTool : ToolBase
         UpdateTargetInvalidation();
     }
 
-    protected virtual void HandleActionPressed()
+    private void HandleActionPressed()
     {
         if (TryHitSelectedNode(
-        _cursorPosition,
-        out var selectedNode,
-        out var selectedTarget,
-        out var selectedDefinition))
+            _cursorPosition,
+            out var selectedNode,
+            out var selectedTarget,
+            out var selectedDefinition))
         {
             _activeTarget = selectedTarget;
             _activeDefinition = selectedDefinition;
@@ -184,6 +336,16 @@ public class SelectionTool : ToolBase
 
         if (hit.Targets.Count == 0)
         {
+            if (EnableAreaSelection)
+            {
+                BeginAreaSelection();
+
+                if (!_interactions!.Modify.HasFlag(InteractionFlags.IsPressed))
+                    DeselectAll();
+
+                return;
+            }
+
             DeselectAll();
             return;
         }
@@ -254,46 +416,28 @@ public class SelectionTool : ToolBase
             Vector2.Zero);
     }
 
-    protected virtual void HandleActionReleased()
+    private void HandleActionReleased()
     {
+        if (_isAreaSelecting)
+            EndAreaSelection();
+
         _selectedNode = null;
         _activeTarget = null;
         _activeDefinition = null;
     }
 
-    protected virtual void CancelInteraction()
+    private void CancelInteraction()
     {
+        _isAreaSelecting = false;
+
         _selectedNode = null;
         _activeTarget = null;
         _activeDefinition = null;
+
         DeselectAll();
     }
 
-    //protected virtual SelectionToolNode? HitTestNode(
-    //    Vector2 position)
-    //{
-    //    if (Layer == null)
-    //        return null;
-
-    //    foreach (var node in Layer.Nodes)
-    //    {
-    //        //if (!node.IsVisible)
-    //        //    continue;
-
-    //        if (IsInNode(
-    //            position,
-    //            node,
-    //            _activeTarget,
-    //            _activeDefinition))
-    //        {
-    //            return node;
-    //        }
-    //    }
-
-    //    return null;
-    //}
-
-    protected virtual SelectionToolNode? HitTestNode(Vector2 position)
+    private SelectionToolNode? HitTestNode(Vector2 position)
     {
         if (Layer == null)
             return null;
@@ -316,10 +460,10 @@ public class SelectionTool : ToolBase
     }
 
     private bool TryHitSelectedNode(
-    Vector2 position,
-    out SelectionToolNode? node,
-    out ISelectionTarget2? target,
-    out ISelectionTarget2Definition? definition)
+        Vector2 position,
+        out SelectionToolNode? node,
+        out ISelectionTarget2? target,
+        out ISelectionTarget2Definition? definition)
     {
         node = null;
         target = null;
@@ -328,7 +472,7 @@ public class SelectionTool : ToolBase
         if (Layer == null)
             return false;
 
-        var context = GetLayerContext();
+        var layerContext = GetLayerContext();
 
         foreach (var pair in GetTargetPairs())
         {
@@ -340,7 +484,7 @@ public class SelectionTool : ToolBase
                 continue;
 
             Layer.OnTargetInvalidated(
-                context,
+                layerContext,
                 pair.Target,
                 pair.Definition);
 
@@ -368,6 +512,7 @@ public class SelectionTool : ToolBase
                 node = currentNode;
                 target = pair.Target;
                 definition = pair.Definition;
+
                 return true;
             }
         }
@@ -375,7 +520,7 @@ public class SelectionTool : ToolBase
         return false;
     }
 
-    protected virtual bool IsInNode(
+    private bool IsInNode(
         Vector2 position,
         SelectionToolNode node,
         ISelectionTarget2? target,
@@ -386,19 +531,32 @@ public class SelectionTool : ToolBase
             target,
             definition);
 
+        if (Layer != null)
+        {
+            return Layer.HitTestNode(
+                position,
+                node,
+                target,
+                definition,
+                nodePosition);
+        }
+
         return position.X >= nodePosition.X &&
                position.X <= nodePosition.X + node.Size.Width &&
                position.Y >= nodePosition.Y &&
                position.Y <= nodePosition.Y + node.Size.Height;
     }
 
-    protected virtual void UpdateTargetInvalidation()
+    private void UpdateTargetInvalidation()
     {
         if (Layer == null)
             return;
 
-        if (_activeTarget == null && _activeDefinition == null)
+        if (_activeTarget == null &&
+            _activeDefinition == null)
+        {
             return;
+        }
 
         Layer.OnTargetInvalidated(
             GetLayerContext(),
@@ -409,34 +567,38 @@ public class SelectionTool : ToolBase
     private IEnumerable<ISelectionTarget2> GetOtherSelectedTargets(
         ISelectionTarget2? target)
     {
-        foreach (var item in GetTargetPairs())
+        foreach (var pair in GetTargetPairs())
         {
-            if (item.Target == null)
+            if (pair.Target == null)
                 continue;
 
             if (target != null &&
-                ReferenceEquals(item.Target, target))
+                ReferenceEquals(pair.Target, target))
+            {
                 continue;
+            }
 
-            if (item.Target.IsSelected)
-                yield return item.Target;
+            if (pair.Target.IsSelected)
+                yield return pair.Target;
         }
     }
 
     private IEnumerable<ISelectionTarget2Definition> GetOtherSelectedTargetDefinitions(
         ISelectionTarget2Definition? definition)
     {
-        foreach (var item in GetTargetPairs())
+        foreach (var pair in GetTargetPairs())
         {
-            if (item.Definition == null)
+            if (pair.Definition == null)
                 continue;
 
             if (definition != null &&
-                ReferenceEquals(item.Definition, definition))
+                ReferenceEquals(pair.Definition, definition))
+            {
                 continue;
+            }
 
-            if (item.Definition.IsSelected)
-                yield return item.Definition;
+            if (pair.Definition.IsSelected)
+                yield return pair.Definition;
         }
     }
 
@@ -454,14 +616,19 @@ public class SelectionTool : ToolBase
                     definition = targetDefinition;
                 }
 
-                yield return new TargetPair(target, definition);
+                yield return new TargetPair(
+                    target,
+                    definition);
+
                 continue;
             }
 
             if (item is IEngineObject engineObject2 &&
                 engineObject2.Definition is ISelectionTarget2Definition definition2)
             {
-                yield return new TargetPair(null, definition2);
+                yield return new TargetPair(
+                    null,
+                    definition2);
             }
         }
     }
@@ -496,7 +663,7 @@ public class SelectionTool : ToolBase
         return false;
     }
 
-    protected virtual Vector2 GetNodeWorldPosition(
+    private Vector2 GetNodeWorldPosition(
         SelectionToolNode node,
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
@@ -508,9 +675,24 @@ public class SelectionTool : ToolBase
         else if (definition is ISelectionMovable2Definition movableDefinition)
             position = movableDefinition.Position;
 
-        return position + node.Position;
+        var halfSize = node.Size.ToVector2() / 2f;
+        var point = node.Position + halfSize;
+
+        if (Layer != null)
+        {
+            point = Layer.Transform(
+                point,
+                target,
+                definition);
+        }
+
+        return position + point - halfSize;
     }
 
+    /// <summary>
+    /// Draws the current selections and their interaction handles.
+    /// </summary>
+    /// <param name="context">The current scene drawing context.</param>
     public virtual void Draw(SceneDrawContext context)
     {
         using var scope = new RenderScope(
@@ -551,13 +733,14 @@ public class SelectionTool : ToolBase
 
         DrawSelections();
         DrawNodes();
+        DrawAreaSelection();
 
         _fillBatch.End();
         _lineBatch.End();
         _pointBatch.End();
     }
 
-    protected virtual void DrawNodes()
+    private void DrawNodes()
     {
         if (Layer == null)
             return;
@@ -588,21 +771,37 @@ public class SelectionTool : ToolBase
                     pair.Target,
                     pair.Definition);
 
-                var size = node.Size.ToVector2();
-
-                switch (node.Shape)
-                {
-                    case SelectionToolNodeShape.Quad:
-                        _pointBatch.AddFillRectangle(
-                            new Bounds2(position, size));
-                        break;
-
-                    case SelectionToolNodeShape.Circle:
-                        _pointBatch.AddFillEllipse(
-                            new Bounds2(position, size));
-                        break;
-                }
+                DrawNode(
+                    node,
+                    position);
             }
+        }
+    }
+
+    /// <summary>
+    /// Draws a selection interaction node.
+    /// </summary>
+    /// <param name="node">The interaction node to draw.</param>
+    /// <param name="position">
+    /// The world-space top-left position of the interaction node.
+    /// </param>
+    protected virtual void DrawNode(
+        SelectionToolNode node,
+        Vector2 position)
+    {
+        var size = node.Size.ToVector2();
+
+        switch (node.Shape)
+        {
+            case SelectionToolNodeShape.Quad:
+                _pointBatch.AddFillRectangle(
+                    new Bounds2(position, size));
+                break;
+
+            case SelectionToolNodeShape.Circle:
+                _pointBatch.AddFillEllipse(
+                    new Bounds2(position, size));
+                break;
         }
     }
 
@@ -610,38 +809,48 @@ public class SelectionTool : ToolBase
     {
         foreach (var pair in GetTargetPairs())
         {
-            if (pair.Target != null && pair.Target.IsSelected)
+            if (pair.Target != null &&
+                pair.Target.IsSelected)
+            {
                 DrawSelection(pair.Target);
-            else if (pair.Definition != null && pair.Definition.IsSelected)
+            }
+            else if (pair.Definition != null &&
+                     pair.Definition.IsSelected)
+            {
                 DrawSelection(pair.Definition);
+            }
         }
     }
 
+    /// <summary>
+    /// Draws the selection outline for the specified target.
+    /// </summary>
+    /// <param name="obj">
+    /// The target or target definition whose selection outline should be drawn.
+    /// </param>
     protected virtual void DrawSelection(object obj)
     {
         Vector2 position = Vector2.Zero;
         Size2 size = Size2.Zero;
-        float rotation = 0f;
 
-        if (obj is ISelectionTarget2 target)
+        ISelectionTarget2? target = null;
+        ISelectionTarget2Definition? definition = null;
+
+        if (obj is ISelectionTarget2 selectionTarget)
         {
-            size = target.Size;
+            target = selectionTarget;
+            size = selectionTarget.Size;
 
-            if (target is ISelectionMovable2 movable)
+            if (selectionTarget is ISelectionMovable2 movable)
                 position = movable.Position;
-
-            if (target is ISelectionRotatable2 rotatable)
-                rotation = rotatable.Rotation;
         }
-        else if (obj is ISelectionTarget2Definition definition)
+        else if (obj is ISelectionTarget2Definition selectionDefinition)
         {
-            size = definition.Size;
+            definition = selectionDefinition;
+            size = selectionDefinition.Size;
 
-            if (definition is ISelectionMovable2Definition movableDefinition)
+            if (selectionDefinition is ISelectionMovable2Definition movableDefinition)
                 position = movableDefinition.Position;
-
-            if (definition is ISelectionRotatable2Definition rotatableDefinition)
-                rotation = rotatableDefinition.Rotation;
         }
         else
         {
@@ -649,14 +858,20 @@ public class SelectionTool : ToolBase
         }
 
         float offset = LineThickness / 2f;
-        float cos = MathF.Cos(rotation);
-        float sin = MathF.Sin(rotation);
 
         Vector2 TransformPoint(float x, float y)
         {
-            return position + new Vector2(
-                x * cos - y * sin,
-                x * sin + y * cos);
+            var point = new Vector2(x, y);
+
+            if (Layer != null)
+            {
+                point = Layer.Transform(
+                    point,
+                    target,
+                    definition);
+            }
+
+            return position + point;
         }
 
         var topLeft = TransformPoint(
@@ -687,7 +902,42 @@ public class SelectionTool : ToolBase
             LineThickness);
     }
 
-    public virtual void Select(object target)
+    /// <summary>
+    /// Draws the current rectangular area selection.
+    /// </summary>
+    protected virtual void DrawAreaSelection()
+    {
+        if (!_isAreaSelecting)
+            return;
+
+        var bounds = GetAreaSelectionBounds();
+
+        //_fillBatch.AddFillRectangle(bounds);
+
+        _lineBatch.AddLine(
+            new[]
+            {
+            new Vector2(bounds.X, bounds.Y),
+            new Vector2(bounds.X + bounds.Width, bounds.Y),
+            new Vector2(bounds.X + bounds.Width, bounds.Y + bounds.Height),
+            new Vector2(bounds.X, bounds.Y + bounds.Height),
+            new Vector2(bounds.X, bounds.Y)
+            },
+            LineThickness);
+    }
+
+    /// <summary>
+    /// Selects the specified target and deselects all other targets.
+    /// </summary>
+    /// <param name="target">The target or target definition to select.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="target"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when the specified target is not contained in
+    /// <see cref="TargetsSource"/>.
+    /// </exception>
+    public void Select(object target)
     {
         ArgumentNullException.ThrowIfNull(target);
 
@@ -704,12 +954,16 @@ public class SelectionTool : ToolBase
         foreach (var pair in GetTargetPairs())
         {
             if (pair.Target != null)
+            {
                 pair.Target.IsSelected =
                     ReferenceEquals(pair.Target, activeTarget);
+            }
 
             if (pair.Definition != null)
+            {
                 pair.Definition.IsSelected =
                     ReferenceEquals(pair.Definition, activeDefinition);
+            }
         }
 
         _activeTarget = activeTarget;
@@ -717,6 +971,17 @@ public class SelectionTool : ToolBase
         _selectedNode = null;
     }
 
+    /// <summary>
+    /// Adds the specified target to the current selection.
+    /// </summary>
+    /// <param name="target">The target or target definition to add.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="target"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when the specified target is not contained in
+    /// <see cref="TargetsSource"/>.
+    /// </exception>
     public void AddSelection(object target)
     {
         ArgumentNullException.ThrowIfNull(target);
@@ -725,7 +990,7 @@ public class SelectionTool : ToolBase
         {
             if (ReferenceEquals(pair.Target, target))
             {
-                pair.Target.IsSelected = true;
+                pair.Target!.IsSelected = true;
                 _activeTarget = pair.Target;
                 _activeDefinition = pair.Definition;
                 _selectedNode = null;
@@ -736,7 +1001,7 @@ public class SelectionTool : ToolBase
 
             if (ReferenceEquals(pair.Definition, target))
             {
-                pair.Definition.IsSelected = true;
+                pair.Definition!.IsSelected = true;
                 _activeTarget = pair.Target;
                 _activeDefinition = pair.Definition;
                 _selectedNode = null;
@@ -751,10 +1016,20 @@ public class SelectionTool : ToolBase
             nameof(target));
     }
 
-    public virtual void Deselect(object target)
+    /// <summary>
+    /// Removes the specified target from the current selection.
+    /// </summary>
+    /// <param name="target">The target or target definition to deselect.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="target"/> is <see langword="null"/>.
+    /// </exception>
+    public void Deselect(object target)
     {
         ArgumentNullException.ThrowIfNull(target);
-        SetSelected(target, false);
+
+        SetSelected(
+            target,
+            false);
 
         if (ReferenceEquals(_activeTarget, target) ||
             ReferenceEquals(_activeDefinition, target))
@@ -765,6 +1040,9 @@ public class SelectionTool : ToolBase
         }
     }
 
+    /// <summary>
+    /// Deselects all currently selected targets.
+    /// </summary>
     public void DeselectAll()
     {
         foreach (var pair in GetTargetPairs())
@@ -781,7 +1059,7 @@ public class SelectionTool : ToolBase
         _selectedNode = null;
     }
 
-    internal bool IsSelected(object target)
+    private bool IsSelected(object target)
     {
         if (target is ISelectionTarget2 selectionTarget)
             return selectionTarget.IsSelected;
@@ -792,7 +1070,9 @@ public class SelectionTool : ToolBase
         return false;
     }
 
-    internal void SetSelected(object target, bool selected)
+    private void SetSelected(
+        object target,
+        bool selected)
     {
         if (target is ISelectionTarget2 selectionTarget)
         {
@@ -804,89 +1084,76 @@ public class SelectionTool : ToolBase
             definition.IsSelected = selected;
     }
 
-    private bool ContainsTarget(
-        ISelectionTarget2? target,
-        ISelectionTarget2Definition? definition)
-    {
-        foreach (var pair in GetTargetPairs())
-        {
-            if (ReferenceEquals(pair.Target, target) &&
-                ReferenceEquals(pair.Definition, definition))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public virtual SelectionTargetHitTestResult HitTest(
+    /// <summary>
+    /// Performs a hit test against all available selection targets.
+    /// </summary>
+    /// <param name="touchedPosition">The position to test.</param>
+    /// <returns>
+    /// A result containing all targets intersecting the specified position.
+    /// </returns>
+    public SelectionTargetHitTestResult HitTest(
         Vector2 touchedPosition)
     {
         var targets = new List<object>();
 
         foreach (var pair in GetTargetPairs())
         {
-            if (pair.Target != null &&
-                IsInTarget(touchedPosition, pair.Target))
+            if (!IsInTarget(
+                touchedPosition,
+                pair.Target,
+                pair.Definition))
             {
+                continue;
+            }
+
+            if (pair.Target != null)
                 targets.Add(pair.Target);
-            }
-            else if (pair.Definition != null &&
-                     IsInTarget(touchedPosition, pair.Definition))
-            {
+            else if (pair.Definition != null)
                 targets.Add(pair.Definition);
-            }
         }
 
         return new SelectionTargetHitTestResult(targets);
     }
 
-    protected virtual bool IsInTarget(
+    private bool IsInTarget(
         Vector2 position,
-        object target)
+        ISelectionTarget2? target,
+        ISelectionTarget2Definition? definition)
     {
-        Vector2 targetPosition = Vector2.Zero;
-        Size2 targetSize = Size2.Zero;
-        float rotation = 0f;
-
-        if (target is ISelectionTarget2 selectionTarget)
-        {
-            targetSize = selectionTarget.Size;
-
-            if (selectionTarget is ISelectionMovable2 movable)
-                targetPosition = movable.Position;
-
-            if (selectionTarget is ISelectionRotatable2 rotatable)
-                rotation = rotatable.Rotation;
-        }
-        else if (target is ISelectionTarget2Definition definition)
-        {
-            targetSize = definition.Size;
-
-            if (definition is ISelectionMovable2Definition movableDefinition)
-                targetPosition = movableDefinition.Position;
-
-            if (definition is ISelectionRotatable2Definition rotatableDefinition)
-                rotation = rotatableDefinition.Rotation;
-        }
-        else
+        if (target == null &&
+            definition == null)
         {
             return false;
         }
+
+        var targetSize =
+            target?.Size ??
+            definition!.Size;
 
         if (targetSize.Width <= 0f ||
             targetSize.Height <= 0f)
+        {
             return false;
+        }
 
-        var relative = position - targetPosition;
+        Vector2 targetPosition = Vector2.Zero;
 
-        float cos = MathF.Cos(rotation);
-        float sin = MathF.Sin(rotation);
+        if (target is ISelectionMovable2 movable)
+            targetPosition = movable.Position;
+        else if (definition is ISelectionMovable2Definition movableDefinition)
+            targetPosition = movableDefinition.Position;
 
-        var localPosition = new Vector2(
-            relative.X * cos + relative.Y * sin,
-            -relative.X * sin + relative.Y * cos);
+        var localPosition =
+            position -
+            targetPosition;
+
+        if (Layer != null)
+        {
+            localPosition = Layer.InverseTransform(
+                localPosition,
+                target,
+                definition);
+        }
 
         return localPosition.X >= 0f &&
                localPosition.X <= targetSize.Width &&
@@ -894,22 +1161,128 @@ public class SelectionTool : ToolBase
                localPosition.Y <= targetSize.Height;
     }
 
-    internal Vector2 SnapPosition(Vector2 position)
-    {
-        if (!EnableSnap)
-            return position;
-
-        return new Vector2(
-            MathF.Round(position.X / GridSize.Width) * GridSize.Width,
-            MathF.Round(position.Y / GridSize.Height) * GridSize.Height);
-    }
-
-    protected virtual SelectionToolLayerContext GetLayerContext()
+    private SelectionToolLayerContext GetLayerContext()
     {
         return new SelectionToolLayerContext(
-            EnableSnap,
-            GridSize,
+            EnableGridSnap,
+            GridSnapStep,
+            EnableAngleSnap,
+            AngleSnapStep,
+            EnablePivotSnap,
+            PivotSnapStep,
             HandleSize);
+    }
+
+    private void BeginAreaSelection()
+    {
+        _isAreaSelecting = true;
+        _areaSelectionStart = _cursorPosition;
+        _areaSelectionEnd = _cursorPosition;
+    }
+
+    private void EndAreaSelection()
+    {
+        _areaSelectionEnd = _cursorPosition;
+
+        var bounds = GetAreaSelectionBounds();
+
+        foreach (var pair in GetTargetPairs())
+        {
+            if (!IsInAreaSelection(
+                bounds,
+                pair.Target,
+                pair.Definition))
+            {
+                continue;
+            }
+
+            if (pair.Target != null)
+                pair.Target.IsSelected = true;
+
+            if (pair.Definition != null)
+                pair.Definition.IsSelected = true;
+        }
+
+        _isAreaSelecting = false;
+    }
+
+    private Bounds2 GetAreaSelectionBounds()
+    {
+        var min = Vector2.Min(
+            _areaSelectionStart,
+            _areaSelectionEnd);
+
+        var max = Vector2.Max(
+            _areaSelectionStart,
+            _areaSelectionEnd);
+
+        return new Bounds2(
+            min,
+            max - min);
+    }
+
+    private bool IsInAreaSelection(
+        Bounds2 area,
+        ISelectionTarget2? target,
+        ISelectionTarget2Definition? definition)
+    {
+        if (target == null &&
+            definition == null)
+        {
+            return false;
+        }
+
+        var size =
+            target?.Size ??
+            definition!.Size;
+
+        Vector2 position = Vector2.Zero;
+
+        if (target is ISelectionMovable2 movable)
+            position = movable.Position;
+        else if (definition is ISelectionMovable2Definition movableDefinition)
+            position = movableDefinition.Position;
+
+        Vector2 TransformPoint(float x, float y)
+        {
+            var point = new Vector2(x, y);
+
+            if (Layer != null)
+            {
+                point = Layer.Transform(
+                    point,
+                    target,
+                    definition);
+            }
+
+            return position + point;
+        }
+
+        var topLeft = TransformPoint(0f, 0f);
+        var topRight = TransformPoint(size.Width, 0f);
+        var bottomRight = TransformPoint(size.Width, size.Height);
+        var bottomLeft = TransformPoint(0f, size.Height);
+
+        var min = Vector2.Min(
+            Vector2.Min(topLeft, topRight),
+            Vector2.Min(bottomLeft, bottomRight));
+
+        var max = Vector2.Max(
+            Vector2.Max(topLeft, topRight),
+            Vector2.Max(bottomLeft, bottomRight));
+
+        if (AllowAreaSelectionIntersection)
+        {
+            return area.X <= max.X &&
+                   area.X + area.Width >= min.X &&
+                   area.Y <= max.Y &&
+                   area.Y + area.Height >= min.Y;
+        }
+
+        return min.X >= area.X &&
+               max.X <= area.X + area.Width &&
+               min.Y >= area.Y &&
+               max.Y <= area.Y + area.Height;
     }
 
     private readonly struct TargetPair
@@ -923,6 +1296,7 @@ public class SelectionTool : ToolBase
         }
 
         public ISelectionTarget2? Target { get; }
+
         public ISelectionTarget2Definition? Definition { get; }
     }
 }
