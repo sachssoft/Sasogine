@@ -20,9 +20,20 @@ All notable changes to this project will be documented in this file.
 </small>
 
 ## [0.1.0-alpha] - In progress
-- [Feature] **Toolkit**: Added a Vector Path Tool with `VectorPathTool` for creating and editing vector paths.
-- [Feature] **Toolkit**: Added Selection and Transformation Tools with `SelectionTool` for editing and transforming objects.
-- [Feature] **Toolkit**: Added object insertion support with `ObjectInsertTool` for creating and placing objects in the editor.
+- [Feature] **Toolkit**: Added `VectorPathTool` for creating and editing vector paths.
+- [Feature] **Toolkit**: Added `SelectionTool` for selecting and transforming objects.
+- [Feature] **Toolkit**: Added `ObjectInsertTool` for creating and placing objects.
+- [Feature] Added `ThreadSafeLazy<T>` for thread-safe lazy initialization.
+- [Improve] Enhanced `ValueBuffer<T>` with operators and value conversions.
+- [Improve] Optimized `DirectLazy<T>` for lightweight lazy initialization.
+- [Improve] Hardened `DisposeManager` with safer resource registration and reverse-order disposal.
+- [Improve] Refined `CulturedValue<T>` with optimized immutable modifications, fallback support, and reliable culture-specific lookup.
+- [Improve] Updated `EngineObjectBase` with safer idempotent freezing.
+- [Improve] Optimized `EngineObjectManager` with indexed ID lookup and safer registration handling.
+- [Improve] Strengthened `IdentifierFactory` with reliable identifier validation and creation.
+- [Improve] Refined common utilities with small fixes, optimizations, and corrections.
+- [Improve] Extended `VectorExtension` with additional vector operations and corrected projection calculations.
+- [Improve] Expanded `VectorMath` with optimized line and segment geometry utilities.
 
 ## [0.0.5.1-alpha] - 2026-08-31
 - [Feature] Added support for the skew transform interface in selection tools.
