@@ -27,7 +27,6 @@
 	  <Folder Include="Projects\Experimental\Markup\" />
 	  <Folder Include="Projects\Experimental\Shaders\" />
 	  <Folder Include="Projects\Toolkit\Shaders\" />
-	  <Folder Include="Projects\Toolkit\Tools\ObjectInsertTool\" />
 	  <Folder Include="Projects\UI\" />
 	</ItemGroup>
 	
