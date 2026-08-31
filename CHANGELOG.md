@@ -24,6 +24,13 @@ All notable changes to this project will be documented in this file.
 - [Feature] **Toolkit**: Added Selection and Transformation Tools with `SelectionTool` for editing and transforming objects.
 - [Feature] **Toolkit**: Added object insertion support with `ObjectInsertTool` for creating and placing objects in the editor.
 
+## [0.0.5.1-alpha] - 2026-08-31
+- [Feature] Added support for the skew transform interface in selection tools.
+- [Improve] Implemented the non-generic `IList` interface for all mutable collections.
+- [Improve] Changed `EngineObjectCollection<T>` from `ICollection<T>` to `IList<T>`.
+- [Improve] Marked the legacy asset loading methods in `AssetStore` as obsolete.
+- [Bug] Fixed several minor bugs.
+
 ## [0.0.5-alpha] - 2026-08-30
 - [Feature] **Markup**: Introduced markup support for Sasogine.
 - [Feature] **Markup**: Added support for loading `IndexedFrameSet` and `KeyedFrameSet`.
