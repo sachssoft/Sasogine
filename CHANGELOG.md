@@ -24,6 +24,12 @@ All notable changes to this project will be documented in this file.
 - [Feature] **Toolkit**: Added `SelectionTool` for selecting and transforming objects.
 - [Feature] **Toolkit**: Added `ObjectInsertTool` for creating and placing objects.
 - [Feature] Added `ThreadSafeLazy<T>` for thread-safe lazy initialization.
+- [Feature] Added `ComponentBase` with support for reusable component services.
+- [Feature] Added `IComponentService` for reusable update services managed by components.
+- [Feature] Added a dedicated build project for source generators and compile-time analyzers.
+- [Feature] Added `Point2`, `Point3`, `PixelPoint2`, and `PixelPoint3` to provide framework-independent point types and reduce dependency on MonoGame's `Point`.
+- [Change] Updated `IInteraction.Update` with `SceneUpdateContext` for component service integration.
+- [Improve] Refactored `ToolComponentBase` to use shared component services and unified tool interaction and cursor handling.
 - [Improve] Enhanced `ValueBuffer<T>` with operators and value conversions.
 - [Improve] Optimized `DirectLazy<T>` for lightweight lazy initialization.
 - [Improve] Hardened `DisposeManager` with safer resource registration and reverse-order disposal.
@@ -34,6 +40,7 @@ All notable changes to this project will be documented in this file.
 - [Improve] Refined common utilities with small fixes, optimizations, and corrections.
 - [Improve] Extended `VectorExtension` with additional vector operations and corrected projection calculations.
 - [Improve] Expanded `VectorMath` with optimized line and segment geometry utilities.
+- [Improve] Unified component services under `IComponentService` and introduced `IUpdatableComponentService` for services participating in the update cycle.
 
 ## [0.0.5.1-alpha] - 2026-08-31
 - [Feature] Added support for the skew transform interface in selection tools.
