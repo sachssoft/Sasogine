@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools.Vector
+namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>Represents a vector segment with a variable number of control nodes.</summary>
     public abstract class VectorVariableSegment : IVectorSegment

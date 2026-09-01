@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools.Vector
+namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>
     /// Defines a vector path segment with an endpoint and optional control nodes.

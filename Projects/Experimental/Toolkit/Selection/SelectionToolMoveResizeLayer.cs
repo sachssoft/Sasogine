@@ -1,7 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Components.Tools.Selection;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools.Selection;
+namespace Sachssoft.Sasogine.Experimental.Components.Tools.Selection;
 
 /// <summary>
 /// Provides a selection layer that allows selected targets to be moved

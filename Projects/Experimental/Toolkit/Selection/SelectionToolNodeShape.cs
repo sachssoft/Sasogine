@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Components.Tools.Selection;
+﻿namespace Sachssoft.Sasogine.Experimental.Components.Tools.Selection;
 
 /// <summary>
 /// Specifies the visual shape used to represent a selection tool interaction node.

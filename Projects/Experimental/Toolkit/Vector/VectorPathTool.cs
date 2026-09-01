@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Components.Tools.Vector;
+using Sachssoft.Sasogine.Experimental.Components.Tools.Vector;
 using Sachssoft.Sasogine.Graphics.Meshes;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using Sachssoft.Sasogine.Graphics.Rendering.Batches;
@@ -11,7 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Sachssoft.Sasogine.Components.Tools
+namespace Sachssoft.Sasogine.Experimental.Components.Tools
 {
     public sealed class VectorPathTool : ToolBase
     {

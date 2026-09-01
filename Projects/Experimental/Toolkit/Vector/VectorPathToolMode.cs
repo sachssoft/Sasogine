@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Components.Tools.Vector
+﻿namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>Specifies the current editing mode of a vector path tool.</summary>
     public enum VectorPathToolMode

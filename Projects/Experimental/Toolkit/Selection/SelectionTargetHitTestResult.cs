@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Sachssoft.Sasogine.Components.Tools.Selection
+namespace Sachssoft.Sasogine.Experimental.Components.Tools.Selection
 {
     /// <summary>
     /// Represents the result of a hit test against selection targets.

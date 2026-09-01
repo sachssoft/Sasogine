@@ -1,8 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Components.Tools.Selection;
 using System;
 
-namespace Sachssoft.Sasogine.Components.Tools.Selection
+namespace Sachssoft.Sasogine.Experimental.Components.Tools.Selection
 {
     public static class SelectionToolExtensions
     {

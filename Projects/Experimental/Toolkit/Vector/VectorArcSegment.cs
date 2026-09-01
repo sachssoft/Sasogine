@@ -2,7 +2,7 @@
 using Sachssoft.Sasogine.Geometry;
 using System;
 
-namespace Sachssoft.Sasogine.Components.Tools.Vector
+namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>Represents an elliptical arc segment of a vector path.</summary>
     public sealed class VectorArcSegment : VectorFixedSegment

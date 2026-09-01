@@ -2,7 +2,7 @@
 using Sachssoft.Sasogine.Geometry;
 using System;
 
-namespace Sachssoft.Sasogine.Components.Tools.Vector
+namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>Represents a circular arc segment defined by a control point and an endpoint.</summary>
     public sealed class VectorCircularArcSegment : VectorFixedSegment

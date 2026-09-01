@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Components.Tools.Vector
+namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>Provides data for an event involving a vector path.</summary>
     public sealed class VectorPathEventArgs : EventArgs

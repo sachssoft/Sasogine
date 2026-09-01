@@ -1,9 +1,10 @@
 using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Components.Tools.Selection;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools.Selection;
+namespace Sachssoft.Sasogine.Experimental.Components.Tools.Selection;
 
 internal sealed class SelectionToolRotationHelper
 {

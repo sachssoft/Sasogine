@@ -1,6 +1,6 @@
 ﻿using Sachssoft.Sasogine.Input;
 
-namespace Sachssoft.Sasogine.Components.Tools
+namespace Sachssoft.Sasogine.Experimental.Components.Tools
 {
     public sealed class VectorPathToolInteractions
     {

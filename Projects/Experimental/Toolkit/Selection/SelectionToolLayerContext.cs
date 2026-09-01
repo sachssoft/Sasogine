@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
 
-namespace Sachssoft.Sasogine.Components.Tools.Selection;
+namespace Sachssoft.Sasogine.Experimental.Components.Tools.Selection;
 
 /// <summary>
 /// Provides the settings and values required by selection tool layers

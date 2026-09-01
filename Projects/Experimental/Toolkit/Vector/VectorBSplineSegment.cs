@@ -3,7 +3,7 @@ using Sachssoft.Sasogine.Geometry;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools.Vector
+namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>
     /// Represents a B-spline segment of a vector path defined by a degree and a sequence of control nodes.

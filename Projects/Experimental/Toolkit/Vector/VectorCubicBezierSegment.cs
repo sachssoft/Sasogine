@@ -2,7 +2,7 @@
 using Sachssoft.Sasogine.Geometry;
 using System;
 
-namespace Sachssoft.Sasogine.Components.Tools.Vector
+namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>Represents a cubic Bézier segment with two control nodes.</summary>
     public sealed class VectorCubicBezierSegment : VectorFixedSegment

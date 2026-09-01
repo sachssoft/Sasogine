@@ -8,7 +8,7 @@ using Sachssoft.Sasogine.Scenes;
 using System;
 using System.Collections;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Sasogine.Experimental.Components.Tools;
 
 /// <summary>
 /// Provides a tool for inserting objects by clicking or dragging in a viewport.
@@ -24,7 +24,8 @@ public sealed class ObjectInsertTool : ToolBase
     private bool _isInViewport;
     private bool _isInserting;
     private object? _insertObject;
-    private ObjectInsertToolInteractions? _interactions;
+    private ToolInteractions? _interactions;
+    //private ObjectInsertToolInteractions? _interactions;
     private bool _hasDragged;
 
     /// <summary>
@@ -108,13 +109,13 @@ public sealed class ObjectInsertTool : ToolBase
         if (_interactions == null)
             return;
 
-        if (_interactions.Cancel.HasFlag(InteractionFlags.WasJustReleased))
+        if (_interactions.Secondary.HasFlag(InteractionFlags.WasJustReleased))
         {
             CancelInsertion();
             return;
         }
 
-        var action = _interactions.Action;
+        var action = _interactions.Primary;
 
         if (action.HasFlag(InteractionFlags.WasJustPressed) &&
             _isInViewport &&
@@ -181,29 +182,42 @@ public sealed class ObjectInsertTool : ToolBase
         _lineBatch.End();
     }
 
-    /// <summary>
-    /// Sets the interaction bindings used by the object insertion tool.
-    /// </summary>
-    public void SetInteractions(ObjectInsertToolInteractions interactions)
+    /// <inheritdoc/>
+    protected internal override void ApplyInteractions(ToolInteractions interactions)
     {
-        ArgumentNullException.ThrowIfNull(interactions);
         _interactions = interactions;
     }
 
-    /// <summary>
-    /// Sets the current cursor position and viewport state.
-    /// </summary>
-    /// <param name="position">The current cursor position.</param>
-    /// <param name="isInViewport">
-    /// Indicates whether the cursor is currently inside the active viewport.
-    /// </param>
-    public void SetCursorPosition(
-        Vector2 position,
-        bool isInViewport = true)
+    /// <inheritdoc/>
+    protected internal override void ApplyCursor(ToolCursorContext cursorContext)
     {
-        _cursorPosition = position;
-        _isInViewport = isInViewport;
+        _cursorPosition = cursorContext.WorldPosition;
+        _isInViewport = cursorContext.IsInViewport;
     }
+
+    ///// <summary>
+    ///// Sets the interaction bindings used by the object insertion tool.
+    ///// </summary>
+    //public void SetInteractions(ObjectInsertToolInteractions interactions)
+    //{
+    //    ArgumentNullException.ThrowIfNull(interactions);
+    //    _interactions = interactions;
+    //}
+
+    ///// <summary>
+    ///// Sets the current cursor position and viewport state.
+    ///// </summary>
+    ///// <param name="position">The current cursor position.</param>
+    ///// <param name="isInViewport">
+    ///// Indicates whether the cursor is currently inside the active viewport.
+    ///// </param>
+    //public void SetCursorPosition(
+    //    Vector2 position,
+    //    bool isInViewport = true)
+    //{
+    //    _cursorPosition = position;
+    //    _isInViewport = isInViewport;
+    //}
 
     private void BeginInsertion()
     {

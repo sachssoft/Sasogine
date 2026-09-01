@@ -2,7 +2,7 @@
 using Sachssoft.Sasogine.Geometry;
 using System;
 
-namespace Sachssoft.Sasogine.Components.Tools.Vector
+namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>Represents a quadratic Bézier segment of a vector path with a single control node.</summary>
     public sealed class VectorQuadraticBezierSegment : VectorFixedSegment

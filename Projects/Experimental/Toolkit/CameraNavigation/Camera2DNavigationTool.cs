@@ -4,7 +4,7 @@ using Sachssoft.Sasogine.Input;
 using Sachssoft.Sasogine.Scenes;
 using System;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Sasogine.Experimental.Components.Tools;
 
 /// <summary>
 /// Provides navigation controls for a 2D camera.
@@ -16,10 +16,10 @@ namespace Sachssoft.Sasogine.Components.Tools;
 /// </remarks>
 public sealed class Camera2DNavigationTool : ToolBase
 {
-    private Camera2DNavigationToolInteractions? _interactions;
+    private ToolInteractions? _interactions;
     private ICamera2D? _camera;
     private Vector2 _cursorPosition;
-    private Point _delta;
+    private Vector2 _delta;
     private bool _isInViewport;
 
     /// <summary>
@@ -31,17 +31,17 @@ public sealed class Camera2DNavigationTool : ToolBase
         if (_camera == null || _interactions == null || !_isInViewport)
             return;
 
-        if (_interactions.Move.HasFlag(InteractionFlags.IsPressed))
+        if (_interactions.Tertiary.HasFlag(InteractionFlags.IsPressed))
         {
-            Vector2 delta = _delta.ToVector2();
+            Vector2 delta = _delta;
             _camera.Position -= delta / _camera.Zoom;
         }
 
-        if (_interactions.ZoomIn.HasFlag(InteractionFlags.IsPressed))
+        if (_interactions.RightShoulder.HasFlag(InteractionFlags.IsPressed))
         {
             ZoomAtCursor(_camera, 1.1f);
         }
-        else if (_interactions.ZoomOut.HasFlag(InteractionFlags.IsPressed))
+        else if (_interactions.LeftShoulder.HasFlag(InteractionFlags.IsPressed))
         {
             ZoomAtCursor(_camera, 1f / 1.1f);
         }
@@ -56,27 +56,41 @@ public sealed class Camera2DNavigationTool : ToolBase
         _camera = camera;
     }
 
-    /// <summary>
-    /// Sets the interactions used to control the camera.
-    /// </summary>
-    /// <param name="interactions">The camera navigation interactions.</param>
-    public void SetInteractions(Camera2DNavigationToolInteractions interactions)
+    /// <inheritdoc/>
+    protected internal override void ApplyCursor(ToolCursorContext cursorContext)
     {
-        _interactions = interactions ?? throw new ArgumentNullException(nameof(interactions));
+        _cursorPosition = cursorContext.ScreenPosition; // Screen position of the cursor in pixels ??
+        _delta = cursorContext.Delta;
+        _isInViewport = cursorContext.IsInViewport;
     }
 
-    /// <summary>
-    /// Updates the current cursor state.
-    /// </summary>
-    /// <param name="screenPosition">The current cursor position in screen coordinates.</param>
-    /// <param name="delta">The cursor movement since the previous update.</param>
-    /// <param name="isInViewport">Indicates whether the cursor is inside the viewport.</param>
-    public void SetCursor(Vector2 screenPosition, Point delta, bool isInViewport = true)
+    /// <inheritdoc/>
+    protected internal override void ApplyInteractions(ToolInteractions interactions)
     {
-        _cursorPosition = screenPosition;
-        _delta = delta;
-        _isInViewport = isInViewport;
+        _interactions = interactions;
     }
+
+    ///// <summary>
+    ///// Sets the interactions used to control the camera.
+    ///// </summary>
+    ///// <param name="interactions">The camera navigation interactions.</param>
+    //public void SetInteractions(Camera2DNavigationToolInteractions interactions)
+    //{
+    //    _interactions = interactions ?? throw new ArgumentNullException(nameof(interactions));
+    //}
+
+    ///// <summary>
+    ///// Updates the current cursor state.
+    ///// </summary>
+    ///// <param name="screenPosition">The current cursor position in screen coordinates.</param>
+    ///// <param name="delta">The cursor movement since the previous update.</param>
+    ///// <param name="isInViewport">Indicates whether the cursor is inside the viewport.</param>
+    //public void SetCursor(Vector2 screenPosition, Point delta, bool isInViewport = true)
+    //{
+    //    _cursorPosition = screenPosition;
+    //    _delta = delta;
+    //    _isInViewport = isInViewport;
+    //}
 
     private void ZoomAtCursor(ICamera2D camera, float factor)
     {

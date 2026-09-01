@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
 
-namespace Sachssoft.Sasogine.Components.Tools.Selection;
+namespace Sachssoft.Sasogine.Experimental.Components.Tools.Selection;
 
 /// <summary>
 /// Represents an interaction node used by a selection tool layer.

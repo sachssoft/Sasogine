@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Components.Tools.Vector
+﻿namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>Represents the result of a hit test against a vector path node, control node, or segment.</summary>
     public sealed class VectorNodeHitTestResult
