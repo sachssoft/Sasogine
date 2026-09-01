@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sachssoft.Sasogine.Scenes;
+using System;
 
 namespace Sachssoft.Sasogine.Input
 {
@@ -11,7 +12,7 @@ namespace Sachssoft.Sasogine.Input
         bool IsPressed(ulong interaction);
         bool WasJustPressed(ulong interaction);
         bool WasJustReleased(ulong interaction);
-        void Update();
+        void Update(SceneUpdateContext context);
         void Clear();
         void ForEachPressed(Action<ulong> action);
         void ForEachJustReleased(Action<ulong> action);
