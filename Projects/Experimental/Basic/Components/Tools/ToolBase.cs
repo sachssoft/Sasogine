@@ -1,4 +1,6 @@
 ﻿using Sachssoft.Sasogine.Components.Tools;
+using Sachssoft.Sasogine.Experimental.Input;
+using Sachssoft.Sasogine.Graphics.Cameras;
 using Sachssoft.Sasogine.Scenes;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools
@@ -64,13 +66,17 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
         }
 
         /// <summary>
-        /// Applies the current cursor state to the tool.
+        /// Applies the current cursor state to the tool using the specified camera.
         /// </summary>
-        /// <param name="cursorContext">
-        /// Provides the cursor state to apply.
+        /// <param name="cursorState">
+        /// Provides the current cursor state.
         /// </param>
-        internal protected virtual void ApplyCursor(
-            ToolCursorContext cursorContext)
+        /// <param name="camera">
+        /// The camera used to interpret camera-dependent cursor coordinates.
+        /// </param>
+        protected internal virtual void ApplyCursor(
+            ICursorState cursorState,
+            ICamera camera)
         {
         }
     }

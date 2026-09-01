@@ -1,4 +1,6 @@
 ﻿using Sachssoft.Sasogine.Components;
+using Sachssoft.Sasogine.Experimental.Input;
+using Sachssoft.Sasogine.Graphics.Cameras;
 using Sachssoft.Sasogine.Scenes;
 using System.Collections.Generic;
 
@@ -75,37 +77,43 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
         }
 
         /// <summary>
-        /// Updates the component services and all enabled tools using the
-        /// specified scene update context.
+        /// Updates all enabled tools for each camera associated with the current
+        /// scene update.
         /// </summary>
         /// <param name="context">
-        /// Provides information about the current scene update.
+        /// Provides information about the current scene update and its cameras.
         /// </param>
         public override void Update(SceneUpdateContext context)
         {
             base.Update(context);
 
-            ToolCursorContext cursorContext =
-                CreateCursorContext(context);
-
             var interactions = new ToolInteractions();
 
-            for (int i = 0; i < _tools.Count; i++)
+            for (int cameraIndex = 0; cameraIndex < context.Cameras.Length; cameraIndex++)
             {
-                ToolBase tool = _tools[i];
+                ICamera camera = context.Cameras[cameraIndex];
 
-                if (!tool.IsEnabled)
-                    continue;
+                ICursorState cursorState =
+                    GetCursorState(
+                        context,
+                        camera);
 
-                interactions.Reset();
+                for (int i = 0; i < _tools.Count; i++)
+                {
+                    ToolBase tool = _tools[i];
 
-                //ApplyInteractions(
-                //    tool,
-                //    interactions);
+                    if (!tool.IsEnabled)
+                        continue;
 
-                tool.ApplyCursor(cursorContext);
-                tool.ApplyInteractions(interactions);
-                tool.Update(context);
+                    interactions.Reset();
+
+                    tool.ApplyCursor(
+                        cursorState,
+                        camera);
+
+                    tool.ApplyInteractions(interactions);
+                    tool.Update(context);
+                }
             }
         }
 
@@ -127,30 +135,19 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
         }
 
         /// <summary>
-        /// Creates the cursor context for the current tool update.
+        /// Gets the cursor state used for the current tool update and camera.
         /// </summary>
         /// <param name="context">
         /// Provides information about the current scene update.
         /// </param>
+        /// <param name="camera">
+        /// The camera for which the cursor state is requested.
+        /// </param>
         /// <returns>
-        /// The cursor context to apply to enabled tools.
+        /// The cursor state associated with the specified camera.
         /// </returns>
-        protected abstract ToolCursorContext CreateCursorContext(
-            SceneUpdateContext context);
-
-        ///// <summary>
-        ///// Applies the interaction states for the specified tool.
-        ///// </summary>
-        ///// <param name="tool">
-        ///// The tool for which interaction states are being applied.
-        ///// </param>
-        ///// <param name="interactions">
-        ///// The interaction states to populate.
-        ///// </param>
-        //protected virtual void ApplyInteractions(
-        //    ToolBase tool,
-        //    ToolInteractions interactions)
-        //{
-        //}
+        protected abstract ICursorState GetCursorState(
+            SceneUpdateContext context,
+            ICamera camera);
     }
 }
