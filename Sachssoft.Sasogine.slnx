@@ -3,6 +3,9 @@
   <Folder Name="/Basics/">
     <Project Path="Sachssoft.Sasogine.csproj" />
   </Folder>
+  <Folder Name="/Build/">
+    <Project Path="Build/Sachssoft.Sasogine.Analyzers/Sachssoft.Sasogine.Analyzers.csproj" />
+  </Folder>
   <Folder Name="/Examples/">
     <Project Path="Examples/Sachssoft.Sasogine.Example.Architecture/Sachssoft.Sasogine.Example.Architecture.csproj" Id="d00152ec-e353-4aed-a369-1934744d71a7" />
     <Project Path="Examples/Sachssoft.Sasogine.Example.MemoryGame/Sachssoft.Sasogine.Example.MemoryGame.csproj" />
