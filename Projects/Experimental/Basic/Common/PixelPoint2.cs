@@ -208,6 +208,34 @@ public readonly struct PixelPoint2 : IEquatable<PixelPoint2>
     public static bool operator !=(PixelPoint2 a, PixelPoint2 b)
         => !a.Equals(b);
 
+    #region Migration
+
+    /// <summary>
+    /// Implicitly converts a <see cref="Microsoft.Xna.Framework.Point"/> to a
+    /// <see cref="PixelPoint2"/>.
+    /// </summary>
+    /// <param name="value">The point to convert.</param>
+    /// <returns>
+    /// A pixel point containing the coordinates of <paramref name="value"/>.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator PixelPoint2(Microsoft.Xna.Framework.Point value)
+        => new PixelPoint2(value.X, value.Y);
+
+    /// <summary>
+    /// Implicitly converts a <see cref="PixelPoint2"/> to a
+    /// <see cref="Point"/>.
+    /// </summary>
+    /// <param name="value">The pixel point to convert.</param>
+    /// <returns>
+    /// A point containing the coordinates of <paramref name="value"/>.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Microsoft.Xna.Framework.Point(PixelPoint2 value)
+        => new Microsoft.Xna.Framework.Point(value.X, value.Y);
+
+    #endregion
+
     /// <summary>
     /// Parses a string representation of a <see cref="PixelPoint2"/>.
     /// </summary>
