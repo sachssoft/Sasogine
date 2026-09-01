@@ -1,15 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Components.Tools.Selection;
 using Sachssoft.Sasogine.Experimental.Components.Tools.Selection;
+using Sachssoft.Sasogine.Experimental.Input;
+using Sachssoft.Sasogine.Graphics.Cameras;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using Sachssoft.Sasogine.Graphics.Rendering.Batches;
-using Sachssoft.Sasogine.Experimental.Input;
 using Sachssoft.Sasogine.Scenes;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Sachssoft.Sasogine.Components.Tools.Selection;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools;
 
@@ -224,10 +225,12 @@ public class SelectionTool : ToolBase
     }
 
     /// <inheritdoc/>
-    protected internal override void ApplyCursor(ToolCursorContext cursorContext)
+    protected internal override void ApplyCursor(
+        ICursorState cursorState,
+        ICamera camera)
     {
-        _cursorPosition = cursorContext.WorldPosition;
-        _isInViewport = cursorContext.IsInViewport;
+        _cursorPosition = cursorState.GetWorldPosition(camera);
+        _isInViewport = cursorState.IsInViewport;
     }
 
     ///// <summary>

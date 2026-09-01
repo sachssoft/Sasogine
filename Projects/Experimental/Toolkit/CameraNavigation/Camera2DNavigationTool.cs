@@ -57,11 +57,13 @@ public sealed class Camera2DNavigationTool : ToolBase
     }
 
     /// <inheritdoc/>
-    protected internal override void ApplyCursor(ToolCursorContext cursorContext)
+    protected internal override void ApplyCursor(
+        Input.ICursorState cursorState, 
+        ICamera camera)
     {
-        _cursorPosition = cursorContext.ScreenPosition; // Screen position of the cursor in pixels ??
-        _delta = cursorContext.Delta;
-        _isInViewport = cursorContext.IsInViewport;
+        _cursorPosition = cursorState.ScreenPosition; // Screen position of the cursor in pixels ??
+        _delta = cursorState.ScreenDelta;
+        _isInViewport = cursorState.IsInViewport;
     }
 
     /// <inheritdoc/>

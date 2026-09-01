@@ -120,10 +120,10 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Selection
         }
 
         private static Matrix CreateMatrix(
-    Size2? size,
-    Vector2? scale,
-    (float Rotation, Vector2 Pivot)? rotation,
-    Vector2? position)
+            Size2? size,
+            Vector2? scale,
+            (float Rotation, Vector2 Pivot)? rotation,
+            Vector2? position)
         {
             var matrix = Matrix.Identity;
 

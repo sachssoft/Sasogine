@@ -1,9 +1,8 @@
-using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Experimental.Graphics
 {
-    // Für UI empfohlen z.b. Widget mit IRenderContainer,
+    // Für UI empfohlen z.B. Widget mit IRenderContainer,
     // um die Position des Cursors in der UI zu bestimmen.
 
     /// <summary>
@@ -23,14 +22,15 @@ namespace Sachssoft.Sasogine.Experimental.Graphics
         PixelSize2 RenderSize { get; }
 
         /// <summary>
-        /// Converts a global screen position to a local position within the render container.
+        /// Converts a global screen position to a local pixel position
+        /// within the render container.
         /// </summary>
         /// <param name="screenGlobalPosition">
-        /// The global position on the screen.
+        /// The global screen position in pixels.
         /// </param>
         /// <returns>
-        /// The position relative to the top-left corner of the render container.
+        /// The pixel position relative to the top-left corner of the render container.
         /// </returns>
-        Point GetLocalPosition(Point screenGlobalPosition);
+        PixelPoint2 GetLocalPosition(PixelPoint2 screenGlobalPosition);
     }
 }

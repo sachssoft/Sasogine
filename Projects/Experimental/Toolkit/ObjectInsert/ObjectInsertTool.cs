@@ -1,9 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Experimental.Input;
+using Sachssoft.Sasogine.Graphics.Cameras;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using Sachssoft.Sasogine.Graphics.Rendering.Batches;
-using Sachssoft.Sasogine.Input;
 using Sachssoft.Sasogine.Scenes;
 using System;
 using System.Collections;
@@ -183,16 +184,19 @@ public sealed class ObjectInsertTool : ToolBase
     }
 
     /// <inheritdoc/>
-    protected internal override void ApplyInteractions(ToolInteractions interactions)
+    protected internal override void ApplyInteractions(
+        ToolInteractions interactions)
     {
         _interactions = interactions;
     }
 
     /// <inheritdoc/>
-    protected internal override void ApplyCursor(ToolCursorContext cursorContext)
+    protected internal override void ApplyCursor(
+        ICursorState cursorState,
+        ICamera camera)
     {
-        _cursorPosition = cursorContext.WorldPosition;
-        _isInViewport = cursorContext.IsInViewport;
+        _cursorPosition = cursorState.GetWorldPosition(camera);
+        _isInViewport = cursorState.IsInViewport;
     }
 
     ///// <summary>

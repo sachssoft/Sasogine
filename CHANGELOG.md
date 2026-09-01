@@ -28,6 +28,7 @@ All notable changes to this project will be documented in this file.
 - [Feature] Added `IComponentService` for reusable update services managed by components.
 - [Feature] Added a dedicated build project for source generators and compile-time analyzers.
 - [Feature] Added `Point2`, `Point3`, `PixelPoint2`, and `PixelPoint3` to provide framework-independent point types and reduce dependency on MonoGame's `Point`.
+- [Feature] Added `ICursorState` and updated `ICursorService` and tool cursor handling with camera support.
 - [Change] Updated `IInteraction.Update` with `SceneUpdateContext` for component service integration.
 - [Improve] Refactored `ToolComponentBase` to use shared component services and unified tool interaction and cursor handling.
 - [Improve] Enhanced `ValueBuffer<T>` with operators and value conversions.
