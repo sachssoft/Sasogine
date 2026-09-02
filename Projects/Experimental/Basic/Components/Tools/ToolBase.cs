@@ -10,6 +10,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
     /// </summary>
     public abstract class ToolBase
     {
+        private ToolInteractions? _interactions;
+
         /// <summary>
         /// Gets or sets a value indicating whether the tool is enabled.
         /// </summary>
@@ -19,6 +21,21 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
         /// Gets or sets custom data associated with the tool.
         /// </summary>
         public object? Tag { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the tool participates in input capture.
+        /// </summary>
+        /// <remarks>
+        /// When enabled, the tool receives interactions only when no tool has captured
+        /// the input or when this tool is the captured tool.
+        /// </remarks>
+        public bool UseInputCapture { get; set; } = true;
+
+        /// <summary>
+        /// Gets the interaction states used by the tool.
+        /// </summary>
+        protected internal ToolInteractions Interactions =>
+            _interactions ??= CreateInteractions();
 
         /// <summary>
         /// Loads resources used by the tool.
@@ -55,28 +72,24 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
         }
 
         /// <summary>
-        /// Applies the current interaction states to the tool.
+        /// Creates the interaction states used by the tool.
         /// </summary>
-        /// <param name="interactions">
-        /// Provides the interaction states to apply.
-        /// </param>
-        internal protected virtual void ApplyInteractions(
-            ToolInteractions interactions)
+        /// <returns>
+        /// The interaction states used by the tool.
+        /// </returns>
+        protected virtual ToolInteractions CreateInteractions()
         {
+            return new ToolInteractions();
         }
 
         /// <summary>
-        /// Applies the current cursor state to the tool using the specified camera.
+        /// Applies the current tool context.
         /// </summary>
-        /// <param name="cursorState">
-        /// Provides the current cursor state.
+        /// <param name="context">
+        /// Provides the state required for the current tool update.
         /// </param>
-        /// <param name="camera">
-        /// The camera used to interpret camera-dependent cursor coordinates.
-        /// </param>
-        protected internal virtual void ApplyCursor(
-            ICursorState cursorState,
-            ICamera camera)
+        protected internal virtual void ApplyContext(
+            ToolContext context)
         {
         }
     }

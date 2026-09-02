@@ -2,6 +2,7 @@
 using Sachssoft.Sasogine.Experimental.Input;
 using Sachssoft.Sasogine.Graphics.Cameras;
 using Sachssoft.Sasogine.Scenes;
+using System;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools
@@ -25,6 +26,11 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
         /// Gets the collection of tools managed by this component.
         /// </summary>
         protected IList<ToolBase> Tools => _tools;
+
+        /// <summary>
+        /// Gets the tool that currently has exclusive input capture.
+        /// </summary>
+        protected ToolBase? CapturedTool { get; private set; }
 
         /// <summary>
         /// Loads the resources used by this component and its tools.
@@ -87,31 +93,39 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
         {
             base.Update(context);
 
-            var interactions = new ToolInteractions();
+            ICursorState cursorState =
+                GetCursorState(context);
 
             for (int cameraIndex = 0; cameraIndex < context.Cameras.Length; cameraIndex++)
             {
                 ICamera camera = context.Cameras[cameraIndex];
 
-                ICursorState cursorState =
-                    GetCursorState(
-                        context,
-                        camera);
-
                 for (int i = 0; i < _tools.Count; i++)
                 {
-                    ToolBase tool = _tools[i];
+                    var tool = _tools[i];
 
                     if (!tool.IsEnabled)
                         continue;
 
+                    var interactions = tool.Interactions;
+
                     interactions.Reset();
 
-                    tool.ApplyCursor(
-                        cursorState,
-                        camera);
+                    if (!tool.UseInputCapture ||
+                        CapturedTool == null ||
+                        CapturedTool == tool)
+                    {
+                        ApplyInteractions(
+                            tool,
+                            interactions);
+                    }
 
-                    tool.ApplyInteractions(interactions);
+                    var toolContext = new ToolContext(
+                        cursorState,
+                        camera,
+                        interactions);
+
+                    tool.ApplyContext(toolContext);
                     tool.Update(context);
                 }
             }
@@ -135,19 +149,56 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
         }
 
         /// <summary>
-        /// Gets the cursor state used for the current tool update and camera.
+        /// Captures input for the specified tool.
+        /// </summary>
+        /// <param name="tool">
+        /// The tool that should receive exclusive input.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="tool"/> is <see langword="null"/>.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown when <paramref name="tool"/> is not managed by this component.
+        /// </exception>
+        protected void CaptureTool(ToolBase tool)
+        {
+            ArgumentNullException.ThrowIfNull(tool);
+
+            if (!_tools.Contains(tool))
+            {
+                throw new ArgumentException(
+                    "The tool must be managed by this component.",
+                    nameof(tool));
+            }
+
+            CapturedTool = tool;
+        }
+
+        /// <summary>
+        /// Applies the current interaction states to the specified tool.
+        /// </summary>
+        /// <param name="tool">
+        /// The tool that receives the interaction states.
+        /// </param>
+        /// <param name="interactions">
+        /// The interaction states to populate for the tool.
+        /// </param>
+        protected virtual void ApplyInteractions(
+            ToolBase tool,
+            ToolInteractions interactions)
+        {
+        }
+
+        /// <summary>
+        /// Gets the cursor state used for the current tool update.
         /// </summary>
         /// <param name="context">
         /// Provides information about the current scene update.
         /// </param>
-        /// <param name="camera">
-        /// The camera for which the cursor state is requested.
-        /// </param>
         /// <returns>
-        /// The cursor state associated with the specified camera.
+        /// The cursor state to apply to enabled tools.
         /// </returns>
         protected abstract ICursorState GetCursorState(
-            SceneUpdateContext context,
-            ICamera camera);
+            SceneUpdateContext context);
     }
 }
