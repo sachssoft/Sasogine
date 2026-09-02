@@ -29,6 +29,8 @@ All notable changes to this project will be documented in this file.
 - [Feature] Added a dedicated build project for source generators and compile-time analyzers.
 - [Feature] Added `Point2`, `Point3`, `PixelPoint2`, and `PixelPoint3` to provide framework-independent point types and reduce dependency on MonoGame's `Point`.
 - [Feature] Added `ICursorState` and updated `ICursorService` and tool cursor handling with camera support.
+- [Feature] Added `ToolContext` and `ToolInteractions` for providing shared tool state and standardized interaction mappings.
+- [Feature] Added individual transform definition interfaces such as `ITransformMovable2Definition` and `ITransformRotatable2Definition` for composing transform capabilities.
 - [Change] Updated `IInteraction.Update` with `SceneUpdateContext` for component service integration.
 - [Improve] Refactored `ToolComponentBase` to use shared component services and unified tool interaction and cursor handling.
 - [Improve] Enhanced `ValueBuffer<T>` with operators and value conversions.
@@ -42,6 +44,7 @@ All notable changes to this project will be documented in this file.
 - [Improve] Extended `VectorExtension` with additional vector operations and corrected projection calculations.
 - [Improve] Expanded `VectorMath` with optimized line and segment geometry utilities.
 - [Improve] Unified component services under `IComponentService` and introduced `IUpdatableComponentService` for services participating in the update cycle.
+- [Improve] Updated selection definition interfaces to inherit from their corresponding transform definition interfaces, such as `ISelectionMovable2Definition : ITransformMovable2Definition`.
 
 ## [0.0.5.1-alpha] - 2026-08-31
 - [Feature] Added support for the skew transform interface in selection tools.

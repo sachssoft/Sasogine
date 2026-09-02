@@ -24,10 +24,10 @@ namespace Sachssoft.Sasogine.Experimental.Input
         /// </returns>
         Vector2 GetWorldPosition(ICamera camera);
 
-        /// <summary>
-        /// Gets the cursor movement since the previous update in screen coordinates.
-        /// </summary>
-        Vector2 ScreenDelta { get; }
+        ///// <summary>
+        ///// Gets the cursor movement since the previous update in screen coordinates.
+        ///// </summary>
+        //Vector2 ScreenDelta { get; }
 
         /// <summary>
         /// Gets a value indicating whether the cursor is inside the active viewport.
