@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Components.Rendering.Cameras;
 using Sachssoft.Sasogine.Components.Tools.Selection;
 using Sachssoft.Sasogine.Experimental.Components.Tools.Selection;
 using Sachssoft.Sasogine.Experimental.Input;
@@ -219,18 +220,11 @@ public class SelectionTool : ToolBase
     public float HandleSize { get; set; } = 8f;
 
     /// <inheritdoc/>
-    protected internal override void ApplyInteractions(ToolInteractions interactions)
+    protected internal override void ApplyContext(ToolContext context)
     {
-        _interactions = interactions;
-    }
-
-    /// <inheritdoc/>
-    protected internal override void ApplyCursor(
-        ICursorState cursorState,
-        ICamera camera)
-    {
-        _cursorPosition = cursorState.GetWorldPosition(camera);
-        _isInViewport = cursorState.IsInViewport;
+        _interactions = context.Interactions;
+        _cursorPosition = context.CursorState.GetWorldPosition(context.Camera);
+        _isInViewport = context.CursorState.IsInViewport;
     }
 
     ///// <summary>
@@ -276,9 +270,9 @@ public class SelectionTool : ToolBase
             UpdateTargetInvalidation();
         }
 
-        var action = _interactions.Primary;
+        var action = _interactions.Action;
 
-        if (_interactions.Secondary.HasFlag(InteractionFlags.WasJustReleased))
+        if (_interactions.Cancel.HasFlag(InteractionFlags.WasJustReleased))
         {
             CancelInteraction();
             return;
@@ -358,7 +352,7 @@ public class SelectionTool : ToolBase
             {
                 BeginAreaSelection();
 
-                if (!_interactions!.LeftShoulder.HasFlag(InteractionFlags.IsPressed))
+                if (!_interactions!.Modifier.HasFlag(InteractionFlags.IsPressed))
                     DeselectAll();
 
                 return;
@@ -379,7 +373,7 @@ public class SelectionTool : ToolBase
             return;
         }
 
-        bool modify = _interactions!.LeftShoulder.HasFlag(
+        bool modify = _interactions!.Modifier.HasFlag(
             InteractionFlags.IsPressed);
 
         if (modify)

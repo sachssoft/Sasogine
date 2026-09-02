@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Components.Rendering.Cameras;
 using Sachssoft.Sasogine.Experimental.Input;
 using Sachssoft.Sasogine.Graphics.Cameras;
 using Sachssoft.Sasogine.Graphics.Rendering;
@@ -12,9 +13,9 @@ using System.Collections;
 namespace Sachssoft.Sasogine.Experimental.Components.Tools;
 
 /// <summary>
-/// Provides a tool for inserting objects by clicking or dragging in a viewport.
+/// Provides a tool for inserting 2D objects by clicking or dragging in a viewport.
 /// </summary>
-public sealed class ObjectInsertTool : ToolBase
+public sealed class Object2InsertTool : ToolBase
 {
     private readonly ShapeBatch _lineBatch;
     private readonly BasicShader _lineShader;
@@ -30,7 +31,7 @@ public sealed class ObjectInsertTool : ToolBase
     private bool _hasDragged;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ObjectInsertTool"/> class.
+    /// Initializes a new instance of the <see cref="Object2InsertTool"/> class.
     /// </summary>
     /// <param name="objectsSource">
     /// The collection that receives inserted objects.
@@ -41,9 +42,9 @@ public sealed class ObjectInsertTool : ToolBase
     /// <param name="graphicsDevice">
     /// The graphics device used to create rendering resources.
     /// </param>
-    public ObjectInsertTool(
+    public Object2InsertTool(
         IList objectsSource,
-        IObjectInsertHandler insertHandler,
+        IObject2InsertHandler insertHandler,
         GraphicsDevice graphicsDevice)
     {
         ArgumentNullException.ThrowIfNull(objectsSource);
@@ -80,9 +81,9 @@ public sealed class ObjectInsertTool : ToolBase
     public IList ObjectsSource { get; }
 
     /// <summary>
-    /// Gets the handler used to manage object insertion operations.
+    /// Gets the handler used to manage 2D object insertion operations.
     /// </summary>
-    public IObjectInsertHandler InsertHandler { get; }
+    public IObject2InsertHandler InsertHandler { get; }
 
     /// <summary>
     /// Gets or sets a value indicating whether grid-based snapping is enabled.
@@ -110,13 +111,13 @@ public sealed class ObjectInsertTool : ToolBase
         if (_interactions == null)
             return;
 
-        if (_interactions.Secondary.HasFlag(InteractionFlags.WasJustReleased))
+        if (_interactions.Cancel.HasFlag(InteractionFlags.WasJustReleased))
         {
             CancelInsertion();
             return;
         }
 
-        var action = _interactions.Primary;
+        var action = _interactions.Action;
 
         if (action.HasFlag(InteractionFlags.WasJustPressed) &&
             _isInViewport &&
@@ -184,19 +185,11 @@ public sealed class ObjectInsertTool : ToolBase
     }
 
     /// <inheritdoc/>
-    protected internal override void ApplyInteractions(
-        ToolInteractions interactions)
+    protected internal override void ApplyContext(ToolContext context)
     {
-        _interactions = interactions;
-    }
-
-    /// <inheritdoc/>
-    protected internal override void ApplyCursor(
-        ICursorState cursorState,
-        ICamera camera)
-    {
-        _cursorPosition = cursorState.GetWorldPosition(camera);
-        _isInViewport = cursorState.IsInViewport;
+        _interactions = context.Interactions;
+        _cursorPosition = context.CursorState.GetWorldPosition(context.Camera);
+        _isInViewport = context.CursorState.IsInViewport;
     }
 
     ///// <summary>
@@ -314,11 +307,11 @@ public sealed class ObjectInsertTool : ToolBase
         _hasDragged = false;
     }
 
-    private ObjectInsertContext CreateInsertContext()
+    private Object2InsertContext CreateInsertContext()
     {
         var bounds = GetInsertionBounds();
 
-        return new ObjectInsertContext
+        return new Object2InsertContext
         {
             Position = bounds.Location,
             Size = new Size2(

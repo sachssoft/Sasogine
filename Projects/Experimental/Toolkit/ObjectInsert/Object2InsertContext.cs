@@ -3,19 +3,18 @@ using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools
 {
-
     /// <summary>
-    /// Provides information about an object insertion operation.
+    /// Provides information about a 2D object insertion operation.
     /// </summary>
-    public sealed class ObjectInsertContext
+    public sealed class Object2InsertContext
     {
         /// <summary>
-        /// Gets the final insertion position.
+        /// Gets the final position of the inserted object.
         /// </summary>
         public Vector2 Position { get; init; }
 
         /// <summary>
-        /// Gets the final insertion size.
+        /// Gets the final size of the inserted object.
         /// </summary>
         public Size2 Size { get; init; }
 
