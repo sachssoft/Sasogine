@@ -24,13 +24,13 @@ All notable changes to this project will be documented in this file.
 - [Feature] **Toolkit**: Added `SelectionTool` for selecting and transforming objects.
 - [Feature] **Toolkit**: Added `ObjectInsertTool` for creating and placing objects.
 - [Feature] Added `ThreadSafeLazy<T>` for thread-safe lazy initialization.
-- [Feature] Added `ComponentBase` with support for reusable component services.
-- [Feature] Added `IComponentService` for reusable update services managed by components.
-- [Feature] Added a dedicated build project for source generators and compile-time analyzers.
-- [Feature] Added `Point2`, `Point3`, `PixelPoint2`, and `PixelPoint3` to provide framework-independent point types and reduce dependency on MonoGame's `Point`.
-- [Feature] Added `ICursorState` and updated `ICursorService` and tool cursor handling with camera support.
-- [Feature] Added `ToolContext` and `ToolInteractions` for providing shared tool state and standardized interaction mappings.
-- [Feature] Added individual transform definition interfaces such as `ITransformMovable2Definition` and `ITransformRotatable2Definition` for composing transform capabilities.
+- [Feature] Introduced `ComponentBase` with support for reusable component services.
+- [Feature] Added `IComponentService` for reusable services managed by components.
+- [Feature] Established a dedicated build project for source generators and compile-time analyzers.
+- [Feature] Introduced `Point2`, `Point3`, `PixelPoint2`, and `PixelPoint3` as framework-independent point types, reducing dependency on MonoGame's `Point`.
+- [Feature] Added `ICursorState` with camera-aware cursor handling for services and tools.
+- [Feature] Introduced `ToolContext` and `ToolInteractions` for shared tool state and standardized interaction mappings.
+- [Feature] Added composable transform definition interfaces, including `ITransformMovable2Definition` and `ITransformRotatable2Definition`.
 - [Change] Updated `IInteraction.Update` with `SceneUpdateContext` for component service integration.
 - [Improve] Refactored `ToolComponentBase` to use shared component services and unified tool interaction and cursor handling.
 - [Improve] Enhanced `ValueBuffer<T>` with operators and value conversions.
@@ -45,6 +45,7 @@ All notable changes to this project will be documented in this file.
 - [Improve] Expanded `VectorMath` with optimized line and segment geometry utilities.
 - [Improve] Unified component services under `IComponentService` and introduced `IUpdatableComponentService` for services participating in the update cycle.
 - [Improve] Updated selection definition interfaces to inherit from their corresponding transform definition interfaces, such as `ISelectionMovable2Definition : ITransformMovable2Definition`.
+- [Improve] Various minor improvements and optimizations across the codebase.
 
 ## [0.0.5.1-alpha] - 2026-08-31
 - [Feature] Added support for the skew transform interface in selection tools.
