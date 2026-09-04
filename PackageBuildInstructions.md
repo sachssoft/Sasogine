@@ -54,6 +54,18 @@ dotnet nuget push ".\Packages\Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL.<v
     --source "https://api.nuget.org/v3/index.json"
 ```
 
+```powershell
+dotnet nuget push ".\Packages\Sachssoft.Sasogine.Toolkit.DesktopGL.<version>.nupkg" `
+    --api-key YOUR_NUGET_API_KEY `
+    --source "https://api.nuget.org/v3/index.json"
+```
+
+```powershell
+dotnet nuget push ".\Packages\Sachssoft.Sasogine.UI.DesktopGL.<version>.nupkg" `
+    --api-key YOUR_NUGET_API_KEY `
+    --source "https://api.nuget.org/v3/index.json"
+```
+
 ## Troubleshooting Version Issues
 
 If a newly published package version is not found:
