@@ -11,6 +11,110 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
 {
     public static class EngineExtensions
     {
+        #region Point2
+        public static Point2 ReadPoint2(this FormatReaderBase reader, string property, Point2 fallback)
+        {
+            var childReader = reader.Read(property);
+
+            if (childReader == null)
+                return fallback;
+
+            var x = childReader.ReadSingle(nameof(Point2.X), fallback.X);
+            var y = childReader.ReadSingle(nameof(Point2.Y), fallback.Y);
+
+            return (new Point2(x, y));
+        }
+
+        public static void WritePoint2(this FormatWriterBase writer, string property, Point2 value)
+        {
+            var childWriter = writer.CreateWriter();
+
+            childWriter.WriteSingle(nameof(Point2.X), value.X);
+            childWriter.WriteSingle(nameof(Point2.Y), value.Y);
+
+            writer.Write(property, childWriter);
+        }
+        #endregion
+
+        #region Point3
+        public static Point3 ReadPoint3(this FormatReaderBase reader, string property, Point3 fallback)
+        {
+            var childReader = reader.Read(property);
+
+            if (childReader == null)
+                return fallback;
+
+            var x = childReader.ReadSingle(nameof(Point3.X), fallback.X);
+            var y = childReader.ReadSingle(nameof(Point3.Y), fallback.Y);
+            var z = childReader.ReadSingle(nameof(Point3.Z), fallback.Z);
+
+            return (new Point3(x, y, z));
+        }
+
+        public static void WritePoint3(this FormatWriterBase writer, string property, Point3 value)
+        {
+            var childWriter = writer.CreateWriter();
+
+            childWriter.WriteSingle(nameof(Point3.X), value.X);
+            childWriter.WriteSingle(nameof(Point3.Y), value.Y);
+            childWriter.WriteSingle(nameof(Point3.Z), value.Z);
+
+            writer.Write(property, childWriter);
+        }
+        #endregion
+
+        #region PixelPoint2
+        public static PixelPoint2 ReadPixelPoint2(this FormatReaderBase reader, string property, PixelPoint2 fallback)
+        {
+            var childReader = reader.Read(property);
+
+            if (childReader == null)
+                return fallback;
+
+            var x = childReader.ReadInt32(nameof(PixelPoint2.X), fallback.X);
+            var y = childReader.ReadInt32(nameof(PixelPoint2.Y), fallback.Y);
+
+            return (new PixelPoint2(x, y));
+        }
+
+        public static void WritePixelPoint2(this FormatWriterBase writer, string property, PixelPoint2 value)
+        {
+            var childWriter = writer.CreateWriter();
+
+            childWriter.WriteInt32(nameof(PixelPoint2.X), value.X);
+            childWriter.WriteInt32(nameof(PixelPoint2.Y), value.Y);
+
+            writer.Write(property, childWriter);
+        }
+        #endregion
+
+        #region PixelPoint3
+        public static PixelPoint3 ReadPixelPoint3(this FormatReaderBase reader, string property, PixelPoint3 fallback)
+        {
+            var childReader = reader.Read(property);
+
+            if (childReader == null)
+                return fallback;
+
+            var x = childReader.ReadInt32(nameof(PixelPoint3.X), fallback.X);
+            var y = childReader.ReadInt32(nameof(PixelPoint3.Y), fallback.Y);
+            var depth = childReader.ReadInt32(nameof(PixelPoint3.Z), fallback.Z);
+
+            return (new PixelPoint3(x, y, depth));
+        }
+
+        public static void WritePixelPoint3(this FormatWriterBase writer, string property, PixelPoint3 value)
+        {
+            var childWriter = writer.CreateWriter();
+
+            childWriter.WriteInt32(nameof(PixelPoint3.X), value.X);
+            childWriter.WriteInt32(nameof(PixelPoint3.Y), value.Y);
+            childWriter.WriteInt32(nameof(PixelPoint3.Z), value.Z);
+
+            writer.Write(property, childWriter);
+        }
+        #endregion
+
         #region Size2
         public static Size2 ReadSize2(this FormatReaderBase reader, string property, Size2 fallback)
         {
