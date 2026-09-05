@@ -21,12 +21,15 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.0-alpha] - Planned
 - [Feature] **Toolkit**: Added `SelectionTool` for selecting and transforming objects.
+- [Feature] Introduced `Vector2Extensions` and `Vector3Extensions` for convenient conversions to Sasogine point and size types.
+- [Improve] Improved `Point2` and `Point3` with `Vector2` and `Vector3` constructors for more convenient usage.
+- [Improve] Added conversion operators and mixed vector arithmetic support to `Point2` and `Point3`.
 
-## [0.1.1-alpha] - In progress
+## [0.1.1-alpha] - 2026-09-05
 - [Feature] Enhanced `EntityCollection` with generic type support.
 - [Change] Corrected API types, for example by replacing `Vector2` with `Point2` for position values.
 
-## [0.1.0-alpha] - In progress
+## [0.1.0-alpha] - 2026-08-31
 - [Feature] **Toolkit**: Added `SelectionTool` for selecting and transforming objects.
 - [Feature] **Toolkit**: Added `ObjectInsertTool` for creating and placing objects.
 - [Feature] Added `ThreadSafeLazy<T>` for thread-safe lazy initialization.
