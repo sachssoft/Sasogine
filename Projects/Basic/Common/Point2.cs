@@ -1,6 +1,6 @@
+using Microsoft.Xna.Framework;
 using System;
 using System.Globalization;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Sachssoft.Sasogine.Common;
@@ -41,6 +41,18 @@ public readonly struct Point2 : IEquatable<Point2>
     }
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="Point2"/> structure
+    /// from the specified vector.
+    /// </summary>
+    /// <param name="value">The vector containing the point coordinates.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Point2(Vector2 value)
+    {
+        X = value.X;
+        Y = value.Y;
+    }
+
+    /// <summary>
     /// Gets the x-coordinate of the point.
     /// </summary>
     public float X { get; }
@@ -61,48 +73,38 @@ public readonly struct Point2 : IEquatable<Point2>
         => new Vector2(X, Y);
 
     /// <summary>
-    /// Deconstructs this point into its individual coordinates.
+    /// Adds the specified vector to the point.
     /// </summary>
-    /// <param name="x">Receives the x-coordinate.</param>
-    /// <param name="y">Receives the y-coordinate.</param>
+    /// <param name="point">The point.</param>
+    /// <param name="vector">The vector to add.</param>
+    /// <returns>The translated point.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Deconstruct(out float x, out float y)
-    {
-        x = X;
-        y = Y;
-    }
+    public static Point2 operator +(Point2 point, Vector2 vector)
+        => new Point2(
+            point.X + vector.X,
+            point.Y + vector.Y);
 
     /// <summary>
-    /// Determines whether this instance is equal to another
-    /// <see cref="Point2"/> instance.
+    /// Adds the specified point to the vector.
     /// </summary>
-    /// <param name="other">The point to compare with this instance.</param>
-    /// <returns>
-    /// <see langword="true"/> if both points have identical coordinates;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
+    /// <param name="vector">The vector.</param>
+    /// <param name="point">The point to add.</param>
+    /// <returns>The translated point.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(Point2 other)
-        => X == other.X && Y == other.Y;
+    public static Point2 operator +(Vector2 vector, Point2 point)
+        => point + vector;
 
     /// <summary>
-    /// Determines whether the specified object is equal to this instance.
+    /// Subtracts the specified vector from the point.
     /// </summary>
-    /// <param name="obj">The object to compare with this instance.</param>
-    /// <returns>
-    /// <see langword="true"/> if <paramref name="obj"/> is a
-    /// <see cref="Point2"/> with identical coordinates;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    public override bool Equals(object? obj)
-        => obj is Point2 point && Equals(point);
-
-    /// <summary>
-    /// Returns a hash code for this instance.
-    /// </summary>
-    /// <returns>A hash code based on both coordinates.</returns>
-    public override int GetHashCode()
-        => HashCode.Combine(X, Y);
+    /// <param name="point">The point.</param>
+    /// <param name="vector">The vector to subtract.</param>
+    /// <returns>The translated point.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Point2 operator -(Point2 point, Vector2 vector)
+        => new Point2(
+            point.X - vector.X,
+            point.Y - vector.Y);
 
     /// <summary>
     /// Adds the coordinates of two points component-wise.
@@ -110,12 +112,13 @@ public readonly struct Point2 : IEquatable<Point2>
     /// <param name="a">The first point.</param>
     /// <param name="b">The second point.</param>
     /// <returns>
-    /// A point whose coordinates are the sums of the corresponding
-    /// coordinates of <paramref name="a"/> and <paramref name="b"/>.
+    /// A point whose coordinates are the sums of the corresponding coordinates.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Point2 operator +(Point2 a, Point2 b)
-        => new Point2(a.X + b.X, a.Y + b.Y);
+        => new Point2(
+            a.X + b.X,
+            a.Y + b.Y);
 
     /// <summary>
     /// Subtracts the coordinates of one point from another component-wise.
@@ -123,12 +126,13 @@ public readonly struct Point2 : IEquatable<Point2>
     /// <param name="a">The point from which to subtract.</param>
     /// <param name="b">The point to subtract.</param>
     /// <returns>
-    /// A point whose coordinates are the differences between the corresponding
-    /// coordinates of <paramref name="a"/> and <paramref name="b"/>.
+    /// A point whose coordinates are the differences between the corresponding coordinates.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Point2 operator -(Point2 a, Point2 b)
-        => new Point2(a.X - b.X, a.Y - b.Y);
+        => new Point2(
+            a.X - b.X,
+            a.Y - b.Y);
 
     /// <summary>
     /// Multiplies the coordinates of two points component-wise.
@@ -136,35 +140,26 @@ public readonly struct Point2 : IEquatable<Point2>
     /// <param name="a">The first point.</param>
     /// <param name="b">The second point.</param>
     /// <returns>
-    /// A point whose coordinates are the products of the corresponding
-    /// coordinates of <paramref name="a"/> and <paramref name="b"/>.
+    /// A point whose coordinates are the products of the corresponding coordinates.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Point2 operator *(Point2 a, Point2 b)
-        => new Point2(a.X * b.X, a.Y * b.Y);
+        => new Point2(
+            a.X * b.X,
+            a.Y * b.Y);
 
     /// <summary>
     /// Multiplies both coordinates of a point by a scalar value.
     /// </summary>
-    /// <param name="value">The point to multiply.</param>
-    /// <param name="scaleFactor">The scalar multiplier.</param>
-    /// <returns>
-    /// A point whose coordinates are multiplied by
-    /// <paramref name="scaleFactor"/>.
-    /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Point2 operator *(Point2 value, float scaleFactor)
-        => new Point2(value.X * scaleFactor, value.Y * scaleFactor);
+        => new Point2(
+            value.X * scaleFactor,
+            value.Y * scaleFactor);
 
     /// <summary>
     /// Multiplies both coordinates of a point by a scalar value.
     /// </summary>
-    /// <param name="scaleFactor">The scalar multiplier.</param>
-    /// <param name="value">The point to multiply.</param>
-    /// <returns>
-    /// A point whose coordinates are multiplied by
-    /// <paramref name="scaleFactor"/>.
-    /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Point2 operator *(float scaleFactor, Point2 value)
         => value * scaleFactor;
@@ -172,12 +167,6 @@ public readonly struct Point2 : IEquatable<Point2>
     /// <summary>
     /// Divides the coordinates of one point by another component-wise.
     /// </summary>
-    /// <param name="source">The point containing the dividend coordinates.</param>
-    /// <param name="divisor">The point containing the divisor coordinates.</param>
-    /// <returns>
-    /// A point whose coordinates are the quotients of the corresponding
-    /// coordinates.
-    /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Point2 operator /(Point2 source, Point2 divisor)
         => new Point2(
@@ -187,11 +176,6 @@ public readonly struct Point2 : IEquatable<Point2>
     /// <summary>
     /// Divides both coordinates of a point by a scalar value.
     /// </summary>
-    /// <param name="value">The point to divide.</param>
-    /// <param name="divisor">The scalar divisor.</param>
-    /// <returns>
-    /// A point whose coordinates are divided by <paramref name="divisor"/>.
-    /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Point2 operator /(Point2 value, float divisor)
         => new Point2(
@@ -199,13 +183,41 @@ public readonly struct Point2 : IEquatable<Point2>
             value.Y / divisor);
 
     /// <summary>
+    /// Converts a <see cref="Vector2"/> to a <see cref="Point2"/>.
+    /// </summary>
+    /// <param name="value">The vector to convert.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Point2(Vector2 value)
+        => new Point2(value.X, value.Y);
+
+    /// <summary>
+    /// Converts a <see cref="Point2"/> to a <see cref="Vector2"/>.
+    /// </summary>
+    /// <param name="value">The point to convert.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Vector2(Point2 value)
+        => new Vector2(value.X, value.Y);
+
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Equals(Point2 other)
+        => X == other.X && Y == other.Y;
+
+    /// <inheritdoc/>
+    public override bool Equals(object? obj)
+        => obj is Point2 point && Equals(point);
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+        => HashCode.Combine(X, Y);
+
+    /// <summary>
     /// Determines whether two <see cref="Point2"/> instances are equal.
     /// </summary>
     /// <param name="a">The first point to compare.</param>
     /// <param name="b">The second point to compare.</param>
     /// <returns>
-    /// <see langword="true"/> if both points have identical coordinates;
-    /// otherwise, <see langword="false"/>.
+    /// <see langword="true"/> if both points are equal; otherwise, <see langword="false"/>.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Point2 a, Point2 b)
@@ -217,95 +229,13 @@ public readonly struct Point2 : IEquatable<Point2>
     /// <param name="a">The first point to compare.</param>
     /// <param name="b">The second point to compare.</param>
     /// <returns>
-    /// <see langword="true"/> if the points have different coordinates;
-    /// otherwise, <see langword="false"/>.
+    /// <see langword="true"/> if the points are not equal; otherwise, <see langword="false"/>.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(Point2 a, Point2 b)
         => !a.Equals(b);
 
-    /// <summary>
-    /// Parses a string representation of a <see cref="Point2"/>.
-    /// </summary>
-    /// <param name="s">
-    /// A string containing two numeric values representing the x- and
-    /// y-coordinates.
-    /// </param>
-    /// <returns>The parsed <see cref="Point2"/>.</returns>
-    /// <exception cref="FormatException">
-    /// Thrown when the specified string does not contain exactly two valid
-    /// numeric values.
-    /// </exception>
-    /// <remarks>
-    /// Values may be separated by commas or spaces and are interpreted using
-    /// <see cref="CultureInfo.InvariantCulture"/>.
-    /// </remarks>
-    public static Point2 Parse(string s)
-    {
-        if (TryParse(s, out var result))
-            return result;
-
-        throw new FormatException(
-            $"Invalid Point2 format: '{s}'. Expected 2 numeric values separated by ',' or ' '.");
-    }
-
-    /// <summary>
-    /// Attempts to parse a string representation of a <see cref="Point2"/>.
-    /// </summary>
-    /// <param name="s">
-    /// A string containing two numeric values representing the x- and
-    /// y-coordinates.
-    /// </param>
-    /// <param name="result">
-    /// When this method returns <see langword="true"/>, contains the parsed
-    /// point; otherwise, contains <see cref="Zero"/>.
-    /// </param>
-    /// <returns>
-    /// <see langword="true"/> if the string was successfully parsed;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    public static bool TryParse(string? s, out Point2 result)
-    {
-        result = Zero;
-
-        if (string.IsNullOrWhiteSpace(s))
-            return false;
-
-        var parts = s.Split(
-            new[] { ',', ' ' },
-            StringSplitOptions.RemoveEmptyEntries);
-
-        if (parts.Length != 2)
-            return false;
-
-        if (!float.TryParse(
-                parts[0],
-                NumberStyles.Float,
-                CultureInfo.InvariantCulture,
-                out float x) ||
-            !float.TryParse(
-                parts[1],
-                NumberStyles.Float,
-                CultureInfo.InvariantCulture,
-                out float y))
-        {
-            return false;
-        }
-
-        result = new Point2(x, y);
-        return true;
-    }
-
-    /// <summary>
-    /// Returns the string representation of this <see cref="Point2"/>.
-    /// </summary>
-    /// <returns>
-    /// A string containing the x- and y-coordinates separated by a comma.
-    /// </returns>
-    /// <remarks>
-    /// Numeric values are formatted using
-    /// <see cref="CultureInfo.InvariantCulture"/>.
-    /// </remarks>
+    /// <inheritdoc/>
     public override string ToString()
         => string.Format(
             CultureInfo.InvariantCulture,

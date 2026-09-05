@@ -44,6 +44,19 @@ public readonly struct Point3 : IEquatable<Point3>
     }
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="Point3"/> structure
+    /// from the specified vector.
+    /// </summary>
+    /// <param name="value">The vector containing the point coordinates.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Point3(Vector3 value)
+    {
+        X = value.X;
+        Y = value.Y;
+        Z = value.Z;
+    }
+
+    /// <summary>
     /// Gets the x-coordinate of the point.
     /// </summary>
     public float X { get; }
@@ -113,6 +126,42 @@ public readonly struct Point3 : IEquatable<Point3>
     /// <returns>A hash code based on all three coordinates.</returns>
     public override int GetHashCode()
         => HashCode.Combine(X, Y, Z);
+
+    /// <summary>
+    /// Adds a vector to a point.
+    /// </summary>
+    /// <param name="point">The point.</param>
+    /// <param name="vector">The vector to add.</param>
+    /// <returns>The translated point.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Point3 operator +(Point3 point, Vector3 vector)
+        => new Point3(
+            point.X + vector.X,
+            point.Y + vector.Y,
+            point.Z + vector.Z);
+
+    /// <summary>
+    /// Adds a point to a vector.
+    /// </summary>
+    /// <param name="vector">The vector.</param>
+    /// <param name="point">The point to add.</param>
+    /// <returns>The translated point.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Point3 operator +(Vector3 vector, Point3 point)
+        => point + vector;
+
+    /// <summary>
+    /// Subtracts a vector from a point.
+    /// </summary>
+    /// <param name="point">The point.</param>
+    /// <param name="vector">The vector to subtract.</param>
+    /// <returns>The translated point.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Point3 operator -(Point3 point, Vector3 vector)
+        => new Point3(
+            point.X - vector.X,
+            point.Y - vector.Y,
+            point.Z - vector.Z);
 
     /// <summary>
     /// Adds the coordinates of two points component-wise.
@@ -227,6 +276,22 @@ public readonly struct Point3 : IEquatable<Point3>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(Point3 a, Point3 b)
         => !a.Equals(b);
+
+    /// <summary>
+    /// Converts a <see cref="Vector3"/> to a <see cref="Point3"/>.
+    /// </summary>
+    /// <param name="value">The vector to convert.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Point3(Vector3 value)
+        => new Point3(value);
+
+    /// <summary>
+    /// Converts a <see cref="Point3"/> to a <see cref="Vector3"/>.
+    /// </summary>
+    /// <param name="value">The point to convert.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Vector3(Point3 value)
+        => new Vector3(value.X, value.Y, value.Z);
 
     /// <summary>
     /// Parses a string representation of a <see cref="Point3"/>.
