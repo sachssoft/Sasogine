@@ -2,68 +2,113 @@
 using System;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Assets.Audio
+namespace Sachssoft.Sasogine.Assets.Audio;
+
+/// <summary>
+/// Represents a music asset that creates an <see cref="IMusicPlayer"/>
+/// from an audio resource stream.
+/// </summary>
+/// <remarks>
+/// Supported music formats include MP3 and OGG.
+/// When <see cref="MusicFormatType.Auto"/> is used, the format is detected
+/// automatically from the resource stream.
+/// </remarks>
+public class MusicAsset :
+    AssetBase<IMusicPlayer, MusicAssetDefinition>
 {
-    public class MusicAsset : AssetBase<IMusicPlayer, MusicAssetDefinition>
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MusicAsset"/> class
+    /// using a default <see cref="MusicAssetDefinition"/>.
+    /// </summary>
+    public MusicAsset()
+        : base(new MusicAssetDefinition())
     {
-        public MusicAsset() : base(new MusicAssetDefinition()) { }
+    }
 
-        public MusicAsset(MusicAssetDefinition definition) : base(definition) { }
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MusicAsset"/> class
+    /// using the specified definition.
+    /// </summary>
+    /// <param name="definition">
+    /// The definition used to configure the music asset.
+    /// </param>
+    public MusicAsset(MusicAssetDefinition definition)
+        : base(definition)
+    {
+    }
 
-        protected override MusicAssetDefinition ResolveDefinition()
+    /// <summary>
+    /// Resolves a default definition when no definition is currently available.
+    /// </summary>
+    /// <returns>
+    /// A new <see cref="MusicAssetDefinition"/>.
+    /// </returns>
+    protected override MusicAssetDefinition ResolveDefinition()
+    {
+        return new MusicAssetDefinition();
+    }
+
+    /// <summary>
+    /// Builds a music player from the specified audio stream.
+    /// </summary>
+    /// <param name="stream">
+    /// The stream containing the encoded music data.
+    /// </param>
+    /// <returns>
+    /// The music player created from the stream.
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown when the stream contains no data.
+    /// </exception>
+    /// <exception cref="FormatException">
+    /// Thrown when the audio format is unsupported or cannot be detected.
+    /// </exception>
+    protected override IMusicPlayer? Build(Stream stream)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+
+        if (stream.Length == 0)
         {
-            return new MusicAssetDefinition();
+            throw new ArgumentException(
+                "The music stream contains no data.",
+                nameof(stream));
         }
 
-        protected override IMusicPlayer? Build(Stream stream)
+        IMusicPlayer instance = Definition.FormatType switch
         {
-            if (stream == null || stream.Length == 0)
-                return null;
+            MusicFormatType.Auto =>
+                CreateFromDetectedFormat(stream),
 
-            try
-            {
-                IMusicPlayer? instance = null;
+            MusicFormatType.Ogg =>
+                new OggStreamPlayer(stream),
 
-                switch (Definition.FormatType)
-                {
-                    case MusicFormatType.Auto:
+            MusicFormatType.Mp3 =>
+                new Mp3StreamPlayer(stream),
 
-                        switch (AudioDetection.DetectFormat(stream))
-                        {
-                            case AudioFormatType.Mp3:
-                                instance = new Mp3StreamPlayer(stream);
-                                break;
-                            case AudioFormatType.Ogg:
-                                instance = new OggStreamPlayer(stream);
-                                break;
-                        }
-                        break;
+            _ => throw new FormatException(
+                $"Unsupported music format '{Definition.FormatType}'.")
+        };
 
-                    case MusicFormatType.Ogg:
-                        instance = new OggStreamPlayer(stream);
-                        break;
+        instance.Volume = Definition.Volume;
+        instance.Pitch = Definition.Pitch;
+        instance.StartOffset = Definition.StartOffset;
+        instance.IsLooping = Definition.IsLooping;
 
-                    case MusicFormatType.Mp3:
-                        instance = new Mp3StreamPlayer(stream);
-                        break;
-                }
+        return instance;
+    }
 
-                if (instance != null)
-                {
-                    instance.Volume = Definition.Volume;
-                    instance.Pitch = Definition.Pitch;
-                    instance.StartOffset = Definition.StartOffset;
-                    instance.IsLooping = Definition.IsLooping;
-                    return instance;
-                }
+    private static IMusicPlayer CreateFromDetectedFormat(Stream stream)
+    {
+        return AudioDetection.DetectFormat(stream) switch
+        {
+            AudioFormatType.Ogg =>
+                new OggStreamPlayer(stream),
 
-                throw new FormatException("Unsupported audio format. Only WAV and OGG are supported for sounds.");
-            }
-            catch (Exception ex)
-            {
-                Exception = ex;
-                return null;
-            }
-        }
+            AudioFormatType.Mp3 =>
+                new Mp3StreamPlayer(stream),
+
+            _ => throw new FormatException(
+                "Unsupported music format. Only MP3 and OGG are supported.")
+        };
     }
 }

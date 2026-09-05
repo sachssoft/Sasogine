@@ -1,26 +1,24 @@
 ﻿namespace Sachssoft.Sasogine.Assets.Audio
 {
     /// <summary>
-    /// Bestimmt den Zweck der Musik im Spiel.
-    /// Dient der Steuerung von Playback, Looping und Mixer-Logik.
+    /// Specifies the purpose or playback context of a music asset.
     /// </summary>
     public enum MusicCategory
     {
         /// <summary>
-        /// Standard-Level-Hintergrundmusik.
-        /// Wird normalerweise geloopt und als Hauptmusik gemischt.
+        /// Represents background music typically used during gameplay.
         /// </summary>
         Background,
 
         /// <summary>
-        /// Musik für Menüs, Startbildschirm oder Pausenmenü.
-        /// Wird separat gesteuert, kann eigenständige Lautstärke haben.
+        /// Represents music used for menus, title screens, or similar
+        /// non-gameplay contexts.
         /// </summary>
         Menu,
 
         /// <summary>
-        /// Kurztracks für Events, Zwischensequenzen oder spezielle Szenen.
-        /// Normalerweise nicht geloopt und hat Priorität über Background.
+        /// Represents music used for events, cutscenes, or other
+        /// temporary gameplay situations.
         /// </summary>
         Event
     }

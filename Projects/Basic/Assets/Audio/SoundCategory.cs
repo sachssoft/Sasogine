@@ -1,43 +1,46 @@
 ﻿namespace Sachssoft.Sasogine.Assets.Audio
 {
     /// <summary>
-    /// Bestimmt den Zweck eines Sounds im Spiel.
-    /// Dient der Steuerung von Lautstärke, Priorität und Mixer-Kanal.
+    /// Specifies the purpose or playback context of a sound asset.
     /// </summary>
     public enum SoundCategory
     {
         /// <summary>
-        /// Benutzeroberfläche: Buttons, Menüs, Feedback
+        /// Represents user interface sounds such as buttons, menus,
+        /// and interaction feedback.
         /// </summary>
         UI,
 
         /// <summary>
-        /// Hintergrundgeräusche: Wind, Tiere, Umgebungs-SFX
+        /// Represents ambient sounds such as environmental noise,
+        /// weather, or background effects.
         /// </summary>
         Ambient,
 
         /// <summary>
-        /// Action-Sounds: Waffen, Treffer, Explosionen
+        /// Represents action-related sounds such as weapons,
+        /// hits, or explosions.
         /// </summary>
         Action,
 
         /// <summary>
-        /// Fußschritte oder Bewegungsgeräusche
+        /// Represents footsteps and other movement-related sounds.
         /// </summary>
         Footstep,
 
         /// <summary>
-        /// Physische Kollisionen, Objekte, Impacts
+        /// Represents physical impacts, collisions, and object interactions.
         /// </summary>
         Impact,
 
         /// <summary>
-        /// Sprach-Sounds oder Voice Lines
+        /// Represents dialogue, speech, or voice lines.
         /// </summary>
         Dialogue,
 
         /// <summary>
-        /// Hinweise, Achievements oder Alerts
+        /// Represents notifications, alerts, achievements,
+        /// or other informational sounds.
         /// </summary>
         Notification
     }
