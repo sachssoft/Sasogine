@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Components.Tools.Selection;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Components.Tools.Selection;

@@ -1,10 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Components.Rendering.Cameras;
 using Sachssoft.Sasogine.Components.Tools.Selection;
+using Sachssoft.Sasogine.Input;
+using Sachssoft.Sasogine.Graphics.Cameras;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using Sachssoft.Sasogine.Graphics.Rendering.Batches;
-using Sachssoft.Sasogine.Input;
 using Sachssoft.Sasogine.Scenes;
 using System;
 using System.Collections;
@@ -35,7 +37,8 @@ public class SelectionTool : ToolBase
 
     private Vector2 _cursorPosition;
     private bool _isInViewport;
-    private SelectionToolInteractions? _interactions;
+    //private SelectionToolInteractions? _interactions;
+    private ToolInteractions? _interactions;
 
     private Vector2 _lastCursorPosition;
     private SelectionToolNode? _selectedNode;
@@ -43,8 +46,8 @@ public class SelectionTool : ToolBase
     private ISelectionTarget2Definition? _activeDefinition;
 
     private SelectionToolLayer? _layer;
-    private bool _invalidateLayer; 
-    
+    private bool _invalidateLayer;
+
     private bool _isAreaSelecting;
     private Vector2 _areaSelectionStart;
     private Vector2 _areaSelectionEnd;
@@ -215,39 +218,47 @@ public class SelectionTool : ToolBase
     /// </summary>
     public float HandleSize { get; set; } = 8f;
 
-    /// <summary>
-    /// Sets the interaction bindings used by the selection tool.
-    /// </summary>
-    /// <param name="interactions">The interaction bindings to use.</param>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="interactions"/> is <see langword="null"/>.
-    /// </exception>
-    public void SetInteractions(SelectionToolInteractions interactions)
+    /// <inheritdoc/>
+    protected override void ApplyContext(ToolContext context)
     {
-        ArgumentNullException.ThrowIfNull(interactions);
-        _interactions = interactions;
+        _interactions = context.Interactions;
+        _cursorPosition = context.CursorState.GetWorldPosition(context.Camera);
+        _isInViewport = context.CursorState.IsInViewport;
     }
 
-    /// <summary>
-    /// Sets the current cursor position and viewport state.
-    /// </summary>
-    /// <param name="position">The current cursor position.</param>
-    /// <param name="isInViewport">
-    /// Indicates whether the cursor is currently inside the active viewport.
-    /// </param>
-    public void SetCursorPosition(
-        Vector2 position,
-        bool isInViewport = true)
-    {
-        _cursorPosition = position;
-        _isInViewport = isInViewport;
-    }
+    ///// <summary>
+    ///// Sets the interaction bindings used by the selection tool.
+    ///// </summary>
+    ///// <param name="interactions">The interaction bindings to use.</param>
+    ///// <exception cref="ArgumentNullException">
+    ///// Thrown when <paramref name="interactions"/> is <see langword="null"/>.
+    ///// </exception>
+    //public void SetInteractions(SelectionToolInteractions interactions)
+    //{
+    //    ArgumentNullException.ThrowIfNull(interactions);
+    //    _interactions = interactions;
+    //}
+
+    ///// <summary>
+    ///// Sets the current cursor position and viewport state.
+    ///// </summary>
+    ///// <param name="position">The current cursor position.</param>
+    ///// <param name="isInViewport">
+    ///// Indicates whether the cursor is currently inside the active viewport.
+    ///// </param>
+    //public void SetCursorPosition(
+    //    Vector2 position,
+    //    bool isInViewport = true)
+    //{
+    //    _cursorPosition = position;
+    //    _isInViewport = isInViewport;
+    //}
 
     /// <summary>
     /// Updates selection and transformation interactions.
     /// </summary>
     /// <param name="context">The current scene update context.</param>
-    public virtual void Update(SceneUpdateContext context)
+    public override void Update(SceneUpdateContext context)
     {
         if (!_isInViewport || _interactions == null)
             return;
@@ -340,7 +351,7 @@ public class SelectionTool : ToolBase
             {
                 BeginAreaSelection();
 
-                if (!_interactions!.Modify.HasFlag(InteractionFlags.IsPressed))
+                if (!_interactions!.Modifier.HasFlag(InteractionFlags.IsPressed))
                     DeselectAll();
 
                 return;
@@ -361,7 +372,7 @@ public class SelectionTool : ToolBase
             return;
         }
 
-        bool modify = _interactions!.Modify.HasFlag(
+        bool modify = _interactions!.Modifier.HasFlag(
             InteractionFlags.IsPressed);
 
         if (modify)
@@ -676,7 +687,7 @@ public class SelectionTool : ToolBase
             position = movableDefinition.Position;
 
         var halfSize = node.Size.ToVector2() / 2f;
-        var point = node.Position + halfSize;
+        var point = node.Position.ToVector2() + halfSize;
 
         if (Layer != null)
         {
@@ -693,7 +704,7 @@ public class SelectionTool : ToolBase
     /// Draws the current selections and their interaction handles.
     /// </summary>
     /// <param name="context">The current scene drawing context.</param>
-    public virtual void Draw(SceneDrawContext context)
+    public override void Draw(SceneDrawContext context)
     {
         using var scope = new RenderScope(
             context.GraphicsDevice,

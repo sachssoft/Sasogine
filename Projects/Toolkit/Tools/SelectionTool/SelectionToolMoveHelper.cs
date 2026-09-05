@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Components.Tools.Selection;
 using System;
 using System.Collections.Generic;
 
@@ -26,7 +27,7 @@ internal sealed class SelectionToolMoveHelper
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
     {
-        Node.Position = Vector2.Zero;
+        Node.Position = Point2.Zero;
 
         if (target != null)
         {

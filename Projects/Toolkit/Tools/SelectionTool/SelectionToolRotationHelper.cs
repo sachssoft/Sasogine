@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Components.Tools.Selection;
 using System;
 using System.Collections.Generic;
 
@@ -58,14 +59,14 @@ internal sealed class SelectionToolRotationHelper
         ISelectionTarget2Definition? definition)
     {
         Size2 targetSize;
-        Vector2 pivot = new Vector2(0.5f);
+        var pivot = new Point2(0.5f);
 
         if (target != null)
         {
             targetSize = target.Size;
 
             if (target is ISelectionRotatable2 rotatable)
-                pivot = rotatable.RotationPivot;
+                pivot = new Point2(rotatable.RotationPivot.X, rotatable.RotationPivot.Y);
         }
         else if (definition != null)
         {
@@ -90,23 +91,23 @@ internal sealed class SelectionToolRotationHelper
 
         _pivotNode.Size = nodeSize;
 
-        _topLeftNode.Position = new Vector2(
+        _topLeftNode.Position = new Point2(
             -offset - halfHandleSize,
             -offset - halfHandleSize);
 
-        _topRightNode.Position = new Vector2(
+        _topRightNode.Position = new Point2(
             targetSize.Width + offset - halfHandleSize,
             -offset - halfHandleSize);
 
-        _bottomRightNode.Position = new Vector2(
+        _bottomRightNode.Position = new Point2(
             targetSize.Width + offset - halfHandleSize,
             targetSize.Height + offset - halfHandleSize);
 
-        _bottomLeftNode.Position = new Vector2(
+        _bottomLeftNode.Position = new Point2(
             -offset - halfHandleSize,
             targetSize.Height + offset - halfHandleSize);
 
-        _pivotNode.Position = new Vector2(
+        _pivotNode.Position = new Point2(
             targetSize.Width * pivot.X - halfHandleSize,
             targetSize.Height * pivot.Y - halfHandleSize);
     }
@@ -218,7 +219,7 @@ internal sealed class SelectionToolRotationHelper
     {
         Size2 size;
         float rotation;
-        Vector2 oldPivot;
+        Point2 oldPivot;
 
         if (target != null)
         {
@@ -231,7 +232,7 @@ internal sealed class SelectionToolRotationHelper
             }
 
             rotation = rotatable.Rotation;
-            oldPivot = rotatable.RotationPivot;
+            oldPivot = new Point2(rotatable.RotationPivot.X, rotatable.RotationPivot.Y);
         }
         else if (definition is ISelectionRotatable2Definition rotatableDefinition)
         {
@@ -297,7 +298,7 @@ internal sealed class SelectionToolRotationHelper
         if (target is ISelectionRotatable2 targetRotatable &&
             targetRotatable.AllowRotate)
         {
-            targetRotatable.RotationPivot = newPivot;
+            targetRotatable.RotationPivot = new Vector2(newPivot.X, newPivot.Y);
 
             if (target is ISelectionMovable2 movable &&
                 movable.AllowMove)
@@ -308,7 +309,7 @@ internal sealed class SelectionToolRotationHelper
 
         if (definition is ISelectionRotatable2Definition definitionRotatable)
         {
-            definitionRotatable.RotationPivot = newPivot;
+            definitionRotatable.RotationPivot = new Point2(newPivot.X, newPivot.Y);
 
             if (definition is ISelectionMovable2Definition movableDefinition)
                 movableDefinition.Position += positionOffset;
@@ -321,7 +322,7 @@ internal sealed class SelectionToolRotationHelper
     {
         Vector2 position = Vector2.Zero;
         Size2 size = Size2.Zero;
-        Vector2 pivot = new Vector2(0.5f);
+        Point2 pivot = new Point2(0.5f);
 
         if (target != null)
         {
@@ -331,7 +332,7 @@ internal sealed class SelectionToolRotationHelper
                 position = movable.Position;
 
             if (target is ISelectionRotatable2 rotatable)
-                pivot = rotatable.RotationPivot;
+                pivot = new Point2(rotatable.RotationPivot.X, rotatable.RotationPivot.Y);
         }
         else if (definition != null)
         {
@@ -341,7 +342,7 @@ internal sealed class SelectionToolRotationHelper
                 position = movableDefinition.Position;
 
             if (definition is ISelectionRotatable2Definition rotatableDefinition)
-                pivot = rotatableDefinition.RotationPivot;
+                pivot = new Point2(rotatableDefinition.RotationPivot.X, rotatableDefinition.RotationPivot.Y);
         }
 
         return position + new Vector2(

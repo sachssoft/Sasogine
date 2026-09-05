@@ -1,9 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Components.Rendering.Cameras;
+using Sachssoft.Sasogine.Input;
+using Sachssoft.Sasogine.Graphics.Cameras;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using Sachssoft.Sasogine.Graphics.Rendering.Batches;
-using Sachssoft.Sasogine.Input;
 using Sachssoft.Sasogine.Scenes;
 using System;
 using System.Collections;
@@ -11,9 +13,9 @@ using System.Collections;
 namespace Sachssoft.Sasogine.Components.Tools;
 
 /// <summary>
-/// Provides a tool for inserting objects by clicking or dragging in a viewport.
+/// Provides a tool for inserting 2D objects by clicking or dragging in a viewport.
 /// </summary>
-public sealed class ObjectInsertTool : ToolBase
+public sealed class Object2InsertTool : ToolBase
 {
     private readonly ShapeBatch _lineBatch;
     private readonly BasicShader _lineShader;
@@ -24,11 +26,12 @@ public sealed class ObjectInsertTool : ToolBase
     private bool _isInViewport;
     private bool _isInserting;
     private object? _insertObject;
-    private ObjectInsertToolInteractions? _interactions;
+    private ToolInteractions? _interactions;
+    //private ObjectInsertToolInteractions? _interactions;
     private bool _hasDragged;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ObjectInsertTool"/> class.
+    /// Initializes a new instance of the <see cref="Object2InsertTool"/> class.
     /// </summary>
     /// <param name="objectsSource">
     /// The collection that receives inserted objects.
@@ -39,9 +42,9 @@ public sealed class ObjectInsertTool : ToolBase
     /// <param name="graphicsDevice">
     /// The graphics device used to create rendering resources.
     /// </param>
-    public ObjectInsertTool(
+    public Object2InsertTool(
         IList objectsSource,
-        IObjectInsertHandler insertHandler,
+        IObject2InsertHandler insertHandler,
         GraphicsDevice graphicsDevice)
     {
         ArgumentNullException.ThrowIfNull(objectsSource);
@@ -78,9 +81,9 @@ public sealed class ObjectInsertTool : ToolBase
     public IList ObjectsSource { get; }
 
     /// <summary>
-    /// Gets the handler used to manage object insertion operations.
+    /// Gets the handler used to manage 2D object insertion operations.
     /// </summary>
-    public IObjectInsertHandler InsertHandler { get; }
+    public IObject2InsertHandler InsertHandler { get; }
 
     /// <summary>
     /// Gets or sets a value indicating whether grid-based snapping is enabled.
@@ -181,29 +184,37 @@ public sealed class ObjectInsertTool : ToolBase
         _lineBatch.End();
     }
 
-    /// <summary>
-    /// Sets the interaction bindings used by the object insertion tool.
-    /// </summary>
-    public void SetInteractions(ObjectInsertToolInteractions interactions)
+    /// <inheritdoc/>
+    protected override void ApplyContext(ToolContext context)
     {
-        ArgumentNullException.ThrowIfNull(interactions);
-        _interactions = interactions;
+        _interactions = context.Interactions;
+        _cursorPosition = context.CursorState.GetWorldPosition(context.Camera);
+        _isInViewport = context.CursorState.IsInViewport;
     }
 
-    /// <summary>
-    /// Sets the current cursor position and viewport state.
-    /// </summary>
-    /// <param name="position">The current cursor position.</param>
-    /// <param name="isInViewport">
-    /// Indicates whether the cursor is currently inside the active viewport.
-    /// </param>
-    public void SetCursorPosition(
-        Vector2 position,
-        bool isInViewport = true)
-    {
-        _cursorPosition = position;
-        _isInViewport = isInViewport;
-    }
+    ///// <summary>
+    ///// Sets the interaction bindings used by the object insertion tool.
+    ///// </summary>
+    //public void SetInteractions(ObjectInsertToolInteractions interactions)
+    //{
+    //    ArgumentNullException.ThrowIfNull(interactions);
+    //    _interactions = interactions;
+    //}
+
+    ///// <summary>
+    ///// Sets the current cursor position and viewport state.
+    ///// </summary>
+    ///// <param name="position">The current cursor position.</param>
+    ///// <param name="isInViewport">
+    ///// Indicates whether the cursor is currently inside the active viewport.
+    ///// </param>
+    //public void SetCursorPosition(
+    //    Vector2 position,
+    //    bool isInViewport = true)
+    //{
+    //    _cursorPosition = position;
+    //    _isInViewport = isInViewport;
+    //}
 
     private void BeginInsertion()
     {
@@ -296,18 +307,16 @@ public sealed class ObjectInsertTool : ToolBase
         _hasDragged = false;
     }
 
-    private ObjectInsertContext CreateInsertContext()
+    private Object2InsertContext CreateInsertContext()
     {
         var bounds = GetInsertionBounds();
 
-        return new ObjectInsertContext
+        return new Object2InsertContext
         {
-            Position = bounds.Location,
-            Size = new Size2(
-                bounds.Width,
-                bounds.Height),
-            StartPosition = _insertStart,
-            EndPosition = _insertEnd,
+            Position = new Point2(bounds.Location.X, bounds.Location.Y),
+            Size = new Size2(bounds.Width, bounds.Height),
+            DragStart = _insertStart,
+            DragEnd = _insertEnd,
             IsDrag = _insertStart != _insertEnd
         };
     }

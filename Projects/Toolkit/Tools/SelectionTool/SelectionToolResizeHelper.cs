@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Components.Tools.Selection;
 using System;
 using System.Collections.Generic;
 
@@ -71,35 +72,35 @@ internal sealed class SelectionToolResizeHelper
         foreach (var node in _nodes)
             node.Size = nodeSize;
 
-        _topLeftCornerNode.Position = new Vector2(
+        _topLeftCornerNode.Position = new Point2(
             -halfHandleSize,
             -halfHandleSize);
 
-        _topRightCornerNode.Position = new Vector2(
+        _topRightCornerNode.Position = new Point2(
             targetSize.Width - halfHandleSize,
             -halfHandleSize);
 
-        _bottomLeftCornerNode.Position = new Vector2(
+        _bottomLeftCornerNode.Position = new Point2(
             -halfHandleSize,
             targetSize.Height - halfHandleSize);
 
-        _bottomRightCornerNode.Position = new Vector2(
+        _bottomRightCornerNode.Position = new Point2(
             targetSize.Width - halfHandleSize,
             targetSize.Height - halfHandleSize);
 
-        _topEdgeNode.Position = new Vector2(
+        _topEdgeNode.Position = new Point2(
             targetSize.Width / 2f - halfHandleSize,
             -halfHandleSize);
 
-        _leftEdgeNode.Position = new Vector2(
+        _leftEdgeNode.Position = new Point2(
             -halfHandleSize,
             targetSize.Height / 2f - halfHandleSize);
 
-        _rightEdgeNode.Position = new Vector2(
+        _rightEdgeNode.Position = new Point2(
             targetSize.Width - halfHandleSize,
             targetSize.Height / 2f - halfHandleSize);
 
-        _bottomEdgeNode.Position = new Vector2(
+        _bottomEdgeNode.Position = new Point2(
             targetSize.Width / 2f - halfHandleSize,
             targetSize.Height - halfHandleSize);
     }

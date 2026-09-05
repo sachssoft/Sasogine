@@ -4,6 +4,10 @@ using System;
 
 namespace Sachssoft.Sasogine.Components.Tools.Selection
 {
+    /// <summary>
+    /// Provides extension methods for creating transformation matrices
+    /// from selection targets and definitions.
+    /// </summary>
     public static class SelectionToolExtensions
     {
         /// <summary>
@@ -23,12 +27,18 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
             ArgumentNullException.ThrowIfNull(target);
 
             return CreateMatrix(
-                target is ISelectionResizable2 resizable ? resizable.Size : null,
-                target is ISelectionScalable2 scalable ? scalable.Scale : null,
+                target is ISelectionResizable2 resizable
+                    ? resizable.Size
+                    : null,
+                target is ISelectionScalable2 scalable
+                    ? scalable.Scale
+                    : null,
                 target is ISelectionRotatable2 rotatable
                     ? (rotatable.Rotation, rotatable.RotationPivot)
                     : null,
-                target is ISelectionMovable2 movable ? movable.Position : null);
+                target is ISelectionMovable2 movable
+                    ? new Point2(movable.Position.X, movable.Position.Y)
+                    : null);
         }
 
         /// <summary>
@@ -48,12 +58,18 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
             ArgumentNullException.ThrowIfNull(obj);
 
             return CreateMatrix(
-                obj is ISelectionResizable2 resizable ? resizable.Size : null,
-                obj is ISelectionScalable2 scalable ? scalable.Scale : null,
+                obj is ISelectionResizable2 resizable
+                    ? resizable.Size
+                    : null,
+                obj is ISelectionScalable2 scalable
+                    ? scalable.Scale
+                    : null,
                 obj is ISelectionRotatable2 rotatable
                     ? (rotatable.Rotation, rotatable.RotationPivot)
                     : null,
-                obj is ISelectionMovable2 movable ? movable.Position : null);
+                obj is ISelectionMovable2 movable
+                    ? new Point2(movable.Position.X, movable.Position.Y)
+                    : null);
         }
 
         /// <summary>
@@ -83,7 +99,7 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
                     ? (rotatable.Rotation, rotatable.RotationPivot)
                     : null,
                 definition is ISelectionMovable2Definition movable
-                    ? movable.Position
+                    ? new Point2(movable.Position.X, movable.Position.Y)
                     : null);
         }
 
@@ -114,15 +130,33 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
                     ? (rotatable.Rotation, rotatable.RotationPivot)
                     : null,
                 definition is ISelectionMovable2Definition movable
-                    ? movable.Position
+                    ? new Point2(movable.Position.X, movable.Position.Y)
                     : null);
         }
 
+        /// <summary>
+        /// Creates a transformation matrix from the specified selection properties.
+        /// </summary>
+        /// <param name="size">
+        /// The size of the selection target.
+        /// </param>
+        /// <param name="scale">
+        /// The scale applied to the selection target.
+        /// </param>
+        /// <param name="rotation">
+        /// The rotation and normalized rotation pivot of the selection target.
+        /// </param>
+        /// <param name="position">
+        /// The position of the selection target.
+        /// </param>
+        /// <returns>
+        /// The resulting transformation matrix.
+        /// </returns>
         private static Matrix CreateMatrix(
-    Size2? size,
-    Vector2? scale,
-    (float Rotation, Vector2 Pivot)? rotation,
-    Vector2? position)
+            Size2? size,
+            Vector2? scale,
+            (float Rotation, Vector2 Pivot)? rotation,
+            Point2? position)
         {
             var matrix = Matrix.Identity;
 
@@ -151,7 +185,9 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
 
             if (rotation.HasValue)
             {
-                var pivot = actualSize * rotation.Value.Pivot;
+                var pivot =
+                    actualSize *
+                    rotation.Value.Pivot;
 
                 matrix *= Matrix.CreateTranslation(
                     new Vector3(
@@ -171,18 +207,36 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
             {
                 matrix *= Matrix.CreateTranslation(
                     new Vector3(
-                        position.Value,
+                        position.Value.ToVector2(),
                         0f));
             }
 
             return matrix;
         }
 
+        /// <summary>
+        /// Creates a transformation matrix from the specified definition properties.
+        /// </summary>
+        /// <param name="size">
+        /// The size defined by the selection target definition.
+        /// </param>
+        /// <param name="scale">
+        /// The scale defined by the selection target definition.
+        /// </param>
+        /// <param name="rotation">
+        /// The rotation and rotation pivot defined by the selection target definition.
+        /// </param>
+        /// <param name="position">
+        /// The position defined by the selection target definition.
+        /// </param>
+        /// <returns>
+        /// The resulting transformation matrix.
+        /// </returns>
         private static Matrix CreateDefinitionMatrix(
             Size2? size,
             Vector2? scale,
-            (float Rotation, Vector2 Pivot)? rotation,
-            Vector2? position)
+            (float Rotation, Point2 Pivot)? rotation,
+            Point2? position)
         {
             var matrix = Matrix.Identity;
 
@@ -211,7 +265,9 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
 
             if (rotation.HasValue)
             {
-                var pivot = actualSize * rotation.Value.Pivot;
+                var pivot =
+                    actualSize *
+                    rotation.Value.Pivot.ToVector2();
 
                 matrix *= Matrix.CreateTranslation(
                     new Vector3(
@@ -231,7 +287,7 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
             {
                 matrix *= Matrix.CreateTranslation(
                     new Vector3(
-                        position.Value,
+                        position.Value.ToVector2(),
                         0f));
             }
 

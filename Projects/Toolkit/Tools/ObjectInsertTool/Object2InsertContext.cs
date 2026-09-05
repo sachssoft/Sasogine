@@ -3,31 +3,30 @@ using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Components.Tools
 {
-
     /// <summary>
-    /// Provides information about an object insertion operation.
+    /// Provides information about a 2D object insertion operation.
     /// </summary>
-    public sealed class ObjectInsertContext
+    public sealed class Object2InsertContext
     {
         /// <summary>
-        /// Gets the final insertion position.
+        /// Gets the final position of the inserted object.
         /// </summary>
-        public Vector2 Position { get; init; }
+        public Point2 Position { get; init; }
 
         /// <summary>
-        /// Gets the final insertion size.
+        /// Gets the final size of the inserted object.
         /// </summary>
         public Size2 Size { get; init; }
 
         /// <summary>
-        /// Gets the position where the insertion operation started.
+        /// Gets the position where the drag operation started.
         /// </summary>
-        public Vector2 StartPosition { get; init; }
+        public Vector2 DragStart { get; init; }
 
         /// <summary>
-        /// Gets the position where the insertion operation ended.
+        /// Gets the position where the drag operation ended.
         /// </summary>
-        public Vector2 EndPosition { get; init; }
+        public Vector2 DragEnd { get; init; }
 
         /// <summary>
         /// Gets a value indicating whether the insertion was performed by dragging.

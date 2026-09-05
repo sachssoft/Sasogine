@@ -77,7 +77,7 @@ public sealed class SelectionToolLayerContext
     public bool EnablePivotSnap { get; }
 
     /// <summary>
-    /// Gets the normalized step used for pivot snapping.
+    /// Gets the normalized pivot snapping step for each axis.
     /// </summary>
     public Vector2 PivotSnapStep { get; }
 

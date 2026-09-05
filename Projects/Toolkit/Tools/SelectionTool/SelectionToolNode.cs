@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Components.Tools.Selection;
 
@@ -52,7 +51,7 @@ public sealed class SelectionToolNode
     /// </param>
     public SelectionToolNode(
         SelectionToolNodeShape shape,
-        Vector2 position,
+        Point2 position,
         Size2 size,
         bool isVisible = true,
         float opacity = 1f)
@@ -70,7 +69,7 @@ public sealed class SelectionToolNode
     /// <summary>
     /// Gets or sets the position of the node relative to its selection target.
     /// </summary>
-    public Vector2 Position { get; set; }
+    public Point2 Position { get; set; }
 
     /// <summary>
     /// Gets or sets the size of the node.

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Components.Tools.Selection;
 using System;
 using System.Collections.Generic;
 
@@ -321,7 +322,7 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
         ISelectionTarget2Definition? definition,
         out Size2 size,
         out float rotation,
-        out Vector2 pivot)
+        out Point2 pivot)
     {
         if (target != null)
             size = target.Size;
@@ -331,12 +332,12 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
             size = Size2.Zero;
 
         rotation = 0f;
-        pivot = new Vector2(0.5f);
+        pivot = new Point2(0.5f);
 
         if (target is ISelectionRotatable2 rotatable)
         {
             rotation = rotatable.Rotation;
-            pivot = rotatable.RotationPivot;
+            pivot = new Point2(rotatable.RotationPivot.X, rotatable.RotationPivot.Y);
         }
         else if (definition is ISelectionRotatable2Definition rotatableDefinition)
         {
