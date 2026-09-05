@@ -19,8 +19,14 @@ All notable changes to this project will be documented in this file.
 
 </small>
 
+## [0.2.0-alpha] - Planned
+- [Feature] **Toolkit**: Added `SelectionTool` for selecting and transforming objects.
+
+## [0.1.1-alpha] - In progress
+- [Feature] Enhanced `EntityCollection` with generic type support.
+- [Change] Corrected API types, for example by replacing `Vector2` with `Point2` for position values.
+
 ## [0.1.0-alpha] - In progress
-- [Feature] **Toolkit**: Added `VectorPathTool` for creating and editing vector paths.
 - [Feature] **Toolkit**: Added `SelectionTool` for selecting and transforming objects.
 - [Feature] **Toolkit**: Added `ObjectInsertTool` for creating and placing objects.
 - [Feature] Added `ThreadSafeLazy<T>` for thread-safe lazy initialization.
@@ -32,6 +38,15 @@ All notable changes to this project will be documented in this file.
 - [Feature] Introduced `ToolContext` and `ToolInteractions` for shared tool state and standardized interaction mappings.
 - [Feature] Added composable transform definition interfaces, including `ITransformMovable2Definition` and `ITransformRotatable2Definition`.
 - [Change] Updated `IInteraction.Update` with `SceneUpdateContext` for component service integration.
+- [Change] Reworked the input interaction system with `SceneUpdateContext` updates and a new interaction listener.
+- [Change] Renamed `AxisInput<TAxis>` to `Axis<TAxis>`.
+- [Change] Moved scheduling utilities from Features to `Common.Schedule` and updated scheduling operations to use `GameTime` and `SceneUpdateContext`.
+- [Change] Refactored engine object lifecycle, asset loading, and game contexts.
+- [Change] Updated `Path` to use `Box2` for polygon and path bounds.
+- [Change] Removed `BoundingBox2D` and replaced it with `Box2` and `Bounds2`.
+- [Improve] Improved geometry utilities and shape path generation.
+- [Improve] Improved input handling with boxing-free enum conversion and reduced LINQ usage in performance-critical paths.
+- [Improve] Refactored input state wrappers, mouse/touch handling, shortcuts, and vibration support.
 - [Improve] Refactored `ToolComponentBase` to use shared component services and unified tool interaction and cursor handling.
 - [Improve] Enhanced `ValueBuffer<T>` with operators and value conversions.
 - [Improve] Optimized `DirectLazy<T>` for lightweight lazy initialization.
@@ -39,6 +54,7 @@ All notable changes to this project will be documented in this file.
 - [Improve] Refined `CulturedValue<T>` with optimized immutable modifications, fallback support, and reliable culture-specific lookup.
 - [Improve] Updated `EngineObjectBase` with safer idempotent freezing.
 - [Improve] Optimized `EngineObjectManager` with indexed ID lookup and safer registration handling.
+- [Improve] Improved geometry shape path generation and rounding.
 - [Improve] Strengthened `IdentifierFactory` with reliable identifier validation and creation.
 - [Improve] Refined common utilities with small fixes, optimizations, and corrections.
 - [Improve] Extended `VectorExtension` with additional vector operations and corrected projection calculations.
@@ -46,6 +62,15 @@ All notable changes to this project will be documented in this file.
 - [Improve] Unified component services under `IComponentService` and introduced `IUpdatableComponentService` for services participating in the update cycle.
 - [Improve] Updated selection definition interfaces to inherit from their corresponding transform definition interfaces, such as `ISelectionMovable2Definition : ITransformMovable2Definition`.
 - [Improve] Various minor improvements and optimizations across the codebase.
+- [Improve] Added `ISize2Definition` and `ISize3Definition` to provide shared size properties and avoid ambiguous interface member inheritance.
+- [Improve] Improved diagnostics and performance monitoring.
+- [Improve] Improved gameplay utilities, participant states, tiered scoring, difficulty, movement, and rotation direction definitions.
+- [Improve] Expanded vector and geometry path utilities.
+- [Improve] Improved shape path generation and geometry calculations.
+- [Bug] Fixed rectangle corner rounding calculations.
+- [Bug] Corrected scene viewport offsets.
+- [Bug] Fixed asset loading state handling.
+- [Bug] Prevented unsafe normalization of near-zero vectors.
 
 ## [0.0.5.1-alpha] - 2026-08-31
 - [Feature] Added support for the skew transform interface in selection tools.
