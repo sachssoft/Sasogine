@@ -133,9 +133,9 @@ internal sealed class SelectionToolRotationHelper
         SelectionToolNode node,
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition,
-        Vector2 cursorPosition,
-        Vector2 localCursorPosition,
-        Vector2 delta)
+        Point2 cursorPosition,
+        Point2 localCursorPosition,
+        Point2 delta)
     {
         if (ReferenceEquals(node, _pivotNode))
         {
@@ -171,11 +171,11 @@ internal sealed class SelectionToolRotationHelper
             target,
             definition);
 
-        if (delta == Vector2.Zero ||
+        if (delta == Point2.Zero ||
             !ReferenceEquals(_dragNode, node))
         {
             _dragNode = node;
-            _dragStartCursorPosition = cursorPosition;
+            _dragStartCursorPosition = cursorPosition.ToVector2();
             _dragStartRotation = currentRotation;
             return;
         }
@@ -215,7 +215,7 @@ internal sealed class SelectionToolRotationHelper
         SelectionToolLayerContext context,
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition,
-        Vector2 localCursorPosition)
+        Point2 localCursorPosition)
     {
         Size2 size;
         float rotation;
@@ -251,7 +251,7 @@ internal sealed class SelectionToolRotationHelper
             return;
         }
 
-        var newPivot = new Vector2(
+        var newPivot = new Point2(
             localCursorPosition.X / size.Width,
             localCursorPosition.Y / size.Height);
 
@@ -259,24 +259,30 @@ internal sealed class SelectionToolRotationHelper
         {
             if (context.PivotSnapStep.X > 0f)
             {
-                newPivot.X = MathF.Round(
-                    newPivot.X / context.PivotSnapStep.X) *
-                    context.PivotSnapStep.X;
+                newPivot = new Point2(
+                    MathF.Round(newPivot.X / context.PivotSnapStep.X) * context.PivotSnapStep.X,
+                    newPivot.Y);
+                //newPivot.X = MathF.Round(
+                //    newPivot.X / context.PivotSnapStep.X) *
+                //    context.PivotSnapStep.X;
             }
 
             if (context.PivotSnapStep.Y > 0f)
             {
-                newPivot.Y = MathF.Round(
-                    newPivot.Y / context.PivotSnapStep.Y) *
-                    context.PivotSnapStep.Y;
+                newPivot = new Point2(
+                    newPivot.X,
+                    MathF.Round(newPivot.Y / context.PivotSnapStep.Y) * context.PivotSnapStep.Y);
+                //newPivot.Y = MathF.Round(
+                //    newPivot.Y / context.PivotSnapStep.Y) *
+                //    context.PivotSnapStep.Y;
             }
         }
 
-        var oldPivotPosition = new Vector2(
+        var oldPivotPosition = new Point2(
             size.Width * oldPivot.X,
             size.Height * oldPivot.Y);
 
-        var newPivotPosition = new Vector2(
+        var newPivotPosition = new Point2(
             size.Width * newPivot.X,
             size.Height * newPivot.Y);
 
@@ -287,7 +293,7 @@ internal sealed class SelectionToolRotationHelper
         float cos = MathF.Cos(rotation);
         float sin = MathF.Sin(rotation);
 
-        var rotatedPivotDelta = new Vector2(
+        var rotatedPivotDelta = new Point2(
             pivotDelta.X * cos - pivotDelta.Y * sin,
             pivotDelta.X * sin + pivotDelta.Y * cos);
 
@@ -298,7 +304,7 @@ internal sealed class SelectionToolRotationHelper
         if (target is ISelectionRotatable2 targetRotatable &&
             targetRotatable.AllowRotate)
         {
-            targetRotatable.RotationPivot = new Vector2(newPivot.X, newPivot.Y);
+            targetRotatable.RotationPivot = new Point2(newPivot.X, newPivot.Y);
 
             if (target is ISelectionMovable2 movable &&
                 movable.AllowMove)
@@ -316,13 +322,13 @@ internal sealed class SelectionToolRotationHelper
         }
     }
 
-    private static Vector2 GetPivotWorldPosition(
+    private static Point2 GetPivotWorldPosition(
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
     {
-        Vector2 position = Vector2.Zero;
-        Size2 size = Size2.Zero;
-        Point2 pivot = new Point2(0.5f);
+        var position = Point2.Zero;
+        var size = Size2.Zero;
+        var pivot = new Point2(0.5f);
 
         if (target != null)
         {
@@ -345,7 +351,7 @@ internal sealed class SelectionToolRotationHelper
                 pivot = new Point2(rotatableDefinition.RotationPivot.X, rotatableDefinition.RotationPivot.Y);
         }
 
-        return position + new Vector2(
+        return position + new Point2(
             size.Width * pivot.X,
             size.Height * pivot.Y);
     }

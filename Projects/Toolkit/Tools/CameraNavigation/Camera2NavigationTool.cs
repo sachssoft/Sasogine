@@ -18,9 +18,9 @@ public sealed class Camera2NavigationTool : ToolBase
 {
     private Camera2NavigationToolInteractions? _interactions;
     private ICursorState? _cursorState;
-    private ICamera2D? _camera;
-    private bool _isInViewport; 
-    
+    private ICamera2? _camera;
+    private bool _isInViewport;
+
     private Vector2 _previousScreenPosition;
     private bool _hasPreviousScreenPosition;
 
@@ -47,10 +47,10 @@ public sealed class Camera2NavigationTool : ToolBase
         {
             if (_hasPreviousScreenPosition)
             {
-                Vector2 movement =
-                    currentScreenPosition - _previousScreenPosition;
+                var movement = currentScreenPosition - _previousScreenPosition;
 
-                _camera.Position -= movement / _camera.Zoom;
+                var pos = movement / _camera.Zoom;
+                _camera.Position -= new Common.Point2(pos.X, pos.Y);
             }
 
             _previousScreenPosition = currentScreenPosition;
@@ -81,22 +81,24 @@ public sealed class Camera2NavigationTool : ToolBase
     protected override void ApplyContext(
         ToolContext context)
     {
-        _camera = context.Camera as ICamera2D;
+        _camera = context.Camera as ICamera2;
         _cursorState = context.CursorState;
         _interactions = context.Interactions as Camera2NavigationToolInteractions;
         _isInViewport = context.CursorState.IsInViewport;
     }
 
     private void ZoomAtCursor(
-        ICamera2D camera,
+        ICamera2 camera,
         float factor)
     {
-        Vector2 before = _cursorState!.GetWorldPosition(camera);
+        var before = _cursorState!.GetWorldPosition(camera);
 
         camera.Zoom *= factor;
 
-        Vector2 after = _cursorState.GetWorldPosition(camera);
+        var after = _cursorState.GetWorldPosition(camera);
 
-        camera.Position += before - after;
+        var pos = before - after;
+        //camera.Position += before - after;
+        camera.Position += new Common.Point2(pos.X, pos.Y);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Components.Tools.Selection;
 using System.Collections.Generic;
 
@@ -53,8 +54,8 @@ public sealed class SelectionToolMoveLayer : SelectionToolLayer
         ISelectionTarget2Definition? definition,
         IEnumerable<ISelectionTarget2>? otherSelectedTargets,
         IEnumerable<ISelectionTarget2Definition>? otherSelectedTargetDefinitions,
-        Vector2 cursorPosition,
-        Vector2 delta)
+        Point2 cursorPosition,
+        Point2 delta)
     {
         _move.OnNodeInteract(
             context,

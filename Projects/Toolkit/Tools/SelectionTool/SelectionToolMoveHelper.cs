@@ -8,8 +8,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection;
 
 internal sealed class SelectionToolMoveHelper
 {
-    private Vector2 _dragStartPosition;
-    private Vector2 _dragStartCursorPosition;
+    private Point2 _dragStartPosition;
+    private Point2 _dragStartCursorPosition;
     private bool _isDragging;
 
     public SelectionToolMoveHelper()
@@ -64,13 +64,13 @@ internal sealed class SelectionToolMoveHelper
         ISelectionTarget2Definition? definition,
         IEnumerable<ISelectionTarget2>? otherSelectedTargets,
         IEnumerable<ISelectionTarget2Definition>? otherSelectedTargetDefinitions,
-        Vector2 cursorPosition,
-        Vector2 delta)
+        Point2 cursorPosition,
+        Point2 delta)
     {
         if (!ReferenceEquals(node, Node))
             return;
 
-        Vector2 currentPosition;
+        Point2 currentPosition;
 
         if (target is ISelectionMovable2 movable && movable.AllowMove)
             currentPosition = movable.Position;
@@ -79,7 +79,7 @@ internal sealed class SelectionToolMoveHelper
         else
             return;
 
-        if (delta == Vector2.Zero)
+        if (delta == Point2.Zero)
         {
             _dragStartPosition = currentPosition;
             _dragStartCursorPosition = cursorPosition;
@@ -94,7 +94,7 @@ internal sealed class SelectionToolMoveHelper
             _isDragging = true;
         }
 
-        Vector2 newPosition;
+        Point2 newPosition;
 
         if (context.EnableGridSnap)
         {
@@ -105,12 +105,22 @@ internal sealed class SelectionToolMoveHelper
             var gridSize = context.GridSnapStep;
 
             if (gridSize.Width > 0f)
-                newPosition.X = MathF.Round(
-                    newPosition.X / gridSize.Width) * gridSize.Width;
+                newPosition = new Point2(
+                    MathF.Round(newPosition.X / gridSize.Width) * gridSize.Width,
+                    newPosition.Y
+                );
+
+            //newPosition.X = MathF.Round(
+            //    newPosition.X / gridSize.Width) * gridSize.Width;
 
             if (gridSize.Height > 0f)
-                newPosition.Y = MathF.Round(
-                    newPosition.Y / gridSize.Height) * gridSize.Height;
+                newPosition = new Point2(
+                    newPosition.X,
+                    MathF.Round(
+                    newPosition.Y / gridSize.Height) * gridSize.Height
+                );
+                //newPosition.Y = MathF.Round(
+                //    newPosition.Y / gridSize.Height) * gridSize.Height;
         }
         else
         {
@@ -119,7 +129,7 @@ internal sealed class SelectionToolMoveHelper
 
         var movement = newPosition - currentPosition;
 
-        if (movement == Vector2.Zero)
+        if (movement == Point2.Zero)
             return;
 
         if (target is ISelectionMovable2 movableTarget &&

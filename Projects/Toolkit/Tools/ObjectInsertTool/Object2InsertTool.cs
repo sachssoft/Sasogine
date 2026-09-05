@@ -173,11 +173,11 @@ public sealed class Object2InsertTool : ToolBase
 
         _lineBatch.AddLine(
             [
-                new Vector2(bounds.X, bounds.Y),
-                new Vector2(bounds.X + bounds.Width, bounds.Y),
-                new Vector2(bounds.X + bounds.Width, bounds.Y + bounds.Height),
-                new Vector2(bounds.X, bounds.Y + bounds.Height),
-                new Vector2(bounds.X, bounds.Y)
+                new Point2(bounds.X, bounds.Y),
+                new Point2(bounds.X + bounds.Width, bounds.Y),
+                new Point2(bounds.X + bounds.Width, bounds.Y + bounds.Height),
+                new Point2(bounds.X, bounds.Y + bounds.Height),
+                new Point2(bounds.X, bounds.Y)
             ],
             LineThickness);
 
@@ -332,8 +332,8 @@ public sealed class Object2InsertTool : ToolBase
             _insertEnd);
 
         return new Bounds2(
-            position,
-            maximum - position);
+            new Point2(position.X, position.Y),
+           new Size2(maximum - position));
     }
 
     private Vector2 SnapPosition(Vector2 position)

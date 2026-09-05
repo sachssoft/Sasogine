@@ -35,12 +35,12 @@ public class SelectionTool : ToolBase
     private readonly BasicShader _pointShader;
     private readonly BasicShader _fillShader;
 
-    private Vector2 _cursorPosition;
+    private Point2 _cursorPosition;
     private bool _isInViewport;
     //private SelectionToolInteractions? _interactions;
     private ToolInteractions? _interactions;
 
-    private Vector2 _lastCursorPosition;
+    private Point2 _lastCursorPosition;
     private SelectionToolNode? _selectedNode;
     private ISelectionTarget2? _activeTarget;
     private ISelectionTarget2Definition? _activeDefinition;
@@ -222,7 +222,8 @@ public class SelectionTool : ToolBase
     protected override void ApplyContext(ToolContext context)
     {
         _interactions = context.Interactions;
-        _cursorPosition = context.CursorState.GetWorldPosition(context.Camera);
+        var cpv = context.CursorState.GetWorldPosition(context.Camera);
+        _cursorPosition = new Point2(cpv.X, cpv.Y);
         _isInViewport = context.CursorState.IsInViewport;
     }
 
@@ -287,7 +288,7 @@ public class SelectionTool : ToolBase
         {
             if (_isAreaSelecting)
             {
-                _areaSelectionEnd = _cursorPosition;
+                _areaSelectionEnd = _cursorPosition.ToVector2();
             }
             else
             {
@@ -338,7 +339,7 @@ public class SelectionTool : ToolBase
                 GetOtherSelectedTargets(selectedTarget),
                 GetOtherSelectedTargetDefinitions(selectedDefinition),
                 _cursorPosition,
-                Vector2.Zero);
+                Point2.Zero);
 
             return;
         }
@@ -424,7 +425,7 @@ public class SelectionTool : ToolBase
             GetOtherSelectedTargets(target),
             GetOtherSelectedTargetDefinitions(definition),
             _cursorPosition,
-            Vector2.Zero);
+            Point2.Zero);
     }
 
     private void HandleActionReleased()
@@ -448,7 +449,7 @@ public class SelectionTool : ToolBase
         DeselectAll();
     }
 
-    private SelectionToolNode? HitTestNode(Vector2 position)
+    private SelectionToolNode? HitTestNode(Point2 position)
     {
         if (Layer == null)
             return null;
@@ -471,7 +472,7 @@ public class SelectionTool : ToolBase
     }
 
     private bool TryHitSelectedNode(
-        Vector2 position,
+        Point2 position,
         out SelectionToolNode? node,
         out ISelectionTarget2? target,
         out ISelectionTarget2Definition? definition)
@@ -532,7 +533,7 @@ public class SelectionTool : ToolBase
     }
 
     private bool IsInNode(
-        Vector2 position,
+        Point2 position,
         SelectionToolNode node,
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
@@ -674,20 +675,20 @@ public class SelectionTool : ToolBase
         return false;
     }
 
-    private Vector2 GetNodeWorldPosition(
+    private Point2 GetNodeWorldPosition(
         SelectionToolNode node,
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
     {
-        Vector2 position = Vector2.Zero;
+        var position = Point2.Zero;
 
         if (target is ISelectionMovable2 movable)
             position = movable.Position;
         else if (definition is ISelectionMovable2Definition movableDefinition)
             position = movableDefinition.Position;
 
-        var halfSize = node.Size.ToVector2() / 2f;
-        var point = node.Position.ToVector2() + halfSize;
+        var halfSize = node.Size / 2f;
+        var point = node.Position + halfSize.ToPoint2();
 
         if (Layer != null)
         {
@@ -697,7 +698,7 @@ public class SelectionTool : ToolBase
                 definition);
         }
 
-        return position + point - halfSize;
+        return position + point - new Point2(halfSize.Width, halfSize.Height);
     }
 
     /// <summary>
@@ -798,9 +799,9 @@ public class SelectionTool : ToolBase
     /// </param>
     protected virtual void DrawNode(
         SelectionToolNode node,
-        Vector2 position)
+        Point2 position)
     {
-        var size = node.Size.ToVector2();
+        var size = node.Size;
 
         switch (node.Shape)
         {
@@ -841,8 +842,8 @@ public class SelectionTool : ToolBase
     /// </param>
     protected virtual void DrawSelection(object obj)
     {
-        Vector2 position = Vector2.Zero;
-        Size2 size = Size2.Zero;
+        var position = Point2.Zero;
+        var size = Size2.Zero;
 
         ISelectionTarget2? target = null;
         ISelectionTarget2Definition? definition = null;
@@ -870,9 +871,9 @@ public class SelectionTool : ToolBase
 
         float offset = LineThickness / 2f;
 
-        Vector2 TransformPoint(float x, float y)
+        Point2 TransformPoint(float x, float y)
         {
-            var point = new Vector2(x, y);
+            var point = new Point2(x, y);
 
             if (Layer != null)
             {
@@ -928,11 +929,11 @@ public class SelectionTool : ToolBase
         _lineBatch.AddLine(
             new[]
             {
-            new Vector2(bounds.X, bounds.Y),
-            new Vector2(bounds.X + bounds.Width, bounds.Y),
-            new Vector2(bounds.X + bounds.Width, bounds.Y + bounds.Height),
-            new Vector2(bounds.X, bounds.Y + bounds.Height),
-            new Vector2(bounds.X, bounds.Y)
+            new Point2(bounds.X, bounds.Y),
+            new Point2(bounds.X + bounds.Width, bounds.Y),
+            new Point2(bounds.X + bounds.Width, bounds.Y + bounds.Height),
+            new Point2(bounds.X, bounds.Y + bounds.Height),
+            new Point2(bounds.X, bounds.Y)
             },
             LineThickness);
     }
@@ -1103,7 +1104,7 @@ public class SelectionTool : ToolBase
     /// A result containing all targets intersecting the specified position.
     /// </returns>
     public SelectionTargetHitTestResult HitTest(
-        Vector2 touchedPosition)
+        Point2 touchedPosition)
     {
         var targets = new List<object>();
 
@@ -1127,7 +1128,7 @@ public class SelectionTool : ToolBase
     }
 
     private bool IsInTarget(
-        Vector2 position,
+        Point2 position,
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
     {
@@ -1147,7 +1148,7 @@ public class SelectionTool : ToolBase
             return false;
         }
 
-        Vector2 targetPosition = Vector2.Zero;
+        var targetPosition = Point2.Zero;
 
         if (target is ISelectionMovable2 movable)
             targetPosition = movable.Position;
@@ -1187,13 +1188,13 @@ public class SelectionTool : ToolBase
     private void BeginAreaSelection()
     {
         _isAreaSelecting = true;
-        _areaSelectionStart = _cursorPosition;
-        _areaSelectionEnd = _cursorPosition;
+        _areaSelectionStart = _cursorPosition.ToVector2();
+        _areaSelectionEnd = _cursorPosition.ToVector2();
     }
 
     private void EndAreaSelection()
     {
-        _areaSelectionEnd = _cursorPosition;
+        _areaSelectionEnd = _cursorPosition.ToVector2();
 
         var bounds = GetAreaSelectionBounds();
 
@@ -1228,8 +1229,8 @@ public class SelectionTool : ToolBase
             _areaSelectionEnd);
 
         return new Bounds2(
-            min,
-            max - min);
+            new Point2(min.X, min.Y),
+           new Size2(max - min));
     }
 
     private bool IsInAreaSelection(
@@ -1247,16 +1248,16 @@ public class SelectionTool : ToolBase
             target?.Size ??
             definition!.Size;
 
-        Vector2 position = Vector2.Zero;
+        var position = Point2.Zero;
 
         if (target is ISelectionMovable2 movable)
             position = movable.Position;
         else if (definition is ISelectionMovable2Definition movableDefinition)
             position = movableDefinition.Position;
 
-        Vector2 TransformPoint(float x, float y)
+        Point2 TransformPoint(float x, float y)
         {
-            var point = new Vector2(x, y);
+            var point = new Point2(x, y);
 
             if (Layer != null)
             {
@@ -1269,10 +1270,10 @@ public class SelectionTool : ToolBase
             return position + point;
         }
 
-        var topLeft = TransformPoint(0f, 0f);
-        var topRight = TransformPoint(size.Width, 0f);
-        var bottomRight = TransformPoint(size.Width, size.Height);
-        var bottomLeft = TransformPoint(0f, size.Height);
+        var topLeft = TransformPoint(0f, 0f).ToVector2();
+        var topRight = TransformPoint(size.Width, 0f).ToVector2();
+        var bottomRight = TransformPoint(size.Width, size.Height).ToVector2();
+        var bottomLeft = TransformPoint(0f, size.Height).ToVector2();
 
         var min = Vector2.Min(
             Vector2.Min(topLeft, topRight),

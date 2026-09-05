@@ -98,8 +98,8 @@ public abstract class SelectionToolLayer
         ISelectionTarget2Definition? definition,
         IEnumerable<ISelectionTarget2>? otherSelectedTargets,
         IEnumerable<ISelectionTarget2Definition>? otherSelectedTargetDefinitions,
-        Vector2 cursorPosition,
-        Vector2 delta)
+        Point2 cursorPosition,
+        Point2 delta)
     {
     }
 
@@ -119,8 +119,8 @@ public abstract class SelectionToolLayer
     /// <returns>
     /// The transformed local point.
     /// </returns>
-    protected internal virtual Vector2 Transform(
-        Vector2 point,
+    protected internal virtual Point2 Transform(
+        Point2 point,
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
     {
@@ -143,8 +143,8 @@ public abstract class SelectionToolLayer
     /// <returns>
     /// The point in the target's untransformed local coordinate space.
     /// </returns>
-    protected internal virtual Vector2 InverseTransform(
-        Vector2 point,
+    protected internal virtual Point2 InverseTransform(
+        Point2 point,
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
     {
@@ -207,11 +207,11 @@ public abstract class SelectionToolLayer
     /// otherwise, <see langword="false"/>.
     /// </returns>
     protected internal virtual bool HitTestNode(
-        Vector2 position,
+        Point2 position,
         SelectionToolNode node,
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition,
-        Vector2 nodeWorldPosition)
+        Point2 nodeWorldPosition)
     {
         return position.X >= nodeWorldPosition.X &&
                position.X <= nodeWorldPosition.X + node.Size.Width &&

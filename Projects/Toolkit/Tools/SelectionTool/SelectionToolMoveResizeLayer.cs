@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Components.Tools.Selection;
 using System.Collections.Generic;
 
@@ -68,8 +69,8 @@ public sealed class SelectionToolMoveResizeLayer : SelectionToolLayer
         ISelectionTarget2Definition? definition,
         IEnumerable<ISelectionTarget2>? otherSelectedTargets,
         IEnumerable<ISelectionTarget2Definition>? otherSelectedTargetDefinitions,
-        Vector2 cursorPosition,
-        Vector2 delta)
+        Point2 cursorPosition,
+        Point2 delta)
     {
         if (_move.AllowHandle(
             node,
@@ -130,7 +131,7 @@ public sealed class SelectionToolMoveResizeLayer : SelectionToolLayer
     /// The current target position, or <see cref="Vector2.Zero"/> if the target
     /// does not provide movable behavior.
     /// </returns>
-    private static Vector2 GetPosition(
+    private static Point2 GetPosition(
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
     {
@@ -140,7 +141,7 @@ public sealed class SelectionToolMoveResizeLayer : SelectionToolLayer
         if (definition is ISelectionMovable2Definition movableDefinition)
             return movableDefinition.Position;
 
-        return Vector2.Zero;
+        return Point2.Zero;
     }
 
     /// <summary>
@@ -164,10 +165,10 @@ public sealed class SelectionToolMoveResizeLayer : SelectionToolLayer
         if (target is ISelectionMovable2 movable &&
             movable.AllowMove)
         {
-            movable.Position += offset;
+            movable.Position += new Point2(offset.X, offset.Y);
         }
 
         if (definition is ISelectionMovable2Definition movableDefinition)
-            movableDefinition.Position += offset;
+            movableDefinition.Position += new Point2(offset.X, offset.Y);
     }
 }

@@ -84,8 +84,8 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
         ISelectionTarget2Definition? definition,
         IEnumerable<ISelectionTarget2>? otherSelectedTargets,
         IEnumerable<ISelectionTarget2Definition>? otherSelectedTargetDefinitions,
-        Vector2 cursorPosition,
-        Vector2 delta)
+        Point2 cursorPosition,
+        Point2 delta)
     {
         if (_move.AllowHandle(
             node,
@@ -174,8 +174,8 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
     }
 
     /// <inheritdoc/>
-    protected internal override Vector2 Transform(
-        Vector2 point,
+    protected internal override Point2 Transform(
+        Point2 point,
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
     {
@@ -186,7 +186,7 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
             out var rotation,
             out var pivot);
 
-        var pivotPosition = new Vector2(
+        var pivotPosition = new Point2(
             size.Width * pivot.X,
             size.Height * pivot.Y);
 
@@ -197,14 +197,14 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
         float cos = MathF.Cos(rotation);
         float sin = MathF.Sin(rotation);
 
-        return pivotPosition + new Vector2(
+        return pivotPosition + new Point2(
             relative.X * cos - relative.Y * sin,
             relative.X * sin + relative.Y * cos);
     }
 
     /// <inheritdoc/>
-    protected internal override Vector2 InverseTransform(
-        Vector2 point,
+    protected internal override Point2 InverseTransform(
+        Point2 point,
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
     {
@@ -215,7 +215,7 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
             out var rotation,
             out var pivot);
 
-        var pivotPosition = new Vector2(
+        var pivotPosition = new Point2(
             size.Width * pivot.X,
             size.Height * pivot.Y);
 
@@ -224,7 +224,7 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
         float cos = MathF.Cos(rotation);
         float sin = MathF.Sin(rotation);
 
-        return pivotPosition + new Vector2(
+        return pivotPosition + new Point2(
             relative.X * cos + relative.Y * sin,
             -relative.X * sin + relative.Y * cos);
     }
@@ -273,11 +273,11 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
 
     /// <inheritdoc/>
     protected internal override bool HitTestNode(
-        Vector2 position,
+        Point2 position,
         SelectionToolNode node,
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition,
-        Vector2 nodeWorldPosition)
+        Point2 nodeWorldPosition)
     {
         if (!ReferenceEquals(node, _move.Node))
         {
@@ -304,7 +304,7 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
                localPosition.Y <= node.Position.Y + node.Size.Height;
     }
 
-    private static Vector2 GetPosition(
+    private static Point2 GetPosition(
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
     {
@@ -314,7 +314,7 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
         if (definition is ISelectionMovable2Definition movableDefinition)
             return movableDefinition.Position;
 
-        return Vector2.Zero;
+        return Point2.Zero;
     }
 
     private static void GetRotation(
@@ -354,10 +354,10 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
         if (target is ISelectionMovable2 movable &&
             movable.AllowMove)
         {
-            movable.Position += offset;
+            movable.Position += new Point2(offset.X, offset.Y);
         }
 
         if (definition is ISelectionMovable2Definition movableDefinition)
-            movableDefinition.Position += offset;
+            movableDefinition.Position += new Point2(offset.X, offset.Y);
     }
 }

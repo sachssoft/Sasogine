@@ -155,7 +155,7 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         private static Matrix CreateMatrix(
             Size2? size,
             Vector2? scale,
-            (float Rotation, Vector2 Pivot)? rotation,
+            (float Rotation, Point2 Pivot)? rotation,
             Point2? position)
         {
             var matrix = Matrix.Identity;
@@ -187,7 +187,7 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
             {
                 var pivot =
                     actualSize *
-                    rotation.Value.Pivot;
+                    rotation.Value.Pivot.ToVector2();
 
                 matrix *= Matrix.CreateTranslation(
                     new Vector3(

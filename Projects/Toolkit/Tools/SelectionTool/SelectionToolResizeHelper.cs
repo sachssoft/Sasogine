@@ -123,8 +123,8 @@ internal sealed class SelectionToolResizeHelper
         SelectionToolNode node,
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition,
-        Vector2 cursorPosition,
-        Vector2 delta,
+        Point2 cursorPosition,
+        Point2 delta,
         out Vector2 originOffset,
         out Size2 oldSize,
         out Size2 newSize)
@@ -152,7 +152,7 @@ internal sealed class SelectionToolResizeHelper
             return false;
         }
 
-        if (delta == Vector2.Zero ||
+        if (delta == Point2.Zero ||
             !ReferenceEquals(_dragNode, node))
         {
             _dragNode = node;
@@ -162,7 +162,7 @@ internal sealed class SelectionToolResizeHelper
             return false;
         }
 
-        _dragOffset += delta;
+        _dragOffset += delta.ToVector2();
 
         float left = 0f;
         float top = 0f;
