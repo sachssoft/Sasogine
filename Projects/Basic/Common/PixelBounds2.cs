@@ -51,22 +51,23 @@ public readonly struct PixelBounds2 : IEquatable<PixelBounds2>
     }
 
     /// <summary>
-    /// Initializes a new instance from a position and a pixel size represented
-    /// by <see cref="Point"/> values.
+    /// Initializes a new instance from a pixel position and pixel size.
     /// </summary>
     /// <param name="position">
-    /// The position of the top-left corner.
+    /// The pixel position of the top-left corner.
     /// </param>
     /// <param name="size">
     /// The width and height in pixels.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public PixelBounds2(Point position, Point size)
+    public PixelBounds2(
+        PixelPoint2 position,
+        PixelSize2 size)
     {
         _left = position.X;
         _top = position.Y;
-        _right = position.X + size.X;
-        _bottom = position.Y + size.Y;
+        _right = position.X + size.Width;
+        _bottom = position.Y + size.Height;
     }
 
     /// <summary>
@@ -112,12 +113,12 @@ public readonly struct PixelBounds2 : IEquatable<PixelBounds2>
     /// <summary>
     /// Gets the size of the bounds in pixels.
     /// </summary>
-    public Point Size => new Point(Width, Height);
+    public PixelSize2 Size => new(Width, Height);
 
     /// <summary>
-    /// Gets the top-left position of the bounds.
+    /// Gets the top-left pixel position of the bounds.
     /// </summary>
-    public Point Location => new Point(_left, _top);
+    public PixelPoint2 Location => new(_left, _top);
 
     /// <summary>
     /// Converts this pixel bounds to a <see cref="PixelBox2"/>.
@@ -202,7 +203,7 @@ public readonly struct PixelBounds2 : IEquatable<PixelBounds2>
     /// Determines whether the specified pixel position is contained within
     /// these bounds.
     /// </summary>
-    /// <param name="pos">
+    /// <param name="position">
     /// The pixel position to test.
     /// </param>
     /// <returns>
@@ -214,9 +215,11 @@ public readonly struct PixelBounds2 : IEquatable<PixelBounds2>
     /// are exclusive.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Contains(in Point pos)
-        => pos.X >= _left && pos.X < _right &&
-           pos.Y >= _top && pos.Y < _bottom;
+    public bool Contains(in PixelPoint2 position)
+        => position.X >= _left &&
+           position.X < _right &&
+           position.Y >= _top &&
+           position.Y < _bottom;
 
     /// <summary>
     /// Creates a new pixel bounds offset by the specified pixel delta.

@@ -76,7 +76,7 @@ public readonly struct Coordinate2
     }
 
     /// <summary>Erstellt eine Koordinate aus einem MonoGame Point.</summary>
-    public Coordinate2(Point point)
+    public Coordinate2(PixelPoint2 point)
     {
         X = point.X;
         Y = point.Y;
@@ -155,7 +155,7 @@ public readonly struct Coordinate2
     /// Odd tile sizes snap to the containing tile.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Coordinate2 Snap(Vector2 position, Size2 tileSize)
+    public static Coordinate2 Snap(Point2 position, Size2 tileSize)
     {
         int x = tileSize.Width % 2 == 0 ?
             (int)float.Round(position.X / tileSize.Width) :
@@ -172,7 +172,7 @@ public readonly struct Coordinate2
     /// Converts a world position into the containing grid cell.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Coordinate2 Floor(Vector2 position, Size2 tileSize)
+    public static Coordinate2 Floor(Point2 position, Size2 tileSize)
     {
         int x = (int)float.Floor(position.X / tileSize.Width);
         int y = (int)float.Floor(position.Y / tileSize.Height);
@@ -184,7 +184,7 @@ public readonly struct Coordinate2
     /// Converts a world position into the nearest grid cell.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Coordinate2 Round(Vector2 position, Size2 tileSize)
+    public static Coordinate2 Round(Point2 position, Size2 tileSize)
     {
         int x = (int)float.Round(position.X / tileSize.Width);
         int y = (int)float.Round(position.Y / tileSize.Height);
@@ -196,7 +196,7 @@ public readonly struct Coordinate2
     /// Converts a world position into the next grid cell.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Coordinate2 Ceiling(Vector2 position, Size2 tileSize)
+    public static Coordinate2 Ceiling(Point2 position, Size2 tileSize)
     {
         int x = (int)float.Ceiling(position.X / tileSize.Width);
         int y = (int)float.Ceiling(position.Y / tileSize.Height);
@@ -205,21 +205,17 @@ public readonly struct Coordinate2
     }
 
     /// <summary>
-    /// Rotates the coordinate 90 degrees clockwise.
+    /// Gets the center position of this coordinate using the specified tile size.
     /// </summary>
+    /// <param name="tileSize">The tile size.</param>
+    /// <returns>The center position of the grid cell.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Vector2 Center(Size2 tileSize)
+    public Point2 Center(Size2 tileSize)
     {
-        return new Vector2(
+        return new Point2(
             (X + 0.5f) * tileSize.Width,
             (Y + 0.5f) * tileSize.Height);
     }
-
-    /// <summary>
-    /// Converts this coordinate into a MonoGame Point.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Point ToPoint() => new(X, Y);
 
     /// <summary>
     /// Converts this coordinate into a Vector2 in grid space.
@@ -296,6 +292,74 @@ public readonly struct Coordinate2
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector3 ToVector3(Size2 tileSize, float layer)
         => new(X * tileSize.Width, Y * tileSize.Height, layer);
+
+    /// <summary>
+    /// Converts this coordinate into a <see cref="PixelPoint2"/> position
+    /// using a uniform pixel tile size.
+    /// </summary>
+    /// <param name="tileSize">The uniform tile size in pixels.</param>
+    /// <returns>The resulting pixel position.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public PixelPoint2 ToPixelPoint2(int tileSize)
+        => new(X * tileSize, Y * tileSize);
+
+    /// <summary>
+    /// Converts this coordinate into a <see cref="Point2"/> position
+    /// using a uniform floating-point tile size.
+    /// </summary>
+    /// <param name="tileSize">The uniform tile size.</param>
+    /// <returns>The resulting position.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Point2 ToPoint2(float tileSize)
+        => new(X * tileSize, Y * tileSize);
+
+    /// <summary>
+    /// Converts this coordinate into a <see cref="Point2"/> position
+    /// using the specified tile size.
+    /// </summary>
+    /// <param name="tileSize">The tile size.</param>
+    /// <returns>The resulting position.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Point2 ToPoint2(Size2 tileSize)
+        => new(
+            X * tileSize.Width,
+            Y * tileSize.Height);
+
+    /// <summary>
+    /// Converts this coordinate into a <see cref="PixelPoint2"/> position
+    /// using the specified pixel tile size.
+    /// </summary>
+    /// <param name="tileSize">The tile size in pixels.</param>
+    /// <returns>The resulting pixel position.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public PixelPoint2 ToPixelPoint2(PixelSize2 tileSize)
+        => new(
+            X * tileSize.Width,
+            Y * tileSize.Height);
+
+    /// <summary>
+    /// Converts this coordinate into a <see cref="Point3"/> position
+    /// using the specified layer as the Z coordinate.
+    /// </summary>
+    /// <param name="layer">The Z coordinate.</param>
+    /// <returns>The resulting three-dimensional position.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Point3 ToPoint3(float layer)
+        => new(X, Y, layer);
+
+    /// <summary>
+    /// Converts this coordinate into a <see cref="Point3"/> position
+    /// using the specified tile size and layer.
+    /// </summary>
+    /// <param name="tileSize">The tile size.</param>
+    /// <param name="layer">The Z coordinate.</param>
+    /// <returns>The resulting three-dimensional position.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Point3 ToPoint3(Size2 tileSize, float layer)
+        => new(
+            X * tileSize.Width,
+            Y * tileSize.Height,
+            layer);
 
     /// <summary>
     /// Converts this coordinate into a linear array index.
@@ -528,14 +592,16 @@ public readonly struct Coordinate2
     public static Coordinate2 operator /(Coordinate2 v, int s) => new(v.X / s, v.Y / s);
 
     /// <summary>
-    /// Converts a Point into a Coordinate2.
+    /// Converts a <see cref="PixelPoint2"/> into a <see cref="Coordinate2"/>.
     /// </summary>
-    public static implicit operator Coordinate2(Point p) => new(p.X, p.Y);
+    public static implicit operator Coordinate2(PixelPoint2 point)
+        => new(point.X, point.Y);
 
     /// <summary>
-    /// Converts a Coordinate2 into a Point.
+    /// Converts a <see cref="Coordinate2"/> into a <see cref="PixelPoint2"/>.
     /// </summary>
-    public static explicit operator Point(Coordinate2 c) => new(c.X, c.Y);
+    public static explicit operator PixelPoint2(Coordinate2 coordinate)
+        => new(coordinate.X, coordinate.Y);
 
     /// <summary>
     /// Converts a Vector2 into a Coordinate2.

@@ -68,12 +68,12 @@ public readonly struct Box3 : IEquatable<Box3>
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Box3"/> structure
-    /// from minimum and maximum position vectors.
+    /// from minimum and maximum position points.
     /// </summary>
     /// <param name="min">The minimum coordinates of the box.</param>
     /// <param name="max">The maximum coordinates of the box.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Box3(Vector3 min, Vector3 max)
+    public Box3(Point3 min, Point3 max)
         : this(min.X, min.Y, min.Z, max.X, max.Y, max.Z)
     {
     }
@@ -126,12 +126,12 @@ public readonly struct Box3 : IEquatable<Box3>
     /// <summary>
     /// Gets the minimum coordinates of the box.
     /// </summary>
-    public Vector3 Min => new Vector3(_minX, _minY, _minZ);
+    public Point3 Min => new Point3(_minX, _minY, _minZ);
 
     /// <summary>
     /// Gets the maximum coordinates of the box.
     /// </summary>
-    public Vector3 Max => new Vector3(_maxX, _maxY, _maxZ);
+    public Point3 Max => new Point3(_maxX, _maxY, _maxZ);
 
     /// <summary>
     /// Converts this <see cref="Box3"/> to a <see cref="Bounds3"/>.
@@ -182,7 +182,7 @@ public readonly struct Box3 : IEquatable<Box3>
     /// are exclusive.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Contains(in Vector3 v)
+    public bool Contains(in Point3 v)
         => v.X >= _minX && v.X < _maxX
         && v.Y >= _minY && v.Y < _maxY
         && v.Z >= _minZ && v.Z < _maxZ;

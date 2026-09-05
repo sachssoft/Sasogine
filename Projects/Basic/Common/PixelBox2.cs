@@ -44,13 +44,15 @@ public readonly struct PixelBox2 : IEquatable<PixelBox2>
     }
 
     /// <summary>
-    /// Initializes a new instance from minimum and maximum positions.
+    /// Initializes a new instance from minimum and maximum pixel positions.
     /// </summary>
-    /// <param name="min">The minimum position.</param>
-    /// <param name="max">The maximum position.</param>
+    /// <param name="min">The minimum pixel position.</param>
+    /// <param name="max">The maximum pixel position.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public PixelBox2(Point min, Point max)
-        : this(min.X, min.Y, max.X, max.Y) { }
+    public PixelBox2(PixelPoint2 min, PixelPoint2 max)
+        : this(min.X, min.Y, max.X, max.Y)
+    {
+    }
 
     /// <summary>
     /// Gets the minimum X coordinate.
@@ -83,14 +85,14 @@ public readonly struct PixelBox2 : IEquatable<PixelBox2>
     public int Height => _maxY - _minY;
 
     /// <summary>
-    /// Gets the minimum position of the pixel box.
+    /// Gets the minimum pixel position of the box.
     /// </summary>
-    public Point Min => new Point(_minX, _minY);
+    public PixelPoint2 Min => new(_minX, _minY);
 
     /// <summary>
-    /// Gets the maximum position of the pixel box.
+    /// Gets the maximum pixel position of the box.
     /// </summary>
-    public Point Max => new Point(_maxX, _maxY);
+    public PixelPoint2 Max => new(_maxX, _maxY);
 
     /// <summary>
     /// Converts this pixel box to pixel bounds.
@@ -132,7 +134,7 @@ public readonly struct PixelBox2 : IEquatable<PixelBox2>
     /// Determines whether the specified pixel position is contained within
     /// this box.
     /// </summary>
-    /// <param name="p">The pixel position to test.</param>
+    /// <param name="point">The pixel position to test.</param>
     /// <returns>
     /// <see langword="true"/> if the position is contained within the box;
     /// otherwise, <see langword="false"/>.
@@ -142,11 +144,11 @@ public readonly struct PixelBox2 : IEquatable<PixelBox2>
     /// are exclusive.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Contains(in Point p)
-        => p.X >= _minX &&
-           p.X < _maxX &&
-           p.Y >= _minY &&
-           p.Y < _maxY;
+    public bool Contains(in PixelPoint2 point)
+        => point.X >= _minX &&
+           point.X < _maxX &&
+           point.Y >= _minY &&
+           point.Y < _maxY;
 
     /// <summary>
     /// Determines whether this pixel box is equal to another pixel box.

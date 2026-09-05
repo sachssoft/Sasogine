@@ -1,105 +1,151 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Scenes;
+using System;
 
-namespace Sachssoft.Sasogine.Common.Schedule
+namespace Sachssoft.Sasogine.Common.Schedule;
+
+/// <summary>
+/// Repeatedly triggers an action after an initial delay
+/// and at a configurable interval.
+/// </summary>
+public sealed class RepeatWithDelayScheduler
 {
-    public class RepeatWithDelayScheduler
+    private TimeSpan _elapsed;
+    private bool _isRunning;
+    private bool _isFirstTick = true;
+
+    /// <summary>
+    /// Gets or sets the delay before the first repeated trigger occurs.
+    /// </summary>
+    public TimeSpan RepeatDelay { get; set; } =
+        TimeSpan.FromMilliseconds(300);
+
+    /// <summary>
+    /// Gets or sets the interval between repeated triggers.
+    /// </summary>
+    public TimeSpan RepeatInterval { get; set; } =
+        TimeSpan.FromMilliseconds(100);
+
+    /// <summary>
+    /// Gets a value indicating whether the scheduler is currently running.
+    /// </summary>
+    public bool IsRunning => _isRunning;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the scheduler continues
+    /// triggering after the initial trigger.
+    /// </summary>
+    public bool IsRecurring { get; set; } = true;
+
+    /// <summary>
+    /// Occurs when the scheduler is triggered.
+    /// </summary>
+    public event Action? Triggered;
+
+    /// <summary>
+    /// Occurs when the scheduler is stopped.
+    /// </summary>
+    public event Action? Stopped;
+
+    /// <summary>
+    /// Starts the scheduler and triggers it immediately.
+    /// </summary>
+    public void Start()
     {
-        private TimeSpan _elapsed = TimeSpan.Zero;
-        private bool _isRunning = false;
-        private bool _isFirstTick = true;
+        if (_isRunning)
+            return;
 
-        /// <summary>
-        /// Verzögerung nach der ersten Auslösung, bevor Wiederholungen starten.
-        /// </summary>
-        public TimeSpan RepeatDelay { get; set; } = TimeSpan.FromMilliseconds(300);
+        _elapsed = TimeSpan.Zero;
+        _isRunning = true;
+        _isFirstTick = true;
 
-        /// <summary>
-        /// Intervall für die Wiederholungen nach der Verzögerung.
-        /// </summary>
-        public TimeSpan RepeatInterval { get; set; } = TimeSpan.FromMilliseconds(100);
+        Triggered?.Invoke();
 
-        /// <summary>
-        /// Gibt an, ob der Scheduler läuft.
-        /// </summary>
-        public bool IsRunning => _isRunning;
+        if (!IsRecurring)
+            Stop();
+    }
 
-        /// <summary>
-        /// Wenn true, wird nach dem ersten Auslösen (Sofort-Trigger) 
-        /// die Wiederholung mit RepeatDelay und RepeatInterval ausgeführt.
-        /// Wenn false, wird nur einmal beim Start ausgelöst.
-        /// </summary>
-        public bool IsRecurring { get; set; } = true;
+    /// <summary>
+    /// Stops the scheduler.
+    /// </summary>
+    public void Stop()
+    {
+        if (!_isRunning)
+            return;
 
-        /// <summary>
-        /// Event, das ausgelöst wird bei Auslösung (Sofort-Trigger und Wiederholungen).
-        /// </summary>
-        public event Action? Triggered;
+        _isRunning = false;
+        _elapsed = TimeSpan.Zero;
 
-        /// <summary>
-        /// Event, das ausgelöst wird, wenn der Scheduler gestoppt wird.
-        /// </summary>
-        public event Action? Stopped;
+        Stopped?.Invoke();
+    }
 
-        /// <summary>
-        /// Startet den Scheduler, löst sofort aus.
-        /// </summary>
-        public void Start()
+    /// <summary>
+    /// Updates the scheduler using the specified game time.
+    /// </summary>
+    /// <param name="gameTime">
+    /// Provides timing information for the current update cycle.
+    /// </param>
+    public void Update(GameTime gameTime)
+    {
+        ArgumentNullException.ThrowIfNull(gameTime);
+
+        Update(gameTime.ElapsedGameTime);
+    }
+
+    /// <summary>
+    /// Updates the scheduler using the specified scene update context.
+    /// </summary>
+    /// <param name="context">
+    /// Provides information about the current scene update.
+    /// </param>
+    public void Update(SceneUpdateContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        Update(context.GameTime.ElapsedGameTime);
+    }
+
+    /// <summary>
+    /// Updates the scheduler using the specified elapsed time.
+    /// </summary>
+    /// <param name="elapsed">
+    /// The elapsed time since the previous update.
+    /// </param>
+    public void Update(TimeSpan elapsed)
+    {
+        if (!_isRunning || !IsRecurring)
+            return;
+
+        if (elapsed <= TimeSpan.Zero)
+            return;
+
+        _elapsed += elapsed;
+
+        if (_isFirstTick)
         {
-            if (!_isRunning)
-            {
-                _elapsed = TimeSpan.Zero;
-                _isRunning = true;
-                _isFirstTick = true;
-
-                Triggered?.Invoke();
-
-                if (!IsRecurring)
-                    Stop();
-            }
-        }
-
-        /// <summary>
-        /// Stoppt den Scheduler.
-        /// </summary>
-        public void Stop()
-        {
-            if (_isRunning)
-            {
-                _isRunning = false;
-                _elapsed = TimeSpan.Zero;
-                Stopped?.Invoke();
-            }
-        }
-
-        /// <summary>
-        /// Update muss mit verstrichener Zeit aufgerufen werden.
-        /// </summary>
-        public void Update(TimeSpan elapsed)
-        {
-            if (!_isRunning || !IsRecurring)
+            if (_elapsed < RepeatDelay)
                 return;
 
-            _elapsed += elapsed;
+            _elapsed -= RepeatDelay;
+            _isFirstTick = false;
 
-            if (_isFirstTick)
-            {
-                // Warte RepeatDelay bis erste Wiederholung
-                if (_elapsed >= RepeatDelay)
-                {
-                    _elapsed = TimeSpan.Zero;
-                    _isFirstTick = false;
-                    Triggered?.Invoke();
-                }
-            }
-            else
-            {
-                // Regelmäßige Wiederholungen mit RepeatInterval
-                if (_elapsed >= RepeatInterval)
-                {
-                    _elapsed = TimeSpan.Zero;
-                    Triggered?.Invoke();
-                }
-            }
+            Triggered?.Invoke();
+        }
+
+        if (RepeatInterval <= TimeSpan.Zero)
+        {
+            Triggered?.Invoke();
+            _elapsed = TimeSpan.Zero;
+            return;
+        }
+
+        while (_elapsed >= RepeatInterval)
+        {
+            _elapsed -= RepeatInterval;
+            Triggered?.Invoke();
+
+            if (!_isRunning)
+                break;
         }
     }
 }

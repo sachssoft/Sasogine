@@ -1,9 +1,9 @@
-﻿namespace Sachssoft.Sasogine
-{
-    public enum ExternalFileLocation
-    {
-        Application,
-        ContentManager,
-        Custom
-    }
-}
+﻿//namespace Sachssoft.Sasogine
+//{
+//    public enum ExternalFileLocation
+//    {
+//        Application,
+//        ContentManager,
+//        Custom
+//    }
+//}

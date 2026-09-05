@@ -58,16 +58,16 @@ public readonly struct PixelSize2 : IEquatable<PixelSize2>
     }
 
     /// <summary>
-    /// Initializes a new instance from a <see cref="Point"/>.
+    /// Initializes a new instance from a <see cref="PixelPoint2"/>.
     /// </summary>
-    /// <param name="size">
-    /// The point containing the width and height in pixels.
+    /// <param name="point">
+    /// The pixel point containing the width and height values.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public PixelSize2(Point size)
+    public PixelSize2(PixelPoint2 point)
     {
-        _width = size.X;
-        _height = size.Y;
+        _width = point.X;
+        _height = point.Y;
     }
 
     /// <summary>
@@ -81,13 +81,13 @@ public readonly struct PixelSize2 : IEquatable<PixelSize2>
     public int Height => _height;
 
     /// <summary>
-    /// Converts this pixel size to a <see cref="Point"/>.
+    /// Converts this pixel size to a <see cref="PixelPoint2"/>.
     /// </summary>
     /// <returns>
-    /// A point containing the width and height in pixels.
+    /// A pixel point containing the width and height values.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Point ToPoint() => new(_width, _height);
+    public PixelPoint2 ToPixelPoint2() => new(_width, _height);
 
     /// <summary>
     /// Converts this pixel size to a <see cref="Vector2"/>.

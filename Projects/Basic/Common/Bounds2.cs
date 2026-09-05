@@ -55,17 +55,17 @@ public readonly struct Bounds2 : IEquatable<Bounds2>
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Bounds2"/> structure
-    /// from a position and size vector.
+    /// from a position and size.
     /// </summary>
     /// <param name="position">The position of the top-left corner.</param>
     /// <param name="size">The size of the bounds.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Bounds2(Vector2 position, Vector2 size)
+    public Bounds2(Point2 position, Size2 size)
     {
         _left = position.X;
         _top = position.Y;
-        _right = position.X + size.X;
-        _bottom = position.Y + size.Y;
+        _right = position.X + size.Width;
+        _bottom = position.Y + size.Height;
     }
 
     /// <summary>
@@ -111,12 +111,12 @@ public readonly struct Bounds2 : IEquatable<Bounds2>
     /// <summary>
     /// Gets the size of the bounds.
     /// </summary>
-    public Vector2 Size => new Vector2(Width, Height);
+    public Size2 Size => new Size2(Width, Height);
 
     /// <summary>
     /// Gets the position of the top-left corner.
     /// </summary>
-    public Vector2 Location => new Vector2(_left, _top);
+    public Point2 Location => new Point2(_left, _top);
 
     /// <summary>
     /// Converts this <see cref="Bounds2"/> instance to a <see cref="Box2"/>.
@@ -200,7 +200,7 @@ public readonly struct Bounds2 : IEquatable<Bounds2>
     /// bottom boundaries are exclusive.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Contains(in Vector2 pos) => pos.X >= _left && pos.X < _right && pos.Y >= _top && pos.Y < _bottom;
+    public bool Contains(in Point2 pos) => pos.X >= _left && pos.X < _right && pos.Y >= _top && pos.Y < _bottom;
 
     /// <summary>
     /// Returns a new <see cref="Bounds2"/> translated by the specified

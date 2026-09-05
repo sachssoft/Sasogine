@@ -67,17 +67,17 @@ public readonly struct PixelSize3 : IEquatable<PixelSize3>
     }
 
     /// <summary>
-    /// Initializes a new instance from a <see cref="Vector3"/>.
+    /// Initializes a new instance from a <see cref="PixelPoint3"/>.
     /// </summary>
-    /// <param name="size">
-    /// The vector containing the width, height, and depth.
+    /// <param name="point">
+    /// The pixel point containing the width, height, and depth values.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public PixelSize3(Vector3 size)
+    public PixelSize3(PixelPoint3 point)
     {
-        _width = (int)size.X;
-        _height = (int)size.Y;
-        _depth = (int)size.Z;
+        _width = point.X;
+        _height = point.Y;
+        _depth = point.Z;
     }
 
     /// <summary>
@@ -103,6 +103,16 @@ public readonly struct PixelSize3 : IEquatable<PixelSize3>
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector3 ToVector3()
+        => new(_width, _height, _depth);
+
+    /// <summary>
+    /// Converts this pixel size to a <see cref="PixelPoint3"/>.
+    /// </summary>
+    /// <returns>
+    /// A pixel point containing the width, height, and depth values.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public PixelPoint3 ToPixelPoint3()
         => new(_width, _height, _depth);
 
     /// <summary>

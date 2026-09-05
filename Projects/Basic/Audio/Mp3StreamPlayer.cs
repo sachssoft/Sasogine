@@ -1,177 +1,313 @@
 ﻿using Microsoft.Xna.Framework.Audio;
 using NLayer;
+using Sachssoft.Sasogine.Geometry;
 using System;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Audio
+namespace Sachssoft.Sasogine.Audio;
+
+/// <summary>
+/// Provides streaming playback of MP3 audio using an
+/// <see cref="MpegFile"/> decoder and a
+/// <see cref="DynamicSoundEffectInstance"/> output.
+/// </summary>
+public class Mp3StreamPlayer : AudioPlayerBase, IMusicPlayer
 {
-    public class Mp3StreamPlayer : AudioPlayerBase, IMusicPlayer
+    private const int BufferSamples = 8192;
+
+    private readonly float[] _sampleBuffer;
+    private readonly byte[] _byteBuffer;
+
+    private DynamicSoundEffectInstance? _output;
+    private MpegFile? _decoder;
+
+    private float _volume = 1f;
+    private float _pitch = 1f;
+    private bool _isLooping;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Mp3StreamPlayer"/> class.
+    /// </summary>
+    /// <param name="stream">
+    /// The stream containing the encoded MP3 audio data.
+    /// </param>
+    /// <exception cref="ArgumentException">
+    /// Thrown when the stream is empty.
+    /// </exception>
+    public Mp3StreamPlayer(Stream stream)
+        : base(stream)
     {
-        private DynamicSoundEffectInstance? _output;
-        private MpegFile? _decoder;
-
-        private const int BUFFER_SAMPLES = 8192; // größeres Puffer für flüssigeres Audio
-        private readonly float[] _sampleBuffer;
-        private readonly byte[] _byteBuffer;
-
-        private float _volume = 1f;
-        private float _pitch = 1f;
-        private bool _isLooping = false;
-
-        public Mp3StreamPlayer(Stream stream) : base(stream)
+        if (stream.CanSeek && stream.Length == 0)
         {
-            if (stream == null || stream.Length == 0)
-                throw new ArgumentException("Stream cannot be null or empty", nameof(stream));
-
-            _sampleBuffer = new float[BUFFER_SAMPLES];
-            _byteBuffer = new byte[BUFFER_SAMPLES * 2];
+            throw new ArgumentException(
+                "Stream cannot be empty.",
+                nameof(stream));
         }
 
-        // Properties
-        public override float Volume
+        _sampleBuffer = new float[BufferSamples];
+        _byteBuffer = new byte[BufferSamples * sizeof(short)];
+    }
+
+    /// <summary>
+    /// Gets or sets the playback volume.
+    /// </summary>
+    /// <remarks>
+    /// The value is clamped to the range <c>0</c> to <c>1</c>.
+    /// </remarks>
+    public override float Volume
+    {
+        get => _volume;
+        set
         {
-            get => _volume;
-            set
-            {
-                _volume = float.Clamp(value, 0f, 1f);
-                if (_output != null) _output.Volume = _volume;
-            }
+            _volume = float.Clamp(value, 0f, 1f);
+
+            if (_output != null)
+                _output.Volume = _volume;
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the playback pitch.
+    /// </summary>
+    /// <remarks>
+    /// The value is clamped to the range <c>0.5</c> to <c>2</c>.
+    /// A value of <c>1</c> represents the normal pitch.
+    /// </remarks>
+    public override float Pitch
+    {
+        get => _pitch;
+        set
+        {
+            _pitch = float.Clamp(value, 0.5f, 2f);
+
+            if (_output != null)
+                _output.Pitch = ToOutputPitch(_pitch);
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether playback should restart
+    /// after reaching the end of the stream.
+    /// </summary>
+    public override bool IsLooping
+    {
+        get => _isLooping;
+        set => _isLooping = value;
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether the music is currently playing.
+    /// </summary>
+    public override bool IsPlaying =>
+        _output?.State == SoundState.Playing;
+
+    /// <summary>
+    /// Gets the current decoder position, in seconds.
+    /// </summary>
+    public override double Position =>
+        _decoder?.Time.TotalSeconds ?? 0d;
+
+    /// <summary>
+    /// Starts playback from the configured <see cref="AudioPlayerBase.StartOffset"/>.
+    /// </summary>
+    public override void Play()
+    {
+        Stop();
+
+        CreateDecoder();
+
+        _output = new DynamicSoundEffectInstance(
+            _decoder!.SampleRate,
+            _decoder.Channels == 2
+                ? AudioChannels.Stereo
+                : AudioChannels.Mono);
+
+        _output.Volume = _volume;
+        _output.Pitch = ToOutputPitch(_pitch);
+        _output.BufferNeeded += OnBufferNeeded;
+
+        FillBuffer();
+        _output.Play();
+    }
+
+    /// <summary>
+    /// Stops playback and releases the active decoder and audio output.
+    /// </summary>
+    public override void Stop()
+    {
+        if (_output != null)
+        {
+            _output.BufferNeeded -= OnBufferNeeded;
+
+            _output.Stop();
+            _output.Dispose();
+            _output = null;
         }
 
-        public override float Pitch
-        {
-            get => _pitch;
-            set
-            {
-                _pitch = float.Clamp(value, 0.5f, 2f); // sicherer Bereich
-                if (_output != null)
-                    _output.Pitch = _pitch - 1f; // DynamicSoundEffectInstance: -1..1
-            }
-        }
+        _decoder?.Dispose();
+        _decoder = null;
 
-        public override bool IsLooping
-        {
-            get => _isLooping;
-            set
-            {
-                _isLooping = value;
-                if (_output != null) _output.IsLooped = _isLooping;
-            }
-        }
-
-        public override bool IsPlaying => _output?.State == SoundState.Playing;
-
-        public override double Position => _decoder?.Time.TotalSeconds ?? 0;
-
-        public override void Play()
-        {
-            Stop(); // alte Instanz beenden
-
-            _decoder = new MpegFile(Stream);
-
-            ApplyStartOffset();
-
-            _output = new DynamicSoundEffectInstance(
-                _decoder.SampleRate,
-                _decoder.Channels == 2 ? AudioChannels.Stereo : AudioChannels.Mono);
-
-            _output.Volume = _volume;
-            _output.Pitch = _pitch - 1f;
-            _output.IsLooped = _isLooping;
-            _output.BufferNeeded += OnBufferNeeded;
-            _output.Play();
-        }
-
-        private void ApplyStartOffset()
-        {
-            if (StartOffset <= TimeSpan.Zero || _decoder == null) return;
-
-            if (!Stream.CanSeek)
-                throw new InvalidOperationException("MP3 stream is not seekable, cannot apply StartOffset");
-
+        if (Stream.CanSeek)
             Stream.Position = 0;
-            _decoder = new MpegFile(Stream);
+    }
 
-            long targetSample = (long)(StartOffset.TotalSeconds * _decoder.SampleRate);
+    /// <summary>
+    /// Pauses playback when audio is currently playing.
+    /// </summary>
+    public override void Pause()
+    {
+        if (_output?.State == SoundState.Playing)
+            _output.Pause();
+    }
 
-            float[] tempBuffer = new float[BUFFER_SAMPLES];
-            long skipped = 0;
-            while (skipped < targetSample)
-            {
-                int toRead = (int)float.Min(BUFFER_SAMPLES, targetSample - skipped);
-                int read = _decoder.ReadSamples(tempBuffer, 0, toRead);
-                if (read <= 0) break;
-                skipped += read;
-            }
-        }
+    /// <summary>
+    /// Resumes playback when audio is currently paused.
+    /// </summary>
+    public override void Resume()
+    {
+        if (_output?.State == SoundState.Paused)
+            _output.Resume();
+    }
 
-        private void OnBufferNeeded(object? sender, EventArgs e)
+    private void OnBufferNeeded(
+        object? sender,
+        EventArgs e)
+    {
+        FillBuffer();
+    }
+
+    private void FillBuffer()
+    {
+        if (_decoder == null || _output == null)
+            return;
+
+        int read = _decoder.ReadSamples(
+            _sampleBuffer,
+            0,
+            _sampleBuffer.Length);
+
+        if (read <= 0)
         {
-            if (_decoder == null || _output == null) return;
+            if (!_isLooping)
+            {
+                Stop();
+                return;
+            }
 
-            int read = _decoder.ReadSamples(_sampleBuffer, 0, _sampleBuffer.Length);
+            RestartDecoder();
+
+            read = _decoder!.ReadSamples(
+                _sampleBuffer,
+                0,
+                _sampleBuffer.Length);
 
             if (read <= 0)
             {
-                if (_isLooping)
-                {
-                    if (!Stream.CanSeek)
-                        throw new InvalidOperationException("Stream ist nicht seekbar, Looping nicht möglich.");
-
-                    Stream.Position = 0;
-                    _decoder = new MpegFile(Stream);
-                    read = _decoder.ReadSamples(_sampleBuffer, 0, _sampleBuffer.Length);
-                }
-                else
-                {
-                    Stop();
-                    return;
-                }
+                Stop();
+                return;
             }
-
-            int bytes = ConvertSamples(_sampleBuffer, read);
-            _output.SubmitBuffer(_byteBuffer, 0, bytes);
         }
 
-        private int ConvertSamples(float[] samples, int count)
+        int byteCount =
+            ConvertSamples(
+                _sampleBuffer,
+                read);
+
+        _output.SubmitBuffer(
+            _byteBuffer,
+            0,
+            byteCount);
+    }
+
+    private void CreateDecoder()
+    {
+        if (Stream.CanSeek)
+            Stream.Position = 0;
+
+        _decoder?.Dispose();
+        _decoder = new MpegFile(Stream);
+
+        ApplyStartOffset();
+    }
+
+    private void RestartDecoder()
+    {
+        if (!Stream.CanSeek)
         {
-            int index = 0;
-            for (int i = 0; i < count; i++)
-            {
-                short s = (short)(float.Clamp(samples[i], -1f, 1f) * short.MaxValue);
-                _byteBuffer[index++] = (byte)(s & 0xff);
-                _byteBuffer[index++] = (byte)(s >> 8);
-            }
-            return index;
+            throw new InvalidOperationException(
+                "The MP3 stream must be seekable to support looping.");
         }
 
-        public override void Stop()
+        CreateDecoder();
+    }
+
+    private void ApplyStartOffset()
+    {
+        if (_decoder == null ||
+            StartOffset <= TimeSpan.Zero)
         {
-            if (_output != null)
-            {
-                _output.Stop();
-                _output.BufferNeeded -= OnBufferNeeded;
-                _output.Dispose();
-                _output = null;
-            }
-
-            _decoder?.Dispose();
-            _decoder = null;
-
-            if (Stream.CanSeek)
-                Stream.Position = 0; // für erneutes Play vorbereiten
+            return;
         }
 
-        public override void Pause()
+        if (!Stream.CanSeek)
         {
-            if (_output != null && _output.State == SoundState.Playing)
-                _output.Pause();
+            throw new InvalidOperationException(
+                "The MP3 stream must be seekable to apply a start offset.");
         }
 
-        public override void Resume()
+        long targetSamples =
+            (long)(
+                StartOffset.TotalSeconds *
+                _decoder.SampleRate *
+                _decoder.Channels);
+
+        long skippedSamples = 0;
+
+        while (skippedSamples < targetSamples)
         {
-            if (_output != null && _output.State == SoundState.Paused)
-                _output.Play();
+            int sampleCount = (int)Math.Min(
+                BufferSamples,
+                targetSamples - skippedSamples);
+
+            int read = _decoder.ReadSamples(
+                _sampleBuffer,
+                0,
+                sampleCount);
+
+            if (read <= 0)
+                break;
+
+            skippedSamples += read;
         }
+    }
+
+    private int ConvertSamples(
+        float[] samples,
+        int count)
+    {
+        int index = 0;
+
+        for (int i = 0; i < count; i++)
+        {
+            short sample = (short)(
+                float.Clamp(samples[i], -1f, 1f) *
+                short.MaxValue);
+
+            _byteBuffer[index++] =
+                (byte)(sample & 0xFF);
+
+            _byteBuffer[index++] =
+                (byte)((sample >> 8) & 0xFF);
+        }
+
+        return index;
+    }
+
+    private static float ToOutputPitch(float pitch)
+    {
+        return float.Clamp(
+            pitch - 1f,
+            -1f,
+            1f);
     }
 }

@@ -56,20 +56,23 @@ public readonly struct PixelBounds3 : IEquatable<PixelBounds3>
     }
 
     /// <summary>
-    /// Initializes a new instance from a minimum position and a pixel size.
+    /// Initializes a new instance from a pixel position and pixel size.
     /// </summary>
     /// <param name="position">The position of the left-top-front corner.</param>
     /// <param name="size">The width, height, and depth in pixels.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public PixelBounds3(Point position, Point size)
+    public PixelBounds3(
+        PixelPoint3 position,
+        PixelSize3 size)
     {
         _left = position.X;
         _top = position.Y;
-        _front = 0;
-        _right = position.X + size.X;
-        _bottom = position.Y + size.Y;
-        _back = 0;
+        _front = position.Z;
+        _right = position.X + size.Width;
+        _bottom = position.Y + size.Height;
+        _back = position.Z + size.Depth;
     }
+
 
     /// <summary>
     /// Initializes a new instance from a three-dimensional position and size.
@@ -150,26 +153,26 @@ public readonly struct PixelBounds3 : IEquatable<PixelBounds3>
     /// <summary>
     /// Gets the width, height, and depth in pixels.
     /// </summary>
-    public Vector3 Size =>
-        new Vector3(Width, Height, Depth);
+    public PixelSize3 Size
+        => new(Width, Height, Depth);
 
     /// <summary>
     /// Gets the left-top-front position of the bounds.
     /// </summary>
-    public Vector3 Location =>
-        new Vector3(_left, _top, _front);
+    public PixelPoint3 Location
+        => new(_left, _top, _front);
 
     /// <summary>
     /// Gets the minimum coordinate of the bounds.
     /// </summary>
-    public Vector3 Min =>
-        new Vector3(_left, _top, _front);
+    public PixelPoint3 Min
+        => new(_left, _top, _front);
 
     /// <summary>
     /// Gets the maximum coordinate of the bounds.
     /// </summary>
-    public Vector3 Max =>
-        new Vector3(_right, _bottom, _back);
+    public PixelPoint3 Max
+        => new(_right, _bottom, _back);
 
     /// <summary>
     /// Converts this pixel bounds to a <see cref="PixelBox3"/>.
@@ -213,7 +216,7 @@ public readonly struct PixelBounds3 : IEquatable<PixelBounds3>
     /// Determines whether the specified pixel position is contained within
     /// these bounds.
     /// </summary>
-    /// <param name="pos">The three-dimensional pixel position to test.</param>
+    /// <param name="position">The three-dimensional pixel position to test.</param>
     /// <returns>
     /// <see langword="true"/> if the position is inside the bounds;
     /// otherwise, <see langword="false"/>.
@@ -223,10 +226,10 @@ public readonly struct PixelBounds3 : IEquatable<PixelBounds3>
     /// are exclusive.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Contains(in Vector3 pos)
-        => pos.X >= _left && pos.X < _right &&
-           pos.Y >= _top && pos.Y < _bottom &&
-           pos.Z >= _front && pos.Z < _back;
+    public bool Contains(in PixelPoint3 position)
+        => position.X >= _left && position.X < _right &&
+           position.Y >= _top && position.Y < _bottom &&
+           position.Z >= _front && position.Z < _back;
 
     /// <summary>
     /// Creates a new pixel bounds offset by the specified pixel delta.

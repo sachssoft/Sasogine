@@ -68,19 +68,19 @@ public readonly struct Bounds3 : IEquatable<Bounds3>
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Bounds3"/> structure
-    /// from a position and size vector.
+    /// from a position and size.
     /// </summary>
     /// <param name="position">The position of the front-top-left corner.</param>
     /// <param name="size">The size of the bounds.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Bounds3(Vector3 position, Vector3 size)
+    public Bounds3(Point3 position, Size3 size)
     {
         _left = position.X;
         _top = position.Y;
         _front = position.Z;
-        _right = position.X + size.X;
-        _bottom = position.Y + size.Y;
-        _back = position.Z + size.Z;
+        _right = position.X + size.Width;
+        _bottom = position.Y + size.Height;
+        _back = position.Z + size.Depth;
     }
 
     /// <summary>
@@ -146,12 +146,12 @@ public readonly struct Bounds3 : IEquatable<Bounds3>
     /// <summary>
     /// Gets the size of the bounds.
     /// </summary>
-    public Vector3 Size => new Vector3(Width, Height, Depth);
+    public Size3 Size => new Size3(Width, Height, Depth);
 
     /// <summary>
     /// Gets the position of the front-top-left corner.
     /// </summary>
-    public Vector3 Location => new Vector3(_left, _top, _front);
+    public Point3 Location => new Point3(_left, _top, _front);
 
     /// <summary>
     /// Determines whether this instance is equal to another
@@ -239,7 +239,7 @@ public readonly struct Bounds3 : IEquatable<Bounds3>
     /// bottom, and back boundaries are exclusive.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Contains(in Vector3 pos)
+    public bool Contains(in Point3 pos)
         => pos.X >= _left && pos.X < _right
         && pos.Y >= _top && pos.Y < _bottom
         && pos.Z >= _front && pos.Z < _back;

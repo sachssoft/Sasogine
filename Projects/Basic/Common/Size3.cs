@@ -74,6 +74,20 @@ public readonly struct Size3 : IEquatable<Size3>
     }
 
     /// <summary>
+    /// Initializes a new instance from a <see cref="Point3"/>.
+    /// </summary>
+    /// <param name="point">
+    /// The point containing the width, height, and depth values.
+    /// </param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Size3(Point3 point)
+    {
+        _width = point.X;
+        _height = point.Y;
+        _depth = point.Z;
+    }
+
+    /// <summary>
     /// Gets the width of the size.
     /// </summary>
     public float Width => _width;
@@ -105,6 +119,26 @@ public readonly struct Size3 : IEquatable<Size3>
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector2 ToVector2() => new(_width, _height);
+
+    /// <summary>
+    /// Converts this size to a <see cref="Point3"/>.
+    /// </summary>
+    /// <returns>
+    /// A point containing the width, height, and depth values.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Point3 ToPoint3()
+        => new(_width, _height, _depth);
+
+    /// <summary>
+    /// Converts this size to a <see cref="Point2"/>.
+    /// </summary>
+    /// <returns>
+    /// A point containing the width and height values. The depth is omitted.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Point2 ToPoint2()
+        => new(_width, _height);
 
     /// <summary>
     /// Creates a new size with the specified width, height, and depth.

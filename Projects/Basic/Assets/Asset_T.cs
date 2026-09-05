@@ -4,224 +4,304 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Assets
+namespace Sachssoft.Sasogine.Assets;
+
+/// <summary>
+/// Provides a base implementation for assets that support synchronous
+/// and asynchronous loading, unloading, and instance notifications.
+/// </summary>
+/// <typeparam name="T">
+/// The runtime type of the loaded asset instance.
+/// </typeparam>
+/// <typeparam name="TDefinition">
+/// The type of definition used to configure the asset.
+/// </typeparam>
+public abstract class AssetBase<T, TDefinition> :
+    EngineObject<TDefinition>,
+    IAsset
+    where T : class
+    where TDefinition : class, IAssetDefinition
 {
+    private readonly object _sync = new();
+
+    private ResourceSourceBase? _loaderSource;
+    private T? _instance;
+
     /// <summary>
-    /// Base class for assets (e.g., Texture2D, Sound, Model) with support for
-    /// synchronous/asynchronous loading, unloading, and event notifications.
+    /// Initializes a new instance of the
+    /// <see cref="AssetBase{T, TDefinition}"/> class.
     /// </summary>
-    /// <typeparam name="T">Concrete type of the asset instance</typeparam>
-    public abstract class AssetBase<T, TDefinition> : EngineObject<TDefinition>, IAsset
-        where T : class
-        where TDefinition : class, IAssetDefinition
+    /// <param name="definition">
+    /// The definition associated with the asset.
+    /// </param>
+    protected AssetBase(TDefinition definition)
+        : base(definition)
     {
-        //private AssetDefinitionRegistry _registry = null!;
-        //private TDefinition _definition = null!;
-        private bool _loaded;          // True if the asset is loaded
-        private T? _instance;          // The loaded asset instance
-        private readonly object _sync = new(); // Lock object for thread-safety
-        private ResourceSourceBase? _loaderSource;      // Backing field for LoaderSource
+    }
 
-        /// <summary>
-        /// Fired after the asset instance has been successfully loaded.
-        /// </summary>
-        public event EventHandler? Loaded;
+    /// <summary>
+    /// Occurs after the asset instance has been successfully loaded.
+    /// </summary>
+    public event EventHandler? Loaded;
 
-        /// <summary>
-        /// Fired after the asset instance has been unloaded.
-        /// </summary>
-        public event EventHandler? Unloaded;
+    /// <summary>
+    /// Occurs after the asset instance has been unloaded.
+    /// </summary>
+    public event EventHandler? Unloaded;
 
-        /// <summary>
-        /// Fired when the LoaderSource property is changed.
-        /// </summary>
-        public event EventHandler? LoaderSourceChanged;
+    /// <summary>
+    /// Occurs when <see cref="LoaderSource"/> changes.
+    /// </summary>
+    public event EventHandler? LoaderSourceChanged;
 
-        /// <summary>
-        /// Fired when the asset instance changes (e.g., loaded, reloaded, unloaded).
-        /// </summary>
-        public event EventHandler? InstanceChanged;
+    /// <summary>
+    /// Occurs when the loaded asset instance changes.
+    /// </summary>
+    public event EventHandler? InstanceChanged;
 
-        public AssetBase(TDefinition definition) : base(definition) { }
+    /// <summary>
+    /// Gets the relative path associated with the asset, if available.
+    /// </summary>
+    public string? RelativePath { get; }
 
-        public string? RelativePath { get; }
+    /// <summary>
+    /// Gets a value indicating whether an error occurred while loading,
+    /// building, or unloading the asset.
+    /// </summary>
+    public bool HasError => Exception != null;
 
-        /// <summary>
-        /// True if an error occurred during loading or building the asset.
-        /// </summary>
-        public bool HasError => Exception != null;
+    /// <summary>
+    /// Gets the exception that occurred while loading, building,
+    /// or unloading the asset, if any.
+    /// </summary>
+    public Exception? Exception { get; protected set; }
 
-        /// <summary>
-        /// Stores the exception that occurred during loading or building, if any.
-        /// </summary>
-        public Exception? Exception { get; protected set; }
-
-        /// <summary>
-        /// The loader/source used to provide the asset stream.
-        /// Can be replaced to reload a different source.
-        /// Fires <see cref="LoaderSourceChanged"/> when changed.
-        /// </summary>
-        public ResourceSourceBase? LoaderSource
+    /// <summary>
+    /// Gets or sets the resource source used to provide the asset data.
+    /// </summary>
+    public ResourceSourceBase? LoaderSource
+    {
+        get => _loaderSource;
+        set
         {
-            get => _loaderSource;
-            set
-            {
-                if (!ReferenceEquals(_loaderSource, value))
-                {
-                    _loaderSource = value;
-                    LoaderSourceChanged?.Invoke(this, EventArgs.Empty);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets the loaded asset instance.
-        /// </summary>
-        public T? Instance => _instance;
-
-        object? IAsset.Instance => _instance;
-
-        IDefinition? IEngineObject.Definition => Definition;
-
-        /// <summary>
-        /// Synchronously loads the asset if not already loaded.
-        /// Fires Loaded and InstanceChanged events.
-        /// </summary>
-        public override void Load()
-        {
-            lock (_sync)
-            {
-                if (_loaded)
-                    return;
-
-                if (_loaderSource == null)
-                    throw new InvalidOperationException("LoaderSource is not set.");
-
-                try
-                {
-                    _instance = Build(_loaderSource.GetStream());
-                    Exception = null;
-                    _loaded = true;
-                }
-                catch (Exception ex)
-                {
-                    Exception = ex;
-                    _instance = default;
-                    _loaded = false;
-                }
-
-                Loaded?.Invoke(this, EventArgs.Empty);
-                InstanceChanged?.Invoke(this, EventArgs.Empty);
-            }
-        }
-
-        /// <summary>
-        /// Asynchronously loads the asset if not already loaded.
-        /// Fires Loaded and InstanceChanged events.
-        /// </summary>
-        public override async Task LoadAsync()
-        {
-            if (_loaded)
+            if (ReferenceEquals(_loaderSource, value))
                 return;
 
-            if (_loaderSource == null)
-                throw new InvalidOperationException("LoaderSource is not set.");
+            _loaderSource = value;
 
-            try
-            {
-                var stream = await _loaderSource.GetStreamAsync().ConfigureAwait(false);
-                lock (_sync)
-                {
-                    _instance = Build(stream);
-                    Exception = null;
-                    _loaded = true;
-                }
-
-                Loaded?.Invoke(this, EventArgs.Empty);
-                InstanceChanged?.Invoke(this, EventArgs.Empty);
-            }
-            catch (Exception ex)
-            {
-                lock (_sync)
-                {
-                    Exception = ex;
-                    _instance = default;
-                    _loaded = false;
-                }
-            }
+            OnLoaderSourceChanged();
         }
+    }
 
-        /// <summary>
-        /// Ensures the asset is loaded and returns it synchronously.
-        /// </summary>
-        public T? GetOrLoad()
+    /// <summary>
+    /// Gets the currently loaded asset instance.
+    /// </summary>
+    public T? Instance => _instance;
+
+    object? IAsset.Instance => _instance;
+
+    /// <summary>
+    /// Ensures that the asset is loaded and returns its instance.
+    /// </summary>
+    /// <returns>
+    /// The loaded asset instance, or <see langword="null"/> if loading
+    /// did not produce an instance.
+    /// </returns>
+    public T? GetOrLoad()
+    {
+        if (!IsLoaded)
+            Load();
+
+        return _instance;
+    }
+
+    /// <summary>
+    /// Ensures that the asset is loaded asynchronously and returns its instance.
+    /// </summary>
+    /// <returns>
+    /// A task containing the loaded asset instance, or <see langword="null"/>
+    /// if loading did not produce an instance.
+    /// </returns>
+    public async Task<T?> GetOrLoadAsync()
+    {
+        if (!IsLoaded)
+            await LoadAsync().ConfigureAwait(false);
+
+        return _instance;
+    }
+
+    /// <summary>
+    /// Loads and builds the asset instance.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when <see cref="LoaderSource"/> is not set.
+    /// </exception>
+    protected override void OnLoad()
+    {
+        ResourceSourceBase source = _loaderSource ??
+            throw new InvalidOperationException(
+                "LoaderSource is not set.");
+
+        try
         {
-            if (_instance == null)
-                Load();
-            return _instance;
-        }
+            using Stream stream = source.GetStream();
 
-        /// <summary>
-        /// Ensures the asset is loaded and returns it asynchronously.
-        /// </summary>
-        public async Task<T?> GetOrLoadAsync()
-        {
-            if (_instance == null)
-                await LoadAsync().ConfigureAwait(false);
-            return _instance;
-        }
+            T? instance = Build(stream);
 
-        /// <summary>
-        /// Unloads the asset instance and disposes it if necessary.
-        /// Fires Unloaded and InstanceChanged events.
-        /// </summary>
-        public override void Unload()
+            lock (_sync)
+            {
+                _instance = instance;
+                Exception = null;
+            }
+
+            OnLoaded();
+            OnInstanceChanged();
+        }
+        catch (Exception exception)
         {
             lock (_sync)
             {
-                if (!_loaded)
-                    return;
+                _instance = null;
+                Exception = exception;
+            }
 
-                //if (Definition != null)
-                // ...  
+            throw;
+        }
+    }
 
-                if (_instance != null)
-                {
-                    try
-                    {
-                        DisposeInstance(_instance);
-                    }
-                    catch (Exception ex)
-                    {
-                        Exception = ex;
-                    }
-                    finally
-                    {
-                        _instance = default;
-                    }
-                }
+    /// <summary>
+    /// Asynchronously loads and builds the asset instance.
+    /// </summary>
+    /// <returns>
+    /// A task representing the asynchronous loading operation.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when <see cref="LoaderSource"/> is not set.
+    /// </exception>
+    protected override async Task OnLoadAsync()
+    {
+        ResourceSourceBase source = _loaderSource ??
+            throw new InvalidOperationException(
+                "LoaderSource is not set.");
 
-                _loaded = false;
+        try
+        {
+            using Stream stream =
+                await source.GetStreamAsync().ConfigureAwait(false);
 
-                Unloaded?.Invoke(this, EventArgs.Empty);
-                InstanceChanged?.Invoke(this, EventArgs.Empty);
+            T? instance = Build(stream);
+
+            lock (_sync)
+            {
+                _instance = instance;
+                Exception = null;
+            }
+
+            OnLoaded();
+            OnInstanceChanged();
+        }
+        catch (Exception exception)
+        {
+            lock (_sync)
+            {
+                _instance = null;
+                Exception = exception;
+            }
+
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Unloads and disposes the current asset instance.
+    /// </summary>
+    protected override void OnUnload()
+    {
+        T? instance;
+
+        lock (_sync)
+        {
+            instance = _instance;
+            _instance = null;
+        }
+
+        if (instance != null)
+        {
+            try
+            {
+                DisposeInstance(instance);
+                Exception = null;
+            }
+            catch (Exception exception)
+            {
+                Exception = exception;
+                throw;
             }
         }
 
-        /// <summary>
-        /// Builds an asset instance from the provided stream.
-        /// Override in derived classes to create concrete asset objects.
-        /// </summary>
-        protected virtual T? Build(Stream stream) => default;
+        OnUnloaded();
+        OnInstanceChanged();
+    }
 
-        /// <summary>
-        /// Destroys or disposes a previously built asset instance.
-        /// Default implementation disposes if it implements IDisposable.
-        /// </summary>
-        protected virtual void DisposeInstance(T asset)
-        {
-            if (asset is IDisposable disposable)
-                disposable.Dispose();
-        }
+    /// <summary>
+    /// Builds an asset instance from the specified resource stream.
+    /// </summary>
+    /// <param name="stream">
+    /// The stream containing the asset data.
+    /// </param>
+    /// <returns>
+    /// The constructed asset instance.
+    /// </returns>
+    protected virtual T? Build(Stream stream)
+    {
+        return default;
+    }
+
+    /// <summary>
+    /// Releases a previously built asset instance.
+    /// </summary>
+    /// <param name="asset">
+    /// The asset instance to release.
+    /// </param>
+    /// <remarks>
+    /// The default implementation disposes the instance when it implements
+    /// <see cref="IDisposable"/>.
+    /// </remarks>
+    protected virtual void DisposeInstance(T asset)
+    {
+        if (asset is IDisposable disposable)
+            disposable.Dispose();
+    }
+
+    /// <summary>
+    /// Raises the <see cref="Loaded"/> event.
+    /// </summary>
+    protected virtual void OnLoaded()
+    {
+        Loaded?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// Raises the <see cref="Unloaded"/> event.
+    /// </summary>
+    protected virtual void OnUnloaded()
+    {
+        Unloaded?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// Raises the <see cref="LoaderSourceChanged"/> event.
+    /// </summary>
+    protected virtual void OnLoaderSourceChanged()
+    {
+        LoaderSourceChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// Raises the <see cref="InstanceChanged"/> event.
+    /// </summary>
+    protected virtual void OnInstanceChanged()
+    {
+        InstanceChanged?.Invoke(this, EventArgs.Empty);
     }
 }

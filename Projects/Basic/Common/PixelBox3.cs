@@ -57,19 +57,19 @@ public readonly struct PixelBox3 : IEquatable<PixelBox3>
     }
 
     /// <summary>
-    /// Initializes a new instance from minimum and maximum positions.
+    /// Initializes a new instance from minimum and maximum pixel positions.
     /// </summary>
-    /// <param name="min">The minimum position.</param>
-    /// <param name="max">The maximum position.</param>
+    /// <param name="min">The minimum pixel position.</param>
+    /// <param name="max">The maximum pixel position.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public PixelBox3(Vector3 min, Vector3 max)
+    public PixelBox3(PixelPoint3 min, PixelPoint3 max)
         : this(
-            (int)min.X,
-            (int)min.Y,
-            (int)min.Z,
-            (int)max.X,
-            (int)max.Y,
-            (int)max.Z)
+            min.X,
+            min.Y,
+            min.Z,
+            max.X,
+            max.Y,
+            max.Z)
     {
     }
 
@@ -119,16 +119,14 @@ public readonly struct PixelBox3 : IEquatable<PixelBox3>
     public int Depth => _maxZ - _minZ;
 
     /// <summary>
-    /// Gets the minimum position of the pixel box.
+    /// Gets the minimum pixel position of the box.
     /// </summary>
-    public Vector3 Min =>
-        new Vector3(_minX, _minY, _minZ);
+    public PixelPoint3 Min => new(_minX, _minY, _minZ);
 
     /// <summary>
-    /// Gets the maximum position of the pixel box.
+    /// Gets the maximum pixel position of the box.
     /// </summary>
-    public Vector3 Max =>
-        new Vector3(_maxX, _maxY, _maxZ);
+    public PixelPoint3 Max => new(_maxX, _maxY, _maxZ);
 
     /// <summary>
     /// Converts this pixel box to pixel bounds.
@@ -175,7 +173,7 @@ public readonly struct PixelBox3 : IEquatable<PixelBox3>
     /// Determines whether the specified pixel position is contained
     /// within this box.
     /// </summary>
-    /// <param name="p">The pixel position to test.</param>
+    /// <param name="point">The pixel position to test.</param>
     /// <returns>
     /// <see langword="true"/> if the position is contained within the box;
     /// otherwise, <see langword="false"/>.
@@ -185,13 +183,13 @@ public readonly struct PixelBox3 : IEquatable<PixelBox3>
     /// are exclusive.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Contains(in Vector3 p)
-        => p.X >= _minX &&
-           p.X < _maxX &&
-           p.Y >= _minY &&
-           p.Y < _maxY &&
-           p.Z >= _minZ &&
-           p.Z < _maxZ;
+    public bool Contains(in PixelPoint3 point)
+        => point.X >= _minX &&
+           point.X < _maxX &&
+           point.Y >= _minY &&
+           point.Y < _maxY &&
+           point.Z >= _minZ &&
+           point.Z < _maxZ;
 
     /// <summary>
     /// Determines whether this pixel box is equal to another pixel box.

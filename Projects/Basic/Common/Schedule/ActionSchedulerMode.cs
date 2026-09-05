@@ -1,25 +1,24 @@
 ﻿namespace Sachssoft.Sasogine.Common.Schedule;
 
 /// <summary>
-/// Gibt an, wie eine geplante Aktion im <see cref="ActionScheduler"/> ausgeführt wird.
+/// Specifies how a scheduled action is executed by an
+/// <see cref="ActionScheduler"/>.
 /// </summary>
 public enum ActionSchedulerMode
 {
     /// <summary>
-    /// Die Aktion wird genau einmal nach Ablauf der angegebenen Verzögerung ausgeführt.
+    /// Executes the action once after the specified delay has elapsed.
     /// </summary>
     Once,
 
     /// <summary>
-    /// Die Aktion wird wiederholt in konstanten Zeitabständen ausgeführt.
-    /// Der Abstand zwischen den Ausführungen entspricht der angegebenen Verzögerung.
+    /// Executes the action repeatedly at intervals defined by the specified delay.
     /// </summary>
     Repeat,
 
     /// <summary>
-    /// Die Aktion wird einmal nach der angegebenen Verzögerung ausgeführt.
-    /// Danach wird sie in jedem Update-Zyklus erneut aufgerufen – ohne weitere Verzögerung –
-    /// bis sie explizit durch <see cref="CancelEventArgs.Cancel"/> abgebrochen wird.
+    /// Executes the action once after the specified delay and then invokes it
+    /// during every subsequent update cycle until it is canceled.
     /// </summary>
     OnceThenUpdate
 }

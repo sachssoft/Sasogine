@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 namespace Sachssoft.Sasogine.Assets
 {
     /// <summary>
-    /// Provides a registry for detecting asset types from streams and creating
-    /// strongly typed asset file references.
+    /// Provides a registry for detecting asset types from streams
+    /// and creating corresponding asset file references.
     /// </summary>
     public static class AssetDetectionRegistry
     {
@@ -19,61 +19,92 @@ namespace Sachssoft.Sasogine.Assets
         {
             public required Func<Stream, bool> DetectionMatch { get; init; }
 
-            public required Func<Stream, CancellationToken, ValueTask<bool>> DetectionMatchAsync { get; init; }
+            public required Func<Stream, CancellationToken, ValueTask<bool>>
+                DetectionMatchAsync
+            { get; init; }
 
             public required Func<string, Stream, IAssetFile> Factory { get; init; }
         }
 
-
         private static readonly List<Entry> _entries = new();
-
 
         static AssetDetectionRegistry()
         {
             Register(
-                s => ImageDetection.DetectFormat(s) == ImageFormatType.Jpeg,
-                async (s, ct) =>
-                    await ImageDetection.DetectFormatAsync(s, ct) == ImageFormatType.Jpeg,
-                (p, s) => new AssetFile<Texture2DAssetDefinition>(p));
+                stream =>
+                    ImageDetection.DetectFormat(stream) ==
+                    ImageFormatType.Jpeg,
 
+                async (stream, cancellationToken) =>
+                    await ImageDetection.DetectFormatAsync(
+                        stream,
+                        cancellationToken) ==
+                    ImageFormatType.Jpeg,
 
-            Register(
-                s => ImageDetection.DetectFormat(s) == ImageFormatType.Png,
-                async (s, ct) =>
-                    await ImageDetection.DetectFormatAsync(s, ct) == ImageFormatType.Png,
-                (p, s) => new AssetFile<Texture2DAssetDefinition>(p));
-
-
-            Register(
-                s => AudioDetection.DetectFormat(s) == AudioFormatType.Wav,
-                async (s, ct) =>
-                    await AudioDetection.DetectFormatAsync(s, ct) == AudioFormatType.Wav,
-                (p, s) => new AssetFile<SoundAssetDefinition>(p));
-
+                (path, stream) =>
+                    new AssetFile<Texture2DAssetDefinition>(path));
 
             Register(
-                s => AudioDetection.DetectFormat(s) == AudioFormatType.Ogg,
-                async (s, ct) =>
-                    await AudioDetection.DetectFormatAsync(s, ct) == AudioFormatType.Ogg,
-                (p, s) => new AssetFile<MusicAssetDefinition>(p));
+                stream =>
+                    ImageDetection.DetectFormat(stream) ==
+                    ImageFormatType.Png,
+
+                async (stream, cancellationToken) =>
+                    await ImageDetection.DetectFormatAsync(
+                        stream,
+                        cancellationToken) ==
+                    ImageFormatType.Png,
+
+                (path, stream) =>
+                    new AssetFile<Texture2DAssetDefinition>(path));
+
+            Register(
+                stream =>
+                    AudioDetection.DetectFormat(stream) ==
+                    AudioFormatType.Wav,
+
+                async (stream, cancellationToken) =>
+                    await AudioDetection.DetectFormatAsync(
+                        stream,
+                        cancellationToken) ==
+                    AudioFormatType.Wav,
+
+                (path, stream) =>
+                    new AssetFile<SoundAssetDefinition>(path));
+
+            Register(
+                stream =>
+                    AudioDetection.DetectFormat(stream) ==
+                    AudioFormatType.Ogg,
+
+                async (stream, cancellationToken) =>
+                    await AudioDetection.DetectFormatAsync(
+                        stream,
+                        cancellationToken) ==
+                    AudioFormatType.Ogg,
+
+                (path, stream) =>
+                    new AssetFile<MusicAssetDefinition>(path));
         }
 
-
         /// <summary>
-        /// Registers a new asset detection rule.
+        /// Registers an asset detection rule.
         /// </summary>
         /// <param name="detectionMatch">
-        /// Function used to determine whether the stream matches the asset type.
+        /// The synchronous function used to determine whether a stream
+        /// matches the registered asset type.
         /// </param>
         /// <param name="detectionMatchAsync">
-        /// Asynchronous function used to determine whether the stream matches the asset type.
+        /// The asynchronous function used to determine whether a stream
+        /// matches the registered asset type.
         /// </param>
         /// <param name="factory">
-        /// Function used to create the matching asset file reference.
+        /// The function used to create the corresponding asset file reference.
         /// </param>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when <paramref name="detectionMatch"/>, <paramref name="detectionMatchAsync"/>,
-        /// or <paramref name="factory"/> is null.
+        /// Thrown when <paramref name="detectionMatch"/>,
+        /// <paramref name="detectionMatchAsync"/>, or
+        /// <paramref name="factory"/> is <see langword="null"/>.
         /// </exception>
         public static void Register(
             Func<Stream, bool> detectionMatch,
@@ -84,35 +115,34 @@ namespace Sachssoft.Sasogine.Assets
             ArgumentNullException.ThrowIfNull(detectionMatchAsync);
             ArgumentNullException.ThrowIfNull(factory);
 
-            _entries.Add(new Entry
-            {
-                DetectionMatch = detectionMatch,
-                DetectionMatchAsync = detectionMatchAsync,
-                Factory = factory
-            });
+            _entries.Add(
+                new Entry
+                {
+                    DetectionMatch = detectionMatch,
+                    DetectionMatchAsync = detectionMatchAsync,
+                    Factory = factory
+                });
         }
 
-
         /// <summary>
-        /// Detects the asset type from the specified stream and creates a matching
-        /// strongly typed asset file reference.
+        /// Detects the asset type represented by the specified stream.
         /// </summary>
         /// <param name="path">
-        /// Relative path of the asset inside the package.
+        /// The relative path associated with the asset.
         /// </param>
         /// <param name="stream">
-        /// Stream containing the asset data.
+        /// The stream containing the asset data.
         /// </param>
         /// <param name="assetFile">
-        /// The detected asset file reference if detection succeeds; otherwise,
-        /// <see langword="null"/>.
+        /// When this method returns <see langword="true"/>, contains the
+        /// detected asset file reference; otherwise, <see langword="null"/>.
         /// </param>
         /// <returns>
-        /// <see langword="true"/> if a matching asset type was detected; otherwise,
-        /// <see langword="false"/>.
+        /// <see langword="true"/> if a matching asset type was detected;
+        /// otherwise, <see langword="false"/>.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when <paramref name="stream"/> is null.
+        /// Thrown when <paramref name="stream"/> is <see langword="null"/>.
         /// </exception>
         public static bool Detect(
             string path,
@@ -130,7 +160,10 @@ namespace Sachssoft.Sasogine.Assets
 
                 ResetPosition(stream);
 
-                assetFile = entry.Factory(path, stream);
+                assetFile = entry.Factory(
+                    path,
+                    stream);
+
                 return true;
             }
 
@@ -140,26 +173,25 @@ namespace Sachssoft.Sasogine.Assets
             return false;
         }
 
-
         /// <summary>
-        /// Asynchronously detects the asset type from the specified stream and creates
-        /// a matching strongly typed asset file reference.
+        /// Asynchronously detects the asset type represented by the
+        /// specified stream.
         /// </summary>
         /// <param name="path">
-        /// Relative path of the asset inside the package.
+        /// The relative path associated with the asset.
         /// </param>
         /// <param name="stream">
-        /// Stream containing the asset data.
+        /// The stream containing the asset data.
         /// </param>
         /// <param name="cancellationToken">
-        /// Token used to cancel the detection operation.
+        /// The token used to cancel the detection operation.
         /// </param>
         /// <returns>
-        /// The detected asset file reference if a matching asset type was found;
-        /// otherwise, <see langword="null"/>.
+        /// The detected asset file reference, or <see langword="null"/>
+        /// if no matching asset type was found.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when <paramref name="stream"/> is null.
+        /// Thrown when <paramref name="stream"/> is <see langword="null"/>.
         /// </exception>
         public static async ValueTask<IAssetFile?> DetectAsync(
             string path,
@@ -172,19 +204,25 @@ namespace Sachssoft.Sasogine.Assets
             {
                 ResetPosition(stream);
 
-                if (!await entry.DetectionMatchAsync(stream, cancellationToken))
+                if (!await entry.DetectionMatchAsync(
+                        stream,
+                        cancellationToken)
+                    .ConfigureAwait(false))
+                {
                     continue;
+                }
 
                 ResetPosition(stream);
 
-                return entry.Factory(path, stream);
+                return entry.Factory(
+                    path,
+                    stream);
             }
 
             ResetPosition(stream);
 
             return null;
         }
-
 
         private static void ResetPosition(Stream stream)
         {
