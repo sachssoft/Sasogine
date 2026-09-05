@@ -4,47 +4,56 @@ using System.Threading.Tasks;
 namespace Sachssoft.Sasogine.Resources
 {
     /// <summary>
-    /// Base class for resources that can be loaded.
-    /// Provides synchronous and asynchronous access to streams and raw byte arrays.
+    /// Provides a base implementation for accessing resource data.
     /// </summary>
-    // Basisklasse für Ressourcen, die geladen werden können.
-    // Stellt synchronen und asynchronen Zugriff auf Streams und Rohdaten (byte[]) bereit.
     public abstract class ResourceSourceBase
     {
         /// <summary>
-        /// Opens a stream synchronously for reading the resource.
+        /// Opens a stream for reading the resource.
         /// </summary>
-        // Öffnet einen Stream synchron zum Lesen der Ressource.
+        /// <returns>
+        /// A stream containing the resource data.
+        /// </returns>
         protected abstract Stream OpenStream();
 
         /// <summary>
         /// Opens a stream asynchronously for reading the resource.
         /// </summary>
-        // Öffnet einen Stream asynchron zum Lesen der Ressource.
+        /// <returns>
+        /// A task representing the asynchronous operation, containing a stream
+        /// with the resource data.
+        /// </returns>
         protected abstract Task<Stream> OpenStreamAsync();
 
         /// <summary>
-        /// Returns a stream synchronously or throws if not available.
+        /// Gets a stream for reading the resource.
         /// </summary>
-        // Liefert einen Stream synchron oder wirft, wenn er nicht verfügbar ist.
+        /// <returns>
+        /// A stream containing the resource data.
+        /// </returns>
         public Stream GetStream()
         {
             return OpenStream();
         }
 
         /// <summary>
-        /// Returns a stream asynchronously or throws if not available.
+        /// Gets a stream asynchronously for reading the resource.
         /// </summary>
-        // Liefert einen Stream asynchron oder wirft, wenn er nicht verfügbar ist.
+        /// <returns>
+        /// A task representing the asynchronous operation, containing a stream
+        /// with the resource data.
+        /// </returns>
         public async Task<Stream> GetStreamAsync()
         {
             return await OpenStreamAsync().ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Loads the raw bytes of the resource synchronously.
+        /// Loads the resource data as a byte array.
         /// </summary>
-        // Liest die Rohdaten der Ressource als byte[] synchron.
+        /// <returns>
+        /// A byte array containing the resource data.
+        /// </returns>
         public byte[] LoadRaw()
         {
             using var s = GetStream();
@@ -54,9 +63,12 @@ namespace Sachssoft.Sasogine.Resources
         }
 
         /// <summary>
-        /// Loads the raw bytes of the resource asynchronously.
+        /// Loads the resource data asynchronously as a byte array.
         /// </summary>
-        // Liest die Rohdaten der Ressource als byte[] asynchron.
+        /// <returns>
+        /// A task representing the asynchronous operation, containing a byte
+        /// array with the resource data.
+        /// </returns>
         public async Task<byte[]> LoadRawAsync()
         {
             using var s = await GetStreamAsync().ConfigureAwait(false);

@@ -1,21 +1,21 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Resources;
 
 /// <summary>
 /// Represents a single frame region inside a texture atlas.
-/// 
-/// A frame defines the pixel location, size, and source rectangle
-/// used to extract a region from the texture during rendering.
-/// 
+/// </summary>
+/// <remarks>
+/// A frame defines the pixel location, size, and source bounds
+/// used to identify a region within the source texture.
+///
 /// The structure is immutable and optimized for frequent access
 /// during rendering and batching operations.
-/// </summary>
+/// </remarks>
 public readonly struct FrameData : ISourceRegion
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="FrameData"/> struct.
+    /// Initializes a new instance of the <see cref="FrameData"/> structure.
     /// </summary>
     /// <param name="location">
     /// Pixel location of the frame inside the texture atlas.
@@ -24,34 +24,31 @@ public readonly struct FrameData : ISourceRegion
     /// Size of the frame in pixels.
     /// </param>
     public FrameData(
-        Point location,
+        PixelPoint2 location,
         PixelSize2 size)
     {
         Location = location;
         Size = size;
 
-        SourceRectangle = new Rectangle(
+        SourceBounds = new PixelBounds2(
             location.X,
             location.Y,
             size.Width,
             size.Height);
     }
 
-
     /// <summary>
     /// Gets the pixel location of the frame inside the texture atlas.
     /// </summary>
-    public Point Location { get; }
-
+    public PixelPoint2 Location { get; }
 
     /// <summary>
     /// Gets the size of the frame in pixels.
     /// </summary>
     public PixelSize2 Size { get; }
 
-
     /// <summary>
-    /// Gets the rectangular source region used for rendering.
+    /// Gets the pixel bounds identifying the frame within the source texture.
     /// </summary>
-    public Rectangle SourceRectangle { get; }
+    public PixelBounds2 SourceBounds { get; }
 }

@@ -1,20 +1,19 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Components.Models;
 using System.ComponentModel;
 
 namespace Sachssoft.Sasogine.Components.Rendering.Cameras
 {
     /// <summary>
-    /// Defines the default configuration values for a 2D camera.
+    /// Defines the default configuration values for a two-dimensional camera.
     /// </summary>
-    public class Camera2DDefinition : EngineObjectDefinition
+    public class Camera2Definition : EngineObjectDefinition
     {
         /// <summary>
         /// Gets or sets the default world position of the camera.
         /// </summary>
         [Category(Categories.Transform)]
-        public Vector2 Position { get; set; } = Vector2.Zero;
+        public Point2 Position { get; set; } = Point2.Zero;
 
         /// <summary>
         /// Gets or sets the default zoom factor of the camera.

@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Components.Tools.Selection
 {
@@ -10,7 +10,7 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// <summary>
         /// Gets or sets the position of the selection target.
         /// </summary>
-        Vector2 Position { get; set; }
+        Point2 Position { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether movement is currently allowed.

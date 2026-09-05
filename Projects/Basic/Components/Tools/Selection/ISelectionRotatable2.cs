@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Components.Tools.Selection
 {
@@ -15,7 +15,7 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// <summary>
         /// Gets or sets the pivot point used for rotating the selection target.
         /// </summary>
-        Vector2 RotationPivot { get; set; }
+        Point2 RotationPivot { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether rotation is allowed.

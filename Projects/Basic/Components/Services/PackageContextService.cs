@@ -8,7 +8,7 @@ namespace Sachssoft.Sasogine.Components.Services
     /// Manages the current package context and notifies listeners when
     /// the active package changes.
     /// </summary>
-    public sealed class PackageContextService<TPackage>
+    public sealed class PackageContextService<TPackage> : IComponentService
         where TPackage : class, IPackageStorageProvider
     {
         /// <summary>

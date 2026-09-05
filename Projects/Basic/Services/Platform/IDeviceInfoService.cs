@@ -1,29 +1,48 @@
-﻿namespace Sachssoft.Sasogine.Services.Platform
+﻿namespace Sachssoft.Sasogine.Services.Platform;
+
+/// <summary>
+/// Provides information about the current device and its display.
+/// </summary>
+public interface IDeviceInfoService
 {
-    public interface IDeviceInfoService
-    {
-        /// <summary>Friendly name of the device (e.g., "John's iPhone").</summary>
-        string DeviceName { get; }
+    /// <summary>
+    /// Gets the friendly name of the device.
+    /// </summary>
+    string DeviceName { get; }
 
-        /// <summary>OS version string (e.g., "iOS 17.1" / "Android 14").</summary>
-        string OSVersion { get; }
+    /// <summary>
+    /// Gets the operating system version.
+    /// </summary>
+    string OSVersion { get; }
 
-        /// <summary>Device model (e.g., "iPhone 14 Pro", "Samsung Galaxy S23").</summary>
-        string Model { get; }
+    /// <summary>
+    /// Gets the device model.
+    /// </summary>
+    string Model { get; }
 
-        /// <summary>Screen width in pixels.</summary>
-        int ScreenWidth { get; }
+    /// <summary>
+    /// Gets the screen width in pixels.
+    /// </summary>
+    int ScreenWidth { get; }
 
-        /// <summary>Screen height in pixels.</summary>
-        int ScreenHeight { get; }
+    /// <summary>
+    /// Gets the screen height in pixels.
+    /// </summary>
+    int ScreenHeight { get; }
 
-        /// <summary>Device DPI / pixel density.</summary>
-        float ScreenDpi { get; }
+    /// <summary>
+    /// Gets the device DPI or pixel density.
+    /// </summary>
+    float ScreenDpi { get; }
 
-        /// <summary>Is the device in landscape orientation (true) or portrait (false).</summary>
-        bool IsLandscape { get; }
+    /// <summary>
+    /// Gets a value indicating whether the device is in landscape orientation.
+    /// </summary>
+    bool IsLandscape { get; }
 
-        /// <summary>Optional unique device identifier (if permitted).</summary>
-        string? DeviceId { get; }
-    }
+    /// <summary>
+    /// Gets the optional device identifier, if available and permitted
+    /// by the platform.
+    /// </summary>
+    string? DeviceId { get; }
 }

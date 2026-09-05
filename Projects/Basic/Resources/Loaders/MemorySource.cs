@@ -5,31 +5,50 @@ using System.Threading.Tasks;
 namespace Sachssoft.Sasogine.Resources.Sources
 {
     /// <summary>
-    /// Loader für Daten, die im Speicher liegen (byte[], MemoryStream, AudioStream etc.).
+    /// Provides access to resource data stored in memory.
     /// </summary>
     public sealed class MemorySource : ResourceSourceBase
     {
         /// <summary>
-        /// Speicherinhalt des Loaders. Muss vor dem Zugriff gesetzt werden.
+        /// Initializes a new instance of the <see cref="MemorySource"/> class.
         /// </summary>
-        public byte[]? Data { get; set; }
+        public MemorySource()
+        {
+        }
 
-        public MemorySource() { }
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemorySource"/> class
+        /// with the specified resource data.
+        /// </summary>
+        /// <param name="data">
+        /// The resource data.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="data"/> is <see langword="null"/>.
+        /// </exception>
         public MemorySource(byte[] data)
         {
             Data = data ?? throw new ArgumentNullException(nameof(data));
         }
 
+        /// <summary>
+        /// Gets or sets the resource data.
+        /// </summary>
+        public byte[]? Data { get; set; }
+
+        /// <inheritdoc/>
         protected override Stream OpenStream()
         {
-            return new MemoryStream(Data!, writable: false);
+            if (Data == null)
+                throw new InvalidOperationException("Data is not set.");
+
+            return new MemoryStream(Data, writable: false);
         }
 
+        /// <inheritdoc/>
         protected override Task<Stream> OpenStreamAsync()
         {
-            // Bereits im Speicher – Task.FromResult reicht
-            return Task.FromResult<Stream>(new MemoryStream(Data!, writable: false));
+            return Task.FromResult(OpenStream());
         }
     }
 }

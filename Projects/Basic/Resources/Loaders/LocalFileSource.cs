@@ -1,31 +1,40 @@
-﻿using System;
+﻿using Sachssoft.Sasogine.Graphics.Rendering;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Resources.Sources
 {
     /// <summary>
-    /// Loads a file from the local file system.
-    /// Provides existence checking and optional case-sensitive path validation.
-    /// Supports synchronous and asynchronous access.
+    /// Provides access to resources stored in the local file system.
     /// </summary>
     public sealed class LocalFileSource : ResourceSourceBase, IFileSource
     {
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LocalFileSource"/> class.
+        /// </summary>
         public LocalFileSource()
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LocalFileSource"/> class
+        /// with the specified file path.
+        /// </summary>
+        /// <param name="filePath">
+        /// The path of the resource file.
+        /// </param>
         public LocalFileSource(string? filePath)
         {
             FilePath = filePath;
         }
 
         /// <summary>
-        /// Vollständiger Pfad oder Name der Ressource. Optional.
+        /// Gets or sets the path of the resource file.
         /// </summary>
         public string? FilePath { get; set; }
 
+        /// <inheritdoc/>
         protected override Stream OpenStream()
         {
             if (string.IsNullOrWhiteSpace(FilePath))
@@ -48,6 +57,7 @@ namespace Sachssoft.Sasogine.Resources.Sources
             }
         }
 
+        /// <inheritdoc/>
         protected override Task<Stream> OpenStreamAsync()
         {
             if (string.IsNullOrWhiteSpace(FilePath))
@@ -63,11 +73,14 @@ namespace Sachssoft.Sasogine.Resources.Sources
                     bufferSize: 4096,
                     useAsync: true
                 );
+
                 return Task.FromResult(stream);
             }
             catch (Exception ex)
             {
-                throw new IOException($"Failed to open file asynchronously: {FilePath}", ex);
+                throw new IOException(
+                    $"Failed to open file asynchronously: {FilePath}",
+                    ex);
             }
         }
     }

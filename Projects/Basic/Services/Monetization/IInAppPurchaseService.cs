@@ -4,41 +4,64 @@ using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Services.Monetization
 {
+    /// <summary>
+    /// Provides access to platform-specific in-app purchase services.
+    /// </summary>
     public interface IInAppPurchaseService
     {
         /// <summary>
-        /// Startet den Kauf eines Produkts.
+        /// Starts the purchase of a product.
         /// </summary>
-        /// <param name="productId">ID des zu kaufenden Produkts.</param>
+        /// <param name="productId">
+        /// The identifier of the product to purchase.
+        /// </param>
+        /// <returns>
+        /// A task containing the result of the purchase operation.
+        /// </returns>
         Task<PurchaseResult> PurchaseAsync(string productId);
 
         /// <summary>
-        /// Prüft, ob ein Produkt bereits gekauft wurde (nur für non-consumables).
+        /// Determines whether a product has already been purchased.
+        /// This is primarily used for non-consumable products.
         /// </summary>
+        /// <param name="productId">
+        /// The identifier of the product.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if the product has been purchased;
+        /// otherwise, <see langword="false"/>.
+        /// </returns>
         bool IsPurchased(string productId);
 
         /// <summary>
-        /// Gibt eine Liste aller im Store verfügbaren Produkte zurück.
+        /// Gets all products currently available from the store.
         /// </summary>
+        /// <returns>
+        /// A task containing the available products.
+        /// </returns>
         Task<IReadOnlyList<IProductInfo>> GetAvailableProductsAsync();
 
         /// <summary>
-        /// Gibt an, ob Käufe auf dieser Plattform grundsätzlich möglich sind.
+        /// Gets a value indicating whether purchases are supported
+        /// on the current platform.
         /// </summary>
         bool CanMakePayments { get; }
 
         /// <summary>
-        /// (Optional) Versucht, bereits gekaufte Produkte wiederherzustellen (z. B. nach Gerätewechsel).
+        /// Attempts to restore previously purchased products.
         /// </summary>
+        /// <returns>
+        /// A task representing the asynchronous restore operation.
+        /// </returns>
         Task RestorePurchasesAsync();
 
         /// <summary>
-        /// (Optional) Wird ausgelöst, wenn ein Kauf gestartet wurde.
+        /// Occurs when a purchase is started.
         /// </summary>
         event Action<string>? PurchaseStarted;
 
         /// <summary>
-        /// (Optional) Wird ausgelöst, wenn ein Kauf abgeschlossen wurde.
+        /// Occurs when a purchase is completed.
         /// </summary>
         event Action<string, PurchaseResult>? PurchaseFinished;
     }

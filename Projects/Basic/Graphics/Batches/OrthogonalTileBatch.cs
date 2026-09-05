@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Sachssoft.Sasogine.Graphics.Rendering.Batches;
 
@@ -15,13 +14,13 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches;
 /// </summary>
 /// <remarks>
 /// Converts tile coordinates into world positions using a fixed tile size.
-/// 
+///
 /// The batch supports a configurable tile pivot which defines the anchor
 /// position of a tile relative to its grid coordinate.
-/// 
+///
 /// Each tile can additionally use <see cref="TileTransform"/> for local
 /// transformations such as offset, scaling, rotation and transformation pivot.
-/// 
+///
 /// The tile pivot and transformation pivot have different purposes:
 /// <list type="bullet">
 /// <item>
@@ -33,17 +32,17 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches;
 /// </item>
 /// <item>
 /// <description>
-/// The transformation pivot defines the local point used for scaling and
-/// rotation of an individual tile.
+/// The transformation pivot defines the normalized local point used for scaling
+/// and rotation of an individual tile.
 /// </description>
 /// </item>
 /// </list>
-/// 
+///
 /// Supports default tile sizes as well as custom tile sizes per tile.
 /// </remarks>
 public sealed class OrthogonalTileBatch : QuadBatchBase
 {
-    private readonly Vector2 _tileSize;
+    private readonly Size2 _tileSize;
     private readonly Vector2 _tileGridPivot;
 
     /// <summary>
@@ -58,7 +57,7 @@ public sealed class OrthogonalTileBatch : QuadBatchBase
     /// <param name="tileGridPivot">
     /// Normalized anchor position of the tile relative to its grid coordinate.
     /// Values range from 0 to 1.
-    /// 
+    ///
     /// Examples:
     /// (0,0) = top-left corner,
     /// (0.5,0.5) = center,
@@ -69,7 +68,7 @@ public sealed class OrthogonalTileBatch : QuadBatchBase
     /// </param>
     public OrthogonalTileBatch(
         GraphicsDevice graphicsDevice,
-        Vector2 tileSize,
+        Size2 tileSize,
         Vector2 tileGridPivot,
         int initialCapacity = 1024)
         : base(
@@ -94,7 +93,7 @@ public sealed class OrthogonalTileBatch : QuadBatchBase
     /// </param>
     public OrthogonalTileBatch(
         GraphicsDevice graphicsDevice,
-        Vector2 tileSize,
+        Size2 tileSize,
         int initialCapacity = 1024)
         : this(
             graphicsDevice,
@@ -110,7 +109,7 @@ public sealed class OrthogonalTileBatch : QuadBatchBase
     /// <remarks>
     /// The grid coordinate is converted into a world position using the configured
     /// tile size.
-    /// 
+    ///
     /// A custom transformation can be applied to the tile using
     /// <see cref="TileTransform"/>. The transformation supports:
     /// <list type="bullet">
@@ -131,19 +130,19 @@ public sealed class OrthogonalTileBatch : QuadBatchBase
     /// </item>
     /// <item>
     /// <description>
-    /// Pivot defining the local transformation anchor.
+    /// Pivot defining the normalized local transformation anchor.
     /// </description>
     /// </item>
     /// </list>
-    /// 
+    ///
     /// A custom tile size changes the rendered size while keeping the grid layout
     /// unchanged.
     /// </remarks>
     /// <param name="coordinate">
     /// Grid coordinate of the tile.
     /// </param>
-    /// <param name="sourceRect">
-    /// Source rectangle inside the texture atlas.
+    /// <param name="sourceBounds">
+    /// Pixel bounds inside the texture atlas.
     /// </param>
     /// <param name="customTransform">
     /// Optional local transformation applied to the tile.
@@ -155,29 +154,34 @@ public sealed class OrthogonalTileBatch : QuadBatchBase
     /// Optional color tint.
     /// </param>
     public void AddTile(
-      Coordinate2 coordinate,
-      Rectangle sourceRect,
-      TileTransform? customTransform = null,
-      Vector2? customTileSize = null,
-      Color? color = null)
+        Coordinate2 coordinate,
+        PixelBounds2 sourceBounds,
+        TileTransform? customTransform = null,
+        Size2? customTileSize = null,
+        Color? color = null)
     {
         TileTransform transform =
             customTransform ?? TileTransform.Identity;
 
-        var position = new Vector2(
-                coordinate.X * _tileSize.X,
-                coordinate.Y * _tileSize.Y);
+        var position = new Point2(
+            coordinate.X * _tileSize.Width,
+            coordinate.Y * _tileSize.Height);
 
-        var tileOffset = (_tileSize * _tileGridPivot);
-        position += transform.Offset + tileOffset;
+        var tileOffset = new Vector2(
+            _tileSize.Width * _tileGridPivot.X,
+            _tileSize.Height * _tileGridPivot.Y);
+
+        position = new Point2(
+            position.X + transform.Offset.X + tileOffset.X,
+            position.Y + transform.Offset.Y + tileOffset.Y);
 
         var scale = transform.Scale;
 
         if (customTileSize.HasValue)
         {
             scale *= new Vector2(
-                customTileSize.Value.X / _tileSize.X,
-                customTileSize.Value.Y / _tileSize.Y);
+                customTileSize.Value.Width / _tileSize.Width,
+                customTileSize.Value.Height / _tileSize.Height);
         }
 
         var pivot = transform.Pivot;
@@ -189,8 +193,8 @@ public sealed class OrthogonalTileBatch : QuadBatchBase
                 0f)
             *
             Matrix.CreateScale(
-                _tileSize.X * scale.X,
-                _tileSize.Y * scale.Y,
+                _tileSize.Width * scale.X,
+                _tileSize.Height * scale.Y,
                 1f)
             *
             Matrix.CreateRotationZ(
@@ -203,7 +207,7 @@ public sealed class OrthogonalTileBatch : QuadBatchBase
 
         AddQuad(
             matrix,
-            sourceRect,
+            sourceBounds,
             color ?? Color.White);
     }
 }

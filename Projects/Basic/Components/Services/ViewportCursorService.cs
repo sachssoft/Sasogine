@@ -19,7 +19,7 @@ namespace Sachssoft.Sasogine.Components.Services
     //
     // Dadurch können UI-/Viewport-Eingaben unabhängig von Auflösung und Skalierung
     // korrekt im Spiel verwendet werden.
-    public class ViewportCursorService
+    public class ViewportCursorService : IComponentService
     {
         private Vector2 _viewportCursorPosition;
         private Vector2 _screenPosition;

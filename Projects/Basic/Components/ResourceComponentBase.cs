@@ -1,27 +1,50 @@
-﻿namespace Sachssoft.Sasogine.Components
+﻿namespace Sachssoft.Sasogine.Components;
+
+/// <summary>
+/// Provides a base implementation for components that manage loadable resources.
+/// </summary>
+public abstract class ResourceComponentBase : IResourceComponent
 {
-    public abstract class ResourceComponentBase : IResourceComponent
+    /// <summary>
+    /// Gets a value indicating whether the component resources are currently loaded.
+    /// </summary>
+    public bool IsLoaded { get; private set; }
+
+    /// <summary>
+    /// Loads the resources required by the component.
+    /// </summary>
+    public void Load()
     {
-        public ResourceComponentBase()
-        {
-        }
+        if (IsLoaded)
+            return;
 
-        public bool IsLoaded { get; protected set; }
+        OnLoad();
+        IsLoaded = true;
+    }
 
-        public virtual void Load()
-        {
-            if (IsLoaded)
-                return;
+    /// <summary>
+    /// Unloads the resources owned by the component.
+    /// </summary>
+    public void Unload()
+    {
+        if (!IsLoaded)
+            return;
 
-            IsLoaded = true;
-        }
+        OnUnload();
+        IsLoaded = false;
+    }
 
-        public virtual void Unload()
-        {
-            if (!IsLoaded)
-                return;
+    /// <summary>
+    /// Called when the component resources should be loaded.
+    /// </summary>
+    protected virtual void OnLoad()
+    {
+    }
 
-            IsLoaded = false;
-        }
+    /// <summary>
+    /// Called when the component resources should be unloaded.
+    /// </summary>
+    protected virtual void OnUnload()
+    {
     }
 }

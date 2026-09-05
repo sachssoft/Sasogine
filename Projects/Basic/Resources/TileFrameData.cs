@@ -1,17 +1,17 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Resources;
 
 /// <summary>
 /// Represents a single tile frame within a texture atlas.
-///
+/// </summary>
+/// <remarks>
 /// A tile frame defines the atlas cell position, tile size, and the resulting
-/// source rectangle used for rendering.
+/// pixel bounds used to identify the frame within the source texture.
 ///
 /// The structure is immutable and optimized for frequent usage during rendering
 /// and batching operations.
-/// </summary>
+/// </remarks>
 public readonly struct TileFrameData : ISourceRegion
 {
     /// <summary>
@@ -30,28 +30,25 @@ public readonly struct TileFrameData : ISourceRegion
         Size = size;
         Cell = cell;
 
-        SourceRectangle = new Rectangle(
+        SourceBounds = new PixelBounds2(
             cell.X * size.Width,
             cell.Y * size.Height,
             size.Width,
             size.Height);
     }
 
-
     /// <summary>
     /// Gets the size of the tile in pixels.
     /// </summary>
     public PixelSize2 Size { get; }
-
 
     /// <summary>
     /// Gets the cell coordinate of the frame inside the texture atlas.
     /// </summary>
     public Coordinate2 Cell { get; }
 
-
     /// <summary>
-    /// Gets the source rectangle used to draw this frame from the texture atlas.
+    /// Gets the pixel bounds identifying this frame within the source texture.
     /// </summary>
-    public Rectangle SourceRectangle { get; }
+    public PixelBounds2 SourceBounds { get; }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sachssoft.Sasogine.Components.Services;
+using System;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Components.Services
@@ -6,7 +7,7 @@ namespace Sachssoft.Sasogine.Components.Services
     /// <summary>
     /// Provides undo and redo history management.
     /// </summary>
-    public sealed class HistoryService
+    public sealed class HistoryService : IComponentService
     {
         private readonly Stack<HistoryAction> _undoStack = new();
         private readonly Stack<HistoryAction> _redoStack = new();

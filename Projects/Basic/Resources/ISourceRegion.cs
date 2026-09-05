@@ -1,14 +1,14 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Resources;
 
 /// <summary>
-/// Defines a rectangular region inside a texture resource.
+/// Defines a rectangular pixel region inside a texture resource.
 /// </summary>
 public interface ISourceRegion
 {
     /// <summary>
-    /// Gets the pixel rectangle that identifies this region within the source texture.
+    /// Gets the pixel bounds that identify this region within the source texture.
     /// </summary>
-    Rectangle SourceRectangle { get; }
+    PixelBounds2 SourceBounds { get; }
 }

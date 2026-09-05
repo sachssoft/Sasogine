@@ -1,136 +1,197 @@
-﻿namespace Sachssoft.Sasogine.Gameplay
+﻿namespace Sachssoft.Sasogine.Gameplay;
+
+/// <summary>
+/// Defines the possible states of a participant throughout the game lifecycle.
+/// </summary>
+public enum ParticipantState
 {
     /// <summary>
-    /// Defines the possible states of a participant in a game lifecycle.
-    /// Covers lobby, gameplay, post-game, network, and administrative scenarios.
+    /// No participant state is currently assigned.
     /// </summary>
-    public enum ParticipantState
-    {
-        /// <summary>No defined state / empty slot.</summary>
-        None,           // Kein Status gesetzt (Platzhalter)
+    None,
 
-        // --- Meta / Lobby ---
+    /// <summary>
+    /// The participant is establishing a connection to a server or host.
+    /// </summary>
+    Connecting,
 
-        /// <summary>Participant is establishing a connection to the server or host.</summary>
-        Connecting,     // Verbindung wird hergestellt
+    /// <summary>
+    /// The participant is being authenticated.
+    /// </summary>
+    Authenticating,
 
-        /// <summary>Participant is authenticating (e.g., login, account check).</summary>
-        Authenticating, // Spieler authentifiziert sich
+    /// <summary>
+    /// The participant is currently in a lobby.
+    /// </summary>
+    InLobby,
 
-        /// <summary>Participant is in a lobby, waiting for the game to start.</summary>
-        InLobby,        // In der Lobby, vor Spielstart
+    /// <summary>
+    /// The participant is waiting for a matchmaking result.
+    /// </summary>
+    Matchmaking,
 
-        /// <summary>Participant is waiting in matchmaking queue.</summary>
-        Matchmaking,    // Warteschlange für Matchmaking
+    /// <summary>
+    /// The participant is waiting to confirm readiness.
+    /// </summary>
+    ReadyCheck,
 
-        /// <summary>Participant must confirm readiness (ready check).</summary>
-        ReadyCheck,     // "Bereit?"-Abfrage
+    /// <summary>
+    /// The participant is loading or synchronizing data required to start.
+    /// </summary>
+    Loading,
 
-        /// <summary>Participant is loading assets or synchronizing before match start.</summary>
-        Loading,        // Lädt Assets / Synchronisierung
+    /// <summary>
+    /// The participant is ready to start.
+    /// </summary>
+    Ready,
 
-        /// <summary>Participant is ready to start the game.</summary>
-        Ready,          // Bereit zum Spielstart
+    /// <summary>
+    /// The participant is waiting for the game, round, or other participants.
+    /// </summary>
+    Waiting,
 
-        /// <summary>Participant is waiting for other players or round to begin.</summary>
-        Waiting,        // Wartet auf andere Spieler / Rundenstart
+    /// <summary>
+    /// The participant is currently in a selection phase.
+    /// </summary>
+    Selection,
 
-        /// <summary>Participant is in a selection phase (character, items, tiles, etc.).</summary>
-        Selection,      // Auswahlphase (Charakter, Items, Kacheln)
+    /// <summary>
+    /// The participant is being spawned into the game.
+    /// </summary>
+    Spawning,
 
-        // --- Gameplay ---
+    /// <summary>
+    /// The participant is active and taking part in gameplay.
+    /// </summary>
+    Active,
 
-        /// <summary>Participant is spawning for the first time.</summary>
-        Spawning,       // Erste Platzierung im Spiel
+    /// <summary>
+    /// The participant is inactive or temporarily not providing input.
+    /// </summary>
+    Idle,
 
-        /// <summary>Participant is alive and actively playing.</summary>
-        Active,         // Lebendig und aktiv
+    /// <summary>
+    /// The participant is currently paused.
+    /// </summary>
+    Paused,
 
-        /// <summary>Participant is in the game but not giving input (AFK, timeout).</summary>
-        Idle,           // Untätig / AFK
+    /// <summary>
+    /// The participant is interacting with an object or interface.
+    /// </summary>
+    Interacting,
 
-        /// <summary>Participant has paused the game.</summary>
-        Paused,         // Spiel pausiert
+    /// <summary>
+    /// The participant is performing an explicit gameplay action.
+    /// </summary>
+    PerformingAction,
 
-        /// <summary>Participant is interacting with objects or UI.</summary>
-        Interacting,    // Mit Objekten/UI beschäftigt
+    /// <summary>
+    /// The participant is currently trading or exchanging items.
+    /// </summary>
+    Trading,
 
-        /// <summary>Participant is performing an explicit action (skill, item use, etc.).</summary>
-        PerformingAction, // Führt Aktion aus
+    /// <summary>
+    /// The participant is hidden from normal visibility.
+    /// </summary>
+    Hidden,
 
-        /// <summary>Participant is in a trade window or exchange state.</summary>
-        Trading,        // Handel / Austausch
+    /// <summary>
+    /// The participant is temporarily invincible.
+    /// </summary>
+    Invincible,
 
-        /// <summary>Participant is hidden/stealthed from others.</summary>
-        Hidden,         // Unsichtbar / getarnt
+    /// <summary>
+    /// The participant is temporarily unable to act.
+    /// </summary>
+    Stunned,
 
-        /// <summary>Participant is temporarily invincible (e.g., after respawn, power-up).</summary>
-        Invincible,     // Unverwundbar
+    /// <summary>
+    /// The participant is disabled by gameplay rules or restrictions.
+    /// </summary>
+    Disabled,
 
-        /// <summary>Participant is stunned and cannot act.</summary>
-        Stunned,        // Benommen / bewegungsunfähig
+    /// <summary>
+    /// The participant has been killed but may still be able to respawn.
+    /// </summary>
+    Killed,
 
-        /// <summary>Participant is disabled due to game mechanics or restrictions.</summary>
-        Disabled,       // Deaktiviert / gesperrt im Spiel
+    /// <summary>
+    /// The participant is currently respawning.
+    /// </summary>
+    Respawning,
 
-        // --- Death & End ---
+    /// <summary>
+    /// The participant has been permanently eliminated.
+    /// </summary>
+    Eliminated,
 
-        /// <summary>Participant is dead but may respawn.</summary>
-        Killed,         // Gestorben (evtl. Respawn möglich)
+    /// <summary>
+    /// The participant has completed the current match, level, or objective.
+    /// </summary>
+    Finished,
 
-        /// <summary>Participant is in respawn transition phase.</summary>
-        Respawning,     // Respawn läuft
+    /// <summary>
+    /// The participant is observing gameplay as a spectator.
+    /// </summary>
+    Spectating,
 
-        /// <summary>Participant has been permanently eliminated from the match.</summary>
-        Eliminated,     // Dauerhaft ausgeschieden
+    /// <summary>
+    /// The participant is in the post-game phase.
+    /// </summary>
+    PostGame,
 
-        /// <summary>Participant has finished the match/level successfully.</summary>
-        Finished,       // Ziel erreicht
+    /// <summary>
+    /// The participant is receiving rewards, experience, or other results.
+    /// </summary>
+    Rewarding,
 
-        /// <summary>Participant is spectating the game.</summary>
-        Spectating,     // Zuschauer-Modus
+    /// <summary>
+    /// The participant is reviewing results, statistics, or replay information.
+    /// </summary>
+    Reviewing,
 
-        // --- Post Game ---
+    /// <summary>
+    /// The participant has completely exited the game session.
+    /// </summary>
+    Exited,
 
-        /// <summary>Participant is in post-game phase (scoreboard, waiting room).</summary>
-        PostGame,       // Nach Match-Ende, in der Session
+    /// <summary>
+    /// The participant is synchronizing state or data.
+    /// </summary>
+    Syncing,
 
-        /// <summary>Participant is receiving rewards, XP, or loot.</summary>
-        Rewarding,      // Belohnungen / XP erhalten
+    /// <summary>
+    /// The participant is experiencing network latency or delayed synchronization.
+    /// </summary>
+    Lagging,
 
-        /// <summary>Participant is reviewing a replay or statistics.</summary>
-        Reviewing,      // Replay / Statistik anschauen
+    /// <summary>
+    /// The participant state is no longer synchronized with the authoritative state.
+    /// </summary>
+    OutOfSync,
 
-        /// <summary>Participant has completely exited the game.</summary>
-        Exited,         // Spiel verlassen
+    /// <summary>
+    /// The participant has lost its network connection.
+    /// </summary>
+    Disconnected,
 
-        // --- Network ---
+    /// <summary>
+    /// The participant is attempting to restore a lost connection.
+    /// </summary>
+    Reconnecting,
 
-        /// <summary>Participant is synchronizing state/data with the server.</summary>
-        Syncing,        // Synchronisierung läuft
+    /// <summary>
+    /// The participant voluntarily left the game or session.
+    /// </summary>
+    Left,
 
-        /// <summary>Participant is experiencing network lag.</summary>
-        Lagging,        // Netzwerk-Lag
+    /// <summary>
+    /// The participant is banned from participating.
+    /// </summary>
+    Banned,
 
-        /// <summary>Participant is out of sync with the server/host.</summary>
-        OutOfSync,      // Spielzustand passt nicht mehr
-
-        /// <summary>Participant has lost connection.</summary>
-        Disconnected,   // Verbindung verloren
-
-        /// <summary>Participant is attempting to reconnect.</summary>
-        Reconnecting,   // Verbindungsversuch
-
-        // --- Administration ---
-
-        /// <summary>Participant left the game voluntarily.</summary>
-        Left,           // Spieler hat freiwillig verlassen
-
-        /// <summary>Participant is banned and cannot participate.</summary>
-        Banned,         // Gesperrt
-
-        /// <summary>Participant is suspended temporarily and cannot play.</summary>
-        Suspended       // Vorübergehend ausgeschlossen
-    }
-
+    /// <summary>
+    /// The participant is temporarily suspended from participating.
+    /// </summary>
+    Suspended
 }

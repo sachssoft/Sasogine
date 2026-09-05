@@ -1,5 +1,5 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Common;
 using System;
 
 namespace Sachssoft.Sasogine.Graphics.Cameras
@@ -17,12 +17,24 @@ namespace Sachssoft.Sasogine.Graphics.Cameras
         /// <summary>
         /// Converts a screen-space position into world-space coordinates.
         /// </summary>
-        Vector2 ToWorld(Vector2 screenPosition);
+        /// <param name="screenPosition">
+        /// The position in screen space.
+        /// </param>
+        /// <returns>
+        /// The corresponding position in world space.
+        /// </returns>
+        Point2 ToWorld(Point2 screenPosition);
 
         /// <summary>
         /// Converts a world-space position into screen-space coordinates.
         /// </summary>
-        Vector2 ToScreen(Vector2 worldPosition);
+        /// <param name="worldPosition">
+        /// The position in world space.
+        /// </param>
+        /// <returns>
+        /// The corresponding position in screen space.
+        /// </returns>
+        Point2 ToScreen(Point2 worldPosition);
 
         /// <summary>
         /// Updates the camera state.

@@ -31,13 +31,15 @@ namespace Sachssoft.Sasogine.Graphics.Cameras
         /// </returns>
         public static bool IsInView(
             this ICamera camera,
-            Vector3 min,
-            Vector3 max,
+            Point3 min,
+            Point3 max,
             Matrix? world = null)
         {
             var worldMatrix = world ?? Matrix.Identity;
 
-            var box = new BoundingBox(min, max);
+            var box = new BoundingBox(
+                new Vector3(min.X, min.Y, min.Z),
+                new Vector3(max.X, max.Y, max.Z));
 
             if (worldMatrix != Matrix.Identity)
                 box = TransformBoundingBox(box, worldMatrix);
@@ -53,18 +55,18 @@ namespace Sachssoft.Sasogine.Graphics.Cameras
         /// <summary>
         /// Calculates the visible world-space bounds of the camera viewport.
         /// </summary>
-        /// <param name="camera2D">
+        /// <param name="camera2">
         /// The 2D camera used to transform screen coordinates into world coordinates.
         /// </param>
         /// <param name="screenViewport">
         /// The viewport area representing the visible screen region.
         /// </param>
         /// <returns>
-        /// A <see cref="Box"/> containing the minimum and maximum world-space coordinates
+        /// A <see cref="Box2"/> containing the minimum and maximum world-space coordinates
         /// visible through the camera.
         /// </returns>
         public static Box2 GetWorldBounds(
-            this ICamera2D camera2D,
+            this ICamera2 camera2D,
             Viewport screenViewport)
         {
             var inverseView = Matrix.Invert(camera2D.View);
@@ -118,15 +120,19 @@ namespace Sachssoft.Sasogine.Graphics.Cameras
         /// <returns>
         /// The corresponding position in world space.
         /// </returns>
-        public static Vector2 GetWorldPosition(
-            this ICamera2D camera,
-            Vector2 position)
+        public static Point2 GetWorldPosition(
+            this ICamera2 camera,
+            Point2 position)
         {
             var inverseView = Matrix.Invert(camera.View);
 
-            return Vector2.Transform(
-                position,
+            Vector2 result = Vector2.Transform(
+                new Vector2(position.X, position.Y),
                 inverseView);
+
+            return new Point2(
+                result.X,
+                result.Y);
         }
 
         /// <summary>
@@ -146,8 +152,8 @@ namespace Sachssoft.Sasogine.Graphics.Cameras
         /// otherwise, <see langword="false"/>.
         /// </returns>
         public static bool ContainsWorldPosition(
-            this ICamera2D camera,
-            Vector2 position,
+            this ICamera2 camera,
+            Point2 position,
             Viewport screenViewport)
         {
             var bounds = camera.GetWorldBounds(screenViewport);

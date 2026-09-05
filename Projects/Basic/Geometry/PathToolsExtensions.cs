@@ -1,246 +1,342 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Geometry
+namespace Sachssoft.Sasogine.Geometry;
+
+/// <summary>
+/// Provides extension methods for transforming, simplifying,
+/// smoothing, resampling, and optimizing path collections.
+/// </summary>
+public static class PathToolsExtensions
 {
     /// <summary>
-    /// Erweiterungsmethoden für die Bearbeitung und Optimierung von PathCollection-Objekten.
+    /// Smooths all polygons in the specified path collection.
     /// </summary>
-    public static class PathToolsExtensions
+    /// <param name="collection">
+    /// The path collection to smooth.
+    /// </param>
+    /// <param name="smoothFactor">
+    /// The smoothing factor applied to the polygon points.
+    /// </param>
+    /// <param name="maxAngleDeg">
+    /// The maximum corner angle, in degrees, affected by smoothing.
+    /// </param>
+    /// <param name="segments">
+    /// The number of segments used when generating smoothed curves.
+    /// </param>
+    /// <returns>
+    /// A new <see cref="PathCollection"/> containing the smoothed polygons.
+    /// </returns>
+    public static PathCollection Smooth(
+        this PathCollection collection,
+        float smoothFactor = 0.5f,
+        float maxAngleDeg = 170f,
+        int segments = 3)
     {
-        /// <summary>
-        /// Glättet alle Polygone der PathCollection mit dem angegebenen Glättungsfaktor
-        /// und maximal zulässigen Winkel.
-        /// </summary>
-        /// <param name="collection">Die zu glättende PathCollection.</param>
-        /// <param name="smoothFactor">Der Glättungsfaktor.</param>
-        /// <param name="maxAngleDeg">Der maximale Winkel in Grad, bis zu dem Ecken geglättet werden.</param>
-        /// <param name="segments">Die Anzahl der Segmente für erzeugte Kurven.</param>
-        /// <returns>Eine neue PathCollection mit den geglätteten Polygonen.</returns>
-        public static PathCollection Smooth(this PathCollection collection, float smoothFactor = 0.5f, float maxAngleDeg = 170f, int segments = 3)
+        var resultPaths = new List<Path>(collection.Count);
+
+        foreach (var path in collection)
         {
-            var resultPaths = new List<Path>(collection.Count);
+            var polygons = new List<Vector2[]>(path.GetPolygonCount());
 
-            foreach (var path in collection)
+            for (int i = 0; i < path.GetPolygonCount(); i++)
             {
-                var polygons = new List<Vector2[]>(path.GetPolygonCount());
+                var points = path.GetPolygonPoints(i);
+                var input = new List<Vector2>(points.Count);
 
-                for (int i = 0; i < path.GetPolygonCount(); i++)
-                {
-                    var points = path.GetPolygonPoints(i);
-                    var input = new List<Vector2>(points.Count);
+                for (int j = 0; j < points.Count; j++)
+                    input.Add(points[j]);
 
-                    for (int j = 0; j < points.Count; j++)
-                        input.Add(points[j]);
+                var smoothed = PathTools.SmoothPath(
+                    input,
+                    smoothFactor,
+                    maxAngleDeg,
+                    segments);
 
-                    var smoothed = PathTools.SmoothPath(input, smoothFactor, maxAngleDeg, segments);
-                    polygons.Add(smoothed.ToArray());
-                }
-
-                resultPaths.Add(new Path(polygons));
+                polygons.Add(smoothed.ToArray());
             }
 
-            return new PathCollection(resultPaths);
+            resultPaths.Add(new Path(polygons));
         }
 
-        /// <summary>
-        /// Rundet alle Ecken aller Polygone der PathCollection,
-        /// deren Winkel kleiner als der angegebene maximale Winkel ist.
-        /// </summary>
-        /// <param name="collection">Die zu bearbeitende PathCollection.</param>
-        /// <param name="radius">Der Radius der abgerundeten Ecken.</param>
-        /// <param name="maxAngleDeg">Der maximale Winkel in Grad für eine Rundung.</param>
-        /// <param name="segments">Die Anzahl der Segmente für den Rundungsbogen.</param>
-        /// <returns>Eine neue PathCollection mit abgerundeten Ecken.</returns>
-        public static PathCollection RoundCorners(this PathCollection collection, float radius, float maxAngleDeg = 150f, int segments = 6)
+        return new PathCollection(resultPaths);
+    }
+
+    /// <summary>
+    /// Rounds eligible corners of all polygons in the specified path collection.
+    /// </summary>
+    /// <param name="collection">
+    /// The path collection to process.
+    /// </param>
+    /// <param name="radius">
+    /// The radius used for rounded corners.
+    /// </param>
+    /// <param name="maxAngleDeg">
+    /// The maximum corner angle, in degrees, eligible for rounding.
+    /// </param>
+    /// <param name="segments">
+    /// The number of segments used to generate each rounded corner.
+    /// </param>
+    /// <returns>
+    /// A new <see cref="PathCollection"/> containing polygons with rounded corners.
+    /// </returns>
+    public static PathCollection RoundCorners(
+        this PathCollection collection,
+        float radius,
+        float maxAngleDeg = 150f,
+        int segments = 6)
+    {
+        var resultPaths = new List<Path>(collection.Count);
+
+        foreach (var path in collection)
         {
-            var resultPaths = new List<Path>(collection.Count);
+            var polygons = new List<Vector2[]>(path.GetPolygonCount());
 
-            foreach (var path in collection)
+            for (int i = 0; i < path.GetPolygonCount(); i++)
             {
-                var polygons = new List<Vector2[]>(path.GetPolygonCount());
+                var points = path.GetPolygonPoints(i);
+                var input = new List<Vector2>(points.Count);
 
-                for (int i = 0; i < path.GetPolygonCount(); i++)
-                {
-                    var points = path.GetPolygonPoints(i);
-                    var input = new List<Vector2>(points.Count);
+                for (int j = 0; j < points.Count; j++)
+                    input.Add(points[j]);
 
-                    for (int j = 0; j < points.Count; j++)
-                        input.Add(points[j]);
+                var rounded = PathTools.RoundCornersAuto(
+                    input,
+                    radius,
+                    maxAngleDeg,
+                    segments);
 
-                    var rounded = PathTools.RoundCornersAuto(input, radius, maxAngleDeg, segments);
-                    polygons.Add(rounded.ToArray());
-                }
-
-                resultPaths.Add(new Path(polygons));
+                polygons.Add(rounded.ToArray());
             }
 
-            return new PathCollection(resultPaths);
+            resultPaths.Add(new Path(polygons));
         }
 
-        /// <summary>
-        /// Resampelt die angegebenen Bereiche aller Polygone der PathCollection
-        /// auf eine feste Anzahl zusätzlicher Punkte.
-        /// </summary>
-        /// <param name="collection">Die zu resampelnde PathCollection.</param>
-        /// <param name="startIndex">Der Startindex des Bereichs.</param>
-        /// <param name="endIndex">Der Endindex des Bereichs.</param>
-        /// <param name="newPointCount">Die Anzahl der zusätzlichen Punkte.</param>
-        /// <returns>Eine neue PathCollection mit resampelten Polygonen.</returns>
-        public static PathCollection Resample(this PathCollection collection, int startIndex, int endIndex, int newPointCount)
+        return new PathCollection(resultPaths);
+    }
+
+    /// <summary>
+    /// Resamples the specified point range of every polygon
+    /// in the path collection.
+    /// </summary>
+    /// <param name="collection">
+    /// The path collection to resample.
+    /// </param>
+    /// <param name="startIndex">
+    /// The index of the first point in the range to resample.
+    /// </param>
+    /// <param name="endIndex">
+    /// The index of the last point in the range to resample.
+    /// </param>
+    /// <param name="newPointCount">
+    /// The number of points used for the resampled range.
+    /// </param>
+    /// <returns>
+    /// A new <see cref="PathCollection"/> containing the resampled polygons.
+    /// </returns>
+    public static PathCollection Resample(
+        this PathCollection collection,
+        int startIndex,
+        int endIndex,
+        int newPointCount)
+    {
+        var resultPaths = new List<Path>(collection.Count);
+
+        foreach (var path in collection)
         {
-            var resultPaths = new List<Path>(collection.Count);
+            var polygons = new List<Vector2[]>(path.GetPolygonCount());
 
-            foreach (var path in collection)
+            for (int i = 0; i < path.GetPolygonCount(); i++)
             {
-                var polygons = new List<Vector2[]>(path.GetPolygonCount());
+                var points = path.GetPolygonPoints(i);
+                var input = new List<Vector2>(points.Count);
 
-                for (int i = 0; i < path.GetPolygonCount(); i++)
-                {
-                    var points = path.GetPolygonPoints(i);
-                    var input = new List<Vector2>(points.Count);
+                for (int j = 0; j < points.Count; j++)
+                    input.Add(points[j]);
 
-                    for (int j = 0; j < points.Count; j++)
-                        input.Add(points[j]);
+                var resampled = PathTools.ResampleLinear(
+                    input,
+                    startIndex,
+                    endIndex,
+                    newPointCount);
 
-                    var resampled = PathTools.ResampleLinear(input, startIndex, endIndex, newPointCount);
-                    polygons.Add(resampled.ToArray());
-                }
-
-                resultPaths.Add(new Path(polygons));
+                polygons.Add(resampled.ToArray());
             }
 
-            return new PathCollection(resultPaths);
+            resultPaths.Add(new Path(polygons));
         }
 
-        /// <summary>
-        /// Vereinfacht alle Polygone der PathCollection mit dem
-        /// Douglas-Peucker-Verfahren.
-        /// </summary>
-        /// <param name="collection">Die zu vereinfachende PathCollection.</param>
-        /// <param name="tolerance">Die maximale Abweichung für die Vereinfachung.</param>
-        /// <returns>Eine neue PathCollection mit vereinfachten Polygonen.</returns>
-        public static PathCollection Simplify(this PathCollection collection, float tolerance)
+        return new PathCollection(resultPaths);
+    }
+
+    /// <summary>
+    /// Simplifies all polygons in the specified path collection
+    /// using the Douglas-Peucker algorithm.
+    /// </summary>
+    /// <param name="collection">
+    /// The path collection to simplify.
+    /// </param>
+    /// <param name="tolerance">
+    /// The maximum allowed deviation used by the simplification algorithm.
+    /// </param>
+    /// <returns>
+    /// A new <see cref="PathCollection"/> containing the simplified polygons.
+    /// </returns>
+    public static PathCollection Simplify(
+        this PathCollection collection,
+        float tolerance)
+    {
+        var resultPaths = new List<Path>(collection.Count);
+
+        foreach (var path in collection)
         {
-            var resultPaths = new List<Path>(collection.Count);
+            var polygons = new List<Vector2[]>(path.GetPolygonCount());
 
-            foreach (var path in collection)
+            for (int i = 0; i < path.GetPolygonCount(); i++)
             {
-                var polygons = new List<Vector2[]>(path.GetPolygonCount());
+                var points = path.GetPolygonPoints(i);
+                var input = new List<Vector2>(points.Count);
 
-                for (int i = 0; i < path.GetPolygonCount(); i++)
-                {
-                    var points = path.GetPolygonPoints(i);
-                    var input = new List<Vector2>(points.Count);
+                for (int j = 0; j < points.Count; j++)
+                    input.Add(points[j]);
 
-                    for (int j = 0; j < points.Count; j++)
-                        input.Add(points[j]);
+                var simplified =
+                    PathTools.SimplifyDouglasPeucker(
+                        input,
+                        tolerance);
 
-                    var simplified = PathTools.SimplifyDouglasPeucker(input, tolerance);
-                    polygons.Add(simplified.ToArray());
-                }
-
-                resultPaths.Add(new Path(polygons));
+                polygons.Add(simplified.ToArray());
             }
 
-            return new PathCollection(resultPaths);
+            resultPaths.Add(new Path(polygons));
         }
 
-        /// <summary>
-        /// Konvertiert alle Punkte aller Polygone der PathCollection
-        /// in eine gemeinsame Punktliste.
-        /// </summary>
-        /// <param name="collection">Die PathCollection.</param>
-        /// <returns>Eine Liste mit allen Polygonpunkten.</returns>
-        public static List<Vector2> Flatten(this PathCollection collection)
+        return new PathCollection(resultPaths);
+    }
+
+    /// <summary>
+    /// Flattens all polygon points from the specified path collection
+    /// into a single point list.
+    /// </summary>
+    /// <param name="collection">
+    /// The path collection to flatten.
+    /// </param>
+    /// <returns>
+    /// A list containing all points from all polygons in the collection.
+    /// </returns>
+    public static List<Vector2> Flatten(
+        this PathCollection collection)
+    {
+        var count = 0;
+
+        foreach (var path in collection)
         {
-            var count = 0;
-
-            foreach (var path in collection)
-            {
-                for (int i = 0; i < path.GetPolygonCount(); i++)
-                    count += path.GetPointCount(i);
-            }
-
-            var allPoints = new List<Vector2>(count);
-
-            foreach (var path in collection)
-            {
-                for (int i = 0; i < path.GetPolygonCount(); i++)
-                {
-                    var points = path.GetPolygonPoints(i);
-
-                    for (int j = 0; j < points.Count; j++)
-                        allPoints.Add(points[j]);
-                }
-            }
-
-            return allPoints;
+            for (int i = 0; i < path.GetPolygonCount(); i++)
+                count += path.GetPointCount(i);
         }
 
-        /// <summary>
-        /// Optimiert alle Polygone der PathCollection für die weitere Verarbeitung
-        /// oder Darstellung.
-        /// </summary>
-        /// <param name="collection">Die zu optimierende PathCollection.</param>
-        /// <param name="simplifyTolerance">Die Toleranz für die Douglas-Peucker-Vereinfachung.</param>
-        /// <param name="targetPointCount">Optionale Anzahl zusätzlicher Punkte beim Resampling.</param>
-        /// <param name="smoothFactor">Der Glättungsfaktor. Ein Wert von 0 deaktiviert die Glättung.</param>
-        /// <param name="smoothMaxAngleDeg">Der maximale Winkel für die Glättung.</param>
-        /// <param name="smoothIterations">Die Anzahl der Glättungsdurchläufe.</param>
-        /// <returns>Eine neue optimierte PathCollection.</returns>
-        public static PathCollection Optimize(
-            this PathCollection collection,
-            float simplifyTolerance = 0.5f,
-            int? targetPointCount = null,
-            float smoothFactor = 0.0f,
-            float smoothMaxAngleDeg = 45f,
-            int smoothIterations = 1)
+        var allPoints = new List<Vector2>(count);
+
+        foreach (var path in collection)
         {
-            var resultPaths = new List<Path>(collection.Count);
-
-            foreach (var path in collection)
+            for (int i = 0; i < path.GetPolygonCount(); i++)
             {
-                var polygons = new List<Vector2[]>(path.GetPolygonCount());
+                var points = path.GetPolygonPoints(i);
 
-                for (int polygonIndex = 0; polygonIndex < path.GetPolygonCount(); polygonIndex++)
+                for (int j = 0; j < points.Count; j++)
+                    allPoints.Add(points[j]);
+            }
+        }
+
+        return allPoints;
+    }
+
+    /// <summary>
+    /// Optimizes all polygons in the specified path collection
+    /// by applying simplification, optional resampling, and optional smoothing.
+    /// </summary>
+    /// <param name="collection">
+    /// The path collection to optimize.
+    /// </param>
+    /// <param name="simplifyTolerance">
+    /// The tolerance used for Douglas-Peucker simplification.
+    /// </param>
+    /// <param name="targetPointCount">
+    /// The optional point count used when resampling the simplified path.
+    /// </param>
+    /// <param name="smoothFactor">
+    /// The smoothing factor. A value of <c>0</c> disables smoothing.
+    /// </param>
+    /// <param name="smoothMaxAngleDeg">
+    /// The maximum corner angle, in degrees, affected by smoothing.
+    /// </param>
+    /// <param name="smoothIterations">
+    /// The number of smoothing passes to perform.
+    /// </param>
+    /// <returns>
+    /// A new <see cref="PathCollection"/> containing the optimized paths.
+    /// </returns>
+    public static PathCollection Optimize(
+        this PathCollection collection,
+        float simplifyTolerance = 0.5f,
+        int? targetPointCount = null,
+        float smoothFactor = 0.0f,
+        float smoothMaxAngleDeg = 45f,
+        int smoothIterations = 1)
+    {
+        var resultPaths = new List<Path>(collection.Count);
+
+        foreach (var path in collection)
+        {
+            var polygons = new List<Vector2[]>(path.GetPolygonCount());
+
+            for (int polygonIndex = 0;
+                 polygonIndex < path.GetPolygonCount();
+                 polygonIndex++)
+            {
+                var points = path.GetPolygonPoints(polygonIndex);
+                var input = new List<Vector2>(points.Count);
+
+                for (int i = 0; i < points.Count; i++)
+                    input.Add(points[i]);
+
+                var optimized =
+                    PathTools.SimplifyDouglasPeucker(
+                        input,
+                        simplifyTolerance);
+
+                if (targetPointCount.HasValue &&
+                    targetPointCount.Value > 2 &&
+                    optimized.Count >= 2)
                 {
-                    var points = path.GetPolygonPoints(polygonIndex);
-                    var input = new List<Vector2>(points.Count);
+                    optimized = PathTools.ResampleLinear(
+                        optimized,
+                        0,
+                        optimized.Count - 1,
+                        targetPointCount.Value);
+                }
 
-                    for (int i = 0; i < points.Count; i++)
-                        input.Add(points[i]);
-
-                    var optimized = PathTools.SimplifyDouglasPeucker(input, simplifyTolerance);
-
-                    if (targetPointCount.HasValue && targetPointCount.Value > 2 && optimized.Count >= 2)
+                if (smoothFactor > 0f &&
+                    smoothIterations > 0)
+                {
+                    for (int iteration = 0;
+                         iteration < smoothIterations;
+                         iteration++)
                     {
-                        optimized = PathTools.ResampleLinear(
+                        optimized = PathTools.SmoothPath(
                             optimized,
-                            0,
-                            optimized.Count - 1,
-                            targetPointCount.Value);
+                            smoothFactor,
+                            smoothMaxAngleDeg,
+                            2);
                     }
-
-                    if (smoothFactor > 0f && smoothIterations > 0)
-                    {
-                        for (int iteration = 0; iteration < smoothIterations; iteration++)
-                        {
-                            optimized = PathTools.SmoothPath(
-                                optimized,
-                                smoothFactor,
-                                smoothMaxAngleDeg,
-                                2);
-                        }
-                    }
-
-                    polygons.Add(optimized.ToArray());
                 }
 
-                resultPaths.Add(new Path(polygons));
+                polygons.Add(optimized.ToArray());
             }
 
-            return new PathCollection(resultPaths);
+            resultPaths.Add(new Path(polygons));
         }
+
+        return new PathCollection(resultPaths);
     }
 }

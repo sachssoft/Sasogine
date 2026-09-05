@@ -9,11 +9,6 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
     public interface ISelectionResizable2 : ISelectionTarget2
     {
         /// <summary>
-        /// Gets or sets the size of the selection target.
-        /// </summary>
-        Size2 Size { get; set; }
-
-        /// <summary>
         /// Gets a value indicating whether resizing is allowed.
         /// </summary>
         bool AllowResize { get; }

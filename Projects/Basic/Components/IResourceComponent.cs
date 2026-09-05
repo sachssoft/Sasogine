@@ -1,11 +1,22 @@
-﻿namespace Sachssoft.Sasogine.Components
+﻿namespace Sachssoft.Sasogine.Components;
+
+/// <summary>
+/// Defines a component that manages loadable resources.
+/// </summary>
+public interface IResourceComponent : IComponent
 {
-    public interface IResourceComponent : IComponent
-    {
-        bool IsLoaded { get; }
+    /// <summary>
+    /// Gets a value indicating whether the component resources are currently loaded.
+    /// </summary>
+    bool IsLoaded { get; }
 
-        void Load();
+    /// <summary>
+    /// Loads the resources required by the component.
+    /// </summary>
+    void Load();
 
-        void Unload();
-    }
+    /// <summary>
+    /// Unloads the resources owned by the component.
+    /// </summary>
+    void Unload();
 }

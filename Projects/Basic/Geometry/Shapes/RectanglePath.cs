@@ -1,109 +1,209 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Geometry.Shapes
+namespace Sachssoft.Sasogine.Geometry.Shapes;
+
+/// <summary>
+/// Represents a normalized rectangular path with independently configurable
+/// corner shapes and corner sizes.
+/// </summary>
+/// <remarks>
+/// The rectangle is generated in normalized coordinates ranging from
+/// <c>0</c> to <c>1</c>.
+/// </remarks>
+public class RectanglePath : ShapePathBase
 {
-    public class RectanglePath : ShapePathBase
+    private Vector2 _topLeftEdgeSize = Vector2.Zero;
+    private Vector2 _topRightEdgeSize = Vector2.Zero;
+    private Vector2 _bottomLeftEdgeSize = Vector2.Zero;
+    private Vector2 _bottomRightEdgeSize = Vector2.Zero;
+
+    /// <summary>
+    /// Gets the number of segments used to sample rounded corners.
+    /// </summary>
+    public int Segments { get; init; } = 8;
+
+    /// <summary>
+    /// Gets the rounding type used for the top-left corner.
+    /// </summary>
+    public RoundingType TopLeftEdgeType { get; init; } = RoundingType.Linear;
+
+    /// <summary>
+    /// Gets the rounding type used for the top-right corner.
+    /// </summary>
+    public RoundingType TopRightEdgeType { get; init; } = RoundingType.Linear;
+
+    /// <summary>
+    /// Gets the rounding type used for the bottom-left corner.
+    /// </summary>
+    public RoundingType BottomLeftEdgeType { get; init; } = RoundingType.Linear;
+
+    /// <summary>
+    /// Gets the rounding type used for the bottom-right corner.
+    /// </summary>
+    public RoundingType BottomRightEdgeType { get; init; } = RoundingType.Linear;
+
+    /// <summary>
+    /// Gets the normalized size of the top-left corner.
+    /// </summary>
+    public Vector2 TopLeftEdgeSize
     {
-        public int Segments { get; init; } = 8;
-
-        public RoundingType TopLeftEdgeType { get; init; } = RoundingType.Linear;
-        public RoundingType TopRightEdgeType { get; init; } = RoundingType.Linear;
-        public RoundingType BottomLeftEdgeType { get; init; } = RoundingType.Linear;
-        public RoundingType BottomRightEdgeType { get; init; } = RoundingType.Linear;
-
-        private Vector2 _topLeftEdgeSize = Vector2.Zero;
-        public Vector2 TopLeftEdgeSize
-        {
-            get => _topLeftEdgeSize;
-            init => _topLeftEdgeSize = CoerceSize(value);
-        }
-
-        private Vector2 _topRightEdgeSize = Vector2.Zero;
-        public Vector2 TopRightEdgeSize
-        {
-            get => _topRightEdgeSize;
-            init => _topRightEdgeSize = CoerceSize(value);
-        }
-
-        private Vector2 _bottomLeftEdgeSize = Vector2.Zero;
-        public Vector2 BottomLeftEdgeSize
-        {
-            get => _bottomLeftEdgeSize;
-            init => _bottomLeftEdgeSize = CoerceSize(value);
-        }
-
-        private Vector2 _bottomRightEdgeSize = Vector2.Zero;
-        public Vector2 BottomRightEdgeSize
-        {
-            get => _bottomRightEdgeSize;
-            init => _bottomRightEdgeSize = CoerceSize(value);
-        }
-
-        /// <summary>
-        /// Ensure the corner size is within [0,1].
-        /// Later, this can also clamp based on rectangle size.
-        /// </summary>
-        private static Vector2 CoerceSize(Vector2 size)
-        {
-            return new Vector2(
-                MathHelper.Clamp(size.X, 0f, 1f),
-                MathHelper.Clamp(size.Y, 0f, 1f)
-            );
-        }
-
-        protected override Path BuildDefinedPath()
-        {
-            var polygon = new List<Vector2>();
-
-            // Eckpunkte normiert
-            Vector2 tl = new(0f, 0f);
-            Vector2 tr = new(1f, 0f);
-            Vector2 br = new(1f, 1f);
-            Vector2 bl = new(0f, 1f);
-
-            // Hilfsmethode: Ecke abrunden
-            Vector2[] RoundCorner(Vector2 corner, Vector2 next, Vector2 prev, Vector2 size, RoundingType type)
-            {
-                if (size == Vector2.Zero)
-                    return new Vector2[] { corner };
-
-                Vector2 dirPrev = (corner - prev).SafeNormalize();
-                Vector2 dirNext = (next - corner).SafeNormalize();
-
-                Vector2 start = corner - dirPrev * size.Length();
-                Vector2 end = corner + dirNext * size.Length();
-
-                return type switch
-                {
-                    RoundingType.Linear => new Vector2[] { start, end }, // Bevel
-                    RoundingType.Quadratic => GeometrySampler.SampleQuadraticBezier(start, corner, end, Segments),
-                    RoundingType.Cubic => GeometrySampler.SampleCubicBezier(start, start + dirPrev * size.Length() * 0.5f, end - dirNext * size.Length() * 0.5f, end, Segments),
-                    _ => new Vector2[] { corner }
-                };
-            }
-
-
-            // Ecken nacheinander
-            polygon.AddRange(RoundCorner(tl, tr, bl, TopLeftEdgeSize, TopLeftEdgeType));
-            polygon.AddRange(RoundCorner(tr, br, tl, TopRightEdgeSize, TopRightEdgeType));
-            polygon.AddRange(RoundCorner(br, bl, tr, BottomRightEdgeSize, BottomRightEdgeType));
-            polygon.AddRange(RoundCorner(bl, tl, br, BottomLeftEdgeSize, BottomLeftEdgeType));
-
-            // Polygon schließen
-            if (polygon.Count > 0 && polygon[0] != polygon[^1])
-                polygon.Add(polygon[0]);
-
-            return new Path(new[] { polygon.ToArray() });
-        }
+        get => _topLeftEdgeSize;
+        init => _topLeftEdgeSize = CoerceSize(value);
     }
 
-    public static class VectorExtensions
+    /// <summary>
+    /// Gets the normalized size of the top-right corner.
+    /// </summary>
+    public Vector2 TopRightEdgeSize
     {
-        public static Vector2 SafeNormalize(this Vector2 v)
+        get => _topRightEdgeSize;
+        init => _topRightEdgeSize = CoerceSize(value);
+    }
+
+    /// <summary>
+    /// Gets the normalized size of the bottom-left corner.
+    /// </summary>
+    public Vector2 BottomLeftEdgeSize
+    {
+        get => _bottomLeftEdgeSize;
+        init => _bottomLeftEdgeSize = CoerceSize(value);
+    }
+
+    /// <summary>
+    /// Gets the normalized size of the bottom-right corner.
+    /// </summary>
+    public Vector2 BottomRightEdgeSize
+    {
+        get => _bottomRightEdgeSize;
+        init => _bottomRightEdgeSize = CoerceSize(value);
+    }
+
+    /// <summary>
+    /// Builds the path representing the rectangle.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="Path"/> containing the generated rectangle geometry.
+    /// </returns>
+    protected override Path BuildDefinedPath()
+    {
+        var polygon = new List<Vector2>();
+
+        Vector2 topLeft = new(0f, 0f);
+        Vector2 topRight = new(1f, 0f);
+        Vector2 bottomRight = new(1f, 1f);
+        Vector2 bottomLeft = new(0f, 1f);
+
+        Vector2[] RoundCorner(
+            Vector2 corner,
+            Vector2 next,
+            Vector2 previous,
+            Vector2 size,
+            RoundingType type)
         {
-            float len = v.Length();
-            return len < 1e-8f ? Vector2.Zero : v / len;
+            if (size == Vector2.Zero)
+                return new[] { corner };
+
+            Vector2 previousDirection =
+                VectorMath.SafeNormalize(corner - previous);
+
+            Vector2 nextDirection =
+                VectorMath.SafeNormalize(next - corner);
+
+            float previousRadius =
+                previousDirection.X != 0f
+                    ? size.X
+                    : size.Y;
+
+            float nextRadius =
+                nextDirection.X != 0f
+                    ? size.X
+                    : size.Y;
+
+            Vector2 start =
+                corner - previousDirection * previousRadius;
+
+            Vector2 end =
+                corner + nextDirection * nextRadius;
+
+            return type switch
+            {
+                RoundingType.Linear =>
+                    new[]
+                    {
+                        start,
+                        end
+                    },
+
+                RoundingType.Quadratic =>
+                    GeometrySampler.SampleQuadraticBezier(
+                        start,
+                        corner,
+                        end,
+                        Segments),
+
+                RoundingType.Cubic =>
+                    GeometrySampler.SampleCubicBezier(
+                        start,
+                        start + previousDirection * previousRadius * 0.5f,
+                        end - nextDirection * nextRadius * 0.5f,
+                        end,
+                        Segments),
+
+                _ => new[] { corner }
+            };
         }
+
+        polygon.AddRange(
+            RoundCorner(
+                topLeft,
+                topRight,
+                bottomLeft,
+                TopLeftEdgeSize,
+                TopLeftEdgeType));
+
+        polygon.AddRange(
+            RoundCorner(
+                topRight,
+                bottomRight,
+                topLeft,
+                TopRightEdgeSize,
+                TopRightEdgeType));
+
+        polygon.AddRange(
+            RoundCorner(
+                bottomRight,
+                bottomLeft,
+                topRight,
+                BottomRightEdgeSize,
+                BottomRightEdgeType));
+
+        polygon.AddRange(
+            RoundCorner(
+                bottomLeft,
+                topLeft,
+                bottomRight,
+                BottomLeftEdgeSize,
+                BottomLeftEdgeType));
+
+        if (polygon.Count > 0 &&
+            polygon[0] != polygon[^1])
+        {
+            polygon.Add(polygon[0]);
+        }
+
+        return new Path(
+            new[]
+            {
+                polygon.ToArray()
+            });
+    }
+
+    private static Vector2 CoerceSize(Vector2 size)
+    {
+        return new Vector2(
+            MathHelper.Clamp(size.X, 0f, 1f),
+            MathHelper.Clamp(size.Y, 0f, 1f));
     }
 }

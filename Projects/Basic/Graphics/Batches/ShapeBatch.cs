@@ -9,6 +9,13 @@ using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
 {
+    /// <summary>
+    /// Batches and renders two-dimensional filled and stroked shape geometry.
+    /// </summary>
+    /// <remarks>
+    /// Public geometry APIs use Sasogine point and bounds types, while the
+    /// internal rendering implementation uses MonoGame vector and GPU types.
+    /// </remarks>
     public sealed class ShapeBatch : IDisposable
     {
         private const float Epsilon = 0.000001f;
@@ -34,6 +41,12 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         private bool _begun;
         private bool _disposed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ShapeBatch"/> class.
+        /// </summary>
+        /// <param name="graphicsDevice">
+        /// The graphics device used to create and render GPU resources.
+        /// </param>
         public ShapeBatch(GraphicsDevice graphicsDevice)
         {
             _graphicsDevice =
@@ -61,6 +74,18 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         // Begin / End
         // =========================================================================
 
+        /// <summary>
+        /// Begins collecting shapes for rendering.
+        /// </summary>
+        /// <param name="shader">
+        /// The shader used to render the accumulated geometry.
+        /// </param>
+        /// <param name="camera">
+        /// The camera used to render the accumulated geometry.
+        /// </param>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when the batch has already been started.
+        /// </exception>
         public void Begin(
             IShader shader,
             ICamera camera)
@@ -85,6 +110,12 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
             _begun = true;
         }
 
+        /// <summary>
+        /// Ends the batch and renders all accumulated geometry.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when the batch has not been started.
+        /// </exception>
         public void End()
         {
             CheckDisposed();
@@ -113,6 +144,12 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         // Fill Rectangle
         // =========================================================================
 
+        /// <summary>
+        /// Adds a filled rectangle to the batch.
+        /// </summary>
+        /// <param name="bounds">
+        /// The bounds of the shape.
+        /// </param>
         public void AddFillRectangle(
             Bounds2 bounds)
         {
@@ -121,6 +158,15 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 Matrix.Identity);
         }
 
+        /// <summary>
+        /// Adds a filled rectangle to the batch.
+        /// </summary>
+        /// <param name="bounds">
+        /// The bounds of the shape.
+        /// </param>
+        /// <param name="transform">
+        /// The transformation applied to the geometry.
+        /// </param>
         public void AddFillRectangle(
             Bounds2 bounds,
             Matrix transform)
@@ -169,6 +215,18 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         // Stroke Rectangle
         // =========================================================================
 
+        /// <summary>
+        /// Adds the outline of a rectangle to the batch.
+        /// </summary>
+        /// <param name="bounds">
+        /// The bounds of the shape.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddStrokeRectangle(
             Bounds2 bounds,
             float thickness)
@@ -180,6 +238,21 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 Matrix.Identity);
         }
 
+        /// <summary>
+        /// Adds the outline of a rectangle to the batch.
+        /// </summary>
+        /// <param name="bounds">
+        /// The bounds of the shape.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <param name="join">
+        /// The line join style used between connected segments.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddStrokeRectangle(
             Bounds2 bounds,
             float thickness,
@@ -192,6 +265,24 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 Matrix.Identity);
         }
 
+        /// <summary>
+        /// Adds the outline of a rectangle to the batch.
+        /// </summary>
+        /// <param name="bounds">
+        /// The bounds of the shape.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <param name="join">
+        /// The line join style used between connected segments.
+        /// </param>
+        /// <param name="transform">
+        /// The transformation applied to the geometry.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddStrokeRectangle(
             Bounds2 bounds,
             float thickness,
@@ -233,9 +324,24 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         // Open Line
         // =========================================================================
 
+        /// <summary>
+        /// Adds a line or polyline to the batch.
+        /// </summary>
+        /// <param name="start">
+        /// The starting point of the line.
+        /// </param>
+        /// <param name="end">
+        /// The ending point of the line.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddLine(
-            Vector2 start,
-            Vector2 end,
+            Point2 start,
+            Point2 end,
             float thickness)
         {
             AddLine(
@@ -246,9 +352,27 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 Matrix.Identity);
         }
 
+        /// <summary>
+        /// Adds a line or polyline to the batch.
+        /// </summary>
+        /// <param name="start">
+        /// The starting point of the line.
+        /// </param>
+        /// <param name="end">
+        /// The ending point of the line.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <param name="cap">
+        /// The line cap style used at open line endpoints.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddLine(
-            Vector2 start,
-            Vector2 end,
+            Point2 start,
+            Point2 end,
             float thickness,
             LineCap cap)
         {
@@ -260,9 +384,30 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 Matrix.Identity);
         }
 
+        /// <summary>
+        /// Adds a line or polyline to the batch.
+        /// </summary>
+        /// <param name="start">
+        /// The starting point of the line.
+        /// </param>
+        /// <param name="end">
+        /// The ending point of the line.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <param name="cap">
+        /// The line cap style used at open line endpoints.
+        /// </param>
+        /// <param name="transform">
+        /// The transformation applied to the geometry.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddLine(
-            Vector2 start,
-            Vector2 end,
+            Point2 start,
+            Point2 end,
             float thickness,
             LineCap cap,
             Matrix transform)
@@ -274,12 +419,12 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
 
             Vector2 a =
                 Vector2.Transform(
-                    start,
+                    new Vector2(start.X, start.Y),
                     transform);
 
             Vector2 b =
                 Vector2.Transform(
-                    end,
+                    new Vector2(end.X, end.Y),
                     transform);
 
             AddLineSegment(
@@ -293,8 +438,20 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         // Open Polyline
         // =========================================================================
 
+        /// <summary>
+        /// Adds a line or polyline to the batch.
+        /// </summary>
+        /// <param name="points">
+        /// The points that define the line or polygon.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddLine(
-            IReadOnlyList<Vector2> points,
+            IReadOnlyList<Point2> points,
             float thickness)
         {
             AddLine(
@@ -305,8 +462,23 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 Matrix.Identity);
         }
 
+        /// <summary>
+        /// Adds a line or polyline to the batch.
+        /// </summary>
+        /// <param name="points">
+        /// The points that define the line or polygon.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <param name="join">
+        /// The line join style used between connected segments.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddLine(
-            IReadOnlyList<Vector2> points,
+            IReadOnlyList<Point2> points,
             float thickness,
             LineJoin join)
         {
@@ -318,8 +490,26 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 Matrix.Identity);
         }
 
+        /// <summary>
+        /// Adds a line or polyline to the batch.
+        /// </summary>
+        /// <param name="points">
+        /// The points that define the line or polygon.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <param name="join">
+        /// The line join style used between connected segments.
+        /// </param>
+        /// <param name="cap">
+        /// The line cap style used at open line endpoints.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddLine(
-            IReadOnlyList<Vector2> points,
+            IReadOnlyList<Point2> points,
             float thickness,
             LineJoin join,
             LineCap cap)
@@ -332,8 +522,29 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 Matrix.Identity);
         }
 
+        /// <summary>
+        /// Adds a line or polyline to the batch.
+        /// </summary>
+        /// <param name="points">
+        /// The points that define the line or polygon.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <param name="join">
+        /// The line join style used between connected segments.
+        /// </param>
+        /// <param name="cap">
+        /// The line cap style used at open line endpoints.
+        /// </param>
+        /// <param name="transform">
+        /// The transformation applied to the geometry.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddLine(
-            IReadOnlyList<Vector2> points,
+            IReadOnlyList<Point2> points,
             float thickness,
             LineJoin join,
             LineCap cap,
@@ -360,7 +571,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
             }
 
             AddOpenStroke(
-                points,
+                ToVectors(points),
                 thickness,
                 join,
                 cap,
@@ -371,8 +582,20 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         // Closed Polygon Stroke
         // =========================================================================
 
+        /// <summary>
+        /// Adds the outline of a polygon to the batch.
+        /// </summary>
+        /// <param name="points">
+        /// The points that define the line or polygon.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddStrokePolygon(
-            IReadOnlyList<Vector2> points,
+            IReadOnlyList<Point2> points,
             float thickness)
         {
             AddStrokePolygon(
@@ -382,8 +605,23 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 Matrix.Identity);
         }
 
+        /// <summary>
+        /// Adds the outline of a polygon to the batch.
+        /// </summary>
+        /// <param name="points">
+        /// The points that define the line or polygon.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <param name="join">
+        /// The line join style used between connected segments.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddStrokePolygon(
-            IReadOnlyList<Vector2> points,
+            IReadOnlyList<Point2> points,
             float thickness,
             LineJoin join)
         {
@@ -394,8 +632,26 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 Matrix.Identity);
         }
 
+        /// <summary>
+        /// Adds the outline of a polygon to the batch.
+        /// </summary>
+        /// <param name="points">
+        /// The points that define the line or polygon.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <param name="join">
+        /// The line join style used between connected segments.
+        /// </param>
+        /// <param name="transform">
+        /// The transformation applied to the geometry.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddStrokePolygon(
-            IReadOnlyList<Vector2> points,
+            IReadOnlyList<Point2> points,
             float thickness,
             LineJoin join,
             Matrix transform)
@@ -409,7 +665,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 return;
 
             AddClosedStroke(
-                points,
+                ToVectors(points),
                 thickness,
                 join,
                 transform);
@@ -419,16 +675,31 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         // Fill Polygon
         // =========================================================================
 
+        /// <summary>
+        /// Adds a filled polygon to the batch.
+        /// </summary>
+        /// <param name="polygon">
+        /// The polygon contours to render.
+        /// </param>
         public void AddFillPolygon(
-            IReadOnlyList<IReadOnlyList<Vector2>> polygon)
+            IReadOnlyList<IReadOnlyList<Point2>> polygon)
         {
             AddFillPolygon(
                 polygon,
                 Matrix.Identity);
         }
 
+        /// <summary>
+        /// Adds a filled polygon to the batch.
+        /// </summary>
+        /// <param name="polygon">
+        /// The polygon contours to render.
+        /// </param>
+        /// <param name="transform">
+        /// The transformation applied to the geometry.
+        /// </param>
         public void AddFillPolygon(
-            IReadOnlyList<IReadOnlyList<Vector2>> polygon,
+            IReadOnlyList<IReadOnlyList<Point2>> polygon,
             Matrix transform)
         {
             CheckBegin();
@@ -447,7 +718,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                  i < polygon.Count;
                  i++)
             {
-                IReadOnlyList<Vector2>? contour =
+                IReadOnlyList<Point2>? contour =
                     polygon[i];
 
                 if (contour is null ||
@@ -498,6 +769,12 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
             }
         }
 
+        /// <summary>
+        /// Adds a filled polygon to the batch.
+        /// </summary>
+        /// <param name="path">
+        /// The path containing polygon geometry to render.
+        /// </param>
         public void AddFillPolygon(
             Path path)
         {
@@ -506,6 +783,15 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 Matrix.Identity);
         }
 
+        /// <summary>
+        /// Adds a filled polygon to the batch.
+        /// </summary>
+        /// <param name="path">
+        /// The path containing polygon geometry to render.
+        /// </param>
+        /// <param name="transform">
+        /// The transformation applied to the geometry.
+        /// </param>
         public void AddFillPolygon(
             Path path,
             Matrix transform)
@@ -539,15 +825,85 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
             if (contours.Count == 0)
                 return;
 
-            AddFillPolygon(
+            AddFillPolygonVectors(
                 contours,
                 transform);
+        }
+
+
+        private void AddFillPolygonVectors(
+            IReadOnlyList<IReadOnlyList<Vector2>> polygon,
+            Matrix transform)
+        {
+            if (polygon.Count == 0)
+                return;
+
+            var transformed =
+                new List<IReadOnlyList<Vector2>>(
+                    polygon.Count);
+
+            for (int i = 0; i < polygon.Count; i++)
+            {
+                IReadOnlyList<Vector2>? contour =
+                    polygon[i];
+
+                if (contour is null || contour.Count < 3)
+                    continue;
+
+                transformed.Add(
+                    TransformPoints(
+                        contour,
+                        transform));
+            }
+
+            if (transformed.Count == 0)
+                return;
+
+            var result =
+                PolygonOperations.Triangulate(
+                    transformed,
+                    new PolygonTriangulationOptions());
+
+            if (result.Vertices.Count == 0 ||
+                result.Indices.Count == 0)
+            {
+                return;
+            }
+
+            int offset =
+                _vertices.Count;
+
+            for (int i = 0; i < result.Vertices.Count; i++)
+            {
+                AddVertex(
+                    result.Vertices[i],
+                    Vector2.Zero);
+            }
+
+            for (int i = 0; i < result.Indices.Count; i++)
+            {
+                _indices.Add(
+                    offset +
+                    result.Indices[i]);
+            }
         }
 
         // =========================================================================
         // Stroke Path
         // =========================================================================
 
+        /// <summary>
+        /// Adds the outline of a polygon to the batch.
+        /// </summary>
+        /// <param name="path">
+        /// The path containing polygon geometry to render.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddStrokePolygon(
             Path path,
             float thickness)
@@ -559,6 +915,21 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 Matrix.Identity);
         }
 
+        /// <summary>
+        /// Adds the outline of a polygon to the batch.
+        /// </summary>
+        /// <param name="path">
+        /// The path containing polygon geometry to render.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <param name="join">
+        /// The line join style used between connected segments.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddStrokePolygon(
             Path path,
             float thickness,
@@ -571,6 +942,24 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 Matrix.Identity);
         }
 
+        /// <summary>
+        /// Adds the outline of a polygon to the batch.
+        /// </summary>
+        /// <param name="path">
+        /// The path containing polygon geometry to render.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <param name="join">
+        /// The line join style used between connected segments.
+        /// </param>
+        /// <param name="transform">
+        /// The transformation applied to the geometry.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddStrokePolygon(
             Path path,
             float thickness,
@@ -610,6 +999,15 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         // Fill Ellipse
         // =========================================================================
 
+        /// <summary>
+        /// Adds a filled ellipse to the batch.
+        /// </summary>
+        /// <param name="bounds">
+        /// The bounds of the shape.
+        /// </param>
+        /// <param name="segments">
+        /// The number of segments used to approximate the ellipse.
+        /// </param>
         public void AddFillEllipse(
             Bounds2 bounds,
             int segments = 32)
@@ -620,6 +1018,18 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 segments);
         }
 
+        /// <summary>
+        /// Adds a filled ellipse to the batch.
+        /// </summary>
+        /// <param name="bounds">
+        /// The bounds of the shape.
+        /// </param>
+        /// <param name="transform">
+        /// The transformation applied to the geometry.
+        /// </param>
+        /// <param name="segments">
+        /// The number of segments used to approximate the ellipse.
+        /// </param>
         public void AddFillEllipse(
             Bounds2 bounds,
             Matrix transform,
@@ -629,8 +1039,8 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
 
             ValidateSegments(segments);
 
-            Vector2 center =
-                new Vector2(
+            Point2 center =
+                new Point2(
                     (bounds.Left + bounds.Right) * 0.5f,
                     (bounds.Top + bounds.Bottom) * 0.5f);
 
@@ -646,8 +1056,20 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 segments);
         }
 
+        /// <summary>
+        /// Adds a filled ellipse to the batch.
+        /// </summary>
+        /// <param name="center">
+        /// The center point of the ellipse.
+        /// </param>
+        /// <param name="radius">
+        /// The horizontal and vertical radii of the ellipse.
+        /// </param>
+        /// <param name="segments">
+        /// The number of segments used to approximate the ellipse.
+        /// </param>
         public void AddFillEllipse(
-            Vector2 center,
+            Point2 center,
             Vector2 radius,
             int segments = 32)
         {
@@ -658,8 +1080,23 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 segments);
         }
 
+        /// <summary>
+        /// Adds a filled ellipse to the batch.
+        /// </summary>
+        /// <param name="center">
+        /// The center point of the ellipse.
+        /// </param>
+        /// <param name="radius">
+        /// The horizontal and vertical radii of the ellipse.
+        /// </param>
+        /// <param name="transform">
+        /// The transformation applied to the geometry.
+        /// </param>
+        /// <param name="segments">
+        /// The number of segments used to approximate the ellipse.
+        /// </param>
         public void AddFillEllipse(
-            Vector2 center,
+            Point2 center,
             Vector2 radius,
             Matrix transform,
             int segments = 32)
@@ -668,9 +1105,14 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
 
             ValidateSegments(segments);
 
+            Vector2 centerVector =
+                new Vector2(
+                    center.X,
+                    center.Y);
+
             Vector2 transformedCenter =
                 Vector2.Transform(
-                    center,
+                    centerVector,
                     transform);
 
             int centerIndex =
@@ -702,7 +1144,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                     MathF.Sin(angle);
 
                 Vector2 point =
-                    center +
+                    centerVector +
                     new Vector2(
                         cos * radius.X,
                         sin * radius.Y);
@@ -737,6 +1179,21 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         // Stroke Ellipse
         // =========================================================================
 
+        /// <summary>
+        /// Adds the outline of an ellipse to the batch.
+        /// </summary>
+        /// <param name="bounds">
+        /// The bounds of the shape.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <param name="segments">
+        /// The number of segments used to approximate the ellipse.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddStrokeEllipse(
             Bounds2 bounds,
             float thickness,
@@ -750,6 +1207,24 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 segments);
         }
 
+        /// <summary>
+        /// Adds the outline of an ellipse to the batch.
+        /// </summary>
+        /// <param name="bounds">
+        /// The bounds of the shape.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <param name="join">
+        /// The line join style used between connected segments.
+        /// </param>
+        /// <param name="segments">
+        /// The number of segments used to approximate the ellipse.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddStrokeEllipse(
             Bounds2 bounds,
             float thickness,
@@ -764,6 +1239,27 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 segments);
         }
 
+        /// <summary>
+        /// Adds the outline of an ellipse to the batch.
+        /// </summary>
+        /// <param name="bounds">
+        /// The bounds of the shape.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <param name="join">
+        /// The line join style used between connected segments.
+        /// </param>
+        /// <param name="transform">
+        /// The transformation applied to the geometry.
+        /// </param>
+        /// <param name="segments">
+        /// The number of segments used to approximate the ellipse.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddStrokeEllipse(
             Bounds2 bounds,
             float thickness,
@@ -778,8 +1274,8 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
 
             ValidateSegments(segments);
 
-            Vector2 center =
-                new Vector2(
+            Point2 center =
+                new Point2(
                     (bounds.Left + bounds.Right) * 0.5f,
                     (bounds.Top + bounds.Bottom) * 0.5f);
 
@@ -797,8 +1293,26 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 segments);
         }
 
+        /// <summary>
+        /// Adds the outline of an ellipse to the batch.
+        /// </summary>
+        /// <param name="center">
+        /// The center point of the ellipse.
+        /// </param>
+        /// <param name="radius">
+        /// The horizontal and vertical radii of the ellipse.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <param name="segments">
+        /// The number of segments used to approximate the ellipse.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddStrokeEllipse(
-            Vector2 center,
+            Point2 center,
             Vector2 radius,
             float thickness,
             int segments = 32)
@@ -812,8 +1326,29 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 segments);
         }
 
+        /// <summary>
+        /// Adds the outline of an ellipse to the batch.
+        /// </summary>
+        /// <param name="center">
+        /// The center point of the ellipse.
+        /// </param>
+        /// <param name="radius">
+        /// The horizontal and vertical radii of the ellipse.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <param name="join">
+        /// The line join style used between connected segments.
+        /// </param>
+        /// <param name="segments">
+        /// The number of segments used to approximate the ellipse.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddStrokeEllipse(
-            Vector2 center,
+            Point2 center,
             Vector2 radius,
             float thickness,
             LineJoin join,
@@ -828,8 +1363,32 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 segments);
         }
 
+        /// <summary>
+        /// Adds the outline of an ellipse to the batch.
+        /// </summary>
+        /// <param name="center">
+        /// The center point of the ellipse.
+        /// </param>
+        /// <param name="radius">
+        /// The horizontal and vertical radii of the ellipse.
+        /// </param>
+        /// <param name="thickness">
+        /// The stroke thickness.
+        /// </param>
+        /// <param name="join">
+        /// The line join style used between connected segments.
+        /// </param>
+        /// <param name="transform">
+        /// The transformation applied to the geometry.
+        /// </param>
+        /// <param name="segments">
+        /// The number of segments used to approximate the ellipse.
+        /// </param>
+        /// <remarks>
+        /// Non-positive thickness values do not add geometry.
+        /// </remarks>
         public void AddStrokeEllipse(
-            Vector2 center,
+            Point2 center,
             Vector2 radius,
             float thickness,
             LineJoin join,
@@ -844,7 +1403,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
             ValidateSegments(segments);
 
             AddEllipseStroke(
-                center,
+                new Vector2(center.X, center.Y),
                 radius,
                 thickness,
                 transform,
@@ -1767,6 +2326,43 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
             return -1;
         }
 
+        private static IReadOnlyList<Vector2> ToVectors(
+            IReadOnlyList<Point2> points)
+        {
+            var result =
+                new Vector2[points.Count];
+
+            for (int i = 0; i < points.Count; i++)
+            {
+                result[i] =
+                    new Vector2(
+                        points[i].X,
+                        points[i].Y);
+            }
+
+            return result;
+        }
+
+        private static IReadOnlyList<Vector2> TransformPoints(
+            IReadOnlyList<Point2> points,
+            Matrix transform)
+        {
+            var result =
+                new Vector2[points.Count];
+
+            for (int i = 0; i < points.Count; i++)
+            {
+                result[i] =
+                    Vector2.Transform(
+                        new Vector2(
+                            points[i].X,
+                            points[i].Y),
+                        transform);
+            }
+
+            return result;
+        }
+
         private static IReadOnlyList<Vector2> TransformPoints(
             IReadOnlyList<Vector2> points,
             Matrix transform)
@@ -2058,6 +2654,12 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         // Dispose
         // =========================================================================
 
+        /// <summary>
+        /// Releases graphics resources used by this batch.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method more than once is safe.
+        /// </remarks>
         public void Dispose()
         {
             if (_disposed)

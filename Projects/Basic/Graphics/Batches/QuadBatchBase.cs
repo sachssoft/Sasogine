@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Graphics.Cameras;
 using System;
-
 
 namespace Sachssoft.Sasogine.Graphics.Rendering.Batches;
 
@@ -53,8 +53,7 @@ public abstract class QuadBatchBase : IDisposable
     {
         _graphicsDevice = graphicsDevice;
 
-        _capacity =
-            initialCapacity;
+        _capacity = initialCapacity;
 
         _vertices =
             new VertexPositionColorNormalTexture[
@@ -97,9 +96,18 @@ public abstract class QuadBatchBase : IDisposable
     /// <summary>
     /// Adds a textured quad using a transformation matrix.
     /// </summary>
+    /// <param name="transform">
+    /// Transformation applied to the quad.
+    /// </param>
+    /// <param name="sourceBounds">
+    /// Pixel bounds inside the source texture.
+    /// </param>
+    /// <param name="color">
+    /// Color tint applied to the quad.
+    /// </param>
     protected void AddQuad(
         Matrix transform,
-        Rectangle sourceRect,
+        PixelBounds2 sourceBounds,
         Color color)
     {
         ThrowIfDisposed();
@@ -113,30 +121,24 @@ public abstract class QuadBatchBase : IDisposable
         int vertex =
             _quadCount * 4;
 
-
         Vector3 normal =
             new(0, 0, -1);
 
-
         Vector2 uv0 = GetUV(
-            sourceRect.X,
-            sourceRect.Y);
-
+            sourceBounds.Left,
+            sourceBounds.Top);
 
         Vector2 uv1 = GetUV(
-            sourceRect.Right,
-            sourceRect.Y);
-
+            sourceBounds.Right,
+            sourceBounds.Top);
 
         Vector2 uv2 = GetUV(
-            sourceRect.Right,
-            sourceRect.Bottom);
-
+            sourceBounds.Right,
+            sourceBounds.Bottom);
 
         Vector2 uv3 = GetUV(
-            sourceRect.X,
-            sourceRect.Bottom);
-
+            sourceBounds.Left,
+            sourceBounds.Bottom);
 
         _vertices[vertex + 0] =
             CreateVertex(
@@ -146,7 +148,6 @@ public abstract class QuadBatchBase : IDisposable
                 transform,
                 uv0);
 
-
         _vertices[vertex + 1] =
             CreateVertex(
                 new Vector3(1, 0, 0),
@@ -154,7 +155,6 @@ public abstract class QuadBatchBase : IDisposable
                 normal,
                 transform,
                 uv1);
-
 
         _vertices[vertex + 2] =
             CreateVertex(
@@ -164,7 +164,6 @@ public abstract class QuadBatchBase : IDisposable
                 transform,
                 uv2);
 
-
         _vertices[vertex + 3] =
             CreateVertex(
                 new Vector3(0, 1, 0),
@@ -173,18 +172,16 @@ public abstract class QuadBatchBase : IDisposable
                 transform,
                 uv3);
 
-
         _quadCount++;
         _vertexCount += 4;
     }
 
     private Vector2 GetUV(
-    int x,
-    int y)
+        int x,
+        int y)
     {
         if (_texture == null)
             return Vector2.Zero;
-
 
         return new Vector2(
             x / (float)_texture.Width,
@@ -242,7 +239,6 @@ public abstract class QuadBatchBase : IDisposable
         _vertexBuffer?.Dispose();
         _indexBuffer?.Dispose();
 
-
         _vertexBuffer =
             new DynamicVertexBuffer(
                 _graphicsDevice,
@@ -261,7 +257,6 @@ public abstract class QuadBatchBase : IDisposable
             _indices);
     }
 
-
     /// <summary>
     /// Draws the accumulated tiles.
     /// </summary>
@@ -276,11 +271,13 @@ public abstract class QuadBatchBase : IDisposable
         try
         {
             if (_shader == null ||
-            _camera == null ||
-            _quadCount == 0)
+                _camera == null ||
+                _quadCount == 0)
+            {
                 return;
+            }
 
-            _vertexBuffer.SetData(
+            _vertexBuffer!.SetData(
                 _vertices,
                 0,
                 _vertexCount,

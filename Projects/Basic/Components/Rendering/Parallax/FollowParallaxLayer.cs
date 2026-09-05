@@ -66,14 +66,14 @@ namespace Sachssoft.Sasogine.Components.Rendering.Parallaxes
         /// </param>
         public override void Update(SceneUpdateContext context)
         {
-            if (context.Cameras.Length == 0 || context.Cameras[0] is not ICamera2D camera2D)
+            if (context.Cameras.Length == 0 || context.Cameras[0] is not ICamera2 camera2D)
                 return;
 
 
-            Vector2 cameraPosition = camera2D.Position;
+            var cameraPosition = camera2D.Position.ToVector2();
 
 
-            Vector2 movement = cameraPosition - _lastCameraPosition;
+            var movement = cameraPosition - _lastCameraPosition;
 
 
             _offset += movement * GetDepthFactor(Definition.Depth);

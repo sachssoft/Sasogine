@@ -1,26 +1,26 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Graphics.Cameras
 {
     /// <summary>
     /// Defines a two-dimensional camera with position and zoom control.
     /// </summary>
-    public interface ICamera2D : ICamera
+    public interface ICamera2 : ICamera
     {
         /// <summary>
         /// Gets or sets the current world position of the camera.
         /// </summary>
-        Vector2 Position { get; set; }
+        Point2 Position { get; set; }
 
         /// <summary>
         /// Gets or sets the minimum allowed camera position.
         /// </summary>
-        Vector2 PositionMinimum { get; set; }
+        Point2 PositionMinimum { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum allowed camera position.
         /// </summary>
-        Vector2 PositionMaximum { get; set; }
+        Point2 PositionMaximum { get; set; }
 
         /// <summary>
         /// Gets or sets the current camera zoom factor.

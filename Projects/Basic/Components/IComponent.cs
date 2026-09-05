@@ -1,7 +1,8 @@
-﻿namespace Sachssoft.Sasogine.Components
-{
-    public interface IComponent
-    {
+﻿namespace Sachssoft.Sasogine.Components;
 
-    }
+/// <summary>
+/// Defines the base contract for components used by the engine.
+/// </summary>
+public interface IComponent
+{
 }

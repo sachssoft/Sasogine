@@ -5,159 +5,222 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.World
+namespace Sachssoft.Sasogine.World;
+
+/// <summary>
+/// Provides a base implementation for entities that are defined by data
+/// and composed of updateable and drawable components.
+/// </summary>
+/// <typeparam name="TDefinition">
+/// The type of definition used to configure the entity.
+/// </typeparam>
+public abstract class EntityBase<TDefinition> :
+    EngineObject<TDefinition>,
+    IEntity,
+    IComponentProvider,
+    IUpdatableComponent,
+    IDrawableComponent
+    where TDefinition : class, IEntityDefinition
 {
+    private readonly ComponentCollection _components = new();
+
+    private EntityIntegrity _integrity = EntityIntegrity.Intact;
+    private ActivityState _activityState = ActivityState.Idle;
+
     /// <summary>
-    /// Provides a base implementation for entities that are defined by a data definition
-    /// and composed of updateable and drawable components.
-    /// Manages entity lifecycle, component handling, state changes, updating, and rendering.
+    /// Initializes a new instance of the <see cref="EntityBase{TDefinition}"/> class.
     /// </summary>
-    public abstract class EntityBase<TDefinition> : EngineObject<TDefinition>, IEntity, IComponentProvider, IUpdatableComponent, IDrawableComponent
-        where TDefinition : class, IEntityDefinition
+    /// <param name="definition">
+    /// The definition used to configure the entity.
+    /// </param>
+    protected EntityBase(TDefinition definition)
+        : base(definition)
     {
-        private readonly ComponentCollection _components;
-        private EntityIntegrity _status = EntityIntegrity.Intact;
-        private ActivityState _activityState = ActivityState.Idle;
+    }
 
-        /// <summary>
-        /// Occurs when the entity has been loaded.
-        /// </summary>
-        public event EventHandler? Loaded;
+    /// <summary>
+    /// Occurs after the entity has been successfully loaded.
+    /// </summary>
+    public event EventHandler? Loaded;
 
-        /// <summary>
-        /// Occurs when the entity has been unloaded.
-        /// </summary>
-        public event EventHandler? Unloaded;
+    /// <summary>
+    /// Occurs after the entity has been unloaded.
+    /// </summary>
+    public event EventHandler? Unloaded;
 
-        /// <summary>
-        /// Occurs when the entity integrity state changes.
-        /// </summary>
-        public event EventHandler? StatusChanged;
+    /// <summary>
+    /// Occurs when the integrity state of the entity changes.
+    /// </summary>
+    public event EventHandler? StatusChanged;
 
-        /// <summary>
-        /// Occurs when the entity activity state changes.
-        /// </summary>
-        public event EventHandler? ActivityStateChanged;
+    /// <summary>
+    /// Occurs when the activity state of the entity changes.
+    /// </summary>
+    public event EventHandler? ActivityStateChanged;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="EntityBase{TDefinition}"/> class.
-        /// </summary>
-        /// <param name="definition">
-        /// The definition data used to initialize this entity.
-        /// </param>
-        protected EntityBase(TDefinition definition) : base(definition)
+    /// <summary>
+    /// Gets or sets a value indicating whether the entity participates
+    /// in update processing.
+    /// </summary>
+    public bool IsEnabled { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the entity is rendered.
+    /// </summary>
+    public bool IsVisible { get; set; }
+
+    /// <summary>
+    /// Gets the current integrity state of the entity.
+    /// </summary>
+    public EntityIntegrity Integrity
+    {
+        get => _integrity;
+        protected set
         {
-            _components = new ComponentCollection();
+            if (Equals(_integrity, value))
+                return;
+
+            _integrity = value;
+            OnStatusChanged();
         }
+    }
 
-        /// <summary>
-        /// Gets or sets whether the entity participates in updates.
-        /// </summary>
-        public bool IsEnabled { get; set; }
-
-        /// <summary>
-        /// Gets or sets whether the entity is rendered.
-        /// </summary>
-        public bool IsVisible { get; set; }
-
-        /// <summary>
-        /// Gets the current integrity state of the entity.
-        /// </summary>
-        public EntityIntegrity Integrity
+    /// <summary>
+    /// Gets the current activity state of the entity.
+    /// </summary>
+    public ActivityState ActivityState
+    {
+        get => _activityState;
+        protected set
         {
-            get => _status;
-            protected set
-            {
-                if (Equals(_status, value)) return;
-                _status = value;
-                StatusChanged?.Invoke(this, EventArgs.Empty);
-            }
+            if (Equals(_activityState, value))
+                return;
+
+            _activityState = value;
+            OnActivityStateChanged();
         }
+    }
 
-        /// <summary>
-        /// Gets the current activity state of the entity.
-        /// </summary>
-        public ActivityState ActivityState
-        {
-            get => _activityState;
-            protected set
-            {
-                if (Equals(_activityState, value)) return;
-                _activityState = value;
-                ActivityStateChanged?.Invoke(this, EventArgs.Empty);
-            }
-        }
+    /// <summary>
+    /// Updates all updateable components attached to the entity.
+    /// </summary>
+    /// <param name="context">
+    /// Provides information about the current scene update.
+    /// </param>
+    public virtual void Update(SceneUpdateContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
 
-        /// <inheritdoc/>
-        public override void Load()
-        {
-            //if (_registry == null)
-            //    throw new InvalidOperationException($"Node {GetType().Name} has not been initialized. Call Initialize() before Load().");
+        if (!IsEnabled)
+            return;
 
-            base.Load();
-            Loaded?.Invoke(this, EventArgs.Empty);
-        }
+        _components.UpdateForEach(context);
+    }
 
-        /// <inheritdoc/>
-        public override Task LoadAsync()
-        {
-            //if (_registry == null)
-            //    throw new InvalidOperationException($"Node {GetType().Name} has not been initialized. Call Initialize() before LoadAsync().");
+    /// <summary>
+    /// Draws all drawable components attached to the entity.
+    /// </summary>
+    /// <param name="context">
+    /// Provides information about the current scene drawing cycle.
+    /// </param>
+    public virtual void Draw(SceneDrawContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
 
-            var task = base.LoadAsync();
-            Loaded?.Invoke(this, EventArgs.Empty);
-            return task;
-        }
+        if (!IsVisible)
+            return;
 
-        /// <inheritdoc/>
-        public override void Unload()
-        {
-            base.Unload();
-            Unloaded?.Invoke(this, EventArgs.Empty);
-        }
+        _components.DrawForEach(context);
+    }
 
-        /// <summary>
-        /// Updates all updateable components attached to this entity.
-        /// </summary>
-        /// <param name="context">
-        /// Provides scene update information.
-        /// </param>
-        public virtual void Update(SceneUpdateContext context)
-        {
-            _components.UpdateForEach(context);
-        }
+    /// <summary>
+    /// Attempts to retrieve a component of the specified type.
+    /// </summary>
+    /// <typeparam name="T">
+    /// The type of component to retrieve.
+    /// </typeparam>
+    /// <param name="component">
+    /// When this method returns <see langword="true"/>, contains the matching
+    /// component; otherwise, <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if a matching component was found;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool TryGetComponent<T>(
+        [MaybeNullWhen(false)] out T component)
+        where T : class, IComponent
+    {
+        return _components.TryGet(out component);
+    }
 
-        /// <summary>
-        /// Draws all drawable components attached to this entity.
-        /// </summary>
-        /// <param name="context">
-        /// Provides scene rendering information.
-        /// </param>
-        public virtual void Draw(SceneDrawContext context)
-        {
-            _components.DrawForEach(context);
-        }
+    /// <summary>
+    /// Gets the collection of components attached to the entity.
+    /// </summary>
+    protected ComponentCollection Components => _components;
 
-        /// <summary>
-        /// Attempts to retrieve a component of the specified type.
-        /// </summary>
-        /// <typeparam name="T">
-        /// The component type to retrieve.
-        /// </typeparam>
-        /// <param name="component">
-        /// Receives the component instance if found.
-        /// </param>
-        /// <returns>
-        /// <see langword="true"/> if a matching component exists; otherwise, <see langword="false"/>.
-        /// </returns>
-        public bool TryGetComponent<T>([MaybeNullWhen(false)] out T component) where T : class, IComponent
-        {
-            return _components.TryGet<T>(out component);
-        }
+    /// <summary>
+    /// Called when the entity is loaded.
+    /// </summary>
+    protected override void OnLoad()
+    {
+        base.OnLoad();
 
-        /// <summary>
-        /// Gets the collection of components attached to this entity.
-        /// </summary>
-        protected ComponentCollection Components => _components;
+        OnLoaded();
+    }
+
+    /// <summary>
+    /// Called when the entity is loaded asynchronously.
+    /// </summary>
+    /// <returns>
+    /// A task representing the asynchronous load operation.
+    /// </returns>
+    protected override async Task OnLoadAsync()
+    {
+        await base.OnLoadAsync().ConfigureAwait(false);
+
+        OnLoaded();
+    }
+
+    /// <summary>
+    /// Called when the entity is unloaded.
+    /// </summary>
+    protected override void OnUnload()
+    {
+        base.OnUnload();
+
+        OnUnloaded();
+    }
+
+    /// <summary>
+    /// Raises the <see cref="Loaded"/> event.
+    /// </summary>
+    protected virtual void OnLoaded()
+    {
+        Loaded?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// Raises the <see cref="Unloaded"/> event.
+    /// </summary>
+    protected virtual void OnUnloaded()
+    {
+        Unloaded?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// Raises the <see cref="StatusChanged"/> event.
+    /// </summary>
+    protected virtual void OnStatusChanged()
+    {
+        StatusChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// Raises the <see cref="ActivityStateChanged"/> event.
+    /// </summary>
+    protected virtual void OnActivityStateChanged()
+    {
+        ActivityStateChanged?.Invoke(this, EventArgs.Empty);
     }
 }

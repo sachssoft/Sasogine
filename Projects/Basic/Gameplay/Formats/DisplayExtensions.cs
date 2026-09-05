@@ -5,9 +5,27 @@ using System.Linq;
 
 namespace Sachssoft.Sasogine.Gameplay;
 
+/// <summary>
+/// Provides extension methods for formatting gameplay-related values
+/// for display purposes.
+/// </summary>
 public static class DisplayExtensions
 {
-    public static string ToCountdownString(this TimeSpan countdown, CountdownStyle style = CountdownStyle.Full)
+    /// <summary>
+    /// Converts the specified countdown duration to a formatted countdown string.
+    /// </summary>
+    /// <param name="countdown">
+    /// The countdown duration to format.
+    /// </param>
+    /// <param name="style">
+    /// The formatting style used to determine which time units are displayed.
+    /// </param>
+    /// <returns>
+    /// A formatted countdown string.
+    /// </returns>
+    public static string ToCountdownString(
+        this TimeSpan countdown,
+        CountdownStyle style = CountdownStyle.Full)
     {
         int totalDays = countdown.Days;
         int years = totalDays / 365;
@@ -18,7 +36,6 @@ public static class DisplayExtensions
         int minutes = countdown.Minutes;
         int seconds = countdown.Seconds;
 
-        // Liste aller Einheiten mit Label in Reihenfolge
         var units = new List<(int value, string label)>
         {
             (years, "Y"),
@@ -34,22 +51,18 @@ public static class DisplayExtensions
         switch (style)
         {
             case CountdownStyle.Full:
-                // nur Werte > 0
                 filteredUnits = units.Where(u => u.value > 0);
                 break;
 
             case CountdownStyle.FullWithZeros:
-                // alle Werte, auch 0
                 filteredUnits = units;
                 break;
 
             case CountdownStyle.Compact:
-                // max 2 Werte, nur > 0
                 filteredUnits = units.Where(u => u.value > 0).Take(2);
                 break;
 
             case CountdownStyle.CompactWithZeros:
-                // max 2 Werte inkl. 0: einfach die ersten 2 Einheiten immer anzeigen
                 filteredUnits = units.Take(2);
                 break;
 
@@ -58,18 +71,39 @@ public static class DisplayExtensions
                 break;
         }
 
-        // Falls nichts angezeigt wird (z.B. 0s bei Full), zeigen wir mindestens "0S"
         if (!filteredUnits.Any())
             return "0S";
 
-        // Baue String
-        return string.Join(" ", filteredUnits.Select(u => $"{u.value}{u.label}"));
+        return string.Join(
+            " ",
+            filteredUnits.Select(u => $"{u.value}{u.label}"));
     }
 
-
-    public static string ToCompactString(this float number, CompactNumberStyle style, CultureInfo? culture = null)
+    /// <summary>
+    /// Converts the specified floating-point value to a compact
+    /// human-readable number representation.
+    /// </summary>
+    /// <param name="number">
+    /// The value to format.
+    /// </param>
+    /// <param name="style">
+    /// The compact number formatting style.
+    /// </param>
+    /// <param name="culture">
+    /// The culture used for number formatting and localized suffixes.
+    /// If <see langword="null"/>, <see cref="CultureInfo.CurrentUICulture"/>
+    /// is used.
+    /// </param>
+    /// <returns>
+    /// A compact string representation of the specified value.
+    /// </returns>
+    public static string ToCompactString(
+        this float number,
+        CompactNumberStyle style,
+        CultureInfo? culture = null)
     {
         culture ??= CultureInfo.CurrentUICulture;
+
         float abs = float.Abs(number);
         float divisor;
         string suffix;
@@ -116,20 +150,157 @@ public static class DisplayExtensions
 
         double compact = number / divisor;
         string formatted = compact.ToString("0.#", culture);
+
         return $"{formatted}{suffix}".Trim();
     }
 
-    private static string LocalSuffix(string fallback, string german, CultureInfo culture)
+    /// <summary>
+    /// Converts the specified integer value to a compact
+    /// human-readable number representation.
+    /// </summary>
+    /// <param name="value">The value to format.</param>
+    /// <param name="style">The compact number formatting style.</param>
+    /// <param name="culture">
+    /// The culture used for formatting, or <see langword="null"/>
+    /// to use the current UI culture.
+    /// </param>
+    /// <returns>A compact string representation of the value.</returns>
+    public static string ToCompactString(
+        this int value,
+        CompactNumberStyle style,
+        CultureInfo? culture = null) =>
+        ((float)value).ToCompactString(style, culture);
+
+    /// <summary>
+    /// Converts the specified long integer value to a compact
+    /// human-readable number representation.
+    /// </summary>
+    /// <param name="value">The value to format.</param>
+    /// <param name="style">The compact number formatting style.</param>
+    /// <param name="culture">
+    /// The culture used for formatting, or <see langword="null"/>
+    /// to use the current UI culture.
+    /// </param>
+    /// <returns>A compact string representation of the value.</returns>
+    public static string ToCompactString(
+        this long value,
+        CompactNumberStyle style,
+        CultureInfo? culture = null) =>
+        ((float)value).ToCompactString(style, culture);
+
+    /// <summary>
+    /// Converts the specified short integer value to a compact
+    /// human-readable number representation.
+    /// </summary>
+    /// <param name="value">The value to format.</param>
+    /// <param name="style">The compact number formatting style.</param>
+    /// <param name="culture">
+    /// The culture used for formatting, or <see langword="null"/>
+    /// to use the current UI culture.
+    /// </param>
+    /// <returns>A compact string representation of the value.</returns>
+    public static string ToCompactString(
+        this short value,
+        CompactNumberStyle style,
+        CultureInfo? culture = null) =>
+        ((float)value).ToCompactString(style, culture);
+
+    /// <summary>
+    /// Converts the specified signed byte value to a compact
+    /// human-readable number representation.
+    /// </summary>
+    /// <param name="value">The value to format.</param>
+    /// <param name="style">The compact number formatting style.</param>
+    /// <param name="culture">
+    /// The culture used for formatting, or <see langword="null"/>
+    /// to use the current UI culture.
+    /// </param>
+    /// <returns>A compact string representation of the value.</returns>
+    public static string ToCompactString(
+        this sbyte value,
+        CompactNumberStyle style,
+        CultureInfo? culture = null) =>
+        ((float)value).ToCompactString(style, culture);
+
+    /// <summary>
+    /// Converts the specified unsigned integer value to a compact
+    /// human-readable number representation.
+    /// </summary>
+    /// <param name="value">The value to format.</param>
+    /// <param name="style">The compact number formatting style.</param>
+    /// <param name="culture">
+    /// The culture used for formatting, or <see langword="null"/>
+    /// to use the current UI culture.
+    /// </param>
+    /// <returns>A compact string representation of the value.</returns>
+    public static string ToCompactString(
+        this uint value,
+        CompactNumberStyle style,
+        CultureInfo? culture = null) =>
+        ((float)value).ToCompactString(style, culture);
+
+    /// <summary>
+    /// Converts the specified unsigned long integer value to a compact
+    /// human-readable number representation.
+    /// </summary>
+    /// <param name="value">The value to format.</param>
+    /// <param name="style">The compact number formatting style.</param>
+    /// <param name="culture">
+    /// The culture used for formatting, or <see langword="null"/>
+    /// to use the current UI culture.
+    /// </param>
+    /// <returns>A compact string representation of the value.</returns>
+    public static string ToCompactString(
+        this ulong value,
+        CompactNumberStyle style,
+        CultureInfo? culture = null) =>
+        ((float)value).ToCompactString(style, culture);
+
+    /// <summary>
+    /// Converts the specified unsigned short integer value to a compact
+    /// human-readable number representation.
+    /// </summary>
+    /// <param name="value">The value to format.</param>
+    /// <param name="style">The compact number formatting style.</param>
+    /// <param name="culture">
+    /// The culture used for formatting, or <see langword="null"/>
+    /// to use the current UI culture.
+    /// </param>
+    /// <returns>A compact string representation of the value.</returns>
+    public static string ToCompactString(
+        this ushort value,
+        CompactNumberStyle style,
+        CultureInfo? culture = null) =>
+        ((float)value).ToCompactString(style, culture);
+
+    /// <summary>
+    /// Converts the specified byte value to a compact
+    /// human-readable number representation.
+    /// </summary>
+    /// <param name="value">The value to format.</param>
+    /// <param name="style">The compact number formatting style.</param>
+    /// <param name="culture">
+    /// The culture used for formatting, or <see langword="null"/>
+    /// to use the current UI culture.
+    /// </param>
+    /// <returns>A compact string representation of the value.</returns>
+    public static string ToCompactString(
+        this byte value,
+        CompactNumberStyle style,
+        CultureInfo? culture = null) =>
+        ((float)value).ToCompactString(style, culture);
+
+    private static string LocalSuffix(
+        string fallback,
+        string german,
+        CultureInfo culture)
     {
         return culture.TwoLetterISOLanguageName switch
         {
             "de" => german,
-
-            // Russisch, Ukrainisch, Belarussisch
             "ru" => MapToCyrillicSuffix(german),
             "uk" => MapToCyrillicSuffix(german),
             "be" => MapToCyrillicSuffix(german),
-
             _ => fallback
         };
     }
@@ -145,28 +316,4 @@ public static class DisplayExtensions
             _ => german
         };
     }
-
-    public static string ToCompactString(this int value, CompactNumberStyle style, CultureInfo? culture = null) =>
-        ((float)value).ToCompactString(style, culture);
-
-    public static string ToCompactString(this long value, CompactNumberStyle style, CultureInfo? culture = null) =>
-        ((float)value).ToCompactString(style, culture);
-
-    public static string ToCompactString(this short value, CompactNumberStyle style, CultureInfo? culture = null) =>
-        ((float)value).ToCompactString(style, culture);
-
-    public static string ToCompactString(this sbyte value, CompactNumberStyle style, CultureInfo? culture = null) =>
-        ((float)value).ToCompactString(style, culture);
-
-    public static string ToCompactString(this uint value, CompactNumberStyle style, CultureInfo? culture = null) =>
-        ((float)value).ToCompactString(style, culture);
-
-    public static string ToCompactString(this ulong value, CompactNumberStyle style, CultureInfo? culture = null) =>
-        ((float)value).ToCompactString(style, culture);
-
-    public static string ToCompactString(this ushort value, CompactNumberStyle style, CultureInfo? culture = null) =>
-        ((float)value).ToCompactString(style, culture);
-
-    public static string ToCompactString(this byte value, CompactNumberStyle style, CultureInfo? culture = null) =>
-        ((float)value).ToCompactString(style, culture);
 }

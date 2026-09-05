@@ -3,40 +3,62 @@ using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Services.Monetization;
 
+/// <summary>
+/// Provides access to platform-specific advertising services.
+/// </summary>
 public interface IAdService
 {
     /// <summary>
-    /// Gibt an, ob Werbeanzeigen unterstützt werden (Plattformprüfung).
+    /// Gets a value indicating whether advertising is supported
+    /// on the current platform.
     /// </summary>
     bool IsSupported { get; }
 
     /// <summary>
-    /// Zeigt ein Interstitial (Ganzseitenanzeige) an, wenn verfügbar.
+    /// Shows an interstitial advertisement when one is available.
     /// </summary>
+    /// <returns>
+    /// <see langword="true"/> if the advertisement was shown successfully;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
     Task<bool> ShowInterstitialAsync();
 
     /// <summary>
-    /// Zeigt ein Rewarded Video an und ruft Callback auf Erfolg auf.
+    /// Shows a rewarded advertisement when one is available.
     /// </summary>
-    Task<bool> ShowRewardedAdAsync(Func<Task>? onRewardGranted = null);
+    /// <param name="onRewardGranted">
+    /// An optional callback invoked when the reward has been granted.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if the rewarded advertisement was completed
+    /// successfully; otherwise, <see langword="false"/>.
+    /// </returns>
+    Task<bool> ShowRewardedAdAsync(
+        Func<Task>? onRewardGranted = null);
 
     /// <summary>
-    /// Gibt an, ob ein Interstitial verfügbar ist.
+    /// Gets a value indicating whether an interstitial advertisement
+    /// is currently ready to be shown.
     /// </summary>
     bool IsInterstitialReady { get; }
 
     /// <summary>
-    /// Gibt an, ob ein Rewarded-Ad verfügbar ist.
+    /// Gets a value indicating whether a rewarded advertisement
+    /// is currently ready to be shown.
     /// </summary>
     bool IsRewardedReady { get; }
 
     /// <summary>
-    /// Optional: Wird aufgerufen, wenn ein Rewarded-Ad abgeschlossen wurde.
+    /// Occurs when a rewarded advertisement has been completed
+    /// and the reward has been granted.
     /// </summary>
     event Action? RewardedCompleted;
 
     /// <summary>
-    /// Optional: Initialisiert das Werbenetzwerk (z. B. beim Start).
+    /// Initializes the advertising service.
     /// </summary>
+    /// <returns>
+    /// A task representing the asynchronous initialization operation.
+    /// </returns>
     Task InitializeAsync();
 }

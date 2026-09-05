@@ -1,20 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Graphics.Rendering;
 
 namespace Sachssoft.Sasogine.Components.Tools.Selection
 {
     /// <summary>
     /// Defines the rotation properties of a selection target.
     /// </summary>
-    public interface ISelectionRotatable2Definition : ISelectionTarget2Definition
+    public interface ISelectionRotatable2Definition :
+        ISelectionTarget2Definition, ITransformRotatable2Definition, ITransformRotationPivot2Definition
     {
-        /// <summary>
-        /// Gets or sets the rotation of the selection target.
-        /// </summary>
-        float Rotation { get; set; }
-
-        /// <summary>
-        /// Gets or sets the pivot point used for rotating the selection target.
-        /// </summary>
-        Vector2 RotationPivot { get; set; }
     }
 }

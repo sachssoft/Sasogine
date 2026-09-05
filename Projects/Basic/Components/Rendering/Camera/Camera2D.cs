@@ -12,23 +12,23 @@ namespace Sachssoft.Sasogine.Components.Rendering.Cameras
     /// The camera owns and manages its transformation matrices and updates
     /// them automatically when camera properties change.
     /// </summary>
-    public class Camera2D : EngineObject<Camera2DDefinition>, ICamera2D
+    public class Camera2 : EngineObject<Camera2Definition>, ICamera2
     {
         private const float ZoomMinConstant = 0.01f;
         private const float ScaleMinConstant = 0.001f;
 
         private Viewport _viewport;
 
-        private Vector2 _position;
+        private Point2 _position;
         private float _zoom = 1f;
         private float _rotation;
 
         private float _baseZoomFactor = 1f;
 
-        private Vector2 _positionMinimum =
+        private Point2 _positionMinimum =
             new(float.MinValue, float.MinValue);
 
-        private Vector2 _positionMaximum =
+        private Point2 _positionMaximum =
             new(float.MaxValue, float.MaxValue);
 
         private float _zoomMinimum = 0.001f;
@@ -44,33 +44,39 @@ namespace Sachssoft.Sasogine.Components.Rendering.Cameras
         /// <summary>
         /// Initializes a new camera with default settings.
         /// </summary>
-        public Camera2D()
-            : this(new Camera2DDefinition())
+        public Camera2()
+            : this(new Camera2Definition())
         {
         }
-
 
         /// <summary>
         /// Initializes a new camera using the specified definition.
         /// </summary>
-        public Camera2D(Camera2DDefinition definition)
+        /// <param name="definition">
+        /// The camera definition used to initialize the camera.
+        /// </param>
+        public Camera2(Camera2Definition definition)
             : base(definition)
         {
         }
 
-
         /// <summary>
         /// Gets or sets the current world position of the camera.
         /// </summary>
-        public Vector2 Position
+        public Point2 Position
         {
             get => _position;
             set
             {
-                var position = Vector2.Clamp(
-                    value,
-                    PositionMinimum,
-                    PositionMaximum);
+                var position = new Point2(
+                    MathHelper.Clamp(
+                        value.X,
+                        PositionMinimum.X,
+                        PositionMaximum.X),
+                    MathHelper.Clamp(
+                        value.Y,
+                        PositionMinimum.Y,
+                        PositionMaximum.Y));
 
                 if (_position == position)
                     return;
@@ -80,11 +86,10 @@ namespace Sachssoft.Sasogine.Components.Rendering.Cameras
             }
         }
 
-
         /// <summary>
         /// Gets or sets the minimum allowed camera position.
         /// </summary>
-        public Vector2 PositionMinimum
+        public Point2 PositionMinimum
         {
             get => _positionMinimum;
             set
@@ -94,11 +99,10 @@ namespace Sachssoft.Sasogine.Components.Rendering.Cameras
             }
         }
 
-
         /// <summary>
         /// Gets or sets the maximum allowed camera position.
         /// </summary>
-        public Vector2 PositionMaximum
+        public Point2 PositionMaximum
         {
             get => _positionMaximum;
             set
@@ -107,7 +111,6 @@ namespace Sachssoft.Sasogine.Components.Rendering.Cameras
                 Position = _position;
             }
         }
-
 
         /// <summary>
         /// Gets or sets the current camera zoom factor.
@@ -130,7 +133,6 @@ namespace Sachssoft.Sasogine.Components.Rendering.Cameras
             }
         }
 
-
         /// <summary>
         /// Gets or sets the base world scaling factor.
         /// </summary>
@@ -147,7 +149,6 @@ namespace Sachssoft.Sasogine.Components.Rendering.Cameras
             }
         }
 
-
         /// <summary>
         /// Gets or sets the minimum allowed zoom value.
         /// </summary>
@@ -156,7 +157,9 @@ namespace Sachssoft.Sasogine.Components.Rendering.Cameras
             get => _zoomMinimum;
             set
             {
-                _zoomMinimum = Math.Max(ZoomMinConstant, value);
+                _zoomMinimum = Math.Max(
+                    ZoomMinConstant,
+                    value);
 
                 if (_zoom < _zoomMinimum)
                 {
@@ -166,8 +169,6 @@ namespace Sachssoft.Sasogine.Components.Rendering.Cameras
             }
         }
 
-
-
         /// <summary>
         /// Gets or sets the maximum allowed zoom value.
         /// </summary>
@@ -176,7 +177,9 @@ namespace Sachssoft.Sasogine.Components.Rendering.Cameras
             get => _zoomMaximum;
             set
             {
-                _zoomMaximum = Math.Max(_zoomMinimum, value);
+                _zoomMaximum = Math.Max(
+                    _zoomMinimum,
+                    value);
 
                 if (_zoom > _zoomMaximum)
                 {
@@ -185,7 +188,6 @@ namespace Sachssoft.Sasogine.Components.Rendering.Cameras
                 }
             }
         }
-
 
         /// <summary>
         /// Gets or sets the camera rotation in radians.
@@ -204,9 +206,8 @@ namespace Sachssoft.Sasogine.Components.Rendering.Cameras
             }
         }
 
-
         /// <summary>
-        /// Gets or sets the minimum allowed rotation.
+        /// Gets or sets the minimum allowed rotation in radians.
         /// </summary>
         public float RotationMinimum
         {
@@ -218,9 +219,8 @@ namespace Sachssoft.Sasogine.Components.Rendering.Cameras
             }
         }
 
-
         /// <summary>
-        /// Gets or sets the maximum allowed rotation.
+        /// Gets or sets the maximum allowed rotation in radians.
         /// </summary>
         public float RotationMaximum
         {
@@ -232,28 +232,28 @@ namespace Sachssoft.Sasogine.Components.Rendering.Cameras
             }
         }
 
-
         /// <summary>
         /// Gets the projection matrix of the camera.
         /// </summary>
         public virtual Matrix Projection => _projection;
-
 
         /// <summary>
         /// Gets the view matrix of the camera.
         /// </summary>
         public virtual Matrix View => _view;
 
-
         /// <summary>
         /// Gets the world matrix of the camera.
         /// </summary>
         public virtual Matrix World => _world;
 
-
         /// <summary>
-        /// Applies the current viewport to the camera.
+        /// Applies the specified viewport to the camera and recalculates
+        /// its transformation matrices.
         /// </summary>
+        /// <param name="viewport">
+        /// The viewport used by the camera.
+        /// </param>
         public void ApplyViewport(Viewport viewport)
         {
             if (viewport.Width <= 0 || viewport.Height <= 0)
@@ -263,32 +263,34 @@ namespace Sachssoft.Sasogine.Components.Rendering.Cameras
             UpdateMatrices();
         }
 
-
         /// <summary>
         /// Updates the camera state.
         /// </summary>
+        /// <param name="context">
+        /// The current game context.
+        /// </param>
         public virtual void Update(GameContext context)
         {
             UpdateMatrices();
         }
 
-
         /// <summary>
-        /// Resets the camera to its definition values.
+        /// Restores the camera to its definition values.
         /// </summary>
         public virtual void Reset()
         {
             ApplyDefinition();
         }
 
-
+        /// <summary>
+        /// Configures the camera from its definition.
+        /// </summary>
         protected override void ConfigureFromDefinition()
         {
             base.ConfigureFromDefinition();
 
             ApplyDefinition();
         }
-
 
         /// <summary>
         /// Applies values from the camera definition.
@@ -300,9 +302,8 @@ namespace Sachssoft.Sasogine.Components.Rendering.Cameras
             Rotation = Definition.Rotation;
         }
 
-
         /// <summary>
-        /// Recalculates the camera matrices.
+        /// Recalculates the camera transformation matrices.
         /// </summary>
         protected virtual void UpdateMatrices()
         {
@@ -346,42 +347,66 @@ namespace Sachssoft.Sasogine.Components.Rendering.Cameras
                     0f);
         }
 
-
         /// <summary>
-        /// Converts a world position into screen coordinates.
+        /// Converts a world-space position into screen-space coordinates.
         /// </summary>
-        public virtual Vector2 ToScreen(Vector2 worldPosition)
+        /// <param name="worldPosition">
+        /// The position in world space.
+        /// </param>
+        /// <returns>
+        /// The corresponding position in screen space.
+        /// </returns>
+        public virtual Point2 ToScreen(Point2 worldPosition)
         {
-            return _viewport.Project(
-                new Vector3(worldPosition, 0),
+            var result = _viewport.Project(
+                new Vector3(
+                    worldPosition.X,
+                    worldPosition.Y,
+                    0f),
                 Projection,
                 View,
-                World)
-                .ToVector2();
-        }
+                World);
 
+            return new Point2(
+                result.X,
+                result.Y);
+        }
 
         /// <summary>
-        /// Converts a screen position into world coordinates.
+        /// Converts a screen-space position into world-space coordinates.
         /// </summary>
-        public virtual Vector2 ToWorld(Vector2 screenPosition)
+        /// <param name="screenPosition">
+        /// The position in screen space.
+        /// </param>
+        /// <returns>
+        /// The corresponding position in world space.
+        /// </returns>
+        public virtual Point2 ToWorld(Point2 screenPosition)
         {
-            return _viewport.Unproject(
-                new Vector3(screenPosition, 0),
+            var result = _viewport.Unproject(
+                new Vector3(
+                    screenPosition.X,
+                    screenPosition.Y,
+                    0f),
                 Projection,
                 View,
-                World)
-                .ToVector2();
-        }
+                World);
 
+            return new Point2(
+                result.X,
+                result.Y);
+        }
 
         /// <summary>
         /// Creates a copy of the camera including its current state.
         /// </summary>
+        /// <returns>
+        /// A new camera containing the same definition and current state.
+        /// </returns>
         public virtual ICamera Clone()
         {
-            var camera = new Camera2D(
-                new Camera2DDefinition
+            var camera = new Camera2(
+                new Camera2Definition
                 {
                     Position = Position,
                     Zoom = Zoom,
@@ -403,7 +428,6 @@ namespace Sachssoft.Sasogine.Components.Rendering.Cameras
 
             return camera;
         }
-
 
         object ICloneable.Clone()
         {
