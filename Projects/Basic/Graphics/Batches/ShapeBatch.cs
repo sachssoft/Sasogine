@@ -294,21 +294,21 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
             if (thickness <= 0f)
                 return;
 
-            Vector2[] points =
+            Point2[] points =
             {
-                new Vector2(
+                new Point2(
                     bounds.Left,
                     bounds.Top),
 
-                new Vector2(
+                new Point2(
                     bounds.Right,
                     bounds.Top),
 
-                new Vector2(
+                new Point2(
                     bounds.Right,
                     bounds.Bottom),
 
-                new Vector2(
+                new Point2(
                     bounds.Left,
                     bounds.Bottom)
             };
@@ -665,7 +665,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 return;
 
             AddClosedStroke(
-                ToVectors(points),
+                points,
                 thickness,
                 join,
                 transform);
@@ -704,42 +704,38 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         {
             CheckBegin();
 
-            if (polygon is null)
-                throw new ArgumentNullException(nameof(polygon));
+            ArgumentNullException.ThrowIfNull(polygon);
 
             if (polygon.Count == 0)
                 return;
 
-            var transformed =
-                new List<IReadOnlyList<Vector2>>(
-                    polygon.Count);
+            var transformed = new List<IReadOnlyList<Vector2>>(polygon.Count);
 
-            for (int i = 0;
-                 i < polygon.Count;
-                 i++)
+            for (int i = 0; i < polygon.Count; i++)
             {
-                IReadOnlyList<Point2>? contour =
-                    polygon[i];
+                IReadOnlyList<Point2>? contour = polygon[i];
 
-                if (contour is null ||
-                    contour.Count < 3)
-                {
+                if (contour is null || contour.Count < 3)
                     continue;
+
+                var points = new Vector2[contour.Count];
+
+                for (int j = 0; j < contour.Count; j++)
+                {
+                    points[j] = Vector2.Transform(
+                        contour[j],
+                        transform);
                 }
 
-                transformed.Add(
-                    TransformPoints(
-                        contour,
-                        transform));
+                transformed.Add(points);
             }
 
             if (transformed.Count == 0)
                 return;
 
-            var result =
-                PolygonOperations.Triangulate(
-                    transformed,
-                    new PolygonTriangulationOptions());
+            var result = PolygonOperations.Triangulate(
+                transformed,
+                new PolygonTriangulationOptions());
 
             if (result.Vertices.Count == 0 ||
                 result.Indices.Count == 0)
@@ -747,25 +743,19 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 return;
             }
 
-            int offset =
-                _vertices.Count;
+            int offset = _vertices.Count;
 
-            for (int i = 0;
-                 i < result.Vertices.Count;
-                 i++)
+            for (int i = 0; i < result.Vertices.Count; i++)
             {
                 AddVertex(
                     result.Vertices[i],
                     Vector2.Zero);
             }
 
-            for (int i = 0;
-                 i < result.Indices.Count;
-                 i++)
+            for (int i = 0; i < result.Indices.Count; i++)
             {
                 _indices.Add(
-                    offset +
-                    result.Indices[i]);
+                    offset + result.Indices[i]);
             }
         }
 
@@ -807,18 +797,15 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
             if (polygonCount == 0)
                 return;
 
-            var contours =
-                new List<IReadOnlyList<Vector2>>(
-                    polygonCount);
+            var contours = new List<IReadOnlyList<Point2>>(polygonCount);
 
             for (int i = 0;
                  i < polygonCount;
                  i++)
             {
-                IReadOnlyList<Vector2> points =
-                    path.GetPolygonPoints(i);
+                var points = path.GetPolygonPoints(i);
 
-                if (points.Count >= 3)
+                if (points.Length >= 3)
                     contours.Add(points);
             }
 
@@ -830,39 +817,40 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 transform);
         }
 
-
         private void AddFillPolygonVectors(
-            IReadOnlyList<IReadOnlyList<Vector2>> polygon,
+            IReadOnlyList<IReadOnlyList<Point2>> polygon,
             Matrix transform)
         {
             if (polygon.Count == 0)
                 return;
 
-            var transformed =
-                new List<IReadOnlyList<Vector2>>(
-                    polygon.Count);
+            var transformed = new List<IReadOnlyList<Vector2>>(polygon.Count);
 
             for (int i = 0; i < polygon.Count; i++)
             {
-                IReadOnlyList<Vector2>? contour =
-                    polygon[i];
+                IReadOnlyList<Point2>? contour = polygon[i];
 
                 if (contour is null || contour.Count < 3)
                     continue;
 
-                transformed.Add(
-                    TransformPoints(
-                        contour,
-                        transform));
+                var points = new Vector2[contour.Count];
+
+                for (int j = 0; j < contour.Count; j++)
+                {
+                    points[j] = Vector2.Transform(
+                        contour[j],
+                        transform);
+                }
+
+                transformed.Add(points);
             }
 
             if (transformed.Count == 0)
                 return;
 
-            var result =
-                PolygonOperations.Triangulate(
-                    transformed,
-                    new PolygonTriangulationOptions());
+            var result = PolygonOperations.Triangulate(
+                transformed,
+                new PolygonTriangulationOptions());
 
             if (result.Vertices.Count == 0 ||
                 result.Indices.Count == 0)
@@ -870,8 +858,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                 return;
             }
 
-            int offset =
-                _vertices.Count;
+            int offset = _vertices.Count;
 
             for (int i = 0; i < result.Vertices.Count; i++)
             {
@@ -883,8 +870,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
             for (int i = 0; i < result.Indices.Count; i++)
             {
                 _indices.Add(
-                    offset +
-                    result.Indices[i]);
+                    offset + result.Indices[i]);
             }
         }
 
@@ -981,10 +967,9 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                  i < polygonCount;
                  i++)
             {
-                IReadOnlyList<Vector2> points =
-                    path.GetPolygonPoints(i);
+                var points = path.GetPolygonPoints(i);
 
-                if (points.Count < 3)
+                if (points.Length < 3)
                     continue;
 
                 AddClosedStroke(
@@ -1643,7 +1628,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
         // =========================================================================
 
         private void AddClosedStroke(
-            IReadOnlyList<Vector2> points,
+            IReadOnlyList<Point2> points,
             float thickness,
             LineJoin join,
             Matrix transform)
@@ -2343,12 +2328,11 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
             return result;
         }
 
-        private static IReadOnlyList<Vector2> TransformPoints(
+        private static IReadOnlyList<Point2> TransformPoints(
             IReadOnlyList<Point2> points,
             Matrix transform)
         {
-            var result =
-                new Vector2[points.Count];
+            var result = new Point2[points.Count];
 
             for (int i = 0; i < points.Count; i++)
             {
@@ -2357,7 +2341,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
                         new Vector2(
                             points[i].X,
                             points[i].Y),
-                        transform);
+                        transform).ToPoint2();
             }
 
             return result;
