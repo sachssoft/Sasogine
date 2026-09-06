@@ -97,8 +97,6 @@ public sealed class Camera2NavigationTool : ToolBase
 
         var after = _cursorState.GetWorldPosition(camera);
 
-        var pos = before - after;
-        //camera.Position += before - after;
-        camera.Position += new Common.Point2(pos.X, pos.Y);
+        camera.Position += (before - after);
     }
 }
