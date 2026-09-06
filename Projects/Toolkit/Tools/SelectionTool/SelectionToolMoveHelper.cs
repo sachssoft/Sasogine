@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Components.Tools.Selection;
 using System;
 using System.Collections.Generic;
 
@@ -65,21 +64,28 @@ internal sealed class SelectionToolMoveHelper
         IEnumerable<ISelectionTarget2>? otherSelectedTargets,
         IEnumerable<ISelectionTarget2Definition>? otherSelectedTargetDefinitions,
         Point2 cursorPosition,
-        Point2 delta)
+        Vector2 delta)
     {
         if (!ReferenceEquals(node, Node))
             return;
 
         Point2 currentPosition;
 
-        if (target is ISelectionMovable2 movable && movable.AllowMove)
+        if (target is ISelectionMovable2 movable &&
+            movable.AllowMove)
+        {
             currentPosition = movable.Position;
+        }
         else if (definition is ISelectionMovable2Definition movableDefinition)
+        {
             currentPosition = movableDefinition.Position;
+        }
         else
+        {
             return;
+        }
 
-        if (delta == Point2.Zero)
+        if (delta == Vector2.Zero)
         {
             _dragStartPosition = currentPosition;
             _dragStartCursorPosition = cursorPosition;
@@ -90,7 +96,9 @@ internal sealed class SelectionToolMoveHelper
         if (!_isDragging)
         {
             _dragStartPosition = currentPosition;
-            _dragStartCursorPosition = cursorPosition - delta;
+            _dragStartCursorPosition =
+                cursorPosition - delta;
+
             _isDragging = true;
         }
 
@@ -98,38 +106,49 @@ internal sealed class SelectionToolMoveHelper
 
         if (context.EnableGridSnap)
         {
-            newPosition = _dragStartPosition +
+            Vector2 dragOffset =
                 cursorPosition -
                 _dragStartCursorPosition;
 
-            var gridSize = context.GridSnapStep;
+            newPosition =
+                _dragStartPosition +
+                dragOffset;
+
+            Size2 gridSize =
+                context.GridSnapStep;
 
             if (gridSize.Width > 0f)
+            {
                 newPosition = new Point2(
-                    MathF.Round(newPosition.X / gridSize.Width) * gridSize.Width,
-                    newPosition.Y
-                );
-
-            //newPosition.X = MathF.Round(
-            //    newPosition.X / gridSize.Width) * gridSize.Width;
+                    MathF.Round(
+                        newPosition.X /
+                        gridSize.Width) *
+                    gridSize.Width,
+                    newPosition.Y);
+            }
 
             if (gridSize.Height > 0f)
+            {
                 newPosition = new Point2(
                     newPosition.X,
                     MathF.Round(
-                    newPosition.Y / gridSize.Height) * gridSize.Height
-                );
-                //newPosition.Y = MathF.Round(
-                //    newPosition.Y / gridSize.Height) * gridSize.Height;
+                        newPosition.Y /
+                        gridSize.Height) *
+                    gridSize.Height);
+            }
         }
         else
         {
-            newPosition = currentPosition + delta;
+            newPosition =
+                currentPosition +
+                delta;
         }
 
-        var movement = newPosition - currentPosition;
+        Vector2 movement =
+            newPosition -
+            currentPosition;
 
-        if (movement == Point2.Zero)
+        if (movement == Vector2.Zero)
             return;
 
         if (target is ISelectionMovable2 movableTarget &&
@@ -139,7 +158,9 @@ internal sealed class SelectionToolMoveHelper
         }
 
         if (definition is ISelectionMovable2Definition movableDefinitionTarget)
+        {
             movableDefinitionTarget.Position += movement;
+        }
 
         if (otherSelectedTargets != null)
         {
@@ -157,8 +178,11 @@ internal sealed class SelectionToolMoveHelper
         {
             foreach (var otherDefinition in otherSelectedTargetDefinitions)
             {
-                if (otherDefinition is ISelectionMovable2Definition otherMovableDefinition)
+                if (otherDefinition is ISelectionMovable2Definition
+                    otherMovableDefinition)
+                {
                     otherMovableDefinition.Position += movement;
+                }
             }
         }
     }

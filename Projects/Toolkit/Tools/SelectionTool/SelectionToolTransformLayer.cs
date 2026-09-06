@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Components.Tools.Selection;
 using System;
 using System.Collections.Generic;
 
@@ -85,7 +84,7 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
         IEnumerable<ISelectionTarget2>? otherSelectedTargets,
         IEnumerable<ISelectionTarget2Definition>? otherSelectedTargetDefinitions,
         Point2 cursorPosition,
-        Point2 delta)
+        Vector2 delta)
     {
         if (_move.AllowHandle(
             node,
@@ -105,21 +104,33 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
             return;
         }
 
-        var position = GetPosition(
+        Point2 position = GetPosition(
             target,
             definition);
 
-        var localCursorPosition = InverseTransform(
-            cursorPosition - position,
+        Vector2 cursorOffset =
+            cursorPosition -
+            position;
+
+        Point2 localCursorPosition = InverseTransform(
+            new Point2(cursorOffset),
             target,
             definition);
 
-        var previousLocalCursorPosition = InverseTransform(
-            cursorPosition - delta - position,
+        Point2 previousCursorPosition =
+            cursorPosition -
+            delta;
+
+        Vector2 previousCursorOffset =
+            previousCursorPosition -
+            position;
+
+        Point2 previousLocalCursorPosition = InverseTransform(
+            new Point2(previousCursorOffset),
             target,
             definition);
 
-        var localDelta =
+        Vector2 localDelta =
             localCursorPosition -
             previousLocalCursorPosition;
 
@@ -142,7 +153,7 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
                 return;
             }
 
-            var positionOffset = TransformResizeOffset(
+            Vector2 positionOffset = TransformResizeOffset(
                 originOffset,
                 oldSize,
                 newSize,
@@ -186,20 +197,22 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
             out var rotation,
             out var pivot);
 
-        var pivotPosition = new Point2(
+        Point2 pivotPosition = new Point2(
             size.Width * pivot.X,
             size.Height * pivot.Y);
 
-        var relative =
+        Vector2 relative =
             point -
             pivotPosition;
 
         float cos = MathF.Cos(rotation);
         float sin = MathF.Sin(rotation);
 
-        return pivotPosition + new Point2(
+        Vector2 transformed = new Vector2(
             relative.X * cos - relative.Y * sin,
             relative.X * sin + relative.Y * cos);
+
+        return pivotPosition + transformed;
     }
 
     /// <inheritdoc/>
@@ -215,18 +228,22 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
             out var rotation,
             out var pivot);
 
-        var pivotPosition = new Point2(
+        Point2 pivotPosition = new Point2(
             size.Width * pivot.X,
             size.Height * pivot.Y);
 
-        var relative = point - pivotPosition;
+        Vector2 relative =
+            point -
+            pivotPosition;
 
         float cos = MathF.Cos(rotation);
         float sin = MathF.Sin(rotation);
 
-        return pivotPosition + new Point2(
+        Vector2 transformed = new Vector2(
             relative.X * cos + relative.Y * sin,
             -relative.X * sin + relative.Y * cos);
+
+        return pivotPosition + transformed;
     }
 
     /// <inheritdoc/>
@@ -254,21 +271,21 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
                 value.X * sin + value.Y * cos);
         }
 
-        var oldPivot = new Vector2(
+        Vector2 oldPivot = new Vector2(
             oldSize.Width * pivot.X,
             oldSize.Height * pivot.Y);
 
-        var newPivot = new Vector2(
+        Vector2 newPivot = new Vector2(
             newSize.Width * pivot.X,
             newSize.Height * pivot.Y);
 
-        var pivotDelta =
+        Vector2 pivotDelta =
             oldPivot -
             newPivot;
 
         return Rotate(offset) +
-            pivotDelta -
-            Rotate(pivotDelta);
+               pivotDelta -
+               Rotate(pivotDelta);
     }
 
     /// <inheritdoc/>
@@ -289,12 +306,16 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
                 nodeWorldPosition);
         }
 
-        var targetPosition = GetPosition(
+        Point2 targetPosition = GetPosition(
             target,
             definition);
 
-        var localPosition = InverseTransform(
-            position - targetPosition,
+        Vector2 positionOffset =
+            position -
+            targetPosition;
+
+        Point2 localPosition = InverseTransform(
+            new Point2(positionOffset),
             target,
             definition);
 
@@ -337,7 +358,7 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
         if (target is ISelectionRotatable2 rotatable)
         {
             rotation = rotatable.Rotation;
-            pivot = new Point2(rotatable.RotationPivot.X, rotatable.RotationPivot.Y);
+            pivot = rotatable.RotationPivot;
         }
         else if (definition is ISelectionRotatable2Definition rotatableDefinition)
         {
@@ -354,10 +375,10 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
         if (target is ISelectionMovable2 movable &&
             movable.AllowMove)
         {
-            movable.Position += new Point2(offset.X, offset.Y);
+            movable.Position += offset;
         }
 
         if (definition is ISelectionMovable2Definition movableDefinition)
-            movableDefinition.Position += new Point2(offset.X, offset.Y);
+            movableDefinition.Position += offset;
     }
 }

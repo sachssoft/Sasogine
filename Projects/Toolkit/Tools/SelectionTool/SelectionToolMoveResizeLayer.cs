@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Components.Tools.Selection;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Components.Tools.Selection;
@@ -70,7 +69,7 @@ public sealed class SelectionToolMoveResizeLayer : SelectionToolLayer
         IEnumerable<ISelectionTarget2>? otherSelectedTargets,
         IEnumerable<ISelectionTarget2Definition>? otherSelectedTargetDefinitions,
         Point2 cursorPosition,
-        Point2 delta)
+        Vector2 delta)
     {
         if (_move.AllowHandle(
             node,
@@ -98,12 +97,18 @@ public sealed class SelectionToolMoveResizeLayer : SelectionToolLayer
             return;
         }
 
+        Vector2 localCursorPosition =
+            cursorPosition -
+            GetPosition(
+                target,
+                definition);
+
         if (!_resize.OnNodeInteract(
             context,
             node,
             target,
             definition,
-            cursorPosition - GetPosition(target, definition),
+            localCursorPosition,
             delta,
             out var originOffset,
             out _,
@@ -128,7 +133,7 @@ public sealed class SelectionToolMoveResizeLayer : SelectionToolLayer
     /// The selection target definition, if available.
     /// </param>
     /// <returns>
-    /// The current target position, or <see cref="Vector2.Zero"/> if the target
+    /// The current target position, or <see cref="Point2.Zero"/> if the target
     /// does not provide movable behavior.
     /// </returns>
     private static Point2 GetPosition(
@@ -165,10 +170,10 @@ public sealed class SelectionToolMoveResizeLayer : SelectionToolLayer
         if (target is ISelectionMovable2 movable &&
             movable.AllowMove)
         {
-            movable.Position += new Point2(offset.X, offset.Y);
+            movable.Position += offset;
         }
 
         if (definition is ISelectionMovable2Definition movableDefinition)
-            movableDefinition.Position += new Point2(offset.X, offset.Y);
+            movableDefinition.Position += offset;
     }
 }

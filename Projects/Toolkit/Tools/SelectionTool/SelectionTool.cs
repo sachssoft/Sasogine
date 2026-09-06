@@ -21,7 +21,7 @@ namespace Sachssoft.Sasogine.Components.Tools;
 /// The selection tool supports selecting one or multiple targets and delegates
 /// transformation behavior such as moving, resizing, and rotating to the configured
 /// <see cref="SelectionToolLayer"/>.
-/// 
+///
 /// Targets may either implement <see cref="ISelectionTarget2"/> directly or expose
 /// an <see cref="ISelectionTarget2Definition"/> through an <see cref="IEngineObject"/>.
 /// </remarks>
@@ -37,7 +37,6 @@ public class SelectionTool : ToolBase
 
     private Point2 _cursorPosition;
     private bool _isInViewport;
-    //private SelectionToolInteractions? _interactions;
     private ToolInteractions? _interactions;
 
     private Point2 _lastCursorPosition;
@@ -49,8 +48,8 @@ public class SelectionTool : ToolBase
     private bool _invalidateLayer;
 
     private bool _isAreaSelecting;
-    private Vector2 _areaSelectionStart;
-    private Vector2 _areaSelectionEnd;
+    private Point2 _areaSelectionStart;
+    private Point2 _areaSelectionEnd;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SelectionTool"/> class.
@@ -222,38 +221,18 @@ public class SelectionTool : ToolBase
     protected override void ApplyContext(ToolContext context)
     {
         _interactions = context.Interactions;
-        var cpv = context.CursorState.GetWorldPosition(context.Camera);
-        _cursorPosition = new Point2(cpv.X, cpv.Y);
-        _isInViewport = context.CursorState.IsInViewport;
+
+        var cursorPosition =
+            context.CursorState.GetWorldPosition(
+                context.Camera);
+
+        _cursorPosition = new Point2(
+            cursorPosition.X,
+            cursorPosition.Y);
+
+        _isInViewport =
+            context.CursorState.IsInViewport;
     }
-
-    ///// <summary>
-    ///// Sets the interaction bindings used by the selection tool.
-    ///// </summary>
-    ///// <param name="interactions">The interaction bindings to use.</param>
-    ///// <exception cref="ArgumentNullException">
-    ///// Thrown when <paramref name="interactions"/> is <see langword="null"/>.
-    ///// </exception>
-    //public void SetInteractions(SelectionToolInteractions interactions)
-    //{
-    //    ArgumentNullException.ThrowIfNull(interactions);
-    //    _interactions = interactions;
-    //}
-
-    ///// <summary>
-    ///// Sets the current cursor position and viewport state.
-    ///// </summary>
-    ///// <param name="position">The current cursor position.</param>
-    ///// <param name="isInViewport">
-    ///// Indicates whether the cursor is currently inside the active viewport.
-    ///// </param>
-    //public void SetCursorPosition(
-    //    Vector2 position,
-    //    bool isInViewport = true)
-    //{
-    //    _cursorPosition = position;
-    //    _isInViewport = isInViewport;
-    //}
 
     /// <summary>
     /// Updates selection and transformation interactions.
@@ -272,30 +251,36 @@ public class SelectionTool : ToolBase
 
         var action = _interactions.Action;
 
-        if (_interactions.Cancel.HasFlag(InteractionFlags.WasJustReleased))
+        if (_interactions.Cancel.HasFlag(
+            InteractionFlags.WasJustReleased))
         {
             CancelInteraction();
             return;
         }
 
-        if (action.HasFlag(InteractionFlags.WasJustPressed))
+        if (action.HasFlag(
+            InteractionFlags.WasJustPressed))
         {
             HandleActionPressed();
             _lastCursorPosition = _cursorPosition;
         }
 
-        if (action.HasFlag(InteractionFlags.IsPressed))
+        if (action.HasFlag(
+            InteractionFlags.IsPressed))
         {
             if (_isAreaSelecting)
             {
-                _areaSelectionEnd = _cursorPosition.ToVector2();
+                _areaSelectionEnd = _cursorPosition;
             }
             else
             {
-                var delta = _cursorPosition - _lastCursorPosition;
+                Vector2 delta =
+                    _cursorPosition -
+                    _lastCursorPosition;
 
                 if (_selectedNode != null &&
-                    (_activeTarget != null || _activeDefinition != null) &&
+                    (_activeTarget != null ||
+                     _activeDefinition != null) &&
                     Layer != null)
                 {
                     Layer.OnNodeInteract(
@@ -303,8 +288,10 @@ public class SelectionTool : ToolBase
                         _selectedNode,
                         _activeTarget,
                         _activeDefinition,
-                        GetOtherSelectedTargets(_activeTarget),
-                        GetOtherSelectedTargetDefinitions(_activeDefinition),
+                        GetOtherSelectedTargets(
+                            _activeTarget),
+                        GetOtherSelectedTargetDefinitions(
+                            _activeDefinition),
                         _cursorPosition,
                         delta);
                 }
@@ -313,8 +300,11 @@ public class SelectionTool : ToolBase
             _lastCursorPosition = _cursorPosition;
         }
 
-        if (action.HasFlag(InteractionFlags.WasJustReleased))
+        if (action.HasFlag(
+            InteractionFlags.WasJustReleased))
+        {
             HandleActionReleased();
+        }
 
         UpdateTargetInvalidation();
     }
@@ -336,10 +326,12 @@ public class SelectionTool : ToolBase
                 selectedNode!,
                 selectedTarget,
                 selectedDefinition,
-                GetOtherSelectedTargets(selectedTarget),
-                GetOtherSelectedTargetDefinitions(selectedDefinition),
+                GetOtherSelectedTargets(
+                    selectedTarget),
+                GetOtherSelectedTargetDefinitions(
+                    selectedDefinition),
                 _cursorPosition,
-                Point2.Zero);
+                Vector2.Zero);
 
             return;
         }
@@ -352,8 +344,11 @@ public class SelectionTool : ToolBase
             {
                 BeginAreaSelection();
 
-                if (!_interactions!.Modifier.HasFlag(InteractionFlags.IsPressed))
+                if (!_interactions!.Modifier.HasFlag(
+                    InteractionFlags.IsPressed))
+                {
                     DeselectAll();
+                }
 
                 return;
             }
@@ -373,8 +368,9 @@ public class SelectionTool : ToolBase
             return;
         }
 
-        bool modify = _interactions!.Modifier.HasFlag(
-            InteractionFlags.IsPressed);
+        bool modify =
+            _interactions!.Modifier.HasFlag(
+                InteractionFlags.IsPressed);
 
         if (modify)
         {
@@ -397,7 +393,8 @@ public class SelectionTool : ToolBase
 
         UpdateTargetInvalidation();
 
-        var node = HitTestNode(_cursorPosition);
+        var node = HitTestNode(
+            _cursorPosition);
 
         if (node == null)
         {
@@ -422,10 +419,12 @@ public class SelectionTool : ToolBase
             node,
             target,
             definition,
-            GetOtherSelectedTargets(target),
-            GetOtherSelectedTargetDefinitions(definition),
+            GetOtherSelectedTargets(
+                target),
+            GetOtherSelectedTargetDefinitions(
+                definition),
             _cursorPosition,
-            Point2.Zero);
+            Vector2.Zero);
     }
 
     private void HandleActionReleased()
@@ -449,12 +448,15 @@ public class SelectionTool : ToolBase
         DeselectAll();
     }
 
-    private SelectionToolNode? HitTestNode(Point2 position)
+    private SelectionToolNode? HitTestNode(
+        Point2 position)
     {
         if (Layer == null)
             return null;
 
-        for (int i = Layer.Nodes.Count - 1; i >= 0; i--)
+        for (int i = Layer.Nodes.Count - 1;
+             i >= 0;
+             i--)
         {
             var node = Layer.Nodes[i];
 
@@ -484,7 +486,8 @@ public class SelectionTool : ToolBase
         if (Layer == null)
             return false;
 
-        var layerContext = GetLayerContext();
+        var layerContext =
+            GetLayerContext();
 
         foreach (var pair in GetTargetPairs())
         {
@@ -500,9 +503,12 @@ public class SelectionTool : ToolBase
                 pair.Target,
                 pair.Definition);
 
-            for (int i = Layer.Nodes.Count - 1; i >= 0; i--)
+            for (int i = Layer.Nodes.Count - 1;
+                 i >= 0;
+                 i--)
             {
-                var currentNode = Layer.Nodes[i];
+                var currentNode =
+                    Layer.Nodes[i];
 
                 if (!IsInNode(
                     position,
@@ -538,10 +544,11 @@ public class SelectionTool : ToolBase
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
     {
-        var nodePosition = GetNodeWorldPosition(
-            node,
-            target,
-            definition);
+        var nodePosition =
+            GetNodeWorldPosition(
+                node,
+                target,
+                definition);
 
         if (Layer != null)
         {
@@ -553,10 +560,11 @@ public class SelectionTool : ToolBase
                 nodePosition);
         }
 
-        return position.X >= nodePosition.X &&
-               position.X <= nodePosition.X + node.Size.Width &&
-               position.Y >= nodePosition.Y &&
-               position.Y <= nodePosition.Y + node.Size.Height;
+        return
+            position.X >= nodePosition.X &&
+            position.X <= nodePosition.X + node.Size.Width &&
+            position.Y >= nodePosition.Y &&
+            position.Y <= nodePosition.Y + node.Size.Height;
     }
 
     private void UpdateTargetInvalidation()
@@ -576,8 +584,9 @@ public class SelectionTool : ToolBase
             _activeDefinition);
     }
 
-    private IEnumerable<ISelectionTarget2> GetOtherSelectedTargets(
-        ISelectionTarget2? target)
+    private IEnumerable<ISelectionTarget2>
+        GetOtherSelectedTargets(
+            ISelectionTarget2? target)
     {
         foreach (var pair in GetTargetPairs())
         {
@@ -585,7 +594,9 @@ public class SelectionTool : ToolBase
                 continue;
 
             if (target != null &&
-                ReferenceEquals(pair.Target, target))
+                ReferenceEquals(
+                    pair.Target,
+                    target))
             {
                 continue;
             }
@@ -595,8 +606,9 @@ public class SelectionTool : ToolBase
         }
     }
 
-    private IEnumerable<ISelectionTarget2Definition> GetOtherSelectedTargetDefinitions(
-        ISelectionTarget2Definition? definition)
+    private IEnumerable<ISelectionTarget2Definition>
+        GetOtherSelectedTargetDefinitions(
+            ISelectionTarget2Definition? definition)
     {
         foreach (var pair in GetTargetPairs())
         {
@@ -604,7 +616,9 @@ public class SelectionTool : ToolBase
                 continue;
 
             if (definition != null &&
-                ReferenceEquals(pair.Definition, definition))
+                ReferenceEquals(
+                    pair.Definition,
+                    definition))
             {
                 continue;
             }
@@ -620,10 +634,13 @@ public class SelectionTool : ToolBase
         {
             if (item is ISelectionTarget2 target)
             {
-                ISelectionTarget2Definition? definition = null;
+                ISelectionTarget2Definition?
+                    definition = null;
 
                 if (item is IEngineObject engineObject &&
-                    engineObject.Definition is ISelectionTarget2Definition targetDefinition)
+                    engineObject.Definition
+                        is ISelectionTarget2Definition
+                            targetDefinition)
                 {
                     definition = targetDefinition;
                 }
@@ -636,7 +653,9 @@ public class SelectionTool : ToolBase
             }
 
             if (item is IEngineObject engineObject2 &&
-                engineObject2.Definition is ISelectionTarget2Definition definition2)
+                engineObject2.Definition
+                    is ISelectionTarget2Definition
+                        definition2)
             {
                 yield return new TargetPair(
                     null,
@@ -656,7 +675,9 @@ public class SelectionTool : ToolBase
         foreach (var pair in GetTargetPairs())
         {
             if (pair.Target != null &&
-                ReferenceEquals(pair.Target, targetObject))
+                ReferenceEquals(
+                    pair.Target,
+                    targetObject))
             {
                 target = pair.Target;
                 definition = pair.Definition;
@@ -664,7 +685,9 @@ public class SelectionTool : ToolBase
             }
 
             if (pair.Definition != null &&
-                ReferenceEquals(pair.Definition, targetObject))
+                ReferenceEquals(
+                    pair.Definition,
+                    targetObject))
             {
                 target = pair.Target;
                 definition = pair.Definition;
@@ -680,15 +703,26 @@ public class SelectionTool : ToolBase
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
     {
-        var position = Point2.Zero;
+        Point2 position = Point2.Zero;
 
         if (target is ISelectionMovable2 movable)
+        {
             position = movable.Position;
-        else if (definition is ISelectionMovable2Definition movableDefinition)
-            position = movableDefinition.Position;
+        }
+        else if (definition
+            is ISelectionMovable2Definition
+                movableDefinition)
+        {
+            position =
+                movableDefinition.Position;
+        }
 
-        var halfSize = node.Size / 2f;
-        var point = node.Position + halfSize.ToPoint2();
+        Size2 halfSize =
+            node.Size / 2f;
+
+        Point2 point = new Point2(
+            node.Position.X + halfSize.Width,
+            node.Position.Y + halfSize.Height);
 
         if (Layer != null)
         {
@@ -698,14 +732,23 @@ public class SelectionTool : ToolBase
                 definition);
         }
 
-        return position + point - new Point2(halfSize.Width, halfSize.Height);
+        return new Point2(
+            position.X +
+                point.X -
+                halfSize.Width,
+            position.Y +
+                point.Y -
+                halfSize.Height);
     }
 
     /// <summary>
     /// Draws the current selections and their interaction handles.
     /// </summary>
-    /// <param name="context">The current scene drawing context.</param>
-    public override void Draw(SceneDrawContext context)
+    /// <param name="context">
+    /// The current scene drawing context.
+    /// </param>
+    public override void Draw(
+        SceneDrawContext context)
     {
         using var scope = new RenderScope(
             context.GraphicsDevice,
@@ -757,7 +800,8 @@ public class SelectionTool : ToolBase
         if (Layer == null)
             return;
 
-        var layerContext = GetLayerContext();
+        var layerContext =
+            GetLayerContext();
 
         foreach (var pair in GetTargetPairs())
         {
@@ -778,10 +822,11 @@ public class SelectionTool : ToolBase
                 if (!node.IsVisible)
                     continue;
 
-                var position = GetNodeWorldPosition(
-                    node,
-                    pair.Target,
-                    pair.Definition);
+                var position =
+                    GetNodeWorldPosition(
+                        node,
+                        pair.Target,
+                        pair.Definition);
 
                 DrawNode(
                     node,
@@ -793,7 +838,9 @@ public class SelectionTool : ToolBase
     /// <summary>
     /// Draws a selection interaction node.
     /// </summary>
-    /// <param name="node">The interaction node to draw.</param>
+    /// <param name="node">
+    /// The interaction node to draw.
+    /// </param>
     /// <param name="position">
     /// The world-space top-left position of the interaction node.
     /// </param>
@@ -807,12 +854,16 @@ public class SelectionTool : ToolBase
         {
             case SelectionToolNodeShape.Quad:
                 _pointBatch.AddFillRectangle(
-                    new Bounds2(position, size));
+                    new Bounds2(
+                        position,
+                        size));
                 break;
 
             case SelectionToolNodeShape.Circle:
                 _pointBatch.AddFillEllipse(
-                    new Bounds2(position, size));
+                    new Bounds2(
+                        position,
+                        size));
                 break;
         }
     }
@@ -824,12 +875,14 @@ public class SelectionTool : ToolBase
             if (pair.Target != null &&
                 pair.Target.IsSelected)
             {
-                DrawSelection(pair.Target);
+                DrawSelection(
+                    pair.Target);
             }
             else if (pair.Definition != null &&
                      pair.Definition.IsSelected)
             {
-                DrawSelection(pair.Definition);
+                DrawSelection(
+                    pair.Definition);
             }
         }
     }
@@ -840,40 +893,57 @@ public class SelectionTool : ToolBase
     /// <param name="obj">
     /// The target or target definition whose selection outline should be drawn.
     /// </param>
-    protected virtual void DrawSelection(object obj)
+    protected virtual void DrawSelection(
+        object obj)
     {
-        var position = Point2.Zero;
-        var size = Size2.Zero;
+        Point2 position = Point2.Zero;
+        Size2 size = Size2.Zero;
 
         ISelectionTarget2? target = null;
-        ISelectionTarget2Definition? definition = null;
+        ISelectionTarget2Definition?
+            definition = null;
 
-        if (obj is ISelectionTarget2 selectionTarget)
+        if (obj is ISelectionTarget2
+            selectionTarget)
         {
             target = selectionTarget;
             size = selectionTarget.Size;
 
-            if (selectionTarget is ISelectionMovable2 movable)
+            if (selectionTarget
+                is ISelectionMovable2 movable)
+            {
                 position = movable.Position;
+            }
         }
-        else if (obj is ISelectionTarget2Definition selectionDefinition)
+        else if (obj
+            is ISelectionTarget2Definition
+                selectionDefinition)
         {
             definition = selectionDefinition;
             size = selectionDefinition.Size;
 
-            if (selectionDefinition is ISelectionMovable2Definition movableDefinition)
-                position = movableDefinition.Position;
+            if (selectionDefinition
+                is ISelectionMovable2Definition
+                    movableDefinition)
+            {
+                position =
+                    movableDefinition.Position;
+            }
         }
         else
         {
             return;
         }
 
-        float offset = LineThickness / 2f;
+        float offset =
+            LineThickness / 2f;
 
-        Point2 TransformPoint(float x, float y)
+        Point2 TransformPoint(
+            float x,
+            float y)
         {
-            var point = new Point2(x, y);
+            Point2 point =
+                new Point2(x, y);
 
             if (Layer != null)
             {
@@ -883,24 +953,30 @@ public class SelectionTool : ToolBase
                     definition);
             }
 
-            return position + point;
+            return new Point2(
+                position.X + point.X,
+                position.Y + point.Y);
         }
 
-        var topLeft = TransformPoint(
-            -offset,
-            -offset);
+        Point2 topLeft =
+            TransformPoint(
+                -offset,
+                -offset);
 
-        var topRight = TransformPoint(
-            size.Width + offset,
-            -offset);
+        Point2 topRight =
+            TransformPoint(
+                size.Width + offset,
+                -offset);
 
-        var bottomRight = TransformPoint(
-            size.Width + offset,
-            size.Height + offset);
+        Point2 bottomRight =
+            TransformPoint(
+                size.Width + offset,
+                size.Height + offset);
 
-        var bottomLeft = TransformPoint(
-            -offset,
-            size.Height + offset);
+        Point2 bottomLeft =
+            TransformPoint(
+                -offset,
+                size.Height + offset);
 
         _lineBatch.AddLine(
             new[]
@@ -922,18 +998,31 @@ public class SelectionTool : ToolBase
         if (!_isAreaSelecting)
             return;
 
-        var bounds = GetAreaSelectionBounds();
-
-        //_fillBatch.AddFillRectangle(bounds);
+        Bounds2 bounds =
+            GetAreaSelectionBounds();
 
         _lineBatch.AddLine(
             new[]
             {
-            new Point2(bounds.X, bounds.Y),
-            new Point2(bounds.X + bounds.Width, bounds.Y),
-            new Point2(bounds.X + bounds.Width, bounds.Y + bounds.Height),
-            new Point2(bounds.X, bounds.Y + bounds.Height),
-            new Point2(bounds.X, bounds.Y)
+                new Point2(
+                    bounds.X,
+                    bounds.Y),
+
+                new Point2(
+                    bounds.X + bounds.Width,
+                    bounds.Y),
+
+                new Point2(
+                    bounds.X + bounds.Width,
+                    bounds.Y + bounds.Height),
+
+                new Point2(
+                    bounds.X,
+                    bounds.Y + bounds.Height),
+
+                new Point2(
+                    bounds.X,
+                    bounds.Y)
             },
             LineThickness);
     }
@@ -941,7 +1030,9 @@ public class SelectionTool : ToolBase
     /// <summary>
     /// Selects the specified target and deselects all other targets.
     /// </summary>
-    /// <param name="target">The target or target definition to select.</param>
+    /// <param name="target">
+    /// The target or target definition to select.
+    /// </param>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="target"/> is <see langword="null"/>.
     /// </exception>
@@ -951,7 +1042,8 @@ public class SelectionTool : ToolBase
     /// </exception>
     public void Select(object target)
     {
-        ArgumentNullException.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(
+            target);
 
         if (!TryGetTargetPair(
             target,
@@ -968,13 +1060,17 @@ public class SelectionTool : ToolBase
             if (pair.Target != null)
             {
                 pair.Target.IsSelected =
-                    ReferenceEquals(pair.Target, activeTarget);
+                    ReferenceEquals(
+                        pair.Target,
+                        activeTarget);
             }
 
             if (pair.Definition != null)
             {
                 pair.Definition.IsSelected =
-                    ReferenceEquals(pair.Definition, activeDefinition);
+                    ReferenceEquals(
+                        pair.Definition,
+                        activeDefinition);
             }
         }
 
@@ -986,7 +1082,9 @@ public class SelectionTool : ToolBase
     /// <summary>
     /// Adds the specified target to the current selection.
     /// </summary>
-    /// <param name="target">The target or target definition to add.</param>
+    /// <param name="target">
+    /// The target or target definition to add.
+    /// </param>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="target"/> is <see langword="null"/>.
     /// </exception>
@@ -996,11 +1094,14 @@ public class SelectionTool : ToolBase
     /// </exception>
     public void AddSelection(object target)
     {
-        ArgumentNullException.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(
+            target);
 
         foreach (var pair in GetTargetPairs())
         {
-            if (ReferenceEquals(pair.Target, target))
+            if (ReferenceEquals(
+                pair.Target,
+                target))
             {
                 pair.Target!.IsSelected = true;
                 _activeTarget = pair.Target;
@@ -1011,7 +1112,9 @@ public class SelectionTool : ToolBase
                 return;
             }
 
-            if (ReferenceEquals(pair.Definition, target))
+            if (ReferenceEquals(
+                pair.Definition,
+                target))
             {
                 pair.Definition!.IsSelected = true;
                 _activeTarget = pair.Target;
@@ -1031,20 +1134,27 @@ public class SelectionTool : ToolBase
     /// <summary>
     /// Removes the specified target from the current selection.
     /// </summary>
-    /// <param name="target">The target or target definition to deselect.</param>
+    /// <param name="target">
+    /// The target or target definition to deselect.
+    /// </param>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="target"/> is <see langword="null"/>.
     /// </exception>
     public void Deselect(object target)
     {
-        ArgumentNullException.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(
+            target);
 
         SetSelected(
             target,
             false);
 
-        if (ReferenceEquals(_activeTarget, target) ||
-            ReferenceEquals(_activeDefinition, target))
+        if (ReferenceEquals(
+                _activeTarget,
+                target) ||
+            ReferenceEquals(
+                _activeDefinition,
+                target))
         {
             _activeTarget = null;
             _activeDefinition = null;
@@ -1071,13 +1181,21 @@ public class SelectionTool : ToolBase
         _selectedNode = null;
     }
 
-    private bool IsSelected(object target)
+    private bool IsSelected(
+        object target)
     {
-        if (target is ISelectionTarget2 selectionTarget)
+        if (target is ISelectionTarget2
+            selectionTarget)
+        {
             return selectionTarget.IsSelected;
+        }
 
-        if (target is ISelectionTarget2Definition definition)
+        if (target
+            is ISelectionTarget2Definition
+                definition)
+        {
             return definition.IsSelected;
+        }
 
         return false;
     }
@@ -1086,27 +1204,35 @@ public class SelectionTool : ToolBase
         object target,
         bool selected)
     {
-        if (target is ISelectionTarget2 selectionTarget)
+        if (target is ISelectionTarget2
+            selectionTarget)
         {
             selectionTarget.IsSelected = selected;
             return;
         }
 
-        if (target is ISelectionTarget2Definition definition)
+        if (target
+            is ISelectionTarget2Definition
+                definition)
+        {
             definition.IsSelected = selected;
+        }
     }
 
     /// <summary>
     /// Performs a hit test against all available selection targets.
     /// </summary>
-    /// <param name="touchedPosition">The position to test.</param>
+    /// <param name="touchedPosition">
+    /// The position to test.
+    /// </param>
     /// <returns>
     /// A result containing all targets intersecting the specified position.
     /// </returns>
     public SelectionTargetHitTestResult HitTest(
         Point2 touchedPosition)
     {
-        var targets = new List<object>();
+        var targets =
+            new List<object>();
 
         foreach (var pair in GetTargetPairs())
         {
@@ -1124,7 +1250,8 @@ public class SelectionTool : ToolBase
                 targets.Add(pair.Definition);
         }
 
-        return new SelectionTargetHitTestResult(targets);
+        return new SelectionTargetHitTestResult(
+            targets);
     }
 
     private bool IsInTarget(
@@ -1138,7 +1265,7 @@ public class SelectionTool : ToolBase
             return false;
         }
 
-        var targetSize =
+        Size2 targetSize =
             target?.Size ??
             definition!.Size;
 
@@ -1148,32 +1275,48 @@ public class SelectionTool : ToolBase
             return false;
         }
 
-        var targetPosition = Point2.Zero;
+        Point2 targetPosition =
+            Point2.Zero;
 
-        if (target is ISelectionMovable2 movable)
-            targetPosition = movable.Position;
-        else if (definition is ISelectionMovable2Definition movableDefinition)
-            targetPosition = movableDefinition.Position;
+        if (target is ISelectionMovable2
+            movable)
+        {
+            targetPosition =
+                movable.Position;
+        }
+        else if (definition
+            is ISelectionMovable2Definition
+                movableDefinition)
+        {
+            targetPosition =
+                movableDefinition.Position;
+        }
 
-        var localPosition =
-            position -
-            targetPosition;
+        Point2 localPosition =
+            new Point2(
+                position.X -
+                    targetPosition.X,
+                position.Y -
+                    targetPosition.Y);
 
         if (Layer != null)
         {
-            localPosition = Layer.InverseTransform(
-                localPosition,
-                target,
-                definition);
+            localPosition =
+                Layer.InverseTransform(
+                    localPosition,
+                    target,
+                    definition);
         }
 
-        return localPosition.X >= 0f &&
-               localPosition.X <= targetSize.Width &&
-               localPosition.Y >= 0f &&
-               localPosition.Y <= targetSize.Height;
+        return
+            localPosition.X >= 0f &&
+            localPosition.X <= targetSize.Width &&
+            localPosition.Y >= 0f &&
+            localPosition.Y <= targetSize.Height;
     }
 
-    private SelectionToolLayerContext GetLayerContext()
+    private SelectionToolLayerContext
+        GetLayerContext()
     {
         return new SelectionToolLayerContext(
             EnableGridSnap,
@@ -1188,15 +1331,17 @@ public class SelectionTool : ToolBase
     private void BeginAreaSelection()
     {
         _isAreaSelecting = true;
-        _areaSelectionStart = _cursorPosition.ToVector2();
-        _areaSelectionEnd = _cursorPosition.ToVector2();
+        _areaSelectionStart = _cursorPosition;
+        _areaSelectionEnd = _cursorPosition;
     }
 
     private void EndAreaSelection()
     {
-        _areaSelectionEnd = _cursorPosition.ToVector2();
+        _areaSelectionEnd =
+            _cursorPosition;
 
-        var bounds = GetAreaSelectionBounds();
+        Bounds2 bounds =
+            GetAreaSelectionBounds();
 
         foreach (var pair in GetTargetPairs())
         {
@@ -1220,17 +1365,33 @@ public class SelectionTool : ToolBase
 
     private Bounds2 GetAreaSelectionBounds()
     {
-        var min = Vector2.Min(
-            _areaSelectionStart,
-            _areaSelectionEnd);
+        float minX =
+            float.Min(
+                _areaSelectionStart.X,
+                _areaSelectionEnd.X);
 
-        var max = Vector2.Max(
-            _areaSelectionStart,
-            _areaSelectionEnd);
+        float minY =
+            float.Min(
+                _areaSelectionStart.Y,
+                _areaSelectionEnd.Y);
+
+        float maxX =
+            float.Max(
+                _areaSelectionStart.X,
+                _areaSelectionEnd.X);
+
+        float maxY =
+            float.Max(
+                _areaSelectionStart.Y,
+                _areaSelectionEnd.Y);
 
         return new Bounds2(
-            new Point2(min.X, min.Y),
-           new Size2(max - min));
+            new Point2(
+                minX,
+                minY),
+            new Size2(
+                maxX - minX,
+                maxY - minY));
     }
 
     private bool IsInAreaSelection(
@@ -1244,20 +1405,33 @@ public class SelectionTool : ToolBase
             return false;
         }
 
-        var size =
+        Size2 size =
             target?.Size ??
             definition!.Size;
 
-        var position = Point2.Zero;
+        Point2 position =
+            Point2.Zero;
 
-        if (target is ISelectionMovable2 movable)
-            position = movable.Position;
-        else if (definition is ISelectionMovable2Definition movableDefinition)
-            position = movableDefinition.Position;
-
-        Point2 TransformPoint(float x, float y)
+        if (target is ISelectionMovable2
+            movable)
         {
-            var point = new Point2(x, y);
+            position =
+                movable.Position;
+        }
+        else if (definition
+            is ISelectionMovable2Definition
+                movableDefinition)
+        {
+            position =
+                movableDefinition.Position;
+        }
+
+        Point2 TransformPoint(
+            float x,
+            float y)
+        {
+            Point2 point =
+                new Point2(x, y);
 
             if (Layer != null)
             {
@@ -1267,34 +1441,77 @@ public class SelectionTool : ToolBase
                     definition);
             }
 
-            return position + point;
+            return new Point2(
+                position.X + point.X,
+                position.Y + point.Y);
         }
 
-        var topLeft = TransformPoint(0f, 0f).ToVector2();
-        var topRight = TransformPoint(size.Width, 0f).ToVector2();
-        var bottomRight = TransformPoint(size.Width, size.Height).ToVector2();
-        var bottomLeft = TransformPoint(0f, size.Height).ToVector2();
+        Point2 topLeft =
+            TransformPoint(
+                0f,
+                0f);
 
-        var min = Vector2.Min(
-            Vector2.Min(topLeft, topRight),
-            Vector2.Min(bottomLeft, bottomRight));
+        Point2 topRight =
+            TransformPoint(
+                size.Width,
+                0f);
 
-        var max = Vector2.Max(
-            Vector2.Max(topLeft, topRight),
-            Vector2.Max(bottomLeft, bottomRight));
+        Point2 bottomRight =
+            TransformPoint(
+                size.Width,
+                size.Height);
+
+        Point2 bottomLeft =
+            TransformPoint(
+                0f,
+                size.Height);
+
+        float minX = float.Min(
+            float.Min(
+                topLeft.X,
+                topRight.X),
+            float.Min(
+                bottomLeft.X,
+                bottomRight.X));
+
+        float minY = float.Min(
+            float.Min(
+                topLeft.Y,
+                topRight.Y),
+            float.Min(
+                bottomLeft.Y,
+                bottomRight.Y));
+
+        float maxX = float.Max(
+            float.Max(
+                topLeft.X,
+                topRight.X),
+            float.Max(
+                bottomLeft.X,
+                bottomRight.X));
+
+        float maxY = float.Max(
+            float.Max(
+                topLeft.Y,
+                topRight.Y),
+            float.Max(
+                bottomLeft.Y,
+                bottomRight.Y));
 
         if (AllowAreaSelectionIntersection)
         {
-            return area.X <= max.X &&
-                   area.X + area.Width >= min.X &&
-                   area.Y <= max.Y &&
-                   area.Y + area.Height >= min.Y;
+            return
+                area.X <= maxX &&
+                area.X + area.Width >= minX &&
+                area.Y <= maxY &&
+                area.Y + area.Height >= minY;
         }
 
-        return min.X >= area.X &&
-               max.X <= area.X + area.Width &&
-               min.Y >= area.Y &&
-               max.Y <= area.Y + area.Height;
+        return
+            minX >= area.X &&
+            maxX <= area.X + area.Width &&
+            minY >= area.Y &&
+            maxY <= area.Y + area.Height;
     }
 
     private readonly struct TargetPair

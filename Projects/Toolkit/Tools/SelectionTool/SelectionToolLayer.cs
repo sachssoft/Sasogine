@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Components.Tools.Selection;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Components.Tools.Selection;
@@ -89,7 +88,7 @@ public abstract class SelectionToolLayer
     /// The current cursor position in world space.
     /// </param>
     /// <param name="delta">
-    /// The cursor movement delta since the previous interaction update.
+    /// The cursor movement vector since the previous interaction update.
     /// </param>
     protected internal virtual void OnNodeInteract(
         SelectionToolLayerContext context,
@@ -99,7 +98,7 @@ public abstract class SelectionToolLayer
         IEnumerable<ISelectionTarget2>? otherSelectedTargets,
         IEnumerable<ISelectionTarget2Definition>? otherSelectedTargetDefinitions,
         Point2 cursorPosition,
-        Point2 delta)
+        Vector2 delta)
     {
     }
 
