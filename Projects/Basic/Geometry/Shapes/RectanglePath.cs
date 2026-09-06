@@ -14,10 +14,10 @@ namespace Sachssoft.Sasogine.Geometry.Shapes;
 /// </remarks>
 public class RectanglePath : ShapePathBase
 {
-    private Vector2 _topLeftEdgeSize = Vector2.Zero;
-    private Vector2 _topRightEdgeSize = Vector2.Zero;
-    private Vector2 _bottomLeftEdgeSize = Vector2.Zero;
-    private Vector2 _bottomRightEdgeSize = Vector2.Zero;
+    private Size2 _topLeftEdgeSize = Size2.Zero;
+    private Size2 _topRightEdgeSize = Size2.Zero;
+    private Size2 _bottomLeftEdgeSize = Size2.Zero;
+    private Size2 _bottomRightEdgeSize = Size2.Zero;
 
     /// <summary>
     /// Gets the number of segments used to sample rounded corners.
@@ -47,7 +47,7 @@ public class RectanglePath : ShapePathBase
     /// <summary>
     /// Gets the normalized size of the top-left corner.
     /// </summary>
-    public Vector2 TopLeftEdgeSize
+    public Size2 TopLeftEdgeSize
     {
         get => _topLeftEdgeSize;
         init => _topLeftEdgeSize = CoerceSize(value);
@@ -56,7 +56,7 @@ public class RectanglePath : ShapePathBase
     /// <summary>
     /// Gets the normalized size of the top-right corner.
     /// </summary>
-    public Vector2 TopRightEdgeSize
+    public Size2 TopRightEdgeSize
     {
         get => _topRightEdgeSize;
         init => _topRightEdgeSize = CoerceSize(value);
@@ -65,7 +65,7 @@ public class RectanglePath : ShapePathBase
     /// <summary>
     /// Gets the normalized size of the bottom-left corner.
     /// </summary>
-    public Vector2 BottomLeftEdgeSize
+    public Size2 BottomLeftEdgeSize
     {
         get => _bottomLeftEdgeSize;
         init => _bottomLeftEdgeSize = CoerceSize(value);
@@ -74,7 +74,7 @@ public class RectanglePath : ShapePathBase
     /// <summary>
     /// Gets the normalized size of the bottom-right corner.
     /// </summary>
-    public Vector2 BottomRightEdgeSize
+    public Size2 BottomRightEdgeSize
     {
         get => _bottomRightEdgeSize;
         init => _bottomRightEdgeSize = CoerceSize(value);
@@ -88,21 +88,21 @@ public class RectanglePath : ShapePathBase
     /// </returns>
     protected override Path BuildDefinedPath()
     {
-        var polygon = new List<Vector2>();
+        var polygon = new List<Point2>();
 
-        Vector2 topLeft = new(0f, 0f);
-        Vector2 topRight = new(1f, 0f);
-        Vector2 bottomRight = new(1f, 1f);
-        Vector2 bottomLeft = new(0f, 1f);
+        Point2 topLeft = new(0f, 0f);
+        Point2 topRight = new(1f, 0f);
+        Point2 bottomRight = new(1f, 1f);
+        Point2 bottomLeft = new(0f, 1f);
 
-        Vector2[] RoundCorner(
-            Vector2 corner,
-            Vector2 next,
-            Vector2 previous,
-            Vector2 size,
+        Point2[] RoundCorner(
+            Point2 corner,
+            Point2 next,
+            Point2 previous,
+            Size2 size,
             RoundingType type)
         {
-            if (size == Vector2.Zero)
+            if (size == Size2.Zero)
                 return new[] { corner };
 
             Vector2 previousDirection =
@@ -113,18 +113,18 @@ public class RectanglePath : ShapePathBase
 
             float previousRadius =
                 previousDirection.X != 0f
-                    ? size.X
-                    : size.Y;
+                    ? size.Width
+                    : size.Height;
 
             float nextRadius =
                 nextDirection.X != 0f
-                    ? size.X
-                    : size.Y;
+                    ? size.Width
+                    : size.Height;
 
-            Vector2 start =
+            Point2 start =
                 corner - previousDirection * previousRadius;
 
-            Vector2 end =
+            Point2 end =
                 corner + nextDirection * nextRadius;
 
             return type switch
@@ -200,10 +200,10 @@ public class RectanglePath : ShapePathBase
             });
     }
 
-    private static Vector2 CoerceSize(Vector2 size)
+    private static Size2 CoerceSize(Size2 size)
     {
-        return new Vector2(
-            MathHelper.Clamp(size.X, 0f, 1f),
-            MathHelper.Clamp(size.Y, 0f, 1f));
+        return new Size2(
+            MathHelper.Clamp(size.Width, 0f, 1f),
+            MathHelper.Clamp(size.Height, 0f, 1f));
     }
 }
