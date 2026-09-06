@@ -1,16 +1,18 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Geometry;
 using System;
+using System.Linq;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>Represents an elliptical arc segment of a vector path.</summary>
     public sealed class VectorArcSegment : VectorFixedSegment
     {
-        private Vector2 _startPositionCache;
+        private Point2 _startPositionCache;
         private float _sampleLengthCache;
 
-        private Vector2 _endPositionCache;
+        private Point2 _endPositionCache;
 
         private float _radiusXCache;
         private float _radiusYCache;
@@ -19,14 +21,14 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         private bool _largeArcCache;
         private bool _sweepCache;
 
-        private Vector2[]? _sampledVerticesCache;
+        private Point2[]? _sampledVerticesCache;
 
         public VectorArcSegment() : base(0)
         {
         }
 
         public VectorArcSegment(
-            Vector2 position,
+            Point2 position,
             float radiusX,
             float radiusY,
             float rotation = 0f,
@@ -44,7 +46,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         }
 
         public VectorArcSegment(
-            Vector2 position,
+            Point2 position,
             float radiusX,
             float radiusY,
             float rotation,
@@ -82,12 +84,11 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <param name="startPosition">The start position of the elliptical arc.</param>
         /// <param name="sampleLength">The desired approximate distance between consecutive sampled vertices.</param>
         /// <returns>An array containing the sampled vertices that represent the elliptical arc.</returns>
-        public override Vector2[] GetVertices(
-            Vector2 startPosition,
+        public override Point2[] GetVertices(
+            Point2 startPosition,
             float sampleLength)
         {
-            Vector2 endPosition =
-                Node.Position;
+            var endPosition = Node.Position;
 
             if (sampleLength <= 0f)
             {
@@ -127,22 +128,24 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 
                 _sampledVerticesCache =
                     GeometrySampler.SampleArc(
-                        startPosition,
-                        endPosition,
+                        startPosition.ToVector2(),
+                        endPosition.ToVector2(),
                         RadiusX,
                         RadiusY,
                         Rotation,
                         LargeArc,
                         Sweep,
-                        segmentCount);
+                        segmentCount)
+                    .Select(x => new Point2(x.X, x.Y))
+                    .ToArray();
             }
 
             return _sampledVerticesCache;
         }
 
         private static int CalculateArcSegments(
-            Vector2 startPosition,
-            Vector2 endPosition,
+            Point2 startPosition,
+            Point2 endPosition,
             float radiusX,
             float radiusY,
             float rotation,
@@ -165,8 +168,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 
             Vector2[] initialVertices =
                 GeometrySampler.SampleArc(
-                    startPosition,
-                    endPosition,
+                    startPosition.ToVector2(),
+                    endPosition.ToVector2(),
                     radiusX,
                     radiusY,
                     rotation,

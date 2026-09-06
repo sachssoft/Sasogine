@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
@@ -24,6 +25,6 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <param name="startPosition">The starting position of the segment.</param>
         /// <param name="sampleLength">The approximate distance between sampled vertices.</param>
         /// <returns>An array of vertices representing the segment.</returns>
-        Vector2[] GetVertices(Vector2 startPosition, float sampleLength);
+        Point2[] GetVertices(Point2 startPosition, float sampleLength);
     }
 }

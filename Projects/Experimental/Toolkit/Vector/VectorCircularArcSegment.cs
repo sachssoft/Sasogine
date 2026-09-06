@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Geometry;
 using System;
+using System.Linq;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
@@ -9,20 +11,20 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     {
         private const float Epsilon = 0.000001f;
 
-        private Vector2 _startPositionCache;
-        private Vector2 _controlPositionCache;
-        private Vector2 _endPositionCache;
+        private Point2 _startPositionCache;
+        private Point2 _controlPositionCache;
+        private Point2 _endPositionCache;
         private float _sampleLengthCache;
 
-        private Vector2[]? _sampledVerticesCache;
+        private Point2[]? _sampledVerticesCache;
 
         public VectorCircularArcSegment() : base(1)
         {
         }
 
         public VectorCircularArcSegment(
-            Vector2 position,
-            Vector2 controlPosition)
+            Point2 position,
+            Point2 controlPosition)
             : this(
                 position,
                 controlPosition,
@@ -31,8 +33,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         }
 
         public VectorCircularArcSegment(
-            Vector2 position,
-            Vector2 controlPosition,
+            Point2 position,
+            Point2 controlPosition,
             bool isSelected)
             : this()
         {
@@ -47,8 +49,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <param name="startPosition">The start position of the circular arc.</param>
         /// <param name="sampleLength">The desired approximate distance between consecutive sampled vertices.</param>
         /// <returns>An array containing the sampled vertices that represent the circular arc.</returns>
-        public override Vector2[] GetVertices(
-            Vector2 startPosition,
+        public override Point2[] GetVertices(
+            Point2 startPosition,
             float sampleLength)
         {
             if (sampleLength <= 0f)
@@ -57,11 +59,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                     nameof(sampleLength));
             }
 
-            Vector2 controlPosition =
-                ControlNodes[0].Position;
-
-            Vector2 endPosition =
-                Node.Position;
+            var controlPosition = ControlNodes[0].Position;
+            var endPosition = Node.Position;
 
             if (_sampledVerticesCache == null ||
                 _startPositionCache != startPosition ||
@@ -78,7 +77,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                     startPosition,
                     controlPosition,
                     endPosition,
-                    out Vector2 center,
+                    out Point2 center,
                     out float radius,
                     out float startAngle,
                     out float sweepAngle))
@@ -113,29 +112,31 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                  */
                 _sampledVerticesCache =
                     GeometrySampler.SampleArc(
-                        startPosition,
-                        endPosition,
+                        startPosition.ToVector2(),
+                        endPosition.ToVector2(),
                         radius,
                         radius,
                         0f,
                         largeArc,
                         sweep,
-                        segmentCount);
+                        segmentCount)
+                    .Select(x => new Point2(x.X, x.Y))
+                    .ToArray();
             }
 
             return _sampledVerticesCache;
         }
 
         private static bool TryCalculateArc(
-            Vector2 start,
-            Vector2 control,
-            Vector2 end,
-            out Vector2 center,
+            Point2 start,
+            Point2 control,
+            Point2 end,
+            out Point2 center,
             out float radius,
             out float startAngle,
             out float sweepAngle)
         {
-            center = Vector2.Zero;
+            center = Point2.Zero;
             radius = 0f;
             startAngle = 0f;
             sweepAngle = 0f;
@@ -182,8 +183,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                 ) /
                 denominator;
 
-            center = new Vector2(centerX, centerY);
-            radius = Vector2.Distance(center, start);
+            center = new Point2(centerX, centerY);
+            radius = Vector2.Distance(center.ToVector2(), start.ToVector2());
 
             if (radius <= Epsilon)
             {
@@ -242,7 +243,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         }
 
         private static int CalculateArcSegments(
-            Vector2 center,
+            Point2 center,
             float radius,
             float sweepAngle,
             float sampleLength)

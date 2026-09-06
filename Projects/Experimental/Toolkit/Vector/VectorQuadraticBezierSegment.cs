@@ -1,33 +1,35 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Geometry;
 using System;
+using System.Linq;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>Represents a quadratic Bézier segment of a vector path with a single control node.</summary>
     public sealed class VectorQuadraticBezierSegment : VectorFixedSegment
     {
-        private Vector2 _startPositionCache;
+        private Point2 _startPositionCache;
         private float _sampleLengthCache;
-        private Vector2 _controlPositionCache;
-        private Vector2 _endPositionCache;
+        private Point2 _controlPositionCache;
+        private Point2 _endPositionCache;
 
-        private Vector2[]? _sampledVerticesCache;
+        private Point2[]? _sampledVerticesCache;
 
         public VectorQuadraticBezierSegment() : base(1)
         {
         }
 
         public VectorQuadraticBezierSegment(
-            Vector2 position,
-            Vector2 controlPosition)
+            Point2 position,
+            Point2 controlPosition)
             : this(position, controlPosition, false)
         {
         }
 
         public VectorQuadraticBezierSegment(
-            Vector2 position,
-            Vector2 controlPosition,
+            Point2 position,
+            Point2 controlPosition,
             bool isSelected) : this()
         {
             Node.Position = position;
@@ -39,12 +41,12 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <param name="startPosition">The start position (P0) of the quadratic Bézier segment.</param>
         /// <param name="sampleLength">The desired approximate distance between consecutive sampled vertices.</param>
         /// <returns>An array containing the sampled vertices that represent the quadratic Bézier segment.</returns>
-        public override Vector2[] GetVertices(
-            Vector2 startPosition,
+        public override Point2[] GetVertices(
+            Point2 startPosition,
             float sampleLength)
         {
-            Vector2 controlPosition = ControlNodes[0].Position;
-            Vector2 endPosition = Node.Position;
+            var controlPosition = ControlNodes[0].Position;
+            var endPosition = Node.Position;
 
             if (_sampledVerticesCache == null ||
                 _startPositionCache != startPosition ||
@@ -66,27 +68,29 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 
                 _sampledVerticesCache =
                     GeometrySampler.SampleQuadraticBezier(
-                        startPosition,
-                        controlPosition,
-                        endPosition,
-                        segmentCount);
+                        startPosition.ToVector2(),
+                        controlPosition.ToVector2(),
+                        endPosition.ToVector2(),
+                        segmentCount)
+                    .Select(x => new Point2(x.X,x.Y))
+                    .ToArray();
             }
 
             return _sampledVerticesCache;
         }
 
         private static int CalculateQuadraticBezierSegments(
-            Vector2 startPosition,
-            Vector2 controlPosition,
-            Vector2 endPosition,
+            Point2 startPosition,
+            Point2 controlPosition,
+            Point2 endPosition,
             float sampleLength)
         {
             if (sampleLength <= 0f)
                 throw new ArgumentOutOfRangeException(nameof(sampleLength));
 
             float length =
-                Vector2.Distance(startPosition, controlPosition) +
-                Vector2.Distance(controlPosition, endPosition);
+                Vector2.Distance(startPosition.ToVector2(), controlPosition.ToVector2()) +
+                Vector2.Distance(controlPosition.ToVector2(), endPosition.ToVector2());
 
             return Math.Max(
                 1,

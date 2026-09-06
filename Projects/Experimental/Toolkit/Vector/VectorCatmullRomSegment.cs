@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Geometry;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
@@ -10,20 +12,20 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// </summary>
     public sealed class VectorCatmullRomSegment : VectorVariableSegment
     {
-        private Vector2 _startPositionCache;
-        private Vector2 _nodePositionCache;
+        private Point2 _startPositionCache;
+        private Point2 _nodePositionCache;
         private float _sampleLengthCache;
         private bool _closedCache;
-        private Vector2[]? _controlPositionsCache;
-        private Vector2[]? _sampledVerticesCache;
+        private Point2[]? _controlPositionsCache;
+        private Point2[]? _sampledVerticesCache;
 
         public VectorCatmullRomSegment()
         {
         }
 
         public VectorCatmullRomSegment(
-            Vector2 position,
-            IEnumerable<Vector2> controlPoints,
+            Point2 position,
+            IEnumerable<Point2> controlPoints,
             bool isSelected)
             : this()
         {
@@ -33,7 +35,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             Node.Position = position;
             Node.IsSelected = isSelected;
 
-            foreach (Vector2 point in controlPoints)
+            foreach (var point in controlPoints)
                 ControlNodes.Add(new VectorNode(point));
         }
 
@@ -48,8 +50,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <param name="startPosition">The start position of the Catmull-Rom spline segment.</param>
         /// <param name="sampleLength">The desired approximate distance between consecutive sampled vertices.</param>
         /// <returns>An array containing the sampled vertices that represent the Catmull-Rom spline.</returns>
-        public override Vector2[] GetVertices(
-            Vector2 startPosition,
+        public override Point2[] GetVertices(
+            Point2 startPosition,
             float sampleLength)
         {
             if (sampleLength <= 0f)
@@ -58,7 +60,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             int pointCount = ControlNodes.Count + 2;
 
             if (pointCount < 2)
-                return Array.Empty<Vector2>();
+                return Array.Empty<Point2>();
 
             bool controlPointsChanged =
                 _controlPositionsCache == null ||
@@ -88,7 +90,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                 _sampleLengthCache = sampleLength;
                 _closedCache = Closed;
 
-                Vector2[] points = new Vector2[pointCount];
+                var points = new Point2[pointCount];
                 points[0] = startPosition;
 
                 for (int i = 0; i < ControlNodes.Count; i++)
@@ -101,12 +103,14 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 
                 _sampledVerticesCache =
                     GeometrySampler.SampleCatmullRom(
-                        points,
+                        points.Select(x => new Vector2(x.X, x.Y)).ToArray(),
                         segmentsPerSpan,
-                        Closed);
+                        Closed)
+                    .Select(x => new Point2(x.X,x.Y))
+                    .ToArray();
 
                 _controlPositionsCache =
-                    new Vector2[ControlNodes.Count];
+                    new Point2[ControlNodes.Count];
 
                 for (int i = 0; i < ControlNodes.Count; i++)
                     _controlPositionsCache[i] =
@@ -117,15 +121,15 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         }
 
         private static int CalculateSegments(
-            Vector2[] points,
+            Point2[] points,
             float sampleLength)
         {
             float length = 0f;
 
             for (int i = 1; i < points.Length; i++)
                 length += Vector2.Distance(
-                    points[i - 1],
-                    points[i]);
+                    points[i - 1].ToVector2(),
+                    points[i].ToVector2());
 
             return Math.Max(
                 1,

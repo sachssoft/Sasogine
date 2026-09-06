@@ -1,28 +1,30 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Geometry;
 using System;
+using System.Linq;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>Represents a cubic Bézier segment with two control nodes.</summary>
     public sealed class VectorCubicBezierSegment : VectorFixedSegment
     {
-        private Vector2 _startPositionCache;
+        private Point2 _startPositionCache;
         private float _sampleLengthCache;
-        private Vector2 _controlPosition0Cache;
-        private Vector2 _controlPosition1Cache;
-        private Vector2 _endPositionCache;
+        private Point2 _controlPosition0Cache;
+        private Point2 _controlPosition1Cache;
+        private Point2 _endPositionCache;
 
-        private Vector2[]? _sampledVerticesCache;
+        private Point2[]? _sampledVerticesCache;
 
         public VectorCubicBezierSegment() : base(2)
         {
         }
 
         public VectorCubicBezierSegment(
-            Vector2 position,
-            Vector2 controlPosition0,
-            Vector2 controlPosition1)
+            Point2 position,
+            Point2 controlPosition0,
+            Point2 controlPosition1)
             : this(
                 position,
                 controlPosition0,
@@ -32,9 +34,9 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         }
 
         public VectorCubicBezierSegment(
-            Vector2 position,
-            Vector2 controlPosition0,
-            Vector2 controlPosition1,
+            Point2 position,
+            Point2 controlPosition0,
+            Point2 controlPosition1,
             bool isSelected)
             : this()
         {
@@ -48,13 +50,13 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <param name="startPosition">The start position of the cubic Bézier segment.</param>
         /// <param name="sampleLength">The desired approximate distance between consecutive sampled vertices.</param>
         /// <returns>An array containing the sampled vertices of the cubic Bézier segment.</returns>
-        public override Vector2[] GetVertices(
-            Vector2 startPosition,
+        public override Point2[] GetVertices(
+            Point2 startPosition,
             float sampleLength)
         {
-            Vector2 controlPosition0 = ControlNodes[0].Position;
-            Vector2 controlPosition1 = ControlNodes[1].Position;
-            Vector2 endPosition = Node.Position;
+            var controlPosition0 = ControlNodes[0].Position;
+            var controlPosition1 = ControlNodes[1].Position;
+            var endPosition = Node.Position;
 
             if (_sampledVerticesCache == null ||
                 _startPositionCache != startPosition ||
@@ -79,21 +81,23 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 
                 _sampledVerticesCache =
                     GeometrySampler.SampleCubicBezier(
-                        startPosition,
-                        controlPosition0,
-                        controlPosition1,
-                        endPosition,
-                        segmentCount);
+                        startPosition.ToVector2(),
+                        controlPosition0.ToVector2(),
+                        controlPosition1.ToVector2(),
+                        endPosition.ToVector2(),
+                        segmentCount)
+                    .Select(x => new Point2(x.X,x.Y))
+                    .ToArray();
             }
 
             return _sampledVerticesCache;
         }
 
         private static int CalculateCubicBezierSegments(
-            Vector2 startPosition,
-            Vector2 controlPosition0,
-            Vector2 controlPosition1,
-            Vector2 endPosition,
+            Point2 startPosition,
+            Point2 controlPosition0,
+            Point2 controlPosition1,
+            Point2 endPosition,
             float sampleLength)
         {
             if (sampleLength <= 0f)
@@ -102,9 +106,9 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                     nameof(sampleLength));
             }
 
-            float length = Vector2.Distance(startPosition, controlPosition0) +
-                Vector2.Distance(controlPosition0, controlPosition1) +
-                Vector2.Distance(controlPosition1, endPosition);
+            float length = Vector2.Distance(startPosition.ToVector2(), controlPosition0.ToVector2()) +
+                Vector2.Distance(controlPosition0.ToVector2(), controlPosition1.ToVector2()) +
+                Vector2.Distance(controlPosition1.ToVector2(), endPosition.ToVector2());
 
             return Math.Max(
                 1,

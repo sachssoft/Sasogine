@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
@@ -11,13 +12,13 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         }
 
         public VectorLineSegment(
-            Vector2 position)
+            Point2 position)
             : this(position, false)
         {
         }
 
         public VectorLineSegment(
-            Vector2 position,
+            Point2 position,
             bool isSelected)
             : this()
         {
@@ -29,8 +30,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <param name="startPosition">The start position of the line segment.</param>
         /// <param name="sampleLength">The desired sampling distance. This parameter is not required for a straight line.</param>
         /// <returns>An array containing the start and end positions of the line segment.</returns>
-        public override Vector2[] GetVertices(
-            Vector2 startPosition,
+        public override Point2[] GetVertices(
+            Point2 startPosition,
             float sampleLength)
         {
             return

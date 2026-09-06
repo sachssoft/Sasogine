@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
@@ -9,13 +10,13 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         {
         }
 
-        public VectorNode(Vector2 position)
+        public VectorNode(Point2 position)
         {
             Position = position;
         }
 
         /// <summary>Gets or sets the position of the node.</summary>
-        public Vector2 Position { get; set; }
+        public Point2 Position { get; set; }
 
         /// <summary>Gets or sets whether the node is selected.</summary>
         public bool IsSelected { get; set; }

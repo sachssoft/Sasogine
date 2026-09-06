@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
@@ -12,9 +13,9 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <summary>Gets the sampled vertices of all vector paths that define the shape.</summary>
         /// <param name="sampleLength">The desired approximate distance between consecutive sampled vertices.</param>
         /// <returns>A collection containing the sampled vertices of each vector path.</returns>
-        public IReadOnlyList<IReadOnlyList<Vector2>> GetVertices(float sampleLength)
+        public IReadOnlyList<IReadOnlyList<Point2>> GetVertices(float sampleLength)
         {
-            var polygon = new IReadOnlyList<Vector2>[Paths.Count];
+            var polygon = new IReadOnlyList<Point2>[Paths.Count];
 
             for (int i = 0; i < Paths.Count; i++)
             {

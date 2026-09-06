@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
@@ -37,14 +38,11 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <summary>Generates a sampled representation of the complete vector path.</summary>
         /// <param name="sampleLength">The desired approximate distance between consecutive sampled vertices.</param>
         /// <returns>An array containing the sampled vertices of the vector path.</returns>
-        public Vector2[] GetVertices(
+        public Point2[] GetVertices(
             float sampleLength)
         {
-            var vertices =
-                new List<Vector2>();
-
-            Vector2 currentPosition =
-                Start.Position;
+            var vertices = new List<Point2>();
+            var currentPosition = Start.Position;
 
             foreach (var segment in Segments)
             {

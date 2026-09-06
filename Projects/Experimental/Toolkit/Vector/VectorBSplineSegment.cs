@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Geometry;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
@@ -10,21 +12,21 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// </summary>
     public sealed class VectorBSplineSegment : VectorVariableSegment
     {
-        private Vector2 _startPositionCache;
-        private Vector2 _nodePositionCache;
+        private Point2 _startPositionCache;
+        private Point2 _nodePositionCache;
         private float _sampleLengthCache;
         private int _degreeCache;
 
-        private Vector2[]? _controlPositionsCache;
-        private Vector2[]? _sampledVerticesCache;
+        private Point2[]? _controlPositionsCache;
+        private Point2[]? _sampledVerticesCache;
 
         public VectorBSplineSegment()
         {
         }
 
         public VectorBSplineSegment(
-            Vector2 position,
-            IEnumerable<Vector2> controlPoints,
+            Point2 position,
+            IEnumerable<Point2> controlPoints,
             int degree = 3,
             bool isSelected = false)
             : this()
@@ -39,7 +41,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             Node.IsSelected = isSelected;
             Degree = degree;
 
-            foreach (Vector2 point in controlPoints)
+            foreach (var point in controlPoints)
                 ControlNodes.Add(new VectorNode(point));
         }
 
@@ -54,8 +56,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <param name="startPosition">The start position of the B-spline segment.</param>
         /// <param name="sampleLength">The desired approximate distance between consecutive sampled vertices.</param>
         /// <returns>An array containing the sampled vertices that represent the B-spline.</returns>
-        public override Vector2[] GetVertices(
-            Vector2 startPosition,
+        public override Point2[] GetVertices(
+            Point2 startPosition,
             float sampleLength)
         {
             if (sampleLength <= 0f)
@@ -70,7 +72,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                 ControlNodes.Count + 2;
 
             if (Degree >= pointCount)
-                return Array.Empty<Vector2>();
+                return Array.Empty<Point2>();
 
             bool controlPointsChanged =
                 _controlPositionsCache == null ||
@@ -110,22 +112,16 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                 _degreeCache =
                     Degree;
 
-                Vector2[] points =
-                    new Vector2[pointCount];
+                var points = new Point2[pointCount];
 
-                points[0] =
-                    startPosition;
+                points[0] = startPosition;
 
-                for (int i = 0;
-                     i < ControlNodes.Count;
-                     i++)
+                for (int i = 0; i < ControlNodes.Count; i++)
                 {
-                    points[i + 1] =
-                        ControlNodes[i].Position;
+                    points[i + 1] = ControlNodes[i].Position;
                 }
 
-                points[^1] =
-                    Node.Position;
+                points[^1] = Node.Position;
 
                 int segments =
                     CalculateSegments(
@@ -134,12 +130,12 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 
                 _sampledVerticesCache =
                     GeometrySampler.SampleBSpline(
-                        points,
+                        points.Select(x => new Vector2(x.X,x.Y)).ToArray(),
                         Degree,
-                        segments);
+                        segments).Select(x => new Point2(x.X,x.Y)).ToArray();
 
                 _controlPositionsCache =
-                    new Vector2[ControlNodes.Count];
+                    new Point2[ControlNodes.Count];
 
                 for (int i = 0;
                      i < ControlNodes.Count;
@@ -154,7 +150,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         }
 
         private static int CalculateSegments(
-            Vector2[] points,
+            Point2[] points,
             float sampleLength)
         {
             float length = 0f;
@@ -163,10 +159,9 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                  i < points.Length;
                  i++)
             {
-                length +=
-                    Vector2.Distance(
-                        points[i - 1],
-                        points[i]);
+                length += Vector2.Distance(
+                        points[i - 1].ToVector2(),
+                        points[i].ToVector2());
             }
 
             return Math.Max(

@@ -28,18 +28,18 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
 
         private Matrix _transform;
         private VectorPathToolInteractions? _interactions;
-        private Vector2 _cursorPosition;
+        private Point2 _cursorPosition;
         private bool _isInViewport;
-        private Vector2 _snappedCursorPosition;
+        private Point2 _snappedCursorPosition;
         private bool _isPressed;
         private bool _isMoving;
         private VectorNode? _selectedNode;
-        private Vector2 _moveStartPosition;
-        private readonly List<(VectorNode Node, Vector2 Position)> _movingNodes = [];
+        private Point2 _moveStartPosition;
+        private readonly List<(VectorNode Node, Point2 Position)> _movingNodes = [];
         private bool _initialized;
         private IMesh _testQuad;
         private Box2? _insertRect;
-        private VectorPath? _drawingPath; 
+        private VectorPath? _drawingPath;
         private IVectorSegment? _drawingSegment;
 
         public event EventHandler<VectorPathNodesEventArgs>? NodeSelected;
@@ -243,7 +243,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
 
                         if (_isMoving)
                         {
-                            Vector2 delta = _snappedCursorPosition - _moveStartPosition;
+                            var delta = _snappedCursorPosition - _moveStartPosition;
 
                             foreach (var movingNode in _movingNodes)
                             {
@@ -280,7 +280,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
                             return;
                         }
 
-                        Vector2 position = _snappedCursorPosition;
+                        var position = _snappedCursorPosition;
 
                         // Pfad starten.
                         if (_drawingPath == null)
@@ -451,7 +451,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
                                     var delta = position - start;
                                     var size = MathF.Max(MathF.Abs(delta.X), MathF.Abs(delta.Y));
 
-                                    position = new Vector2(
+                                    position = new Point2(
                                         start.X + MathF.CopySign(size, delta.X),
                                         start.Y + MathF.CopySign(size, delta.Y));
                                 }
@@ -602,8 +602,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
                     }
                 }
 
-                if (Mode == VectorPathToolMode.Draw &&
-    _drawingPath != null)
+                if (Mode == VectorPathToolMode.Draw && _drawingPath != null)
                 {
                     DrawNode(
                         _drawingPath.Start.Position,
@@ -713,7 +712,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
         }
 
         public void SetCursorPosition(
-            Vector2 position,
+            Point2 position,
             bool isInViewport = true)
         {
             _cursorPosition = position;
@@ -722,19 +721,19 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
             _snappedCursorPosition = GetGridPosition(position);
         }
 
-        private Vector2 GetGridPosition(Vector2 worldPosition)
+        private Point2 GetGridPosition(Point2 worldPosition)
         {
             if (!SnapGridEnabled)
                 return worldPosition;
 
-            return new Vector2(
+            return new Point2(
                 float.Floor(worldPosition.X / GridSize.Width) * GridSize.Width,
                 float.Floor(worldPosition.Y / GridSize.Height) * GridSize.Height);
         }
 
         // Touched Position: berührte Position wie Maus oder Touch
         public VectorNodeHitTestResult HitTest(
-            Vector2 touchedPosition)
+            Point2 touchedPosition)
         {
             foreach (var path in _vectorShape.Paths)
             {
@@ -842,7 +841,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
         }
 
         public void AddPath(
-            Vector2 position,
+            Point2 position,
             IEnumerable<IVectorSegment> segments)
         {
             var path = new VectorPath
@@ -1054,7 +1053,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
         }
 
         private bool IsInNode(
-            Vector2 position,
+            Point2 position,
             VectorNode node)
         {
             return IsInEllipse(
@@ -1067,7 +1066,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
         }
 
         private (VectorPath? Path, VectorNode? Node) HitTestPathEndpoint(
-            Vector2 position)
+            Point2 position)
         {
             foreach (var path in _vectorShape.Paths)
             {
@@ -1162,49 +1161,51 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
             // drawingPath ist nur der temporäre Zeichenpfad.
         }
 
-        private Vector2 GetSegmentInsertPosition(
-            Vector2 startPosition,
-            Vector2 endPosition)
+        private Point2 GetSegmentInsertPosition(
+            Point2 startPosition,
+            Point2 endPosition)
         {
-            return SnapPosition(Vector2.Lerp(
-                startPosition,
-                endPosition,
-                0.5f));
+            var lerp = Vector2.Lerp(
+                startPosition.ToVector2(),
+                endPosition.ToVector2(),
+                0.5f);
+
+            return SnapPosition(lerp.X, lerp.Y);
         }
 
-        private Vector2 GetInsertPosition(Vector2 position)
-        {
-            if (!SnapGridEnabled)
-                return position;
-
-            return new Vector2(
-                float.Round(position.X / GridSize.Width) * GridSize.Width,
-                float.Round(position.Y / GridSize.Height) * GridSize.Height);
-        }
-
-        private Vector2 GetDrawPosition(Vector2 position)
+        private Point2 GetInsertPosition(Point2 position)
         {
             if (!SnapGridEnabled)
                 return position;
 
-            return new Vector2(
+            return new Point2(
                 float.Round(position.X / GridSize.Width) * GridSize.Width,
                 float.Round(position.Y / GridSize.Height) * GridSize.Height);
         }
 
-        private Vector2 SnapPosition(Vector2 position)
+        private Point2 GetDrawPosition(Point2 position)
+        {
+            if (!SnapGridEnabled)
+                return position;
+
+            return new Point2(
+                float.Round(position.X / GridSize.Width) * GridSize.Width,
+                float.Round(position.Y / GridSize.Height) * GridSize.Height);
+        }
+
+        private Point2 SnapPosition(float posX, float posY)
         {
             if (!SnapInsertedPosition)
-                return position;
+                return new Point2(posX, posY);
 
-            return new Vector2(
-                float.Round(position.X / GridSize.Width) * GridSize.Width,
-                float.Round(position.Y / GridSize.Height) * GridSize.Height);
+            return new Point2(
+                float.Round(posX / GridSize.Width) * GridSize.Width,
+                float.Round(posY / GridSize.Height) * GridSize.Height);
         }
 
         private void SetControlNodes(
             IVectorSegment segment,
-            Vector2 startPosition)
+            Point2 startPosition)
         {
             int count = segment.ControlNodes.Count;
 
@@ -1213,11 +1214,11 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
                 float t = (i + 1f) / (count + 1f);
 
                 var position = Vector2.Lerp(
-                    startPosition,
-                    segment.Node.Position,
+                    startPosition.ToVector2(),
+                    segment.Node.Position.ToVector2(),
                     t);
 
-                segment.ControlNodes[i].Position = SnapPosition(position);
+                segment.ControlNodes[i].Position = SnapPosition(position.X, position.Y);
             }
         }
 
@@ -1231,24 +1232,25 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
         }
 
         private void DrawLine(
-            Vector2 startPosition,
-            Vector2 endPosition,
-            Vector2[] innerVertices)
+            Point2 startPosition,
+            Point2 endPosition,
+            Point2[] innerVertices)
         {
             var offset = new Vector2(
                 PointSize.Width / 2f,
                 PointSize.Height / 2f);
+            var offsetPt = new Point2(offset.X, offset.Y);
 
-            var vertices = new Vector2[innerVertices.Length + 2];
+            var vertices = new Point2[innerVertices.Length + 2];
 
-            vertices[0] = startPosition + offset;
+            vertices[0] = startPosition + offsetPt;
 
             for (int i = 0; i < innerVertices.Length; i++)
             {
-                vertices[i + 1] = innerVertices[i] + offset;
+                vertices[i + 1] = innerVertices[i] + offsetPt;
             }
 
-            vertices[^1] = endPosition + offset;
+            vertices[^1] = endPosition + offsetPt;
 
             _lineBatch.AddLine(
                 vertices,
@@ -1260,8 +1262,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
         }
 
         private void DrawControlLine(
-            Vector2 startPosition,
-            Vector2 endPosition,
+            Point2 startPosition,
+            Point2 endPosition,
             IReadOnlyList<VectorNode> controlNodes)
         {
             if (controlNodes.Count == 0)
@@ -1270,17 +1272,18 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
             var offset = new Vector2(
                 PointSize.Width / 2f,
                 PointSize.Height / 2f);
+            var offsetPt = new Point2(offset.X, offset.Y);
 
-            var vertices = new Vector2[controlNodes.Count + 2];
+            var vertices = new Point2[controlNodes.Count + 2];
 
-            vertices[0] = startPosition + offset;
+            vertices[0] = startPosition + offsetPt;
 
             for (int i = 0; i < controlNodes.Count; i++)
             {
-                vertices[i + 1] = controlNodes[i].Position + offset;
+                vertices[i + 1] = controlNodes[i].Position + offsetPt;
             }
 
-            vertices[^1] = endPosition + offset;
+            vertices[^1] = endPosition + offsetPt;
 
             _lineBatch.AddLine(
                 vertices,
@@ -1349,22 +1352,23 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
         }
 
         private void DrawVertex(
-            Vector2 position)
+            Point2 position)
         {
             var offset = new Vector2(
                 PointSize.Width / 2f,
                 PointSize.Height / 2f);
+            var offsetPt = new Point2(offset.X, offset.Y);
 
             var vertexSize = VertexSize.ToVector2();
             _vertexBatch.AddFillEllipse(
-                position + offset,
+                position + offsetPt,
                 vertexSize / 2f,
                 _transform
             );
         }
 
         private void DrawNode(
-            Vector2 position,
+            Point2 position,
             bool isSelected,
             bool isStart = false)
         {
@@ -1407,7 +1411,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
         }
 
         private void DrawControlNode(
-            Vector2 position,
+            Point2 position,
             bool isSelected)
         {
             var pointSize = PointSize.ToVector2();
@@ -1472,7 +1476,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
         }
 
         private static bool IsInEllipse(
-            Vector2 point,
+            Point2 point,
             Bounds2 bounds)
         {
             float centerX = bounds.X + bounds.Width / 2f;
