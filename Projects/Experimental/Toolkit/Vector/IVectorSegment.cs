@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Sasogine.Common;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
@@ -10,21 +9,29 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     public interface IVectorSegment
     {
         /// <summary>
-        /// Gets the endpoint of the segment.
+        /// Gets the endpoint node of the vector segment.
         /// </summary>
         VectorNode Node { get; }
 
         /// <summary>
-        /// Gets the control nodes used to define the shape of the segment.
+        /// Gets the control nodes used to define the shape of the vector segment.
         /// </summary>
         IReadOnlyList<VectorNode> ControlNodes { get; }
 
         /// <summary>
-        /// Generates vertices representing the segment.
+        /// Generates a sampled representation of the vector segment.
         /// </summary>
-        /// <param name="startPosition">The starting position of the segment.</param>
-        /// <param name="sampleLength">The approximate distance between sampled vertices.</param>
-        /// <returns>An array of vertices representing the segment.</returns>
-        Point2[] GetVertices(Point2 startPosition, float sampleLength);
+        /// <param name="startPosition">
+        /// The start position of the vector segment.
+        /// </param>
+        /// <param name="sampleLength">
+        /// The desired approximate distance between consecutive sampled vertices.
+        /// </param>
+        /// <returns>
+        /// An array containing the sampled vertices of the vector segment.
+        /// </returns>
+        Point2[] GetVertices(
+            Point2 startPosition,
+            float sampleLength);
     }
 }

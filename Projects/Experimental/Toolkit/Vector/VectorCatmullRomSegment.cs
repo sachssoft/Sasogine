@@ -1,36 +1,57 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Geometry;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>
-    /// Represents a Catmull-Rom spline segment of a vector path defined by a sequence of control nodes.
+    /// Represents a Catmull-Rom spline segment of a vector path defined by
+    /// a sequence of control nodes.
     /// </summary>
     public sealed class VectorCatmullRomSegment : VectorVariableSegment
     {
         private Point2 _startPositionCache;
         private Point2 _nodePositionCache;
+
         private float _sampleLengthCache;
         private bool _closedCache;
+
         private Point2[]? _controlPositionsCache;
         private Point2[]? _sampledVerticesCache;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VectorCatmullRomSegment"/> class.
+        /// </summary>
         public VectorCatmullRomSegment()
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VectorCatmullRomSegment"/> class
+        /// using the specified endpoint, control points, and selection state.
+        /// </summary>
+        /// <param name="position">
+        /// The endpoint of the Catmull-Rom spline segment.
+        /// </param>
+        /// <param name="controlPoints">
+        /// The control points that define the shape of the Catmull-Rom spline.
+        /// </param>
+        /// <param name="isSelected">
+        /// <see langword="true"/> if the endpoint node should initially be selected;
+        /// otherwise, <see langword="false"/>.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="controlPoints"/> is <see langword="null"/>.
+        /// </exception>
         public VectorCatmullRomSegment(
             Point2 position,
             IEnumerable<Point2> controlPoints,
             bool isSelected)
             : this()
         {
-            if (controlPoints is null)
-                throw new ArgumentNullException(nameof(controlPoints));
+            ArgumentNullException.ThrowIfNull(
+                controlPoints);
 
             Node.Position = position;
             Node.IsSelected = isSelected;
@@ -45,33 +66,53 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public bool Closed { get; set; }
 
         /// <summary>
-        /// Generates a sampled representation of the Catmull-Rom spline between the specified start position and the segment endpoint.
+        /// Generates a sampled representation of the Catmull-Rom spline
+        /// between the specified start position and the segment endpoint.
         /// </summary>
-        /// <param name="startPosition">The start position of the Catmull-Rom spline segment.</param>
-        /// <param name="sampleLength">The desired approximate distance between consecutive sampled vertices.</param>
-        /// <returns>An array containing the sampled vertices that represent the Catmull-Rom spline.</returns>
+        /// <param name="startPosition">
+        /// The start position of the Catmull-Rom spline segment.
+        /// </param>
+        /// <param name="sampleLength">
+        /// The desired approximate distance between consecutive sampled vertices.
+        /// Must be greater than zero.
+        /// </param>
+        /// <returns>
+        /// An array containing the sampled vertices that represent
+        /// the Catmull-Rom spline.
+        /// </returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Thrown when <paramref name="sampleLength"/> is less than or equal to zero.
+        /// </exception>
         public override Point2[] GetVertices(
             Point2 startPosition,
             float sampleLength)
         {
             if (sampleLength <= 0f)
-                throw new ArgumentOutOfRangeException(nameof(sampleLength));
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(sampleLength));
+            }
 
-            int pointCount = ControlNodes.Count + 2;
+            int controlCount =
+                ControlNodes.Count;
+
+            int pointCount =
+                controlCount + 2;
 
             if (pointCount < 2)
                 return Array.Empty<Point2>();
 
             bool controlPointsChanged =
                 _controlPositionsCache == null ||
-                _controlPositionsCache.Length != ControlNodes.Count ||
+                _controlPositionsCache.Length != controlCount ||
                 _nodePositionCache != Node.Position;
 
             if (!controlPointsChanged)
             {
-                for (int i = 0; i < ControlNodes.Count; i++)
+                for (int i = 0; i < controlCount; i++)
                 {
-                    if (_controlPositionsCache[i] != ControlNodes[i].Position)
+                    if (_controlPositionsCache![i] !=
+                        ControlNodes[i].Position)
                     {
                         controlPointsChanged = true;
                         break;
@@ -79,47 +120,83 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                 }
             }
 
-            if (_sampledVerticesCache == null ||
-                _startPositionCache != startPosition ||
-                _sampleLengthCache != sampleLength ||
-                _closedCache != Closed ||
-                controlPointsChanged)
+            if (_sampledVerticesCache != null &&
+                _startPositionCache == startPosition &&
+                _sampleLengthCache == sampleLength &&
+                _closedCache == Closed &&
+                !controlPointsChanged)
             {
-                _startPositionCache = startPosition;
-                _nodePositionCache = Node.Position;
-                _sampleLengthCache = sampleLength;
-                _closedCache = Closed;
+                return _sampledVerticesCache;
+            }
 
-                var points = new Point2[pointCount];
-                points[0] = startPosition;
+            _startPositionCache =
+                startPosition;
 
-                for (int i = 0; i < ControlNodes.Count; i++)
-                    points[i + 1] = ControlNodes[i].Position;
+            _nodePositionCache =
+                Node.Position;
 
-                points[^1] = Node.Position;
+            _sampleLengthCache =
+                sampleLength;
 
-                int segmentsPerSpan =
-                    CalculateSegments(points, sampleLength);
+            _closedCache =
+                Closed;
 
-                _sampledVerticesCache =
-                    GeometrySampler.SampleCatmullRom(
-                        points.Select(x => new Vector2(x.X, x.Y)).ToArray(),
-                        segmentsPerSpan,
-                        Closed)
-                    .Select(x => new Point2(x.X,x.Y))
-                    .ToArray();
+            var points =
+                new Point2[pointCount];
 
+            points[0] =
+                startPosition;
+
+            for (int i = 0; i < controlCount; i++)
+            {
+                points[i + 1] =
+                    ControlNodes[i].Position;
+            }
+
+            points[^1] =
+                Node.Position;
+
+            int segmentsPerSpan =
+                CalculateSegments(
+                    points,
+                    sampleLength);
+
+            _sampledVerticesCache =
+                GeometrySampler.SampleCatmullRom(
+                    points,
+                    segmentsPerSpan,
+                    Closed);
+
+            if (_controlPositionsCache == null ||
+                _controlPositionsCache.Length != controlCount)
+            {
                 _controlPositionsCache =
-                    new Point2[ControlNodes.Count];
+                    new Point2[controlCount];
+            }
 
-                for (int i = 0; i < ControlNodes.Count; i++)
-                    _controlPositionsCache[i] =
-                        ControlNodes[i].Position;
+            for (int i = 0; i < controlCount; i++)
+            {
+                _controlPositionsCache[i] =
+                    ControlNodes[i].Position;
             }
 
             return _sampledVerticesCache;
         }
 
+        /// <summary>
+        /// Calculates the number of segments used to sample each spline span
+        /// based on the approximate length of the control polygon.
+        /// </summary>
+        /// <param name="points">
+        /// The points defining the Catmull-Rom spline.
+        /// </param>
+        /// <param name="sampleLength">
+        /// The desired approximate distance between consecutive sampled vertices.
+        /// </param>
+        /// <returns>
+        /// The number of segments used to sample each spline span.
+        /// The returned value is always at least one.
+        /// </returns>
         private static int CalculateSegments(
             Point2[] points,
             float sampleLength)
@@ -127,13 +204,17 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             float length = 0f;
 
             for (int i = 1; i < points.Length; i++)
-                length += Vector2.Distance(
-                    points[i - 1].ToVector2(),
-                    points[i].ToVector2());
+            {
+                length += Point2.Distance(
+                    points[i - 1],
+                    points[i]);
+            }
 
             return Math.Max(
                 1,
-                (int)MathF.Ceiling(length / sampleLength));
+                (int)MathF.Ceiling(
+                    length /
+                    sampleLength));
         }
     }
 }

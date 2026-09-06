@@ -1,29 +1,55 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Geometry;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>
-    /// Represents a B-spline segment of a vector path defined by a degree and a sequence of control nodes.
+    /// Represents a B-spline segment of a vector path defined by a degree
+    /// and a sequence of control nodes.
     /// </summary>
     public sealed class VectorBSplineSegment : VectorVariableSegment
     {
         private Point2 _startPositionCache;
         private Point2 _nodePositionCache;
+
         private float _sampleLengthCache;
         private int _degreeCache;
 
         private Point2[]? _controlPositionsCache;
         private Point2[]? _sampledVerticesCache;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VectorBSplineSegment"/> class.
+        /// </summary>
         public VectorBSplineSegment()
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VectorBSplineSegment"/> class
+        /// using the specified endpoint, control points, degree, and selection state.
+        /// </summary>
+        /// <param name="position">
+        /// The endpoint of the B-spline segment.
+        /// </param>
+        /// <param name="controlPoints">
+        /// The control points that define the shape of the B-spline.
+        /// </param>
+        /// <param name="degree">
+        /// The degree of the B-spline.
+        /// </param>
+        /// <param name="isSelected">
+        /// <see langword="true"/> if the endpoint node should initially be selected;
+        /// otherwise, <see langword="false"/>.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="controlPoints"/> is <see langword="null"/>.
+        /// </exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Thrown when <paramref name="degree"/> is less than one.
+        /// </exception>
         public VectorBSplineSegment(
             Point2 position,
             IEnumerable<Point2> controlPoints,
@@ -31,11 +57,14 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             bool isSelected = false)
             : this()
         {
-            if (controlPoints is null)
-                throw new ArgumentNullException(nameof(controlPoints));
+            ArgumentNullException.ThrowIfNull(
+                controlPoints);
 
             if (degree < 1)
-                throw new ArgumentOutOfRangeException(nameof(degree));
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(degree));
+            }
 
             Node.Position = position;
             Node.IsSelected = isSelected;
@@ -46,46 +75,71 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         }
 
         /// <summary>
-        /// Gets or sets the degree of the B-spline. A higher degree produces a smoother curve and requires a sufficient number of control points.
+        /// Gets or sets the degree of the B-spline.
         /// </summary>
+        /// <remarks>
+        /// A higher degree produces a smoother curve and requires a sufficient
+        /// number of control points.
+        /// </remarks>
         public int Degree { get; set; } = 3;
 
         /// <summary>
-        /// Generates a sampled representation of the B-spline between the specified start position and the segment endpoint.
+        /// Generates a sampled representation of the B-spline between the
+        /// specified start position and the segment endpoint.
         /// </summary>
-        /// <param name="startPosition">The start position of the B-spline segment.</param>
-        /// <param name="sampleLength">The desired approximate distance between consecutive sampled vertices.</param>
-        /// <returns>An array containing the sampled vertices that represent the B-spline.</returns>
+        /// <param name="startPosition">
+        /// The start position of the B-spline segment.
+        /// </param>
+        /// <param name="sampleLength">
+        /// The desired approximate distance between consecutive sampled vertices.
+        /// Must be greater than zero.
+        /// </param>
+        /// <returns>
+        /// An array containing the sampled vertices that represent the B-spline.
+        /// Returns an empty array when the configured degree is not valid for
+        /// the current number of points.
+        /// </returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Thrown when <paramref name="sampleLength"/> is less than or equal to zero.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when <see cref="Degree"/> is less than one.
+        /// </exception>
         public override Point2[] GetVertices(
             Point2 startPosition,
             float sampleLength)
         {
             if (sampleLength <= 0f)
+            {
                 throw new ArgumentOutOfRangeException(
                     nameof(sampleLength));
+            }
 
             if (Degree < 1)
+            {
                 throw new InvalidOperationException(
                     "Degree must be greater than zero.");
+            }
+
+            int controlCount =
+                ControlNodes.Count;
 
             int pointCount =
-                ControlNodes.Count + 2;
+                controlCount + 2;
 
             if (Degree >= pointCount)
                 return Array.Empty<Point2>();
 
             bool controlPointsChanged =
                 _controlPositionsCache == null ||
-                _controlPositionsCache.Length != ControlNodes.Count ||
+                _controlPositionsCache.Length != controlCount ||
                 _nodePositionCache != Node.Position;
 
             if (!controlPointsChanged)
             {
-                for (int i = 0;
-                     i < ControlNodes.Count;
-                     i++)
+                for (int i = 0; i < controlCount; i++)
                 {
-                    if (_controlPositionsCache[i] !=
+                    if (_controlPositionsCache![i] !=
                         ControlNodes[i].Position)
                     {
                         controlPointsChanged = true;
@@ -94,80 +148,101 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                 }
             }
 
-            if (_sampledVerticesCache == null ||
-                _startPositionCache != startPosition ||
-                _sampleLengthCache != sampleLength ||
-                _degreeCache != Degree ||
-                controlPointsChanged)
+            if (_sampledVerticesCache != null &&
+                _startPositionCache == startPosition &&
+                _sampleLengthCache == sampleLength &&
+                _degreeCache == Degree &&
+                !controlPointsChanged)
             {
-                _startPositionCache =
-                    startPosition;
+                return _sampledVerticesCache;
+            }
 
-                _nodePositionCache =
-                    Node.Position;
+            _startPositionCache =
+                startPosition;
 
-                _sampleLengthCache =
-                    sampleLength;
+            _nodePositionCache =
+                Node.Position;
 
-                _degreeCache =
-                    Degree;
+            _sampleLengthCache =
+                sampleLength;
 
-                var points = new Point2[pointCount];
+            _degreeCache =
+                Degree;
 
-                points[0] = startPosition;
+            var points =
+                new Point2[pointCount];
 
-                for (int i = 0; i < ControlNodes.Count; i++)
-                {
-                    points[i + 1] = ControlNodes[i].Position;
-                }
+            points[0] =
+                startPosition;
 
-                points[^1] = Node.Position;
+            for (int i = 0; i < controlCount; i++)
+            {
+                points[i + 1] =
+                    ControlNodes[i].Position;
+            }
 
-                int segments =
-                    CalculateSegments(
-                        points,
-                        sampleLength);
+            points[^1] =
+                Node.Position;
 
-                _sampledVerticesCache =
-                    GeometrySampler.SampleBSpline(
-                        points.Select(x => new Vector2(x.X,x.Y)).ToArray(),
-                        Degree,
-                        segments).Select(x => new Point2(x.X,x.Y)).ToArray();
+            int segments =
+                CalculateSegments(
+                    points,
+                    sampleLength);
 
+            _sampledVerticesCache =
+                GeometrySampler.SampleBSpline(
+                    points,
+                    Degree,
+                    segments);
+
+            if (_controlPositionsCache == null ||
+                _controlPositionsCache.Length != controlCount)
+            {
                 _controlPositionsCache =
-                    new Point2[ControlNodes.Count];
+                    new Point2[controlCount];
+            }
 
-                for (int i = 0;
-                     i < ControlNodes.Count;
-                     i++)
-                {
-                    _controlPositionsCache[i] =
-                        ControlNodes[i].Position;
-                }
+            for (int i = 0; i < controlCount; i++)
+            {
+                _controlPositionsCache[i] =
+                    ControlNodes[i].Position;
             }
 
             return _sampledVerticesCache;
         }
 
+        /// <summary>
+        /// Calculates the number of segments used to sample the B-spline
+        /// based on the approximate length of its control polygon.
+        /// </summary>
+        /// <param name="points">
+        /// The points defining the B-spline control polygon.
+        /// </param>
+        /// <param name="sampleLength">
+        /// The desired approximate distance between consecutive sampled vertices.
+        /// </param>
+        /// <returns>
+        /// The number of segments used to sample the B-spline.
+        /// The returned value is always at least one.
+        /// </returns>
         private static int CalculateSegments(
             Point2[] points,
             float sampleLength)
         {
             float length = 0f;
 
-            for (int i = 1;
-                 i < points.Length;
-                 i++)
+            for (int i = 1; i < points.Length; i++)
             {
-                length += Vector2.Distance(
-                        points[i - 1].ToVector2(),
-                        points[i].ToVector2());
+                length += Point2.Distance(
+                    points[i - 1],
+                    points[i]);
             }
 
             return Math.Max(
                 1,
                 (int)MathF.Ceiling(
-                    length / sampleLength));
+                    length /
+                    sampleLength));
         }
     }
 }
