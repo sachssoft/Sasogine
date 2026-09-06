@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Sachssoft.Sasodoc;
 using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Gameplay;
+using Sachssoft.Sasogine.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -676,6 +677,35 @@ namespace Sachssoft.Sasogine.Extensions.Sasodoc
             writeValueItem(writerChild, nameof(HighTieredScore<TValue>.Bronze), value.Bronze);
             writeValueItem(writerChild, nameof(HighTieredScore<TValue>.Silver), value.Silver);
             writeValueItem(writerChild, nameof(HighTieredScore<TValue>.Gold), value.Gold);
+        }
+        #endregion
+
+        #region Segment
+        public static Segment ReadSegment(this FormatReaderBase reader, string property, Segment fallback)
+        {
+            var childReader = reader.Read(property);
+
+            if (childReader == null)
+                return fallback;
+
+            var x1 = childReader.ReadSingle(nameof(Segment.X1), fallback.X1);
+            var y1 = childReader.ReadSingle(nameof(Segment.Y1), fallback.Y1);
+            var x2 = childReader.ReadSingle(nameof(Segment.X2), fallback.X2);
+            var y2 = childReader.ReadSingle(nameof(Segment.Y2), fallback.Y2);
+
+            return (new Segment(x1, y1, x2, y2));
+        }
+
+        public static void WriteSegment(this FormatWriterBase writer, string property, Segment value)
+        {
+            var childWriter = writer.CreateWriter();
+
+            childWriter.WriteSingle(nameof(Segment.X1), value.X1);
+            childWriter.WriteSingle(nameof(Segment.Y1), value.Y1);
+            childWriter.WriteSingle(nameof(Segment.X2), value.X2);
+            childWriter.WriteSingle(nameof(Segment.Y2), value.Y2);
+
+            writer.Write(property, childWriter);
         }
         #endregion
     }
