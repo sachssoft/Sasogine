@@ -73,16 +73,61 @@ public readonly struct Point2 : IEquatable<Point2>
         => new Vector2(X, Y);
 
     /// <summary>
+    /// Calculates the distance between two points.
+    /// </summary>
+    /// <param name="a">The first point.</param>
+    /// <param name="b">The second point.</param>
+    /// <returns>The distance between the two points.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float Distance(Point2 a, Point2 b)
+        => Vector2.Distance(a, b);
+
+    /// <summary>
+    /// Calculates the squared distance between two points.
+    /// </summary>
+    /// <param name="a">The first point.</param>
+    /// <param name="b">The second point.</param>
+    /// <returns>The squared distance between the two points.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float DistanceSquared(Point2 a, Point2 b)
+        => Vector2.DistanceSquared(a, b);
+
+    /// <summary>
+    /// Performs a linear interpolation between two points.
+    /// </summary>
+    /// <param name="a">The start point.</param>
+    /// <param name="b">The end point.</param>
+    /// <param name="amount">
+    /// The interpolation amount between <paramref name="a"/> and
+    /// <paramref name="b"/>.
+    /// </param>
+    /// <returns>The interpolated point.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Point2 Lerp(
+        Point2 a,
+        Point2 b,
+        float amount)
+    {
+        return new Point2(
+            a.X + (b.X - a.X) * amount,
+            a.Y + (b.Y - a.Y) * amount);
+    }
+
+    /// <summary>
     /// Adds the specified vector to the point.
     /// </summary>
     /// <param name="point">The point.</param>
     /// <param name="vector">The vector to add.</param>
     /// <returns>The translated point.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point2 operator +(Point2 point, Vector2 vector)
-        => new Point2(
+    public static Point2 operator +(
+        Point2 point,
+        Vector2 vector)
+    {
+        return new Point2(
             point.X + vector.X,
             point.Y + vector.Y);
+    }
 
     /// <summary>
     /// Adds the specified point to the vector.
@@ -91,8 +136,12 @@ public readonly struct Point2 : IEquatable<Point2>
     /// <param name="point">The point to add.</param>
     /// <returns>The translated point.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point2 operator +(Vector2 vector, Point2 point)
-        => point + vector;
+    public static Point2 operator +(
+        Vector2 vector,
+        Point2 point)
+    {
+        return point + vector;
+    }
 
     /// <summary>
     /// Subtracts the specified vector from the point.
@@ -101,86 +150,78 @@ public readonly struct Point2 : IEquatable<Point2>
     /// <param name="vector">The vector to subtract.</param>
     /// <returns>The translated point.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point2 operator -(Point2 point, Vector2 vector)
-        => new Point2(
+    public static Point2 operator -(
+        Point2 point,
+        Vector2 vector)
+    {
+        return new Point2(
             point.X - vector.X,
             point.Y - vector.Y);
+    }
 
     /// <summary>
-    /// Adds the coordinates of two points component-wise.
-    /// </summary>
-    /// <param name="a">The first point.</param>
-    /// <param name="b">The second point.</param>
-    /// <returns>
-    /// A point whose coordinates are the sums of the corresponding coordinates.
-    /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point2 operator +(Point2 a, Point2 b)
-        => new Point2(
-            a.X + b.X,
-            a.Y + b.Y);
-
-    /// <summary>
-    /// Subtracts the coordinates of one point from another component-wise.
+    /// Subtracts one point from another and returns the displacement vector.
     /// </summary>
     /// <param name="a">The point from which to subtract.</param>
     /// <param name="b">The point to subtract.</param>
     /// <returns>
-    /// A point whose coordinates are the differences between the corresponding coordinates.
+    /// The vector from <paramref name="b"/> to <paramref name="a"/>.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point2 operator -(Point2 a, Point2 b)
-        => new Point2(
+    public static Vector2 operator -(
+        Point2 a,
+        Point2 b)
+    {
+        return new Vector2(
             a.X - b.X,
             a.Y - b.Y);
-
-    /// <summary>
-    /// Multiplies the coordinates of two points component-wise.
-    /// </summary>
-    /// <param name="a">The first point.</param>
-    /// <param name="b">The second point.</param>
-    /// <returns>
-    /// A point whose coordinates are the products of the corresponding coordinates.
-    /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point2 operator *(Point2 a, Point2 b)
-        => new Point2(
-            a.X * b.X,
-            a.Y * b.Y);
+    }
 
     /// <summary>
     /// Multiplies both coordinates of a point by a scalar value.
     /// </summary>
+    /// <param name="value">The point to multiply.</param>
+    /// <param name="scaleFactor">The scalar multiplier.</param>
+    /// <returns>The scaled point.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point2 operator *(Point2 value, float scaleFactor)
-        => new Point2(
+    public static Point2 operator *(
+        Point2 value,
+        float scaleFactor)
+    {
+        return new Point2(
             value.X * scaleFactor,
             value.Y * scaleFactor);
+    }
 
     /// <summary>
     /// Multiplies both coordinates of a point by a scalar value.
     /// </summary>
+    /// <param name="scaleFactor">The scalar multiplier.</param>
+    /// <param name="value">The point to multiply.</param>
+    /// <returns>The scaled point.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point2 operator *(float scaleFactor, Point2 value)
-        => value * scaleFactor;
-
-    /// <summary>
-    /// Divides the coordinates of one point by another component-wise.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point2 operator /(Point2 source, Point2 divisor)
-        => new Point2(
-            source.X / divisor.X,
-            source.Y / divisor.Y);
+    public static Point2 operator *(
+        float scaleFactor,
+        Point2 value)
+    {
+        return value * scaleFactor;
+    }
 
     /// <summary>
     /// Divides both coordinates of a point by a scalar value.
     /// </summary>
+    /// <param name="value">The point to divide.</param>
+    /// <param name="divisor">The scalar divisor.</param>
+    /// <returns>The divided point.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point2 operator /(Point2 value, float divisor)
-        => new Point2(
+    public static Point2 operator /(
+        Point2 value,
+        float divisor)
+    {
+        return new Point2(
             value.X / divisor,
             value.Y / divisor);
+    }
 
     /// <summary>
     /// Converts a <see cref="Vector2"/> to a <see cref="Point2"/>.
@@ -188,7 +229,7 @@ public readonly struct Point2 : IEquatable<Point2>
     /// <param name="value">The vector to convert.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Point2(Vector2 value)
-        => new Point2(value.X, value.Y);
+        => new Point2(value);
 
     /// <summary>
     /// Converts a <see cref="Point2"/> to a <see cref="Vector2"/>.
@@ -201,11 +242,13 @@ public readonly struct Point2 : IEquatable<Point2>
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(Point2 other)
-        => X == other.X && Y == other.Y;
+        => X == other.X &&
+           Y == other.Y;
 
     /// <inheritdoc/>
     public override bool Equals(object? obj)
-        => obj is Point2 point && Equals(point);
+        => obj is Point2 point &&
+           Equals(point);
 
     /// <inheritdoc/>
     public override int GetHashCode()
@@ -217,11 +260,16 @@ public readonly struct Point2 : IEquatable<Point2>
     /// <param name="a">The first point to compare.</param>
     /// <param name="b">The second point to compare.</param>
     /// <returns>
-    /// <see langword="true"/> if both points are equal; otherwise, <see langword="false"/>.
+    /// <see langword="true"/> if both points are equal;
+    /// otherwise, <see langword="false"/>.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator ==(Point2 a, Point2 b)
-        => a.Equals(b);
+    public static bool operator ==(
+        Point2 a,
+        Point2 b)
+    {
+        return a.Equals(b);
+    }
 
     /// <summary>
     /// Determines whether two <see cref="Point2"/> instances are not equal.
@@ -229,17 +277,24 @@ public readonly struct Point2 : IEquatable<Point2>
     /// <param name="a">The first point to compare.</param>
     /// <param name="b">The second point to compare.</param>
     /// <returns>
-    /// <see langword="true"/> if the points are not equal; otherwise, <see langword="false"/>.
+    /// <see langword="true"/> if the points are not equal;
+    /// otherwise, <see langword="false"/>.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator !=(Point2 a, Point2 b)
-        => !a.Equals(b);
+    public static bool operator !=(
+        Point2 a,
+        Point2 b)
+    {
+        return !a.Equals(b);
+    }
 
     /// <inheritdoc/>
     public override string ToString()
-        => string.Format(
+    {
+        return string.Format(
             CultureInfo.InvariantCulture,
             "{0}, {1}",
             X,
             Y);
+    }
 }

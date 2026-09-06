@@ -1,6 +1,6 @@
+using Microsoft.Xna.Framework;
 using System;
 using System.Globalization;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Sachssoft.Sasogine.Common;
@@ -88,7 +88,10 @@ public readonly struct Point3 : IEquatable<Point3>
     /// <param name="y">Receives the y-coordinate.</param>
     /// <param name="z">Receives the z-coordinate.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Deconstruct(out float x, out float y, out float z)
+    public void Deconstruct(
+        out float x,
+        out float y,
+        out float z)
     {
         x = X;
         y = Y;
@@ -96,186 +99,161 @@ public readonly struct Point3 : IEquatable<Point3>
     }
 
     /// <summary>
-    /// Determines whether this instance is equal to another
-    /// <see cref="Point3"/> instance.
+    /// Calculates the distance between two points.
     /// </summary>
-    /// <param name="other">The point to compare with this instance.</param>
-    /// <returns>
-    /// <see langword="true"/> if both points have identical coordinates;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
+    /// <param name="a">The first point.</param>
+    /// <param name="b">The second point.</param>
+    /// <returns>The distance between the two points.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(Point3 other)
-        => X == other.X && Y == other.Y && Z == other.Z;
+    public static float Distance(Point3 a, Point3 b)
+        => Vector3.Distance(a, b);
 
     /// <summary>
-    /// Determines whether the specified object is equal to this instance.
+    /// Calculates the squared distance between two points.
     /// </summary>
-    /// <param name="obj">The object to compare with this instance.</param>
-    /// <returns>
-    /// <see langword="true"/> if <paramref name="obj"/> is a
-    /// <see cref="Point3"/> with identical coordinates;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    public override bool Equals(object? obj)
-        => obj is Point3 point && Equals(point);
+    /// <param name="a">The first point.</param>
+    /// <param name="b">The second point.</param>
+    /// <returns>The squared distance between the two points.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float DistanceSquared(Point3 a, Point3 b)
+        => Vector3.DistanceSquared(a, b);
 
     /// <summary>
-    /// Returns a hash code for this instance.
+    /// Performs a linear interpolation between two points.
     /// </summary>
-    /// <returns>A hash code based on all three coordinates.</returns>
-    public override int GetHashCode()
-        => HashCode.Combine(X, Y, Z);
+    /// <param name="a">The start point.</param>
+    /// <param name="b">The end point.</param>
+    /// <param name="amount">
+    /// The interpolation amount between <paramref name="a"/> and
+    /// <paramref name="b"/>.
+    /// </param>
+    /// <returns>The interpolated point.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Point3 Lerp(
+        Point3 a,
+        Point3 b,
+        float amount)
+    {
+        return new Point3(
+            a.X + (b.X - a.X) * amount,
+            a.Y + (b.Y - a.Y) * amount,
+            a.Z + (b.Z - a.Z) * amount);
+    }
 
     /// <summary>
-    /// Adds a vector to a point.
+    /// Adds the specified vector to the point.
     /// </summary>
     /// <param name="point">The point.</param>
     /// <param name="vector">The vector to add.</param>
     /// <returns>The translated point.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point3 operator +(Point3 point, Vector3 vector)
-        => new Point3(
+    public static Point3 operator +(
+        Point3 point,
+        Vector3 vector)
+    {
+        return new Point3(
             point.X + vector.X,
             point.Y + vector.Y,
             point.Z + vector.Z);
+    }
 
     /// <summary>
-    /// Adds a point to a vector.
+    /// Adds the specified point to the vector.
     /// </summary>
     /// <param name="vector">The vector.</param>
     /// <param name="point">The point to add.</param>
     /// <returns>The translated point.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point3 operator +(Vector3 vector, Point3 point)
-        => point + vector;
+    public static Point3 operator +(
+        Vector3 vector,
+        Point3 point)
+    {
+        return point + vector;
+    }
 
     /// <summary>
-    /// Subtracts a vector from a point.
+    /// Subtracts the specified vector from the point.
     /// </summary>
     /// <param name="point">The point.</param>
     /// <param name="vector">The vector to subtract.</param>
     /// <returns>The translated point.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point3 operator -(Point3 point, Vector3 vector)
-        => new Point3(
+    public static Point3 operator -(
+        Point3 point,
+        Vector3 vector)
+    {
+        return new Point3(
             point.X - vector.X,
             point.Y - vector.Y,
             point.Z - vector.Z);
+    }
 
     /// <summary>
-    /// Adds the coordinates of two points component-wise.
-    /// </summary>
-    /// <param name="a">The first point.</param>
-    /// <param name="b">The second point.</param>
-    /// <returns>A point containing the component-wise sums.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point3 operator +(Point3 a, Point3 b)
-        => new Point3(
-            a.X + b.X,
-            a.Y + b.Y,
-            a.Z + b.Z);
-
-    /// <summary>
-    /// Subtracts the coordinates of one point from another component-wise.
+    /// Subtracts one point from another and returns the displacement vector.
     /// </summary>
     /// <param name="a">The point from which to subtract.</param>
     /// <param name="b">The point to subtract.</param>
-    /// <returns>A point containing the component-wise differences.</returns>
+    /// <returns>
+    /// The vector from <paramref name="b"/> to <paramref name="a"/>.
+    /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point3 operator -(Point3 a, Point3 b)
-        => new Point3(
+    public static Vector3 operator -(
+        Point3 a,
+        Point3 b)
+    {
+        return new Vector3(
             a.X - b.X,
             a.Y - b.Y,
             a.Z - b.Z);
-
-    /// <summary>
-    /// Multiplies the coordinates of two points component-wise.
-    /// </summary>
-    /// <param name="a">The first point.</param>
-    /// <param name="b">The second point.</param>
-    /// <returns>A point containing the component-wise products.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point3 operator *(Point3 a, Point3 b)
-        => new Point3(
-            a.X * b.X,
-            a.Y * b.Y,
-            a.Z * b.Z);
+    }
 
     /// <summary>
     /// Multiplies all coordinates of a point by a scalar value.
     /// </summary>
     /// <param name="value">The point to multiply.</param>
     /// <param name="scaleFactor">The scalar multiplier.</param>
-    /// <returns>A point containing the scaled coordinates.</returns>
+    /// <returns>The scaled point.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point3 operator *(Point3 value, float scaleFactor)
-        => new Point3(
+    public static Point3 operator *(
+        Point3 value,
+        float scaleFactor)
+    {
+        return new Point3(
             value.X * scaleFactor,
             value.Y * scaleFactor,
             value.Z * scaleFactor);
+    }
 
     /// <summary>
     /// Multiplies all coordinates of a point by a scalar value.
     /// </summary>
     /// <param name="scaleFactor">The scalar multiplier.</param>
     /// <param name="value">The point to multiply.</param>
-    /// <returns>A point containing the scaled coordinates.</returns>
+    /// <returns>The scaled point.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point3 operator *(float scaleFactor, Point3 value)
-        => value * scaleFactor;
-
-    /// <summary>
-    /// Divides the coordinates of one point by another component-wise.
-    /// </summary>
-    /// <param name="source">The point containing the dividend coordinates.</param>
-    /// <param name="divisor">The point containing the divisor coordinates.</param>
-    /// <returns>A point containing the component-wise quotients.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point3 operator /(Point3 source, Point3 divisor)
-        => new Point3(
-            source.X / divisor.X,
-            source.Y / divisor.Y,
-            source.Z / divisor.Z);
+    public static Point3 operator *(
+        float scaleFactor,
+        Point3 value)
+    {
+        return value * scaleFactor;
+    }
 
     /// <summary>
     /// Divides all coordinates of a point by a scalar value.
     /// </summary>
     /// <param name="value">The point to divide.</param>
     /// <param name="divisor">The scalar divisor.</param>
-    /// <returns>A point containing the divided coordinates.</returns>
+    /// <returns>The divided point.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Point3 operator /(Point3 value, float divisor)
-        => new Point3(
+    public static Point3 operator /(
+        Point3 value,
+        float divisor)
+    {
+        return new Point3(
             value.X / divisor,
             value.Y / divisor,
             value.Z / divisor);
-
-    /// <summary>
-    /// Determines whether two <see cref="Point3"/> instances are equal.
-    /// </summary>
-    /// <param name="a">The first point to compare.</param>
-    /// <param name="b">The second point to compare.</param>
-    /// <returns>
-    /// <see langword="true"/> if both points have identical coordinates;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator ==(Point3 a, Point3 b)
-        => a.Equals(b);
-
-    /// <summary>
-    /// Determines whether two <see cref="Point3"/> instances are not equal.
-    /// </summary>
-    /// <param name="a">The first point to compare.</param>
-    /// <param name="b">The second point to compare.</param>
-    /// <returns>
-    /// <see langword="true"/> if the points have different coordinates;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator !=(Point3 a, Point3 b)
-        => !a.Equals(b);
+    }
 
     /// <summary>
     /// Converts a <see cref="Vector3"/> to a <see cref="Point3"/>.
@@ -292,6 +270,56 @@ public readonly struct Point3 : IEquatable<Point3>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector3(Point3 value)
         => new Vector3(value.X, value.Y, value.Z);
+
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Equals(Point3 other)
+        => X == other.X &&
+           Y == other.Y &&
+           Z == other.Z;
+
+    /// <inheritdoc/>
+    public override bool Equals(object? obj)
+        => obj is Point3 point &&
+           Equals(point);
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+        => HashCode.Combine(X, Y, Z);
+
+    /// <summary>
+    /// Determines whether two <see cref="Point3"/> instances are equal.
+    /// </summary>
+    /// <param name="a">The first point to compare.</param>
+    /// <param name="b">The second point to compare.</param>
+    /// <returns>
+    /// <see langword="true"/> if both points are equal;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(
+        Point3 a,
+        Point3 b)
+    {
+        return a.Equals(b);
+    }
+
+    /// <summary>
+    /// Determines whether two <see cref="Point3"/> instances are not equal.
+    /// </summary>
+    /// <param name="a">The first point to compare.</param>
+    /// <param name="b">The second point to compare.</param>
+    /// <returns>
+    /// <see langword="true"/> if the points are not equal;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(
+        Point3 a,
+        Point3 b)
+    {
+        return !a.Equals(b);
+    }
 
     /// <summary>
     /// Parses a string representation of a <see cref="Point3"/>.
@@ -328,7 +356,9 @@ public readonly struct Point3 : IEquatable<Point3>
     /// <see langword="true"/> if the string was successfully parsed;
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool TryParse(string? s, out Point3 result)
+    public static bool TryParse(
+        string? s,
+        out Point3 result)
     {
         result = Zero;
 
@@ -365,21 +395,14 @@ public readonly struct Point3 : IEquatable<Point3>
         return true;
     }
 
-    /// <summary>
-    /// Returns the string representation of this <see cref="Point3"/>.
-    /// </summary>
-    /// <returns>
-    /// A string containing the x-, y-, and z-coordinates separated by commas.
-    /// </returns>
-    /// <remarks>
-    /// Numeric values are formatted using
-    /// <see cref="CultureInfo.InvariantCulture"/>.
-    /// </remarks>
+    /// <inheritdoc/>
     public override string ToString()
-        => string.Format(
+    {
+        return string.Format(
             CultureInfo.InvariantCulture,
             "{0}, {1}, {2}",
             X,
             Y,
             Z);
+    }
 }
