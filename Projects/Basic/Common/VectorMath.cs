@@ -10,6 +10,72 @@ namespace Sachssoft.Sasogine.Common;
 public static class VectorMath
 {
     /// <summary>
+    /// Projects the specified vector onto another vector.
+    /// </summary>
+    /// <param name="vector">The vector to project.</param>
+    /// <param name="normal">The vector onto which the projection is performed.</param>
+    /// <returns>The projected vector.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector2 Projection(
+        Vector2 vector,
+        Vector2 normal)
+    {
+        float lengthSquared = normal.LengthSquared();
+
+        if (lengthSquared == 0f)
+            return Vector2.Zero;
+
+        return Vector2.Dot(vector, normal) /
+            lengthSquared * normal;
+    }
+
+    /// <summary>
+    /// Calculates the rejection of the specified vector from another vector.
+    /// </summary>
+    /// <param name="vector">The vector to reject.</param>
+    /// <param name="normal">The vector from which the rejection is calculated.</param>
+    /// <returns>The rejected component of the vector.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector2 Rejection(
+        Vector2 vector,
+        Vector2 normal)
+    {
+        return vector - Projection(vector, normal);
+    }
+
+    /// <summary>
+    /// Returns a vector containing the absolute value of each component.
+    /// </summary>
+    /// <param name="vector">The source vector.</param>
+    /// <returns>A vector containing the absolute component values.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector2 Abs(Vector2 vector)
+    {
+        return new Vector2(
+            float.Abs(vector.X),
+            float.Abs(vector.Y));
+    }
+
+    /// <summary>
+    /// Rotates the specified vector around the origin.
+    /// </summary>
+    /// <param name="vector">The vector to rotate.</param>
+    /// <param name="rotation">The rotation angle in radians.</param>
+    /// <returns>The rotated vector.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector2 Rotate(
+        Vector2 vector,
+        float rotation)
+    {
+        float cos = float.Cos(rotation);
+        float sin = float.Sin(rotation);
+
+        return new Vector2(
+            vector.X * cos - vector.Y * sin,
+            vector.X * sin + vector.Y * cos);
+    }
+
+    /// <summary>
     /// Safely normalizes the specified vector.
     /// </summary>
     /// <param name="value">
