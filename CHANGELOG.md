@@ -21,9 +21,14 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.0-alpha] - Planned
 - [Feature] **Toolkit**: Added `SelectionTool` for selecting and transforming objects.
+
+## [0.1.2-alpha] - Planned
 - [Feature] Introduced `Vector2Extensions` and `Vector3Extensions` for convenient conversions to Sasogine point and size types.
-- [Improve] Improved `Point2` and `Point3` with `Vector2` and `Vector3` constructors for more convenient usage.
-- [Improve] Added conversion operators and mixed vector arithmetic support to `Point2` and `Point3`.
+- [Change] Continued the API improvements introduced in `0.1.1-alpha`.
+- [Change] Updated geometry APIs to use appropriate point and vector types.
+- [Improve] Improved `Point2` and `Point3` interoperability with `Vector2` and `Vector3`.
+- [Improve] Added `Point2` support to geometry sampling and path utilities.
+- [Improve] Updated and optimized the Toolkit for compatibility with the latest Sasogine API changes.
 
 ## [0.1.1-alpha] - 2026-09-05
 - [Feature] Enhanced `EntityCollection` with generic type support.
