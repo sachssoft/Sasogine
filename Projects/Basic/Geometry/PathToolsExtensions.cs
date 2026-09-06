@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Sachssoft.Sasogine.Common;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Geometry;
@@ -37,14 +37,14 @@ public static class PathToolsExtensions
 
         foreach (var path in collection)
         {
-            var polygons = new List<Vector2[]>(path.GetPolygonCount());
+            var polygons = new List<Point2[]>(path.GetPolygonCount());
 
             for (int i = 0; i < path.GetPolygonCount(); i++)
             {
                 var points = path.GetPolygonPoints(i);
-                var input = new List<Vector2>(points.Count);
+                var input = new List<Point2>(points.Length);
 
-                for (int j = 0; j < points.Count; j++)
+                for (int j = 0; j < points.Length; j++)
                     input.Add(points[j]);
 
                 var smoothed = PathTools.SmoothPath(
@@ -90,14 +90,14 @@ public static class PathToolsExtensions
 
         foreach (var path in collection)
         {
-            var polygons = new List<Vector2[]>(path.GetPolygonCount());
+            var polygons = new List<Point2[]>(path.GetPolygonCount());
 
             for (int i = 0; i < path.GetPolygonCount(); i++)
             {
                 var points = path.GetPolygonPoints(i);
-                var input = new List<Vector2>(points.Count);
+                var input = new List<Point2>(points.Length);
 
-                for (int j = 0; j < points.Count; j++)
+                for (int j = 0; j < points.Length; j++)
                     input.Add(points[j]);
 
                 var rounded = PathTools.RoundCornersAuto(
@@ -144,14 +144,14 @@ public static class PathToolsExtensions
 
         foreach (var path in collection)
         {
-            var polygons = new List<Vector2[]>(path.GetPolygonCount());
+            var polygons = new List<Point2[]>(path.GetPolygonCount());
 
             for (int i = 0; i < path.GetPolygonCount(); i++)
             {
                 var points = path.GetPolygonPoints(i);
-                var input = new List<Vector2>(points.Count);
+                var input = new List<Point2>(points.Length);
 
-                for (int j = 0; j < points.Count; j++)
+                for (int j = 0; j < points.Length; j++)
                     input.Add(points[j]);
 
                 var resampled = PathTools.ResampleLinear(
@@ -190,14 +190,14 @@ public static class PathToolsExtensions
 
         foreach (var path in collection)
         {
-            var polygons = new List<Vector2[]>(path.GetPolygonCount());
+            var polygons = new List<Point2[]>(path.GetPolygonCount());
 
             for (int i = 0; i < path.GetPolygonCount(); i++)
             {
                 var points = path.GetPolygonPoints(i);
-                var input = new List<Vector2>(points.Count);
+                var input = new List<Point2>(points.Length);
 
-                for (int j = 0; j < points.Count; j++)
+                for (int j = 0; j < points.Length; j++)
                     input.Add(points[j]);
 
                 var simplified =
@@ -224,7 +224,7 @@ public static class PathToolsExtensions
     /// <returns>
     /// A list containing all points from all polygons in the collection.
     /// </returns>
-    public static List<Vector2> Flatten(
+    public static List<Point2> Flatten(
         this PathCollection collection)
     {
         var count = 0;
@@ -235,7 +235,7 @@ public static class PathToolsExtensions
                 count += path.GetPointCount(i);
         }
 
-        var allPoints = new List<Vector2>(count);
+        var allPoints = new List<Point2>(count);
 
         foreach (var path in collection)
         {
@@ -243,7 +243,7 @@ public static class PathToolsExtensions
             {
                 var points = path.GetPolygonPoints(i);
 
-                for (int j = 0; j < points.Count; j++)
+                for (int j = 0; j < points.Length; j++)
                     allPoints.Add(points[j]);
             }
         }
@@ -288,16 +288,16 @@ public static class PathToolsExtensions
 
         foreach (var path in collection)
         {
-            var polygons = new List<Vector2[]>(path.GetPolygonCount());
+            var polygons = new List<Point2[]>(path.GetPolygonCount());
 
             for (int polygonIndex = 0;
                  polygonIndex < path.GetPolygonCount();
                  polygonIndex++)
             {
                 var points = path.GetPolygonPoints(polygonIndex);
-                var input = new List<Vector2>(points.Count);
+                var input = new List<Point2>(points.Length);
 
-                for (int i = 0; i < points.Count; i++)
+                for (int i = 0; i < points.Length; i++)
                     input.Add(points[i]);
 
                 var optimized =

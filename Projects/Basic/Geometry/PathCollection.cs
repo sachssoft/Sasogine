@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,9 +24,9 @@ namespace Sachssoft.Sasogine.Geometry
         public PathCollection()
         {
             _paths = Array.Empty<Path>();
-            LowerBound = Vector2.Zero;
-            UpperBound = Vector2.Zero;
-            Centroid = Vector2.Zero;
+            LowerBound = Point2.Zero;
+            UpperBound = Point2.Zero;
+            Centroid = Point2.Zero;
             _hashCode = ComputeHashCode(_paths);
         }
 
@@ -51,9 +52,11 @@ namespace Sachssoft.Sasogine.Geometry
             for (int i = 0; i < _paths.Length; i++)
             {
                 if (_paths[i] is null)
+                {
                     throw new ArgumentException(
                         "PathCollection cannot contain null paths.",
                         nameof(paths));
+                }
             }
 
             (LowerBound, UpperBound) = ComputeBounds(_paths);
@@ -66,24 +69,26 @@ namespace Sachssoft.Sasogine.Geometry
         /// </summary>
         /// <param name="pathArray">The paths to include in the collection.</param>
         public PathCollection(params Path[] pathArray)
-            : this((IEnumerable<Path>)(pathArray ?? throw new ArgumentNullException(nameof(pathArray))))
+            : this((IEnumerable<Path>)(
+                pathArray ??
+                throw new ArgumentNullException(nameof(pathArray))))
         {
         }
 
         /// <summary>
         /// Gets the geometric centroid of the collection.
         /// </summary>
-        public Vector2 Centroid { get; }
+        public Point2 Centroid { get; }
 
         /// <summary>
         /// Gets the minimum bounds of the collection.
         /// </summary>
-        public Vector2 LowerBound { get; }
+        public Point2 LowerBound { get; }
 
         /// <summary>
         /// Gets the maximum bounds of the collection.
         /// </summary>
-        public Vector2 UpperBound { get; }
+        public Point2 UpperBound { get; }
 
         /// <summary>
         /// Gets the width of the collection bounds.
@@ -125,11 +130,11 @@ namespace Sachssoft.Sasogine.Geometry
         /// Returns all polygon point arrays contained in all paths.
         /// </summary>
         /// <returns>An enumerable collection of polygon point arrays.</returns>
-        public IEnumerable<Vector2[]> ToPoints()
+        public IEnumerable<Point2[]> ToPoints()
         {
             for (int i = 0; i < _paths.Length; i++)
             {
-                foreach (Vector2[] points in _paths[i].ToPoints())
+                foreach (var points in _paths[i].ToPoints())
                     yield return points;
             }
         }
@@ -157,7 +162,8 @@ namespace Sachssoft.Sasogine.Geometry
         /// <exception cref="ArgumentNullException">
         /// Thrown when <paramref name="transform"/> is <see langword="null"/>.
         /// </exception>
-        public PathCollection Transform(Func<Vector2, Vector2> transform)
+        public PathCollection Transform(
+            Func<Point2, Point2> transform)
         {
             if (transform is null)
                 throw new ArgumentNullException(nameof(transform));
@@ -230,11 +236,11 @@ namespace Sachssoft.Sasogine.Geometry
             return _hashCode;
         }
 
-        private static (Vector2 LowerBound, Vector2 UpperBound) ComputeBounds(
+        private static (Point2 LowerBound, Point2 UpperBound) ComputeBounds(
             IReadOnlyList<Path> paths)
         {
             if (paths.Count == 0)
-                return (Vector2.Zero, Vector2.Zero);
+                return (Point2.Zero, Point2.Zero);
 
             float minX = float.MaxValue;
             float minY = float.MaxValue;
@@ -258,23 +264,25 @@ namespace Sachssoft.Sasogine.Geometry
             }
 
             if (!hasBounds)
-                return (Vector2.Zero, Vector2.Zero);
+                return (Point2.Zero, Point2.Zero);
 
             return (
-                new Vector2(minX, minY),
-                new Vector2(maxX, maxY));
+                new Point2(minX, minY),
+                new Point2(maxX, maxY));
         }
 
-        private static Vector2 ComputeCentroid(
+        private static Point2 ComputeCentroid(
             IReadOnlyList<Path> paths)
         {
             if (paths.Count == 0)
-                return Vector2.Zero;
+                return Point2.Zero;
 
             Vector2 accumulatedCentroid = Vector2.Zero;
             float totalArea = 0f;
 
-            for (int pathIndex = 0; pathIndex < paths.Count; pathIndex++)
+            for (int pathIndex = 0;
+                 pathIndex < paths.Count;
+                 pathIndex++)
             {
                 Path path = paths[pathIndex];
 
@@ -282,7 +290,7 @@ namespace Sachssoft.Sasogine.Geometry
                      polygonIndex < path.GetPolygonCount();
                      polygonIndex++)
                 {
-                    IReadOnlyList<Vector2> polygon =
+                    IReadOnlyList<Point2> polygon =
                         path.GetPolygonPoints(polygonIndex);
 
                     if (polygon.Count < 3)
@@ -293,15 +301,21 @@ namespace Sachssoft.Sasogine.Geometry
 
                     for (int i = 0; i < polygon.Count; i++)
                     {
-                        Vector2 current = polygon[i];
-                        Vector2 next = polygon[(i + 1) % polygon.Count];
+                        Point2 current = polygon[i];
+                        Point2 next =
+                            polygon[(i + 1) % polygon.Count];
 
                         float cross =
                             current.X * next.Y -
                             next.X * current.Y;
 
                         area += cross;
-                        centroid += (current + next) * cross;
+
+                        centroid.X +=
+                            (current.X + next.X) * cross;
+
+                        centroid.Y +=
+                            (current.Y + next.Y) * cross;
                     }
 
                     area *= 0.5f;
@@ -311,14 +325,17 @@ namespace Sachssoft.Sasogine.Geometry
 
                     centroid /= 6f * area;
 
-                    accumulatedCentroid += centroid * area;
+                    accumulatedCentroid +=
+                        centroid * area;
+
                     totalArea += area;
                 }
             }
 
-            return totalArea != 0f
-                ? accumulatedCentroid / totalArea
-                : Vector2.Zero;
+            if (totalArea == 0f)
+                return Point2.Zero;
+
+            return accumulatedCentroid / totalArea;
         }
 
         private static int ComputeHashCode(

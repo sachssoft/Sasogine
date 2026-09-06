@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Sachssoft.Sasogine.Common;
 using System.Runtime.CompilerServices;
 
 namespace Sachssoft.Sasogine.Geometry
@@ -17,22 +17,29 @@ namespace Sachssoft.Sasogine.Geometry
         /// <summary>
         /// Gets the projected point on the segment or line.
         /// </summary>
-        public readonly Vector2 ProjectedPoint;
+        public readonly Point2 ProjectedPoint;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SegmentProjectionResult"/> struct.
         /// </summary>
-        /// <param name="t">Normalized or unbounded segment factor.</param>
-        /// <param name="tpos">Projected position.</param>
+        /// <param name="segmentFactor">
+        /// The normalized or unbounded position along the segment.
+        /// </param>
+        /// <param name="projectedPoint">
+        /// The projected point on the segment or line.
+        /// </param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public SegmentProjectionResult(float t, Vector2 tpos)
+        public SegmentProjectionResult(
+            float segmentFactor,
+            Point2 projectedPoint)
         {
-            SegmentFactor = t;
-            ProjectedPoint = tpos;
+            SegmentFactor = segmentFactor;
+            ProjectedPoint = projectedPoint;
         }
 
         /// <summary>
-        /// Gets whether the projection lies within the segment range.
+        /// Gets a value indicating whether the projection lies within
+        /// the segment range.
         /// </summary>
         public bool IsOnSegment =>
             SegmentFactor >= 0f &&
@@ -42,12 +49,16 @@ namespace Sachssoft.Sasogine.Geometry
         /// Calculates the distance between the projected point
         /// and the specified point.
         /// </summary>
-        /// <param name="point">Point used for the distance calculation.</param>
+        /// <param name="point">
+        /// The point used for the distance calculation.
+        /// </param>
         /// <returns>The distance to the projected point.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public float DistanceTo(Vector2 point)
+        public float DistanceTo(Point2 point)
         {
-            return Vector2.Distance(point, ProjectedPoint);
+            return Point2.Distance(
+                point,
+                ProjectedPoint);
         }
     }
 }

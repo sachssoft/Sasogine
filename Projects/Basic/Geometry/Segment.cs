@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 using System;
+using System.Globalization;
 
 namespace Sachssoft.Sasogine.Geometry;
 
@@ -22,7 +24,11 @@ public struct Segment
     /// <param name="y1">The Y-coordinate of the start point.</param>
     /// <param name="x2">The X-coordinate of the end point.</param>
     /// <param name="y2">The Y-coordinate of the end point.</param>
-    public Segment(float x1, float y1, float x2, float y2)
+    public Segment(
+        float x1,
+        float y1,
+        float x2,
+        float y2)
     {
         X1 = x1;
         Y1 = y1;
@@ -31,16 +37,34 @@ public struct Segment
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Segment"/> struct using the specified start and end points.
+    /// Initializes a new instance of the <see cref="Segment"/> struct
+    /// using the specified start and end points.
     /// </summary>
     /// <param name="start">The start point of the segment.</param>
     /// <param name="end">The end point of the segment.</param>
-    public Segment(Vector2 start, Vector2 end)
+    public Segment(
+        Point2 start,
+        Point2 end)
     {
         X1 = start.X;
         Y1 = start.Y;
         X2 = end.X;
         Y2 = end.Y;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Segment"/> struct
+    /// using the specified start and end vectors.
+    /// </summary>
+    /// <param name="start">The start point represented as a vector.</param>
+    /// <param name="end">The end point represented as a vector.</param>
+    public Segment(
+        Vector2 start,
+        Vector2 end)
+        : this(
+            new Point2(start),
+            new Point2(end))
+    {
     }
 
     /// <summary>
@@ -66,9 +90,9 @@ public struct Segment
     /// <summary>
     /// Gets or sets the start point of the segment.
     /// </summary>
-    public Vector2 Start
+    public Point2 Start
     {
-        readonly get => new Vector2(X1, Y1);
+        readonly get => new Point2(X1, Y1);
         set
         {
             X1 = value.X;
@@ -79,9 +103,9 @@ public struct Segment
     /// <summary>
     /// Gets or sets the end point of the segment.
     /// </summary>
-    public Vector2 End
+    public Point2 End
     {
-        readonly get => new Vector2(X2, Y2);
+        readonly get => new Point2(X2, Y2);
         set
         {
             X2 = value.X;
@@ -107,7 +131,7 @@ public struct Segment
     {
         get
         {
-            var delta = Delta;
+            Vector2 delta = Delta;
             return new Vector2(-delta.Y, delta.X);
         }
     }
@@ -120,7 +144,7 @@ public struct Segment
     {
         get
         {
-            var delta = Delta;
+            Vector2 delta = Delta;
             return new Vector2(delta.Y, -delta.X);
         }
     }
@@ -131,7 +155,10 @@ public struct Segment
     /// <value>
     /// The angle in radians in the range [-π, π].
     /// </value>
-    public readonly float Angle => float.Atan2(Y2 - Y1, X2 - X1);
+    public readonly float Angle =>
+        float.Atan2(
+            Y2 - Y1,
+            X2 - X1);
 
     /// <summary>
     /// Parses a string representation of a segment.
@@ -153,8 +180,10 @@ public struct Segment
         var values = value.Split(',');
 
         if (values.Length != 2)
+        {
             throw new FormatException(
                 "Expected segment format: \"x1 y1, x2 y2\".");
+        }
 
         var start = values[0].Split(
             ' ',
@@ -164,16 +193,34 @@ public struct Segment
             ' ',
             StringSplitOptions.RemoveEmptyEntries);
 
-        if (start.Length != 2 || end.Length != 2)
+        if (start.Length != 2 ||
+            end.Length != 2)
+        {
             throw new FormatException(
                 "Expected segment format: \"x1 y1, x2 y2\".");
+        }
 
-        var x1 = float.Parse(start[0]);
-        var y1 = float.Parse(start[1]);
-        var x2 = float.Parse(end[0]);
-        var y2 = float.Parse(end[1]);
+        float x1 = float.Parse(
+            start[0],
+            CultureInfo.InvariantCulture);
 
-        return new Segment(x1, y1, x2, y2);
+        float y1 = float.Parse(
+            start[1],
+            CultureInfo.InvariantCulture);
+
+        float x2 = float.Parse(
+            end[0],
+            CultureInfo.InvariantCulture);
+
+        float y2 = float.Parse(
+            end[1],
+            CultureInfo.InvariantCulture);
+
+        return new Segment(
+            x1,
+            y1,
+            x2,
+            y2);
     }
 
     /// <summary>
@@ -184,6 +231,12 @@ public struct Segment
     /// </returns>
     public override readonly string ToString()
     {
-        return $"X1: {X1}, Y1: {Y1}, X2: {X2}, Y2: {Y2}";
+        return string.Format(
+            CultureInfo.InvariantCulture,
+            "X1: {0}, Y1: {1}, X2: {2}, Y2: {3}",
+            X1,
+            Y1,
+            X2,
+            Y2);
     }
 }

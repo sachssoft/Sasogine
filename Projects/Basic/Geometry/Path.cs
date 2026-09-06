@@ -15,7 +15,7 @@ namespace Sachssoft.Sasogine.Geometry;
 /// This makes the type suitable for geometry caching and dictionary keys.
 /// </remarks>
 public sealed class Path :
-    IEnumerable<IReadOnlyList<Vector2>>,
+    IEnumerable<IReadOnlyList<Point2>>,
     ICloneable,
     IEquatable<Path>
 {
@@ -29,22 +29,35 @@ public sealed class Path :
     /// Gets an empty path.
     /// </summary>
     public static Path Empty { get; } =
-        new Path(Array.Empty<Vector2[]>());
+        new Path(Array.Empty<Vector2[]>(), true);
 
     /// <summary>
     /// Initializes an empty path.
     /// </summary>
     public Path()
-        : this(Array.Empty<Vector2[]>())
+        : this(Array.Empty<Vector2[]>(), true)
     {
     }
 
     /// <summary>
-    /// Initializes a path containing a single polygon.
+    /// Initializes a path containing a single polygon from the specified points.
     /// </summary>
-    /// <param name="points">
-    /// The polygon points.
-    /// </param>
+    /// <param name="points">The polygon points.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="points"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when the polygon contains fewer than three points.
+    /// </exception>
+    public Path(Point2[] points)
+        : this(new[] { points })
+    {
+    }
+
+    /// <summary>
+    /// Initializes a path containing a single polygon from the specified vectors.
+    /// </summary>
+    /// <param name="points">The polygon points represented as vectors.</param>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="points"/> is <see langword="null"/>.
     /// </exception>
@@ -57,11 +70,75 @@ public sealed class Path :
     }
 
     /// <summary>
-    /// Initializes a path from a collection of polygon contours.
+    /// Initializes a path containing a single polygon from the specified pixel points.
     /// </summary>
-    /// <param name="polygons">
-    /// The polygon contours.
-    /// </param>
+    /// <param name="points">The polygon points represented as pixel coordinates.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="points"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when the polygon contains fewer than three points.
+    /// </exception>
+    public Path(PixelPoint2[] points)
+        : this(new[] { points })
+    {
+    }
+
+    /// <summary>
+    /// Initializes a path from a collection of polygon contours represented by points.
+    /// </summary>
+    /// <param name="polygons">The polygon contours.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="polygons"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when a polygon is <see langword="null"/> or contains
+    /// fewer than three points.
+    /// </exception>
+    public Path(IEnumerable<Point2[]> polygons)
+    {
+        ArgumentNullException.ThrowIfNull(polygons);
+
+        var list = new List<Vector2[]>();
+
+        foreach (var polygon in polygons)
+        {
+            if (polygon == null)
+            {
+                throw new ArgumentException(
+                    "Polygon cannot be null.",
+                    nameof(polygons));
+            }
+
+            if (polygon.Length < 3)
+            {
+                throw new ArgumentException(
+                    "Polygon must have at least 3 points.",
+                    nameof(polygons));
+            }
+
+            var vectors = new Vector2[polygon.Length];
+
+            for (int i = 0; i < polygon.Length; i++)
+                vectors[i] = polygon[i];
+
+            list.Add(vectors);
+        }
+
+        _polygons = list.ToArray();
+        _directions = new PolygonDirection[_polygons.Length];
+        _polygonBounds = new Box2[_polygons.Length];
+
+        InitializeGeometry();
+
+        _bounds = ComputeBounds(_polygonBounds);
+        _hashCode = ComputeHashCode();
+    }
+
+    /// <summary>
+    /// Initializes a path from a collection of polygon contours represented by vectors.
+    /// </summary>
+    /// <param name="polygons">The polygon contours.</param>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="polygons"/> is <see langword="null"/>.
     /// </exception>
@@ -98,14 +175,65 @@ public sealed class Path :
         _directions = new PolygonDirection[_polygons.Length];
         _polygonBounds = new Box2[_polygons.Length];
 
-        for (int i = 0; i < _polygons.Length; i++)
-        {
-            _directions[i] =
-                ComputePolygonDirection(_polygons[i]);
+        InitializeGeometry();
 
-            _polygonBounds[i] =
-                ComputePolygonBounds(_polygons[i]);
+        _bounds = ComputeBounds(_polygonBounds);
+        _hashCode = ComputeHashCode();
+    }
+
+
+
+    /// <summary>
+    /// Initializes a path from a collection of polygon contours represented
+    /// by pixel points.
+    /// </summary>
+    /// <param name="polygons">The polygon contours.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="polygons"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when a polygon is <see langword="null"/> or contains
+    /// fewer than three points.
+    /// </exception>
+    public Path(IEnumerable<PixelPoint2[]> polygons)
+    {
+        ArgumentNullException.ThrowIfNull(polygons);
+
+        var list = new List<Vector2[]>();
+
+        foreach (var polygon in polygons)
+        {
+            if (polygon == null)
+            {
+                throw new ArgumentException(
+                    "Polygon cannot be null.",
+                    nameof(polygons));
+            }
+
+            if (polygon.Length < 3)
+            {
+                throw new ArgumentException(
+                    "Polygon must have at least 3 points.",
+                    nameof(polygons));
+            }
+
+            var vectors = new Vector2[polygon.Length];
+
+            for (int i = 0; i < polygon.Length; i++)
+            {
+                vectors[i] = new Vector2(
+                    polygon[i].X,
+                    polygon[i].Y);
+            }
+
+            list.Add(vectors);
         }
+
+        _polygons = list.ToArray();
+        _directions = new PolygonDirection[_polygons.Length];
+        _polygonBounds = new Box2[_polygons.Length];
+
+        InitializeGeometry();
 
         _bounds = ComputeBounds(_polygonBounds);
         _hashCode = ComputeHashCode();
@@ -115,18 +243,14 @@ public sealed class Path :
         Vector2[][] polygons,
         bool takeOwnership)
     {
-        _polygons = polygons;
+        _polygons = takeOwnership
+            ? polygons
+            : ClonePolygons(polygons);
+
         _directions = new PolygonDirection[_polygons.Length];
         _polygonBounds = new Box2[_polygons.Length];
 
-        for (int i = 0; i < _polygons.Length; i++)
-        {
-            _directions[i] =
-                ComputePolygonDirection(_polygons[i]);
-
-            _polygonBounds[i] =
-                ComputePolygonBounds(_polygons[i]);
-        }
+        InitializeGeometry();
 
         _bounds = ComputeBounds(_polygonBounds);
         _hashCode = ComputeHashCode();
@@ -190,29 +314,19 @@ public sealed class Path :
     /// <summary>
     /// Gets the center point of the path bounds.
     /// </summary>
-    public Vector2 Origin =>
-        new Vector2(
+    public Point2 Origin =>
+        new Point2(
             (Left + Right) * 0.5f,
             (Top + Bottom) * 0.5f);
 
     /// <summary>
     /// Creates a rectangular path.
     /// </summary>
-    /// <param name="x">
-    /// The left coordinate.
-    /// </param>
-    /// <param name="y">
-    /// The top coordinate.
-    /// </param>
-    /// <param name="width">
-    /// The rectangle width.
-    /// </param>
-    /// <param name="height">
-    /// The rectangle height.
-    /// </param>
-    /// <returns>
-    /// A new rectangular path.
-    /// </returns>
+    /// <param name="x">The left coordinate.</param>
+    /// <param name="y">The top coordinate.</param>
+    /// <param name="width">The rectangle width.</param>
+    /// <param name="height">The rectangle height.</param>
+    /// <returns>A new rectangular path.</returns>
     public static Path CreateRectangle(
         float x,
         float y,
@@ -222,47 +336,37 @@ public sealed class Path :
         return new Path(
             new[]
             {
-                new Vector2(x, y),
-                new Vector2(x + width, y),
-                new Vector2(x + width, y + height),
-                new Vector2(x, y + height)
+                new Point2(x, y),
+                new Point2(x + width, y),
+                new Point2(x + width, y + height),
+                new Point2(x, y + height)
             });
     }
 
     /// <summary>
     /// Gets the number of polygons contained in the path.
     /// </summary>
-    /// <returns>
-    /// The polygon count.
-    /// </returns>
+    /// <returns>The polygon count.</returns>
     public int GetPolygonCount()
     {
         return _polygons.Length;
     }
 
     /// <summary>
-    /// Gets the points of the specified polygon.
+    /// Gets a copy of the points of the specified polygon.
     /// </summary>
-    /// <param name="index">
-    /// The polygon index.
-    /// </param>
-    /// <returns>
-    /// The polygon points as a read-only collection.
-    /// </returns>
-    public IReadOnlyList<Vector2> GetPolygonPoints(int index)
+    /// <param name="index">The polygon index.</param>
+    /// <returns>The polygon points.</returns>
+    public Point2[] GetPolygonPoints(int index)
     {
-        return _polygons[index];
+        return ConvertToPoints(_polygons[index]);
     }
 
     /// <summary>
     /// Gets the winding direction of the specified polygon.
     /// </summary>
-    /// <param name="index">
-    /// The polygon index.
-    /// </param>
-    /// <returns>
-    /// The polygon direction.
-    /// </returns>
+    /// <param name="index">The polygon index.</param>
+    /// <returns>The polygon direction.</returns>
     public PolygonDirection GetPolygonDirection(int index)
     {
         return _directions[index];
@@ -271,12 +375,8 @@ public sealed class Path :
     /// <summary>
     /// Gets the cached axis-aligned bounds of the specified polygon.
     /// </summary>
-    /// <param name="index">
-    /// The polygon index.
-    /// </param>
-    /// <returns>
-    /// The polygon bounds.
-    /// </returns>
+    /// <param name="index">The polygon index.</param>
+    /// <returns>The polygon bounds.</returns>
     public Box2 GetPolygonBounds(int index)
     {
         return _polygonBounds[index];
@@ -285,31 +385,25 @@ public sealed class Path :
     /// <summary>
     /// Gets a point from the specified polygon.
     /// </summary>
-    /// <param name="polygonIndex">
-    /// The polygon index.
-    /// </param>
-    /// <param name="pointIndex">
-    /// The point index.
-    /// </param>
-    /// <returns>
-    /// The requested point.
-    /// </returns>
-    public Vector2 GetPoint(
+    /// <param name="polygonIndex">The polygon index.</param>
+    /// <param name="pointIndex">The point index.</param>
+    /// <returns>The requested point.</returns>
+    public Point2 GetPoint(
         int polygonIndex,
         int pointIndex)
     {
-        return _polygons[polygonIndex][pointIndex];
+        Vector2 point = _polygons[polygonIndex][pointIndex];
+
+        return new Point2(
+            point.X,
+            point.Y);
     }
 
     /// <summary>
     /// Gets the number of points contained in the specified polygon.
     /// </summary>
-    /// <param name="polygonIndex">
-    /// The polygon index.
-    /// </param>
-    /// <returns>
-    /// The number of points.
-    /// </returns>
+    /// <param name="polygonIndex">The polygon index.</param>
+    /// <returns>The number of points.</returns>
     public int GetPointCount(int polygonIndex)
     {
         return _polygons[polygonIndex].Length;
@@ -318,30 +412,23 @@ public sealed class Path :
     /// <summary>
     /// Creates a new path containing a single polygon from this path.
     /// </summary>
-    /// <param name="index">
-    /// The polygon index.
-    /// </param>
-    /// <returns>
-    /// A new path containing the selected polygon.
-    /// </returns>
+    /// <param name="index">The polygon index.</param>
+    /// <returns>A new path containing the selected polygon.</returns>
     public Path PolygonToPath(int index)
     {
         return new Path(
             new[]
             {
-                _polygons[index]
-            });
+                (Vector2[])_polygons[index].Clone()
+            },
+            true);
     }
 
     /// <summary>
     /// Creates a transformed copy of the path.
     /// </summary>
-    /// <param name="transform">
-    /// The transformation matrix to apply.
-    /// </param>
-    /// <returns>
-    /// A new transformed path.
-    /// </returns>
+    /// <param name="transform">The transformation matrix to apply.</param>
+    /// <returns>A new transformed path.</returns>
     public Path Transform(Matrix transform)
     {
         var polygons = new Vector2[_polygons.Length][];
@@ -371,17 +458,13 @@ public sealed class Path :
     /// Creates a transformed copy of the path using the specified
     /// point transformation function.
     /// </summary>
-    /// <param name="transform">
-    /// The point transformation function.
-    /// </param>
-    /// <returns>
-    /// A new transformed path.
-    /// </returns>
+    /// <param name="transform">The point transformation function.</param>
+    /// <returns>A new transformed path.</returns>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="transform"/> is <see langword="null"/>.
     /// </exception>
     public Path Transform(
-        Func<Vector2, Vector2> transform)
+        Func<Point2, Point2> transform)
     {
         ArgumentNullException.ThrowIfNull(transform);
 
@@ -393,7 +476,19 @@ public sealed class Path :
             var transformed = new Vector2[source.Length];
 
             for (int j = 0; j < source.Length; j++)
-                transformed[j] = transform(source[j]);
+            {
+                Point2 sourcePoint =
+                    new Point2(
+                        source[j].X,
+                        source[j].Y);
+
+                Point2 result = transform(sourcePoint);
+
+                transformed[j] =
+                    new Vector2(
+                        result.X,
+                        result.Y);
+            }
 
             polygons[i] = transformed;
         }
@@ -406,12 +501,8 @@ public sealed class Path :
     /// <summary>
     /// Determines whether the specified point lies inside a polygon.
     /// </summary>
-    /// <param name="point">
-    /// The point to test.
-    /// </param>
-    /// <param name="polygonIndex">
-    /// The polygon index.
-    /// </param>
+    /// <param name="point">The point to test.</param>
+    /// <param name="polygonIndex">The polygon index.</param>
     /// <param name="transform">
     /// The transformation applied to the polygon before testing.
     /// </param>
@@ -420,12 +511,11 @@ public sealed class Path :
     /// otherwise, <see langword="false"/>.
     /// </returns>
     public bool IsPointInPolygon(
-        Vector2 point,
+        Point2 point,
         int polygonIndex,
         Matrix transform)
     {
-        Vector2[] polygon =
-            _polygons[polygonIndex];
+        Vector2[] polygon = _polygons[polygonIndex];
 
         Box2 bounds =
             TransformBounds(
@@ -439,6 +529,11 @@ public sealed class Path :
         {
             return false;
         }
+
+        Vector2 position =
+            new Vector2(
+                point.X,
+                point.Y);
 
         float angleSum = 0f;
 
@@ -454,8 +549,8 @@ public sealed class Path :
                     polygon[(i + 1) % polygon.Length],
                     transform);
 
-            Vector2 pa = a - point;
-            Vector2 pb = b - point;
+            Vector2 pa = a - position;
+            Vector2 pb = b - position;
 
             angleSum += MathF.Atan2(
                 pa.X * pb.Y - pa.Y * pb.X,
@@ -466,35 +561,23 @@ public sealed class Path :
     }
 
     /// <summary>
-    /// Enumerates the polygon point arrays contained in this path.
+    /// Enumerates copies of the polygon point arrays contained in this path.
     /// </summary>
-    /// <returns>
-    /// The polygon point arrays.
-    /// </returns>
-    public IEnumerable<Vector2[]> ToPoints()
+    /// <returns>The polygon point arrays.</returns>
+    public IEnumerable<Point2[]> ToPoints()
     {
         for (int i = 0; i < _polygons.Length; i++)
-            yield return _polygons[i];
+            yield return ConvertToPoints(_polygons[i]);
     }
 
     /// <summary>
     /// Creates an independent clone of this path.
     /// </summary>
-    /// <returns>
-    /// A new path containing the same geometry.
-    /// </returns>
+    /// <returns>A new path containing the same geometry.</returns>
     public Path Clone()
     {
-        var polygons = new Vector2[_polygons.Length][];
-
-        for (int i = 0; i < _polygons.Length; i++)
-        {
-            polygons[i] =
-                (Vector2[])_polygons[i].Clone();
-        }
-
         return new Path(
-            polygons,
+            ClonePolygons(_polygons),
             true);
     }
 
@@ -507,9 +590,7 @@ public sealed class Path :
     /// Determines whether this path contains the same geometry
     /// as the specified path.
     /// </summary>
-    /// <param name="other">
-    /// The path to compare with this instance.
-    /// </param>
+    /// <param name="other">The path to compare with this instance.</param>
     /// <returns>
     /// <see langword="true"/> if both paths contain identical geometry;
     /// otherwise, <see langword="false"/>.
@@ -563,20 +644,60 @@ public sealed class Path :
     }
 
     /// <summary>
-    /// Returns an enumerator over the polygons contained in the path.
+    /// Returns an enumerator over copies of the polygons contained in the path.
     /// </summary>
-    /// <returns>
-    /// An enumerator over the polygon point collections.
-    /// </returns>
-    public IEnumerator<IReadOnlyList<Vector2>> GetEnumerator()
+    /// <returns>An enumerator over the polygon point collections.</returns>
+    public IEnumerator<IReadOnlyList<Point2>> GetEnumerator()
     {
         for (int i = 0; i < _polygons.Length; i++)
-            yield return _polygons[i];
+            yield return ConvertToPoints(_polygons[i]);
     }
 
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
+    }
+
+    private void InitializeGeometry()
+    {
+        for (int i = 0; i < _polygons.Length; i++)
+        {
+            _directions[i] =
+                ComputePolygonDirection(_polygons[i]);
+
+            _polygonBounds[i] =
+                ComputePolygonBounds(_polygons[i]);
+        }
+    }
+
+    private static Point2[] ConvertToPoints(
+        Vector2[] polygon)
+    {
+        var points = new Point2[polygon.Length];
+
+        for (int i = 0; i < polygon.Length; i++)
+        {
+            points[i] =
+                new Point2(
+                    polygon[i].X,
+                    polygon[i].Y);
+        }
+
+        return points;
+    }
+
+    private static Vector2[][] ClonePolygons(
+        Vector2[][] polygons)
+    {
+        var result = new Vector2[polygons.Length][];
+
+        for (int i = 0; i < polygons.Length; i++)
+        {
+            result[i] =
+                (Vector2[])polygons[i].Clone();
+        }
+
+        return result;
     }
 
     private int ComputeHashCode()

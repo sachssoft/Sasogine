@@ -26,16 +26,16 @@ public static class GeometryUtils
     /// <returns>
     /// A new list containing the compressed point sequence.
     /// </returns>
-    public static List<Vector2> CompressPoints(
-        List<Vector2> points,
+    public static List<Point2> CompressPoints(
+        List<Point2> points,
         float distanceThreshold = 0.2f,
         float angleDegreeThreshold = 5f)
     {
         if (points == null || points.Count < 3)
         {
             return points != null
-                ? new List<Vector2>(points)
-                : new List<Vector2>();
+                ? new List<Point2>(points)
+                : new List<Point2>();
         }
 
         distanceThreshold = float.Max(0f, distanceThreshold);
@@ -47,18 +47,18 @@ public static class GeometryUtils
         float angleThreshold =
             MathHelper.ToRadians(angleDegreeThreshold);
 
-        var compressed = new List<Vector2>(points.Count)
+        var compressed = new List<Point2>(points.Count)
         {
             points[0]
         };
 
         for (int i = 1; i < points.Count - 1; i++)
         {
-            Vector2 previous = compressed[^1];
-            Vector2 current = points[i];
-            Vector2 next = points[i + 1];
+            Point2 previous = compressed[^1];
+            Point2 current = points[i];
+            Point2 next = points[i + 1];
 
-            if (Vector2.DistanceSquared(
+            if (Point2.DistanceSquared(
                     previous,
                     current) < distanceThresholdSquared)
             {
@@ -106,11 +106,11 @@ public static class GeometryUtils
     /// The total thickness of the generated line.
     /// </param>
     /// <returns>
-    /// Four vertices representing the generated line polygon.
+    /// Four points representing the generated line polygon.
     /// </returns>
-    public static Vector2[] CreateWidedLine(
-        Vector2 start,
-        Vector2 end,
+    public static Point2[] CreateWidedLine(
+        Point2 start,
+        Point2 end,
         float thickness)
     {
         thickness = float.Max(0f, thickness);
@@ -141,11 +141,11 @@ public static class GeometryUtils
     /// The width applied to the negative perpendicular side.
     /// </param>
     /// <returns>
-    /// Four vertices representing the generated line polygon.
+    /// Four points representing the generated line polygon.
     /// </returns>
-    public static Vector2[] CreateWidedLine(
-        Vector2 start,
-        Vector2 end,
+    public static Point2[] CreateWidedLine(
+        Point2 start,
+        Point2 end,
         float positiveWidth,
         float negativeWidth)
     {

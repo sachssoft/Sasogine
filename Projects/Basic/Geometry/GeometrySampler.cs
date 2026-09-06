@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Geometry
 {
@@ -30,6 +31,30 @@ namespace Sachssoft.Sasogine.Geometry
         }
 
         /// <summary>
+        /// Samples a linear segment between two points.
+        /// </summary>
+        /// <param name="start">Start point.</param>
+        /// <param name="end">End point.</param>
+        /// <param name="segments">Number of segments to divide the line into. Must be >= 1.</param>
+        /// <returns>An array of points along the line.</returns>
+        public static Point2[] SampleLinear(Point2 start, Point2 end, int segments)
+        {
+            segments = int.Max(1, segments);
+            Point2[] points = new Point2[segments + 1];
+
+            for (int i = 0; i <= segments; i++)
+            {
+                float t = i / (float)segments;
+
+                points[i] = new Point2(
+                    start.X + (end.X - start.X) * t,
+                    start.Y + (end.Y - start.Y) * t);
+            }
+
+            return points;
+        }
+
+        /// <summary>
         /// Samples a quadratic Bezier curve with a specified number of segments.
         /// </summary>
         /// <param name="p0">Start point.</param>
@@ -47,6 +72,40 @@ namespace Sachssoft.Sasogine.Geometry
                 float t = i / (float)segments;
                 float mt = 1f - t;
                 points[i] = mt * mt * p0 + 2f * mt * t * p1 + t * t * p2;
+            }
+
+            return points;
+        }
+
+        /// <summary>
+        /// Samples a quadratic Bezier curve with a specified number of segments.
+        /// </summary>
+        /// <param name="p0">Start point.</param>
+        /// <param name="p1">Control point.</param>
+        /// <param name="p2">End point.</param>
+        /// <param name="segments">Number of segments to divide the curve into. Must be >= 1.</param>
+        /// <returns>An array of points along the curve.</returns>
+        public static Point2[] SampleQuadraticBezier(
+            Point2 p0,
+            Point2 p1,
+            Point2 p2,
+            int segments)
+        {
+            segments = int.Max(1, segments);
+            Point2[] points = new Point2[segments + 1];
+
+            for (int i = 0; i <= segments; i++)
+            {
+                float t = i / (float)segments;
+                float mt = 1f - t;
+
+                float a = mt * mt;
+                float b = 2f * mt * t;
+                float c = t * t;
+
+                points[i] = new Point2(
+                    a * p0.X + b * p1.X + c * p2.X,
+                    a * p0.Y + b * p1.Y + c * p2.Y);
             }
 
             return points;
@@ -74,6 +133,43 @@ namespace Sachssoft.Sasogine.Geometry
                             3f * mt * mt * t * c1 +
                             3f * mt * t * t * c2 +
                             t * t * t * p3;
+            }
+
+            return points;
+        }
+
+        /// <summary>
+        /// Samples a cubic Bezier curve with a specified number of segments.
+        /// </summary>
+        /// <param name="p0">Start point.</param>
+        /// <param name="c1">First control point.</param>
+        /// <param name="c2">Second control point.</param>
+        /// <param name="p3">End point.</param>
+        /// <param name="segments">Number of segments to divide the curve into. Must be >= 1.</param>
+        /// <returns>An array of points along the curve.</returns>
+        public static Point2[] SampleCubicBezier(
+            Point2 p0,
+            Point2 c1,
+            Point2 c2,
+            Point2 p3,
+            int segments)
+        {
+            segments = int.Max(1, segments);
+            Point2[] points = new Point2[segments + 1];
+
+            for (int i = 0; i <= segments; i++)
+            {
+                float t = i / (float)segments;
+                float mt = 1f - t;
+
+                float a = mt * mt * mt;
+                float b = 3f * mt * mt * t;
+                float c = 3f * mt * t * t;
+                float d = t * t * t;
+
+                points[i] = new Point2(
+                    a * p0.X + b * c1.X + c * c2.X + d * p3.X,
+                    a * p0.Y + b * c1.Y + c * c2.Y + d * p3.Y);
             }
 
             return points;
@@ -153,6 +249,135 @@ namespace Sachssoft.Sasogine.Geometry
                 float x = cosPhi * rx * float.Cos(angle) - sinPhi * ry * float.Sin(angle) + cx;
                 float y = sinPhi * rx * float.Cos(angle) + cosPhi * ry * float.Sin(angle) + cy;
                 points[i] = new Vector2(x, y);
+            }
+
+            return points;
+        }
+
+        /// <summary>
+        /// Samples an SVG-style elliptical arc with a specified number of segments.
+        /// Handles degenerate cases where the radius is zero or start equals end.
+        /// </summary>
+        /// <param name="start">Start point.</param>
+        /// <param name="end">End point.</param>
+        /// <param name="rx">Ellipse radius in X.</param>
+        /// <param name="ry">Ellipse radius in Y.</param>
+        /// <param name="xAxisRotation">Rotation of the ellipse in degrees.</param>
+        /// <param name="largeArc">Large arc flag (true = use the larger arc).</param>
+        /// <param name="sweep">Sweep flag (true = positive angle direction).</param>
+        /// <param name="segments">Number of segments to divide the arc into. Must be >= 1.</param>
+        /// <returns>An array of points along the arc.</returns>
+        public static Point2[] SampleArc(
+            Point2 start,
+            Point2 end,
+            float rx,
+            float ry,
+            float xAxisRotation,
+            bool largeArc,
+            bool sweep,
+            int segments)
+        {
+            segments = int.Max(1, segments);
+
+            if (rx <= 0f || ry <= 0f || start == end)
+            {
+                return new Point2[] { start, end };
+            }
+
+            float phi = MathHelper.ToRadians(xAxisRotation);
+            float cosPhi = float.Cos(phi);
+            float sinPhi = float.Sin(phi);
+
+            float dx = (start.X - end.X) / 2f;
+            float dy = (start.Y - end.Y) / 2f;
+            float x1p = cosPhi * dx + sinPhi * dy;
+            float y1p = -sinPhi * dx + cosPhi * dy;
+
+            rx = float.Abs(rx);
+            ry = float.Abs(ry);
+
+            float rxSq = rx * rx;
+            float rySq = ry * ry;
+            float x1pSq = x1p * x1p;
+            float y1pSq = y1p * y1p;
+
+            float lambda = x1pSq / rxSq + y1pSq / rySq;
+
+            if (lambda > 1f)
+            {
+                float scale = float.Sqrt(lambda);
+
+                rx *= scale;
+                ry *= scale;
+
+                rxSq = rx * rx;
+                rySq = ry * ry;
+            }
+
+            float numerator = float.Max(
+                0f,
+                rxSq * rySq -
+                rxSq * y1pSq -
+                rySq * x1pSq);
+
+            float denominator =
+                rxSq * y1pSq +
+                rySq * x1pSq;
+
+            float factor = denominator == 0f
+                ? 0f
+                : (largeArc == sweep ? -1f : 1f) *
+                  float.Sqrt(numerator / denominator);
+
+            float cxp = factor * (rx * y1p / ry);
+            float cyp = factor * -(ry * x1p / rx);
+
+            float cx =
+                cosPhi * cxp -
+                sinPhi * cyp +
+                (start.X + end.X) / 2f;
+
+            float cy =
+                sinPhi * cxp +
+                cosPhi * cyp +
+                (start.Y + end.Y) / 2f;
+
+            float theta1 = float.Atan2(
+                (y1p - cyp) / ry,
+                (x1p - cxp) / rx);
+
+            float deltaTheta =
+                float.Atan2(
+                    (-y1p - cyp) / ry,
+                    (-x1p - cxp) / rx) -
+                theta1;
+
+            if (sweep && deltaTheta < 0f)
+                deltaTheta += MathHelper.TwoPi;
+            else if (!sweep && deltaTheta > 0f)
+                deltaTheta -= MathHelper.TwoPi;
+
+            Point2[] points = new Point2[segments + 1];
+
+            for (int i = 0; i <= segments; i++)
+            {
+                float t = i / (float)segments;
+                float angle = theta1 + t * deltaTheta;
+
+                float cosAngle = float.Cos(angle);
+                float sinAngle = float.Sin(angle);
+
+                float x =
+                    cosPhi * rx * cosAngle -
+                    sinPhi * ry * sinAngle +
+                    cx;
+
+                float y =
+                    sinPhi * rx * cosAngle +
+                    cosPhi * ry * sinAngle +
+                    cy;
+
+                points[i] = new Point2(x, y);
             }
 
             return points;

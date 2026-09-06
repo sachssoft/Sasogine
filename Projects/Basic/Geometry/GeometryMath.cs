@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 using System.Runtime.CompilerServices;
 
 namespace Sachssoft.Sasogine.Geometry;
@@ -25,21 +26,26 @@ public static class GeometryMath
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void GetNearestPolygon(
-        Vector2 location,
+        Point2 location,
         Path path,
         out int nearestPolygonIndex)
     {
         float nearestDistanceSquared = float.PositiveInfinity;
         nearestPolygonIndex = -1;
 
+        Vector2 locationVector = location;
+
         for (int i = 0; i < path.GetPolygonCount(); i++)
         {
             for (int j = 0; j < path.GetPointCount(i); j++)
             {
-                Vector2 point = path.GetPoint(i, j);
+                Point2 point = path.GetPoint(i, j);
+                Vector2 pointVector = point;
 
                 float distanceSquared =
-                    Vector2.DistanceSquared(location, point);
+                    Vector2.DistanceSquared(
+                        locationVector,
+                        pointVector);
 
                 if (distanceSquared >= nearestDistanceSquared)
                     continue;
@@ -68,23 +74,28 @@ public static class GeometryMath
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryGetNearestPoint(
-        Vector2 location,
+        Point2 location,
         Path path,
-        out Vector2 nearestPoint)
+        out Point2 nearestPoint)
     {
         float nearestDistanceSquared = float.PositiveInfinity;
 
         nearestPoint = default;
         bool found = false;
 
+        Vector2 locationVector = location;
+
         for (int i = 0; i < path.GetPolygonCount(); i++)
         {
             for (int j = 0; j < path.GetPointCount(i); j++)
             {
-                Vector2 point = path.GetPoint(i, j);
+                Point2 point = path.GetPoint(i, j);
+                Vector2 pointVector = point;
 
                 float distanceSquared =
-                    Vector2.DistanceSquared(location, point);
+                    Vector2.DistanceSquared(
+                        locationVector,
+                        pointVector);
 
                 if (distanceSquared >= nearestDistanceSquared)
                     continue;
@@ -120,7 +131,7 @@ public static class GeometryMath
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryGetNearestPointIndex(
-        Vector2 location,
+        Point2 location,
         Path path,
         out int polygonIndex,
         out int pointIndex)
@@ -130,14 +141,19 @@ public static class GeometryMath
         polygonIndex = -1;
         pointIndex = -1;
 
+        Vector2 locationVector = location;
+
         for (int i = 0; i < path.GetPolygonCount(); i++)
         {
             for (int j = 0; j < path.GetPointCount(i); j++)
             {
-                Vector2 point = path.GetPoint(i, j);
+                Point2 point = path.GetPoint(i, j);
+                Vector2 pointVector = point;
 
                 float distanceSquared =
-                    Vector2.DistanceSquared(location, point);
+                    Vector2.DistanceSquared(
+                        locationVector,
+                        pointVector);
 
                 if (distanceSquared >= nearestDistanceSquared)
                     continue;
@@ -174,9 +190,9 @@ public static class GeometryMath
     /// <see langword="false"/>.
     /// </returns>
     public static bool TryGetNearestPointOnPath(
-        Vector2 location,
+        Point2 location,
         Path path,
-        out Vector2 nearestPoint,
+        out Point2 nearestPoint,
         out int polygonIndex,
         out int segmentIndex)
     {
@@ -185,6 +201,8 @@ public static class GeometryMath
         nearestPoint = default;
         polygonIndex = -1;
         segmentIndex = -1;
+
+        Vector2 locationVector = location;
 
         for (int i = 0; i < path.GetPolygonCount(); i++)
         {
@@ -195,18 +213,18 @@ public static class GeometryMath
 
             for (int j = 0; j < pointCount - 1; j++)
             {
-                Vector2 start = path.GetPoint(i, j);
-                Vector2 end = path.GetPoint(i, j + 1);
+                Point2 start = path.GetPoint(i, j);
+                Point2 end = path.GetPoint(i, j + 1);
 
                 Vector2 projectedPoint =
-                    Common.VectorMath.ClosestPointOnSegment(
-                        location,
+                    VectorMath.ClosestPointOnSegment(
+                        locationVector,
                         start,
                         end);
 
                 float distanceSquared =
                     Vector2.DistanceSquared(
-                        location,
+                        locationVector,
                         projectedPoint);
 
                 if (distanceSquared >= nearestDistanceSquared)
@@ -240,16 +258,13 @@ public static class GeometryMath
     /// </returns>
     public static bool TryGetBounds(
         Path path,
-        out Vector2 minimum,
-        out Vector2 maximum)
+        out Point2 minimum,
+        out Point2 maximum)
     {
-        minimum = new Vector2(
-            float.PositiveInfinity,
-            float.PositiveInfinity);
-
-        maximum = new Vector2(
-            float.NegativeInfinity,
-            float.NegativeInfinity);
+        float minX = float.PositiveInfinity;
+        float minY = float.PositiveInfinity;
+        float maxX = float.NegativeInfinity;
+        float maxY = float.NegativeInfinity;
 
         bool found = false;
 
@@ -257,17 +272,23 @@ public static class GeometryMath
         {
             for (int j = 0; j < path.GetPointCount(i); j++)
             {
-                Vector2 point = path.GetPoint(i, j);
+                Point2 point = path.GetPoint(i, j);
 
-                minimum = Vector2.Min(minimum, point);
-                maximum = Vector2.Max(maximum, point);
+                minX = float.Min(minX, point.X);
+                minY = float.Min(minY, point.Y);
+                maxX = float.Max(maxX, point.X);
+                maxY = float.Max(maxY, point.Y);
 
                 found = true;
             }
         }
 
         if (found)
+        {
+            minimum = new Point2(minX, minY);
+            maximum = new Point2(maxX, maxY);
             return true;
+        }
 
         minimum = default;
         maximum = default;
