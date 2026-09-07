@@ -4,7 +4,8 @@ namespace Sachssoft.Sasogine.Common
 {
     /// <summary>
     /// Represents a typed reference to an engine object that can be resolved
-    /// through an <see cref="IEngineObjectResolverProvider"/>.
+    /// through an <see cref="IEngineObjectResolver"/> or
+    /// <see cref="IEngineObjectResolverProvider"/>.
     /// </summary>
     /// <typeparam name="T">
     /// The expected type of the referenced engine object.
@@ -51,28 +52,28 @@ namespace Sachssoft.Sasogine.Common
         public bool IsEmpty => string.IsNullOrEmpty(Id);
 
         /// <summary>
-        /// Resolves the referenced object using the specified resolver provider.
+        /// Resolves the referenced object using the specified resolver.
         /// </summary>
-        /// <param name="provider">
-        /// The provider containing the resolver used to locate the referenced object.
+        /// <param name="resolver">
+        /// The resolver used to locate the referenced object.
         /// </param>
         /// <returns>
         /// The resolved object when found; otherwise, <see langword="null"/>.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        /// <paramref name="provider"/> is <see langword="null"/>.
+        /// <paramref name="resolver"/> is <see langword="null"/>.
         /// </exception>
         /// <exception cref="InvalidOperationException">
         /// The resolved object is not compatible with <typeparamref name="T"/>.
         /// </exception>
-        public virtual T? Resolve(IEngineObjectResolverProvider provider)
+        public virtual T? Resolve(IEngineObjectResolver resolver)
         {
-            ArgumentNullException.ThrowIfNull(provider);
+            ArgumentNullException.ThrowIfNull(resolver);
 
             if (string.IsNullOrEmpty(Id))
                 return null;
 
-            IEngineReferenceable? referenceable = provider.Resolver.Find(Id);
+            IEngineReferenceable? referenceable = resolver.Find(Id);
 
             if (referenceable == null)
                 return null;
@@ -84,6 +85,31 @@ namespace Sachssoft.Sasogine.Common
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Resolves the referenced object using the specified resolver provider.
+        /// </summary>
+        /// <param name="provider">
+        /// The provider containing the resolver used to locate the referenced
+        /// object.
+        /// </param>
+        /// <returns>
+        /// The resolved object when found; otherwise, <see langword="null"/>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="provider"/> is <see langword="null"/>.
+        /// </exception>
+        public virtual T? Resolve(IEngineObjectResolverProvider provider)
+        {
+            ArgumentNullException.ThrowIfNull(provider);
+
+            return Resolve(provider.Resolver);
+        }
+
+        object? IReference.Resolve(IEngineObjectResolver resolver)
+        {
+            return Resolve(resolver);
         }
 
         object? IReference.Resolve(IEngineObjectResolverProvider provider)

@@ -14,8 +14,7 @@ namespace Sachssoft.Sasogine.Common;
 /// <remarks>
 /// <para>
 /// The reference stores an object identifier and automatically binds itself to
-/// an <see cref="IEngineObjectResolverProvider"/> when
-/// <see cref="Resolve(IEngineObjectResolverProvider)"/> is called.
+/// an <see cref="IEngineObjectResolver"/> when resolved.
 /// </para>
 /// <para>
 /// When the resolver implements <see cref="INotifyCollectionChanged"/>,
@@ -31,7 +30,7 @@ public class ObservableReference<T> :
     IDisposable
     where T : class, IEngineReferenceable
 {
-    private IEngineObjectResolverProvider? _provider;
+    private IEngineObjectResolver? _resolver;
     private string? _id;
     private T? _value;
     private bool _disposed;
@@ -71,7 +70,7 @@ public class ObservableReference<T> :
     /// </summary>
     /// <remarks>
     /// Changing the identifier automatically updates <see cref="Value"/> when
-    /// the reference is currently bound to a resolver provider.
+    /// the reference is currently bound to a resolver.
     /// </remarks>
     public string? Id
     {
@@ -119,8 +118,37 @@ public class ObservableReference<T> :
     }
 
     /// <summary>
+    /// Resolves the referenced object using the specified resolver and
+    /// automatically binds the reference to that resolver.
+    /// </summary>
+    /// <param name="resolver">
+    /// The resolver used to locate and observe the referenced object.
+    /// </param>
+    /// <returns>
+    /// The resolved object when found; otherwise, <see langword="null"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="resolver"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// The resolved object is not compatible with <typeparamref name="T"/>.
+    /// </exception>
+    /// <exception cref="ObjectDisposedException">
+    /// The reference has already been disposed.
+    /// </exception>
+    public virtual T? Resolve(IEngineObjectResolver resolver)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        ArgumentNullException.ThrowIfNull(resolver);
+
+        Bind(resolver);
+
+        return Value;
+    }
+
+    /// <summary>
     /// Resolves the referenced object using the specified resolver provider and
-    /// automatically binds the reference to that provider.
+    /// automatically binds the reference to its resolver.
     /// </summary>
     /// <param name="provider">
     /// The resolver provider used to locate and observe the referenced object.
@@ -131,20 +159,15 @@ public class ObservableReference<T> :
     /// <exception cref="ArgumentNullException">
     /// <paramref name="provider"/> is <see langword="null"/>.
     /// </exception>
-    /// <exception cref="InvalidOperationException">
-    /// The resolved object is not compatible with <typeparamref name="T"/>.
-    /// </exception>
     /// <exception cref="ObjectDisposedException">
     /// The reference has already been disposed.
     /// </exception>
-    public T? Resolve(IEngineObjectResolverProvider provider)
+    public virtual T? Resolve(IEngineObjectResolverProvider provider)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentNullException.ThrowIfNull(provider);
 
-        Bind(provider);
-
-        return Value;
+        return Resolve(provider.Resolver);
     }
 
     /// <summary>
@@ -173,6 +196,11 @@ public class ObservableReference<T> :
         return _id ?? string.Empty;
     }
 
+    object? IReference.Resolve(IEngineObjectResolver resolver)
+    {
+        return Resolve(resolver);
+    }
+
     object? IReference.Resolve(IEngineObjectResolverProvider provider)
     {
         return Resolve(provider);
@@ -186,22 +214,24 @@ public class ObservableReference<T> :
     /// </param>
     protected virtual void OnPropertyChanged(string propertyName)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        PropertyChanged?.Invoke(
+            this,
+            new PropertyChangedEventArgs(propertyName));
     }
 
     /// <summary>
-    /// Resolves the current identifier using the bound resolver provider and
-    /// updates <see cref="Value"/>.
+    /// Resolves the current identifier using the bound resolver and updates
+    /// <see cref="Value"/>.
     /// </summary>
     protected virtual void UpdateValue()
     {
-        if (_provider == null || string.IsNullOrEmpty(_id))
+        if (_resolver == null || string.IsNullOrEmpty(_id))
         {
             Value = null;
             return;
         }
 
-        IEngineReferenceable? referenceable = _provider.Resolver.Find(_id);
+        IEngineReferenceable? referenceable = _resolver.Find(_id);
 
         if (referenceable == null)
         {
@@ -214,9 +244,9 @@ public class ObservableReference<T> :
                 $"Object '{_id}' is not of type '{typeof(T).Name}'.");
     }
 
-    private void Bind(IEngineObjectResolverProvider provider)
+    private void Bind(IEngineObjectResolver resolver)
     {
-        if (ReferenceEquals(_provider, provider))
+        if (ReferenceEquals(_resolver, resolver))
         {
             UpdateValue();
             return;
@@ -224,9 +254,9 @@ public class ObservableReference<T> :
 
         Unbind();
 
-        _provider = provider;
+        _resolver = resolver;
 
-        if (_provider.Resolver is INotifyCollectionChanged observable)
+        if (_resolver is INotifyCollectionChanged observable)
             observable.CollectionChanged += OnCollectionChanged;
 
         UpdateValue();
@@ -234,10 +264,10 @@ public class ObservableReference<T> :
 
     private void Unbind()
     {
-        if (_provider?.Resolver is INotifyCollectionChanged observable)
+        if (_resolver is INotifyCollectionChanged observable)
             observable.CollectionChanged -= OnCollectionChanged;
 
-        _provider = null;
+        _resolver = null;
         Value = null;
     }
 

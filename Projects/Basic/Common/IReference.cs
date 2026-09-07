@@ -4,7 +4,7 @@ namespace Sachssoft.Sasogine.Common
 {
     /// <summary>
     /// Represents a reference to an engine object that can be resolved
-    /// using an <see cref="IEngineObjectResolverProvider"/>.
+    /// using an engine object resolver or resolver provider.
     /// </summary>
     public interface IReference
     {
@@ -19,13 +19,25 @@ namespace Sachssoft.Sasogine.Common
         string? Id { get; set; }
 
         /// <summary>
+        /// Resolves the referenced object using the specified resolver.
+        /// </summary>
+        /// <param name="resolver">
+        /// The resolver used to locate the referenced object.
+        /// </param>
+        /// <returns>
+        /// The resolved object when found; otherwise, <see langword="null"/>.
+        /// </returns>
+        object? Resolve(IEngineObjectResolver resolver);
+
+        /// <summary>
         /// Resolves the referenced object using the specified resolver provider.
         /// </summary>
         /// <param name="provider">
-        /// Provider containing the resolver used to locate the referenced object.
+        /// The provider containing the resolver used to locate the referenced
+        /// object.
         /// </param>
         /// <returns>
-        /// The resolved object when found; otherwise null.
+        /// The resolved object when found; otherwise, <see langword="null"/>.
         /// </returns>
         object? Resolve(IEngineObjectResolverProvider provider);
     }
