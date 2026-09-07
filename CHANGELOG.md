@@ -22,6 +22,9 @@ All notable changes to this project will be documented in this file.
 ## [0.2.0-alpha] - Planned
 - [Feature] **Toolkit**: Added `SelectionTool` for selecting and transforming objects.
 
+## [0.1.4-alpha] - 2026-09-08
+- [Improve] Removed the `sealed` modifier from `PackageContextService`.
+
 ## [0.1.3-alpha] - 2026-09-07
 - [Feature] Introduced initializable entities with initialization and deinitialization lifecycle support.
 - [Change] Refactored entity collections to support typed initialization contexts and automatic entity lifecycle management.
