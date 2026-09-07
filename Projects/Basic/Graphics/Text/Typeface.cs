@@ -5,85 +5,133 @@ using System.Linq;
 namespace Sachssoft.Sasogine.Graphics.Text
 {
     /// <summary>
-    /// Represents a font family containing multiple font faces (weight + style variants).
-    /// Provides fast lookup and deterministic fallback.
+    /// Represents a font family containing multiple font faces with different
+    /// weights and styles.
     /// </summary>
+    /// <remarks>
+    /// Font faces are uniquely identified within the family by their combination
+    /// of <see cref="FontWeight"/> and <see cref="FontStyle"/>.
+    /// </remarks>
     public sealed class FontFamily
     {
         private readonly List<FontFace> _faces = new();
         private readonly Dictionary<FontKey, FontFace> _lookup;
 
-        /// <summary>
-        /// Immutable record for lookup key (Weight + Style).
-        /// </summary>
-        private record FontKey(FontWeight Weight, FontStyle Style);
+        private readonly record struct FontKey(
+            FontWeight Weight,
+            FontStyle Style);
 
         /// <summary>
-        /// Name of the font family (e.g., "Arial", "Roboto").
+        /// Initializes a new instance of the <see cref="FontFamily"/> class.
+        /// </summary>
+        /// <param name="name">
+        /// The name of the font family.
+        /// </param>
+        /// <param name="faces">
+        /// The font faces contained in the family.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="name"/> or <paramref name="faces"/> is
+        /// <see langword="null"/>.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// <paramref name="faces"/> does not contain any font faces.
+        /// </exception>
+        public FontFamily(string name, params FontFace[] faces)
+        {
+            ArgumentException.ThrowIfNullOrEmpty(name);
+            ArgumentNullException.ThrowIfNull(faces);
+
+            if (faces.Length == 0)
+            {
+                throw new ArgumentException(
+                    "The font family must contain at least one font face.",
+                    nameof(faces));
+            }
+
+            Name = name;
+
+            foreach (FontFace face in faces)
+            {
+                ArgumentNullException.ThrowIfNull(face);
+
+                bool exists = _faces.Any(existing =>
+                    existing.WeightDefinition == face.WeightDefinition &&
+                    existing.StyleDefinition == face.StyleDefinition);
+
+                if (!exists)
+                    _faces.Add(face);
+            }
+
+            _faces.Sort((a, b) =>
+            {
+                int result = a.WeightDefinition.CompareTo(b.WeightDefinition);
+
+                if (result != 0)
+                    return result;
+
+                return a.StyleDefinition.CompareTo(b.StyleDefinition);
+            });
+
+            _lookup = _faces.ToDictionary(
+                face => new FontKey(
+                    face.WeightDefinition,
+                    face.StyleDefinition));
+        }
+
+        /// <summary>
+        /// Gets the name of the font family.
         /// </summary>
         public string Name { get; }
 
         /// <summary>
-        /// All registered FontFaces in this family.
+        /// Gets the font faces contained in the family.
         /// </summary>
         public IReadOnlyList<FontFace> Faces => _faces;
 
         /// <summary>
-        /// Creates a FontFamily with a name and one or more FontFaces.
+        /// Gets the font face that best matches the specified weight and style.
         /// </summary>
-        /// <param name="name">The font family name</param>
-        /// <param name="faces">Array of FontFace instances (must contain at least one)</param>
-        public FontFamily(string name, params FontFace[] faces)
+        /// <param name="weight">
+        /// The requested font weight.
+        /// </param>
+        /// <param name="style">
+        /// The requested font style.
+        /// </param>
+        /// <returns>
+        /// The best matching font face.
+        /// </returns>
+        /// <remarks>
+        /// Resolution prefers an exact match, followed by normal weight with
+        /// the requested style, normal weight with normal style, and finally
+        /// the first available face.
+        /// </remarks>
+        public FontFace GetFace(
+            FontWeight weight,
+            FontStyle style)
         {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-
-            if (faces == null || faces.Length == 0)
-                throw new ArgumentException("FontFamily must have at least one FontVariant.");
-
-            // Deduplicate faces by Weight + Style
-            foreach (var face in faces)
+            if (_lookup.TryGetValue(
+                new FontKey(weight, style),
+                out FontFace? face))
             {
-                if (_faces.Any(f => f.WeightDefinition == face.WeightDefinition && f.StyleDefinition == face.StyleDefinition))
-                    continue;
-                _faces.Add(face);
+                return face;
             }
 
-            // Deterministically sort faces for consistent lookup
-            _faces.Sort((a, b) =>
+            if (_lookup.TryGetValue(
+                new FontKey(FontWeight.Normal, style),
+                out face))
             {
-                int cmp = ((int)a.WeightDefinition).CompareTo((int)b.WeightDefinition);
-                return cmp != 0 ? cmp : a.StyleDefinition.CompareTo(b.StyleDefinition);
-            });
+                return face;
+            }
 
-            // Build dictionary for fast lookup
-            _lookup = _faces.ToDictionary(f => new FontKey(f.WeightDefinition, f.StyleDefinition), f => f);
-        }
+            if (_lookup.TryGetValue(
+                new FontKey(FontWeight.Normal, FontStyle.Normal),
+                out face))
+            {
+                return face;
+            }
 
-        /// <summary>
-        /// Get the FontFace matching the requested weight and style.
-        /// Fallbacks:
-        /// 1. Exact match (weight + style)
-        /// 2. Normal weight, same style
-        /// 3. Normal weight + Normal style
-        /// </summary>
-        /// <param name="weight">Requested font weight</param>
-        /// <param name="style">Requested font style</param>
-        /// <returns>FontFace matching or fallback</returns>
-        public FontFace GetFace(FontWeight weight, FontStyle style)
-        {
-            var key = new FontKey(weight, style);
-
-            // 1. Exact match
-            if (_lookup.TryGetValue(key, out var exact))
-                return exact;
-
-            // 2. Fallback: Normal weight, same style
-            key = new FontKey(FontWeight.Normal, style);
-            if (_lookup.TryGetValue(key, out var fallback))
-                return fallback;
-
-            // 3. Last fallback: Normal weight + Normal style
-            return _lookup[new FontKey(FontWeight.Normal, FontStyle.Normal)];
+            return _faces[0];
         }
     }
 }

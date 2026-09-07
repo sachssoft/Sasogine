@@ -1,14 +1,18 @@
 ﻿namespace Sachssoft.Sasogine.Graphics.Text
 {
     /// <summary>
-    /// Defines the style of a font.
+    /// Specifies the style of a font face.
     /// </summary>
     public enum FontStyle
     {
-        /// <summary>Normal, upright style.</summary>
+        /// <summary>
+        /// Specifies a normal, upright font style.
+        /// </summary>
         Normal,
 
-        /// <summary>Italic style.</summary>
+        /// <summary>
+        /// Specifies an italic font style.
+        /// </summary>
         Italic
     }
 }

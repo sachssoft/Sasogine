@@ -6,111 +6,225 @@ using System.Linq;
 
 namespace Sachssoft.Sasogine.Graphics.Text.Internals
 {
-    internal class FontStashSharpBackend : IFontBackend
+    /// <summary>
+    /// Provides a FontStashSharp-based implementation of
+    /// <see cref="IFontBackend"/>.
+    /// </summary>
+    /// <remarks>
+    /// The backend converts registered <see cref="FontFace"/> instances into
+    /// FontStashSharp font systems and caches runtime fonts by face and size.
+    /// </remarks>
+    internal sealed class FontStashSharpBackend : IFontBackend
     {
-        private readonly Dictionary<string, List<FontFaceEntry>> _fonts = new();
+        private readonly Dictionary<string, List<FontFaceEntry>> _fonts =
+            new(StringComparer.OrdinalIgnoreCase);
 
-        // map (Face + size) -> SpriteFontBase
-        private readonly Dictionary<(FontFace Face, float Size), SpriteFontBase> _cache = new();
+        private readonly Dictionary<(FontFace Face, int Size), SpriteFontBase> _cache =
+            new();
 
-        private record FontFaceEntry(FontFace Face, FontSystem System);
+        private sealed record FontFaceEntry(
+            FontFace Face,
+            FontSystem System);
 
+        /// <summary>
+        /// Registers all font faces contained in the specified font family.
+        /// </summary>
+        /// <param name="fontFamily">
+        /// The font family to register.
+        /// </param>
         public void Register(FontFamily fontFamily)
         {
-            foreach (var Face in fontFamily.Faces)
-                Register(fontFamily.Name, Face);
+            ArgumentNullException.ThrowIfNull(fontFamily);
+
+            foreach (FontFace face in fontFamily.Faces)
+                Register(fontFamily.Name, face);
         }
 
-        public void Register(string familyName, FontFace Face)
+        /// <summary>
+        /// Registers a font face under the specified family name.
+        /// </summary>
+        /// <param name="familyName">
+        /// The name of the font family.
+        /// </param>
+        /// <param name="face">
+        /// The font face to register.
+        /// </param>
+        /// <exception cref="ArgumentException">
+        /// A face with the same weight and style is already registered for the
+        /// specified family.
+        /// </exception>
+        public void Register(string familyName, FontFace face)
         {
-            if (!_fonts.TryGetValue(familyName, out var list))
+            ArgumentException.ThrowIfNullOrEmpty(familyName);
+            ArgumentNullException.ThrowIfNull(face);
+
+            if (!_fonts.TryGetValue(
+                familyName,
+                out List<FontFaceEntry>? entries))
             {
-                list = new List<FontFaceEntry>();
-                _fonts[familyName] = list;
+                entries = new List<FontFaceEntry>();
+                _fonts.Add(familyName, entries);
             }
 
-            using var stream = Face.Loader.GetStream();
+            bool exists = entries.Any(entry =>
+                entry.Face.WeightDefinition == face.WeightDefinition &&
+                entry.Face.StyleDefinition == face.StyleDefinition);
+
+            if (exists)
+            {
+                throw new ArgumentException(
+                    $"The font family '{familyName}' already contains a " +
+                    $"'{face.WeightDefinition} {face.StyleDefinition}' face.",
+                    nameof(face));
+            }
 
             var system = new FontSystem();
-            system.AddFont(stream);
 
-            list.Add(new FontFaceEntry(Face, system));
+            system.AddFont(face.Data.ToArray());
+
+            entries.Add(
+                new FontFaceEntry(
+                    face,
+                    system));
         }
 
-        public IEnumerable<string> GetFamilies() => _fonts.Keys;
-
-        public FontFamily? GetFamily(string name)
+        /// <summary>
+        /// Gets the names of all registered font families.
+        /// </summary>
+        /// <returns>
+        /// The registered font family names.
+        /// </returns>
+        public IEnumerable<string> GetFamilies()
         {
-            if (_fonts.TryGetValue(name, out var list))
-                return new FontFamily(name, list.Select(x => x.Face).ToArray());
-
-            return null;
+            return _fonts.Keys;
         }
 
+        /// <summary>
+        /// Gets all registered font faces.
+        /// </summary>
+        /// <returns>
+        /// The registered font faces.
+        /// </returns>
         public IEnumerable<FontFace> GetFaces()
         {
-            foreach (var entries in _fonts.Values)
+            foreach (List<FontFaceEntry> entries in _fonts.Values)
             {
-                foreach (var entry in entries)
+                foreach (FontFaceEntry entry in entries)
                     yield return entry.Face;
             }
         }
 
-        private FontFace ResolveVariant(FontOptions font)
+        /// <summary>
+        /// Gets the font family with the specified name.
+        /// </summary>
+        /// <param name="name">
+        /// The font family name.
+        /// </param>
+        /// <returns>
+        /// The matching font family, or <see langword="null"/> if the family is
+        /// not registered.
+        /// </returns>
+        public FontFamily? GetFamily(string name)
         {
-            if (!_fonts.TryGetValue(font.FontName, out var Faces))
-                throw new InvalidOperationException($"FontOptions family not registered: {font.FontName}");
+            ArgumentException.ThrowIfNullOrEmpty(name);
 
-            var match = Faces.FirstOrDefault(v =>
-                v.Face.WeightDefinition == font.Weight &&
-                v.Face.StyleDefinition == font.Style);
-
-            if (match == null)
-                throw new InvalidOperationException(
-                    $"FontFace not found: {font.FontName} [{font.Weight}, {font.Style}]");
-
-            return match.Face;
-        }
-
-        internal SpriteFontBase GetSpriteFont(FontFace Face, float size)
-        {
-            var key = (Face, size);
-
-            if (_cache.TryGetValue(key, out var cached))
-                return cached;
-
-            FontFaceEntry? entryFound = null;
-
-            foreach (var entryList in _fonts.Values)
+            if (!_fonts.TryGetValue(
+                name,
+                out List<FontFaceEntry>? entries))
             {
-                foreach (var entry in entryList)
-                {
-                    if (entry.Face == Face)
-                    {
-                        entryFound = entry;
-                        break;
-                    }
-                }
-
-                if (entryFound != null)
-                    break;
+                return null;
             }
 
-            if (entryFound == null)
-                throw new InvalidOperationException($"FontFace not found in registry: {Face.Name}");
+            return new FontFamily(
+                name,
+                entries
+                    .Select(entry => entry.Face)
+                    .ToArray());
+        }
 
-            var font = entryFound.System.GetFont(size);
+        /// <summary>
+        /// Gets or creates the runtime font for the specified face and size.
+        /// </summary>
+        /// <param name="face">
+        /// The registered font face.
+        /// </param>
+        /// <param name="size">
+        /// The font size.
+        /// </param>
+        /// <returns>
+        /// The cached or newly created runtime font.
+        /// </returns>
+        internal SpriteFontBase GetSpriteFont(
+            FontFace face,
+            int size)
+        {
+            ArgumentNullException.ThrowIfNull(face);
 
-            _cache[key] = font;
+            if (size <= 0)
+                throw new ArgumentOutOfRangeException(nameof(size));
+
+            var key = (face, size);
+
+            if (_cache.TryGetValue(
+                key,
+                out SpriteFontBase? cached))
+            {
+                return cached;
+            }
+
+            FontFaceEntry entry = FindEntry(face);
+
+            SpriteFontBase font = entry.System.GetFont(size);
+
+            _cache.Add(key, font);
 
             return font;
         }
 
+        /// <summary>
+        /// Gets or creates the runtime font matching the specified font options.
+        /// </summary>
+        /// <param name="font">
+        /// The font options used to resolve the font face and size.
+        /// </param>
+        /// <returns>
+        /// The cached or newly created runtime font.
+        /// </returns>
         internal SpriteFontBase GetOrCreateSpriteFont(FontOptions font)
         {
-            var Face = ResolveVariant(font);
+            ArgumentNullException.ThrowIfNull(font);
 
-            return GetSpriteFont(Face, font.Size);
+            FontFace face = ResolveFace(font);
+
+            return GetSpriteFont(
+                face,
+                font.Size);
+        }
+
+        private FontFace ResolveFace(FontOptions font)
+        {
+            FontFamily family = GetFamily(font.FontName) ??
+                throw new InvalidOperationException(
+                    $"Font family is not registered: {font.FontName}");
+
+            return family.GetFace(
+                font.Weight,
+                font.Style);
+        }
+
+        private FontFaceEntry FindEntry(FontFace face)
+        {
+            foreach (List<FontFaceEntry> entries in _fonts.Values)
+            {
+                foreach (FontFaceEntry entry in entries)
+                {
+                    if (ReferenceEquals(entry.Face, face))
+                        return entry;
+                }
+            }
+
+            throw new InvalidOperationException(
+                $"Font face is not registered: {face.Name}");
         }
     }
 }
