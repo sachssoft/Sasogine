@@ -8,13 +8,18 @@ namespace Sachssoft.Sasogine.Assets.Graphics
     public class FontAssetDefinition : AssetDefinitionBase<FontAsset>
     {
         /// <summary>
-        /// Gets or sets the font weight definition.
+        /// Gets or sets the name of the font face.
         /// </summary>
-        public FontWeight WeightDefinition { get; set; }
+        public string? Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the font style definition.
+        /// Gets or sets the font weight.
         /// </summary>
-        public FontStyle StyleDefinition { get; set; }
+        public FontWeight WeightDefinition { get; set; } = FontWeight.Normal;
+
+        /// <summary>
+        /// Gets or sets the font style.
+        /// </summary>
+        public FontStyle StyleDefinition { get; set; } = FontStyle.Normal;
     }
 }

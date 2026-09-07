@@ -8,15 +8,11 @@ namespace Sachssoft.Sasogine.Assets.Graphics
     /// Represents a managed font asset for the Sasogine graphics system.
     /// </summary>
     /// <remarks>
-    /// <para>
-    /// <see cref="FontAsset"/> is responsible for loading and configuring
-    /// <see cref="FontFace"/> resources from asset streams.
-    /// </para>
-    /// <para>
-    /// Font loading is currently not implemented and will be added later.
-    /// </para>
+    /// <see cref="FontAsset"/> loads binary font data from an asset stream and
+    /// creates a self-contained runtime <see cref="FontFace"/>.
     /// </remarks>
-    public sealed class FontAsset : AssetBase<FontFace, FontAssetDefinition>
+    public sealed class FontAsset :
+        AssetBase<FontFace, FontAssetDefinition>
     {
         /// <summary>
         /// Initializes a new empty instance of the <see cref="FontAsset"/> class.
@@ -45,8 +41,7 @@ namespace Sachssoft.Sasogine.Assets.Graphics
         /// <param name="definition">
         /// The asset definition containing the font configuration.
         /// </param>
-        public FontAsset(
-            FontAssetDefinition definition)
+        public FontAsset(FontAssetDefinition definition)
             : base(definition)
         {
         }
@@ -63,20 +58,36 @@ namespace Sachssoft.Sasogine.Assets.Graphics
         }
 
         /// <summary>
-        /// Builds the runtime font resource from the supplied stream.
+        /// Builds the runtime font face from the supplied font stream.
         /// </summary>
         /// <param name="stream">
         /// The stream containing the source font data.
         /// </param>
         /// <returns>
-        /// The created <see cref="FontFace"/> instance.
+        /// The created <see cref="FontFace"/>.
         /// </returns>
-        /// <exception cref="NotImplementedException">
-        /// Font loading is not implemented yet.
+        /// <exception cref="InvalidOperationException">
+        /// The font face name is not configured.
         /// </exception>
         protected override FontFace? Build(Stream stream)
         {
-            throw new NotImplementedException();
+            ArgumentNullException.ThrowIfNull(stream);
+
+            if (string.IsNullOrEmpty(Definition.Name))
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(FontAssetDefinition.Name)} is not configured.");
+            }
+
+            using var memory = new MemoryStream();
+
+            stream.CopyTo(memory);
+
+            return new FontFace(
+                memory.ToArray(),
+                Definition.Name,
+                Definition.WeightDefinition,
+                Definition.StyleDefinition);
         }
     }
 }
