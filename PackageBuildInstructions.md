@@ -77,8 +77,12 @@ If a newly published package version cannot be found, clear the local NuGet cach
 dotnet nuget locals all --clear
 ```
 
-Then restore the packages without using the local cache:
+Then rebuild the remaining projects in Visual Studio using the context menu.
+
+If the package version is still not found, restore the packages without using the local cache:
 
 ```powershell
 dotnet restore --no-cache
 ```
+
+This step is normally optional and should only be necessary if clearing the NuGet caches and rebuilding the projects does not resolve the issue.
