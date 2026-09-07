@@ -1,15 +1,18 @@
-﻿using Sachssoft.Sasogine.Scenes;
+﻿using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Scenes;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.World
 {
     /// <summary>
-    /// Provides a strongly typed collection of unique entity instances with
-    /// support for initialization, ordered loading, updating, drawing, and
-    /// unloading.
+    /// Provides a strongly typed observable collection of unique entity instances
+    /// with support for initialization, resolution, ordered loading, updating,
+    /// drawing, and unloading.
     /// </summary>
     /// <typeparam name="TEntity">
     /// The entity type contained in the collection.
@@ -18,18 +21,28 @@ namespace Sachssoft.Sasogine.World
     /// The context type used to initialize entities.
     /// </typeparam>
     /// <remarks>
-    /// Each entity instance can occur only once in the collection.
-    ///
+    /// <para>
+    /// Each entity instance can occur only once in the collection. Non-empty
+    /// entity identifiers must also be unique.
+    /// </para>
+    /// <para>
     /// When a <see cref="Context"/> is assigned, entities that implement
     /// <see cref="IInitializableEntity{TEntityContext}"/> are initialized
     /// automatically when they are added and deinitialized when they are removed.
-    ///
-    /// A <see langword="null"/> context disables automatic initialization.
+    /// </para>
+    /// <para>
+    /// Collection changes are reported through
+    /// <see cref="INotifyCollectionChanged"/> and
+    /// <see cref="INotifyPropertyChanged"/>.
+    /// </para>
     /// </remarks>
     public class EntityCollection<TEntity, TEntityContext> :
         IList<TEntity>,
-        IList
-        where TEntity : IEntity
+        IList,
+        IEngineObjectResolver,
+        INotifyCollectionChanged,
+        INotifyPropertyChanged
+        where TEntity : class, IEntity
         where TEntityContext : class, IEntityContext
     {
         private readonly List<TEntity> _entities = new();
@@ -37,6 +50,16 @@ namespace Sachssoft.Sasogine.World
 
         private TEntityContext? _context;
         private bool _cacheDirty = true;
+
+        /// <summary>
+        /// Occurs when the collection changes.
+        /// </summary>
+        public event NotifyCollectionChangedEventHandler? CollectionChanged;
+
+        /// <summary>
+        /// Occurs when a property value changes.
+        /// </summary>
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
         /// Gets or sets the context used to initialize entities in the collection.
@@ -77,6 +100,8 @@ namespace Sachssoft.Sasogine.World
                     foreach (var entity in _entities)
                         InitializeEntity(entity);
                 }
+
+                OnPropertyChanged(nameof(Context));
             }
         }
 
@@ -118,18 +143,12 @@ namespace Sachssoft.Sasogine.World
         /// <paramref name="value"/> is <see langword="null"/>.
         /// </exception>
         /// <exception cref="ArgumentException">
-        /// <paramref name="value"/> is already contained in the collection at
-        /// another index.
+        /// <paramref name="value"/> or its identifier is already contained in
+        /// the collection.
         /// </exception>
         /// <exception cref="ArgumentOutOfRangeException">
         /// <paramref name="index"/> is outside the valid range of the collection.
         /// </exception>
-        /// <remarks>
-        /// When replacing an entity, the previous entity is deinitialized before
-        /// the new entity is initialized.
-        ///
-        /// Assigning the same entity instance to its current index has no effect.
-        /// </remarks>
         public TEntity this[int index]
         {
             get => _entities[index];
@@ -137,18 +156,26 @@ namespace Sachssoft.Sasogine.World
             {
                 ArgumentNullException.ThrowIfNull(value);
 
-                var previous = _entities[index];
+                TEntity previous = _entities[index];
 
                 if (ReferenceEquals(previous, value))
                     return;
 
-                EnsureUnique(value);
+                EnsureUnique(value, previous);
 
                 DeinitializeEntity(previous);
                 InitializeEntity(value);
 
                 _entities[index] = value;
                 _cacheDirty = true;
+
+                OnPropertyChanged("Item[]");
+                OnCollectionChanged(
+                    new NotifyCollectionChangedEventArgs(
+                        NotifyCollectionChangedAction.Replace,
+                        value,
+                        previous,
+                        index));
             }
         }
 
@@ -177,8 +204,7 @@ namespace Sachssoft.Sasogine.World
 
         bool ICollection.IsSynchronized => false;
 
-        object ICollection.SyncRoot
-            => ((ICollection)_entities).SyncRoot;
+        object ICollection.SyncRoot => ((ICollection)_entities).SyncRoot;
 
         /// <summary>
         /// Adds an entity to the collection.
@@ -190,13 +216,9 @@ namespace Sachssoft.Sasogine.World
         /// <paramref name="item"/> is <see langword="null"/>.
         /// </exception>
         /// <exception cref="ArgumentException">
-        /// <paramref name="item"/> is already contained in the collection.
+        /// The entity instance or its identifier is already contained in the
+        /// collection.
         /// </exception>
-        /// <remarks>
-        /// If a <see cref="Context"/> is assigned and the entity implements
-        /// <see cref="IInitializableEntity{TEntityContext}"/>, it is initialized
-        /// before being added to the collection.
-        /// </remarks>
         public void Add(TEntity item)
         {
             ArgumentNullException.ThrowIfNull(item);
@@ -204,8 +226,18 @@ namespace Sachssoft.Sasogine.World
             EnsureUnique(item);
             InitializeEntity(item);
 
+            int index = _entities.Count;
+
             _entities.Add(item);
             _cacheDirty = true;
+
+            OnPropertyChanged(nameof(Count));
+            OnPropertyChanged("Item[]");
+            OnCollectionChanged(
+                new NotifyCollectionChangedEventArgs(
+                    NotifyCollectionChangedAction.Add,
+                    item,
+                    index));
         }
 
         int IList.Add(object? value)
@@ -224,6 +256,9 @@ namespace Sachssoft.Sasogine.World
         /// </remarks>
         public void Clear()
         {
+            if (_entities.Count == 0)
+                return;
+
             if (_context is not null)
             {
                 for (int i = _entities.Count - 1; i >= 0; i--)
@@ -232,8 +267,13 @@ namespace Sachssoft.Sasogine.World
 
             _entities.Clear();
             _sortedCache.Clear();
-
             _cacheDirty = true;
+
+            OnPropertyChanged(nameof(Count));
+            OnPropertyChanged("Item[]");
+            OnCollectionChanged(
+                new NotifyCollectionChangedEventArgs(
+                    NotifyCollectionChangedAction.Reset));
         }
 
         /// <summary>
@@ -252,15 +292,17 @@ namespace Sachssoft.Sasogine.World
         /// <see cref="object.Equals(object?)"/>.
         /// </remarks>
         public bool Contains(TEntity item)
-            => IndexOfReference(item) >= 0;
+        {
+            return IndexOfReference(item) >= 0;
+        }
 
         bool IList.Contains(object? value)
-            => value is TEntity entity &&
-               Contains(entity);
+        {
+            return value is TEntity entity && Contains(entity);
+        }
 
         /// <summary>
-        /// Copies the entities to the specified array, starting at the specified
-        /// array index.
+        /// Copies the entities to the specified array.
         /// </summary>
         /// <param name="array">
         /// The destination array.
@@ -268,16 +310,12 @@ namespace Sachssoft.Sasogine.World
         /// <param name="arrayIndex">
         /// The zero-based index in the destination array at which copying begins.
         /// </param>
-        public void CopyTo(
-            TEntity[] array,
-            int arrayIndex)
+        public void CopyTo(TEntity[] array, int arrayIndex)
         {
             _entities.CopyTo(array, arrayIndex);
         }
 
-        void ICollection.CopyTo(
-            Array array,
-            int index)
+        void ICollection.CopyTo(Array array, int index)
         {
             ((ICollection)_entities).CopyTo(array, index);
         }
@@ -289,10 +327,14 @@ namespace Sachssoft.Sasogine.World
         /// An enumerator for the collection.
         /// </returns>
         public IEnumerator<TEntity> GetEnumerator()
-            => _entities.GetEnumerator();
+        {
+            return _entities.GetEnumerator();
+        }
 
         IEnumerator IEnumerable.GetEnumerator()
-            => GetEnumerator();
+        {
+            return GetEnumerator();
+        }
 
         /// <summary>
         /// Determines the index of the specified entity instance.
@@ -303,17 +345,15 @@ namespace Sachssoft.Sasogine.World
         /// <returns>
         /// The zero-based index of the entity if found; otherwise, <c>-1</c>.
         /// </returns>
-        /// <remarks>
-        /// Entity identity is determined by reference rather than by
-        /// <see cref="object.Equals(object?)"/>.
-        /// </remarks>
         public int IndexOf(TEntity item)
-            => IndexOfReference(item);
+        {
+            return IndexOfReference(item);
+        }
 
         int IList.IndexOf(object? value)
-            => value is TEntity entity
-                ? IndexOf(entity)
-                : -1;
+        {
+            return value is TEntity entity ? IndexOf(entity) : -1;
+        }
 
         /// <summary>
         /// Inserts an entity into the collection at the specified index.
@@ -328,19 +368,10 @@ namespace Sachssoft.Sasogine.World
         /// <paramref name="item"/> is <see langword="null"/>.
         /// </exception>
         /// <exception cref="ArgumentException">
-        /// <paramref name="item"/> is already contained in the collection.
+        /// The entity instance or its identifier is already contained in the
+        /// collection.
         /// </exception>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// <paramref name="index"/> is outside the valid insertion range.
-        /// </exception>
-        /// <remarks>
-        /// If a <see cref="Context"/> is assigned and the entity implements
-        /// <see cref="IInitializableEntity{TEntityContext}"/>, it is initialized
-        /// before being inserted into the collection.
-        /// </remarks>
-        public void Insert(
-            int index,
-            TEntity item)
+        public void Insert(int index, TEntity item)
         {
             ArgumentNullException.ThrowIfNull(item);
 
@@ -349,11 +380,17 @@ namespace Sachssoft.Sasogine.World
 
             _entities.Insert(index, item);
             _cacheDirty = true;
+
+            OnPropertyChanged(nameof(Count));
+            OnPropertyChanged("Item[]");
+            OnCollectionChanged(
+                new NotifyCollectionChangedEventArgs(
+                    NotifyCollectionChangedAction.Add,
+                    item,
+                    index));
         }
 
-        void IList.Insert(
-            int index,
-            object? value)
+        void IList.Insert(int index, object? value)
         {
             Insert(index, GetEntity(value));
         }
@@ -368,13 +405,6 @@ namespace Sachssoft.Sasogine.World
         /// <see langword="true"/> if the entity was found and removed;
         /// otherwise, <see langword="false"/>.
         /// </returns>
-        /// <remarks>
-        /// Entity identity is determined by reference.
-        ///
-        /// If a <see cref="Context"/> is assigned and the entity implements
-        /// <see cref="IInitializableEntity{TEntityContext}"/>, it is
-        /// deinitialized before being removed.
-        /// </remarks>
         public bool Remove(TEntity item)
         {
             int index = IndexOfReference(item);
@@ -382,13 +412,7 @@ namespace Sachssoft.Sasogine.World
             if (index < 0)
                 return false;
 
-            var entity = _entities[index];
-
-            DeinitializeEntity(entity);
-
-            _entities.RemoveAt(index);
-            _cacheDirty = true;
-
+            RemoveAt(index);
             return true;
         }
 
@@ -404,22 +428,157 @@ namespace Sachssoft.Sasogine.World
         /// <param name="index">
         /// The zero-based index of the entity to remove.
         /// </param>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// <paramref name="index"/> is outside the valid range of the collection.
-        /// </exception>
-        /// <remarks>
-        /// If a <see cref="Context"/> is assigned and the entity implements
-        /// <see cref="IInitializableEntity{TEntityContext}"/>, it is
-        /// deinitialized before being removed.
-        /// </remarks>
         public void RemoveAt(int index)
         {
-            var entity = _entities[index];
+            TEntity entity = _entities[index];
 
             DeinitializeEntity(entity);
 
             _entities.RemoveAt(index);
             _cacheDirty = true;
+
+            OnPropertyChanged(nameof(Count));
+            OnPropertyChanged("Item[]");
+            OnCollectionChanged(
+                new NotifyCollectionChangedEventArgs(
+                    NotifyCollectionChangedAction.Remove,
+                    entity,
+                    index));
+        }
+
+        /// <summary>
+        /// Finds an entity with the specified identifier.
+        /// </summary>
+        /// <param name="id">
+        /// The identifier of the entity to find.
+        /// </param>
+        /// <returns>
+        /// The matching entity, or <see langword="null"/> if no entity was found.
+        /// </returns>
+        public TEntity? Find(string? id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return default;
+
+            foreach (TEntity entity in _entities)
+            {
+                if (entity.Id == id)
+                    return entity;
+            }
+
+            return default;
+        }
+
+        /// <summary>
+        /// Finds an entity of the specified type with the specified identifier.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The entity type to find.
+        /// </typeparam>
+        /// <param name="id">
+        /// The identifier of the entity to find.
+        /// </param>
+        /// <returns>
+        /// The matching entity, or <see langword="null"/> if no entity was found.
+        /// </returns>
+        public T? Find<T>(string? id)
+            where T : class, TEntity
+        {
+            if (string.IsNullOrEmpty(id))
+                return null;
+
+            foreach (TEntity entity in _entities)
+            {
+                if (entity.Id == id && entity is T typedEntity)
+                    return typedEntity;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Finds all entities with the specified class.
+        /// </summary>
+        /// <param name="class">
+        /// The class of the entities to find.
+        /// </param>
+        /// <returns>
+        /// All matching entities.
+        /// </returns>
+        public IEnumerable<TEntity> FindAll(string? @class)
+        {
+            foreach (TEntity entity in _entities)
+            {
+                if (entity.Class == @class)
+                    yield return entity;
+            }
+        }
+
+        /// <summary>
+        /// Finds all entities of the specified type with the specified class.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The entity type to find.
+        /// </typeparam>
+        /// <param name="class">
+        /// The class of the entities to find.
+        /// </param>
+        /// <returns>
+        /// All matching entities.
+        /// </returns>
+        public IEnumerable<T> FindAll<T>(string? @class)
+            where T : class, TEntity
+        {
+            foreach (TEntity entity in _entities)
+            {
+                if (entity.Class == @class && entity is T typedEntity)
+                    yield return typedEntity;
+            }
+        }
+
+        /// <summary>
+        /// Attempts to find an entity with the specified identifier.
+        /// </summary>
+        /// <param name="id">
+        /// The identifier of the entity to find.
+        /// </param>
+        /// <param name="result">
+        /// When this method returns, contains the matching entity if found;
+        /// otherwise, <see langword="null"/>.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if an entity was found; otherwise,
+        /// <see langword="false"/>.
+        /// </returns>
+        public bool TryGet(string? id, out TEntity? result)
+        {
+            result = Find(id);
+            return result is not null;
+        }
+
+        /// <summary>
+        /// Attempts to find an entity of the specified type with the specified
+        /// identifier.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The entity type to find.
+        /// </typeparam>
+        /// <param name="id">
+        /// The identifier of the entity to find.
+        /// </param>
+        /// <param name="result">
+        /// When this method returns, contains the matching entity if found;
+        /// otherwise, <see langword="null"/>.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if an entity was found; otherwise,
+        /// <see langword="false"/>.
+        /// </returns>
+        public bool TryGet<T>(string? id, out T? result)
+            where T : class, TEntity
+        {
+            result = Find<T>(id);
+            return result is not null;
         }
 
         /// <summary>
@@ -441,11 +600,7 @@ namespace Sachssoft.Sasogine.World
             UpdateCache();
 
             foreach (var entity in _sortedCache)
-            {
-                await entity
-                    .LoadAsync()
-                    .ConfigureAwait(false);
-            }
+                await entity.LoadAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -492,11 +647,48 @@ namespace Sachssoft.Sasogine.World
         }
 
         /// <summary>
-        /// Initializes the specified entity when an entity context is available.
+        /// Raises the <see cref="CollectionChanged"/> event.
         /// </summary>
-        /// <param name="entity">
-        /// The entity to initialize.
+        /// <param name="e">
+        /// The event data describing the collection change.
         /// </param>
+        protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+        {
+            CollectionChanged?.Invoke(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="PropertyChanged"/> event.
+        /// </summary>
+        /// <param name="propertyName">
+        /// The name of the property that changed.
+        /// </param>
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        IEngineReferenceable? IEngineObjectResolver.Find(string? id)
+        {
+            return Find(id);
+        }
+
+        IEnumerable<IEngineReferenceable> IEngineObjectResolver.FindAll(string? @class)
+        {
+            foreach (TEntity entity in FindAll(@class))
+                yield return entity;
+        }
+
+        bool IEngineObjectResolver.TryGet(
+            string? id,
+            out IEngineReferenceable? result)
+        {
+            TEntity? entity = Find(id);
+
+            result = entity;
+            return entity is not null;
+        }
+
         private void InitializeEntity(TEntity entity)
         {
             if (_context is not null &&
@@ -506,12 +698,6 @@ namespace Sachssoft.Sasogine.World
             }
         }
 
-        /// <summary>
-        /// Deinitializes the specified entity when an entity context is available.
-        /// </summary>
-        /// <param name="entity">
-        /// The entity to deinitialize.
-        /// </param>
         private void DeinitializeEntity(TEntity entity)
         {
             if (_context is not null &&
@@ -521,35 +707,31 @@ namespace Sachssoft.Sasogine.World
             }
         }
 
-        /// <summary>
-        /// Ensures that the specified entity instance is not already contained
-        /// in the collection.
-        /// </summary>
-        /// <param name="entity">
-        /// The entity to validate.
-        /// </param>
-        /// <exception cref="ArgumentException">
-        /// The entity instance is already contained in the collection.
-        /// </exception>
-        private void EnsureUnique(TEntity entity)
+        private void EnsureUnique(
+            TEntity entity,
+            TEntity? excludedEntity = null)
         {
-            if (IndexOfReference(entity) >= 0)
+            foreach (TEntity existing in _entities)
             {
-                throw new ArgumentException(
-                    "The entity is already contained in the collection.",
-                    nameof(entity));
+                if (ReferenceEquals(existing, excludedEntity))
+                    continue;
+
+                if (ReferenceEquals(existing, entity))
+                {
+                    throw new ArgumentException(
+                        "The entity is already contained in the collection.",
+                        nameof(entity));
+                }
+
+                if (!string.IsNullOrEmpty(entity.Id) && existing.Id == entity.Id)
+                {
+                    throw new ArgumentException(
+                        $"An entity with the identifier '{entity.Id}' already exists.",
+                        nameof(entity));
+                }
             }
         }
 
-        /// <summary>
-        /// Determines the index of the specified entity using reference identity.
-        /// </summary>
-        /// <param name="entity">
-        /// The entity instance to locate.
-        /// </param>
-        /// <returns>
-        /// The zero-based index of the entity if found; otherwise, <c>-1</c>.
-        /// </returns>
         private int IndexOfReference(TEntity entity)
         {
             for (int i = 0; i < _entities.Count; i++)
@@ -561,12 +743,6 @@ namespace Sachssoft.Sasogine.World
             return -1;
         }
 
-        /// <summary>
-        /// Executes the specified action for each entity in configured order.
-        /// </summary>
-        /// <param name="action">
-        /// The action to execute.
-        /// </param>
         private void ForEachOrdered(Action<TEntity> action)
         {
             UpdateCache();
@@ -575,9 +751,6 @@ namespace Sachssoft.Sasogine.World
                 action(entity);
         }
 
-        /// <summary>
-        /// Rebuilds the ordered entity cache when necessary.
-        /// </summary>
         private void UpdateCache()
         {
             if (!_cacheDirty)
@@ -601,29 +774,12 @@ namespace Sachssoft.Sasogine.World
                 if (result != 0)
                     return result;
 
-                return IndexOfReference(a)
-                    .CompareTo(IndexOfReference(b));
+                return IndexOfReference(a).CompareTo(IndexOfReference(b));
             });
 
             _cacheDirty = false;
         }
 
-        /// <summary>
-        /// Converts the specified object to the configured entity type.
-        /// </summary>
-        /// <param name="value">
-        /// The object to convert.
-        /// </param>
-        /// <returns>
-        /// The converted entity.
-        /// </returns>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="value"/> is <see langword="null"/>.
-        /// </exception>
-        /// <exception cref="ArgumentException">
-        /// <paramref name="value"/> is not assignable to
-        /// <typeparamref name="TEntity"/>.
-        /// </exception>
         private static TEntity GetEntity(object? value)
         {
             if (value is null)
