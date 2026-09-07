@@ -116,24 +116,24 @@ namespace Sachssoft.Sasogine.Resources
             );
 
             // ------------------- Eigenes FontSystem -------------------
-            RegisterType<FontContainer>(
-                (res, loader) =>
-                {
-                    return new FontContainer(loader);
-                    //using var stream = loader.GetStream();
-                    //var fontSystem = new FontSystem();
-                    //fontSystem.AddFont(stream);
-                    //return fontSystem;
-                },
-                async (res, loader) =>
-                {
-                    return new FontContainer(loader);
-                    //using var stream = await loader.GetStreamAsync();
-                    //var fontSystem = new FontSystem();
-                    //fontSystem.AddFont(stream);
-                    //return fontSystem;
-                }
-            );
+            //RegisterType<FontContainer>(
+            //    (res, loader) =>
+            //    {
+            //        return new FontContainer(loader);
+            //        //using var stream = loader.GetStream();
+            //        //var fontSystem = new FontSystem();
+            //        //fontSystem.AddFont(stream);
+            //        //return fontSystem;
+            //    },
+            //    async (res, loader) =>
+            //    {
+            //        return new FontContainer(loader);
+            //        //using var stream = await loader.GetStreamAsync();
+            //        //var fontSystem = new FontSystem();
+            //        //fontSystem.AddFont(stream);
+            //        //return fontSystem;
+            //    }
+            //);
         }
     }
 }
