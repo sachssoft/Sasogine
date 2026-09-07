@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Graphics.Cameras;
 using Sachssoft.Sasogine.Graphics.Rendering;
-using Sachssoft.Sasogine.Graphics.Rendering.Batches;
 using System;
 using System.Collections.Generic;
 
@@ -13,11 +12,14 @@ namespace Sachssoft.Sasogine.Graphics.Rendering.Batches;
 /// Batches frames from multiple textures by grouping them by texture.
 /// </summary>
 /// <remarks>
+/// <para>
 /// Frames using the same texture are rendered together through an internal
 /// <see cref="FrameBatch"/>, reducing texture changes and draw calls.
-///
+/// </para>
+/// <para>
 /// Frame order is preserved within each texture group, but not between
 /// different textures.
+/// </para>
 /// </remarks>
 public sealed class MultiFrameBatch : IDisposable
 {
@@ -72,11 +74,11 @@ public sealed class MultiFrameBatch : IDisposable
                 "Batch is already active. Call End() before Begin().");
         }
 
-        _shader =
-            shader ?? throw new ArgumentNullException(nameof(shader));
+        ArgumentNullException.ThrowIfNull(shader);
+        ArgumentNullException.ThrowIfNull(camera);
 
-        _camera =
-            camera ?? throw new ArgumentNullException(nameof(camera));
+        _shader = shader;
+        _camera = camera;
 
         _groupLookup.Clear();
         _groupCount = 0;
@@ -93,8 +95,8 @@ public sealed class MultiFrameBatch : IDisposable
     /// <param name="position">
     /// World position of the frame.
     /// </param>
-    /// <param name="sourceRect">
-    /// Rectangle inside the texture.
+    /// <param name="sourceBounds">
+    /// Pixel bounds inside the texture.
     /// </param>
     /// <param name="color">
     /// Color tint.
@@ -102,22 +104,21 @@ public sealed class MultiFrameBatch : IDisposable
     public void AddFrame(
         Texture2D texture,
         Point2 position,
-        Rectangle sourceRect,
+        PixelBounds2 sourceBounds,
         Color color)
     {
-        QuadTransform transform =
-            new()
-            {
-                Position = position,
-                Scale = Vector2.One,
-                Rotation = 0f,
-                Origin = Vector2.Zero
-            };
+        QuadTransform transform = new()
+        {
+            Position = position,
+            Scale = Vector2.One,
+            Rotation = 0f,
+            Origin = Vector2.Zero
+        };
 
         AddFrame(
             texture,
             transform,
-            sourceRect,
+            sourceBounds,
             color);
     }
 
@@ -130,8 +131,8 @@ public sealed class MultiFrameBatch : IDisposable
     /// <param name="transform">
     /// Transformation applied to the frame.
     /// </param>
-    /// <param name="sourceRect">
-    /// Rectangle inside the texture.
+    /// <param name="sourceBounds">
+    /// Pixel bounds inside the texture.
     /// </param>
     /// <param name="color">
     /// Color tint.
@@ -139,7 +140,7 @@ public sealed class MultiFrameBatch : IDisposable
     public void AddFrame(
         Texture2D texture,
         QuadTransform transform,
-        Rectangle sourceRect,
+        PixelBounds2 sourceBounds,
         Color color)
     {
         ThrowIfDisposed();
@@ -147,13 +148,12 @@ public sealed class MultiFrameBatch : IDisposable
 
         ArgumentNullException.ThrowIfNull(texture);
 
-        FrameGroup group =
-            GetGroup(texture);
+        FrameGroup group = GetGroup(texture);
 
         group.Frames.Add(
             new FrameEntry(
                 transform,
-                sourceRect,
+                sourceBounds,
                 color));
     }
 
@@ -167,36 +167,28 @@ public sealed class MultiFrameBatch : IDisposable
 
         try
         {
-            if (_shader == null ||
-                _camera == null)
-            {
-                return;
-            }
+            IShader shader = _shader!;
+            ICamera camera = _camera!;
 
             for (int i = 0; i < _groupCount; i++)
             {
-                FrameGroup group =
-                    _groups[i];
-
-                Texture2D texture =
-                    group.Texture!;
+                FrameGroup group = _groups[i];
+                Texture2D texture = group.Texture!;
 
                 _frameBatch.Begin(
-                    _shader,
-                    _camera,
+                    shader,
+                    camera,
                     texture);
 
-                List<FrameEntry> frames =
-                    group.Frames;
+                List<FrameEntry> frames = group.Frames;
 
                 for (int j = 0; j < frames.Count; j++)
                 {
-                    FrameEntry frame =
-                        frames[j];
+                    FrameEntry frame = frames[j];
 
                     _frameBatch.AddFrame(
                         frame.Transform,
-                        frame.SourceRect,
+                        frame.SourceBounds,
                         frame.Color);
                 }
 
@@ -210,8 +202,25 @@ public sealed class MultiFrameBatch : IDisposable
         }
     }
 
-    private FrameGroup GetGroup(
-        Texture2D texture)
+    /// <summary>
+    /// Releases graphics resources used by this batch.
+    /// </summary>
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _frameBatch.Dispose();
+
+        _groups.Clear();
+        _groupLookup.Clear();
+
+        _disposed = true;
+
+        GC.SuppressFinalize(this);
+    }
+
+    private FrameGroup GetGroup(Texture2D texture)
     {
         if (_groupLookup.TryGetValue(
             texture,
@@ -220,28 +229,22 @@ public sealed class MultiFrameBatch : IDisposable
             return _groups[groupIndex];
         }
 
-        groupIndex =
-            _groupCount++;
+        groupIndex = _groupCount++;
 
         FrameGroup group;
 
         if (groupIndex < _groups.Count)
         {
-            group =
-                _groups[groupIndex];
-
+            group = _groups[groupIndex];
             group.Frames.Clear();
         }
         else
         {
-            group =
-                new FrameGroup();
-
+            group = new FrameGroup();
             _groups.Add(group);
         }
 
-        group.Texture =
-            texture;
+        group.Texture = texture;
 
         _groupLookup.Add(
             texture,
@@ -256,8 +259,7 @@ public sealed class MultiFrameBatch : IDisposable
 
         for (int i = 0; i < _groupCount; i++)
         {
-            FrameGroup group =
-                _groups[i];
+            FrameGroup group = _groups[i];
 
             group.Texture = null;
             group.Frames.Clear();
@@ -266,25 +268,6 @@ public sealed class MultiFrameBatch : IDisposable
         _groupCount = 0;
         _shader = null;
         _camera = null;
-    }
-
-    /// <summary>
-    /// Releases graphics resources used by this batch.
-    /// </summary>
-    public void Dispose()
-    {
-        if (_disposed)
-        {
-            throw new ObjectDisposedException(
-                nameof(MultiFrameBatch));
-        }
-
-        _frameBatch.Dispose();
-
-        _groups.Clear();
-        _groupLookup.Clear();
-
-        _disposed = true;
     }
 
     private void ThrowIfNotBegun()
@@ -298,11 +281,7 @@ public sealed class MultiFrameBatch : IDisposable
 
     private void ThrowIfDisposed()
     {
-        if (_disposed)
-        {
-            throw new ObjectDisposedException(
-                nameof(MultiFrameBatch));
-        }
+        ObjectDisposedException.ThrowIf(_disposed, this);
     }
 
     private sealed class FrameGroup
@@ -316,17 +295,17 @@ public sealed class MultiFrameBatch : IDisposable
     {
         public FrameEntry(
             QuadTransform transform,
-            Rectangle sourceRect,
+            PixelBounds2 sourceBounds,
             Color color)
         {
             Transform = transform;
-            SourceRect = sourceRect;
+            SourceBounds = sourceBounds;
             Color = color;
         }
 
         public QuadTransform Transform { get; }
 
-        public Rectangle SourceRect { get; }
+        public PixelBounds2 SourceBounds { get; }
 
         public Color Color { get; }
     }
