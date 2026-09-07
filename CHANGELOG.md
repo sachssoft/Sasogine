@@ -23,6 +23,10 @@ All notable changes to this project will be documented in this file.
 - [Feature] **Toolkit**: Added `SelectionTool` for selecting and transforming objects.
 
 ## [0.1.4-alpha] - 2026-09-08
+- [Feature] Introduced `ObservableReference` for hot reload, live asset changes, and MVVM or similar reactive patterns.
+- [Feature] Added missing mutable and immutable asset collections with resolver, MVVM, and reactive support.
+- [Improve] Extended entity collections with resolver and MVVM support, similar to asset collections.
+- [Improve] Added `IEngineReferenceable` support to `IEntity` for entity resolution by identifier and class.
 - [Improve] Removed the `sealed` modifier from `PackageContextService`.
 
 ## [0.1.3-alpha] - 2026-09-07
