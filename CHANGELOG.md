@@ -28,6 +28,7 @@ All notable changes to this project will be documented in this file.
 - [Improve] Extended entity collections with resolver and MVVM support, similar to asset collections.
 - [Improve] Added `IEngineReferenceable` support to `IEntity` for entity resolution by identifier and class.
 - [Improve] Removed the `sealed` modifier from `PackageContextService`.
+- [Improve] Made `Reference.Resolve` virtual to support custom reference resolution behavior.
 
 ## [0.1.3-alpha] - 2026-09-07
 - [Feature] Introduced initializable entities with initialization and deinitialization lifecycle support.
@@ -49,7 +50,7 @@ All notable changes to this project will be documented in this file.
 - [Feature] Enhanced `EntityCollection` with generic type support.
 - [Change] Corrected API types, for example by replacing `Vector2` with `Point2` for position values.
 
-## [0.1.0-alpha] - 2026-08-31
+## [0.1.0-alpha] - 2026-09-04
 - [Feature] **Toolkit**: Added `SelectionTool` for selecting and transforming objects.
 - [Feature] **Toolkit**: Added `ObjectInsertTool` for creating and placing objects.
 - [Feature] Added `ThreadSafeLazy<T>` for thread-safe lazy initialization.

@@ -7,7 +7,7 @@ namespace Sachssoft.Sasogine.Common
     /// through an <see cref="IEngineObjectResolverProvider"/>.
     /// </summary>
     /// <typeparam name="T">
-    /// Type of the referenced engine object.
+    /// The expected type of the referenced engine object.
     /// </typeparam>
     public class Reference<T> : IReference
         where T : class, IEngineReferenceable
@@ -22,53 +22,62 @@ namespace Sachssoft.Sasogine.Common
         /// <summary>
         /// Initializes a new reference using the specified identifier.
         /// </summary>
-        /// <param name="id">Identifier of the referenced object.</param>
+        /// <param name="id">
+        /// The identifier of the referenced object.
+        /// </param>
         public Reference(string? id)
         {
             Id = id;
         }
 
         /// <summary>
+        /// Gets the expected type of the referenced object.
+        /// </summary>
+        public Type TargetType => typeof(T);
+
+        /// <summary>
         /// Gets or sets the identifier of the referenced object.
         /// </summary>
+        /// <value>
+        /// The identifier of the referenced object, or <see langword="null"/>
+        /// if no identifier is assigned.
+        /// </value>
         public string? Id { get; set; }
 
         /// <summary>
-        /// Gets whether this reference does not contain an identifier.
+        /// Gets a value indicating whether the reference does not contain an
+        /// identifier.
         /// </summary>
         public bool IsEmpty => string.IsNullOrEmpty(Id);
-
-        /// <inheritdoc/>
-        Type IReference.TargetType => typeof(T);
 
         /// <summary>
         /// Resolves the referenced object using the specified resolver provider.
         /// </summary>
         /// <param name="provider">
-        /// Provider containing the resolver used to locate the referenced object.
+        /// The provider containing the resolver used to locate the referenced object.
         /// </param>
         /// <returns>
-        /// The resolved object when found; otherwise null.
+        /// The resolved object when found; otherwise, <see langword="null"/>.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when <paramref name="provider"/> is null.
+        /// <paramref name="provider"/> is <see langword="null"/>.
         /// </exception>
         /// <exception cref="InvalidOperationException">
-        /// Thrown when the resolved object is not compatible with <typeparamref name="T"/>.
+        /// The resolved object is not compatible with <typeparamref name="T"/>.
         /// </exception>
-        public T? Resolve(IEngineObjectResolverProvider provider)
+        public virtual T? Resolve(IEngineObjectResolverProvider provider)
         {
             ArgumentNullException.ThrowIfNull(provider);
 
             if (string.IsNullOrEmpty(Id))
                 return null;
 
-            var obj = provider.Resolver.Find(Id);
+            IEngineReferenceable? referenceable = provider.Resolver.Find(Id);
 
-            if (obj == null)
+            if (referenceable == null)
                 return null;
 
-            if (obj is not T result)
+            if (referenceable is not T result)
             {
                 throw new InvalidOperationException(
                     $"Object '{Id}' is not of type '{typeof(T).Name}'.");
@@ -85,6 +94,10 @@ namespace Sachssoft.Sasogine.Common
         /// <summary>
         /// Returns the identifier of the referenced object.
         /// </summary>
+        /// <returns>
+        /// The reference identifier, or an empty string if no identifier is
+        /// assigned.
+        /// </returns>
         public override string ToString()
         {
             return Id ?? string.Empty;
