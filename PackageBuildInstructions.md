@@ -24,11 +24,13 @@ Navigate to the project directory:
 cd <project-directory-path>
 ```
 
-Pack the projects:
+Build the main Sasogine package first:
 
 ```powershell
 dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.DesktopGL\Sachssoft.Sasogine.DesktopGL.csproj -c Release -o .\Packages
 ```
+
+Then build the remaining packages:
 
 ```powershell
 dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL\Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL.csproj -c Release -o .\Packages
@@ -39,7 +41,7 @@ dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.UI.DesktopGL\Sachssoft.Sasogi
 
 ## Publish Packages
 
-Push the generated packages to NuGet.org:
+Push the main Sasogine package to NuGet.org first:
 
 ```powershell
 dotnet nuget push ".\Packages\Sachssoft.Sasogine.DesktopGL.$version.nupkg" `
@@ -47,16 +49,21 @@ dotnet nuget push ".\Packages\Sachssoft.Sasogine.DesktopGL.$version.nupkg" `
     --source "https://api.nuget.org/v3/index.json"
 ```
 
+Then push the remaining packages:
+
 ```powershell
 dotnet nuget push ".\Packages\Sachssoft.Sasogine.Markup.DesktopGL.$version.nupkg" `
     --api-key $apiKey `
     --source "https://api.nuget.org/v3/index.json"
+
 dotnet nuget push ".\Packages\Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL.$version.nupkg" `
     --api-key $apiKey `
     --source "https://api.nuget.org/v3/index.json"
+
 dotnet nuget push ".\Packages\Sachssoft.Sasogine.Toolkit.DesktopGL.$version.nupkg" `
     --api-key $apiKey `
     --source "https://api.nuget.org/v3/index.json"
+
 dotnet nuget push ".\Packages\Sachssoft.Sasogine.UI.DesktopGL.$version.nupkg" `
     --api-key $apiKey `
     --source "https://api.nuget.org/v3/index.json"
@@ -64,13 +71,13 @@ dotnet nuget push ".\Packages\Sachssoft.Sasogine.UI.DesktopGL.$version.nupkg" `
 
 ## Troubleshooting Version Issues
 
-If a newly published package version is not found, clear the local NuGet caches:
+If a newly published package version cannot be found, clear the local NuGet caches:
 
 ```powershell
 dotnet nuget locals all --clear
 ```
 
-Restore packages without using the cache:
+Then restore the packages without using the local cache:
 
 ```powershell
 dotnet restore --no-cache
