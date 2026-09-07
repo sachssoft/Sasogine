@@ -23,6 +23,8 @@
 	</ItemGroup>
 	
 	<ItemGroup>
+	  <Folder Include="Examples\AssetsExample\" />
+	  <Folder Include="Examples\PackageExample\" />
 	  <Folder Include="Projects\Basic\Graphics\Tiles\" />
 	  <Folder Include="Projects\Experimental\Basic\Common\" />
 	  <Folder Include="Projects\Experimental\Markup\" />

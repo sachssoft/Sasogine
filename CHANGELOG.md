@@ -22,7 +22,15 @@ All notable changes to this project will be documented in this file.
 ## [0.2.0-alpha] - Planned
 - [Feature] **Toolkit**: Added `SelectionTool` for selecting and transforming objects.
 
-## [0.1.2-alpha] - Planned
+## [0.1.3-alpha] - 2026-09-07
+- [Feature] Introduced initializable entities with initialization and deinitialization lifecycle support.
+- [Change] Refactored entity collections to support typed initialization contexts and automatic entity lifecycle management.
+- [Change] Removed the unused `IEntityCollectionProvider` interface.
+- [Improve] Improved `AssetBase` lifecycle and error handling with extensible event hooks.
+- [Improve] Added optional `id` and `class` parameters to all asset constructors for easier asset creation.
+- [Improve] Added `PackageChanging` event to `PackageContextService`.
+
+## [0.1.2-alpha] - 2026-09-06
 - [Feature] Introduced `Vector2Extensions` and `Vector3Extensions` for convenient conversions to Sasogine point and size types.
 - [Change] Continued the API improvements introduced in `0.1.1-alpha`.
 - [Change] Updated geometry APIs to use appropriate point and vector types.

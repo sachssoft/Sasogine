@@ -33,6 +33,10 @@
 			<LinkBase>Basic</LinkBase>
 		</Compile>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Remove="..\..\..\Projects\Basic\World\Entities\IEntityCollectionProvider.cs" />
+	</ItemGroup>
 	
 	<ItemGroup>
 		<None Include="..\..\..\README.md" Pack="true" PackagePath="/" />
