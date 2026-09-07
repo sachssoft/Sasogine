@@ -32,17 +32,8 @@ dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.DesktopGL\Sachssoft.Sasogine.
 
 ```powershell
 dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL\Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL.csproj -c Release -o .\Packages
-```
-
-```powershell
 dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.Markup.DesktopGL\Sachssoft.Sasogine.Markup.DesktopGL.csproj -c Release -o .\Packages
-```
-
-```powershell
 dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.Toolkit.DesktopGL\Sachssoft.Sasogine.Toolkit.DesktopGL.csproj -c Release -o .\Packages
-```
-
-```powershell
 dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.UI.DesktopGL\Sachssoft.Sasogine.UI.DesktopGL.csproj -c Release -o .\Packages
 ```
 
@@ -60,21 +51,12 @@ dotnet nuget push ".\Packages\Sachssoft.Sasogine.DesktopGL.$version.nupkg" `
 dotnet nuget push ".\Packages\Sachssoft.Sasogine.Markup.DesktopGL.$version.nupkg" `
     --api-key $apiKey `
     --source "https://api.nuget.org/v3/index.json"
-```
-
-```powershell
 dotnet nuget push ".\Packages\Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL.$version.nupkg" `
     --api-key $apiKey `
     --source "https://api.nuget.org/v3/index.json"
-```
-
-```powershell
 dotnet nuget push ".\Packages\Sachssoft.Sasogine.Toolkit.DesktopGL.$version.nupkg" `
     --api-key $apiKey `
     --source "https://api.nuget.org/v3/index.json"
-```
-
-```powershell
 dotnet nuget push ".\Packages\Sachssoft.Sasogine.UI.DesktopGL.$version.nupkg" `
     --api-key $apiKey `
     --source "https://api.nuget.org/v3/index.json"
