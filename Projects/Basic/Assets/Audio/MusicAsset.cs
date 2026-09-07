@@ -5,23 +5,38 @@ using System.IO;
 namespace Sachssoft.Sasogine.Assets.Audio;
 
 /// <summary>
-/// Represents a music asset that creates an <see cref="IMusicPlayer"/>
-/// from an audio resource stream.
+/// Represents a managed music asset for the Sasogine audio system.
 /// </summary>
 /// <remarks>
-/// Supported music formats include MP3 and OGG.
-/// When <see cref="MusicFormatType.Auto"/> is used, the format is detected
+/// <para>
+/// <see cref="MusicAsset"/> creates and configures an <see cref="IMusicPlayer"/>
+/// from an encoded audio resource stream.
+/// </para>
+/// <para>
+/// Supported music formats include MP3 and OGG. When
+/// <see cref="MusicFormatType.Auto"/> is used, the format is detected
 /// automatically from the resource stream.
+/// </para>
 /// </remarks>
-public class MusicAsset :
-    AssetBase<IMusicPlayer, MusicAssetDefinition>
+public class MusicAsset : AssetBase<IMusicPlayer, MusicAssetDefinition>
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="MusicAsset"/> class
-    /// using a default <see cref="MusicAssetDefinition"/>.
+    /// Initializes a new empty instance of the <see cref="MusicAsset"/> class.
     /// </summary>
-    public MusicAsset()
-        : base(new MusicAssetDefinition())
+    /// <param name="id">
+    /// The optional identifier of the asset.
+    /// </param>
+    /// <param name="class">
+    /// The optional class of the asset.
+    /// </param>
+    public MusicAsset(
+        string? id = null,
+        string? @class = null)
+        : base(new MusicAssetDefinition
+        {
+            Id = id,
+            Class = @class,
+        })
     {
     }
 
@@ -30,18 +45,19 @@ public class MusicAsset :
     /// using the specified definition.
     /// </summary>
     /// <param name="definition">
-    /// The definition used to configure the music asset.
+    /// The asset definition containing the music configuration.
     /// </param>
-    public MusicAsset(MusicAssetDefinition definition)
+    public MusicAsset(
+        MusicAssetDefinition definition)
         : base(definition)
     {
     }
 
     /// <summary>
-    /// Resolves a default definition when no definition is currently available.
+    /// Resolves the default definition used by this asset.
     /// </summary>
     /// <returns>
-    /// A new <see cref="MusicAssetDefinition"/>.
+    /// A new <see cref="MusicAssetDefinition"/> instance.
     /// </returns>
     protected override MusicAssetDefinition ResolveDefinition()
     {
@@ -49,42 +65,35 @@ public class MusicAsset :
     }
 
     /// <summary>
-    /// Builds a music player from the specified audio stream.
+    /// Builds the runtime music player from the supplied audio stream.
     /// </summary>
     /// <param name="stream">
     /// The stream containing the encoded music data.
     /// </param>
     /// <returns>
-    /// The music player created from the stream.
+    /// The created and configured <see cref="IMusicPlayer"/> instance.
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="stream"/> is <see langword="null"/>.
+    /// </exception>
     /// <exception cref="ArgumentException">
-    /// Thrown when the stream contains no data.
+    /// The supplied stream contains no data.
     /// </exception>
     /// <exception cref="FormatException">
-    /// Thrown when the audio format is unsupported or cannot be detected.
+    /// The configured or detected audio format is unsupported.
     /// </exception>
     protected override IMusicPlayer? Build(Stream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
         if (stream.Length == 0)
-        {
-            throw new ArgumentException(
-                "The music stream contains no data.",
-                nameof(stream));
-        }
+            throw new ArgumentException("The music stream contains no data.", nameof(stream));
 
         IMusicPlayer instance = Definition.FormatType switch
         {
-            MusicFormatType.Auto =>
-                CreateFromDetectedFormat(stream),
-
-            MusicFormatType.Ogg =>
-                new OggStreamPlayer(stream),
-
-            MusicFormatType.Mp3 =>
-                new Mp3StreamPlayer(stream),
-
+            MusicFormatType.Auto => CreateFromDetectedFormat(stream),
+            MusicFormatType.Ogg => new OggStreamPlayer(stream),
+            MusicFormatType.Mp3 => new Mp3StreamPlayer(stream),
             _ => throw new FormatException(
                 $"Unsupported music format '{Definition.FormatType}'.")
         };
@@ -97,16 +106,24 @@ public class MusicAsset :
         return instance;
     }
 
+    /// <summary>
+    /// Creates a music player by detecting the audio format of the supplied stream.
+    /// </summary>
+    /// <param name="stream">
+    /// The stream containing the encoded music data.
+    /// </param>
+    /// <returns>
+    /// A music player suitable for the detected audio format.
+    /// </returns>
+    /// <exception cref="FormatException">
+    /// The detected audio format is unsupported.
+    /// </exception>
     private static IMusicPlayer CreateFromDetectedFormat(Stream stream)
     {
         return AudioDetection.DetectFormat(stream) switch
         {
-            AudioFormatType.Ogg =>
-                new OggStreamPlayer(stream),
-
-            AudioFormatType.Mp3 =>
-                new Mp3StreamPlayer(stream),
-
+            AudioFormatType.Ogg => new OggStreamPlayer(stream),
+            AudioFormatType.Mp3 => new Mp3StreamPlayer(stream),
             _ => throw new FormatException(
                 "Unsupported music format. Only MP3 and OGG are supported.")
         };
