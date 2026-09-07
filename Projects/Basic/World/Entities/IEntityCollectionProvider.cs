@@ -1,9 +1,9 @@
-﻿namespace Sachssoft.Sasogine.World
-{
-    public interface IEntityCollectionProvider
-    {
+﻿//namespace Sachssoft.Sasogine.World
+//{
+//    public interface IEntityCollectionProvider
+//    {
 
-        public EntityCollection Entities { get; }
+//        public EntityCollection Entities { get; }
 
-    }
-}
+//    }
+//}
