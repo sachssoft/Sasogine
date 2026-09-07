@@ -4,31 +4,45 @@ using System.Threading.Tasks;
 namespace Sachssoft.Sasogine.World
 {
     /// <summary>
-    /// Node, die Skriptlogik enthält oder Aktionen ausführt.
-    /// Kann von Editor und Runtime genutzt werden.
+    /// Defines an entity that contains executable script logic or actions.
     /// </summary>
+    /// <remarks>
+    /// Script entities can be used by both editor and runtime systems and support
+    /// synchronous and asynchronous execution.
+    /// </remarks>
     public interface IScriptEntity : IEntity
     {
         /// <summary>
-        /// Führt das Skript oder die Logik einmal synchron aus.
+        /// Occurs when the current script execution finishes or is interrupted.
         /// </summary>
-        /// <param name="args">Optionale Argumente für das Skript</param>
-        void Execute(params object?[] args);
+        event EventHandler? ExecutionFinished;
 
         /// <summary>
-        /// Führt das Skript oder die Logik asynchron aus.
+        /// Gets a value indicating whether the script is currently executing.
         /// </summary>
-        /// <param name="args">Optionale Argumente für das Skript</param>
-        Task ExecuteAsync(params object?[] args);
-
-        /// <summary>
-        /// True, solange das Skript aktiv läuft
-        /// </summary>
+        /// <value>
+        /// <see langword="true"/> while the script is running; otherwise,
+        /// <see langword="false"/>.
+        /// </value>
         bool IsRunning { get; }
 
         /// <summary>
-        /// Event, das ausgelöst wird, wenn das Skript beendet oder unterbrochen wird
+        /// Executes the script or associated logic synchronously.
         /// </summary>
-        event EventHandler? ExecutionFinished;
+        /// <param name="args">
+        /// Optional arguments passed to the script.
+        /// </param>
+        void Execute(params object?[] args);
+
+        /// <summary>
+        /// Executes the script or associated logic asynchronously.
+        /// </summary>
+        /// <param name="args">
+        /// Optional arguments passed to the script.
+        /// </param>
+        /// <returns>
+        /// A task representing the asynchronous execution operation.
+        /// </returns>
+        Task ExecuteAsync(params object?[] args);
     }
 }
