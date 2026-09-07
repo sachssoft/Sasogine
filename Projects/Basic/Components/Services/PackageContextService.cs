@@ -12,7 +12,12 @@ namespace Sachssoft.Sasogine.Components.Services
         where TPackage : class, IPackageStorageProvider
     {
         /// <summary>
-        /// Occurs when the active package has changed.
+        /// Occurs before the active package changes.
+        /// </summary>
+        public event EventHandler<PackageChangedEventArgs>? PackageChanging;
+
+        /// <summary>
+        /// Occurs after the active package has changed.
         /// </summary>
         public event EventHandler<PackageChangedEventArgs>? PackageChanged;
 
@@ -31,7 +36,8 @@ namespace Sachssoft.Sasogine.Components.Services
         /// Sets the active package.
         /// </summary>
         /// <param name="packageStorageProvider">
-        /// The package to activate, or <see langword="null"/> to clear the current package.
+        /// The package to activate, or <see langword="null"/> to clear the
+        /// current package.
         /// </param>
         public void SetPackage(TPackage? packageStorageProvider)
         {
@@ -39,9 +45,35 @@ namespace Sachssoft.Sasogine.Components.Services
                 return;
 
             var lastPackage = CurrentPackage;
+            var eventArgs = new PackageChangedEventArgs(lastPackage, packageStorageProvider);
+
+            OnPackageChanging(eventArgs);
+
             CurrentPackage = packageStorageProvider;
 
-            PackageChanged?.Invoke(this, new PackageChangedEventArgs(lastPackage, CurrentPackage));
+            OnPackageChanged(eventArgs);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="PackageChanging"/> event.
+        /// </summary>
+        /// <param name="e">
+        /// The event data describing the package change.
+        /// </param>
+        private void OnPackageChanging(PackageChangedEventArgs e)
+        {
+            PackageChanging?.Invoke(this, e);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="PackageChanged"/> event.
+        /// </summary>
+        /// <param name="e">
+        /// The event data describing the package change.
+        /// </param>
+        private void OnPackageChanged(PackageChangedEventArgs e)
+        {
+            PackageChanged?.Invoke(this, e);
         }
     }
 }
