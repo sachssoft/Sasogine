@@ -24,13 +24,21 @@ Navigate to the project directory:
 cd <project-directory-path>
 ```
 
-Build the main Sasogine package first:
+First, build the main Sasogine package:
 
 ```powershell
 dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.DesktopGL\Sachssoft.Sasogine.DesktopGL.csproj -c Release -o .\Packages
 ```
 
-Then build the remaining packages:
+Publish the main package to NuGet.org before building the dependent packages:
+
+```powershell
+dotnet nuget push ".\Packages\Sachssoft.Sasogine.DesktopGL.$version.nupkg" `
+    --api-key $apiKey `
+    --source "https://api.nuget.org/v3/index.json"
+```
+
+Then build the remaining packages together:
 
 ```powershell
 dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL\Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL.csproj -c Release -o .\Packages
@@ -39,24 +47,16 @@ dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.Toolkit.DesktopGL\Sachssoft.S
 dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.UI.DesktopGL\Sachssoft.Sasogine.UI.DesktopGL.csproj -c Release -o .\Packages
 ```
 
-## Publish Packages
+## Publish Remaining Packages
 
-Push the main Sasogine package to NuGet.org first:
-
-```powershell
-dotnet nuget push ".\Packages\Sachssoft.Sasogine.DesktopGL.$version.nupkg" `
-    --api-key $apiKey `
-    --source "https://api.nuget.org/v3/index.json"
-```
-
-Then push the remaining packages:
+After all remaining packages have been built successfully, publish them together:
 
 ```powershell
-dotnet nuget push ".\Packages\Sachssoft.Sasogine.Markup.DesktopGL.$version.nupkg" `
-    --api-key $apiKey `
-    --source "https://api.nuget.org/v3/index.json"
-
 dotnet nuget push ".\Packages\Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL.$version.nupkg" `
+    --api-key $apiKey `
+    --source "https://api.nuget.org/v3/index.json"
+
+dotnet nuget push ".\Packages\Sachssoft.Sasogine.Markup.DesktopGL.$version.nupkg" `
     --api-key $apiKey `
     --source "https://api.nuget.org/v3/index.json"
 
