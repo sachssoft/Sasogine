@@ -20,10 +20,11 @@ All notable changes to this project will be documented in this file.
 </small>
 
 ## [0.2.0-alpha] - Planned
-* [Feature] **Toolkit**: Added `SelectionTool` for selecting and transforming objects.
+* [Feature] **Toolkit**: Added `VectorPathTool` for creating, editing, and transforming vector paths.
 
 ## [0.1.5-alpha] - 2026-09-09
 * [Feature] Added the missing generic `IReference<T>` interface for strongly typed engine object references.
+* [Feature] Introduced the new `Graphics.Colors` namespace with `NormalizedColor` and color conversion utilities.
 * [Change] Remove the `protected` modifier from the `Interactions` property in `ToolBase`.
 * [Improve] Updated `Reference<T>` and `ObservableReference<T>` to implement `IReference<T>`.
 
