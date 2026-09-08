@@ -5,8 +5,9 @@ using System.ComponentModel;
 namespace Sachssoft.Sasogine.Common;
 
 /// <summary>
-/// Represents an observable reference to an engine object that automatically
-/// updates its resolved value when the associated resolver changes.
+/// Represents an observable typed reference to an engine object that
+/// automatically updates its resolved value when the associated resolver
+/// changes.
 /// </summary>
 /// <typeparam name="T">
 /// The expected type of the referenced engine object.
@@ -25,7 +26,7 @@ namespace Sachssoft.Sasogine.Common;
 /// </para>
 /// </remarks>
 public class ObservableReference<T> :
-    IReference,
+    IReference<T>,
     INotifyPropertyChanged,
     IDisposable
     where T : class, IEngineReferenceable
@@ -113,6 +114,7 @@ public class ObservableReference<T> :
                 return;
 
             _value = value;
+
             OnPropertyChanged(nameof(Value));
         }
     }
@@ -170,6 +172,16 @@ public class ObservableReference<T> :
         return Resolve(provider.Resolver);
     }
 
+    object? IReference.Resolve(IEngineObjectResolver resolver)
+    {
+        return Resolve(resolver);
+    }
+
+    object? IReference.Resolve(IEngineObjectResolverProvider provider)
+    {
+        return Resolve(provider);
+    }
+
     /// <summary>
     /// Releases resolver subscriptions held by the reference.
     /// </summary>
@@ -194,16 +206,6 @@ public class ObservableReference<T> :
     public override string ToString()
     {
         return _id ?? string.Empty;
-    }
-
-    object? IReference.Resolve(IEngineObjectResolver resolver)
-    {
-        return Resolve(resolver);
-    }
-
-    object? IReference.Resolve(IEngineObjectResolverProvider provider)
-    {
-        return Resolve(provider);
     }
 
     /// <summary>

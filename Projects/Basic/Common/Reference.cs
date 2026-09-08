@@ -10,7 +10,7 @@ namespace Sachssoft.Sasogine.Common
     /// <typeparam name="T">
     /// The expected type of the referenced engine object.
     /// </typeparam>
-    public class Reference<T> : IReference
+    public class Reference<T> : IReference<T>
         where T : class, IEngineReferenceable
     {
         /// <summary>
