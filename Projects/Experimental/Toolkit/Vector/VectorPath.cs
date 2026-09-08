@@ -1,4 +1,5 @@
-﻿using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Common;
+using System;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
@@ -74,38 +75,46 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public Point2[] GetVertices(
             float sampleLength)
         {
-            var vertices =
-                new List<Point2>(
-                    Segments.Count * 2 +
-                    (IsClosed ? 1 : 0));
+            if (sampleLength <= 0f)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(sampleLength));
+            }
 
-            Point2 currentPosition =
-                Start.Position;
+            if (Segments.Count == 0)
+                return [Start.Position];
+
+            var vertices = new List<Point2>(Segments.Count + 1)
+            {
+                Start.Position
+            };
+
+            Point2 currentPosition = Start.Position;
 
             for (int i = 0; i < Segments.Count; i++)
             {
-                Point2[] segmentVertices =
-                    Segments[i].GetVertices(
-                        currentPosition,
-                        sampleLength);
+                var segment = Segments[i];
+                Point2[] segmentVertices = segment.GetVertices(currentPosition, sampleLength);
 
-                if (segmentVertices.Length == 0)
-                    continue;
+                if (segmentVertices.Length > 0)
+                {
+                    int startIndex = segmentVertices[0] == currentPosition ? 1 : 0;
 
-                vertices.AddRange(
-                    segmentVertices);
+                    for (int j = startIndex; j < segmentVertices.Length; j++)
+                    {
+                        if (vertices.Count == 0 || vertices[^1] != segmentVertices[j])
+                            vertices.Add(segmentVertices[j]);
+                    }
+                }
 
-                currentPosition =
-                    segmentVertices[^1];
-            }
+                if (vertices.Count == 0 || vertices[^1] != segment.Node.Position)
+                    vertices.Add(segment.Node.Position);
 
-            if (IsClosed)
-            {
-                vertices.Add(
-                    Start.Position);
+                currentPosition = segment.Node.Position;
             }
 
             return vertices.ToArray();
         }
+
     }
 }

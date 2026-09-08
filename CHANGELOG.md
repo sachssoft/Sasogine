@@ -24,6 +24,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.1.5-alpha] - 2026-09-098
 * [Feature] Added the missing generic `IReference<T>` interface for strongly typed engine object references.
+* [Change] Remove `Interactions` property and `CreateInteractions()` method from `ToolBase`.
 * [Improve] Updated `Reference<T>` and `ObservableReference<T>` to implement `IReference<T>`.
 
 ## [0.1.4.1-alpha] - 2026-09-08 (Hotfix)
