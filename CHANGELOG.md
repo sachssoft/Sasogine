@@ -22,6 +22,10 @@ All notable changes to this project will be documented in this file.
 ## [0.2.0-alpha] - Planned
 * [Feature] **Toolkit**: Added `SelectionTool` for selecting and transforming objects.
 
+## [0.1.5-alpha] - 2026-09-098
+* [Feature] Added the missing generic `IReference<T>` interface for strongly typed engine object references.
+* [Improve] Updated `Reference<T>` and `ObservableReference<T>` to implement `IReference<T>`.
+
 ## [0.1.4.1-alpha] - 2026-09-08 (Hotfix)
 * [Feature] Added missing mutable and read-only asset collections with resolver, MVVM, and reactive support.
 * [Improve] Extended `Reference.Resolve` and `ObservableReference.Resolve` with direct `IEngineObjectResolver` support while retaining resolver provider support.
