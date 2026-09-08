@@ -31,10 +31,7 @@ namespace Sachssoft.Sasogine.Components.Tools
         /// </remarks>
         public bool UseInputCapture { get; set; } = true;
 
-        /// <summary>
-        /// Gets the interaction states used by the tool.
-        /// </summary>
-        protected internal ToolInteractions Interactions =>
+        internal ToolInteractions Interactions =>
             _interactions ??= CreateInteractions();
 
         /// <summary>
