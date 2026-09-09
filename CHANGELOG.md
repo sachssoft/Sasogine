@@ -23,6 +23,7 @@ All notable changes to this project will be documented in this file.
 * [Feature] **Toolkit**: Added `VectorPathTool` for creating, editing, and transforming vector paths.
 
 ## [0.1.5-alpha] - 2026-09-09
+* [Feature] Added read-only 2D transform interfaces for move, resize, rotation, pivot, scale, and skew capabilities.
 * [Feature] Added the missing generic `IReference<T>` interface for strongly typed engine object references.
 * [Feature] Introduced the new `Graphics.Colors` namespace with `NormalizedColor` and color conversion utilities.
 * [Change] Remove the `protected` modifier from the `Interactions` property in `ToolBase`.
