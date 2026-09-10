@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Graphics;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
@@ -28,7 +29,8 @@ namespace Sachssoft.Sasogine.Assets.Graphics
     public class Texture2DAsset :
         AssetBase<Texture2D, Texture2DAssetDefinition>
     {
-        private ITransformable? _transformable;
+        //private ITransformable? _transformable;
+        private ITransform2? _transform;
         private Texture2DFilterMode _filterMode;
         private Texture2DAddressMode _addressMode;
         private Matrix _transformCache = Matrix.Identity;
@@ -159,27 +161,66 @@ namespace Sachssoft.Sasogine.Assets.Graphics
         /// </remarks>
         public Matrix CreateTransform()
         {
-            if (_transformDirty)
-            {
-                if (_transformable != null)
-                {
-                    _transformCache =
-                        Matrix.CreateTranslation(new Vector3(-_transformable.Origin, 0f))
-                        * Matrix.CreateScale(new Vector3(_transformable.Scale, 1f))
-                        * Matrix.CreateRotationZ(_transformable.Rotation)
-                        * Matrix.CreateTranslation(new Vector3(_transformable.Origin, 0f))
-                        * Matrix.CreateTranslation(new Vector3(_transformable.Translation, 0f));
-                }
-                else
-                {
-                    _transformCache = Matrix.Identity;
-                }
+            if (!_transformDirty)
+                return _transformCache;
 
+            if (_transform == null)
+            {
+                _transformCache = Matrix.Identity;
                 _transformDirty = false;
+                return _transformCache;
             }
+
+            Point2 position = _transform is IReadOnlyTransformPosition2 positionTransform
+                ? positionTransform.Position
+                : Point2.Zero;
+
+            Vector2 scale = _transform is IReadOnlyTransformScale2 scaleTransform
+                ? scaleTransform.Scale
+                : Vector2.One;
+
+            float rotation = _transform is IReadOnlyTransformRotation2 rotationTransform
+                ? rotationTransform.Rotation
+                : 0f;
+
+            Point2 pivot = _transform is IReadOnlyTransformRotationPivot2 pivotTransform
+                ? pivotTransform.RotationPivot
+                : Point2.Zero;
+
+            _transformCache =
+                Matrix.CreateTranslation(-pivot.X, -pivot.Y, 0f)
+                * Matrix.CreateScale(scale.X, scale.Y, 1f)
+                * Matrix.CreateRotationZ(rotation)
+                * Matrix.CreateTranslation(pivot.X, pivot.Y, 0f)
+                * Matrix.CreateTranslation(position.X, position.Y, 0f);
+
+            _transformDirty = false;
 
             return _transformCache;
         }
+        //public Matrix CreateTransform()
+        //{
+        //    if (_transformDirty)
+        //    {
+        //        if (_transformable != null)
+        //        {
+        //            _transformCache =
+        //                Matrix.CreateTranslation(new Vector3(-_transformable.Origin, 0f))
+        //                * Matrix.CreateScale(new Vector3(_transformable.Scale, 1f))
+        //                * Matrix.CreateRotationZ(_transformable.Rotation)
+        //                * Matrix.CreateTranslation(new Vector3(_transformable.Origin, 0f))
+        //                * Matrix.CreateTranslation(new Vector3(_transformable.Translation, 0f));
+        //        }
+        //        else
+        //        {
+        //            _transformCache = Matrix.Identity;
+        //        }
+
+        //        _transformDirty = false;
+        //    }
+
+        //    return _transformCache;
+        //}
 
         /// <summary>
         /// Builds the runtime texture resource from the supplied stream.
@@ -259,13 +300,22 @@ namespace Sachssoft.Sasogine.Assets.Graphics
         /// configuration. The cached transformation matrix is invalidated when
         /// the definition is configured.
         /// </remarks>
+        //protected override void ConfigureFromDefinition()
+        //{
+        //    base.ConfigureFromDefinition();
+
+        //    _filterMode = Definition.FilterMode;
+        //    _addressMode = Definition.AddressMode;
+        //    _transformable = Definition as ITransformable;
+        //    _transformDirty = true;
+        //}
         protected override void ConfigureFromDefinition()
         {
             base.ConfigureFromDefinition();
 
             _filterMode = Definition.FilterMode;
             _addressMode = Definition.AddressMode;
-            _transformable = Definition as ITransformable;
+            _transform = Definition as ITransform2;
             _transformDirty = true;
         }
 
