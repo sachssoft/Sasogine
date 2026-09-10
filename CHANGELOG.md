@@ -22,7 +22,13 @@ All notable changes to this project will be documented in this file.
 ## [0.2.0-alpha] - Planned
 * [Feature] **Toolkit**: Added `VectorPathTool` for creating, editing, and transforming vector paths.
 
-## [0.1.5.1-alpha] - 2026-09-10
+## [0.1.6-alpha] - 2026-09-10
+* [Feature] Added configurable application-level debugging.
+* [Feature] Added `INotifyTransformChanged` and transform state tracking.
+* [Change] Removed the obsolete static `IGameApplication.Current` access and updated dependent APIs.
+* [Improve] Improved application dependency handling and reduced global state.
+
+## [0.1.5.1-alpha] - 2026-09-10 (Transform Improvements)
 * [Feature] Added common `ITransform2` and `ITransform3` transform sources and capability interfaces.
 * [Change] Updated existing transform-related interfaces to use the new common transform capabilities.
 
