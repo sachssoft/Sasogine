@@ -1,4 +1,6 @@
-﻿namespace Sachssoft.Sasogine;
+﻿using Sachssoft.Sasogine.Diagnostics;
+
+namespace Sachssoft.Sasogine;
 
 /// <summary>
 /// Provides configuration for a game application.
@@ -10,4 +12,9 @@ public class GameConfiguration
     /// </summary>
     public GameServiceManager Services { get; } =
         new GameServiceManager();
+
+    /// <summary>
+    /// Gets or sets the diagnostic output used by the application.
+    /// </summary>
+    public IApplicationDebug? Debug { get; set; }
 }

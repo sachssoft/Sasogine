@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Diagnostics;
 using Sachssoft.Sasogine.Resources;
 using Sachssoft.Sasogine.Resources.Localization;
 using Sachssoft.Sasogine.Scenes;
@@ -12,21 +13,23 @@ namespace Sachssoft.Sasogine;
 /// </summary>
 public interface IGameApplication
 {
-    /// <summary>
-    /// Gets the currently active game application instance.
-    /// </summary>
-    /// <remarks>
-    /// This global access point is obsolete and will be removed in a future version.
-    /// Application dependencies should be provided explicitly instead.
-    /// </remarks>
-    [Obsolete(
-        "Global application access is obsolete and will be removed in a future version.")]
-    public static IGameApplication Current { get; internal set; } = null!;
+    ///// <summary>
+    ///// Gets the currently active game application instance.
+    ///// </summary>
+    ///// <remarks>
+    ///// This global access point is obsolete and will be removed in a future version.
+    ///// Application dependencies should be provided explicitly instead.
+    ///// </remarks>
+    //[Obsolete(
+    //    "Global application access is obsolete and will be removed in a future version.")]
+    //public static IGameApplication Current { get; internal set; } = null!;
 
-    /// <summary>
-    /// Gets the configuration associated with the game application.
-    /// </summary>
-    GameConfiguration Configuration { get; }
+    ///// <summary>
+    ///// Gets the configuration associated with the game application.
+    ///// </summary>
+    //GameConfiguration Configuration { get; }
+
+    IApplicationDebug Debug { get; }
 
     /// <summary>
     /// Gets the graphics device used by the application.

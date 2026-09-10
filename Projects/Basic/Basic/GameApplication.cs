@@ -1,11 +1,14 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Diagnostics;
+using Sachssoft.Sasogine.Diagnostics.Internals;
 using Sachssoft.Sasogine.Resources;
 using Sachssoft.Sasogine.Resources.Localization;
 using Sachssoft.Sasogine.Scenes;
 using System;
-using System.Reflection;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace Sachssoft.Sasogine;
 
@@ -19,13 +22,13 @@ namespace Sachssoft.Sasogine;
 public abstract class GameApplicationBase : Game, IGameApplication
 {
     private readonly string[] _commandArgs;
-    private readonly GameServiceManager _services;
 
-    protected private readonly LocalizationManager _localization;
-    protected private readonly GameRegistry _registry;
-    protected private readonly AssetStore _assets;
-    protected private readonly ISceneManager _scenes;
-    protected private readonly IGameSettings? _settings;
+    private protected readonly IApplicationDebug _applicationDebug;
+    private protected readonly LocalizationManager _localization;
+    private protected readonly GameRegistry _registry;
+    private protected readonly AssetStore _assets;
+    private protected readonly ISceneManager _scenes;
+    private protected readonly IGameSettings? _settings;
 
     private readonly GraphicsDeviceManager _graphicsDeviceManager;
 
@@ -60,20 +63,22 @@ public abstract class GameApplicationBase : Game, IGameApplication
     /// The command-line arguments passed to the application.
     /// </param>
     /// <exception cref="GameException">
-    /// Thrown when another game application has already been initialized,
-    /// or when a required engine service cannot be created.
+    /// Thrown when a required engine service cannot be created.
     /// </exception>
     public GameApplicationBase(
         GameConfiguration? configuration,
         params string[] args)
     {
-        if (IGameApplication.Current != null)
-            throw new GameException("Game already was started.");
 
         Configuration =
             configuration ?? new GameConfiguration();
 
         _commandArgs = args ?? [];
+
+        _applicationDebug =
+            Configuration.Debug ??
+            CreateDefaultApplicationDebug();
+
         _localization = new LocalizationManager(this);
 
         _registry =
@@ -102,49 +107,49 @@ public abstract class GameApplicationBase : Game, IGameApplication
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
 
-        IGameApplication.Current = this;
     }
+
+
 
     /// <summary>
     /// Gets the configuration used by the application.
     /// </summary>
-    public GameConfiguration Configuration { get; }
+    protected GameConfiguration Configuration { get; }
+
+    /// <summary>
+    /// Gets the application diagnostic output.
+    /// </summary>
+    public IApplicationDebug Debug => _applicationDebug;
 
     /// <summary>
     /// Gets the localization manager.
     /// </summary>
-    public LocalizationManager Localization =>
-        _localization;
+    public LocalizationManager Localization => _localization;
 
     /// <summary>
     /// Gets the game registry.
     /// </summary>
-    public GameRegistry Registry =>
-        _registry;
+    public GameRegistry Registry => _registry;
 
     /// <summary>
     /// Gets the scene manager.
     /// </summary>
-    public ISceneManager Scenes =>
-        _scenes;
+    public ISceneManager Scenes => _scenes;
 
     /// <summary>
     /// Gets the asset store.
     /// </summary>
-    public AssetStore Assets =>
-        _assets;
+    public AssetStore Assets => _assets;
 
     /// <summary>
     /// Gets the application settings.
     /// </summary>
-    public IGameSettings? Settings =>
-        _settings;
+    public IGameSettings? Settings => _settings;
 
     /// <summary>
     /// Gets the base directory of the running application.
     /// </summary>
-    public string CurrentDirectory =>
-        AppContext.BaseDirectory;
+    public string CurrentDirectory => AppContext.BaseDirectory;
 
     /// <summary>
     /// Gets or sets a value indicating whether the application
@@ -157,18 +162,6 @@ public abstract class GameApplicationBase : Game, IGameApplication
     /// </summary>
     public string[] CommandArgs =>
         _commandArgs;
-
-    /// <summary>
-    /// Gets the current <see cref="GameApplicationBase"/> instance.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown when the current application has not been initialized
-    /// as a <see cref="GameApplicationBase"/>.
-    /// </exception>
-    public static GameApplicationBase Current =>
-        IGameApplication.Current as GameApplicationBase
-        ?? throw new InvalidOperationException(
-            "GameApplicationBase not initialized.");
 
     /// <summary>
     /// Gets the assembly associated with the application.
@@ -463,5 +456,17 @@ public abstract class GameApplicationBase : Game, IGameApplication
     {
         if (_scenes.CurrentScene is IClientKeyboardInput input)
             input.OnTextInput(e.Character);
+    }
+
+    private static IApplicationDebug CreateDefaultApplicationDebug()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ||
+            RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
+            RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            return new DesktopApplicationDebug();
+        }
+
+        return new NullApplicationDebug();
     }
 }

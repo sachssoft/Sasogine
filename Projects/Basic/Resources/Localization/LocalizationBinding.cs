@@ -1,54 +1,79 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Resources.Localization
+namespace Sachssoft.Sasogine.Resources.Localization;
+
+/// <summary>
+/// Binds a localized value to a property or setter and automatically updates
+/// the value when the current culture changes.
+/// </summary>
+/// <typeparam name="T">
+/// The type of the localized value.
+/// </typeparam>
+public sealed class LocalizationBinding<T> : IDisposable
+    where T : class
 {
-    /// <summary>
-    /// Binds a localized value to a property or setter, automatically updating when the language changes.
-    /// </summary>
-    /// <typeparam name="T">Type of localized wrapper, e.g., LocalizedString.</typeparam>
-    public sealed class LocalizationBinding<T> : IDisposable
-        where T : class
+    private readonly GameApplicationBase _application;
+    private readonly string _key;
+    private readonly T? _defaultValue;
+    private readonly Action<T?> _setter;
+
+    private bool _disposed;
+
+    internal LocalizationBinding(
+        GameApplicationBase application,
+        string key,
+        T? defaultValue,
+        Action<T?> setter)
     {
-        private readonly GameApplicationBase _application;
-        private readonly string _key;
-        private readonly T? _defaultValue;
-        private readonly Action<T?> _setter;
-        private bool _disposed;
+        _application =
+            application ??
+            throw new ArgumentNullException(nameof(application));
 
-        internal LocalizationBinding(GameApplicationBase application, string key, T? defaultValue, Action<T?> setter)
-        {
-            _key = key ?? throw new ArgumentNullException(nameof(key));
-            _defaultValue = defaultValue;
-            _setter = setter ?? throw new ArgumentNullException(nameof(setter));
+        _key =
+            key ??
+            throw new ArgumentNullException(nameof(key));
 
-            // Listener auf LanguageChanged
-            _application = application;
-            _application.Localization.CurrentCultureChanged += OnCurrentCultureChanged;
+        _defaultValue = defaultValue;
 
-            // Initialwert setzen
-            UpdateValue();
-        }
+        _setter =
+            setter ??
+            throw new ArgumentNullException(nameof(setter));
 
-        private void OnCurrentCultureChanged(object? sender, EventArgs e) => UpdateValue();
+        _application.Localization.CurrentCultureChanged +=
+            OnCurrentCultureChanged;
 
-        private void UpdateValue()
-        {
-            if (_disposed) return;
+        UpdateValue();
+    }
 
-            var dict = GameApplicationBase.Current.Localization.Entries;
+    private void OnCurrentCultureChanged(
+        object? sender,
+        EventArgs e)
+    {
+        UpdateValue();
+    }
 
-            if (!dict.TryGetValue<T>(_key, out var value))
-                value = _defaultValue;
+    private void UpdateValue()
+    {
+        if (_disposed)
+            return;
 
-            _setter.Invoke(value);
-        }
+        var entries =
+            _application.Localization.Entries;
 
-        public void Dispose()
-        {
-            if (_disposed) return;
+        if (!entries.TryGetValue<T>(_key, out var value))
+            value = _defaultValue;
 
-            _application.Localization.CurrentCultureChanged -= OnCurrentCultureChanged;
-            _disposed = true;
-        }
+        _setter(value);
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _application.Localization.CurrentCultureChanged -=
+            OnCurrentCultureChanged;
+
+        _disposed = true;
     }
 }
