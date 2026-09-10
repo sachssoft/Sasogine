@@ -22,6 +22,10 @@ All notable changes to this project will be documented in this file.
 ## [0.2.0-alpha] - Planned
 * [Feature] **Toolkit**: Added `VectorPathTool` for creating, editing, and transforming vector paths.
 
+## [0.1.5.1-alpha] - 2026-09-10
+* [Feature] Added common `ITransform2` and `ITransform3` transform sources and capability interfaces.
+* [Change] Updated existing transform-related interfaces to use the new common transform capabilities.
+
 ## [0.1.5-alpha] - 2026-09-09
 * [Feature] Added read-only 2D transform interfaces for move, resize, rotation, pivot, scale, and skew capabilities.
 * [Feature] Added the missing generic `IReference<T>` interface for strongly typed engine object references.
