@@ -5,11 +5,7 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
     /// <summary>
     /// Represents an object that can be selected by a selection tool.
     /// </summary>
-    public interface ISelectionTarget2 : ISelectionTarget
+    public interface ISelectionTarget2 : ISelectionTarget, ITransformSize2
     {
-        /// <summary>
-        /// Gets or sets a value indicating whether the selection target is selected.
-        /// </summary>
-        Size2 Size { get; set; }
     }
 }
