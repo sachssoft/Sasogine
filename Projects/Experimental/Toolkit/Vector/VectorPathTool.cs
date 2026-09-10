@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Components.Tools;
 using Sachssoft.Sasogine.Experimental.Components.Tools.Vector;
-using Sachssoft.Sasogine.Graphics.Meshes;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using Sachssoft.Sasogine.Graphics.Rendering.Batches;
 using Sachssoft.Sasogine.Input;
@@ -18,11 +17,9 @@ public sealed class VectorPathTool : ToolBase
 {
     private readonly ShapeBatch _lineBatch;
     private readonly ShapeBatch _pointBatch;
-    private readonly ShapeBatch _fillBatch;
     private readonly ShapeBatch _vertexBatch;
     private readonly BasicShader _lineShader;
     private readonly BasicShader _pointShader;
-    private readonly BasicShader _fillShader;
     private readonly BasicShader _vertexShader;
     private readonly IEnumerable _targetsSource;
 
@@ -41,7 +38,6 @@ public sealed class VectorPathTool : ToolBase
     private Point2 _areaSelectionStart;
     private Point2 _areaSelectionEnd;
 
-    private readonly IMesh _testQuad;
     private Box2? _insertRect;
     private VectorPath? _drawingPath;
     private IVectorSegment? _drawingSegment;
@@ -63,20 +59,16 @@ public sealed class VectorPathTool : ToolBase
         _targetsSource = targetsSource;
         _lineBatch = new ShapeBatch(graphicsDevice);
         _pointBatch = new ShapeBatch(graphicsDevice);
-        _fillBatch = new ShapeBatch(graphicsDevice);
         _vertexBatch = new ShapeBatch(graphicsDevice);
         _lineShader = new BasicShader();
         _lineShader.GraphicsDevice = graphicsDevice;
         _pointShader = new BasicShader();
         _pointShader.GraphicsDevice = graphicsDevice;
-        _fillShader = new BasicShader();
-        _fillShader.GraphicsDevice = graphicsDevice;
         _vertexShader = new BasicShader();
         _vertexShader.GraphicsDevice = graphicsDevice;
 
         _transform = Matrix.CreateScale(1f, 1f, 1f);
 
-        _testQuad = MeshGenerator.CreateQuad(graphicsDevice);
     }
 
     //public VectorPathToolOperation Operation { get; private set; }
@@ -88,7 +80,6 @@ public sealed class VectorPathTool : ToolBase
     public bool SnapGridEnabled { get; set; } = true;
     public bool ShowControlNodes { get; set; } = true;
     public bool ShowVertices { get; set; } = true;
-    public bool ShowFill { get; set; } = true;
 
     public bool AllowConnectToClosedPath { get; set; } = false;
 
@@ -105,7 +96,6 @@ public sealed class VectorPathTool : ToolBase
 
     public Color PointColor { get; set; } = Color.Red;
     public Color LineColor { get; set; } = Color.SkyBlue;
-    public Color FillColor { get; set; } = Color.Gray;
     public Color VertexColor { get; set; } = Color.Blue;
 
     public Color TargetBorderColor { get; set; } = Color.Gray;
@@ -173,6 +163,13 @@ public sealed class VectorPathTool : ToolBase
                             }
                             else if (hit.ControlNode.IsSelected)
                             {
+                                if (IsNodeLocked(hit.ControlNode))
+                                {
+                                    _isMoving = false;
+                                    _isPressed = true;
+                                    break;
+                                }
+
                                 _selectedNode = hit.ControlNode;
                                 _moveStartPosition = _snappedCursorPosition;
 
@@ -210,6 +207,13 @@ public sealed class VectorPathTool : ToolBase
                             }
                             else if (hit.Node.IsSelected)
                             {
+                                if (IsNodeLocked(hit.Node))
+                                {
+                                    _isMoving = false;
+                                    _isPressed = true;
+                                    break;
+                                }
+
                                 _selectedNode = hit.Node;
                                 _moveStartPosition = _snappedCursorPosition;
 
@@ -277,6 +281,8 @@ public sealed class VectorPathTool : ToolBase
                         for (int i = 0; i < _movingNodes.Count; i++)
                             movedNodes.Add(_movingNodes[i].Node);
 
+                        NotifyShapesChanged(movedNodes);
+
                         NodeMoved?.Invoke(
                             this,
                             new VectorPathNodesEventArgs(movedNodes));
@@ -339,7 +345,9 @@ public sealed class VectorPathTool : ToolBase
                         if (_drawingPath.Segments.Count > 0)
                         {
                             _drawingPath.IsClosed = true;
-                            GetPrimaryShape()?.Paths.Add(_drawingPath);
+                            var shape = GetPrimaryShape();
+                            shape?.Paths.Add(_drawingPath);
+                            shape?.NotifyChanged();
                         }
 
                         _drawingPath = null;
@@ -354,7 +362,9 @@ public sealed class VectorPathTool : ToolBase
 
                         if (IsInNode(_cursorPosition, lastNode))
                         {
-                            GetPrimaryShape()?.Paths.Add(_drawingPath);
+                            var shape = GetPrimaryShape();
+                            shape?.Paths.Add(_drawingPath);
+                            shape?.NotifyChanged();
 
                             _drawingPath = null;
                             _drawingSegment = null;
@@ -426,7 +436,11 @@ public sealed class VectorPathTool : ToolBase
                                 var path = PathFactory(bounds);
 
                                 if (path != null)
-                                    GetPrimaryShape()?.Paths.Add(path);
+                                {
+                                    var shape = GetPrimaryShape();
+                                    shape?.Paths.Add(path);
+                                    shape?.NotifyChanged();
+                                }
                             }
 
                             _insertRect = null;
@@ -489,11 +503,6 @@ public sealed class VectorPathTool : ToolBase
                 AlphaBlend = true
             }))
         {
-            _fillShader.Color = FillColor;
-            _fillShader.Opacity = 1;
-            _fillShader.Camera = context.ViewCamera;
-            _fillShader.Apply();
-
             _lineShader.Color = LineColor;
             _lineShader.Opacity = 1;
             _lineShader.Camera = context.ViewCamera;
@@ -509,11 +518,6 @@ public sealed class VectorPathTool : ToolBase
             _vertexShader.Camera = context.ViewCamera;
             _vertexShader.Apply();
 
-            _fillBatch.Begin(
-                shader: _fillShader,
-                camera: context.ViewCamera
-            );
-
             _lineBatch.Begin(
                 shader: _lineShader,
                 camera: context.ViewCamera
@@ -528,13 +532,6 @@ public sealed class VectorPathTool : ToolBase
                 shader: _vertexShader,
                 camera: context.ViewCamera
             );
-
-            if (ShowFill)
-            {
-                //_fillBatch.AddFillPolygon(
-                //    _vectorDocument.GetVertices(SampleLength),
-                //    _transform);
-            }
 
             foreach (var shape in GetActiveShapes())
             {
@@ -587,27 +584,11 @@ public sealed class VectorPathTool : ToolBase
             if (Mode == VectorPathToolMode.Insert &&
                 _insertRect.HasValue)
             {
-                // Test
-                var shader = context.DefaultMaterial.Shader;
-
-                shader.Texture = null;
-                shader.Color = Color.Red;
-                shader.Apply();
-
-                var b = _insertRect.Value.ToBounds();
-                var t =
-                    Matrix.CreateScale(b.Width, b.Height, 1f) *
-                    Matrix.CreateTranslation(b.X, b.Y, 0f);
-                MeshRenderer.Draw(context, _testQuad, transform: t);
-                // End Test
-
                 if (PathFactory != null)
                 {
                     var path = PathFactory(_insertRect.Value.ToBounds());
                     var vertices = path.GetVertices(SampleLength);
                     _lineBatch.AddLine(vertices, LineThickness);
-                    Console.WriteLine("PathFactory Segments " + path.Segments.Count);
-                    Console.WriteLine("PathFactory Vertices " + vertices.Length);
                 }
             }
 
@@ -708,7 +689,6 @@ public sealed class VectorPathTool : ToolBase
                 }
             }
 
-            _fillBatch.End();
             _lineBatch.End();
             _pointBatch.End();
             _vertexBatch.End();
@@ -801,15 +781,22 @@ public sealed class VectorPathTool : ToolBase
 
     public void SwitchPathConnection(bool isClosed)
     {
-        for (int i = 0; i < GetPrimaryShapePaths().Count; i++)
+        var paths = GetPrimaryShapePaths();
+
+        for (int i = 0; i < paths.Count; i++)
         {
-            if (GetPrimaryShapePaths()[i].Start.IsSelected)
+            var path = paths[i];
+
+            if (IsPathLocked(path))
+                continue;
+
+            if (path.Start.IsSelected)
             {
                 SwitchPathConnection(i, isClosed);
                 return;
             }
 
-            foreach (var segment in GetPrimaryShapePaths()[i].Segments)
+            foreach (var segment in path.Segments)
             {
                 if (segment.Node.IsSelected)
                 {
@@ -822,12 +809,18 @@ public sealed class VectorPathTool : ToolBase
 
     public void SwitchPathConnection(int pathIndex, bool isClosed)
     {
-        var path = GetPrimaryShapePaths()[pathIndex];
+        var paths = GetPrimaryShapePaths();
 
-        if (path.IsClosed == isClosed)
+        if (pathIndex < 0 || pathIndex >= paths.Count)
+            throw new ArgumentOutOfRangeException(nameof(pathIndex));
+
+        var path = paths[pathIndex];
+
+        if (IsPathLocked(path) || path.IsClosed == isClosed)
             return;
 
         path.IsClosed = isClosed;
+        NotifyShapeChanged(path);
 
         PathConnectionChanged?.Invoke(
             this,
@@ -838,6 +831,8 @@ public sealed class VectorPathTool : ToolBase
         Point2 position,
         IEnumerable<IVectorSegment> segments)
     {
+        ArgumentNullException.ThrowIfNull(segments);
+
         var path = new VectorPath
         {
             Start = new VectorNode(position)
@@ -845,7 +840,9 @@ public sealed class VectorPathTool : ToolBase
 
         path.Segments.AddRange(segments);
 
-        GetPrimaryShape()?.Paths.Add(path);
+        var shape = GetPrimaryShape();
+        shape?.Paths.Add(path);
+        shape?.NotifyChanged();
     }
 
     public void RemovePath()
@@ -853,6 +850,9 @@ public sealed class VectorPathTool : ToolBase
         for (int pathIndex = 0; pathIndex < GetPrimaryShapePaths().Count; pathIndex++)
         {
             var path = GetPrimaryShapePaths()[pathIndex];
+
+            if (IsPathLocked(path))
+                continue;
 
             if (path.Start.IsSelected)
             {
@@ -883,7 +883,11 @@ public sealed class VectorPathTool : ToolBase
 
         var path = GetPrimaryShapePaths()[pathIndex];
 
+        if (IsPathLocked(path))
+            return;
+
         GetPrimaryShapePaths().RemoveAt(pathIndex);
+        GetPrimaryShape()?.NotifyChanged();
 
         _selectedNode = null;
 
@@ -897,6 +901,9 @@ public sealed class VectorPathTool : ToolBase
         for (int pathIndex = 0; pathIndex < GetPrimaryShapePaths().Count; pathIndex++)
         {
             var path = GetPrimaryShapePaths()[pathIndex];
+
+            if (IsPathLocked(path))
+                continue;
 
             if (path.Start.IsSelected)
             {
@@ -927,14 +934,23 @@ public sealed class VectorPathTool : ToolBase
 
         foreach (var path in GetPaths())
         {
+            if (IsPathLocked(path))
+                continue;
+
+            bool pathChanged = false;
+
             for (int i = path.Segments.Count - 1; i >= 0; i--)
             {
                 if (path.Segments[i].Node.IsSelected)
                 {
                     removedSegments.Add(path.Segments[i]);
                     path.Segments.RemoveAt(i);
+                    pathChanged = true;
                 }
             }
+
+            if (pathChanged)
+                NotifyShapeChanged(path);
         }
 
         _selectedNode = null;
@@ -949,7 +965,15 @@ public sealed class VectorPathTool : ToolBase
 
     public void AddSegment(int selectedPathIndex = 0, int selectedSegmentIndex = 0)
     {
-        var path = GetPrimaryShapePaths()[selectedPathIndex];
+        var paths = GetPrimaryShapePaths();
+
+        if (selectedPathIndex < 0 || selectedPathIndex >= paths.Count)
+            throw new ArgumentOutOfRangeException(nameof(selectedPathIndex));
+
+        var path = paths[selectedPathIndex];
+
+        if (IsPathLocked(path))
+            return;
 
         if (selectedSegmentIndex < 0 ||
             selectedSegmentIndex >= path.Segments.Count)
@@ -976,6 +1000,7 @@ public sealed class VectorPathTool : ToolBase
         SetControlNodes(segment, startPosition);
 
         path.Segments.Insert(selectedSegmentIndex, segment);
+        NotifyShapeChanged(path);
 
         SegmentAdded?.Invoke(
             this,
@@ -986,7 +1011,15 @@ public sealed class VectorPathTool : ToolBase
         int pathIndex,
         int segmentIndex)
     {
-        var path = GetPrimaryShapePaths()[pathIndex];
+        var paths = GetPrimaryShapePaths();
+
+        if (pathIndex < 0 || pathIndex >= paths.Count)
+            throw new ArgumentOutOfRangeException(nameof(pathIndex));
+
+        var path = paths[pathIndex];
+
+        if (IsPathLocked(path))
+            return;
 
         if (segmentIndex < 0 ||
             segmentIndex >= path.Segments.Count)
@@ -1002,6 +1035,7 @@ public sealed class VectorPathTool : ToolBase
         var newSegment = segmentFactory();
 
         newSegment.Node.Position = oldSegment.Node.Position;
+        newSegment.Node.IsSelected = oldSegment.Node.IsSelected;
 
         if (newSegment is VectorVariableSegment variableSegment)
         {
@@ -1015,6 +1049,7 @@ public sealed class VectorPathTool : ToolBase
         }
 
         path.Segments[segmentIndex] = newSegment;
+        NotifyShapeChanged(path);
 
         SegmentAdded?.Invoke(
             this,
@@ -1023,6 +1058,9 @@ public sealed class VectorPathTool : ToolBase
 
     private void AddSegmentAfterLast(VectorPath path)
     {
+        if (IsPathLocked(path))
+            return;
+
         var lastPosition = path.Segments[^1].Node.Position;
         var startPosition = path.Start.Position;
 
@@ -1039,6 +1077,7 @@ public sealed class VectorPathTool : ToolBase
         SetControlNodes(segment, lastPosition);
 
         path.Segments.Add(segment);
+        NotifyShapeChanged(path);
 
         SegmentAdded?.Invoke(
             this,
@@ -1070,6 +1109,9 @@ public sealed class VectorPathTool : ToolBase
     {
         foreach (var path in GetPaths())
         {
+            if (IsPathLocked(path))
+                continue;
+
             if (path.IsClosed && !AllowConnectToClosedPath)
                 continue;
 
@@ -1097,12 +1139,8 @@ public sealed class VectorPathTool : ToolBase
         VectorPath targetPath,
         VectorNode targetNode)
     {
-        if (_drawingSegment == null)
+        if (_drawingSegment == null || IsPathLocked(targetPath))
             return;
-
-        // Aktuelles Preview-Segment abschließen.
-        _drawingSegment.Node.Position = targetNode.Position;
-        drawingPath.Segments.Add(_drawingSegment);
 
         bool targetIsStart =
             targetNode == targetPath.Start;
@@ -1114,54 +1152,38 @@ public sealed class VectorPathTool : ToolBase
         if (!targetIsStart && !targetIsEnd)
             return;
 
-        var previewSegments =
-            new List<IVectorSegment>(drawingPath.Segments);
+        if (targetPath.IsClosed)
+        {
+            if (!AllowConnectToClosedPath)
+                return;
+
+            targetPath.IsClosed = false;
+
+            PathConnectionChanged?.Invoke(
+                this,
+                new VectorPathEventArgs(targetPath));
+        }
+
+        _drawingSegment.Node.Position = targetNode.Position;
+        drawingPath.Segments.Add(_drawingSegment);
 
         if (targetIsEnd)
         {
-            // Target:
-            // Start -> C -> D
-            //
-            // Preview:
-            // D -> A -> B
-            //
-            // Result:
-            // Start -> C -> D -> A -> B
-
-            targetPath.Segments.AddRange(
-                previewSegments);
-        }
-        else
-        {
-            // Target:
-            // X -> C -> D
-            //
-            // Preview:
-            // A -> B -> X
-            //
-            // Result:
-            // A -> B -> X -> C -> D
-            //
-            // Dafür müssen die Preview-Segmente
-            // vor die bisherigen Segmente.
-
-            var targetSegments =
-                new List<IVectorSegment>(targetPath.Segments);
-
-            targetPath.Segments.Clear();
-
-            targetPath.Start =
-                drawingPath.Start;
-
-            targetPath.Segments.AddRange(
-                previewSegments);
-
-            targetPath.Segments.AddRange(
-                targetSegments);
+            drawingPath.Reverse();
+            targetPath.Segments.AddRange(drawingPath.Segments);
+            NotifyShapeChanged(targetPath);
+            return;
         }
 
-        // Kein neuer Pfad!
-        // drawingPath ist nur der temporäre Zeichenpfad.
+        var targetSegments =
+            new List<IVectorSegment>(targetPath.Segments);
+
+        targetPath.Segments.Clear();
+        targetPath.Start.Position = drawingPath.Start.Position;
+        targetPath.Start.IsSelected = drawingPath.Start.IsSelected;
+        targetPath.Segments.AddRange(drawingPath.Segments);
+        targetPath.Segments.AddRange(targetSegments);
+        NotifyShapeChanged(targetPath);
     }
 
     private Point2 GetSegmentInsertPosition(
@@ -1288,12 +1310,52 @@ public sealed class VectorPathTool : ToolBase
             _transform);
     }
 
+    private bool IsPathLocked(VectorPath path)
+    {
+        foreach (var shape in GetActiveShapes())
+        {
+            if (shape.Paths.Contains(path))
+                return shape.IsLocked;
+        }
+
+        return false;
+    }
+
+    private bool IsNodeLocked(VectorNode node)
+    {
+        foreach (var path in GetPaths())
+        {
+            if (!IsPathLocked(path))
+                continue;
+
+            if (ReferenceEquals(path.Start, node))
+                return true;
+
+            foreach (var segment in path.Segments)
+            {
+                if (ReferenceEquals(segment.Node, node))
+                    return true;
+
+                foreach (var controlNode in segment.ControlNodes)
+                {
+                    if (ReferenceEquals(controlNode, node))
+                        return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     private void StoreSelectedNodes()
     {
         _movingNodes.Clear();
 
         foreach (var path in GetPaths())
         {
+            if (IsPathLocked(path))
+                continue;
+
             if (path.Start.IsSelected)
             {
                 _movingNodes.Add(
@@ -1494,33 +1556,61 @@ public sealed class VectorPathTool : ToolBase
         }
     }
 
-    //private IEnumerable<VectorShape> GetActiveShapes()
-    //{
-    //    var yielded = new HashSet<VectorShape>();
+    private void NotifyShapeChanged(VectorPath path)
+    {
+        foreach (var shape in GetActiveShapes())
+        {
+            if (!shape.Paths.Contains(path))
+                continue;
 
-    //    foreach (var item in _targetsSource)
-    //    {
-    //        VectorShape? shape = null;
-    //        bool isSelected = false;
+            shape.NotifyChanged();
+            return;
+        }
+    }
 
-    //        if (item is IVectorPathTarget target)
-    //        {
-    //            isSelected = target.IsSelected;
-    //            shape = target.ActiveShape;
-    //        }
+    private void NotifyShapesChanged(IEnumerable<VectorNode> nodes)
+    {
+        var changedNodes = new HashSet<VectorNode>(nodes);
 
-    //        if ((!isSelected || shape == null) &&
-    //            item is IEngineObject engineObject &&
-    //            engineObject.Definition is IVectorPathTargetDefinition definition)
-    //        {
-    //            isSelected = definition.IsSelected;
-    //            shape = definition.ActiveShape;
-    //        }
+        foreach (var shape in GetActiveShapes())
+        {
+            bool isChanged = false;
 
-    //        if (isSelected && shape != null && yielded.Add(shape))
-    //            yield return shape;
-    //    }
-    //}
+            for (int pathIndex = 0; pathIndex < shape.Paths.Count && !isChanged; pathIndex++)
+            {
+                VectorPath path = shape.Paths[pathIndex];
+
+                if (changedNodes.Contains(path.Start))
+                {
+                    isChanged = true;
+                    break;
+                }
+
+                for (int segmentIndex = 0; segmentIndex < path.Segments.Count && !isChanged; segmentIndex++)
+                {
+                    IVectorSegment segment = path.Segments[segmentIndex];
+
+                    if (changedNodes.Contains(segment.Node))
+                    {
+                        isChanged = true;
+                        break;
+                    }
+
+                    for (int controlIndex = 0; controlIndex < segment.ControlNodes.Count; controlIndex++)
+                    {
+                        if (!changedNodes.Contains(segment.ControlNodes[controlIndex]))
+                            continue;
+
+                        isChanged = true;
+                        break;
+                    }
+                }
+            }
+
+            if (isChanged)
+                shape.NotifyChanged();
+        }
+    }
 
     private VectorShape? GetPrimaryShape()
     {
@@ -1568,7 +1658,7 @@ public sealed class VectorPathTool : ToolBase
 
     private bool TryGetShapeBounds(VectorShape shape, out Bounds2 bounds)
     {
-        if (!shape.TryGetBounds(SampleLength, out var shapeBounds))
+        if (!shape.TryGetBounds( out var shapeBounds, SampleLength))
         {
             bounds = default;
             return false;

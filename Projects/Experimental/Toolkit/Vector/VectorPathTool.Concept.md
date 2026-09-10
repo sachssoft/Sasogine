@@ -563,7 +563,6 @@ The vector editor may render several logically separate layers:
 ```text
 Target Bounds
 Vector Lines
-Fill
 Nodes
 Control Nodes
 Sample Vertices
@@ -589,6 +588,22 @@ PointSize
 ```
 
 Therefore path lines, sampled vertices, and geometry bounds use exact node positions. Visual node markers are centered around those positions. Marker size must never shift actual vector geometry.
+
+## Locked Paths
+
+`VectorPath.IsLocked` blocks geometry modifications but does not block selection.
+
+```text
+IsLocked == true
+    → selection and area selection remain available
+    → node/control-node dragging is blocked
+    → add/remove/replace segment operations are blocked
+    → remove path is blocked
+    → open/close path is blocked
+    → connecting to the path is blocked
+```
+
+This keeps locked geometry visible and selectable while preventing accidental edits.
 
 ## Path Connection
 

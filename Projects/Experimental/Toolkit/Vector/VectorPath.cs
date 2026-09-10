@@ -49,16 +49,6 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public bool IsClosed { get; set; }
 
         /// <summary>
-        /// Gets or sets whether the path is locked and cannot be modified.
-        /// </summary>
-        public bool IsLocked { get; set; }
-
-        /// <summary>
-        /// Gets or sets whether the path is selected.
-        /// </summary>
-        public bool IsSelected { get; set; }
-
-        /// <summary>
         /// Gets the segments that make up the vector path.
         /// </summary>
         public List<IVectorSegment> Segments { get; } = [];
@@ -114,6 +104,70 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             }
 
             return vertices.ToArray();
+        }
+
+        internal void Reverse()
+        {
+            if (Segments.Count == 0)
+                return;
+
+            var positions = new Point2[Segments.Count + 1];
+            var selections = new bool[Segments.Count + 1];
+
+            positions[0] = Start.Position;
+            selections[0] = Start.IsSelected;
+
+            for (int i = 0; i < Segments.Count; i++)
+            {
+                positions[i + 1] = Segments[i].Node.Position;
+                selections[i + 1] = Segments[i].Node.IsSelected;
+                ReverseSegment(Segments[i]);
+            }
+
+            Segments.Reverse();
+
+            Start.Position = positions[^1];
+            Start.IsSelected = selections[^1];
+
+            for (int i = 0; i < Segments.Count; i++)
+            {
+                int sourceIndex = positions.Length - i - 2;
+                Segments[i].Node.Position = positions[sourceIndex];
+                Segments[i].Node.IsSelected = selections[sourceIndex];
+            }
+        }
+
+        private static void ReverseSegment(IVectorSegment segment)
+        {
+            switch (segment)
+            {
+                case VectorCubicBezierSegment cubic:
+                    SwapNodeValues(cubic.ControlNodes[0], cubic.ControlNodes[1]);
+                    break;
+
+                case VectorBSplineSegment spline:
+                    spline.ControlNodes.Reverse();
+                    break;
+
+                case VectorCatmullRomSegment catmullRom:
+                    catmullRom.ControlNodes.Reverse();
+                    break;
+
+                case VectorArcSegment arc:
+                    arc.Sweep = !arc.Sweep;
+                    break;
+            }
+        }
+
+        private static void SwapNodeValues(VectorNode first, VectorNode second)
+        {
+            Point2 position = first.Position;
+            bool isSelected = first.IsSelected;
+
+            first.Position = second.Position;
+            first.IsSelected = second.IsSelected;
+            second.Position = position;
+            second.IsSelected = isSelected;
         }
 
     }
