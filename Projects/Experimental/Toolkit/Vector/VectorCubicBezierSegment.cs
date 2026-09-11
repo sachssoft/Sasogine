@@ -21,7 +21,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// Initializes a new instance of the <see cref="VectorCubicBezierSegment"/> class.
         /// </summary>
         public VectorCubicBezierSegment()
-            : base(2)
+            : this(CreateDefinition())
         {
         }
 
@@ -70,16 +70,40 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             Point2 controlPosition0,
             Point2 controlPosition1,
             bool isSelected)
-            : this()
+            : this(CreateDefinition(position, controlPosition0, controlPosition1, isSelected))
         {
-            Node.Position = position;
-            Node.IsSelected = isSelected;
+        }
 
-            GetControlNodes()[0].Position =
-                controlPosition0;
+        public VectorCubicBezierSegment(VectorFixedSegmentDefinition definition)
+            : base(definition)
+        {
+            if (definition.ControlNodes.Count != 2)
+                throw new ArgumentException("Cubic Bézier segments require exactly two control nodes.", nameof(definition));
+        }
 
-            GetControlNodes()[1].Position =
-                controlPosition1;
+        private static VectorFixedSegmentDefinition CreateDefinition()
+        {
+            var definition = new VectorFixedSegmentDefinition();
+            definition.ControlNodes.Add(new VectorNodeDefinition());
+            definition.ControlNodes.Add(new VectorNodeDefinition());
+            return definition;
+        }
+
+        private static VectorFixedSegmentDefinition CreateDefinition(
+            Point2 position,
+            Point2 controlPosition0,
+            Point2 controlPosition1,
+            bool isSelected)
+        {
+            var definition = CreateDefinition();
+            definition.Node = new VectorNodeDefinition
+            {
+                Position = position,
+                IsSelected = isSelected
+            };
+            definition.ControlNodes[0].Position = controlPosition0;
+            definition.ControlNodes[1].Position = controlPosition1;
+            return definition;
         }
 
         /// <summary>

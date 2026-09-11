@@ -320,9 +320,11 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                         node.Position.Y),
                     transform);
 
-                node.Position = new Point2(
+                node.Definition.Position = new Point2(
                     position.X,
                     position.Y);
+
+                node.Reload();
             }
         }
 

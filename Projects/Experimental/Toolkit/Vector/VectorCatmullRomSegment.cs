@@ -11,6 +11,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// </summary>
     public sealed class VectorCatmullRomSegment : VectorVariableSegment
     {
+        private bool _closed;
         private Point2 _startPositionCache;
         private Point2 _nodePositionCache;
 
@@ -24,6 +25,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// Initializes a new instance of the <see cref="VectorCatmullRomSegment"/> class.
         /// </summary>
         public VectorCatmullRomSegment()
+            : this(new VectorCatmullRomSegmentDefinition())
         {
         }
 
@@ -48,22 +50,63 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             Point2 position,
             IEnumerable<Point2> controlPoints,
             bool isSelected)
-            : this()
+            : this(CreateDefinition(position, controlPoints, isSelected))
         {
-            ArgumentNullException.ThrowIfNull(
-                controlPoints);
-
-            Node.Position = position;
-            Node.IsSelected = isSelected;
-
-            foreach (var point in controlPoints)
-                ControlNodes.Add(new VectorNode(point));
         }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VectorCatmullRomSegment"/> class
+        /// using the specified definition.
+        /// </summary>
+        public VectorCatmullRomSegment(VectorCatmullRomSegmentDefinition definition)
+            : base(definition)
+        {
+            _closed = definition.Closed;
+        }
+
+        /// <summary>
+        /// Gets the definition used to configure this segment.
+        /// </summary>
+        public new VectorCatmullRomSegmentDefinition Definition =>
+            (VectorCatmullRomSegmentDefinition)base.Definition;
 
         /// <summary>
         /// Gets or sets whether the Catmull-Rom spline is closed.
         /// </summary>
-        public bool Closed { get; set; }
+        public bool Closed => _closed;
+
+        /// <inheritdoc/>
+        protected override void ConfigureFromDefinition()
+        {
+            base.ConfigureFromDefinition();
+            _closed = Definition.Closed;
+            _sampledVerticesCache = null;
+        }
+
+        private static VectorCatmullRomSegmentDefinition CreateDefinition(
+            Point2 position,
+            IEnumerable<Point2> controlPoints,
+            bool isSelected)
+        {
+            ArgumentNullException.ThrowIfNull(controlPoints);
+
+            var definition = new VectorCatmullRomSegmentDefinition
+            {
+                Node = new VectorNodeDefinition
+                {
+                    Position = position,
+                    IsSelected = isSelected
+                }
+            };
+
+            foreach (var point in controlPoints)
+            {
+                definition.ControlNodes.Add(
+                    new VectorNodeDefinition { Position = point });
+            }
+
+            return definition;
+        }
 
         /// <summary>
         /// Generates a sampled representation of the Catmull-Rom spline

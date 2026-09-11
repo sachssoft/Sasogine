@@ -11,6 +11,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// </summary>
     public sealed class VectorBSplineSegment : VectorVariableSegment
     {
+        private int _degree;
         private Point2 _startPositionCache;
         private Point2 _nodePositionCache;
 
@@ -24,6 +25,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// Initializes a new instance of the <see cref="VectorBSplineSegment"/> class.
         /// </summary>
         public VectorBSplineSegment()
+            : this(new VectorBSplineSegmentDefinition())
         {
         }
 
@@ -55,24 +57,25 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             IEnumerable<Point2> controlPoints,
             int degree = 3,
             bool isSelected = false)
-            : this()
+            : this(CreateDefinition(position, controlPoints, degree, isSelected))
         {
-            ArgumentNullException.ThrowIfNull(
-                controlPoints);
-
-            if (degree < 1)
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(degree));
-            }
-
-            Node.Position = position;
-            Node.IsSelected = isSelected;
-            Degree = degree;
-
-            foreach (var point in controlPoints)
-                ControlNodes.Add(new VectorNode(point));
         }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VectorBSplineSegment"/> class
+        /// using the specified definition.
+        /// </summary>
+        public VectorBSplineSegment(VectorBSplineSegmentDefinition definition)
+            : base(definition)
+        {
+            _degree = definition.Degree;
+        }
+
+        /// <summary>
+        /// Gets the definition used to configure this segment.
+        /// </summary>
+        public new VectorBSplineSegmentDefinition Definition =>
+            (VectorBSplineSegmentDefinition)base.Definition;
 
         /// <summary>
         /// Gets or sets the degree of the B-spline.
@@ -81,7 +84,45 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// A higher degree produces a smoother curve and requires a sufficient
         /// number of control points.
         /// </remarks>
-        public int Degree { get; set; } = 3;
+        public int Degree => _degree;
+
+        /// <inheritdoc/>
+        protected override void ConfigureFromDefinition()
+        {
+            base.ConfigureFromDefinition();
+            _degree = Definition.Degree;
+            _sampledVerticesCache = null;
+        }
+
+        private static VectorBSplineSegmentDefinition CreateDefinition(
+            Point2 position,
+            IEnumerable<Point2> controlPoints,
+            int degree,
+            bool isSelected)
+        {
+            ArgumentNullException.ThrowIfNull(controlPoints);
+
+            if (degree < 1)
+                throw new ArgumentOutOfRangeException(nameof(degree));
+
+            var definition = new VectorBSplineSegmentDefinition
+            {
+                Node = new VectorNodeDefinition
+                {
+                    Position = position,
+                    IsSelected = isSelected
+                },
+                Degree = degree
+            };
+
+            foreach (var point in controlPoints)
+            {
+                definition.ControlNodes.Add(
+                    new VectorNodeDefinition { Position = point });
+            }
+
+            return definition;
+        }
 
         /// <summary>
         /// Generates a sampled representation of the B-spline between the

@@ -33,6 +33,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                 current.Segment = null;
                 value.Segment = _segment;
                 _nodes[index] = value;
+                SynchronizeDefinition();
             }
         }
 
@@ -45,6 +46,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             EnsureCanAttach(item);
             item.Segment = _segment;
             _nodes.Add(item);
+            SynchronizeDefinition();
         }
 
         /// <summary>
@@ -73,6 +75,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                 _nodes[i].Segment = null;
 
             _nodes.Clear();
+            SynchronizeDefinition();
         }
 
         public bool Contains(VectorNode item) => _nodes.Contains(item);
@@ -86,6 +89,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             EnsureCanAttach(item);
             item.Segment = _segment;
             _nodes.Insert(index, item);
+            SynchronizeDefinition();
         }
 
         public bool Remove(VectorNode item)
@@ -94,6 +98,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                 return false;
 
             item.Segment = null;
+            SynchronizeDefinition();
             return true;
         }
 
@@ -102,11 +107,27 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             VectorNode item = _nodes[index];
             _nodes.RemoveAt(index);
             item.Segment = null;
+            SynchronizeDefinition();
         }
 
-        public void Reverse() => _nodes.Reverse();
+        public void Reverse()
+        {
+            _nodes.Reverse();
+            SynchronizeDefinition();
+        }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+
+        private void SynchronizeDefinition()
+        {
+            if (_segment.Definition is not VectorVariableSegmentDefinition definition)
+                return;
+
+            definition.ControlNodes.Clear();
+            for (int i = 0; i < _nodes.Count; i++)
+                definition.ControlNodes.Add(_nodes[i].Definition);
+        }
 
         private static void EnsureCanAttach(VectorNode node)
         {

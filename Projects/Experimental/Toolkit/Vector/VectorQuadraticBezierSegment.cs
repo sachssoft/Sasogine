@@ -22,7 +22,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <see cref="VectorQuadraticBezierSegment"/> class.
         /// </summary>
         public VectorQuadraticBezierSegment()
-            : base(1)
+            : this(CreateDefinition())
         {
         }
 
@@ -66,13 +66,37 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             Point2 position,
             Point2 controlPosition,
             bool isSelected)
-            : this()
+            : this(CreateDefinition(position, controlPosition, isSelected))
         {
-            Node.Position = position;
-            Node.IsSelected = isSelected;
+        }
 
-            GetControlNodes()[0].Position =
-                controlPosition;
+        public VectorQuadraticBezierSegment(VectorFixedSegmentDefinition definition)
+            : base(definition)
+        {
+            if (definition.ControlNodes.Count != 1)
+                throw new ArgumentException("Quadratic Bézier segments require exactly one control node.", nameof(definition));
+        }
+
+        private static VectorFixedSegmentDefinition CreateDefinition()
+        {
+            var definition = new VectorFixedSegmentDefinition();
+            definition.ControlNodes.Add(new VectorNodeDefinition());
+            return definition;
+        }
+
+        private static VectorFixedSegmentDefinition CreateDefinition(
+            Point2 position,
+            Point2 controlPosition,
+            bool isSelected)
+        {
+            var definition = CreateDefinition();
+            definition.Node = new VectorNodeDefinition
+            {
+                Position = position,
+                IsSelected = isSelected
+            };
+            definition.ControlNodes[0].Position = controlPosition;
+            return definition;
         }
 
         /// <summary>

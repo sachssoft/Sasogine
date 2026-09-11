@@ -5,12 +5,16 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// <summary>
     /// Represents a node in a vector path.
     /// </summary>
-    public sealed class VectorNode
+    public sealed class VectorNode : EngineObject<VectorNodeDefinition>
     {
+        private Point2 _position;
+        private bool _isSelected;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="VectorNode"/> class.
         /// </summary>
         public VectorNode()
+            : this(new VectorNodeDefinition())
         {
         }
 
@@ -18,13 +22,20 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// Initializes a new instance of the <see cref="VectorNode"/> class
         /// at the specified position.
         /// </summary>
-        /// <param name="position">
-        /// The initial position of the node.
-        /// </param>
-        public VectorNode(
-            Point2 position)
+        public VectorNode(Point2 position)
+            : this(new VectorNodeDefinition { Position = position })
         {
-            Position = position;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VectorNode"/> class
+        /// using the specified definition.
+        /// </summary>
+        public VectorNode(VectorNodeDefinition definition)
+            : base(definition)
+        {
+            _position = definition.Position;
+            _isSelected = definition.IsSelected;
         }
 
         /// <summary>
@@ -33,13 +44,21 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public VectorSegment? Segment { get; internal set; }
 
         /// <summary>
-        /// Gets or sets the position of the node.
+        /// Gets the current runtime position of the node.
         /// </summary>
-        public Point2 Position { get; set; }
+        public Point2 Position => _position;
 
         /// <summary>
-        /// Gets or sets whether the node is selected.
+        /// Gets whether the node is currently selected.
         /// </summary>
-        public bool IsSelected { get; set; }
+        public bool IsSelected => _isSelected;
+
+        /// <inheritdoc/>
+        protected override void ConfigureFromDefinition()
+        {
+            base.ConfigureFromDefinition();
+            _position = Definition.Position;
+            _isSelected = Definition.IsSelected;
+        }
     }
 }

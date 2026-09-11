@@ -11,7 +11,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// Initializes a new instance of the <see cref="VectorLineSegment"/> class.
         /// </summary>
         public VectorLineSegment()
-            : base(0)
+            : this(new VectorFixedSegmentDefinition())
         {
         }
 
@@ -44,10 +44,24 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public VectorLineSegment(
             Point2 position,
             bool isSelected)
-            : this()
+            : this(new VectorFixedSegmentDefinition
+            {
+                Node = new VectorNodeDefinition
+                {
+                    Position = position,
+                    IsSelected = isSelected
+                }
+            })
         {
-            Node.Position = position;
-            Node.IsSelected = isSelected;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VectorLineSegment"/> class
+        /// using the specified definition.
+        /// </summary>
+        public VectorLineSegment(VectorFixedSegmentDefinition definition)
+            : base(definition)
+        {
         }
 
         /// <summary>

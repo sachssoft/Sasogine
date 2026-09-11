@@ -9,6 +9,12 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// </summary>
     public sealed class VectorArcSegment : VectorFixedSegment
     {
+        private float _radiusX;
+        private float _radiusY;
+        private float _rotation;
+        private bool _largeArc;
+        private bool _sweep;
+
         private Point2 _startPositionCache;
         private Point2 _endPositionCache;
 
@@ -26,7 +32,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// Initializes a new instance of the <see cref="VectorArcSegment"/> class.
         /// </summary>
         public VectorArcSegment()
-            : base(0)
+            : this(CreateDefinition())
         {
         }
 
@@ -108,44 +114,85 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             bool largeArc,
             bool sweep,
             bool isSelected)
-            : this()
+            : this(new VectorArcSegmentDefinition
+            {
+                Node = new VectorNodeDefinition
+                {
+                    Position = position,
+                    IsSelected = isSelected
+                },
+                RadiusX = radiusX,
+                RadiusY = radiusY,
+                Rotation = rotation,
+                LargeArc = largeArc,
+                Sweep = sweep
+            })
         {
-            Node.Position = position;
-            Node.IsSelected = isSelected;
-
-            RadiusX = radiusX;
-            RadiusY = radiusY;
-            Rotation = rotation;
-            LargeArc = largeArc;
-            Sweep = sweep;
         }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VectorArcSegment"/> class
+        /// using the specified definition.
+        /// </summary>
+        public VectorArcSegment(VectorArcSegmentDefinition definition)
+            : base(definition)
+        {
+            _radiusX = definition.RadiusX;
+            _radiusY = definition.RadiusY;
+            _rotation = definition.Rotation;
+            _largeArc = definition.LargeArc;
+            _sweep = definition.Sweep;
+        }
+
+        /// <summary>
+        /// Gets the definition used to configure this segment.
+        /// </summary>
+        public new VectorArcSegmentDefinition Definition =>
+            (VectorArcSegmentDefinition)base.Definition;
 
         /// <summary>
         /// Gets or sets the horizontal radius of the elliptical arc.
         /// </summary>
-        public float RadiusX { get; set; }
+        public float RadiusX => _radiusX;
 
         /// <summary>
         /// Gets or sets the vertical radius of the elliptical arc.
         /// </summary>
-        public float RadiusY { get; set; }
+        public float RadiusY => _radiusY;
 
         /// <summary>
         /// Gets or sets the rotation of the ellipse in degrees.
         /// </summary>
-        public float Rotation { get; set; }
+        public float Rotation => _rotation;
 
         /// <summary>
         /// Gets or sets whether the larger elliptical arc is used instead of
         /// the smaller arc between the start and end positions.
         /// </summary>
-        public bool LargeArc { get; set; }
+        public bool LargeArc => _largeArc;
 
         /// <summary>
         /// Gets or sets the direction in which the arc is swept from the
         /// start position to the end position.
         /// </summary>
-        public bool Sweep { get; set; }
+        public bool Sweep => _sweep;
+
+        /// <inheritdoc/>
+        protected override void ConfigureFromDefinition()
+        {
+            base.ConfigureFromDefinition();
+            _radiusX = Definition.RadiusX;
+            _radiusY = Definition.RadiusY;
+            _rotation = Definition.Rotation;
+            _largeArc = Definition.LargeArc;
+            _sweep = Definition.Sweep;
+            _sampledVerticesCache = null;
+        }
+
+        private static VectorArcSegmentDefinition CreateDefinition()
+        {
+            return new VectorArcSegmentDefinition();
+        }
 
         /// <summary>
         /// Generates a sampled representation of the elliptical arc between

@@ -1,4 +1,4 @@
-using Sachssoft.Sasogine.Common;
+using System;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
@@ -8,39 +8,28 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// </summary>
     public abstract class VectorVariableSegment : VectorSegment
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="VectorVariableSegment"/> class.
-        /// </summary>
         protected VectorVariableSegment()
+            : this(new VectorVariableSegmentDefinition())
+        {
+        }
+
+        protected VectorVariableSegment(VectorVariableSegmentDefinition definition)
+            : base(definition)
         {
             ControlNodes = new VectorNodeCollection(this);
+            for (int i = 0; i < definition.ControlNodes.Count; i++)
+                ControlNodes.Add(new VectorNode(definition.ControlNodes[i]));
         }
 
-        /// <summary>
-        /// Gets the modifiable collection of control nodes used by the vector segment.
-        /// </summary>
         public VectorNodeCollection ControlNodes { get; }
 
-        /// <inheritdoc/>
-        public override IReadOnlyList<VectorNode> GetControlNodes()
-        {
-            return ControlNodes;
-        }
+        public override IReadOnlyList<VectorNode> GetControlNodes() => ControlNodes;
 
-        /// <summary>
-        /// Generates a sampled representation of the vector segment.
-        /// </summary>
-        /// <param name="startPosition">
-        /// The start position of the vector segment.
-        /// </param>
-        /// <param name="sampleLength">
-        /// The desired approximate distance between consecutive sampled vertices.
-        /// </param>
-        /// <returns>
-        /// An array containing the sampled vertices of the vector segment.
-        /// </returns>
-        public abstract override Point2[] GetVertices(
-            Point2 startPosition,
-            float sampleLength);
+        protected override void ConfigureFromDefinition()
+        {
+            base.ConfigureFromDefinition();
+            foreach (var node in ControlNodes)
+                node.Reload();
+        }
     }
 }

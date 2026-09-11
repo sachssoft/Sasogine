@@ -30,8 +30,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                     return;
 
                 EnsureCanAttach(value);
-                current.Path = null;
-                value.Path = _path;
+                ((IVectorSegmentInternal)current).Path = null;
+                ((IVectorSegmentInternal)value).Path = _path;
                 _segments[index] = value;
             }
         }
@@ -43,7 +43,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         {
             ArgumentNullException.ThrowIfNull(item);
             EnsureCanAttach(item);
-            item.Path = _path;
+            ((IVectorSegmentInternal)item).Path = _path;
             _segments.Add(item);
         }
 
@@ -70,7 +70,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public void Clear()
         {
             for (int i = 0; i < _segments.Count; i++)
-                _segments[i].Path = null;
+                ((IVectorSegmentInternal)_segments[i]).Path = null;
 
             _segments.Clear();
         }
@@ -84,7 +84,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         {
             ArgumentNullException.ThrowIfNull(item);
             EnsureCanAttach(item);
-            item.Path = _path;
+            ((IVectorSegmentInternal)item).Path = _path;
             _segments.Insert(index, item);
         }
 
@@ -93,7 +93,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             if (!_segments.Remove(item))
                 return false;
 
-            item.Path = null;
+            ((IVectorSegmentInternal)item).Path = null;
             return true;
         }
 
@@ -101,7 +101,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         {
             VectorSegment item = _segments[index];
             _segments.RemoveAt(index);
-            item.Path = null;
+            ((IVectorSegmentInternal)item).Path = null;
         }
 
         public void Reverse() => _segments.Reverse();
