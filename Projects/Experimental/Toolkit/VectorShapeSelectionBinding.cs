@@ -217,21 +217,27 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
 
             foreach (var path in _shape.Paths)
             {
-                path.Start.Position = new Point2(
-                    path.Start.Position.X - offset.X + position.X,
-                    path.Start.Position.Y - offset.Y + position.Y);
+                SetNodePosition(
+                    path.Start,
+                    new Point2(
+                        path.Start.Position.X - offset.X + position.X,
+                        path.Start.Position.Y - offset.Y + position.Y));
 
                 foreach (var segment in path.Segments)
                 {
-                    segment.Node.Position = new Point2(
-                        segment.Node.Position.X - offset.X + position.X,
-                        segment.Node.Position.Y - offset.Y + position.Y);
+                    SetNodePosition(
+                        segment.Node,
+                        new Point2(
+                            segment.Node.Position.X - offset.X + position.X,
+                            segment.Node.Position.Y - offset.Y + position.Y));
 
                     foreach (var controlNode in segment.GetControlNodes())
                     {
-                        controlNode.Position = new Point2(
-                            controlNode.Position.X - offset.X + position.X,
-                            controlNode.Position.Y - offset.Y + position.Y);
+                        SetNodePosition(
+                            controlNode,
+                            new Point2(
+                                controlNode.Position.X - offset.X + position.X,
+                                controlNode.Position.Y - offset.Y + position.Y));
                     }
                 }
             }
@@ -287,9 +293,19 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools
                 node.Position.ToVector2(),
                 transform);
 
-            node.Position = new Point2(
-                position.X,
-                position.Y);
+            SetNodePosition(
+                node,
+                new Point2(
+                    position.X,
+                    position.Y));
+        }
+
+        private static void SetNodePosition(
+            VectorNode node,
+            Point2 position)
+        {
+            node.Definition.Position = position;
+            node.Reload();
         }
     }
 }
