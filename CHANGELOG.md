@@ -22,6 +22,13 @@ All notable changes to this project will be documented in this file.
 ## [0.2.0-alpha] - Planned
 * [Feature] **Toolkit**: Added `VectorPathTool` for creating, editing, and transforming vector paths.
 
+## [0.1.7-alpha] - 2026-09-11
+- [Feature] Added `INotifyTransformChanged` for event-based transform lifecycle notifications.
+- [Feature] Added `IReadOnlyAssetStore` for read-only asset lookup access.
+- [Feature] Added direct asset management to `AssetStore` using asset identifiers.
+- [Change] Renamed `INotifyTransformChanged` to `ITransformChangeObserver` to align its `OnTransform...` callback methods with the .NET observer pattern.
+- [Improve] `AssetStore` now tracks `IEngineObjectIdentityChanged.IdChanged` and automatically updates asset lookup keys when an asset identifier changes.
+
 ## [0.1.6-alpha] - 2026-09-10
 * [Feature] Added configurable application-level debugging.
 * [Feature] Added `INotifyTransformChanged` and transform state tracking.

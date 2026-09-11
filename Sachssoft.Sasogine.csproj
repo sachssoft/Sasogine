@@ -28,6 +28,7 @@
 	  <Folder Include="Projects\Basic\Graphics\Tiles\" />
 	  <Folder Include="Projects\Experimental\Basic\Assets\" />
 	  <Folder Include="Projects\Experimental\Basic\Common\" />
+	  <Folder Include="Projects\Experimental\Basic\Resources\" />
 	  <Folder Include="Projects\Experimental\Markup\" />
 	  <Folder Include="Projects\Experimental\Shaders\" />
 	  <Folder Include="Projects\Toolkit\Shaders\" />
