@@ -1,4 +1,4 @@
-﻿using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Geometry;
 using System;
 using System.Collections.Generic;

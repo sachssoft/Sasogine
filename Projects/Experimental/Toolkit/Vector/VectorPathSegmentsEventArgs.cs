@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
@@ -16,7 +16,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// The vector segments associated with the event.
         /// </param>
         public VectorPathSegmentsEventArgs(
-            IReadOnlyList<IVectorSegment> segments)
+            IReadOnlyList<VectorSegment> segments)
         {
             Segments = segments;
         }
@@ -24,6 +24,6 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <summary>
         /// Gets the vector segments associated with the event.
         /// </summary>
-        public IReadOnlyList<IVectorSegment> Segments { get; }
+        public IReadOnlyList<VectorSegment> Segments { get; }
     }
 }

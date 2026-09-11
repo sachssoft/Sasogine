@@ -1,4 +1,4 @@
-﻿using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Common;
 using System;
 using System.Collections.Generic;
 
@@ -7,8 +7,10 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// <summary>
     /// Represents a vector segment with a fixed number of control nodes.
     /// </summary>
-    public abstract class VectorFixedSegment : IVectorSegment
+    public abstract class VectorFixedSegment : VectorSegment
     {
+        private readonly IReadOnlyList<VectorNode> _controlNodes;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="VectorFixedSegment"/> class
         /// with the specified number of control nodes.
@@ -28,26 +30,23 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                     nameof(controlCount));
             }
 
-            Node = new VectorNode();
-
             var controlNodes =
                 new VectorNode[controlCount];
 
             for (int i = 0; i < controlCount; i++)
-                controlNodes[i] = new VectorNode();
+                controlNodes[i] = new VectorNode
+                {
+                    Segment = this
+                };
 
-            ControlNodes = controlNodes;
+            _controlNodes = controlNodes;
         }
 
-        /// <summary>
-        /// Gets the endpoint node of the vector segment.
-        /// </summary>
-        public VectorNode Node { get; }
-
-        /// <summary>
-        /// Gets the fixed collection of control nodes used by the vector segment.
-        /// </summary>
-        public IReadOnlyList<VectorNode> ControlNodes { get; }
+        /// <inheritdoc/>
+        public override IReadOnlyList<VectorNode> GetControlNodes()
+        {
+            return _controlNodes;
+        }
 
         /// <summary>
         /// Generates a sampled representation of the vector segment.
@@ -61,7 +60,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <returns>
         /// An array containing the sampled vertices of the vector segment.
         /// </returns>
-        public abstract Point2[] GetVertices(
+        public abstract override Point2[] GetVertices(
             Point2 startPosition,
             float sampleLength);
     }

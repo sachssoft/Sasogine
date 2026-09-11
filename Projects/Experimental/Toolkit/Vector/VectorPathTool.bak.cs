@@ -1,4 +1,4 @@
-﻿//using Microsoft.Xna.Framework;
+//using Microsoft.Xna.Framework;
 //using Microsoft.Xna.Framework.Graphics;
 //using Sachssoft.Sasogine.Common;
 //using Sachssoft.Sasogine.Components.Tools;
@@ -39,7 +39,7 @@
 //    private readonly IMesh _testQuad;
 //    private Box2? _insertRect;
 //    private VectorPath? _drawingPath;
-//    private IVectorSegment? _drawingSegment;
+//    private VectorSegment? _drawingSegment;
 
 //    public event EventHandler<VectorPathNodesEventArgs>? NodeSelected;
 //    public event EventHandler<VectorPathNodesEventArgs>? NodeMoved;
@@ -74,7 +74,7 @@
 //    //public VectorPathToolOperation Operation { get; private set; }
 
 //    public VectorPathToolMode Mode { get; set; } = VectorPathToolMode.Selection;
-//    public Func<IVectorSegment>? SegmentFactory { get; set; }
+//    public Func<VectorSegment>? SegmentFactory { get; set; }
 //    public Func<Bounds2, VectorPath>? PathFactory { get; set; }
 
 //    public bool SnapGridEnabled { get; set; } = true;
@@ -837,7 +837,7 @@
 
 //    public void AddPath(
 //        Point2 position,
-//        IEnumerable<IVectorSegment> segments)
+//        IEnumerable<VectorSegment> segments)
 //    {
 //        var path = new VectorPath
 //        {
@@ -924,7 +924,7 @@
 
 //    public void RemoveSegments()
 //    {
-//        var removedSegments = new List<IVectorSegment>();
+//        var removedSegments = new List<VectorSegment>();
 
 //        foreach (var path in _vectorShape.Paths)
 //        {
@@ -1045,7 +1045,7 @@
 //            this,
 //            new VectorPathSegmentsEventArgs([segment]));
 //    }
-//    private IVectorSegment CreateDrawingSegment()
+//    private VectorSegment CreateDrawingSegment()
 //    {
 //        var segmentFactory = SegmentFactory ??
 //            (() => new VectorLineSegment());
@@ -1115,7 +1115,7 @@
 //            return;
 
 //        var previewSegments =
-//            new List<IVectorSegment>(drawingPath.Segments);
+//            new List<VectorSegment>(drawingPath.Segments);
 
 //        if (targetIsEnd)
 //        {
@@ -1146,7 +1146,7 @@
 //            // vor die bisherigen Segmente.
 
 //            var targetSegments =
-//                new List<IVectorSegment>(targetPath.Segments);
+//                new List<VectorSegment>(targetPath.Segments);
 
 //            targetPath.Segments.Clear();
 
@@ -1199,7 +1199,7 @@
 //    }
 
 //    private void SetControlNodes(
-//        IVectorSegment segment,
+//        VectorSegment segment,
 //        Point2 startPosition)
 //    {
 //        int count = segment.ControlNodes.Count;
@@ -1220,7 +1220,7 @@
 //        }
 //    }
 
-//    private void EnsureAddControlPoints(IVectorSegment segment)
+//    private void EnsureAddControlPoints(VectorSegment segment)
 //    {
 //        if (segment is VectorVariableSegment variable)
 //        {

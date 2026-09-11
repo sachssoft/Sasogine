@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Components.Tools.Selection;
 using System;
+using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Selection
 {
@@ -133,6 +134,107 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Selection
                 definition is ISelectionMovable2Definition movable
                     ? new Point2(movable.Position.X, movable.Position.Y)
                     : null);
+        }
+
+        /// <summary>
+        /// Fits the position and size of the specified selection target definition
+        /// to the supplied world-space geometry while preserving its scale,
+        /// rotation, and normalized rotation pivot.
+        /// </summary>
+        /// <param name="definition">
+        /// The selection target definition whose position and size are updated.
+        /// </param>
+        /// <param name="polygons">
+        /// The world-space vertices used to calculate the fitted selection bounds.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> when at least one vertex was available and the
+        /// definition could be fitted; otherwise, <see langword="false"/>.
+        /// </returns>
+        public static bool FitBoundsPreserveRotation(
+            this ISelectionTarget2Definition definition,
+            IEnumerable<IReadOnlyList<Vector2>> polygons)
+        {
+            ArgumentNullException.ThrowIfNull(definition);
+            ArgumentNullException.ThrowIfNull(polygons);
+
+            if (definition is not ISelectionMovable2Definition movable ||
+                definition is not ISelectionResizable2Definition resizable)
+            {
+                return false;
+            }
+
+            Vector2 scale = definition is ISelectionScalable2Definition scalable
+                ? scalable.Scale
+                : Vector2.One;
+
+            if (MathF.Abs(scale.X) <= float.Epsilon ||
+                MathF.Abs(scale.Y) <= float.Epsilon)
+            {
+                return false;
+            }
+
+            float rotation = 0f;
+            Point2 rotationPivot = Point2.Zero;
+
+            if (definition is ISelectionRotatable2Definition rotatable)
+            {
+                rotation = rotatable.Rotation;
+                rotationPivot = rotatable.RotationPivot;
+            }
+
+            Matrix inverseRotation = Matrix.CreateRotationZ(-rotation);
+
+            float minX = float.MaxValue;
+            float minY = float.MaxValue;
+            float maxX = float.MinValue;
+            float maxY = float.MinValue;
+            bool hasVertex = false;
+
+            foreach (var polygon in polygons)
+            {
+                if (polygon == null)
+                    continue;
+
+                for (int i = 0; i < polygon.Count; i++)
+                {
+                    Vector2 point = Vector2.Transform(
+                        polygon[i],
+                        inverseRotation);
+
+                    minX = MathF.Min(minX, point.X);
+                    minY = MathF.Min(minY, point.Y);
+                    maxX = MathF.Max(maxX, point.X);
+                    maxY = MathF.Max(maxY, point.Y);
+                    hasVertex = true;
+                }
+            }
+
+            if (!hasVertex)
+                return false;
+
+            float width = (maxX - minX) / MathF.Abs(scale.X);
+            float height = (maxY - minY) / MathF.Abs(scale.Y);
+
+            var size = new Size2(width, height);
+
+            Vector2 scaledPivot = new Vector2(
+                width * scale.X * rotationPivot.X,
+                height * scale.Y * rotationPivot.Y);
+
+            Vector2 localOrigin = new Vector2(
+                scale.X >= 0f ? minX : maxX,
+                scale.Y >= 0f ? minY : maxY);
+
+            Vector2 position =
+                Vector2.Transform(
+                    localOrigin + scaledPivot,
+                    Matrix.CreateRotationZ(rotation)) -
+                scaledPivot;
+
+            resizable.Size = size;
+            movable.Position = new Point2(position.X, position.Y);
+            return true;
         }
 
         /// <summary>

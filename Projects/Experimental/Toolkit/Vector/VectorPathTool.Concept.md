@@ -33,7 +33,7 @@ VectorShape
     ↓
 VectorPath
     ↓
-VectorNode / IVectorSegment
+VectorNode / VectorSegment
 ```
 
 A runtime/editor target can expose vector geometry through:

@@ -1,4 +1,4 @@
-﻿using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
@@ -26,6 +26,11 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         {
             Position = position;
         }
+
+        /// <summary>
+        /// Gets the vector segment that owns this node.
+        /// </summary>
+        public VectorSegment? Segment { get; internal set; }
 
         /// <summary>
         /// Gets or sets the position of the node.

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {

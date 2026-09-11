@@ -1,4 +1,4 @@
-﻿using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {

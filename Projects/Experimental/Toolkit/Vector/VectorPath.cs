@@ -16,6 +16,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public VectorPath()
         {
             Start = new VectorNode();
+            Segments = new VectorSegmentCollection(this);
         }
 
         /// <summary>
@@ -33,9 +34,12 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             VectorNode start,
             bool isClosed)
         {
-            Start = start;
+            Start = start ?? throw new ArgumentNullException(nameof(start));
             IsClosed = isClosed;
+            Segments = new VectorSegmentCollection(this);
         }
+
+        public VectorShape? Shape { get; internal set; }
 
         /// <summary>
         /// Gets or sets the start node of the vector path.
@@ -51,7 +55,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <summary>
         /// Gets the segments that make up the vector path.
         /// </summary>
-        public List<IVectorSegment> Segments { get; } = [];
+        public VectorSegmentCollection Segments { get; }
 
         /// <summary>
         /// Generates a sampled representation of the complete vector path.
@@ -137,12 +141,12 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             }
         }
 
-        private static void ReverseSegment(IVectorSegment segment)
+        private static void ReverseSegment(VectorSegment segment)
         {
             switch (segment)
             {
                 case VectorCubicBezierSegment cubic:
-                    SwapNodeValues(cubic.ControlNodes[0], cubic.ControlNodes[1]);
+                    SwapNodeValues(cubic.GetControlNodes()[0], cubic.GetControlNodes()[1]);
                     break;
 
                 case VectorBSplineSegment spline:

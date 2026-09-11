@@ -21,3 +21,10 @@
 - Removed automatic transform synchronization from `VectorPathTool.Update()`; SelectionTool and VectorPathTool remain independent.
 - Added `VectorShape.IsChanged`, `Changed`, `NotifyChanged()`, and `UpdateState()` for geometry change tracking.
 - The previous transform state is updated only after geometry synchronization.
+## Parent hierarchy update
+- Replaced `IVectorSegment` with abstract `VectorSegment`.
+- Added `VectorSegment.Path` parent reference.
+- Added `VectorNode.Segment` parent reference for segment endpoint and control nodes.
+- Added `VectorSegmentCollection` to manage `VectorPath.Segments` ownership automatically.
+- Added `VectorNodeCollection` for variable control-node ownership.
+* [Change] Replaced the shared `ControlNodes` property on `VectorSegment` with `GetControlNodes()`, while `VectorVariableSegment` exposes its modifiable `ControlNodes` collection directly.

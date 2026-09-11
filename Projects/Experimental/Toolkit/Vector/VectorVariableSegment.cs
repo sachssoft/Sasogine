@@ -1,4 +1,4 @@
-﻿using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Common;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
@@ -6,30 +6,26 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// <summary>
     /// Represents a vector segment with a variable number of control nodes.
     /// </summary>
-    public abstract class VectorVariableSegment : IVectorSegment
+    public abstract class VectorVariableSegment : VectorSegment
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="VectorVariableSegment"/> class.
         /// </summary>
         protected VectorVariableSegment()
         {
-            Node = new VectorNode();
-            ControlNodes = [];
+            ControlNodes = new VectorNodeCollection(this);
         }
-
-        /// <summary>
-        /// Gets the endpoint node of the vector segment.
-        /// </summary>
-        public VectorNode Node { get; }
 
         /// <summary>
         /// Gets the modifiable collection of control nodes used by the vector segment.
         /// </summary>
-        public List<VectorNode> ControlNodes { get; }
+        public VectorNodeCollection ControlNodes { get; }
 
         /// <inheritdoc/>
-        IReadOnlyList<VectorNode> IVectorSegment.ControlNodes =>
-            ControlNodes;
+        public override IReadOnlyList<VectorNode> GetControlNodes()
+        {
+            return ControlNodes;
+        }
 
         /// <summary>
         /// Generates a sampled representation of the vector segment.
@@ -43,7 +39,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <returns>
         /// An array containing the sampled vertices of the vector segment.
         /// </returns>
-        public abstract Point2[] GetVertices(
+        public abstract override Point2[] GetVertices(
             Point2 startPosition,
             float sampleLength);
     }

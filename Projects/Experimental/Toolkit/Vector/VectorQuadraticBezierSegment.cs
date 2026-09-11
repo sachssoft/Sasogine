@@ -1,4 +1,4 @@
-﻿using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Geometry;
 using System;
 
@@ -71,7 +71,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             Node.Position = position;
             Node.IsSelected = isSelected;
 
-            ControlNodes[0].Position =
+            GetControlNodes()[0].Position =
                 controlPosition;
         }
 
@@ -104,7 +104,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             }
 
             Point2 controlPosition =
-                ControlNodes[0].Position;
+                GetControlNodes()[0].Position;
 
             Point2 endPosition =
                 Node.Position;

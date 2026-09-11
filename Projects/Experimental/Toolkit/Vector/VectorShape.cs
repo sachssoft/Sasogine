@@ -12,6 +12,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     {
         private const float DefaultSampleLength = 4f;
 
+
+        private readonly VectorPathCollection _paths;
         private readonly ITransform2? _source;
         private readonly Transform2State? _transformState;
 
@@ -20,6 +22,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// </summary>
         public VectorShape()
         {
+            _paths = new VectorPathCollection(this);
         }
 
         /// <summary>
@@ -29,7 +32,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <param name="source">
         /// The transform source used by the shape.
         /// </param>
-        public VectorShape(ITransform2? source)
+        public VectorShape(ITransform2? source) 
+            : this()
         {
             _source = source;
 
@@ -40,7 +44,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <summary>
         /// Gets the vector paths that define the shape.
         /// </summary>
-        public List<VectorPath> Paths { get; } = [];
+        public VectorPathCollection Paths => _paths;
 
         /// <summary>
         /// Gets or sets whether the shape is locked and cannot be modified.
@@ -58,7 +62,12 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public bool IsChanged { get; private set; }
 
         /// <summary>
-        /// Occurs when the vector geometry changes.
+        /// Occurs while the vector geometry is being changed interactively.
+        /// </summary>
+        public event EventHandler? Changing;
+
+        /// <summary>
+        /// Occurs when a vector geometry change is completed.
         /// </summary>
         public event EventHandler? Changed;
 
@@ -264,6 +273,11 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             IsChanged = false;
         }
 
+        internal void NotifyChanging()
+        {
+            Changing?.Invoke(this, EventArgs.Empty);
+        }
+
         internal void NotifyChanged()
         {
             if (IsChanged)
@@ -286,14 +300,14 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                      segmentIndex < path.Segments.Count;
                      segmentIndex++)
                 {
-                    IVectorSegment segment = path.Segments[segmentIndex];
+                    VectorSegment segment = path.Segments[segmentIndex];
                     nodes.Add(segment.Node);
 
                     for (int controlIndex = 0;
-                         controlIndex < segment.ControlNodes.Count;
+                         controlIndex < segment.GetControlNodes().Count;
                          controlIndex++)
                     {
-                        nodes.Add(segment.ControlNodes[controlIndex]);
+                        nodes.Add(segment.GetControlNodes()[controlIndex]);
                     }
                 }
             }
