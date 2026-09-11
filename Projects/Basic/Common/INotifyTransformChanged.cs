@@ -1,22 +1,24 @@
+﻿using System;
+
 namespace Sachssoft.Sasogine.Common;
 
 /// <summary>
-/// Provides optional notifications for the lifecycle of a transform operation.
+/// Provides event-based notifications for the lifecycle of a transform operation.
 /// </summary>
 public interface INotifyTransformChanged
 {
     /// <summary>
-    /// Called when a transform operation starts.
+    /// Occurs when a transform operation starts.
     /// </summary>
-    void OnTransformStarted();
+    event EventHandler? TransformStarted;
 
     /// <summary>
-    /// Called while a transform operation changes the target.
+    /// Occurs while a transform operation changes the target.
     /// </summary>
-    void OnTransformChanged();
+    event EventHandler? TransformChanged;
 
     /// <summary>
-    /// Called when a transform operation completes.
+    /// Occurs when a transform operation completes.
     /// </summary>
-    void OnTransformCompleted();
+    event EventHandler? TransformCompleted;
 }

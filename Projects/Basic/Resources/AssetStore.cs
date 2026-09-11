@@ -1,7 +1,9 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Assets;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Resources.Sources;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -21,7 +23,7 @@ namespace Sachssoft.Sasogine.Resources;
 // - AOT-Kompatibilität ist eine grundlegende Anforderung.
 // - Die Anwendung selbst muss nicht zwingend als AOT kompiliert werden.
 
-public partial class AssetStore
+public partial class AssetStore : IReadOnlyAssetStore
 {
     [Obsolete]
     private static readonly Dictionary<Type, Delegate> _registeredLoaders = new Dictionary<Type, Delegate>();
@@ -34,6 +36,15 @@ public partial class AssetStore
         new Dictionary<CultureInfo, Dictionary<string, object>>();
 
     private readonly GameApplicationBase _gameApplication;
+
+    private readonly Dictionary<string, IAsset> _assets =
+        new Dictionary<string, IAsset>();
+
+    /// <inheritdoc/>
+    public int Count => _assets.Count;
+
+    /// <inheritdoc/>
+    public IReadOnlyCollection<IAsset> Assets => _assets.Values;
 
     public AssetStore(GameApplicationBase application)
     {
@@ -258,6 +269,184 @@ public partial class AssetStore
         Func<Task<object?>> factory = () => Task.FromResult<object?>(_gameApplication.Content.Load<TData>(path));
 
         cultureDict[key] = new ResourceEntryAsync(factory);
+    }
+
+    // ------------------------ ASSET STORE ------------------------
+
+    /// <summary>
+    /// Adds the specified asset to the store.
+    /// </summary>
+    /// <param name="asset">
+    /// The asset to add.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="asset"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// The asset definition has no identifier, or an asset with the same identifier already exists.
+    /// </exception>
+    /// <summary>
+    /// Returns an enumerator that iterates through the assets in the store.
+    /// </summary>
+    public IEnumerator<IAsset> GetEnumerator()
+    {
+        return _assets.Values.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    public void Add(IAsset asset)
+    {
+        ArgumentNullException.ThrowIfNull(asset);
+
+        string? id = asset.Id;
+
+        if (string.IsNullOrEmpty(id) &&
+            asset.Definition is IAssetDefinition definition)
+        {
+            id = definition.Id;
+        }
+
+        if (string.IsNullOrEmpty(id))
+        {
+            throw new InvalidOperationException(
+                "The asset does not have an identifier.");
+        }
+
+        if (!_assets.TryAdd(id, asset))
+        {
+            throw new InvalidOperationException(
+                $"Asset '{id}' already exists.");
+        }
+
+        if (asset is IEngineObjectIdentityChanged identityChanged)
+            identityChanged.IdChanged += OnAssetIdChanged;
+    }
+
+    /// <summary>
+    /// Removes the asset with the specified identifier.
+    /// </summary>
+    /// <param name="id">
+    /// The identifier of the asset to remove.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if the asset was removed; otherwise,
+    /// <see langword="false"/>.
+    /// </returns>
+    public bool Remove(string id)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+
+        if (!_assets.Remove(id, out IAsset? asset))
+            return false;
+
+        if (asset is IEngineObjectIdentityChanged identityChanged)
+            identityChanged.IdChanged -= OnAssetIdChanged;
+
+        return true;
+    }
+
+    /// <inheritdoc/>
+    public bool Contains(string id)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+        return _assets.ContainsKey(id);
+    }
+
+    /// <inheritdoc/>
+    public IAsset Get(string id)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+
+        if (!_assets.TryGetValue(id, out IAsset? asset))
+            throw new KeyNotFoundException($"Asset '{id}' was not found.");
+
+        return asset;
+    }
+
+    /// <inheritdoc/>
+    public TAsset Get<TAsset>(string id)
+        where TAsset : class, IAsset
+    {
+        IAsset asset = Get(id);
+
+        if (asset is not TAsset typedAsset)
+        {
+            throw new InvalidCastException(
+                $"Asset '{id}' is of type '{asset.GetType().Name}' and cannot be cast to '{typeof(TAsset).Name}'.");
+        }
+
+        return typedAsset;
+    }
+
+    /// <inheritdoc/>
+    public bool TryGet(
+        string id,
+        out IAsset? asset)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+        return _assets.TryGetValue(id, out asset);
+    }
+
+    /// <inheritdoc/>
+    public bool TryGet<TAsset>(
+        string id,
+        out TAsset? asset)
+        where TAsset : class, IAsset
+    {
+        ArgumentNullException.ThrowIfNull(id);
+
+        if (_assets.TryGetValue(id, out IAsset? value) &&
+            value is TAsset typedAsset)
+        {
+            asset = typedAsset;
+            return true;
+        }
+
+        asset = null;
+        return false;
+    }
+
+    private void OnAssetIdChanged(
+        object? sender,
+        EngineObjectChangedEventArgs e)
+    {
+        if (sender is not IAsset asset)
+            return;
+
+        string? currentId = null;
+
+        foreach (KeyValuePair<string, IAsset> pair in _assets)
+        {
+            if (!ReferenceEquals(pair.Value, asset))
+                continue;
+
+            currentId = pair.Key;
+            break;
+        }
+
+        string? newId = asset.Id;
+
+        if (string.Equals(currentId, newId, StringComparison.Ordinal))
+            return;
+
+        if (currentId != null)
+            _assets.Remove(currentId);
+
+        if (string.IsNullOrEmpty(newId))
+            return;
+
+        if (_assets.TryGetValue(newId, out IAsset? existing) &&
+            !ReferenceEquals(existing, asset))
+        {
+            throw new InvalidOperationException(
+                $"Asset '{newId}' already exists.");
+        }
+
+        _assets[newId] = asset;
     }
 
     // ------------------------ LOAD ------------------------
