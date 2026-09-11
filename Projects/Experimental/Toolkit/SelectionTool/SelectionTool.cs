@@ -27,7 +27,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools;
 /// Targets may either implement <see cref="ISelectionTarget2"/> directly or expose
 /// an <see cref="ISelectionTarget2Definition"/> through an <see cref="IEngineObject"/>.
 /// </remarks>
-public class SelectionTool : ToolBase
+public class SelectionTool : ToolBase, INotifyTransformChanged
 {
     private readonly ShapeBatch _lineBatch;
     private readonly ShapeBatch _pointBatch;
@@ -545,7 +545,7 @@ public class SelectionTool : ToolBase
     }
 
     private void NotifySelectedTargets(
-        Action<INotifyTransformChanged> notifyAction)
+        Action<ITransformChangeObserver> notifyAction)
     {
         foreach (var entry in GetTargetEntries())
         {
@@ -556,8 +556,8 @@ public class SelectionTool : ToolBase
             if (!isSelected)
                 continue;
 
-            if (entry.NotifySource != null)
-                notifyAction(entry.NotifySource);
+            if (entry.TransformObserver != null)
+                notifyAction(entry.TransformObserver);
         }
     }
 
@@ -1621,7 +1621,8 @@ public class SelectionTool : ToolBase
             Target = engineObject as ISelectionTarget2;
             TargetDefinition =
                 engineObject.Definition as ISelectionTarget2Definition;
-            NotifySource = engineObject as INotifyTransformChanged;
+            TransformObserver = engineObject as ITransformChangeObserver;
+            NotifyTransformChanged = engineObject as INotifyTransformChanged;
         }
 
         public SelectionTargetEntry(ISelectionTarget2 target)
@@ -1630,12 +1631,15 @@ public class SelectionTool : ToolBase
             Target = target;
             TargetDefinition =
                 Source?.Definition as ISelectionTarget2Definition;
-            NotifySource = target as INotifyTransformChanged;
+            TransformObserver = target as ITransformChangeObserver;
+            NotifyTransformChanged = target as INotifyTransformChanged;
         }
 
         public IEngineObject? Source { get; }
 
-        public INotifyTransformChanged? NotifySource { get; }
+        public ITransformChangeObserver? TransformObserver { get; }
+
+        public INotifyTransformChanged? NotifyTransformChanged { get; }
 
         public ISelectionTarget2? Target { get; }
 
