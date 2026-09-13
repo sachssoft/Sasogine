@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
@@ -10,6 +11,6 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <summary>
         /// Gets the control node definitions.
         /// </summary>
-        public VectorNodeDefinition[]? ControlNodes { get; set; }
+        public ObservableCollection<VectorNodeDefinition> ControlNodes { get; } = [];
     }
 }

@@ -74,14 +74,25 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         {
             //if (definition.ControlNodes.Count != 1)
             //    throw new ArgumentException("Circular arc segments require exactly one control node.", nameof(definition));
-            definition.ControlNode ??= new VectorNodeDefinition();
+        }
+
+        protected override VectorNode CreateVectorNode(int index, VectorCircularArcSegmentDefinition definition)
+        {
+            return index switch
+            {
+                0 => new VectorNode(definition.ControlNode ??= new VectorNodeDefinition()),
+                _ => throw new NotImplementedException()
+            };
         }
 
         private static VectorCircularArcSegmentDefinition CreateDefinition()
         {
-            var definition = new VectorCircularArcSegmentDefinition();
-            definition.ControlNode ??= new VectorNodeDefinition();
-            //definition.ControlNodes.Add(new VectorNodeDefinition());
+            var definition = new VectorCircularArcSegmentDefinition
+            {
+                ControlNode = new VectorNodeDefinition(),
+                Node = new VectorNodeDefinition()
+            };
+
             return definition;
         }
 
@@ -90,15 +101,19 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             Point2 controlPosition,
             bool isSelected)
         {
-            var definition = CreateDefinition();
-            definition.Node = new VectorNodeDefinition
+            var definition = new VectorCircularArcSegmentDefinition
             {
-                Position = position,
-                IsSelected = isSelected
+                ControlNode = new VectorNodeDefinition
+                {
+                    Position = controlPosition,
+                },
+                Node = new VectorNodeDefinition
+                {
+                    Position = position,
+                    IsSelected = isSelected
+                }
             };
-            definition.ControlNode ??= new VectorNodeDefinition();
-            definition.ControlNode.Position = controlPosition;
-            //definition.ControlNodes[0].Position = controlPosition;
+
             return definition;
         }
 

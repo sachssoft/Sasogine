@@ -1,6 +1,6 @@
+using Sachssoft.Sasogine.Common;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
@@ -10,21 +10,12 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     public abstract class VectorVariableSegment<TDefinition> : VectorSegment<TDefinition>, IVectorVariableSegment
         where TDefinition : VectorVariableSegmentDefinition
     {
-        protected VectorVariableSegment()
-            : this(new VectorVariableSegmentDefinition())
-        {
-        }
-
-        protected VectorVariableSegment(VectorVariableSegmentDefinition definition)
+        protected VectorVariableSegment(TDefinition definition)
             : base(definition)
         {
             ControlNodes = new VectorNodeCollection(this);
-
-            if (definition.ControlNodes != null)
-                ControlNodes.AddRange(
-                    definition.ControlNodes.Select(x => new VectorNode(x)));
-            //for (int i = 0; i < definition.ControlNodes.Count; i++)
-            //    ControlNodes.Add(new VectorNode(definition.ControlNodes[i]));
+            for (int i = 0; i < definition.ControlNodes.Count; i++)
+                ControlNodes.Add(new VectorNode(definition.ControlNodes[i]));
         }
 
         public VectorNodeCollection ControlNodes { get; }

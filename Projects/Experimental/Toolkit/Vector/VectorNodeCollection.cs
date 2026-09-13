@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
@@ -125,10 +124,9 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             if (_segment.Definition is not VectorVariableSegmentDefinition definition)
                 return;
 
-            definition.ControlNodes = _nodes.Select(x => x.Definition).ToArray();
-            //definition.ControlNodes.Clear();
-            //for (int i = 0; i < _nodes.Count; i++)
-            //    definition.ControlNodes.Add(_nodes[i].Definition);
+            definition.ControlNodes.Clear();
+            for (int i = 0; i < _nodes.Count; i++)
+                definition.ControlNodes.Add(_nodes[i].Definition);
         }
 
         private static void EnsureCanAttach(VectorNode node)

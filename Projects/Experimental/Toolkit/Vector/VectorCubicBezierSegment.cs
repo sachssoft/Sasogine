@@ -77,19 +77,29 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public VectorCubicBezierSegment(VectorCubicBezierSegmentDefinition definition)
             : base(controlCount: 2, definition)
         {
-            definition.ControlNode0 ??= new VectorNodeDefinition();
-            definition.ControlNode1 ??= new VectorNodeDefinition();
             //if (definition.ControlNodes.Count != 2)
             //    throw new ArgumentException("Cubic Bézier segments require exactly two control nodes.", nameof(definition));
         }
 
+        protected override VectorNode CreateVectorNode(int index, VectorCubicBezierSegmentDefinition definition)
+        {
+            return index switch
+            {
+                0 => new VectorNode(definition.ControlNode0 ??= new VectorNodeDefinition()),
+                1 => new VectorNode(definition.ControlNode1 ??= new VectorNodeDefinition()),
+                _ => throw new NotImplementedException()
+            };
+        }
+
         private static VectorCubicBezierSegmentDefinition CreateDefinition()
         {
-            var definition = new VectorCubicBezierSegmentDefinition();
-            definition.ControlNode0 = new VectorNodeDefinition();
-            definition.ControlNode1 = new VectorNodeDefinition();
-            //definition.ControlNodes.Add(new VectorNodeDefinition());
-            //definition.ControlNodes.Add(new VectorNodeDefinition());
+            var definition = new VectorCubicBezierSegmentDefinition
+            {
+                ControlNode0 = new VectorNodeDefinition(),
+                ControlNode1 = new VectorNodeDefinition(),
+                Node = new VectorNodeDefinition()
+            };
+
             return definition;
         }
 
@@ -99,18 +109,23 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             Point2 controlPosition1,
             bool isSelected)
         {
-            var definition = CreateDefinition();
-            definition.Node = new VectorNodeDefinition
+            var definition = new VectorCubicBezierSegmentDefinition
             {
-                Position = position,
-                IsSelected = isSelected
+                ControlNode0 = new VectorNodeDefinition
+                {
+                    Position = controlPosition0,
+                },
+                ControlNode1 = new VectorNodeDefinition
+                {
+                    Position = controlPosition1,
+                },
+                Node = new VectorNodeDefinition
+                {
+                    Position = position,
+                    IsSelected = isSelected
+                }
             };
-            definition.ControlNode0 ??= new VectorNodeDefinition();
-            definition.ControlNode1 ??= new VectorNodeDefinition();
-            definition.ControlNode0.Position = controlPosition0;
-            definition.ControlNode1.Position = controlPosition1;
-            //definition.ControlNodes[0].Position = controlPosition0;
-            //definition.ControlNodes[1].Position = controlPosition1;
+
             return definition;
         }
 

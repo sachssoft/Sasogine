@@ -117,16 +117,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 
             foreach (var point in controlPoints)
             {
-                var controlNodes = new List<VectorNodeDefinition>();
-                controlNodes.Add(new VectorNodeDefinition
-                {
-                    Position = point
-                });
-
-                definition.ControlNodes = controlNodes.ToArray();
-
-                //definition.ControlNodes.Add(
-                //    new VectorNodeDefinition { Position = point });
+                definition.ControlNodes.Add(
+                    new VectorNodeDefinition { Position = point });
             }
 
             return definition;

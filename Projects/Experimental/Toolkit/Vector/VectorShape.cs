@@ -2,15 +2,13 @@ using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Cache;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>
     /// Represents a vector shape containing a collection of vector paths.
     /// </summary>
-    public class VectorShape : EngineObject<VectorShapeDefinition>
+    public class VectorShape
     {
         private const float DefaultSampleLength = 4f;
 
@@ -19,14 +17,10 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         private readonly ITransform2? _source;
         private readonly Transform2State? _transformState;
 
-        private bool _isLocked;
-        private VectorPath[]? _addPathsCache;
-
-        public VectorShape() : this(new VectorShapeDefinition())
-        {
-        }
-
-        public VectorShape(VectorShapeDefinition definition) : base(definition)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VectorShape"/> class.
+        /// </summary>
+        public VectorShape()
         {
             _paths = new VectorPathCollection(this);
         }
@@ -38,7 +32,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <param name="source">
         /// The transform source used by the shape.
         /// </param>
-        public VectorShape(ITransform2? source)
+        public VectorShape(ITransform2? source) 
             : this()
         {
             _source = source;
@@ -55,7 +49,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <summary>
         /// Gets or sets whether the shape is locked and cannot be modified.
         /// </summary>
-        public bool IsLocked => _isLocked;
+        public bool IsLocked { get; set; }
 
         /// <summary>
         /// Gets the transform source associated with the shape.
@@ -76,24 +70,6 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// Occurs when a vector geometry change is completed.
         /// </summary>
         public event EventHandler? Changed;
-
-        protected override void ConfigureFromDefinition()
-        {
-            base.ConfigureFromDefinition();
-            _isLocked = Definition.IsLocked;
-
-            if (_addPathsCache == null && Definition.Paths != null)
-            {
-                var paths = Definition.Paths.Select(x => new VectorPath(x))
-                                            .ToArray();
-
-                _paths.AddRange(paths);
-                _addPathsCache = paths;
-
-                //_paths.AddRange(Definition.Paths);
-                //_addPathsCache = Definition.Paths;
-            }
-        }
 
         /// <summary>
         /// Gets the sampled point vertices of all vector paths.

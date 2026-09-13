@@ -184,10 +184,10 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                     catmullRom.ControlNodes.Reverse();
                     break;
 
-                case VectorArcSegment arc:
-                    arc.Definition.Sweep = !arc.Sweep;
-                    arc.Reload();
-                    break;
+                //case VectorArcSegment arc:
+                //    arc.Definition.Sweep = !arc.Sweep;
+                //    arc.Reload();
+                //    break;
             }
         }
 

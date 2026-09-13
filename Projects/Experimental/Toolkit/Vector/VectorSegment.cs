@@ -6,7 +6,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// <summary>
     /// Represents the base class for a vector path segment.
     /// </summary>
-    public abstract class VectorSegment<TDefinition> : EngineObject<VectorSegmentDefinition>, IVectorSegment, IVectorSegmentInternal
+    public abstract class VectorSegment<TDefinition> : EngineObject<TDefinition>, IVectorSegment, IVectorSegmentInternal
         where TDefinition : VectorSegmentDefinition
     {
         private VectorPath? _path;
@@ -15,7 +15,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <summary>
         /// Initializes a new instance of the <see cref="VectorSegment"/> class.
         /// </summary>
-        protected VectorSegment(VectorSegmentDefinition definition)
+        protected VectorSegment(TDefinition definition)
             : base(definition)
         {
             _node = new VectorNode(definition.Node) { Segment = this };
@@ -36,6 +36,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// Gets the endpoint node of the vector segment.
         /// </summary>
         public VectorNode Node => _node;
+
+        VectorSegmentDefinition IVectorSegment.Definition => Definition;
 
         /// <inheritdoc/>
         protected override void ConfigureFromDefinition()

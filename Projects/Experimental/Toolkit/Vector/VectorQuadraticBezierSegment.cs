@@ -73,16 +73,27 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public VectorQuadraticBezierSegment(VectorQuadraticBezierSegmentDefinition definition)
             : base(controlCount: 1, definition)
         {
-            definition.ControlNode ??= new VectorNodeDefinition();
             //if (definition.ControlNodes.Count != 1)
             //    throw new ArgumentException("Quadratic Bézier segments require exactly one control node.", nameof(definition));
         }
 
+        protected override VectorNode CreateVectorNode(int index, VectorQuadraticBezierSegmentDefinition definition)
+        {
+            return index switch
+            {
+                0 => new VectorNode(definition.ControlNode ??= new VectorNodeDefinition()),
+                _ => throw new NotImplementedException()
+            };
+        }
+
         private static VectorQuadraticBezierSegmentDefinition CreateDefinition()
         {
-            var definition = new VectorQuadraticBezierSegmentDefinition();
-            definition.ControlNode ??= new VectorNodeDefinition();
-            //definition.ControlNodes.Add(new VectorNodeDefinition());
+            var definition = new VectorQuadraticBezierSegmentDefinition
+            {
+                ControlNode = new VectorNodeDefinition(),
+                Node = new VectorNodeDefinition()
+            };
+
             return definition;
         }
 
@@ -91,15 +102,19 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             Point2 controlPosition,
             bool isSelected)
         {
-            var definition = CreateDefinition();
-            definition.Node = new VectorNodeDefinition
+            var definition = new VectorQuadraticBezierSegmentDefinition
             {
-                Position = position,
-                IsSelected = isSelected
+                ControlNode = new VectorNodeDefinition
+                {
+                    Position = controlPosition,
+                },
+                Node = new VectorNodeDefinition
+                {
+                    Position = position,
+                    IsSelected = isSelected
+                }
             };
-            definition.ControlNode ??= new VectorNodeDefinition();
-            definition.ControlNode.Position = controlPosition;
-            //definition.ControlNodes[0].Position = controlPosition;
+
             return definition;
         }
 

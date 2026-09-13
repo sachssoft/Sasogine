@@ -24,7 +24,10 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 
             var controlNodes = new VectorNode[controlCount];
             for (int i = 0; i < controlCount; i++)
-                controlNodes[i] = new VectorNode() { Segment = this };
+            {
+                controlNodes[i] = CreateVectorNode(i, definition);
+                //controlNodes[i] = new VectorNode(definition.ControlNodes[i]) { Segment = this };
+            }
 
             //var controlNodes = new VectorNode[definition.ControlNodes.Count];
             //for (int i = 0; i < controlNodes.Length; i++)
@@ -32,6 +35,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 
             _controlNodes = controlNodes;
         }
+
+        protected abstract VectorNode CreateVectorNode(int index, TDefinition definition);
 
         public override IReadOnlyList<VectorNode> GetControlNodes() => _controlNodes;
 
@@ -42,7 +47,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                 _controlNodes[i].Reload();
         }
 
-        //private static TDefinition CreateDefinition(int controlCount)
+        //private static VectorFixedSegmentDefinition CreateDefinition(int controlCount)
         //{
         //    if (controlCount < 0)
         //        throw new ArgumentOutOfRangeException(nameof(controlCount));

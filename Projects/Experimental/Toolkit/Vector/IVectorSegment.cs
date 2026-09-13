@@ -5,7 +5,6 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     public interface IVectorSegment
     {
-        VectorSegmentDefinition Definition { get; }
 
         VectorPath? Path { get; }
 
@@ -14,6 +13,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         IReadOnlyList<VectorNode> GetControlNodes();
 
         Point2[] GetVertices(Point2 startPosition, float sampleLength);
+
+        VectorSegmentDefinition Definition { get; }
 
     }
 }

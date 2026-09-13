@@ -16,7 +16,5 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// Gets or sets whether the path is closed.
         /// </summary>
         public bool IsClosed { get; set; }
-
-        public IVectorSegment[]? Segments { get; set; }
     }
 }
