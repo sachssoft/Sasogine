@@ -7,7 +7,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// <summary>
     /// Represents an elliptical arc segment of a vector path.
     /// </summary>
-    public sealed class VectorArcSegment : VectorFixedSegment
+    public sealed class VectorArcSegment : VectorFixedSegment<VectorArcSegmentDefinition>
     {
         private float _radiusX;
         private float _radiusY;
@@ -135,7 +135,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// using the specified definition.
         /// </summary>
         public VectorArcSegment(VectorArcSegmentDefinition definition)
-            : base(definition)
+            : base(controlCount: 2, definition)
         {
             _radiusX = definition.RadiusX;
             _radiusY = definition.RadiusY;

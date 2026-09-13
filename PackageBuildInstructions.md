@@ -41,7 +41,6 @@ dotnet nuget push ".\Packages\Sachssoft.Sasogine.DesktopGL.$version.nupkg" `
 Then build the remaining packages together:
 
 ```powershell
-dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL\Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL.csproj -c Release -o .\Packages
 dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.Markup.DesktopGL\Sachssoft.Sasogine.Markup.DesktopGL.csproj -c Release -o .\Packages
 dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.Toolkit.DesktopGL\Sachssoft.Sasogine.Toolkit.DesktopGL.csproj -c Release -o .\Packages
 ```
@@ -51,10 +50,6 @@ dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.Toolkit.DesktopGL\Sachssoft.S
 After all remaining packages have been built successfully, publish them together:
 
 ```powershell
-dotnet nuget push ".\Packages\Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL.$version.nupkg" `
-    --api-key $apiKey `
-    --source "https://api.nuget.org/v3/index.json"
-
 dotnet nuget push ".\Packages\Sachssoft.Sasogine.Markup.DesktopGL.$version.nupkg" `
     --api-key $apiKey `
     --source "https://api.nuget.org/v3/index.json"

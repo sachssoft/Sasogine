@@ -4,7 +4,7 @@
 
 	<PropertyGroup>
 		<!-- General -->
-		<RootNamespace>Sachssoft.Sasogine.Resources.Markup</RootNamespace>
+		<RootNamespace>Sachssoft.Sasogine.Markup</RootNamespace>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
@@ -19,21 +19,23 @@
 
 		<!-- NuGet Metadata -->
 		<Description>
-			Markup loading support for resources in the Sasogine game engine.
+			Markup and serialization support for the Sasogine game engine, including XML and JSON document handling and resource markup loading.
 		</Description>
 
 		<PackageReleaseNotes>
-			Sasogine Resources Markup Alpha release.
+			Introduces the Sasogine Markup and serialization infrastructure.
 		</PackageReleaseNotes>
 
 		<PackageTags>
-			Sasogine;Markup;Resources;XML;JSON;FrameSet;TextureAtlas;MonoGame;GameEngine;Framework;AOT;Trimming
+			Sasogine;Markup;Serialization;Resources;XML;JSON;FrameSet;TextureAtlas;MonoGame;GameEngine;Framework;AOT;Trimming
 		</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Sachssoft.Sasogine.DesktopGL"
 						  Version="$(VersionPrefix)-$(VersionSuffix)" />
+		<PackageReference Include="Sachssoft.Sasodoc"
+						  Version="1.0.0" />
 	</ItemGroup>
 
 </Project>

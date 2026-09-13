@@ -16,7 +16,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// The vector segments associated with the event.
         /// </param>
         public VectorPathSegmentsEventArgs(
-            IReadOnlyList<VectorSegment> segments)
+            IReadOnlyList<IVectorSegment> segments)
         {
             Segments = segments;
         }
@@ -24,6 +24,6 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <summary>
         /// Gets the vector segments associated with the event.
         /// </summary>
-        public IReadOnlyList<VectorSegment> Segments { get; }
+        public IReadOnlyList<IVectorSegment> Segments { get; }
     }
 }

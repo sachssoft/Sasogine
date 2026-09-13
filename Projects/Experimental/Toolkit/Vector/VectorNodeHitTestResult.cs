@@ -21,7 +21,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public VectorNodeHitTestResult(
             VectorNode? node,
             VectorNode? controlNode,
-            VectorSegment? segment)
+            IVectorSegment? segment)
         {
             Node = node;
             ControlNode = controlNode;
@@ -41,6 +41,6 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <summary>
         /// Gets the vector segment associated with the hit, if any.
         /// </summary>
-        public VectorSegment? Segment { get; }
+        public IVectorSegment? Segment { get; }
     }
 }

@@ -21,7 +21,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.0-alpha] - Planned
 * [Feature] **Toolkit**: Added `VectorPathTool` for creating, editing, and transforming vector paths.
-* [Change] **Extension/Sasodoc**: Simplified `SerializationRegistry` by removing the unnecessary `TSerialization` type parameter and using `ISerialization` directly.
+* [Feature] **Markup**: Introduced serialization support and integrated the existing `Extension/Sasodoc` serialization functionality into Markup.
 
 ## [0.1.7-alpha] - 2026-09-11
 - [Feature] Added `INotifyTransformChanged` for event-based transform lifecycle notifications.

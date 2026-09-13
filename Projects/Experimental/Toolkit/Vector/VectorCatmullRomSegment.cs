@@ -9,7 +9,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// Represents a Catmull-Rom spline segment of a vector path defined by
     /// a sequence of control nodes.
     /// </summary>
-    public sealed class VectorCatmullRomSegment : VectorVariableSegment
+    public sealed class VectorCatmullRomSegment : VectorVariableSegment<VectorCatmullRomSegmentDefinition>
     {
         private bool _closed;
         private Point2 _startPositionCache;
@@ -101,8 +101,16 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 
             foreach (var point in controlPoints)
             {
-                definition.ControlNodes.Add(
-                    new VectorNodeDefinition { Position = point });
+                var controlNodes = new List<VectorNodeDefinition>();
+                controlNodes.Add(new VectorNodeDefinition
+                {
+                    Position = point
+                });
+
+                definition.ControlNodes = controlNodes.ToArray();
+
+                //definition.ControlNodes.Add(
+                //    new VectorNodeDefinition { Position = point });
             }
 
             return definition;

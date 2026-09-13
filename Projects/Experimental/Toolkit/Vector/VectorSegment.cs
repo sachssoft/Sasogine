@@ -6,7 +6,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// <summary>
     /// Represents the base class for a vector path segment.
     /// </summary>
-    public abstract class VectorSegment : EngineObject<VectorSegmentDefinition>, IVectorSegment, IVectorSegmentInternal
+    public abstract class VectorSegment<TDefinition> : EngineObject<VectorSegmentDefinition>, IVectorSegment, IVectorSegmentInternal
+        where TDefinition : VectorSegmentDefinition
     {
         private VectorPath? _path;
         private VectorNode _node;

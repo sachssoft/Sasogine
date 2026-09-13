@@ -7,23 +7,28 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// <summary>
     /// Represents a vector segment with a fixed number of control nodes.
     /// </summary>
-    public abstract class VectorFixedSegment : VectorSegment
+    public abstract class VectorFixedSegment<TDefinition> : VectorSegment<TDefinition>
+        where TDefinition : VectorSegmentDefinition
     {
         private readonly IReadOnlyList<VectorNode> _controlNodes;
 
-        protected VectorFixedSegment(int controlCount)
-            : this(CreateDefinition(controlCount))
-        {
-        }
+        //protected VectorFixedSegment(int controlCount)
+        //    : this(CreateDefinition(controlCount))
+        //{
+        //}
 
-        protected VectorFixedSegment(VectorFixedSegmentDefinition definition)
+        protected VectorFixedSegment(int controlCount, TDefinition definition)
             : base(definition)
         {
             ArgumentNullException.ThrowIfNull(definition);
 
-            var controlNodes = new VectorNode[definition.ControlNodes.Count];
-            for (int i = 0; i < controlNodes.Length; i++)
-                controlNodes[i] = new VectorNode(definition.ControlNodes[i]) { Segment = this };
+            var controlNodes = new VectorNode[controlCount];
+            for (int i = 0; i < controlCount; i++)
+                controlNodes[i] = new VectorNode() { Segment = this };
+
+            //var controlNodes = new VectorNode[definition.ControlNodes.Count];
+            //for (int i = 0; i < controlNodes.Length; i++)
+            //    controlNodes[i] = new VectorNode(definition.ControlNodes[i]) { Segment = this };
 
             _controlNodes = controlNodes;
         }
@@ -37,15 +42,15 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                 _controlNodes[i].Reload();
         }
 
-        private static VectorFixedSegmentDefinition CreateDefinition(int controlCount)
-        {
-            if (controlCount < 0)
-                throw new ArgumentOutOfRangeException(nameof(controlCount));
+        //private static TDefinition CreateDefinition(int controlCount)
+        //{
+        //    if (controlCount < 0)
+        //        throw new ArgumentOutOfRangeException(nameof(controlCount));
 
-            var definition = new VectorFixedSegmentDefinition();
-            for (int i = 0; i < controlCount; i++)
-                definition.ControlNodes.Add(new VectorNodeDefinition());
-            return definition;
-        }
+        //    var definition = new VectorFixedSegmentDefinition();
+        //    for (int i = 0; i < controlCount; i++)
+        //        definition.ControlNodes.Add(new VectorNodeDefinition());
+        //    return definition;
+        //}
     }
 }

@@ -8,7 +8,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// Represents a quadratic Bézier segment of a vector path
     /// with a single control node.
     /// </summary>
-    public sealed class VectorQuadraticBezierSegment : VectorFixedSegment
+    public sealed class VectorQuadraticBezierSegment : VectorFixedSegment<VectorQuadraticBezierSegmentDefinition>
     {
         private Point2 _startPositionCache;
         private Point2 _controlPositionCache;
@@ -70,21 +70,23 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         {
         }
 
-        public VectorQuadraticBezierSegment(VectorFixedSegmentDefinition definition)
-            : base(definition)
+        public VectorQuadraticBezierSegment(VectorQuadraticBezierSegmentDefinition definition)
+            : base(controlCount: 1, definition)
         {
-            if (definition.ControlNodes.Count != 1)
-                throw new ArgumentException("Quadratic Bézier segments require exactly one control node.", nameof(definition));
+            definition.ControlNode ??= new VectorNodeDefinition();
+            //if (definition.ControlNodes.Count != 1)
+            //    throw new ArgumentException("Quadratic Bézier segments require exactly one control node.", nameof(definition));
         }
 
-        private static VectorFixedSegmentDefinition CreateDefinition()
+        private static VectorQuadraticBezierSegmentDefinition CreateDefinition()
         {
-            var definition = new VectorFixedSegmentDefinition();
-            definition.ControlNodes.Add(new VectorNodeDefinition());
+            var definition = new VectorQuadraticBezierSegmentDefinition();
+            definition.ControlNode ??= new VectorNodeDefinition();
+            //definition.ControlNodes.Add(new VectorNodeDefinition());
             return definition;
         }
 
-        private static VectorFixedSegmentDefinition CreateDefinition(
+        private static VectorQuadraticBezierSegmentDefinition CreateDefinition(
             Point2 position,
             Point2 controlPosition,
             bool isSelected)
@@ -95,7 +97,9 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                 Position = position,
                 IsSelected = isSelected
             };
-            definition.ControlNodes[0].Position = controlPosition;
+            definition.ControlNode ??= new VectorNodeDefinition();
+            definition.ControlNode.Position = controlPosition;
+            //definition.ControlNodes[0].Position = controlPosition;
             return definition;
         }
 

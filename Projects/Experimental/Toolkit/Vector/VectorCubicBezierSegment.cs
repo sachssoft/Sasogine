@@ -7,7 +7,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// <summary>
     /// Represents a cubic Bézier segment with two control nodes.
     /// </summary>
-    public sealed class VectorCubicBezierSegment : VectorFixedSegment
+    public sealed class VectorCubicBezierSegment : VectorFixedSegment<VectorCubicBezierSegmentDefinition>
     {
         private Point2 _startPositionCache;
         private Point2 _controlPosition0Cache;
@@ -74,22 +74,26 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         {
         }
 
-        public VectorCubicBezierSegment(VectorFixedSegmentDefinition definition)
-            : base(definition)
+        public VectorCubicBezierSegment(VectorCubicBezierSegmentDefinition definition)
+            : base(controlCount: 2, definition)
         {
-            if (definition.ControlNodes.Count != 2)
-                throw new ArgumentException("Cubic Bézier segments require exactly two control nodes.", nameof(definition));
+            definition.ControlNode0 ??= new VectorNodeDefinition();
+            definition.ControlNode1 ??= new VectorNodeDefinition();
+            //if (definition.ControlNodes.Count != 2)
+            //    throw new ArgumentException("Cubic Bézier segments require exactly two control nodes.", nameof(definition));
         }
 
-        private static VectorFixedSegmentDefinition CreateDefinition()
+        private static VectorCubicBezierSegmentDefinition CreateDefinition()
         {
-            var definition = new VectorFixedSegmentDefinition();
-            definition.ControlNodes.Add(new VectorNodeDefinition());
-            definition.ControlNodes.Add(new VectorNodeDefinition());
+            var definition = new VectorCubicBezierSegmentDefinition();
+            definition.ControlNode0 = new VectorNodeDefinition();
+            definition.ControlNode1 = new VectorNodeDefinition();
+            //definition.ControlNodes.Add(new VectorNodeDefinition());
+            //definition.ControlNodes.Add(new VectorNodeDefinition());
             return definition;
         }
 
-        private static VectorFixedSegmentDefinition CreateDefinition(
+        private static VectorCubicBezierSegmentDefinition CreateDefinition(
             Point2 position,
             Point2 controlPosition0,
             Point2 controlPosition1,
@@ -101,8 +105,12 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                 Position = position,
                 IsSelected = isSelected
             };
-            definition.ControlNodes[0].Position = controlPosition0;
-            definition.ControlNodes[1].Position = controlPosition1;
+            definition.ControlNode0 ??= new VectorNodeDefinition();
+            definition.ControlNode1 ??= new VectorNodeDefinition();
+            definition.ControlNode0.Position = controlPosition0;
+            definition.ControlNode1.Position = controlPosition1;
+            //definition.ControlNodes[0].Position = controlPosition0;
+            //definition.ControlNodes[1].Position = controlPosition1;
             return definition;
         }
 

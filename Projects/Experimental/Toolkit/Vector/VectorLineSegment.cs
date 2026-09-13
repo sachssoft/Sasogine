@@ -5,13 +5,13 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// <summary>
     /// Represents a straight line segment between two vector path nodes.
     /// </summary>
-    public class VectorLineSegment : VectorFixedSegment
+    public sealed class VectorLineSegment : VectorFixedSegment<VectorLineSegmentDefinition>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="VectorLineSegment"/> class.
         /// </summary>
         public VectorLineSegment()
-            : this(new VectorFixedSegmentDefinition())
+            : this(new VectorLineSegmentDefinition())
         {
         }
 
@@ -44,7 +44,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public VectorLineSegment(
             Point2 position,
             bool isSelected)
-            : this(new VectorFixedSegmentDefinition
+            : this(new VectorLineSegmentDefinition
             {
                 Node = new VectorNodeDefinition
                 {
@@ -59,8 +59,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// Initializes a new instance of the <see cref="VectorLineSegment"/> class
         /// using the specified definition.
         /// </summary>
-        public VectorLineSegment(VectorFixedSegmentDefinition definition)
-            : base(definition)
+        public VectorLineSegment(VectorLineSegmentDefinition definition)
+            : base(controlCount: 0, definition)
         {
         }
 

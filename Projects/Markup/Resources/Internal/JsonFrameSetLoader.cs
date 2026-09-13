@@ -1,18 +1,23 @@
-﻿using Sachssoft.Sasogine.Resources;
+using Sachssoft.Sasogine.Resources;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 
-namespace Sachssoft.Sasogine.Resources.Markup.Internal
+namespace Sachssoft.Sasogine.Markup.Resources.Internal
 {
     internal sealed class JsonFrameSetLoader : FrameSetLoader
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JsonFrameSetLoader"/> class.
+        /// </summary>
+        /// <param name="resourceSource">The resource source containing the frame set document.</param>
         public JsonFrameSetLoader(ResourceSourceBase resourceSource)
             : base(resourceSource)
         {
         }
 
+        /// <inheritdoc/>
         protected override IEnumerable<FrameSetEntry> OnLoading(Stream stream)
         {
             ArgumentNullException.ThrowIfNull(stream);

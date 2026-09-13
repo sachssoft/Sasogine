@@ -1,19 +1,24 @@
-﻿using Sachssoft.Sasogine.Resources;
+using Sachssoft.Sasogine.Resources;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Xml.Linq;
 
-namespace Sachssoft.Sasogine.Resources.Markup.Internal
+namespace Sachssoft.Sasogine.Markup.Resources.Internal
 {
     internal sealed class XmlFrameSetLoader : FrameSetLoader
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="XmlFrameSetLoader"/> class.
+        /// </summary>
+        /// <param name="resourceSource">The resource source containing the frame set document.</param>
         public XmlFrameSetLoader(ResourceSourceBase resourceSource)
             : base(resourceSource)
         {
         }
 
+        /// <inheritdoc/>
         protected override IEnumerable<FrameSetEntry> OnLoading(Stream stream)
         {
             ArgumentNullException.ThrowIfNull(stream);

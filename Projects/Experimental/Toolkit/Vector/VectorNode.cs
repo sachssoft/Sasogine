@@ -41,7 +41,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <summary>
         /// Gets the vector segment that owns this node.
         /// </summary>
-        public VectorSegment? Segment { get; internal set; }
+        public IVectorSegment? Segment { get; internal set; }
 
         /// <summary>
         /// Gets the current runtime position of the node.

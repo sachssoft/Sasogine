@@ -7,9 +7,9 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// <summary>
     /// Represents the collection of vector segments owned by a <see cref="VectorPath"/>.
     /// </summary>
-    public sealed class VectorSegmentCollection : IList<VectorSegment>, IReadOnlyList<VectorSegment>
+    public sealed class VectorSegmentCollection : IList<IVectorSegment>, IReadOnlyList<IVectorSegment>
     {
-        private readonly List<VectorSegment> _segments = [];
+        private readonly List<IVectorSegment> _segments = [];
         private readonly VectorPath _path;
 
         internal VectorSegmentCollection(VectorPath path)
@@ -17,14 +17,14 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             _path = path ?? throw new ArgumentNullException(nameof(path));
         }
 
-        public VectorSegment this[int index]
+        public IVectorSegment this[int index]
         {
             get => _segments[index];
             set
             {
                 ArgumentNullException.ThrowIfNull(value);
 
-                VectorSegment current = _segments[index];
+                IVectorSegment current = _segments[index];
 
                 if (ReferenceEquals(current, value))
                     return;
@@ -39,7 +39,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public int Count => _segments.Count;
         public bool IsReadOnly => false;
 
-        public void Add(VectorSegment item)
+        public void Add(IVectorSegment item)
         {
             ArgumentNullException.ThrowIfNull(item);
             EnsureCanAttach(item);
@@ -51,11 +51,11 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// Adds the specified items to the collection.
         /// </summary>
         /// <param name="items">The items to add.</param>
-        public void AddRange(IEnumerable<VectorSegment> items)
+        public void AddRange(IEnumerable<IVectorSegment> items)
         {
             ArgumentNullException.ThrowIfNull(items);
 
-            var range = new List<VectorSegment>(items);
+            var range = new List<IVectorSegment>(items);
 
             for (int i = 0; i < range.Count; i++)
             {
@@ -75,12 +75,12 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             _segments.Clear();
         }
 
-        public bool Contains(VectorSegment item) => _segments.Contains(item);
-        public void CopyTo(VectorSegment[] array, int arrayIndex) => _segments.CopyTo(array, arrayIndex);
-        public IEnumerator<VectorSegment> GetEnumerator() => _segments.GetEnumerator();
-        public int IndexOf(VectorSegment item) => _segments.IndexOf(item);
+        public bool Contains(IVectorSegment item) => _segments.Contains(item);
+        public void CopyTo(IVectorSegment[] array, int arrayIndex) => _segments.CopyTo(array, arrayIndex);
+        public IEnumerator<IVectorSegment> GetEnumerator() => _segments.GetEnumerator();
+        public int IndexOf(IVectorSegment item) => _segments.IndexOf(item);
 
-        public void Insert(int index, VectorSegment item)
+        public void Insert(int index, IVectorSegment item)
         {
             ArgumentNullException.ThrowIfNull(item);
             EnsureCanAttach(item);
@@ -88,7 +88,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             _segments.Insert(index, item);
         }
 
-        public bool Remove(VectorSegment item)
+        public bool Remove(IVectorSegment item)
         {
             if (!_segments.Remove(item))
                 return false;
@@ -99,7 +99,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 
         public void RemoveAt(int index)
         {
-            VectorSegment item = _segments[index];
+            IVectorSegment item = _segments[index];
             _segments.RemoveAt(index);
             ((IVectorSegmentInternal)item).Path = null;
         }
@@ -108,7 +108,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        private static void EnsureCanAttach(VectorSegment segment)
+        private static void EnsureCanAttach(IVectorSegment segment)
         {
             if (segment.Path != null)
                 throw new InvalidOperationException("The vector segment already belongs to a vector path.");

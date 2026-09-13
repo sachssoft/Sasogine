@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>
     /// Represents a vector segment with a variable number of control nodes.
     /// </summary>
-    public abstract class VectorVariableSegment : VectorSegment
+    public abstract class VectorVariableSegment<TDefinition> : VectorSegment<TDefinition>, IVectorVariableSegment
+        where TDefinition : VectorVariableSegmentDefinition
     {
         protected VectorVariableSegment()
             : this(new VectorVariableSegmentDefinition())
@@ -17,8 +19,12 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             : base(definition)
         {
             ControlNodes = new VectorNodeCollection(this);
-            for (int i = 0; i < definition.ControlNodes.Count; i++)
-                ControlNodes.Add(new VectorNode(definition.ControlNodes[i]));
+
+            if (definition.ControlNodes != null)
+                ControlNodes.AddRange(
+                    definition.ControlNodes.Select(x => new VectorNode(x)));
+            //for (int i = 0; i < definition.ControlNodes.Count; i++)
+            //    ControlNodes.Add(new VectorNode(definition.ControlNodes[i]));
         }
 
         public VectorNodeCollection ControlNodes { get; }

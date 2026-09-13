@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
@@ -10,9 +11,9 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     public sealed class VectorNodeCollection : IList<VectorNode>, IReadOnlyList<VectorNode>
     {
         private readonly List<VectorNode> _nodes = [];
-        private readonly VectorSegment _segment;
+        private readonly IVectorSegment _segment;
 
-        internal VectorNodeCollection(VectorSegment segment)
+        internal VectorNodeCollection(IVectorSegment segment)
         {
             _segment = segment ?? throw new ArgumentNullException(nameof(segment));
         }
@@ -124,9 +125,10 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             if (_segment.Definition is not VectorVariableSegmentDefinition definition)
                 return;
 
-            definition.ControlNodes.Clear();
-            for (int i = 0; i < _nodes.Count; i++)
-                definition.ControlNodes.Add(_nodes[i].Definition);
+            definition.ControlNodes = _nodes.Select(x => x.Definition).ToArray();
+            //definition.ControlNodes.Clear();
+            //for (int i = 0; i < _nodes.Count; i++)
+            //    definition.ControlNodes.Add(_nodes[i].Definition);
         }
 
         private static void EnsureCanAttach(VectorNode node)

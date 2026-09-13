@@ -5,6 +5,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     public interface IVectorSegment
     {
+        VectorSegmentDefinition Definition { get; }
 
         VectorPath? Path { get; }
 

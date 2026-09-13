@@ -42,7 +42,7 @@ public sealed class VectorPathTool : ToolBase
 
     private Box2? _insertRect;
     private VectorPath? _drawingPath;
-    private VectorSegment? _drawingSegment;
+    private IVectorSegment? _drawingSegment;
 
     public event EventHandler<VectorPathNodesEventArgs>? NodeSelected;
     public event EventHandler<VectorPathNodesEventArgs>? NodeMoved;
@@ -76,7 +76,7 @@ public sealed class VectorPathTool : ToolBase
     //public VectorPathToolOperation Operation { get; private set; }
 
     public VectorPathToolMode Mode { get; set; } = VectorPathToolMode.Selection;
-    public Func<VectorSegment>? SegmentFactory { get; set; }
+    public Func<IVectorSegment>? SegmentFactory { get; set; }
     public Func<Bounds2, VectorPath>? PathFactory { get; set; }
 
     public bool SnapGridEnabled { get; set; } = true;
@@ -867,7 +867,7 @@ public sealed class VectorPathTool : ToolBase
 
     public void AddPath(
         Point2 position,
-        IEnumerable<VectorSegment> segments)
+        IEnumerable<IVectorSegment> segments)
     {
         ArgumentNullException.ThrowIfNull(segments);
 
@@ -967,7 +967,7 @@ public sealed class VectorPathTool : ToolBase
 
     public void RemoveSegments()
     {
-        var removedSegments = new List<VectorSegment>();
+        var removedSegments = new List<IVectorSegment>();
 
         foreach (var path in GetPaths())
         {
@@ -1079,7 +1079,7 @@ public sealed class VectorPathTool : ToolBase
         newSegment.Node.Definition.IsSelected = oldSegment.Node.IsSelected;
         newSegment.Node.Reload();
 
-        if (newSegment is VectorVariableSegment variableSegment)
+        if (newSegment is IVectorVariableSegment variableSegment)
         {
             variableSegment.ControlNodes.Clear();
 
@@ -1127,7 +1127,7 @@ public sealed class VectorPathTool : ToolBase
             this,
             new VectorPathSegmentsEventArgs([segment]));
     }
-    private VectorSegment CreateDrawingSegment()
+    private IVectorSegment CreateDrawingSegment()
     {
         var segmentFactory = SegmentFactory ??
             (() => new VectorLineSegment());
@@ -1223,7 +1223,7 @@ public sealed class VectorPathTool : ToolBase
         }
 
         var targetSegments =
-            new List<VectorSegment>(targetPath.Segments);
+            new List<IVectorSegment>(targetPath.Segments);
 
         targetPath.Segments.Clear();
         targetPath.Start.Definition.Position = drawingPath.Start.Position;
@@ -1280,7 +1280,7 @@ public sealed class VectorPathTool : ToolBase
     }
 
     private void SetControlNodes(
-        VectorSegment segment,
+        IVectorSegment segment,
         Point2 startPosition)
     {
         int count = segment.GetControlNodes().Count;
@@ -1302,9 +1302,9 @@ public sealed class VectorPathTool : ToolBase
         }
     }
 
-    private void EnsureAddControlPoints(VectorSegment segment)
+    private void EnsureAddControlPoints(IVectorSegment segment)
     {
-        if (segment is VectorVariableSegment variable)
+        if (segment is IVectorVariableSegment variable)
         {
             variable.ControlNodes.Add(new VectorNode());
             variable.ControlNodes.Add(new VectorNode());

@@ -28,18 +28,20 @@ Sasogine is a lightweight and extensible game engine built on top of **[MonoGame
 
 ## Downloads
 
-| Library | Status | DesktopGL | WindowsDX | Vulkan |
-|---------|--------|-----------|-----------|--------|
-| **Basic** | Partially Available | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.DesktopGL) | | |
-| **Toolkit** | Partially Available | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Toolkit.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Toolkit.DesktopGL) | | |
-| **UI** | Planned | | | | 
-| **Markup** | Partially Available | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Markup.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Markup.DesktopGL) | | |
+| Library | Usage | Status | DesktopGL | WindowsDX | Vulkan |
+|---------|-------|--------|-----------|-----------|--------|
+| **Basic** | Core Engine | Partially Available | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.DesktopGL) | | |
+| **Toolkit** | Editor & Development Tools | Partially Available | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Toolkit.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Toolkit.DesktopGL) | | |
+| **UI** | User Interface | Planned | | | |
+| **Markup** | Markup & Serialization | Partially Available | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Markup.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Markup.DesktopGL) | | |
 
 #### Extensions
 
 | Library | Usage | Status | DesktopGL | WindowsDX | Vulkan | Changelog |
 |---------|-------|--------|-----------|-----------|--------|-----------|
-| **Sasodoc** | Document Formatting | Available | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL) | | | [See](Projects/Extensions/Sasodoc/CHANGELOG.md) |
+| **Sasodoc** | Document Formatting | Deprecated | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL) | | | [See](Projects/Extensions/Sasodoc/CHANGELOG.md) |
+
+> **Note:** The Sasogine Sasodoc extension is deprecated. Starting with **Sasogine 0.2.0-alpha**, its serialization functionality has been integrated into **Sasogine Markup** under the new `Sachssoft.Sasogine.Markup.Serialization` namespace. The standalone extension remains available for earlier Sasogine versions but will no longer be developed.
 
 ## Features
 

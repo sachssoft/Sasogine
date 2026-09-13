@@ -10,6 +10,6 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <summary>
         /// Gets the control node definitions.
         /// </summary>
-        public List<VectorNodeDefinition> ControlNodes { get; } = [];
+        public VectorNodeDefinition[]? ControlNodes { get; set; }
     }
 }

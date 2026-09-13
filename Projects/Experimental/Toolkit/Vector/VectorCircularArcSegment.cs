@@ -8,7 +8,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// Represents a circular arc segment of a vector path defined by a control point
     /// and an endpoint.
     /// </summary>
-    public sealed class VectorCircularArcSegment : VectorFixedSegment
+    public sealed class VectorCircularArcSegment : VectorFixedSegment<VectorCircularArcSegmentDefinition>
     {
         private const float Epsilon = 0.000001f;
 
@@ -69,21 +69,23 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         {
         }
 
-        public VectorCircularArcSegment(VectorFixedSegmentDefinition definition)
-            : base(definition)
+        public VectorCircularArcSegment(VectorCircularArcSegmentDefinition definition)
+            : base(controlCount: 1, definition)
         {
-            if (definition.ControlNodes.Count != 1)
-                throw new ArgumentException("Circular arc segments require exactly one control node.", nameof(definition));
+            //if (definition.ControlNodes.Count != 1)
+            //    throw new ArgumentException("Circular arc segments require exactly one control node.", nameof(definition));
+            definition.ControlNode ??= new VectorNodeDefinition();
         }
 
-        private static VectorFixedSegmentDefinition CreateDefinition()
+        private static VectorCircularArcSegmentDefinition CreateDefinition()
         {
-            var definition = new VectorFixedSegmentDefinition();
-            definition.ControlNodes.Add(new VectorNodeDefinition());
+            var definition = new VectorCircularArcSegmentDefinition();
+            definition.ControlNode ??= new VectorNodeDefinition();
+            //definition.ControlNodes.Add(new VectorNodeDefinition());
             return definition;
         }
 
-        private static VectorFixedSegmentDefinition CreateDefinition(
+        private static VectorCircularArcSegmentDefinition CreateDefinition(
             Point2 position,
             Point2 controlPosition,
             bool isSelected)
@@ -94,7 +96,9 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                 Position = position,
                 IsSelected = isSelected
             };
-            definition.ControlNodes[0].Position = controlPosition;
+            definition.ControlNode ??= new VectorNodeDefinition();
+            definition.ControlNode.Position = controlPosition;
+            //definition.ControlNodes[0].Position = controlPosition;
             return definition;
         }
 

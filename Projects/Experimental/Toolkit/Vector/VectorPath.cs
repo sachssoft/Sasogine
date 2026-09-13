@@ -168,7 +168,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             }
         }
 
-        private static void ReverseSegment(VectorSegment segment)
+        private static void ReverseSegment(IVectorSegment segment)
         {
             switch (segment)
             {

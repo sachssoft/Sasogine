@@ -1,10 +1,10 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Assets.Graphics;
 using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Resources;
 using System;
 
-namespace Sachssoft.Sasogine.Resources.Markup
+namespace Sachssoft.Sasogine.Markup.Resources
 {
     /// <summary>
     /// Provides extension methods for converting loaded frame set data

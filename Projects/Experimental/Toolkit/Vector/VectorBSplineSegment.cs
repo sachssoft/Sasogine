@@ -9,7 +9,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// Represents a B-spline segment of a vector path defined by a degree
     /// and a sequence of control nodes.
     /// </summary>
-    public sealed class VectorBSplineSegment : VectorVariableSegment
+    public sealed class VectorBSplineSegment : VectorVariableSegment<VectorBSplineSegmentDefinition>
     {
         private int _degree;
         private Point2 _startPositionCache;
@@ -117,8 +117,16 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 
             foreach (var point in controlPoints)
             {
-                definition.ControlNodes.Add(
-                    new VectorNodeDefinition { Position = point });
+                var controlNodes = new List<VectorNodeDefinition>();
+                controlNodes.Add(new VectorNodeDefinition
+                {
+                    Position = point
+                });
+
+                definition.ControlNodes = controlNodes.ToArray();
+
+                //definition.ControlNodes.Add(
+                //    new VectorNodeDefinition { Position = point });
             }
 
             return definition;
