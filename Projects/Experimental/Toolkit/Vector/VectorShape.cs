@@ -2,25 +2,41 @@ using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>
     /// Represents a vector shape containing a collection of vector paths.
     /// </summary>
-    public class VectorShape
+    public class VectorShape : EngineObject<VectorShapeDefinition>
     {
         private const float DefaultSampleLength = 4f;
-
 
         private readonly VectorPathCollection _paths;
         private readonly ITransform2? _source;
         private readonly Transform2State? _transformState;
 
         /// <summary>
+        /// Occurs while the vector geometry is being changed interactively.
+        /// </summary>
+        public event EventHandler? Changing;
+
+        /// <summary>
+        /// Occurs when a vector geometry change is completed.
+        /// </summary>
+        public event EventHandler? Changed;
+
+        public VectorShape()
+            : this(new VectorShapeDefinition())
+        {
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="VectorShape"/> class.
         /// </summary>
-        public VectorShape()
+        public VectorShape(VectorShapeDefinition definition)
+            : base(definition)
         {
             _paths = new VectorPathCollection(this);
         }
@@ -49,7 +65,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <summary>
         /// Gets or sets whether the shape is locked and cannot be modified.
         /// </summary>
-        public bool IsLocked { get; set; }
+        public bool IsLocked => Definition.IsLocked;
 
         /// <summary>
         /// Gets the transform source associated with the shape.
@@ -61,15 +77,27 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// </summary>
         public bool IsChanged { get; private set; }
 
-        /// <summary>
-        /// Occurs while the vector geometry is being changed interactively.
-        /// </summary>
-        public event EventHandler? Changing;
+        protected override void OnLoad()
+        {
+            base.OnLoad();
+            Definition.Paths.CollectionChanged += PathsCollectionChanged;
+        }
 
-        /// <summary>
-        /// Occurs when a vector geometry change is completed.
-        /// </summary>
-        public event EventHandler? Changed;
+        protected override Task OnLoadAsync()
+        {
+            Definition.Paths.CollectionChanged += PathsCollectionChanged;
+            return base.OnLoadAsync();
+        }
+
+        protected override void OnUnload()
+        {
+            Definition.Paths.CollectionChanged -= PathsCollectionChanged;
+            base.OnUnload();
+        }
+
+        private void PathsCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+        }
 
         /// <summary>
         /// Gets the sampled point vertices of all vector paths.

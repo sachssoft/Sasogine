@@ -5,6 +5,6 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// </summary>
     public sealed class VectorCatmullRomSegmentDefinition : VectorVariableSegmentDefinition
     {
-        public bool Closed { get; set; }
+        public bool IsClosed { get; set; }
     }
 }

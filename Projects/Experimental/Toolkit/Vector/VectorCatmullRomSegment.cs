@@ -61,7 +61,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public VectorCatmullRomSegment(VectorCatmullRomSegmentDefinition definition)
             : base(definition)
         {
-            _closed = definition.Closed;
+            _closed = definition.IsClosed;
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         protected override void ConfigureFromDefinition()
         {
             base.ConfigureFromDefinition();
-            _closed = Definition.Closed;
+            _closed = Definition.IsClosed;
             _sampledVerticesCache = null;
         }
 
