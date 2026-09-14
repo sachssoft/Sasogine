@@ -1,4 +1,6 @@
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Common.Collections;
+using System.ComponentModel;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
@@ -8,12 +10,19 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     public sealed class VectorPathDefinition : IDefinition
     {
         /// <summary>
-        /// Gets or sets the start node definition.
+        /// Gets the ordered collection of vector segment definitions
+        /// that make up the path.
         /// </summary>
-        public VectorNodeDefinition Start { get; set; } = new();
+        [Browsable(false)]
+        public TrackableCollection<VectorSegmentDefinition> Segments { get; } = [];
 
         /// <summary>
-        /// Gets or sets whether the path is closed.
+        /// Gets the definition of the start node of the path.
+        /// </summary>
+        public VectorNodeDefinition Start { get; } = new();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the path is closed.
         /// </summary>
         public bool IsClosed { get; set; }
     }

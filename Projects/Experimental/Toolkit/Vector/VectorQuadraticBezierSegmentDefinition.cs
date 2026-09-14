@@ -5,7 +5,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     public class VectorQuadraticBezierSegmentDefinition : VectorSegmentDefinition
     {
 
-        public VectorNodeDefinition? ControlNode { get; set; }
+        public VectorNodeDefinition ControlNode { get; } = new();
 
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
-    public interface IVectorSegment
+    public interface IVectorSegment : IEngineObject
     {
 
         VectorPath? Path { get; }

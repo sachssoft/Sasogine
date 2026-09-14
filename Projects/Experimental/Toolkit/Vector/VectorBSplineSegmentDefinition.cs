@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     /// <summary>

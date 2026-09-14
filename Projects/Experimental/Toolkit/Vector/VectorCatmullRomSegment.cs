@@ -11,7 +11,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// </summary>
     public sealed class VectorCatmullRomSegment : VectorVariableSegment<VectorCatmullRomSegmentDefinition>
     {
-        private bool _closed;
+        //private bool _closed;
+        private bool _lastClosed;
         private Point2 _startPositionCache;
         private Point2 _nodePositionCache;
 
@@ -61,7 +62,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public VectorCatmullRomSegment(VectorCatmullRomSegmentDefinition definition)
             : base(definition)
         {
-            _closed = definition.IsClosed;
+            //_closed = definition.IsClosed;
         }
 
         /// <summary>
@@ -73,15 +74,28 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <summary>
         /// Gets or sets whether the Catmull-Rom spline is closed.
         /// </summary>
-        public bool Closed => _closed;
+        //public bool Closed => Definition.IsClosed;
+        public bool Closed
+        {
+            get
+            {
+                if (_lastClosed != Definition.IsClosed)
+                {
+                    _sampledVerticesCache = null;
+                    _lastClosed = Definition.IsClosed;
+                }
+
+                return _lastClosed;
+            }
+        }
 
         /// <inheritdoc/>
-        protected override void ConfigureFromDefinition()
-        {
-            base.ConfigureFromDefinition();
-            _closed = Definition.IsClosed;
-            _sampledVerticesCache = null;
-        }
+        //protected override void ConfigureFromDefinition()
+        //{
+        //    base.ConfigureFromDefinition();
+        //    _closed = Definition.IsClosed;
+        //    _sampledVerticesCache = null;
+        //}
 
         private static VectorCatmullRomSegmentDefinition CreateDefinition(
             Point2 position,

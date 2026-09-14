@@ -11,7 +11,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// </summary>
     public sealed class VectorBSplineSegment : VectorVariableSegment<VectorBSplineSegmentDefinition>
     {
-        private int _degree;
+        //private int _degree;
         private Point2 _startPositionCache;
         private Point2 _nodePositionCache;
 
@@ -68,14 +68,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public VectorBSplineSegment(VectorBSplineSegmentDefinition definition)
             : base(definition)
         {
-            _degree = definition.Degree;
+            //_degree = definition.Degree;
         }
-
-        /// <summary>
-        /// Gets the definition used to configure this segment.
-        /// </summary>
-        public new VectorBSplineSegmentDefinition Definition =>
-            (VectorBSplineSegmentDefinition)base.Definition;
 
         /// <summary>
         /// Gets or sets the degree of the B-spline.
@@ -84,13 +78,13 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// A higher degree produces a smoother curve and requires a sufficient
         /// number of control points.
         /// </remarks>
-        public int Degree => _degree;
+        public int Degree => Definition.Degree;
 
         /// <inheritdoc/>
         protected override void ConfigureFromDefinition()
         {
             base.ConfigureFromDefinition();
-            _degree = Definition.Degree;
+            //_degree = Definition.Degree;
             _sampledVerticesCache = null;
         }
 

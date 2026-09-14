@@ -5,7 +5,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 {
     internal interface IVectorSegmentInternal
     {
+        VectorPath? Owner { get; set; }
 
-        VectorPath? Path { get; set; }
+        void OnOwnerChanged(VectorPath? oldOwner, VectorPath? newOwner);
     }
 }

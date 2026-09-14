@@ -80,7 +80,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         {
             return index switch
             {
-                0 => new VectorNode(definition.ControlNode ??= new VectorNodeDefinition()),
+                0 => new VectorNode(definition.ControlNode),
                 _ => throw new NotImplementedException()
             };
         }
@@ -89,7 +89,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         {
             var definition = new VectorCircularArcSegmentDefinition
             {
-                ControlNode = new VectorNodeDefinition(),
+                //ControlNode = new VectorNodeDefinition(),
                 Node = new VectorNodeDefinition()
             };
 
@@ -103,16 +103,18 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         {
             var definition = new VectorCircularArcSegmentDefinition
             {
-                ControlNode = new VectorNodeDefinition
-                {
-                    Position = controlPosition,
-                },
+                //ControlNode = new VectorNodeDefinition
+                //{
+                //    Position = controlPosition,
+                //},
                 Node = new VectorNodeDefinition
                 {
                     Position = position,
                     IsSelected = isSelected
                 }
             };
+
+            definition.ControlNode.Position = controlPosition;
 
             return definition;
         }

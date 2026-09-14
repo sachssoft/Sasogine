@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Common.Collections;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,7 +14,9 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     {
         private const float DefaultSampleLength = 4f;
 
-        private readonly VectorPathCollection _paths;
+        private readonly DefinitionBindingCollection<VectorPathDefinition, VectorPath> _paths;
+        private readonly IList<VectorPath> _mutablePaths;
+        private readonly VectorSegmentRegistry _segmentRegistry;
         private readonly ITransform2? _source;
         private readonly Transform2State? _transformState;
 
@@ -27,6 +30,10 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// </summary>
         public event EventHandler? Changed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VectorShape"/> class
+        /// using a new definition and the default vector segment registry.
+        /// </summary>
         public VectorShape()
             : this(new VectorShapeDefinition())
         {
@@ -35,10 +42,45 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <summary>
         /// Initializes a new instance of the <see cref="VectorShape"/> class.
         /// </summary>
-        public VectorShape(VectorShapeDefinition definition)
+        /// <param name="definition">
+        /// The definition describing the vector shape.
+        /// </param>
+        /// <param name="segmentRegistry">
+        /// The vector segment registry used by the shape and its child objects.
+        /// When <see langword="null"/>, the default vector segment registry is used.
+        /// </param>
+        public VectorShape(
+            VectorShapeDefinition definition,
+            VectorSegmentRegistry? segmentRegistry = null)
             : base(definition)
         {
-            _paths = new VectorPathCollection(this);
+            _segmentRegistry =
+                segmentRegistry ?? VectorSegmentRegistry.Default;
+
+            //_paths = new DefinitionBindingCollection<VectorPathDefinition, VectorPath>(
+            //    definition.Paths,
+            //    DefinitionBindingFactoryBuilder<VectorPathDefinition, VectorPath>
+            //        .Create()
+            //        .WithCreateInstance(d => new VectorPath(d)
+            //        {
+            //            Owner = this
+            //        })
+            //        .WithReleaseInstance((d, o) => o.Owner = null)
+            //        .Build());
+
+            _paths = DefinitionBindingConnection.Create(
+                this,
+                definition.Paths,
+                DefinitionBindingFactoryBuilder<VectorPathDefinition, VectorPath>
+                    .Create()
+                    .WithCreateInstance(d => new VectorPath(d, this))
+                    .WithAttachInstance((d, o) => o.Owner = this)
+                    .WithReleaseInstance((d, o) => o.Owner = null)
+                    .Build());
+
+            _mutablePaths = DefinitionBindingConnection.Connect(
+                this,
+                _paths);
         }
 
         /// <summary>
@@ -48,8 +90,14 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <param name="source">
         /// The transform source used by the shape.
         /// </param>
-        public VectorShape(ITransform2? source) 
-            : this()
+        /// <param name="segmentRegistry">
+        /// The vector segment registry used by the shape and its child objects.
+        /// When <see langword="null"/>, the default vector segment registry is used.
+        /// </param>
+        public VectorShape(
+            ITransform2? source,
+            VectorSegmentRegistry? segmentRegistry = null)
+            : this(new VectorShapeDefinition(), segmentRegistry)
         {
             _source = source;
 
@@ -60,10 +108,18 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <summary>
         /// Gets the vector paths that define the shape.
         /// </summary>
-        public VectorPathCollection Paths => _paths;
+        public IReadOnlyList<VectorPath> Paths => _paths;
+
+        internal IList<VectorPath> MutablePaths => _mutablePaths;
 
         /// <summary>
-        /// Gets or sets whether the shape is locked and cannot be modified.
+        /// Gets the vector segment registry used by this shape and its
+        /// child vector objects.
+        /// </summary>
+        public VectorSegmentRegistry SegmentRegistry => _segmentRegistry;
+
+        /// <summary>
+        /// Gets whether the shape is locked and cannot be modified.
         /// </summary>
         public bool IsLocked => Definition.IsLocked;
 
@@ -77,25 +133,30 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// </summary>
         public bool IsChanged { get; private set; }
 
+        /// <inheritdoc/>
         protected override void OnLoad()
         {
             base.OnLoad();
             Definition.Paths.CollectionChanged += PathsCollectionChanged;
         }
 
+        /// <inheritdoc/>
         protected override Task OnLoadAsync()
         {
             Definition.Paths.CollectionChanged += PathsCollectionChanged;
             return base.OnLoadAsync();
         }
 
+        /// <inheritdoc/>
         protected override void OnUnload()
         {
             Definition.Paths.CollectionChanged -= PathsCollectionChanged;
             base.OnUnload();
         }
 
-        private void PathsCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void PathsCollectionChanged(
+            object? sender,
+            System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
         }
 
@@ -146,8 +207,12 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                     Point2 point = points[j];
 
                     relative[j] = new Point2(
-                        width != 0f ? (point.X - (trim ? bounds.X : 0f)) / width : 0f,
-                        height != 0f ? (point.Y - (trim ? bounds.Y : 0f)) / height : 0f);
+                        width != 0f
+                            ? (point.X - (trim ? bounds.X : 0f)) / width
+                            : 0f,
+                        height != 0f
+                            ? (point.Y - (trim ? bounds.Y : 0f)) / height
+                            : 0f);
                 }
 
                 polygons[i] = relative;
@@ -179,7 +244,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             IReadOnlyList<IReadOnlyList<Point2>> pointPolygons =
                 GetPointVertices(valueMode, trim, sampleLength);
 
-            var polygons = new IReadOnlyList<Vector2>[pointPolygons.Count];
+            var polygons =
+                new IReadOnlyList<Vector2>[pointPolygons.Count];
 
             for (int i = 0; i < pointPolygons.Count; i++)
             {
@@ -322,20 +388,26 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             for (int pathIndex = 0; pathIndex < Paths.Count; pathIndex++)
             {
                 VectorPath path = Paths[pathIndex];
+
                 nodes.Add(path.Start);
 
                 for (int segmentIndex = 0;
                      segmentIndex < path.Segments.Count;
                      segmentIndex++)
                 {
-                    var segment = path.Segments[segmentIndex];
+                    IVectorSegment segment =
+                        path.Segments[segmentIndex];
+
                     nodes.Add(segment.Node);
 
+                    IReadOnlyList<VectorNode> controlNodes =
+                        segment.GetControlNodes();
+
                     for (int controlIndex = 0;
-                         controlIndex < segment.GetControlNodes().Count;
+                         controlIndex < controlNodes.Count;
                          controlIndex++)
                     {
-                        nodes.Add(segment.GetControlNodes()[controlIndex]);
+                        nodes.Add(controlNodes[controlIndex]);
                     }
                 }
             }
@@ -369,37 +441,61 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 
             if (_source is IReadOnlyTransformSize2)
             {
-                matrix *= Matrix.CreateScale(size.Width, size.Height, 1f);
+                matrix *= Matrix.CreateScale(
+                    size.Width,
+                    size.Height,
+                    1f);
+
                 actualSize = size.ToVector2();
             }
 
             if (_source is IReadOnlyTransformScale2)
             {
-                matrix *= Matrix.CreateScale(scale.X, scale.Y, 1f);
+                matrix *= Matrix.CreateScale(
+                    scale.X,
+                    scale.Y,
+                    1f);
+
                 actualSize *= scale;
             }
 
             if (_source is IReadOnlyTransformSkew2)
             {
                 var skewMatrix = Matrix.Identity;
+
                 skewMatrix.M21 = skew.X;
                 skewMatrix.M12 = skew.Y;
+
                 matrix *= skewMatrix;
             }
 
             if (_source is IReadOnlyTransformRotation2)
             {
-                Vector2 pivot = _source is IReadOnlyTransformRotationPivot2
-                    ? actualSize * rotationPivot.ToVector2()
-                    : Vector2.Zero;
+                Vector2 pivot =
+                    _source is IReadOnlyTransformRotationPivot2
+                        ? actualSize * rotationPivot.ToVector2()
+                        : Vector2.Zero;
 
-                matrix *= Matrix.CreateTranslation(-pivot.X, -pivot.Y, 0f);
+                matrix *= Matrix.CreateTranslation(
+                    -pivot.X,
+                    -pivot.Y,
+                    0f);
+
                 matrix *= Matrix.CreateRotationZ(rotation);
-                matrix *= Matrix.CreateTranslation(pivot.X, pivot.Y, 0f);
+
+                matrix *= Matrix.CreateTranslation(
+                    pivot.X,
+                    pivot.Y,
+                    0f);
             }
 
             if (_source is IReadOnlyTransformPosition2)
-                matrix *= Matrix.CreateTranslation(position.X, position.Y, 0f);
+            {
+                matrix *= Matrix.CreateTranslation(
+                    position.X,
+                    position.Y,
+                    0f);
+            }
 
             return matrix;
         }

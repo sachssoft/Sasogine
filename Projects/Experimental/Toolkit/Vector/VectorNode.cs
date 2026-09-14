@@ -7,8 +7,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
     /// </summary>
     public sealed class VectorNode : EngineObject<VectorNodeDefinition>
     {
-        private Point2 _position;
-        private bool _isSelected;
+        //private Point2 _position;
+        //private bool _isSelected;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VectorNode"/> class.
@@ -34,8 +34,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public VectorNode(VectorNodeDefinition definition)
             : base(definition)
         {
-            _position = definition.Position;
-            _isSelected = definition.IsSelected;
+            //_position = definition.Position;
+            //_isSelected = definition.IsSelected;
         }
 
         /// <summary>
@@ -46,19 +46,19 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         /// <summary>
         /// Gets the current runtime position of the node.
         /// </summary>
-        public Point2 Position => _position;
+        public Point2 Position => Definition.Position;
 
         /// <summary>
         /// Gets whether the node is currently selected.
         /// </summary>
-        public bool IsSelected => _isSelected;
+        public bool IsSelected => Definition.IsSelected;
 
-        /// <inheritdoc/>
-        protected override void ConfigureFromDefinition()
-        {
-            base.ConfigureFromDefinition();
-            _position = Definition.Position;
-            _isSelected = Definition.IsSelected;
-        }
+        ///// <inheritdoc/>
+        //protected override void ConfigureFromDefinition()
+        //{
+        //    base.ConfigureFromDefinition();
+        //    _position = Definition.Position;
+        //    _isSelected = Definition.IsSelected;
+        //}
     }
 }

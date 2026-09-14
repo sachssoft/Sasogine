@@ -30,8 +30,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
                     return;
 
                 EnsureCanAttach(value);
-                current.Shape = null;
-                value.Shape = _shape;
+                current.Owner = null;
+                value.Owner = _shape;
                 _paths[index] = value;
             }
         }
@@ -44,7 +44,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             ArgumentNullException.ThrowIfNull(item);
             EnsureCanAttach(item);
 
-            item.Shape = _shape;
+            item.Owner = _shape;
             _paths.Add(item);
         }
 
@@ -71,7 +71,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public void Clear()
         {
             for (int i = 0; i < _paths.Count; i++)
-                _paths[i].Shape = null;
+                _paths[i].Owner = null;
 
             _paths.Clear();
         }
@@ -86,7 +86,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             ArgumentNullException.ThrowIfNull(item);
             EnsureCanAttach(item);
 
-            item.Shape = _shape;
+            item.Owner = _shape;
             _paths.Insert(index, item);
         }
 
@@ -95,7 +95,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             if (!_paths.Remove(item))
                 return false;
 
-            item.Shape = null;
+            item.Owner = null;
             return true;
         }
 
@@ -103,14 +103,14 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         {
             VectorPath item = _paths[index];
             _paths.RemoveAt(index);
-            item.Shape = null;
+            item.Owner = null;
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         private void EnsureCanAttach(VectorPath path)
         {
-            if (path.Shape != null)
+            if (path.Owner != null)
                 throw new InvalidOperationException("The vector path already belongs to a vector shape.");
         }
     }

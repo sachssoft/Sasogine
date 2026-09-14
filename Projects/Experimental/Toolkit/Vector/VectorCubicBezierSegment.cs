@@ -85,8 +85,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         {
             return index switch
             {
-                0 => new VectorNode(definition.ControlNode0 ??= new VectorNodeDefinition()),
-                1 => new VectorNode(definition.ControlNode1 ??= new VectorNodeDefinition()),
+                0 => new VectorNode(definition.ControlNode0),
+                1 => new VectorNode(definition.ControlNode1),
                 _ => throw new NotImplementedException()
             };
         }
@@ -95,8 +95,8 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         {
             var definition = new VectorCubicBezierSegmentDefinition
             {
-                ControlNode0 = new VectorNodeDefinition(),
-                ControlNode1 = new VectorNodeDefinition(),
+                //ControlNode0 = new VectorNodeDefinition(),
+                //ControlNode1 = new VectorNodeDefinition(),
                 Node = new VectorNodeDefinition()
             };
 
@@ -111,20 +111,23 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         {
             var definition = new VectorCubicBezierSegmentDefinition
             {
-                ControlNode0 = new VectorNodeDefinition
-                {
-                    Position = controlPosition0,
-                },
-                ControlNode1 = new VectorNodeDefinition
-                {
-                    Position = controlPosition1,
-                },
+                //ControlNode0 = new VectorNodeDefinition
+                //{
+                //    Position = controlPosition0,
+                //},
+                //ControlNode1 = new VectorNodeDefinition
+                //{
+                //    Position = controlPosition1,
+                //},
                 Node = new VectorNodeDefinition
                 {
                     Position = position,
                     IsSelected = isSelected
                 }
             };
+
+            definition.ControlNode0.Position = controlPosition0;
+            definition.ControlNode1.Position = controlPosition1;
 
             return definition;
         }
