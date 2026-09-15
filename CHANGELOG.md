@@ -21,9 +21,17 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.0-alpha] - Planned
 * [Feature] **Toolkit**: Added `VectorPathTool` for creating, editing, and transforming vector paths.
+* [Feature] **Toolkit**: Introduced a new bridge between the selection and vector path tools.
 * [Feature] **Markup**: Introduced serialization support and integrated the existing `Extension/Sasodoc` serialization functionality into Markup.
+* [Feature] **Markup**: Added serialization support for toolkits.
+* [Feature] **Markup**: Introduced new asset-stored markup.
 * [Feature] Introduced trackable collections with read-only views and efficient change tracking.
+* [Feature] Added definition binding.
 * [Feature] Introduced referenceable collections with fast object resolution and automatic identifier tracking.
+* [Feature] Added `TextureGrid` with `TextureGridAsset`.
+* [Change] Refactored `AssetStore` and removed deprecated methods.
+* [Improve] **Toolkit**: Improved selection tool handling.
+* [Improve] Extended the mesh generator with more flexible `IVertexType` support.
 
 ## [0.1.7-alpha] - 2026-09-11
 * [Feature] Added `INotifyTransformChanged` for event-based transform lifecycle notifications.
