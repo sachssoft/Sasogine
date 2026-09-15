@@ -5,7 +5,7 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
-	<Import Project="..\..\..\Sachssoft.Sasogine.props" />
+	<!--<Import Project="..\..\..\Sachssoft.Sasogine.props" />-->
 
 	<ItemGroup>
 		<Compile Include="..\..\..\Projects\Experimental\**\*.cs">
@@ -19,7 +19,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Sachssoft.Sasodoc" Version="1.0.0" />
+		<PackageReference Include="Sachssoft.Sasodoc.Json" Version="1.0.0" />
 		<PackageReference Include="Sachssoft.Sasogine.DesktopGL" Version="0.1.7-alpha" />
+		<PackageReference Include="Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL" Version="0.1.7-alpha" />
+		<PackageReference Include="Sachssoft.Sasogine.Markup.DesktopGL" Version="0.1.7-alpha" />
+		<!--<PackageReference Include="Sachssoft.Sasogine.Toolkit.DesktopGL" Version="0.1.7-alpha" />-->
 	</ItemGroup>
 
 </Project>
