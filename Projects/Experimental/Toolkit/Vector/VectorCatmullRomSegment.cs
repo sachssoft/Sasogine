@@ -104,14 +104,10 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         {
             ArgumentNullException.ThrowIfNull(controlPoints);
 
-            var definition = new VectorCatmullRomSegmentDefinition
-            {
-                Node = new VectorNodeDefinition
-                {
-                    Position = position,
-                    IsSelected = isSelected
-                }
-            };
+            var definition = new VectorCatmullRomSegmentDefinition();
+
+            definition.Node.Position = position;
+            definition.Node.IsSelected = isSelected;
 
             foreach (var point in controlPoints)
             {

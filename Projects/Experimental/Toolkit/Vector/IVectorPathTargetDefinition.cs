@@ -1,6 +1,7 @@
 using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Components.Tools.Selection;
 using Sachssoft.Sasogine.Experimental.Components.Tools.Vector;
+using System.ComponentModel;
 
 namespace Sachssoft.Sasogine.Experimental.Components.Tools;
 
@@ -13,5 +14,6 @@ public interface IVectorPathTargetDefinition : IDefinition, ISelectionTargetDefi
     /// Gets or sets the active vector shape to edit,
     /// or <see langword="null"/> if no vector shape is active.
     /// </summary>
+    [Browsable(false)]
     VectorShape? ActiveShape { get; set; }
 }

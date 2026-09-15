@@ -44,14 +44,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         public VectorLineSegment(
             Point2 position,
             bool isSelected)
-            : this(new VectorLineSegmentDefinition
-            {
-                Node = new VectorNodeDefinition
-                {
-                    Position = position,
-                    IsSelected = isSelected
-                }
-            })
+            : this(CreateDefinition(position, isSelected))
         {
         }
 
@@ -93,6 +86,18 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
         protected override VectorNode CreateVectorNode(int index, VectorLineSegmentDefinition definition)
         {
             throw new System.NotImplementedException(); // Nicht nötig
+        }
+
+        private static VectorLineSegmentDefinition CreateDefinition(
+            Point2 position,
+            bool isSelected)
+        {
+            var definition = new VectorLineSegmentDefinition();
+
+            definition.Node.Position = position;
+            definition.Node.IsSelected = isSelected;
+
+            return definition;
         }
     }
 }

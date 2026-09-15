@@ -88,12 +88,7 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 
         private static VectorQuadraticBezierSegmentDefinition CreateDefinition()
         {
-            var definition = new VectorQuadraticBezierSegmentDefinition
-            {
-                //ControlNode = new VectorNodeDefinition(),
-                Node = new VectorNodeDefinition()
-            };
-
+            var definition = new VectorQuadraticBezierSegmentDefinition();
             return definition;
         }
 
@@ -102,19 +97,10 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
             Point2 controlPosition,
             bool isSelected)
         {
-            var definition = new VectorQuadraticBezierSegmentDefinition
-            {
-                //ControlNode = new VectorNodeDefinition
-                //{
-                //    Position = controlPosition,
-                //},
-                Node = new VectorNodeDefinition
-                {
-                    Position = position,
-                    IsSelected = isSelected
-                }
-            };
+            var definition = new VectorQuadraticBezierSegmentDefinition();
 
+            definition.Node.Position = position;
+            definition.Node.IsSelected = isSelected;
             definition.ControlNode.Position = controlPosition;
 
             return definition;

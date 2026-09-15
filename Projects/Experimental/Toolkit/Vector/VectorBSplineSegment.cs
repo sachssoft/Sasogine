@@ -101,13 +101,11 @@ namespace Sachssoft.Sasogine.Experimental.Components.Tools.Vector
 
             var definition = new VectorBSplineSegmentDefinition
             {
-                Node = new VectorNodeDefinition
-                {
-                    Position = position,
-                    IsSelected = isSelected
-                },
                 Degree = degree
             };
+
+            definition.Node.Position = position;
+            definition.Node.IsSelected = isSelected;
 
             foreach (var point in controlPoints)
             {
