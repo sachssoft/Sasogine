@@ -19,7 +19,10 @@ All notable changes to this project will be documented in this file.
 
 </small>
 
-## [0.2.0-alpha] - Planned
+## [0.2.1-alpha] - Planned
+* [Feature] Added `MultilingualValue` for multi-language values with fallback support.
+
+## [0.2.0-alpha] - 2026-09-18
 * [Feature] **Toolkit**: Added `VectorPathTool` for creating, editing, and transforming vector paths.
 * [Feature] **Toolkit**: Introduced a new bridge between the selection and vector path tools.
 * [Feature] **Documents**: Introduced serialization support and integrated the existing `Extension/Sasodoc` serialization functionality into Documents.
