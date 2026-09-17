@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Android;
+﻿namespace Sachssoft.Sasogine.Platform.Android;
 
 public class AndroidFileSystemService : IFileSystemService
 {

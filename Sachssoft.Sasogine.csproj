@@ -19,6 +19,21 @@
 	</Target>
 
 	<ItemGroup>
+	  <Compile Remove="Projects\Experimental\Basic\Assets\**" />
+	  <Compile Remove="Projects\Experimental\Basic\Common\**" />
+	  <Compile Remove="Projects\Experimental\Basic\Resources\**" />
+	  <Compile Remove="Projects\Experimental\Markup\**" />
+	  <EmbeddedResource Remove="Projects\Experimental\Basic\Assets\**" />
+	  <EmbeddedResource Remove="Projects\Experimental\Basic\Common\**" />
+	  <EmbeddedResource Remove="Projects\Experimental\Basic\Resources\**" />
+	  <EmbeddedResource Remove="Projects\Experimental\Markup\**" />
+	  <None Remove="Projects\Experimental\Basic\Assets\**" />
+	  <None Remove="Projects\Experimental\Basic\Common\**" />
+	  <None Remove="Projects\Experimental\Basic\Resources\**" />
+	  <None Remove="Projects\Experimental\Markup\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Compile Remove="Projects\Basic\Components\Tools\Selection\SelectionExtensions.cs" />
 	</ItemGroup>
 	
@@ -27,10 +42,6 @@
 	  <Folder Include="Examples\AssetsExample\" />
 	  <Folder Include="Examples\PackageExample\" />
 	  <Folder Include="Projects\Basic\Graphics\Tiles\" />
-	  <Folder Include="Projects\Experimental\Basic\Assets\" />
-	  <Folder Include="Projects\Experimental\Basic\Common\" />
-	  <Folder Include="Projects\Experimental\Basic\Resources\" />
-	  <Folder Include="Projects\Experimental\Markup\" />
 	  <Folder Include="Projects\Experimental\Shaders\" />
 	  <Folder Include="Projects\Toolkit\Shaders\" />
 	  <Folder Include="Projects\UI\" />

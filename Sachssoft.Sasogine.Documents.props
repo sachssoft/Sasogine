@@ -36,6 +36,8 @@
 						  Version="$(VersionPrefix)-$(VersionSuffix)" />
 		<PackageReference Include="Sachssoft.Sasodoc"
 						  Version="1.0.0" />
+		<PackageReference Include="Sachssoft.Sasodoc.Json"
+						  Version="1.0.0" />
 	</ItemGroup>
 
 </Project>
