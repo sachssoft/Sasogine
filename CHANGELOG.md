@@ -25,13 +25,26 @@ All notable changes to this project will be documented in this file.
 * [Feature] **Markup**: Introduced serialization support and integrated the existing `Extension/Sasodoc` serialization functionality into Markup.
 * [Feature] **Markup**: Added serialization support for toolkits.
 * [Feature] **Markup**: Introduced new asset-stored markup.
+* [Feature] **Markup**: Introduced `ISerializationGameActivator` and preconfigured serialization activators as a unified facade for serialization, deserialization, and engine object creation.
 * [Feature] Introduced trackable collections with read-only views and efficient change tracking.
 * [Feature] Added definition binding.
 * [Feature] Introduced referenceable collections with fast object resolution and automatic identifier tracking.
 * [Feature] Added `TextureGrid` with `TextureGridAsset`.
+* [Feature] Introduced `IGameActivator` and `GameActivator` for controlled engine object creation from registered definitions.
+* [Feature] Introduced strongly typed `GameRegistryKey<TIdentifier>` keys for combining serialization names with runtime identifiers.
+* [Feature] Introduced geometry utilities for sampling, segment projection, polygon operations, and rectangle paths.
+* [Feature] Introduced `IExecutionContext` for providing target and execution-specific data to runtime operations.
+* [Change] Refactored `IScriptEntity` to use `IExecutionContext` and added cancellation support for asynchronous execution.
+* [Change] Extended `GameRegistry` with definition-based object creation and strongly typed registry support.
+* [Change] **Markup**: Refactored `SerializationRegistry<TKey, TDefinition>` with type, key, and serialization-name lookup.
+* [Change] **Markup**: Added name- and key-based deserialization while serialization handlers are resolved automatically from definition types.
+* [Change] **Markup**: Consolidated extensions into partial `FormatReaderExtensions` and `FormatWriterExtensions` classes.
+* [Change] **Markup**: Replaced factory registry with the new game and serialization registry architecture.
 * [Change] Refactored `AssetStore` and removed deprecated methods.
-* [Improve] **Toolkit**: Improved selection tool handling.
-* [Improve] Extended the mesh generator with more flexible `IVertexType` support.
+* [Change] Added explicit entity loading state and renamed `StatusChanged` to `IntegrityChanged`.
+* [Change] Added `CancellationToken` support across all asynchronous loading APIs.
+* [Change] Updated `Object2InsertTool` to insert and manage `IDefinition` instances instead of objects.
+* [Improve] Extended mesh generation with `MeshVertexData` and more flexible `IVertexType` creation.
 
 ## [0.1.7-alpha] - 2026-09-11
 * [Feature] Added `INotifyTransformChanged` for event-based transform lifecycle notifications.
