@@ -22,10 +22,10 @@ All notable changes to this project will be documented in this file.
 ## [0.2.0-alpha] - Planned
 * [Feature] **Toolkit**: Added `VectorPathTool` for creating, editing, and transforming vector paths.
 * [Feature] **Toolkit**: Introduced a new bridge between the selection and vector path tools.
-* [Feature] **Markup**: Introduced serialization support and integrated the existing `Extension/Sasodoc` serialization functionality into Markup.
-* [Feature] **Markup**: Added serialization support for toolkits.
-* [Feature] **Markup**: Introduced new asset-stored markup.
-* [Feature] **Markup**: Introduced `ISerializationGameActivator` and preconfigured serialization activators as a unified facade for serialization, deserialization, and engine object creation.
+* [Feature] **Documents**: Introduced serialization support and integrated the existing `Extension/Sasodoc` serialization functionality into Markup.
+* [Feature] **Documents**: Added serialization support for toolkits.
+* [Feature] **Documents**: Introduced new asset-stored markup.
+* [Feature] **Documents**: Introduced `ISerializationGameActivator` and preconfigured serialization activators as a unified facade for serialization, deserialization, and engine object creation.
 * [Feature] Introduced trackable collections with read-only views and efficient change tracking.
 * [Feature] Added definition binding.
 * [Feature] Introduced referenceable collections with fast object resolution and automatic identifier tracking.
@@ -34,12 +34,13 @@ All notable changes to this project will be documented in this file.
 * [Feature] Introduced strongly typed `GameRegistryKey<TIdentifier>` keys for combining serialization names with runtime identifiers.
 * [Feature] Introduced geometry utilities for sampling, segment projection, polygon operations, and rectangle paths.
 * [Feature] Introduced `IExecutionContext` for providing target and execution-specific data to runtime operations.
+* [Change] **Markup/Documents** Renamed the `Markup` project and namespace to `Documents`.
 * [Change] Refactored `IScriptEntity` to use `IExecutionContext` and added cancellation support for asynchronous execution.
 * [Change] Extended `GameRegistry` with definition-based object creation and strongly typed registry support.
-* [Change] **Markup**: Refactored `SerializationRegistry<TKey, TDefinition>` with type, key, and serialization-name lookup.
-* [Change] **Markup**: Added name- and key-based deserialization while serialization handlers are resolved automatically from definition types.
-* [Change] **Markup**: Consolidated extensions into partial `FormatReaderExtensions` and `FormatWriterExtensions` classes.
-* [Change] **Markup**: Replaced factory registry with the new game and serialization registry architecture.
+* [Change] **Documents**: Refactored `SerializationRegistry<TKey, TDefinition>` with type, key, and serialization-name lookup.
+* [Change] **Documents**: Added name- and key-based deserialization while serialization handlers are resolved automatically from definition types.
+* [Change] **Documents**: Consolidated extensions into partial `FormatReaderExtensions` and `FormatWriterExtensions` classes.
+* [Change] **Documents**: Replaced factory registry with the new game and serialization registry architecture.
 * [Change] Refactored `AssetStore` and removed deprecated methods.
 * [Change] Added explicit entity loading state and renamed `StatusChanged` to `IntegrityChanged`.
 * [Change] Added `CancellationToken` support across all asynchronous loading APIs.
@@ -157,8 +158,8 @@ All notable changes to this project will be documented in this file.
 * [Bug] Fixed several minor bugs.
 
 ## [0.0.5-alpha] - 2026-08-30
-* [Feature] **Markup**: Introduced markup support for Sasogine.
-* [Feature] **Markup**: Added support for loading `IndexedFrameSet` and `KeyedFrameSet`.
+* [Feature] **Documents**: Introduced markup support for Sasogine.
+* [Feature] **Documents**: Added support for loading `IndexedFrameSet` and `KeyedFrameSet`.
 * [Feature] Added missing enum-based `IndexedFrameSet`.
 * [Feature] Added `Command` and generic `Command<T>` implementations with execution conditions and `CanExecuteChanged` notifications.
 * [Change] Removed incorrect rendering properties.

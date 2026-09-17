@@ -38,19 +38,19 @@ dotnet nuget push ".\Packages\Sachssoft.Sasogine.DesktopGL.$version.nupkg" `
     --source "https://api.nuget.org/v3/index.json"
 ```
 
-Then build the remaining packages together:
+Then build the remaining packages:
 
 ```powershell
-dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.Markup.DesktopGL\Sachssoft.Sasogine.Markup.DesktopGL.csproj -c Release -o .\Packages
+dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.Documents.DesktopGL\Sachssoft.Sasogine.Documents.DesktopGL.csproj -c Release -o .\Packages
 dotnet pack .\Targets\DesktopGL\Sachssoft.Sasogine.Toolkit.DesktopGL\Sachssoft.Sasogine.Toolkit.DesktopGL.csproj -c Release -o .\Packages
 ```
 
 ## Publish Remaining Packages
 
-After all remaining packages have been built successfully, publish them together:
+After all remaining packages have been built successfully, publish them to NuGet.org:
 
 ```powershell
-dotnet nuget push ".\Packages\Sachssoft.Sasogine.Markup.DesktopGL.$version.nupkg" `
+dotnet nuget push ".\Packages\Sachssoft.Sasogine.Documents.DesktopGL.$version.nupkg" `
     --api-key $apiKey `
     --source "https://api.nuget.org/v3/index.json"
 
@@ -67,7 +67,7 @@ If a newly published package version cannot be found, clear the local NuGet cach
 dotnet nuget locals all --clear
 ```
 
-Then rebuild the remaining projects in Visual Studio using the context menu.
+Then rebuild the affected projects in Visual Studio using the context menu.
 
 If the package version is still not found, restore the packages without using the local cache:
 
