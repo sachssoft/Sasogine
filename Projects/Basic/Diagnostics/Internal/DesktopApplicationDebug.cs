@@ -1,7 +1,4 @@
-﻿using Sachssoft.Sasogine.Diagnostics;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
 
 namespace Sachssoft.Sasogine.Diagnostics.Internals
 {

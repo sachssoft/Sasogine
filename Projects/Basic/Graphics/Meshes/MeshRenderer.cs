@@ -1,10 +1,9 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Graphics.Cameras;
-using Sachssoft.Sasogine.Graphics.Materials;
 using Sachssoft.Sasogine.Graphics.Meshes;
 using Sachssoft.Sasogine.Scenes;
+using System;
 
 namespace Sachssoft.Sasogine.Graphics.Rendering;
 

@@ -1,7 +1,4 @@
-﻿using Sachssoft.Sasogine.Components.Tools;
-using Sachssoft.Sasogine.Input;
-using Sachssoft.Sasogine.Graphics.Cameras;
-using Sachssoft.Sasogine.Scenes;
+﻿using Sachssoft.Sasogine.Scenes;
 
 namespace Sachssoft.Sasogine.Components.Tools
 {

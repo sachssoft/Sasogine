@@ -1,6 +1,7 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
+using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Sachssoft.Sasogine.Components.Tools.Selection
 {
@@ -18,6 +19,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool IsSelected(this ISelectionTarget target)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             return target.IsSelected;
         }
 
@@ -26,6 +29,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool IsSelected(this IEngineObject obj)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             return obj is ISelectionTarget target && target.IsSelected;
         }
 
@@ -34,6 +39,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool IsSelected(this IDefinition definition)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             return definition is ISelectionTargetDefinition target && target.IsSelected;
         }
 
@@ -45,11 +52,14 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </exception>
         public static void Select(this ISelectionTarget target)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             if (target.IsLocked)
                 throw new InvalidOperationException(
                     "The selection target is locked.");
 
-            target.IsSelected = true;
+            GetDefinition<ISelectionTargetDefinition>(target)
+                .IsSelected = true;
         }
 
         /// <summary>
@@ -60,6 +70,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </exception>
         public static void Select(this IEngineObject obj)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             if (obj is not ISelectionTarget target)
                 throw new InvalidOperationException(
                     $"Object of type '{obj.GetType().Name}' does not support selection.");
@@ -75,6 +87,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </exception>
         public static void Select(this IDefinition definition)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             if (definition is not ISelectionTargetDefinition target)
                 throw new InvalidOperationException(
                     $"Definition of type '{definition.GetType().Name}' does not support selection.");
@@ -91,10 +105,14 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TrySelect(this ISelectionTarget target)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             if (target.IsLocked)
                 return false;
 
-            target.IsSelected = true;
+            GetDefinition<ISelectionTargetDefinition>(target)
+                .IsSelected = true;
+
             return true;
         }
 
@@ -103,6 +121,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TrySelect(this IEngineObject obj)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             return obj is ISelectionTarget target && target.TrySelect();
         }
 
@@ -111,6 +131,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TrySelect(this IDefinition definition)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             if (definition is not ISelectionTargetDefinition target)
                 return false;
 
@@ -124,7 +146,10 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Deselect(this ISelectionTarget target)
         {
-            target.IsSelected = false;
+            ArgumentNullException.ThrowIfNull(target);
+
+            GetDefinition<ISelectionTargetDefinition>(target)
+                .IsSelected = false;
         }
 
         /// <summary>
@@ -135,6 +160,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </exception>
         public static void Deselect(this IEngineObject obj)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             if (obj is not ISelectionTarget target)
                 throw new InvalidOperationException(
                     $"Object of type '{obj.GetType().Name}' does not support selection.");
@@ -150,6 +177,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </exception>
         public static void Deselect(this IDefinition definition)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             if (definition is not ISelectionTargetDefinition target)
                 throw new InvalidOperationException(
                     $"Definition of type '{definition.GetType().Name}' does not support selection.");
@@ -162,7 +191,13 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryDeselect(this ISelectionTarget target)
         {
-            target.IsSelected = false;
+            ArgumentNullException.ThrowIfNull(target);
+
+            if (target.Definition is not ISelectionTargetDefinition definition)
+                return false;
+
+            definition.IsSelected = false;
+
             return true;
         }
 
@@ -171,6 +206,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryDeselect(this IEngineObject obj)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             return obj is ISelectionTarget target && target.TryDeselect();
         }
 
@@ -179,6 +216,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryDeselect(this IDefinition definition)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             if (definition is not ISelectionTargetDefinition target)
                 return false;
 
@@ -191,6 +230,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool IsLocked(this ISelectionTarget target)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             return target.IsLocked;
         }
 
@@ -199,6 +240,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool IsLocked(this IEngineObject obj)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             return obj is ISelectionTarget target && target.IsLocked;
         }
 
@@ -207,6 +250,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool IsLocked(this IDefinition definition)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             return definition is ISelectionTargetDefinition target && target.IsLocked;
         }
 
@@ -219,7 +264,10 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Lock(this ISelectionTarget target)
         {
-            target.IsLocked = true;
+            ArgumentNullException.ThrowIfNull(target);
+
+            GetDefinition<ISelectionTargetDefinition>(target)
+                .IsLocked = true;
         }
 
         /// <summary>
@@ -227,11 +275,14 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Lock(this IEngineObject obj)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             if (obj is not ISelectionTarget target)
                 throw new InvalidOperationException(
                     $"Object of type '{obj.GetType().Name}' does not support selection.");
 
-            target.IsLocked = true;
+            GetDefinition<ISelectionTargetDefinition>(target)
+                .IsLocked = true;
         }
 
         /// <summary>
@@ -239,6 +290,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Lock(this IDefinition definition)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             if (definition is not ISelectionTargetDefinition target)
                 throw new InvalidOperationException(
                     $"Definition of type '{definition.GetType().Name}' does not support selection.");
@@ -251,7 +304,12 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryLock(this ISelectionTarget target)
         {
-            target.IsLocked = true;
+            ArgumentNullException.ThrowIfNull(target);
+
+            if (target.Definition is not ISelectionTargetDefinition definition)
+                return false;
+
+            definition.IsLocked = true;
             return true;
         }
 
@@ -260,10 +318,15 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryLock(this IEngineObject obj)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             if (obj is not ISelectionTarget target)
                 return false;
 
-            target.IsLocked = true;
+            if (target.Definition is not ISelectionTargetDefinition definition)
+                return false;
+
+            definition.IsLocked = true;
             return true;
         }
 
@@ -272,6 +335,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryLock(this IDefinition definition)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             if (definition is not ISelectionTargetDefinition target)
                 return false;
 
@@ -284,7 +349,10 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Unlock(this ISelectionTarget target)
         {
-            target.IsLocked = false;
+            ArgumentNullException.ThrowIfNull(target);
+
+            GetDefinition<ISelectionTargetDefinition>(target)
+                .IsLocked = false;
         }
 
         /// <summary>
@@ -292,11 +360,14 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Unlock(this IEngineObject obj)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             if (obj is not ISelectionTarget target)
                 throw new InvalidOperationException(
                     $"Object of type '{obj.GetType().Name}' does not support selection.");
 
-            target.IsLocked = false;
+            GetDefinition<ISelectionTargetDefinition>(target)
+                .IsLocked = false;
         }
 
         /// <summary>
@@ -304,6 +375,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Unlock(this IDefinition definition)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             if (definition is not ISelectionTargetDefinition target)
                 throw new InvalidOperationException(
                     $"Definition of type '{definition.GetType().Name}' does not support selection.");
@@ -316,7 +389,12 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryUnlock(this ISelectionTarget target)
         {
-            target.IsLocked = false;
+            ArgumentNullException.ThrowIfNull(target);
+
+            if (target.Definition is not ISelectionTargetDefinition definition)
+                return false;
+
+            definition.IsLocked = false;
             return true;
         }
 
@@ -325,10 +403,15 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryUnlock(this IEngineObject obj)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             if (obj is not ISelectionTarget target)
                 return false;
 
-            target.IsLocked = false;
+            if (target.Definition is not ISelectionTargetDefinition definition)
+                return false;
+
+            definition.IsLocked = false;
             return true;
         }
 
@@ -337,6 +420,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryUnlock(this IDefinition definition)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             if (definition is not ISelectionTargetDefinition target)
                 return false;
 
@@ -353,6 +438,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool IsMovable(this ISelectionTarget target)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             return target is ISelectionMovable2 movable
                 && movable.AllowMove
                 && !target.IsLocked;
@@ -363,6 +450,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool IsMovable(this IEngineObject obj)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             return obj is ISelectionMovable2 movable
                 && movable.AllowMove
                 && !movable.IsLocked;
@@ -373,6 +462,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool IsMovable(this IDefinition definition)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             return definition is ISelectionMovable2Definition movable
                 && !movable.IsLocked;
         }
@@ -382,6 +473,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Move(this ISelectionTarget target, Point2 position)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             if (target is not ISelectionMovable2 movable)
                 throw new InvalidOperationException(
                     "The selection target does not support movement.");
@@ -394,7 +487,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
                 throw new InvalidOperationException(
                     "The selection target does not allow movement.");
 
-            movable.Position = position;
+            GetDefinition<ISelectionMovable2Definition>(target)
+                .Position = position;
         }
 
         /// <summary>
@@ -402,6 +496,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Move(this IEngineObject obj, Point2 position)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             if (obj is not ISelectionMovable2 movable)
                 throw new InvalidOperationException(
                     $"Object of type '{obj.GetType().Name}' does not support movement.");
@@ -414,7 +510,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
                 throw new InvalidOperationException(
                     $"Object of type '{obj.GetType().Name}' does not allow movement.");
 
-            movable.Position = position;
+            GetDefinition<ISelectionMovable2Definition>(obj)
+                .Position = position;
         }
 
         /// <summary>
@@ -422,6 +519,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Move(this IDefinition definition, Point2 position)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             if (definition is not ISelectionMovable2Definition movable)
                 throw new InvalidOperationException(
                     $"Definition of type '{definition.GetType().Name}' does not support movement.");
@@ -438,12 +537,17 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryMove(this ISelectionTarget target, Point2 position)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             if (target is not ISelectionMovable2 movable
                 || target.IsLocked
                 || !movable.AllowMove)
                 return false;
 
-            movable.Position = position;
+            if (target.Definition is not ISelectionMovable2Definition definition)
+                return false;
+
+            definition.Position = position;
             return true;
         }
 
@@ -452,6 +556,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryMove(this IEngineObject obj, Point2 position)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             return obj is ISelectionMovable2 movable
                 && !movable.IsLocked
                 && movable.AllowMove
@@ -463,6 +569,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryMove(this IDefinition definition, Point2 position)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             if (definition is not ISelectionMovable2Definition movable
                 || movable.IsLocked)
                 return false;
@@ -480,6 +588,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool IsRotatable(this ISelectionTarget target)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             return target is ISelectionRotatable2 rotatable
                 && rotatable.AllowRotate
                 && !target.IsLocked;
@@ -490,6 +600,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool IsRotatable(this IEngineObject obj)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             return obj is ISelectionRotatable2 rotatable
                 && rotatable.AllowRotate
                 && !rotatable.IsLocked;
@@ -500,6 +612,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool IsRotatable(this IDefinition definition)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             return definition is ISelectionRotatable2Definition rotatable
                 && !rotatable.IsLocked;
         }
@@ -509,6 +623,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Rotate(this ISelectionTarget target, float rotation)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             if (target is not ISelectionRotatable2 rotatable)
                 throw new InvalidOperationException(
                     "The selection target does not support rotation.");
@@ -521,7 +637,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
                 throw new InvalidOperationException(
                     "The selection target does not allow rotation.");
 
-            rotatable.Rotation = rotation;
+            GetDefinition<ISelectionRotatable2Definition>(target)
+                .Rotation = rotation;
         }
 
         /// <summary>
@@ -532,6 +649,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
             float rotation,
             Point2 rotationPivot)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             if (target is not ISelectionRotatable2 rotatable)
                 throw new InvalidOperationException(
                     "The selection target does not support rotation.");
@@ -544,8 +663,11 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
                 throw new InvalidOperationException(
                     "The selection target does not allow rotation.");
 
-            rotatable.RotationPivot = rotationPivot;
-            rotatable.Rotation = rotation;
+            ISelectionRotatable2Definition definition =
+                GetDefinition<ISelectionRotatable2Definition>(target);
+
+            definition.Rotation = rotation;
+            definition.RotationPivot = rotationPivot;
         }
 
         /// <summary>
@@ -553,6 +675,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Rotate(this IEngineObject obj, float rotation)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             if (obj is not ISelectionRotatable2 rotatable)
                 throw new InvalidOperationException(
                     $"Object of type '{obj.GetType().Name}' does not support rotation.");
@@ -565,7 +689,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
                 throw new InvalidOperationException(
                     $"Object of type '{obj.GetType().Name}' does not allow rotation.");
 
-            rotatable.Rotation = rotation;
+            GetDefinition<ISelectionRotatable2Definition>(obj)
+                .Rotation = rotation;
         }
 
         /// <summary>
@@ -576,6 +701,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
             float rotation,
             Point2 rotationPivot)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             if (obj is not ISelectionRotatable2 rotatable)
                 throw new InvalidOperationException(
                     $"Object of type '{obj.GetType().Name}' does not support rotation.");
@@ -588,8 +715,11 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
                 throw new InvalidOperationException(
                     $"Object of type '{obj.GetType().Name}' does not allow rotation.");
 
-            rotatable.RotationPivot = rotationPivot;
-            rotatable.Rotation = rotation;
+            ISelectionRotatable2Definition definition =
+                GetDefinition<ISelectionRotatable2Definition>(obj);
+
+            definition.Rotation = rotation;
+            definition.RotationPivot = rotationPivot;
         }
 
         /// <summary>
@@ -597,6 +727,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Rotate(this IDefinition definition, float rotation)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             if (definition is not ISelectionRotatable2Definition rotatable)
                 throw new InvalidOperationException(
                     $"Definition of type '{definition.GetType().Name}' does not support rotation.");
@@ -616,6 +748,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
             float rotation,
             Point2 rotationPivot)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             if (definition is not ISelectionRotatable2Definition rotatable)
                 throw new InvalidOperationException(
                     $"Definition of type '{definition.GetType().Name}' does not support rotation.");
@@ -633,12 +767,17 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryRotate(this ISelectionTarget target, float rotation)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             if (target is not ISelectionRotatable2 rotatable
                 || target.IsLocked
                 || !rotatable.AllowRotate)
                 return false;
 
-            rotatable.Rotation = rotation;
+            if (target.Definition is not ISelectionRotatable2Definition definition)
+                return false;
+
+            definition.Rotation = rotation;
             return true;
         }
 
@@ -650,13 +789,18 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
             float rotation,
             Point2 rotationPivot)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             if (target is not ISelectionRotatable2 rotatable
                 || target.IsLocked
                 || !rotatable.AllowRotate)
                 return false;
 
-            rotatable.RotationPivot = rotationPivot;
-            rotatable.Rotation = rotation;
+            if (target.Definition is not ISelectionRotatable2Definition definition)
+                return false;
+
+            definition.Rotation = rotation;
+            definition.RotationPivot = rotationPivot;
 
             return true;
         }
@@ -666,12 +810,17 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryRotate(this IEngineObject obj, float rotation)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             if (obj is not ISelectionRotatable2 rotatable
                 || rotatable.IsLocked
                 || !rotatable.AllowRotate)
                 return false;
 
-            rotatable.Rotation = rotation;
+            if (obj.Definition is not ISelectionRotatable2Definition definition)
+                return false;
+
+            definition.Rotation = rotation;
             return true;
         }
 
@@ -683,13 +832,18 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
             float rotation,
             Point2 rotationPivot)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             if (obj is not ISelectionRotatable2 rotatable
                 || rotatable.IsLocked
                 || !rotatable.AllowRotate)
                 return false;
 
-            rotatable.RotationPivot = rotationPivot;
-            rotatable.Rotation = rotation;
+            if (obj.Definition is not ISelectionRotatable2Definition definition)
+                return false;
+
+            definition.Rotation = rotation;
+            definition.RotationPivot = rotationPivot;
 
             return true;
         }
@@ -699,6 +853,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryRotate(this IDefinition definition, float rotation)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             if (definition is not ISelectionRotatable2Definition rotatable
                 || rotatable.IsLocked)
                 return false;
@@ -715,6 +871,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
             float rotation,
             Point2 rotationPivot)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             if (definition is not ISelectionRotatable2Definition rotatable
                 || rotatable.IsLocked)
                 return false;
@@ -734,6 +892,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool IsScalable(this ISelectionTarget target)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             return target is ISelectionScalable2 scalable
                 && scalable.AllowScale
                 && !target.IsLocked;
@@ -744,6 +904,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool IsScalable(this IEngineObject obj)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             return obj is ISelectionScalable2 scalable
                 && scalable.AllowScale
                 && !scalable.IsLocked;
@@ -754,6 +916,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool IsScalable(this IDefinition definition)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             return definition is ISelectionScalable2Definition scalable
                 && !scalable.IsLocked;
         }
@@ -763,6 +927,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Scale(this ISelectionTarget target, Vector2 scale)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             if (target is not ISelectionScalable2 scalable)
                 throw new InvalidOperationException(
                     "The selection target does not support scaling.");
@@ -775,7 +941,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
                 throw new InvalidOperationException(
                     "The selection target does not allow scaling.");
 
-            scalable.Scale = scale;
+            GetDefinition<ISelectionScalable2Definition>(target)
+                .Scale = scale;
         }
 
         /// <summary>
@@ -783,6 +950,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Scale(this IEngineObject obj, Vector2 scale)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             if (obj is not ISelectionScalable2 scalable)
                 throw new InvalidOperationException(
                     $"Object of type '{obj.GetType().Name}' does not support scaling.");
@@ -795,7 +964,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
                 throw new InvalidOperationException(
                     $"Object of type '{obj.GetType().Name}' does not allow scaling.");
 
-            scalable.Scale = scale;
+            GetDefinition<ISelectionScalable2Definition>(obj)
+                .Scale = scale;
         }
 
         /// <summary>
@@ -803,6 +973,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Scale(this IDefinition definition, Vector2 scale)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             if (definition is not ISelectionScalable2Definition scalable)
                 throw new InvalidOperationException(
                     $"Definition of type '{definition.GetType().Name}' does not support scaling.");
@@ -819,12 +991,17 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryScale(this ISelectionTarget target, Vector2 scale)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             if (target is not ISelectionScalable2 scalable
                 || target.IsLocked
                 || !scalable.AllowScale)
                 return false;
 
-            scalable.Scale = scale;
+            if (target.Definition is not ISelectionScalable2Definition definition)
+                return false;
+
+            definition.Scale = scale;
             return true;
         }
 
@@ -833,12 +1010,17 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryScale(this IEngineObject obj, Vector2 scale)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             if (obj is not ISelectionScalable2 scalable
                 || scalable.IsLocked
                 || !scalable.AllowScale)
                 return false;
 
-            scalable.Scale = scale;
+            if (obj.Definition is not ISelectionScalable2Definition definition)
+                return false;
+
+            definition.Scale = scale;
             return true;
         }
 
@@ -847,6 +1029,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryScale(this IDefinition definition, Vector2 scale)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             if (definition is not ISelectionScalable2Definition scalable
                 || scalable.IsLocked)
                 return false;
@@ -864,6 +1048,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool IsResizable(this ISelectionTarget target)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             return target is ISelectionResizable2 resizable
                 && resizable.AllowResize
                 && !target.IsLocked;
@@ -874,6 +1060,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool IsResizable(this IEngineObject obj)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             return obj is ISelectionResizable2 resizable
                 && resizable.AllowResize
                 && !resizable.IsLocked;
@@ -884,6 +1072,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool IsResizable(this IDefinition definition)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             return definition is ISelectionResizable2Definition resizable
                 && !resizable.IsLocked;
         }
@@ -893,6 +1083,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Resize(this ISelectionTarget target, Size2 size)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             if (target is not ISelectionResizable2 resizable)
                 throw new InvalidOperationException(
                     "The selection target does not support resizing.");
@@ -905,7 +1097,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
                 throw new InvalidOperationException(
                     "The selection target does not allow resizing.");
 
-            resizable.Size = size;
+            GetDefinition<ISelectionResizable2Definition>(target)
+                .Size = size;
         }
 
         /// <summary>
@@ -913,6 +1106,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Resize(this IEngineObject obj, Size2 size)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             if (obj is not ISelectionResizable2 resizable)
                 throw new InvalidOperationException(
                     $"Object of type '{obj.GetType().Name}' does not support resizing.");
@@ -925,7 +1120,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
                 throw new InvalidOperationException(
                     $"Object of type '{obj.GetType().Name}' does not allow resizing.");
 
-            resizable.Size = size;
+            GetDefinition<ISelectionResizable2Definition>(obj)
+                .Size = size;
         }
 
         /// <summary>
@@ -933,6 +1129,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static void Resize(this IDefinition definition, Size2 size)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             if (definition is not ISelectionResizable2Definition resizable)
                 throw new InvalidOperationException(
                     $"Definition of type '{definition.GetType().Name}' does not support resizing.");
@@ -949,12 +1147,17 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryResize(this ISelectionTarget target, Size2 size)
         {
+            ArgumentNullException.ThrowIfNull(target);
+
             if (target is not ISelectionResizable2 resizable
                 || target.IsLocked
                 || !resizable.AllowResize)
                 return false;
 
-            resizable.Size = size;
+            if (target.Definition is not ISelectionResizable2Definition definition)
+                return false;
+
+            definition.Size = size;
             return true;
         }
 
@@ -963,12 +1166,17 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryResize(this IEngineObject obj, Size2 size)
         {
+            ArgumentNullException.ThrowIfNull(obj);
+
             if (obj is not ISelectionResizable2 resizable
                 || resizable.IsLocked
                 || !resizable.AllowResize)
                 return false;
 
-            resizable.Size = size;
+            if (obj.Definition is not ISelectionResizable2Definition definition)
+                return false;
+
+            definition.Size = size;
             return true;
         }
 
@@ -977,6 +1185,8 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         /// </summary>
         public static bool TryResize(this IDefinition definition, Size2 size)
         {
+            ArgumentNullException.ThrowIfNull(definition);
+
             if (definition is not ISelectionResizable2Definition resizable
                 || resizable.IsLocked)
                 return false;
@@ -989,11 +1199,41 @@ namespace Sachssoft.Sasogine.Components.Tools.Selection
         // Helpers
         // ---------------------------------------------------------------------
 
+        private static TDefinition GetDefinition<TDefinition>(
+            IEngineObject obj)
+            where TDefinition : class, IDefinition
+        {
+            ArgumentNullException.ThrowIfNull(obj);
+
+            return obj.Definition as TDefinition
+                ?? throw new InvalidOperationException(
+                    $"Object of type '{obj.GetType().Name}' does not provide " +
+                    $"a definition of type '{typeof(TDefinition).Name}'.");
+        }
+
+        private static bool TryGetDefinition<TDefinition>(
+            IEngineObject obj,
+            [NotNullWhen(true)] out TDefinition? definition)
+            where TDefinition : class, IDefinition
+        {
+            ArgumentNullException.ThrowIfNull(obj);
+
+            definition = obj.Definition as TDefinition;
+            return definition is not null;
+        }
+
         private static bool SetPosition(
             ISelectionMovable2 movable,
             Point2 position)
         {
-            movable.Position = position;
+            if (!TryGetDefinition(
+                movable,
+                out ISelectionMovable2Definition? definition))
+            {
+                return false;
+            }
+
+            definition.Position = position;
             return true;
         }
 

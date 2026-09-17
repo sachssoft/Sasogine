@@ -1,4 +1,3 @@
-using Sachssoft.Sasogine.Components;
 using Sachssoft.Sasogine.Scenes;
 using System;
 using System.Collections.Generic;

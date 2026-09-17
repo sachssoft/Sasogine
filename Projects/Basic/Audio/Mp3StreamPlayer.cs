@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Audio;
 using NLayer;
-using Sachssoft.Sasogine.Geometry;
 using System;
 using System.IO;
 

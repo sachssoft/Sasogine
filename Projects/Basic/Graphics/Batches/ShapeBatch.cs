@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Geometry;
 using Sachssoft.Sasogine.Graphics.Cameras;
-using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
 using System.Collections.Generic;
 

@@ -1,25 +1,26 @@
-﻿using System;
+using System;
 
 namespace Sachssoft.Sasogine.Resources.Localization;
 
 /// <summary>
-/// Provides helper methods for accessing and binding localized values.
+/// Provides helper methods for accessing and binding localized strings.
 /// </summary>
 public static class Localized
 {
     /// <summary>
     /// Creates a localization binding for the specified application.
     /// </summary>
-    public static LocalizationBinding<T> Bind<T>(
+    public static LocalizationBinding Bind(
         GameApplicationBase application,
         string key,
-        T? defaultValue,
-        Action<T?> setter)
-        where T : class
+        string? defaultValue,
+        Action<string?> setter)
     {
         ArgumentNullException.ThrowIfNull(application);
+        ArgumentException.ThrowIfNullOrEmpty(key);
+        ArgumentNullException.ThrowIfNull(setter);
 
-        return new LocalizationBinding<T>(
+        return new LocalizationBinding(
             application,
             key,
             defaultValue,
@@ -27,23 +28,18 @@ public static class Localized
     }
 
     /// <summary>
-    /// Gets a localized value for the specified application.
+    /// Gets a localized string for the specified application.
     /// </summary>
-    public static T? GetValue<T>(
+    public static string? GetValue(
         IGameApplication application,
         string key,
-        T? defaultValue)
-        where T : class
+        string? defaultValue = null)
     {
         ArgumentNullException.ThrowIfNull(application);
-        ArgumentNullException.ThrowIfNull(key);
+        ArgumentException.ThrowIfNullOrEmpty(key);
 
-        var entries =
-            application.Localization.Entries;
-
-        if (entries.TryGetValue<T>(key: key, out var value))
-            return value;
-
-        return defaultValue;
+        return application.Localization.Entries.GetValue(
+            key,
+            defaultValue);
     }
 }

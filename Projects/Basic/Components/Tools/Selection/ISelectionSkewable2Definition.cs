@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Graphics.Rendering;
 

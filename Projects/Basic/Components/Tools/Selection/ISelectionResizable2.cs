@@ -1,12 +1,11 @@
-﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Components.Tools.Selection
 {
     /// <summary>
     /// Represents a selection target that can be resized by the Selection Tool.
     /// </summary>
-    public interface ISelectionResizable2 : ISelectionTarget2, ITransformSize2
+    public interface ISelectionResizable2 : ISelectionTarget2, IReadOnlyTransformSize2
     {
         /// <summary>
         /// Gets a value indicating whether resizing is allowed.

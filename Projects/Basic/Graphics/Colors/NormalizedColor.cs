@@ -1,5 +1,5 @@
-using System;
 using Microsoft.Xna.Framework;
+using System;
 
 namespace Sachssoft.Sasogine.Graphics;
 
@@ -120,91 +120,91 @@ public readonly struct NormalizedColor : IColorConvertible<NormalizedColor>
     }
 
     /// <summary>
-/// Creates a copy of this color with the specified red component.
-/// </summary>
-/// <param name="red">
-/// The red component in the range <c>0.0</c> through <c>1.0</c>.
-/// </param>
-/// <returns>
-/// A new color with the specified red component.
-/// </returns>
-public NormalizedColor WithRed(float red)
-{
-    return new NormalizedColor(red, G, B, A);
-}
+    /// Creates a copy of this color with the specified red component.
+    /// </summary>
+    /// <param name="red">
+    /// The red component in the range <c>0.0</c> through <c>1.0</c>.
+    /// </param>
+    /// <returns>
+    /// A new color with the specified red component.
+    /// </returns>
+    public NormalizedColor WithRed(float red)
+    {
+        return new NormalizedColor(red, G, B, A);
+    }
 
-/// <summary>
-/// Creates a copy of this color with the specified green component.
-/// </summary>
-/// <param name="green">
-/// The green component in the range <c>0.0</c> through <c>1.0</c>.
-/// </param>
-/// <returns>
-/// A new color with the specified green component.
-/// </returns>
-public NormalizedColor WithGreen(float green)
-{
-    return new NormalizedColor(R, green, B, A);
-}
+    /// <summary>
+    /// Creates a copy of this color with the specified green component.
+    /// </summary>
+    /// <param name="green">
+    /// The green component in the range <c>0.0</c> through <c>1.0</c>.
+    /// </param>
+    /// <returns>
+    /// A new color with the specified green component.
+    /// </returns>
+    public NormalizedColor WithGreen(float green)
+    {
+        return new NormalizedColor(R, green, B, A);
+    }
 
-/// <summary>
-/// Creates a copy of this color with the specified blue component.
-/// </summary>
-/// <param name="blue">
-/// The blue component in the range <c>0.0</c> through <c>1.0</c>.
-/// </param>
-/// <returns>
-/// A new color with the specified blue component.
-/// </returns>
-public NormalizedColor WithBlue(float blue)
-{
-    return new NormalizedColor(R, G, blue, A);
-}
+    /// <summary>
+    /// Creates a copy of this color with the specified blue component.
+    /// </summary>
+    /// <param name="blue">
+    /// The blue component in the range <c>0.0</c> through <c>1.0</c>.
+    /// </param>
+    /// <returns>
+    /// A new color with the specified blue component.
+    /// </returns>
+    public NormalizedColor WithBlue(float blue)
+    {
+        return new NormalizedColor(R, G, blue, A);
+    }
 
-/// <summary>
-/// Creates a copy of this color with the specified alpha component.
-/// </summary>
-/// <param name="alpha">
-/// The alpha component in the range <c>0.0</c> through <c>1.0</c>.
-/// </param>
-/// <returns>
-/// A new color with the specified alpha component.
-/// </returns>
-public NormalizedColor WithAlpha(float alpha)
-{
-    return new NormalizedColor(R, G, B, alpha);
-}
+    /// <summary>
+    /// Creates a copy of this color with the specified alpha component.
+    /// </summary>
+    /// <param name="alpha">
+    /// The alpha component in the range <c>0.0</c> through <c>1.0</c>.
+    /// </param>
+    /// <returns>
+    /// A new color with the specified alpha component.
+    /// </returns>
+    public NormalizedColor WithAlpha(float alpha)
+    {
+        return new NormalizedColor(R, G, B, alpha);
+    }
 
-/// <summary>
-/// Creates a copy of this color with the specified RGB components.
-/// </summary>
-/// <param name="red">The red component.</param>
-/// <param name="green">The green component.</param>
-/// <param name="blue">The blue component.</param>
-/// <returns>
-/// A new color with the specified RGB components and the current alpha component.
-/// </returns>
-public NormalizedColor With(
-    float red,
-    float green,
-    float blue)
-{
-    return new NormalizedColor(red, green, blue, A);
-}
+    /// <summary>
+    /// Creates a copy of this color with the specified RGB components.
+    /// </summary>
+    /// <param name="red">The red component.</param>
+    /// <param name="green">The green component.</param>
+    /// <param name="blue">The blue component.</param>
+    /// <returns>
+    /// A new color with the specified RGB components and the current alpha component.
+    /// </returns>
+    public NormalizedColor With(
+        float red,
+        float green,
+        float blue)
+    {
+        return new NormalizedColor(red, green, blue, A);
+    }
 
-/// <summary>
-/// Creates a copy of this color with the specified RGB components.
-/// </summary>
-/// <param name="rgb">
-/// The vector containing the red, green, and blue components.
-/// </param>
-/// <returns>
-/// A new color with the specified RGB components and the current alpha component.
-/// </returns>
-public NormalizedColor With(Vector3 rgb)
-{
-    return new NormalizedColor(rgb.X, rgb.Y, rgb.Z, A);
-}
+    /// <summary>
+    /// Creates a copy of this color with the specified RGB components.
+    /// </summary>
+    /// <param name="rgb">
+    /// The vector containing the red, green, and blue components.
+    /// </param>
+    /// <returns>
+    /// A new color with the specified RGB components and the current alpha component.
+    /// </returns>
+    public NormalizedColor With(Vector3 rgb)
+    {
+        return new NormalizedColor(rgb.X, rgb.Y, rgb.Z, A);
+    }
 
     /// <summary>
     /// Converts a standard color to a normalized color.

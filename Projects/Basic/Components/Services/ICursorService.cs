@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Components.Services;
 using Sachssoft.Sasogine.Graphics;
 using Sachssoft.Sasogine.Input;
 

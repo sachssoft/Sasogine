@@ -2,83 +2,146 @@ using Sachssoft.Sasogine.Common;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Experimental;
+namespace Sachssoft.Sasogine;
 
 /// <summary>
-/// Provides functionality for resolving registered engine object factories
-/// and creating engine objects from definitions.
+/// Defines a registry for registering and creating definitions and engine
+/// object instances.
 /// </summary>
 public interface IGameRegistry
 {
     /// <summary>
-    /// Creates an engine object using the specified identifier.
+    /// Registers a definition factory and its corresponding engine object factory
+    /// using the specified registry key.
     /// </summary>
-    IEngineObject Create<TKey>(
-        TKey key,
-        IEngineObjectDefinition definition)
-        where TKey : notnull;
+    /// <param name="key">The key used to identify the registry entry.</param>
+    /// <param name="definitionFactory">The factory used to create definitions.</param>
+    /// <param name="objectFactory">The factory used to create engine objects from definitions.</param>
+    void Register(
+        IGameRegistryKey key,
+        Func<IDefinition> definitionFactory,
+        Func<IDefinition, IEngineObject> objectFactory);
 
     /// <summary>
-    /// Creates a strongly typed engine object using the specified identifier.
+    /// Determines whether the specified definition type is registered.
     /// </summary>
-    TObject Create<TKey, TObject>(
-        TKey key,
-        IEngineObjectDefinition definition)
-        where TKey : notnull
-        where TObject : class, IEngineObject;
+    /// <param name="definitionType">The definition type to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if the definition type is registered;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    bool IsDefinitionRegistered(Type definitionType);
 
     /// <summary>
-    /// Creates an engine object using its registered engine object type.
+    /// Determines whether the specified engine object type is registered.
     /// </summary>
-    IEngineObject Create(
-        Type type,
-        IEngineObjectDefinition definition);
+    /// <param name="objectType">The engine object type to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if the object type is registered;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    bool IsObjectRegistered(Type objectType);
 
     /// <summary>
-    /// Creates a strongly typed engine object using its registered type.
+    /// Creates a definition for the specified definition type.
     /// </summary>
-    TObject Create<TObject>(
-        IEngineObjectDefinition definition)
-        where TObject : class, IEngineObject;
+    /// <param name="definitionType">The definition type used to locate the registry entry.</param>
+    /// <returns>The created definition.</returns>
+    IDefinition CreateDefinition(Type definitionType);
 
     /// <summary>
-    /// Attempts to create an engine object using the specified identifier.
+    /// Creates a definition associated with the specified registry key.
     /// </summary>
-    bool TryCreate<TKey>(
-        TKey key,
-        IEngineObjectDefinition definition,
-        [NotNullWhen(true)] out IEngineObject? instance)
-        where TKey : notnull;
+    /// <param name="key">The registry key used to locate the registry entry.</param>
+    /// <returns>The created definition.</returns>
+    IDefinition CreateDefinition(IGameRegistryKey key);
 
     /// <summary>
-    /// Attempts to create a strongly typed engine object using the
-    /// specified identifier.
+    /// Attempts to create a definition for the specified definition type.
     /// </summary>
-    bool TryCreate<TKey, TObject>(
-        TKey key,
-        IEngineObjectDefinition definition,
-        [NotNullWhen(true)] out TObject? instance)
-        where TKey : notnull
-        where TObject : class, IEngineObject;
+    /// <param name="definitionType">The definition type used to locate the registry entry.</param>
+    /// <param name="definition">
+    /// When this method returns <see langword="true"/>, contains the created
+    /// definition; otherwise, <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if the definition could be created;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    bool TryCreateDefinition(
+        Type definitionType,
+        [NotNullWhen(true)] out IDefinition? definition);
 
     /// <summary>
-    /// Determines whether a factory is registered for the specified identifier.
+    /// Attempts to create a definition associated with the specified registry key.
     /// </summary>
-    bool IsRegistered<TKey>(
-        TKey key)
-        where TKey : notnull;
+    /// <param name="key">The registry key used to locate the registry entry.</param>
+    /// <param name="definition">
+    /// When this method returns <see langword="true"/>, contains the created
+    /// definition; otherwise, <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if the definition could be created;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    bool TryCreateDefinition(
+        IGameRegistryKey key,
+        [NotNullWhen(true)] out IDefinition? definition);
 
     /// <summary>
-    /// Determines whether a factory is registered for the specified
-    /// engine object type.
+    /// Creates an engine object compatible with the specified object type
+    /// using the provided definition.
     /// </summary>
-    bool IsRegistered(
-        Type type);
+    /// <param name="objectType">The requested engine object type.</param>
+    /// <param name="definition">The definition used to create the engine object.</param>
+    /// <returns>The created engine object.</returns>
+    IEngineObject Create(Type objectType, IDefinition definition);
 
     /// <summary>
-    /// Determines whether a factory is registered for the specified
-    /// engine object type.
+    /// Attempts to create an engine object compatible with the specified
+    /// object type using the provided definition.
     /// </summary>
-    bool IsRegistered<TObject>()
-        where TObject : class, IEngineObject;
+    /// <param name="objectType">The requested engine object type.</param>
+    /// <param name="definition">The definition used to create the engine object.</param>
+    /// <param name="instance">
+    /// When this method returns <see langword="true"/>, contains the created
+    /// engine object; otherwise, <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if the engine object could be created;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    bool TryCreate(
+        Type objectType,
+        IDefinition definition,
+        [NotNullWhen(true)] out IEngineObject? instance);
+
+    /// <summary>
+    /// Creates an engine object using the registry entry associated with the
+    /// specified definition.
+    /// </summary>
+    /// <param name="definition">
+    /// The definition used to locate the registry entry and create the engine object.
+    /// </param>
+    /// <returns>The created engine object.</returns>
+    IEngineObject CreateFromDefinition(IDefinition definition);
+
+    /// <summary>
+    /// Attempts to create an engine object using the registry entry associated
+    /// with the specified definition.
+    /// </summary>
+    /// <param name="definition">
+    /// The definition used to locate the registry entry and create the engine object.
+    /// </param>
+    /// <param name="instance">
+    /// When this method returns <see langword="true"/>, contains the created
+    /// engine object; otherwise, <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if the engine object could be created;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    bool TryCreateFromDefinition(
+        IDefinition definition,
+        [NotNullWhen(true)] out IEngineObject? instance);
 }

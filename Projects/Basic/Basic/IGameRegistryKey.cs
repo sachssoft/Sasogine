@@ -1,12 +1,12 @@
-namespace Sachssoft.Sasogine.Experimental;
+namespace Sachssoft.Sasogine;
 
 /// <summary>
-/// Represents a registry key that provides a serialization name.
+/// Represents a registry key that provides a string identifier.
 /// </summary>
 public interface IGameRegistryKey
 {
     /// <summary>
-    /// Gets the serialization name.
+    /// Gets the string identifier of the registry key.
     /// </summary>
     string Name { get; }
 }

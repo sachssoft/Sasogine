@@ -2,178 +2,112 @@ using Sachssoft.Sasogine.Common;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Experimental;
+namespace Sachssoft.Sasogine;
 
 /// <summary>
-/// Provides functionality for creating engine objects from registered
-/// factories and engine object definitions.
+/// Defines an activator for creating engine object instances from registered
+/// definitions.
 /// </summary>
 public interface IGameActivator
 {
     /// <summary>
-    /// Creates an engine object using the specified key and definition.
+    /// Determines whether the specified definition type is supported.
     /// </summary>
-    /// <typeparam name="TKey">
-    /// The type of key used to identify the registered factory.
-    /// </typeparam>
-    /// <param name="key">
-    /// The key identifying the factory.
-    /// </param>
-    /// <param name="definition">
-    /// The definition used to create the engine object.
-    /// </param>
+    /// <param name="definitionType">The definition type to check.</param>
     /// <returns>
-    /// The created engine object.
+    /// <see langword="true"/> if the definition type is supported;
+    /// otherwise, <see langword="false"/>.
     /// </returns>
-    IEngineObject Create<TKey>(
-        TKey key,
-        IEngineObjectDefinition definition)
-        where TKey : notnull;
+    bool IsDefinitionSupported(Type definitionType);
 
     /// <summary>
-    /// Creates a strongly typed engine object using the specified key
-    /// and definition.
+    /// Determines whether the specified engine object type is supported.
     /// </summary>
-    /// <typeparam name="TKey">
-    /// The type of key used to identify the registered factory.
-    /// </typeparam>
-    /// <typeparam name="TObject">
-    /// The expected engine object type.
-    /// </typeparam>
-    /// <param name="key">
-    /// The key identifying the factory.
-    /// </param>
-    /// <param name="definition">
-    /// The definition used to create the engine object.
-    /// </param>
+    /// <param name="objectType">The engine object type to check.</param>
     /// <returns>
-    /// The created engine object.
+    /// <see langword="true"/> if the object type is supported;
+    /// otherwise, <see langword="false"/>.
     /// </returns>
-    TObject Create<TKey, TObject>(
-        TKey key,
-        IEngineObjectDefinition definition)
-        where TKey : notnull
-        where TObject : class, IEngineObject;
+    bool IsObjectSupported(Type objectType);
 
     /// <summary>
-    /// Creates an engine object using the specified engine object type
-    /// and definition.
+    /// Creates an engine object associated with the specified registry key
+    /// using the provided definition.
     /// </summary>
-    /// <param name="type">
-    /// The engine object type identifying the registered factory.
-    /// </param>
-    /// <param name="definition">
-    /// The definition used to create the engine object.
-    /// </param>
-    /// <returns>
-    /// The created engine object.
-    /// </returns>
-    IEngineObject Create(
-        Type type,
-        IEngineObjectDefinition definition);
+    /// <param name="key">The registry key used to locate the corresponding object factory.</param>
+    /// <param name="definition">The definition used to create the engine object.</param>
+    /// <returns>The created engine object.</returns>
+    IEngineObject Create(IGameRegistryKey key, IDefinition definition);
 
     /// <summary>
-    /// Creates a strongly typed engine object using its type and
-    /// the specified definition.
+    /// Creates an engine object compatible with the specified object type
+    /// using the provided definition.
     /// </summary>
-    /// <typeparam name="TObject">
-    /// The engine object type.
-    /// </typeparam>
-    /// <param name="definition">
-    /// The definition used to create the engine object.
-    /// </param>
-    /// <returns>
-    /// The created engine object.
-    /// </returns>
-    TObject Create<TObject>(
-        IEngineObjectDefinition definition)
-        where TObject : class, IEngineObject;
+    /// <param name="objectType">The requested engine object type.</param>
+    /// <param name="definition">The definition used to create the engine object.</param>
+    /// <returns>The created engine object.</returns>
+    IEngineObject Create(Type objectType, IDefinition definition);
 
     /// <summary>
-    /// Attempts to create an engine object using the specified key
-    /// and definition.
+    /// Creates an engine object using the registry entry associated with the
+    /// specified definition.
     /// </summary>
-    /// <typeparam name="TKey">
-    /// The type of key used to identify the registered factory.
-    /// </typeparam>
-    /// <param name="key">
-    /// The key identifying the factory.
-    /// </param>
-    /// <param name="definition">
-    /// The definition used to create the engine object.
-    /// </param>
+    /// <param name="definition">The definition used to locate the corresponding object factory.</param>
+    /// <returns>The created engine object.</returns>
+    IEngineObject CreateFromDefinition(IDefinition definition);
+
+    /// <summary>
+    /// Attempts to create an engine object associated with the specified
+    /// registry key using the provided definition.
+    /// </summary>
+    /// <param name="key">The registry key used to locate the corresponding object factory.</param>
+    /// <param name="definition">The definition used to create the engine object.</param>
     /// <param name="instance">
-    /// When this method returns <see langword="true"/>, contains the
-    /// created engine object; otherwise, <see langword="null"/>.
+    /// When this method returns <see langword="true"/>, contains the created
+    /// engine object; otherwise, <see langword="null"/>.
     /// </param>
     /// <returns>
     /// <see langword="true"/> if the engine object could be created;
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    bool TryCreate<TKey>(
-        TKey key,
-        IEngineObjectDefinition definition,
-        [NotNullWhen(true)] out IEngineObject? instance)
-        where TKey : notnull;
+    bool TryCreate(
+        IGameRegistryKey key,
+        IDefinition definition,
+        [NotNullWhen(true)] out IEngineObject? instance);
 
     /// <summary>
-    /// Attempts to create a strongly typed engine object using the
-    /// specified key and definition.
+    /// Attempts to create an engine object compatible with the specified
+    /// object type using the provided definition.
     /// </summary>
-    /// <typeparam name="TKey">
-    /// The type of key used to identify the registered factory.
-    /// </typeparam>
-    /// <typeparam name="TObject">
-    /// The expected engine object type.
-    /// </typeparam>
-    /// <param name="key">
-    /// The key identifying the factory.
-    /// </param>
-    /// <param name="definition">
-    /// The definition used to create the engine object.
-    /// </param>
+    /// <param name="objectType">The requested engine object type.</param>
+    /// <param name="definition">The definition used to create the engine object.</param>
     /// <param name="instance">
-    /// When this method returns <see langword="true"/>, contains the
-    /// created engine object; otherwise, <see langword="null"/>.
+    /// When this method returns <see langword="true"/>, contains the created
+    /// engine object; otherwise, <see langword="null"/>.
     /// </param>
     /// <returns>
-    /// <see langword="true"/> if a compatible engine object could be
-    /// created; otherwise, <see langword="false"/>.
-    /// </returns>
-    bool TryCreate<TKey, TObject>(
-        TKey key,
-        IEngineObjectDefinition definition,
-        [NotNullWhen(true)] out TObject? instance)
-        where TKey : notnull
-        where TObject : class, IEngineObject;
-
-    /// <summary>
-    /// Determines whether the specified key is supported.
-    /// </summary>
-    /// <typeparam name="TKey">
-    /// The type of key.
-    /// </typeparam>
-    /// <param name="key">
-    /// The key to test.
-    /// </param>
-    /// <returns>
-    /// <see langword="true"/> if the key is supported; otherwise,
-    /// <see langword="false"/>.
-    /// </returns>
-    bool IsSupported<TKey>(
-        TKey key)
-        where TKey : notnull;
-
-    /// <summary>
-    /// Determines whether the specified engine object type is supported.
-    /// </summary>
-    /// <typeparam name="TObject">
-    /// The engine object type to test.
-    /// </typeparam>
-    /// <returns>
-    /// <see langword="true"/> if the engine object type is supported;
+    /// <see langword="true"/> if the engine object could be created;
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    bool IsSupported<TObject>()
-        where TObject : class, IEngineObject;
+    bool TryCreate(
+        Type objectType,
+        IDefinition definition,
+        [NotNullWhen(true)] out IEngineObject? instance);
+
+    /// <summary>
+    /// Attempts to create an engine object using the registry entry associated
+    /// with the specified definition.
+    /// </summary>
+    /// <param name="definition">The definition used to locate the corresponding object factory.</param>
+    /// <param name="instance">
+    /// When this method returns <see langword="true"/>, contains the created
+    /// engine object; otherwise, <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if the engine object could be created;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    bool TryCreateFromDefinition(
+        IDefinition definition,
+        [NotNullWhen(true)] out IEngineObject? instance);
 }

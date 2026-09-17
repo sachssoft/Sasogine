@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Graphics;
-using Sachssoft.Sasogine.Graphics.Rendering;
 using System;
 using System.IO;
 

@@ -1,6 +1,6 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
+using System;
 
 namespace Sachssoft.Sasogine.Gameplay.Capabilities
 {

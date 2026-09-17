@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Diagnostics;
-using Sachssoft.Sasogine.Experimental;
 using System;
 
 namespace Sachssoft.Sasogine;

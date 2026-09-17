@@ -1,6 +1,4 @@
-﻿using Sachssoft.Sasogine.Common;
-
-namespace Sachssoft.Sasogine.Common
+﻿namespace Sachssoft.Sasogine.Common
 {
 
     /// <summary>

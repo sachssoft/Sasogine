@@ -1,98 +1,86 @@
 using Sachssoft.Sasogine.Common;
 using System;
 
-namespace Sachssoft.Sasogine.Experimental;
+namespace Sachssoft.Sasogine;
 
 /// <summary>
 /// Provides a specialized game registry that uses an enumeration value
 /// together with a string identifier as its registry key.
 /// </summary>
-/// <typeparam name="TEnum">
-/// The enumeration type used to index registered engine object factories.
-/// </typeparam>
-public class IndexedGameRegistry<TEnum> : GameRegistry
+/// <typeparam name="TEnum">The enumeration type used as the registry key value.</typeparam>
+/// <typeparam name="TDefinition">The base type of definitions managed by the registry.</typeparam>
+/// <typeparam name="TObject">The base type of engine objects managed by the registry.</typeparam>
+public class IndexedGameRegistry<TEnum, TDefinition, TObject>
+    : GameRegistry<IndexedGameRegistryKey<TEnum>, TDefinition, TObject>
     where TEnum : struct, Enum
+    where TDefinition : class, IDefinition
+    where TObject : class, IEngineObject
 {
     /// <summary>
-    /// Registers an engine object factory using the specified name and index.
+    /// Initializes a new instance of the <see cref="IndexedGameRegistry{TEnum, TDefinition, TObject}"/>
+    /// class using exact definition type matching.
     /// </summary>
-    public void Register<TDefinition, TObject>(
+    public IndexedGameRegistry()
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="IndexedGameRegistry{TEnum, TDefinition, TObject}"/> class.
+    /// </summary>
+    /// <param name="definitionMatchMode">The mode used to match definition types.</param>
+    public IndexedGameRegistry(DefinitionMatchMode definitionMatchMode)
+        : base(definitionMatchMode)
+    {
+    }
+
+    /// <summary>
+    /// Registers definition and engine object factories using the specified name and index.
+    /// </summary>
+    /// <param name="name">The string identifier of the registry key.</param>
+    /// <param name="index">The enumeration value of the registry key.</param>
+    /// <param name="definitionFactory">The factory used to create definitions.</param>
+    /// <param name="objectFactory">The factory used to create engine objects.</param>
+    public void Register(
         string name,
         TEnum index,
-        Func<TDefinition, TObject> factory)
-        where TDefinition : class, IEngineObjectDefinition
-        where TObject : class, IEngineObject
+        Func<TDefinition> definitionFactory,
+        Func<TDefinition, TObject> objectFactory)
     {
-        Register<GameRegistryKey<TEnum>, TDefinition, TObject>(
-            new GameRegistryKey<TEnum>(name, index),
-            factory);
+        Register(
+            new IndexedGameRegistryKey<TEnum>(name, index),
+            definitionFactory,
+            objectFactory);
     }
 
     /// <summary>
-    /// Creates an engine object using the specified name, index,
-    /// and definition.
+    /// Creates a definition using the specified name and index.
     /// </summary>
-    public IEngineObject Create(
+    /// <param name="name">The string identifier of the registry key.</param>
+    /// <param name="index">The enumeration value of the registry key.</param>
+    /// <returns>The created definition.</returns>
+    public TDefinition CreateDefinition(string name, TEnum index)
+    {
+        return CreateDefinition(
+            new IndexedGameRegistryKey<TEnum>(name, index));
+    }
+
+    /// <summary>
+    /// Attempts to create a definition using the specified name and index.
+    /// </summary>
+    /// <param name="name">The string identifier of the registry key.</param>
+    /// <param name="index">The enumeration value of the registry key.</param>
+    /// <param name="definition">The created definition, if successful.</param>
+    /// <returns>
+    /// <see langword="true"/> if the definition could be created;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool TryCreateDefinition(
         string name,
         TEnum index,
-        IEngineObjectDefinition definition)
+        out TDefinition? definition)
     {
-        return Create(
-            new GameRegistryKey<TEnum>(name, index),
-            definition);
-    }
-
-    /// <summary>
-    /// Creates a strongly typed engine object using the specified name,
-    /// index, and definition.
-    /// </summary>
-    public TObject Create<TObject>(
-        string name,
-        TEnum index,
-        IEngineObjectDefinition definition)
-        where TObject : class, IEngineObject
-    {
-        return Create<GameRegistryKey<TEnum>, TObject>(
-            new GameRegistryKey<TEnum>(name, index),
-            definition);
-    }
-
-    /// <summary>
-    /// Attempts to create an engine object using the specified name,
-    /// index, and definition.
-    /// </summary>
-    public bool TryCreate(
-        string name,
-        TEnum index,
-        IEngineObjectDefinition definition,
-        out IEngineObject? instance)
-    {
-        return TryCreate(
-            new GameRegistryKey<TEnum>(name, index),
-            definition,
-            out instance);
-    }
-
-    /// <summary>
-    /// Determines whether a factory is registered for the specified
-    /// name and index.
-    /// </summary>
-    public bool IsRegistered(
-        string name,
-        TEnum index)
-    {
-        return IsRegistered(
-            new GameRegistryKey<TEnum>(name, index));
-    }
-
-    /// <summary>
-    /// Removes the factory registered for the specified name and index.
-    /// </summary>
-    public bool Unregister(
-        string name,
-        TEnum index)
-    {
-        return Unregister(
-            new GameRegistryKey<TEnum>(name, index));
+        return TryCreateDefinition(
+            new IndexedGameRegistryKey<TEnum>(name, index),
+            out definition);
     }
 }

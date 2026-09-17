@@ -1,5 +1,4 @@
-﻿using Sachssoft.Sasogine.Geometry;
-using System;
+﻿using System;
 using System.Globalization;
 
 namespace Sachssoft.Sasogine.Common

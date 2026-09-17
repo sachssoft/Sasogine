@@ -1,53 +1,48 @@
-﻿using System;
+using System;
 
 namespace Sachssoft.Sasogine.Resources.Localization;
 
 /// <summary>
-/// Binds a localized value to a property or setter and automatically updates
-/// the value when the current culture changes.
+/// Binds a localized string to a setter and updates it when the language changes.
 /// </summary>
-/// <typeparam name="T">
-/// The type of the localized value.
-/// </typeparam>
-public sealed class LocalizationBinding<T> : IDisposable
-    where T : class
+public sealed class LocalizationBinding : IDisposable
 {
     private readonly GameApplicationBase _application;
     private readonly string _key;
-    private readonly T? _defaultValue;
-    private readonly Action<T?> _setter;
-
+    private readonly string? _fallback;
+    private readonly Action<string?> _setter;
     private bool _disposed;
 
     internal LocalizationBinding(
         GameApplicationBase application,
         string key,
-        T? defaultValue,
-        Action<T?> setter)
+        string? fallback,
+        Action<string?> setter)
     {
-        _application =
-            application ??
-            throw new ArgumentNullException(nameof(application));
+        ArgumentNullException.ThrowIfNull(application);
+        ArgumentException.ThrowIfNullOrEmpty(key);
+        ArgumentNullException.ThrowIfNull(setter);
 
-        _key =
-            key ??
-            throw new ArgumentNullException(nameof(key));
+        _application = application;
+        _key = key;
+        _fallback = fallback;
+        _setter = setter;
 
-        _defaultValue = defaultValue;
-
-        _setter =
-            setter ??
-            throw new ArgumentNullException(nameof(setter));
-
-        _application.Localization.CurrentCultureChanged +=
-            OnCurrentCultureChanged;
-
+        _application.Localization.LanguageChanged += OnLanguageChanged;
         UpdateValue();
     }
 
-    private void OnCurrentCultureChanged(
-        object? sender,
-        EventArgs e)
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _application.Localization.LanguageChanged -= OnLanguageChanged;
+        _disposed = true;
+    }
+
+    private void OnLanguageChanged(object? sender, EventArgs e)
     {
         UpdateValue();
     }
@@ -57,23 +52,6 @@ public sealed class LocalizationBinding<T> : IDisposable
         if (_disposed)
             return;
 
-        var entries =
-            _application.Localization.Entries;
-
-        if (!entries.TryGetValue<T>(_key, out var value))
-            value = _defaultValue;
-
-        _setter(value);
-    }
-
-    public void Dispose()
-    {
-        if (_disposed)
-            return;
-
-        _application.Localization.CurrentCultureChanged -=
-            OnCurrentCultureChanged;
-
-        _disposed = true;
+        _setter(_application.Localization.Entries.GetValue(_key, _fallback));
     }
 }

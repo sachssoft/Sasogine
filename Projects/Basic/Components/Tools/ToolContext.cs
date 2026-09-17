@@ -1,5 +1,5 @@
-﻿using Sachssoft.Sasogine.Input;
-using Sachssoft.Sasogine.Graphics.Cameras;
+﻿using Sachssoft.Sasogine.Graphics.Cameras;
+using Sachssoft.Sasogine.Input;
 
 namespace Sachssoft.Sasogine.Components.Tools
 {

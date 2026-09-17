@@ -11,7 +11,7 @@ namespace Sachssoft.Sasogine.Graphics.Meshes;
 /// <summary>
 /// Provides methods for creating standard GPU meshes.
 /// </summary>
-public static class MeshGenerator
+public static partial class MeshGenerator
 {
     /// <summary>
     /// Creates a textured quad mesh.

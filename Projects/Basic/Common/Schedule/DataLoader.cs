@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Geometry;
 using Sachssoft.Sasogine.Scenes;
 using System;
 using System.Threading.Tasks;

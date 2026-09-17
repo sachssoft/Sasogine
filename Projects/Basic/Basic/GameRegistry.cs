@@ -2,523 +2,641 @@ using Sachssoft.Sasogine.Common;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
-namespace Sachssoft.Sasogine.Experimental;
+namespace Sachssoft.Sasogine;
 
 /// <summary>
-/// Provides an AOT-friendly registry for creating engine object instances
-/// from engine object definitions using arbitrary identifiers.
+/// Provides an AOT-friendly registry for creating definitions and engine
+/// object instances.
 /// </summary>
-/// <remarks>
-/// Each registered factory requires an engine object definition when creating
-/// an instance. Factories may be indexed by strings, integers, enumeration
-/// values, types, or other non-null key types.
-/// </remarks>
-public class GameRegistry
+/// <typeparam name="TKey">The type of key used to identify registry entries.</typeparam>
+/// <typeparam name="TDefinition">The base type of definitions managed by the registry.</typeparam>
+/// <typeparam name="TObject">The base type of engine objects managed by the registry.</typeparam>
+public class GameRegistry<TKey, TDefinition, TObject> : IGameRegistry
+    where TKey : notnull, IGameRegistryKey
+    where TDefinition : class, IDefinition
+    where TObject : class, IEngineObject
 {
-    private readonly Dictionary<Type, IFactoryMap> _factoryMaps = new();
+    private readonly object _lock = new();
+    private readonly Dictionary<IGameRegistryKey, IGameRegistryEntry> _entriesByKey = [];
+    private readonly Dictionary<Type, IGameRegistryEntry> _entriesByDefinitionType = [];
+    private readonly Dictionary<Type, IGameRegistryEntry> _entriesByObjectType = [];
 
     /// <summary>
-    /// Registers a factory using the specified identifier.
+    /// Initializes a new instance of the <see cref="GameRegistry{TKey, TDefinition, TObject}"/>
+    /// class using exact definition type matching.
     /// </summary>
-    /// <typeparam name="TKey">
-    /// The type of identifier used to register the factory.
+    public GameRegistry() : this(DefinitionMatchMode.Exact)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GameRegistry{TKey, TDefinition, TObject}"/> class.
+    /// </summary>
+    /// <param name="definitionMatchMode">The mode used to match definition types.</param>
+    public GameRegistry(DefinitionMatchMode definitionMatchMode)
+    {
+        DefinitionMatchMode = definitionMatchMode;
+    }
+
+    /// <summary>
+    /// Gets how definition types are matched when resolving registry entries.
+    /// </summary>
+    public DefinitionMatchMode DefinitionMatchMode { get; }
+
+    /// <summary>
+    /// Gets a snapshot of all registered entries.
+    /// </summary>
+    protected IReadOnlyList<IGameRegistryEntry> GetEntries()
+    {
+        lock (_lock)
+        {
+            return _entriesByKey.Values.ToArray();
+        }
+    }
+
+    /// <summary>
+    /// Registers a concrete definition type and its corresponding concrete
+    /// engine object type using the specified registry key.
+    /// </summary>
+    /// <typeparam name="TConcreteDefinition">
+    /// The concrete definition type to register.
     /// </typeparam>
-    /// <typeparam name="TDefinition">
-    /// The type of definition accepted by the factory.
-    /// </typeparam>
-    /// <typeparam name="TObject">
-    /// The type of engine object created by the factory.
+    /// <typeparam name="TConcreteObject">
+    /// The concrete engine object type to register.
     /// </typeparam>
     /// <param name="key">
-    /// The identifier used to resolve the factory.
+    /// The key used to identify the registry entry.
     /// </param>
-    /// <param name="factory">
-    /// The factory used to create the engine object.
+    /// <param name="definitionFactory">
+    /// The factory used to create definition instances.
     /// </param>
-    public void Register<TKey, TDefinition, TObject>(
+    /// <param name="objectFactory">
+    /// The factory used to create engine object instances from definitions.
+    /// </param>
+    public void Register<TConcreteDefinition, TConcreteObject>(
         TKey key,
-        Func<TDefinition, TObject> factory)
-        where TKey : notnull
-        where TDefinition : class, IEngineObjectDefinition
-        where TObject : class, IEngineObject
+        Func<TConcreteDefinition> definitionFactory,
+        Func<TConcreteDefinition, TConcreteObject> objectFactory)
+        where TConcreteDefinition : class, TDefinition
+        where TConcreteObject : class, TObject
     {
         ArgumentNullException.ThrowIfNull(key);
-        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentNullException.ThrowIfNull(definitionFactory);
+        ArgumentNullException.ThrowIfNull(objectFactory);
 
-        FactoryMap<TKey> map = GetOrCreateMap<TKey>();
-
-        map.Register(
+        IGameRegistryEntry entry = CreateEntry(
             key,
-            new Factory<TDefinition, TObject>(factory));
+            typeof(TConcreteDefinition),
+            typeof(TConcreteObject),
+            () => definitionFactory(),
+            definition => objectFactory((TConcreteDefinition)definition));
+
+        RegisterEntry(entry);
     }
 
     /// <summary>
-    /// Registers a factory using the engine object type as its identifier.
+    /// Determines whether the registry contains the definition type represented
+    /// by <typeparamref name="TDefinition"/>.
     /// </summary>
-    /// <typeparam name="TDefinition">
-    /// The type of definition accepted by the factory.
-    /// </typeparam>
-    /// <typeparam name="TObject">
-    /// The type of engine object created by the factory.
-    /// </typeparam>
-    /// <param name="factory">
-    /// The factory used to create the engine object.
-    /// </param>
-    public void Register<TDefinition, TObject>(
-        Func<TDefinition, TObject> factory)
-        where TDefinition : class, IEngineObjectDefinition
-        where TObject : class, IEngineObject
-    {
-        ArgumentNullException.ThrowIfNull(factory);
-
-        Register<Type, TDefinition, TObject>(
-            typeof(TObject),
-            factory);
-    }
-
-    /// <summary>
-    /// Creates an engine object using the specified identifier and definition.
-    /// </summary>
-    /// <typeparam name="TKey">
-    /// The identifier type.
-    /// </typeparam>
-    /// <param name="key">
-    /// The registered identifier.
-    /// </param>
-    /// <param name="definition">
-    /// The definition used to create the engine object.
-    /// </param>
     /// <returns>
-    /// The created engine object.
+    /// <see langword="true"/> if the definition type is registered;
+    /// otherwise, <see langword="false"/>.
     /// </returns>
-    /// <exception cref="InvalidOperationException">
-    /// No factory is registered for the specified identifier or the supplied
-    /// definition is incompatible with the registered factory.
-    /// </exception>
-    public IEngineObject Create<TKey>(
-        TKey key,
-        IEngineObjectDefinition definition)
-        where TKey : notnull
+    public bool IsDefinitionRegistered() => IsDefinitionRegistered(typeof(TDefinition));
+
+    /// <summary>
+    /// Determines whether the specified definition type can be resolved.
+    /// </summary>
+    /// <param name="definitionType">The definition type to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if the definition type can be resolved;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    protected virtual bool IsDefinitionRegistered(Type definitionType)
+    {
+        ArgumentNullException.ThrowIfNull(definitionType);
+
+        lock (_lock)
+        {
+            if (_entriesByDefinitionType.ContainsKey(definitionType))
+                return true;
+
+            if (DefinitionMatchMode == DefinitionMatchMode.Exact)
+                return false;
+
+            foreach (IGameRegistryEntry entry in _entriesByDefinitionType.Values)
+            {
+                if (entry.DefinitionType.IsAssignableFrom(definitionType))
+                    return true;
+            }
+
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Determines whether the registry contains the object type represented
+    /// by <typeparamref name="TObject"/>.
+    /// </summary>
+    /// <returns>
+    /// <see langword="true"/> if the object type is registered;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool IsObjectRegistered() => IsObjectRegistered(typeof(TObject));
+
+    /// <summary>
+    /// Determines whether the specified engine object type can be resolved.
+    /// </summary>
+    /// <param name="objectType">The engine object type to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if the object type can be resolved;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    protected virtual bool IsObjectRegistered(Type objectType)
+    {
+        ArgumentNullException.ThrowIfNull(objectType);
+
+        lock (_lock)
+        {
+            if (_entriesByObjectType.ContainsKey(objectType))
+                return true;
+
+            foreach (IGameRegistryEntry entry in _entriesByObjectType.Values)
+            {
+                if (objectType.IsAssignableFrom(entry.ObjectType))
+                    return true;
+            }
+
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Creates a definition using the registered definition type represented
+    /// by <typeparamref name="TDefinition"/>.
+    /// </summary>
+    /// <returns>The created definition.</returns>
+    public TDefinition CreateDefinition() => CreateDefinition(typeof(TDefinition));
+
+    /// <summary>
+    /// Creates a definition for the specified definition type.
+    /// </summary>
+    /// <param name="definitionType">The definition type used to locate the registry entry.</param>
+    /// <returns>The created definition.</returns>
+    protected virtual TDefinition CreateDefinition(Type definitionType)
+    {
+        ArgumentNullException.ThrowIfNull(definitionType);
+
+        if (TryGetDefinitionEntry(definitionType, out IGameRegistryEntry? entry))
+            return (TDefinition)entry.CreateDefinition();
+
+        throw new KeyNotFoundException(
+            $"Definition type '{definitionType.FullName}' is not registered.");
+    }
+
+    /// <summary>
+    /// Creates a definition associated with the specified registry key.
+    /// </summary>
+    /// <param name="key">The registry key used to locate the registry entry.</param>
+    /// <returns>The created definition.</returns>
+    public TDefinition CreateDefinition(TKey key)
     {
         ArgumentNullException.ThrowIfNull(key);
-        ArgumentNullException.ThrowIfNull(definition);
 
-        IFactory factory = GetFactory(key);
+        if (TryGetKeyEntry(key, out IGameRegistryEntry? entry))
+            return (TDefinition)entry.CreateDefinition();
 
-        return factory.Create(definition);
+        throw new KeyNotFoundException(
+            $"Registry key '{key}' is not registered.");
     }
 
     /// <summary>
-    /// Creates a strongly typed engine object using the specified identifier
-    /// and definition.
+    /// Attempts to create a definition for the specified definition type.
     /// </summary>
-    /// <typeparam name="TKey">
-    /// The identifier type.
-    /// </typeparam>
-    /// <typeparam name="TObject">
-    /// The expected engine object type.
-    /// </typeparam>
-    /// <param name="key">
-    /// The registered identifier.
-    /// </param>
+    /// <param name="definitionType">The definition type used to locate the registry entry.</param>
     /// <param name="definition">
-    /// The definition used to create the engine object.
+    /// When this method returns <see langword="true"/>, contains the created
+    /// definition; otherwise, <see langword="null"/>.
     /// </param>
     /// <returns>
-    /// The created engine object.
+    /// <see langword="true"/> if the definition could be created;
+    /// otherwise, <see langword="false"/>.
     /// </returns>
-    public TObject Create<TKey, TObject>(
-        TKey key,
-        IEngineObjectDefinition definition)
-        where TKey : notnull
-        where TObject : class, IEngineObject
+    protected virtual bool TryCreateDefinition(Type definitionType, [NotNullWhen(true)] out TDefinition? definition)
     {
-        IEngineObject instance =
-            Create(key, definition);
+        ArgumentNullException.ThrowIfNull(definitionType);
 
-        if (instance is TObject result)
-            return result;
+        if (!TryGetDefinitionEntry(definitionType, out IGameRegistryEntry? entry))
+        {
+            definition = null;
+            return false;
+        }
 
-        throw new InvalidOperationException(
-            $"The factory registered for '{key}' created " +
-            $"'{instance.GetType().FullName}', but " +
-            $"'{typeof(TObject).FullName}' was requested.");
+        definition = (TDefinition)entry.CreateDefinition();
+        return true;
     }
 
     /// <summary>
-    /// Creates an engine object using its registered engine object type.
+    /// Attempts to create a definition associated with the specified registry key.
     /// </summary>
-    /// <param name="type">
-    /// The registered engine object type.
-    /// </param>
+    /// <param name="key">The registry key used to locate the registry entry.</param>
     /// <param name="definition">
-    /// The definition used to create the engine object.
+    /// When this method returns <see langword="true"/>, contains the created
+    /// definition; otherwise, <see langword="null"/>.
     /// </param>
     /// <returns>
-    /// The created engine object.
+    /// <see langword="true"/> if the definition could be created;
+    /// otherwise, <see langword="false"/>.
     /// </returns>
-    public IEngineObject Create(
-        Type type,
-        IEngineObjectDefinition definition)
+    public bool TryCreateDefinition(TKey key, [NotNullWhen(true)] out TDefinition? definition)
     {
-        ArgumentNullException.ThrowIfNull(type);
-        ArgumentNullException.ThrowIfNull(definition);
+        ArgumentNullException.ThrowIfNull(key);
 
-        return Create<Type>(
-            type,
-            definition);
+        if (!TryGetKeyEntry(key, out IGameRegistryEntry? entry))
+        {
+            definition = null;
+            return false;
+        }
+
+        definition = (TDefinition)entry.CreateDefinition();
+        return true;
     }
 
     /// <summary>
-    /// Creates a strongly typed engine object using its registered type.
+    /// Creates an engine object compatible with the specified object type
+    /// using the provided definition.
     /// </summary>
-    /// <typeparam name="TObject">
-    /// The registered engine object type.
-    /// </typeparam>
-    /// <param name="definition">
-    /// The definition used to create the engine object.
-    /// </param>
-    /// <returns>
-    /// The created engine object.
-    /// </returns>
-    public TObject Create<TObject>(
-        IEngineObjectDefinition definition)
-        where TObject : class, IEngineObject
+    /// <param name="objectType">The requested engine object type.</param>
+    /// <param name="definition">The definition used to create the engine object.</param>
+    /// <returns>The created engine object.</returns>
+    protected virtual TObject Create(Type objectType, IDefinition definition)
     {
+        ArgumentNullException.ThrowIfNull(objectType);
         ArgumentNullException.ThrowIfNull(definition);
 
-        return Create<Type, TObject>(
-            typeof(TObject),
-            definition);
+        if (TryGetObjectEntry(objectType, definition.GetType(), out IGameRegistryEntry? entry))
+            return (TObject)entry.CreateObject(definition);
+
+        throw new KeyNotFoundException(
+            $"No registry entry was found for object type '{objectType.FullName}' " +
+            $"and definition type '{definition.GetType().FullName}'.");
     }
 
     /// <summary>
-    /// Attempts to create an engine object using the specified identifier.
+    /// Attempts to create an engine object compatible with the specified object
+    /// type using the provided definition.
     /// </summary>
-    /// <typeparam name="TKey">
-    /// The identifier type.
-    /// </typeparam>
-    /// <param name="key">
-    /// The registered identifier.
-    /// </param>
-    /// <param name="definition">
-    /// The definition used to create the engine object.
-    /// </param>
+    /// <param name="objectType">The requested engine object type.</param>
+    /// <param name="definition">The definition used to create the engine object.</param>
     /// <param name="instance">
     /// When this method returns <see langword="true"/>, contains the created
     /// engine object; otherwise, <see langword="null"/>.
     /// </param>
     /// <returns>
-    /// <see langword="true"/> if a compatible factory was found; otherwise,
-    /// <see langword="false"/>.
+    /// <see langword="true"/> if the engine object could be created;
+    /// otherwise, <see langword="false"/>.
     /// </returns>
-    public bool TryCreate<TKey>(
-        TKey key,
-        IEngineObjectDefinition definition,
-        [NotNullWhen(true)] out IEngineObject? instance)
-        where TKey : notnull
+    protected virtual bool TryCreate(Type objectType, IDefinition definition, [NotNullWhen(true)] out TObject? instance)
     {
-        ArgumentNullException.ThrowIfNull(key);
+        ArgumentNullException.ThrowIfNull(objectType);
         ArgumentNullException.ThrowIfNull(definition);
 
-        instance = null;
-
-        if (!TryGetFactory(
-                key,
-                out IFactory? factory))
+        if (!TryGetObjectEntry(objectType, definition.GetType(), out IGameRegistryEntry? entry))
         {
+            instance = null;
             return false;
         }
 
-        if (!factory.CanCreate(definition))
-            return false;
-
-        instance = factory.Create(definition);
-
+        instance = (TObject)entry.CreateObject(definition);
         return true;
     }
 
     /// <summary>
-    /// Attempts to create a strongly typed engine object using the specified
-    /// identifier.
+    /// Creates an engine object using the registry entry associated with the
+    /// specified definition.
     /// </summary>
-    public bool TryCreate<TKey, TObject>(
-        TKey key,
-        IEngineObjectDefinition definition,
-        [NotNullWhen(true)] out TObject? instance)
-        where TKey : notnull
-        where TObject : class, IEngineObject
+    /// <param name="definition">The definition used to locate the registry entry.</param>
+    /// <returns>The created engine object.</returns>
+    public TObject CreateFromDefinition(IDefinition definition)
     {
-        instance = null;
+        ArgumentNullException.ThrowIfNull(definition);
 
-        if (!TryCreate(
-                key,
-                definition,
-                out IEngineObject? created))
+        if (TryGetDefinitionEntry(definition.GetType(), out IGameRegistryEntry? entry))
+            return (TObject)entry.CreateObject(definition);
+
+        throw new KeyNotFoundException(
+            $"Definition type '{definition.GetType().FullName}' is not registered.");
+    }
+
+    /// <summary>
+    /// Attempts to create an engine object using the registry entry associated
+    /// with the specified definition.
+    /// </summary>
+    /// <param name="definition">The definition used to locate the registry entry.</param>
+    /// <param name="instance">
+    /// When this method returns <see langword="true"/>, contains the created
+    /// engine object; otherwise, <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if the engine object could be created;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool TryCreateFromDefinition(IDefinition definition, [NotNullWhen(true)] out TObject? instance)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+
+        if (!TryGetDefinitionEntry(definition.GetType(), out IGameRegistryEntry? entry))
         {
+            instance = null;
             return false;
         }
 
-        if (created is not TObject result)
-            return false;
-
-        instance = result;
-
+        instance = (TObject)entry.CreateObject(definition);
         return true;
     }
 
     /// <summary>
-    /// Determines whether a factory is registered for the specified identifier.
+    /// Creates a registry entry using the specified key, concrete types,
+    /// and factories.
     /// </summary>
-    public bool IsRegistered<TKey>(
-        TKey key)
-        where TKey : notnull
+    /// <param name="key">The registry key.</param>
+    /// <param name="definitionType">The concrete definition type.</param>
+    /// <param name="objectType">The concrete engine object type.</param>
+    /// <param name="definitionFactory">
+    /// The factory used to create definitions.
+    /// </param>
+    /// <param name="objectFactory">
+    /// The factory used to create engine objects from definitions.
+    /// </param>
+    /// <returns>The created registry entry.</returns>
+    protected virtual IGameRegistryEntry CreateEntry(
+        IGameRegistryKey key,
+        Type definitionType,
+        Type objectType,
+        Func<IDefinition> definitionFactory,
+        Func<IDefinition, IEngineObject> objectFactory)
+    {
+        return new GameRegistryEntry(
+            key,
+            definitionType,
+            objectType,
+            definitionFactory,
+            objectFactory);
+    }
+
+    /// <summary>
+    /// Registers the specified registry entry.
+    /// </summary>
+    /// <param name="entry">The registry entry to register.</param>
+    protected virtual void RegisterEntry(IGameRegistryEntry entry)
+    {
+        ArgumentNullException.ThrowIfNull(entry);
+
+        lock (_lock)
+        {
+            Console.WriteLine("=== RegisterEntry ===");
+            Console.WriteLine($"Key:            {entry.Key}");
+            Console.WriteLine($"KeyType:        {entry.KeyType.FullName}");
+            Console.WriteLine($"DefinitionType: {entry.DefinitionType.FullName}");
+            Console.WriteLine($"ObjectType:     {entry.ObjectType.FullName}");
+            Console.WriteLine();
+
+            if (_entriesByKey.ContainsKey(entry.Key))
+            {
+                throw new InvalidOperationException(
+                    $"Registry key '{entry.Key}' is already registered.");
+            }
+
+            if (_entriesByDefinitionType.ContainsKey(entry.DefinitionType))
+            {
+                throw new InvalidOperationException(
+                    $"Definition type '{entry.DefinitionType.FullName}' is already registered.");
+            }
+
+            if (_entriesByObjectType.ContainsKey(entry.ObjectType))
+            {
+                throw new InvalidOperationException(
+                    $"Object type '{entry.ObjectType.FullName}' is already registered.");
+            }
+
+            _entriesByKey.Add(entry.Key, entry);
+            _entriesByDefinitionType.Add(entry.DefinitionType, entry);
+            _entriesByObjectType.Add(entry.ObjectType, entry);
+        }
+    }
+
+    private bool TryGetKeyEntry(IGameRegistryKey key, [NotNullWhen(true)] out IGameRegistryEntry? entry)
+    {
+        lock (_lock)
+        {
+            return _entriesByKey.TryGetValue(key, out entry);
+        }
+    }
+
+    private bool TryGetDefinitionEntry(Type definitionType, [NotNullWhen(true)] out IGameRegistryEntry? entry)
+    {
+        lock (_lock)
+        {
+            if (_entriesByDefinitionType.TryGetValue(definitionType, out entry))
+                return true;
+
+            if (DefinitionMatchMode == DefinitionMatchMode.Exact)
+            {
+                entry = null;
+                return false;
+            }
+
+            IGameRegistryEntry? best = null;
+
+            foreach (IGameRegistryEntry candidate in _entriesByDefinitionType.Values)
+            {
+                if (!candidate.DefinitionType.IsAssignableFrom(definitionType))
+                    continue;
+
+                if (best is null || best.DefinitionType.IsAssignableFrom(candidate.DefinitionType))
+                    best = candidate;
+            }
+
+            entry = best;
+            return entry is not null;
+        }
+    }
+
+    private bool TryGetObjectEntry(
+        Type objectType,
+        Type definitionType,
+        [NotNullWhen(true)] out IGameRegistryEntry? entry)
+    {
+        lock (_lock)
+        {
+            if (_entriesByDefinitionType.TryGetValue(definitionType, out IGameRegistryEntry? exact))
+            {
+                if (objectType.IsAssignableFrom(exact.ObjectType))
+                {
+                    entry = exact;
+                    return true;
+                }
+
+                entry = null;
+                return false;
+            }
+
+            if (DefinitionMatchMode == DefinitionMatchMode.Exact)
+            {
+                entry = null;
+                return false;
+            }
+
+            IGameRegistryEntry? best = null;
+
+            foreach (IGameRegistryEntry candidate in _entriesByDefinitionType.Values)
+            {
+                if (!candidate.DefinitionType.IsAssignableFrom(definitionType))
+                    continue;
+
+                if (!objectType.IsAssignableFrom(candidate.ObjectType))
+                    continue;
+
+                if (best is null || best.DefinitionType.IsAssignableFrom(candidate.DefinitionType))
+                    best = candidate;
+            }
+
+            entry = best;
+            return entry is not null;
+        }
+    }
+
+    void IGameRegistry.Register(
+        IGameRegistryKey key,
+        Func<IDefinition> definitionFactory,
+        Func<IDefinition, IEngineObject> objectFactory)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        ArgumentNullException.ThrowIfNull(definitionFactory);
+        ArgumentNullException.ThrowIfNull(objectFactory);
+
+        if (key is not TKey typedKey)
+        {
+            throw new ArgumentException(
+                $"Registry key type '{key.GetType().FullName}' is not compatible with '{typeof(TKey).FullName}'.",
+                nameof(key));
+        }
+
+        IDefinition definition = definitionFactory()
+            ?? throw new InvalidOperationException(
+                "The definition factory returned null.");
+
+        if (definition is not TDefinition)
+        {
+            throw new InvalidOperationException(
+                $"Definition type '{definition.GetType().FullName}' is not compatible with '{typeof(TDefinition).FullName}'.");
+        }
+
+        IEngineObject instance = objectFactory(definition)
+            ?? throw new InvalidOperationException(
+                "The object factory returned null.");
+
+        if (instance is not TObject)
+        {
+            throw new InvalidOperationException(
+                $"Object type '{instance.GetType().FullName}' is not compatible with '{typeof(TObject).FullName}'.");
+        }
+
+        IGameRegistryEntry entry = CreateEntry(
+            typedKey,
+            definition.GetType(),
+            instance.GetType(),
+            definitionFactory,
+            objectFactory);
+
+        RegisterEntry(entry);
+    }
+
+    bool IGameRegistry.IsDefinitionRegistered(Type definitionType)
+        => IsDefinitionRegistered(definitionType);
+
+    bool IGameRegistry.IsObjectRegistered(Type objectType)
+        => IsObjectRegistered(objectType);
+
+    IDefinition IGameRegistry.CreateDefinition(Type definitionType)
+        => CreateDefinition(definitionType);
+
+    IDefinition IGameRegistry.CreateDefinition(IGameRegistryKey key)
     {
         ArgumentNullException.ThrowIfNull(key);
 
-        return TryGetFactory(
-            key,
-            out _);
+        if (!TryGetKeyEntry(key, out IGameRegistryEntry? entry))
+            throw new KeyNotFoundException($"Registry key '{key}' is not registered.");
+
+        return entry.CreateDefinition();
     }
 
-    /// <summary>
-    /// Determines whether a factory is registered for the specified engine
-    /// object type.
-    /// </summary>
-    public bool IsRegistered(Type type)
+    bool IGameRegistry.TryCreateDefinition(
+        Type definitionType,
+        [NotNullWhen(true)] out IDefinition? definition)
     {
-        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(definitionType);
 
-        return IsRegistered<Type>(type);
+        if (!TryGetDefinitionEntry(definitionType, out IGameRegistryEntry? entry))
+        {
+            definition = null;
+            return false;
+        }
+
+        definition = entry.CreateDefinition();
+        return true;
     }
 
-    /// <summary>
-    /// Determines whether a factory is registered for the specified engine
-    /// object type.
-    /// </summary>
-    public bool IsRegistered<TObject>()
-        where TObject : class, IEngineObject
-    {
-        return IsRegistered<Type>(
-            typeof(TObject));
-    }
-
-    /// <summary>
-    /// Removes the factory registered for the specified identifier.
-    /// </summary>
-    public bool Unregister<TKey>(
-        TKey key)
-        where TKey : notnull
+    bool IGameRegistry.TryCreateDefinition(
+        IGameRegistryKey key,
+        [NotNullWhen(true)] out IDefinition? definition)
     {
         ArgumentNullException.ThrowIfNull(key);
 
-        Type keyType = typeof(TKey);
-
-        if (!_factoryMaps.TryGetValue(
-                keyType,
-                out IFactoryMap? map))
+        if (!TryGetKeyEntry(key, out IGameRegistryEntry? entry))
         {
+            definition = null;
             return false;
         }
 
-        FactoryMap<TKey> typedMap =
-            (FactoryMap<TKey>)map;
-
-        bool removed =
-            typedMap.Remove(key);
-
-        if (typedMap.Count == 0)
-            _factoryMaps.Remove(keyType);
-
-        return removed;
+        definition = entry.CreateDefinition();
+        return true;
     }
 
-    /// <summary>
-    /// Removes the factory registered for the specified engine object type.
-    /// </summary>
-    public bool Unregister(Type type)
+    IEngineObject IGameRegistry.Create(Type objectType, IDefinition definition)
+        => Create(objectType, definition);
+
+    bool IGameRegistry.TryCreate(
+        Type objectType,
+        IDefinition definition,
+        [NotNullWhen(true)] out IEngineObject? instance)
     {
-        ArgumentNullException.ThrowIfNull(type);
-
-        return Unregister<Type>(type);
-    }
-
-    /// <summary>
-    /// Removes the factory registered for the specified engine object type.
-    /// </summary>
-    public bool Unregister<TObject>()
-        where TObject : class, IEngineObject
-    {
-        return Unregister<Type>(
-            typeof(TObject));
-    }
-
-    /// <summary>
-    /// Removes all registered factories.
-    /// </summary>
-    public void Clear()
-    {
-        _factoryMaps.Clear();
-    }
-
-    private FactoryMap<TKey> GetOrCreateMap<TKey>()
-        where TKey : notnull
-    {
-        Type keyType = typeof(TKey);
-
-        if (_factoryMaps.TryGetValue(
-                keyType,
-                out IFactoryMap? map))
+        if (TryCreate(objectType, definition, out TObject? typedInstance))
         {
-            return (FactoryMap<TKey>)map;
+            instance = typedInstance;
+            return true;
         }
 
-        var result =
-            new FactoryMap<TKey>();
-
-        _factoryMaps.Add(
-            keyType,
-            result);
-
-        return result;
+        instance = null;
+        return false;
     }
 
-    private IFactory GetFactory<TKey>(
-        TKey key)
-        where TKey : notnull
+    IEngineObject IGameRegistry.CreateFromDefinition(IDefinition definition)
+        => CreateFromDefinition(definition);
+
+    bool IGameRegistry.TryCreateFromDefinition(
+        IDefinition definition,
+        [NotNullWhen(true)] out IEngineObject? instance)
     {
-        if (TryGetFactory(
-                key,
-                out IFactory? factory))
+        if (TryCreateFromDefinition(definition, out TObject? typedInstance))
         {
-            return factory;
+            instance = typedInstance;
+            return true;
         }
 
-        throw new InvalidOperationException(
-            $"No factory is registered for key '{key}' " +
-            $"of type '{typeof(TKey).FullName}'.");
-    }
-
-    private bool TryGetFactory<TKey>(
-        TKey key,
-        [NotNullWhen(true)] out IFactory? factory)
-        where TKey : notnull
-    {
-        factory = null;
-
-        if (!_factoryMaps.TryGetValue(
-                typeof(TKey),
-                out IFactoryMap? map))
-        {
-            return false;
-        }
-
-        FactoryMap<TKey> typedMap =
-            (FactoryMap<TKey>)map;
-
-        return typedMap.TryGet(
-            key,
-            out factory);
-    }
-
-    private interface IFactoryMap
-    {
-        int Count { get; }
-    }
-
-    private sealed class FactoryMap<TKey> :
-        IFactoryMap
-        where TKey : notnull
-    {
-        private readonly Dictionary<TKey, IFactory> _factories = new();
-
-        public int Count =>
-            _factories.Count;
-
-        public void Register(
-            TKey key,
-            IFactory factory)
-        {
-            _factories[key] = factory;
-        }
-
-        public bool TryGet(
-            TKey key,
-            [NotNullWhen(true)] out IFactory? factory)
-        {
-            return _factories.TryGetValue(
-                key,
-                out factory);
-        }
-
-        public bool Remove(TKey key)
-        {
-            return _factories.Remove(key);
-        }
-    }
-
-    private interface IFactory
-    {
-        Type DefinitionType { get; }
-
-        Type ObjectType { get; }
-
-        bool CanCreate(
-            IEngineObjectDefinition definition);
-
-        IEngineObject Create(
-            IEngineObjectDefinition definition);
-    }
-
-    private sealed class Factory<TDefinition, TObject> :
-        IFactory
-        where TDefinition : class, IEngineObjectDefinition
-        where TObject : class, IEngineObject
-    {
-        private readonly Func<TDefinition, TObject> _factory;
-
-        public Factory(
-            Func<TDefinition, TObject> factory)
-        {
-            ArgumentNullException.ThrowIfNull(factory);
-
-            _factory = factory;
-        }
-
-        public Type DefinitionType =>
-            typeof(TDefinition);
-
-        public Type ObjectType =>
-            typeof(TObject);
-
-        public bool CanCreate(
-            IEngineObjectDefinition definition)
-        {
-            return definition is TDefinition;
-        }
-
-        public IEngineObject Create(
-            IEngineObjectDefinition definition)
-        {
-            if (definition is not TDefinition typedDefinition)
-            {
-                throw new InvalidOperationException(
-                    $"Factory for '{typeof(TObject).FullName}' requires " +
-                    $"definition '{typeof(TDefinition).FullName}', but " +
-                    $"'{definition.GetType().FullName}' was provided.");
-            }
-
-            TObject instance =
-                _factory(typedDefinition);
-
-            if (instance is null)
-            {
-                throw new InvalidOperationException(
-                    $"Factory for '{typeof(TObject).FullName}' returned null.");
-            }
-
-            return instance;
-        }
+        instance = null;
+        return false;
     }
 }

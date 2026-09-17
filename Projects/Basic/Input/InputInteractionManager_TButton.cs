@@ -1,5 +1,4 @@
-﻿using Sachssoft.Sasogine.Input;
-using Sachssoft.Sasogine.Scenes;
+﻿using Sachssoft.Sasogine.Scenes;
 using System;
 using System.Collections.Generic;
 

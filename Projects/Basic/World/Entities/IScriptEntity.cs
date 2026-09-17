@@ -1,48 +1,67 @@
-﻿using System;
+using Sachssoft.Sasogine.Common.Execution;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.World
+namespace Sachssoft.Sasogine.World;
+
+/// <summary>
+/// Represents an entity that provides executable script logic.
+/// </summary>
+/// <remarks>
+/// <para>
+/// A script entity extends <see cref="IEntity"/> with executable logic that
+/// can be invoked synchronously or asynchronously.
+/// </para>
+/// <para>
+/// Execution-specific information is supplied through an
+/// <see cref="IExecutionContext"/>, allowing the script implementation to
+/// remain independent of a specific scripting language or backend.
+/// </para>
+/// </remarks>
+public interface IScriptEntity : IEntity
 {
     /// <summary>
-    /// Defines an entity that contains executable script logic or actions.
+    /// Gets a value indicating whether the script is currently executing.
+    /// </summary>
+    /// <value>
+    /// <see langword="true"/> while an execution is in progress; otherwise,
+    /// <see langword="false"/>.
+    /// </value>
+    bool IsRunning { get; }
+
+    /// <summary>
+    /// Occurs when the current script execution has finished.
     /// </summary>
     /// <remarks>
-    /// Script entities can be used by both editor and runtime systems and support
-    /// synchronous and asynchronous execution.
+    /// The event is raised when an execution is no longer running, including
+    /// executions that were cancelled or otherwise interrupted.
     /// </remarks>
-    public interface IScriptEntity : IEntity
-    {
-        /// <summary>
-        /// Occurs when the current script execution finishes or is interrupted.
-        /// </summary>
-        event EventHandler? ExecutionFinished;
+    event EventHandler? ExecutionFinished;
 
-        /// <summary>
-        /// Gets a value indicating whether the script is currently executing.
-        /// </summary>
-        /// <value>
-        /// <see langword="true"/> while the script is running; otherwise,
-        /// <see langword="false"/>.
-        /// </value>
-        bool IsRunning { get; }
+    /// <summary>
+    /// Executes the script synchronously using the specified execution context.
+    /// </summary>
+    /// <param name="context">
+    /// The context containing the target and optional additional data associated
+    /// with the execution.
+    /// </param>
+    void Execute(IExecutionContext context);
 
-        /// <summary>
-        /// Executes the script or associated logic synchronously.
-        /// </summary>
-        /// <param name="args">
-        /// Optional arguments passed to the script.
-        /// </param>
-        void Execute(params object?[] args);
-
-        /// <summary>
-        /// Executes the script or associated logic asynchronously.
-        /// </summary>
-        /// <param name="args">
-        /// Optional arguments passed to the script.
-        /// </param>
-        /// <returns>
-        /// A task representing the asynchronous execution operation.
-        /// </returns>
-        Task ExecuteAsync(params object?[] args);
-    }
+    /// <summary>
+    /// Executes the script asynchronously using the specified execution context.
+    /// </summary>
+    /// <param name="context">
+    /// The context containing the target and optional additional data associated
+    /// with the execution.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// A token that can be used to cancel the asynchronous execution.
+    /// </param>
+    /// <returns>
+    /// A task representing the asynchronous script execution.
+    /// </returns>
+    Task ExecuteAsync(
+        IExecutionContext context,
+        CancellationToken cancellationToken = default);
 }

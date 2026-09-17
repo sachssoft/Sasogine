@@ -1,106 +1,192 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Resources.Localization
+namespace Sachssoft.Sasogine.Resources.Localization;
+
+/// <summary>
+/// Stores localized string values and their plural variants.
+/// </summary>
+public class LocalizedDictionary
 {
-    public class LocalizedDictionary
+    private readonly Dictionary<string, Entry> _entries =
+        new(StringComparer.OrdinalIgnoreCase);
+
+    private bool _isClosed;
+
+    private sealed class Entry
     {
-        private bool _isImmutable;
+        public string? Value { get; init; }
 
-        private readonly Dictionary<string, EntryWrapper> _entries = new(StringComparer.OrdinalIgnoreCase);
-        private readonly LocalizedTypeRegistry _typeRegistry;
-
-        private class EntryWrapper
+        public IReadOnlyDictionary<LocalizationPluralCase, string?>? PluralCases
         {
-            public readonly string TypeName;
-            public readonly LocalizedEntryData Data;
-            public ILocalizedEntry? Instance;
+            get;
+            init;
+        }
+    }
 
-            public EntryWrapper(string typeName, LocalizedEntryData data)
-            {
-                TypeName = typeName;
-                Data = data;
-            }
+    /// <summary>
+    /// Gets the number of localized entries.
+    /// </summary>
+    public int Count => _entries.Count;
+
+    /// <summary>
+    /// Gets a value indicating whether this dictionary is closed for modifications.
+    /// </summary>
+    public bool IsClosed => _isClosed;
+
+    /// <summary>
+    /// Determines whether the specified key exists.
+    /// </summary>
+    public bool ContainsKey(string key)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+        return _entries.ContainsKey(key);
+    }
+
+    /// <summary>
+    /// Gets the localized string associated with the specified key.
+    /// </summary>
+    public string? GetValue(string key, string? defaultValue = null)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+
+        return _entries.TryGetValue(key, out Entry? entry)
+            ? entry.Value ?? defaultValue
+            : defaultValue;
+    }
+
+    /// <summary>
+    /// Gets the localized string associated with the specified key and quantity.
+    /// </summary>
+    public string? GetValue(
+        string key,
+        int quantity,
+        string? defaultValue = null)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+
+        if (!_entries.TryGetValue(key, out Entry? entry))
+            return defaultValue;
+
+        if (entry.PluralCases is null || entry.PluralCases.Count == 0)
+            return entry.Value ?? defaultValue;
+
+        LocalizationPluralCase pluralCase =
+            ResolvePluralCase(entry.PluralCases, quantity);
+
+        if (entry.PluralCases.TryGetValue(pluralCase, out string? value))
+            return value ?? entry.Value ?? defaultValue;
+
+        if (entry.PluralCases.TryGetValue(
+            LocalizationPluralCase.Default,
+            out value))
+        {
+            return value ?? entry.Value ?? defaultValue;
         }
 
-        public LocalizedDictionary() : this(LocalizedTypeRegistry.Default) { }
+        return entry.Value ?? defaultValue;
+    }
 
-        public LocalizedDictionary(LocalizedTypeRegistry typeRegistry)
+    /// <summary>
+    /// Attempts to get the localized string associated with the specified key.
+    /// </summary>
+    public bool TryGetValue(string key, out string? value)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+
+        if (_entries.TryGetValue(key, out Entry? entry) &&
+            entry.Value is not null)
         {
-            _typeRegistry = typeRegistry;
+            value = entry.Value;
+            return true;
         }
 
-        /// <summary>
-        /// Fügt einen Eintrag hinzu. Es wird nichts sofort geladen.
-        /// </summary>
-        protected void AddEntry(string key, string typeName, LocalizedEntryData data)
+        value = null;
+        return false;
+    }
+
+    /// <summary>
+    /// Attempts to get the localized string associated with the specified key and quantity.
+    /// </summary>
+    public bool TryGetValue(string key, int quantity, out string? value)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+
+        if (!_entries.ContainsKey(key))
         {
-            if (_isImmutable)
-                throw new InvalidOperationException("Cannot modify a closed LocalizedDictionary.");
-
-            if (!_typeRegistry.IsRegistered(typeName))
-                throw new InvalidOperationException($"Type '{typeName}' is not registered.");
-
-            _entries[key] = new EntryWrapper(typeName, data);
-        }
-
-        private ILocalizedEntry EnsureEntryLoaded(string key)
-        {
-            if (!_entries.TryGetValue(key, out var wrapper))
-                throw new KeyNotFoundException($"Entry '{key}' not found.");
-
-            if (wrapper.Instance == null)
-            {
-                var instance = _typeRegistry.Create(wrapper.TypeName);
-                instance.Load(System.Globalization.CultureInfo.InvariantCulture, null!, wrapper.Data);
-                wrapper.Instance = instance;
-            }
-
-            return wrapper.Instance;
-        }
-
-        public bool ContainsKey(string key) => _entries.ContainsKey(key);
-
-        public bool IsValueLoaded(string key)
-            => _entries.TryGetValue(key, out var wrapper) && wrapper.Instance != null && wrapper.Instance.IsLoaded;
-
-        public bool TryGetValue<T>(string key, out T? result, T? defaultValue = default)
-           where T : class
-        {
-            return TryGetValue<T>(key, 0, out result, defaultValue);
-        }
-
-        public bool TryGetValue<T>(string key, int quantity, out T? result, T? defaultValue = default)
-            where T : class
-        {
-            if (_entries.ContainsKey(key))
-            {
-                var entry = EnsureEntryLoaded(key);
-                if (entry.GetValue(quantity) is T t)
-                {
-                    result = t;
-                    return true;
-                }
-            }
-
-            result = defaultValue;
+            value = null;
             return false;
         }
 
-        public T? GetValue<T>(string key, T? defaultValue = default)
-            where T : class
-        {
-            return GetValue<T>(key, 0, defaultValue);
-        }
+        value = GetValue(key, quantity);
+        return value is not null;
+    }
 
-        public T? GetValue<T>(string key, int quantity, T? defaultValue = default)
-            where T : class
-        {
-            if (TryGetValue<T>(key, quantity, out var result))
-                return result;
-            return defaultValue;
-        }
+    /// <summary>
+    /// Adds or replaces a localized string entry.
+    /// </summary>
+    protected void AddEntry(string key, string? value)
+    {
+        EnsureWritable();
+        ArgumentException.ThrowIfNullOrEmpty(key);
 
-        public void Close() => _isImmutable = true;
+        _entries[key] = new Entry
+        {
+            Value = value
+        };
+    }
+
+    /// <summary>
+    /// Adds or replaces a localized string entry with plural variants.
+    /// </summary>
+    protected void AddEntry(
+        string key,
+        string? value,
+        IReadOnlyDictionary<LocalizationPluralCase, string?> pluralCases)
+    {
+        EnsureWritable();
+        ArgumentException.ThrowIfNullOrEmpty(key);
+        ArgumentNullException.ThrowIfNull(pluralCases);
+
+        _entries[key] = new Entry
+        {
+            Value = value,
+            PluralCases = pluralCases
+        };
+    }
+
+    /// <summary>
+    /// Prevents further modifications to this dictionary.
+    /// </summary>
+    public void Close()
+    {
+        _isClosed = true;
+    }
+
+    private void EnsureWritable()
+    {
+        if (_isClosed)
+            throw new InvalidOperationException(
+                "Cannot modify a closed localized dictionary.");
+    }
+
+    private static LocalizationPluralCase ResolvePluralCase(
+        IReadOnlyDictionary<LocalizationPluralCase, string?> pluralCases,
+        int quantity)
+    {
+        return quantity switch
+        {
+            0 when pluralCases.ContainsKey(LocalizationPluralCase.Zero) =>
+                LocalizationPluralCase.Zero,
+            1 when pluralCases.ContainsKey(LocalizationPluralCase.One) =>
+                LocalizationPluralCase.One,
+            2 when pluralCases.ContainsKey(LocalizationPluralCase.Two) =>
+                LocalizationPluralCase.Two,
+            >= 3 and <= 4 when pluralCases.ContainsKey(LocalizationPluralCase.Few) =>
+                LocalizationPluralCase.Few,
+            >= 5 when pluralCases.ContainsKey(LocalizationPluralCase.Many) =>
+                LocalizationPluralCase.Many,
+            _ => LocalizationPluralCase.Default
+        };
     }
 }

@@ -1,329 +1,207 @@
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Assets;
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Resources.Sources;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Threading.Tasks;
+using System.Linq;
 
 namespace Sachssoft.Sasogine.Resources;
 
-// Konzept:
-// Globale statische Typ-Registry
-// - Alle bekannten Asset-/Resource-Typen werden zentral registriert.
-// - Typregistrierung erfolgt zur Build-Zeit aus Markup und generierten Informationen.
-// - Ein Project-Build-Task / Source Generator erzeugt die benötigten Registrierungen.
-// - Third-Party-Libraries können eigene Registrierungen bereitstellen.
-// - Registrierungen aus externen Libraries werden in die globale Registry übernommen.
-// - Keine Typensuche per Reflection zur Laufzeit.
-// - Keine Abhängigkeit der Typregistrierung von einer AssetStore-Instanz.
-// - AOT-Kompatibilität ist eine grundlegende Anforderung.
-// - Die Anwendung selbst muss nicht zwingend als AOT kompiliert werden.
-
-public partial class AssetStore : IReadOnlyAssetStore
+/// <summary>
+/// Provides storage and lifecycle management for game assets.
+/// </summary>
+public class AssetStore : IReadOnlyAssetStore
 {
-    [Obsolete]
-    private static readonly Dictionary<Type, Delegate> _registeredLoaders = new Dictionary<Type, Delegate>();
-    [Obsolete]
-    private static readonly Dictionary<Type, object> _registeredFactories = new Dictionary<Type, object>();
-
-    // Culture-specific assets: CultureInfo → Key → ResourceEntry
-    [Obsolete]
-    private readonly Dictionary<CultureInfo, Dictionary<string, object>> _items =
-        new Dictionary<CultureInfo, Dictionary<string, object>>();
-
     private readonly GameApplicationBase _gameApplication;
-
-    private readonly Dictionary<string, IAsset> _assets =
-        new Dictionary<string, IAsset>();
-
-    /// <inheritdoc/>
-    public int Count => _assets.Count;
-
-    /// <inheritdoc/>
-    public IReadOnlyCollection<IAsset> Assets => _assets.Values;
-
-    public AssetStore(GameApplicationBase application)
-    {
-        _gameApplication = application ?? throw new ArgumentNullException(nameof(application));
-    }
-
-    public GameApplicationBase GameApplication => _gameApplication;
-
-    public GraphicsDevice GraphicsDevice => _gameApplication.GraphicsDevice;
-
-    public string RootDirectory
-    {
-        get => _gameApplication.Content.RootDirectory;
-        set => _gameApplication.Content.RootDirectory = value;
-    }
-
-    [Obsolete]
-    public static void RegisterLoader<TLoader>(Func<AssetStore, string, TLoader> factory)
-        where TLoader : ResourceSourceBase
-    {
-        if (factory == null)
-            throw new ArgumentNullException(nameof(factory));
-
-        _registeredLoaders[typeof(TLoader)] = factory;
-    }
-
-    [Obsolete]
-    private TLoader CreateLoader<TLoader>(string path) where TLoader : ResourceSourceBase
-    {
-        if (!_registeredLoaders.TryGetValue(typeof(TLoader), out var factory))
-            throw new InvalidOperationException($"No loader factory registered for type {typeof(TLoader).Name}.");
-
-        return (TLoader)factory.DynamicInvoke(this, path)!;
-    }
-
-    [Obsolete]
-    public static void RegisterType<TData>(
-        Func<AssetStore, ResourceSourceBase, TData>? syncFactory = null,
-        Func<AssetStore, ResourceSourceBase, Task<TData>>? asyncFactory = null)
-    {
-        if (syncFactory == null && asyncFactory == null)
-            throw new ArgumentException("At least one of syncFactory or asyncFactory must be provided.");
-
-        if (_registeredFactories.ContainsKey(typeof(TData)))
-            throw new InvalidOperationException($"Factory for type {typeof(TData).Name} is already registered.");
-
-        _registeredFactories[typeof(TData)] = new FactoryWrapper<TData>(syncFactory, asyncFactory);
-    }
-
-    public virtual void Initialize() { }
-    public virtual void Load() { }
-    public virtual void Unload() { }
-
-    // ------------------------ ADD ------------------------
-
-    [Obsolete]
-    public void Add(string key, string path, ResourceSourceType type = ResourceSourceType.ExternalFile)
-    {
-        Add<Stream>(key, path, null, type);
-    }
-
-    // Konzept:
-    //public void Add(string key, ResourceSourceBase resourceSource)
-    //{
-    //}
-
-    [Obsolete]
-    public void Add(string key, string path, CultureInfo? culture, ResourceSourceType type = ResourceSourceType.ExternalFile)
-    {
-        Add<Stream>(key, path, culture, type);
-    }
-
-    [Obsolete]
-    public void Add<TData>(string key, string path, ResourceSourceType type = ResourceSourceType.ExternalFile)
-    {
-        Add<TData>(key, path, null, type);
-    }
-
-    [Obsolete]
-    public void Add<TData>(string key, string path, CultureInfo? culture, ResourceSourceType type = ResourceSourceType.ExternalFile)
-    {
-        culture ??= CultureInfo.InvariantCulture;
-
-        switch (type)
-        {
-            case ResourceSourceType.Content:
-                AddContent<TData>(key, path, culture);
-                break;
-            case ResourceSourceType.EmbeddedResource:
-                Add<TData, EmbeddedResourceSource>(key, path, culture);
-                break;
-            case ResourceSourceType.ExternalFile:
-                Add<TData, LocalFileSource>(key, path, culture);
-                break;
-            default:
-                throw new InvalidOperationException($"Unsupported ResourceSourceType: {type}");
-        }
-    }
-
-    [Obsolete]
-    public void Add<TData, TLoader>(string key, string path, CultureInfo? culture = null)
-        where TLoader : ResourceSourceBase
-    {
-        culture ??= CultureInfo.InvariantCulture;
-
-        if (!_items.TryGetValue(culture, out var cultureDict))
-            _items[culture] = cultureDict = new Dictionary<string, object>();
-
-        if (cultureDict.ContainsKey(key))
-            throw new InvalidOperationException($"Asset '{key}' for culture '{culture}' already exists.");
-
-        Func<object?> factory = () =>
-        {
-            var loader = CreateLoader<TLoader>(path);
-            if (!_registeredFactories.TryGetValue(typeof(TData), out var f))
-                throw new InvalidOperationException($"No factory registered for type {typeof(TData).Name}.");
-
-            var wrapper = (FactoryWrapper<TData>)f;
-            return wrapper.CreateSync(this, loader);
-        };
-
-        cultureDict[key] = new ResourceEntry(factory);
-    }
-
-    [Obsolete]
-    private void AddContent<TData>(string key, string path, CultureInfo? culture = null)
-    {
-        culture ??= CultureInfo.InvariantCulture;
-
-        if (!_items.TryGetValue(culture, out var cultureDict))
-            _items[culture] = cultureDict = new Dictionary<string, object>();
-
-        if (cultureDict.ContainsKey(key))
-            throw new InvalidOperationException($"Asset '{key}' for culture '{culture}' already exists.");
-
-        Func<object?> factory = () =>
-        {
-            return _gameApplication.Content.Load<TData>(path);
-        };
-
-        cultureDict[key] = new ResourceEntry(factory);
-    }
-
-    [Obsolete]
-    public void AddAsync<TData, TLoader>(string key, string path, CultureInfo? culture = null)
-        where TLoader : ResourceSourceBase
-    {
-        culture ??= CultureInfo.InvariantCulture;
-
-        if (!_items.TryGetValue(culture, out var cultureDict))
-            _items[culture] = cultureDict = new Dictionary<string, object>();
-
-        if (cultureDict.ContainsKey(key))
-            throw new InvalidOperationException($"Asset '{key}' for culture '{culture}' already exists.");
-
-        Func<Task<object?>> factory = async () =>
-        {
-            var loader = CreateLoader<TLoader>(path);
-
-            if (!_registeredFactories.TryGetValue(typeof(TData), out var f))
-                throw new InvalidOperationException($"No factory registered for type {typeof(TData).Name}.");
-
-            var wrapper = (FactoryWrapper<TData>)f;
-            return await wrapper.CreateAsync(this, loader);
-        };
-
-        cultureDict[key] = new ResourceEntryAsync(factory);
-    }
-
-    [Obsolete]
-    public void AddAsync(string key, string path, ResourceSourceType type = ResourceSourceType.ExternalFile)
-    {
-        AddAsync<Stream>(key, path, null, type);
-    }
-
-    [Obsolete]
-    public void AddAsync(string key, string path, CultureInfo? culture = null, ResourceSourceType type = ResourceSourceType.ExternalFile)
-    {
-        AddAsync<Stream>(key, path, culture, type);
-    }
-
-    [Obsolete]
-    public void AddAsync<TData>(string key, string path, ResourceSourceType type = ResourceSourceType.ExternalFile)
-    {
-        AddAsync<TData>(key, path, null, type);
-    }
-
-    [Obsolete]
-    public void AddAsync<TData>(string key, string path, CultureInfo? culture = null, ResourceSourceType type = ResourceSourceType.ExternalFile)
-    {
-        culture ??= CultureInfo.InvariantCulture;
-
-        switch (type)
-        {
-            case ResourceSourceType.Content:
-                // ContentManager ist synchron, daher Task.FromResult
-                AddAsyncContent<TData>(key, path, culture);
-                break;
-
-            case ResourceSourceType.EmbeddedResource:
-                AddAsync<TData, EmbeddedResourceSource>(key, path, culture);
-                break;
-
-            case ResourceSourceType.ExternalFile:
-                AddAsync<TData, LocalFileSource>(key, path, culture);
-                break;
-
-            default:
-                throw new InvalidOperationException($"Unsupported ResourceSourceType: {type}");
-        }
-    }
-
-    [Obsolete]
-    private void AddAsyncContent<TData>(string key, string path, CultureInfo culture)
-    {
-        if (!_items.TryGetValue(culture, out var cultureDict))
-            _items[culture] = cultureDict = new Dictionary<string, object>();
-
-        if (cultureDict.ContainsKey(key))
-            throw new InvalidOperationException($"Asset '{key}' for culture '{culture}' already exists.");
-
-        Func<Task<object?>> factory = () => Task.FromResult<object?>(_gameApplication.Content.Load<TData>(path));
-
-        cultureDict[key] = new ResourceEntryAsync(factory);
-    }
-
-    // ------------------------ ASSET STORE ------------------------
+    private readonly AssetCollection _assets;
 
     /// <summary>
-    /// Adds the specified asset to the store.
+    /// Initializes a new instance of the <see cref="AssetStore"/> class.
+    /// </summary>
+    /// <param name="application">
+    /// The game application associated with the asset store.
+    /// </param>
+    public AssetStore(GameApplicationBase application)
+    {
+        ArgumentNullException.ThrowIfNull(application);
+
+        _gameApplication = application;
+
+        _assets = [];
+
+        IEnumerable<IAsset>? integratedAssets = CreateIntegratedAssets();
+
+        if (integratedAssets is not null)
+        {
+            foreach (IAsset asset in integratedAssets)
+                _assets.Add(asset);
+        }
+    }
+
+    /// <summary>
+    /// Gets the game application associated with the asset store.
+    /// </summary>
+    public GameApplicationBase GameApplication => _gameApplication;
+
+    /// <summary>
+    /// Gets the graphics device associated with the game application.
+    /// </summary>
+    public GraphicsDevice GraphicsDevice => _gameApplication.GraphicsDevice;
+
+    /// <summary>
+    /// Gets the number of assets contained in the store.
+    /// </summary>
+    public int Count => _assets.Count;
+
+    /// <summary>
+    /// Gets the assets contained in the store.
+    /// </summary>
+    public IReadOnlyCollection<IAsset> Assets => _assets;
+
+    /// <summary>
+    /// Gets the underlying asset collection.
+    /// </summary>
+    protected AssetCollection AssetCollection => _assets;
+
+    private IApplicationContext? _applicationContext;
+
+    /// <summary>
+    /// Gets the application context associated with the asset store.
+    /// </summary>
+    public IApplicationContext ApplicationContext =>
+        _applicationContext
+        ?? throw new InvalidOperationException(
+            "The asset store has not been initialized.");
+
+    /// <summary>
+    /// Gets a value indicating whether the asset store has been initialized.
+    /// </summary>
+    public bool IsInitialized => _applicationContext is not null;
+
+    /// <summary>
+    /// Initializes the asset store using the specified application context.
+    /// </summary>
+    /// <param name="context">
+    /// The application context used by the asset store.
+    /// </param>
+    public virtual void Initialize(IApplicationContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (_applicationContext is not null)
+        {
+            throw new InvalidOperationException(
+                "The asset store has already been initialized.");
+        }
+
+        _applicationContext = context;
+
+        foreach (IAsset asset in CreateIntegratedAssets())
+            Add(asset);
+
+        OnInitialized(context);
+    }
+
+    // ---------------------------------------------------------------------
+    // Add
+    // ---------------------------------------------------------------------
+
+    /// <summary>
+    /// Adds an asset to the store.
     /// </summary>
     /// <param name="asset">
     /// The asset to add.
     /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="asset"/> is <see langword="null"/>.
-    /// </exception>
-    /// <exception cref="InvalidOperationException">
-    /// The asset definition has no identifier, or an asset with the same identifier already exists.
-    /// </exception>
-    /// <summary>
-    /// Returns an enumerator that iterates through the assets in the store.
-    /// </summary>
-    public IEnumerator<IAsset> GetEnumerator()
-    {
-        return _assets.Values.GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
-
-    public void Add(IAsset asset)
+    public virtual void Add(IAsset asset)
     {
         ArgumentNullException.ThrowIfNull(asset);
 
-        string? id = asset.Id;
+        _assets.Add(asset);
 
-        if (string.IsNullOrEmpty(id) &&
-            asset.Definition is IAssetDefinition definition)
-        {
-            id = definition.Id;
-        }
+        OnAssetAdded(asset);
+    }
 
-        if (string.IsNullOrEmpty(id))
-        {
-            throw new InvalidOperationException(
-                "The asset does not have an identifier.");
-        }
+    /// <summary>
+    /// Adds an asset to the store and assigns its loader source.
+    /// </summary>
+    /// <param name="asset">
+    /// The asset to add.
+    /// </param>
+    /// <param name="loaderSource">
+    /// The resource source used to load the asset.
+    /// </param>
+    public virtual void Add(
+        IAsset asset,
+        Sasogine.Resources.ResourceSourceBase loaderSource)
+    {
+        ArgumentNullException.ThrowIfNull(asset);
+        ArgumentNullException.ThrowIfNull(loaderSource);
 
-        if (!_assets.TryAdd(id, asset))
-        {
-            throw new InvalidOperationException(
-                $"Asset '{id}' already exists.");
-        }
+        asset.LoaderSource = loaderSource;
 
-        if (asset is IEngineObjectIdentityChanged identityChanged)
-            identityChanged.IdChanged += OnAssetIdChanged;
+        Add(asset);
+    }
+
+    /// <summary>
+    /// Adds an asset to the store and loads it immediately.
+    /// </summary>
+    /// <param name="asset">
+    /// The asset to add and load.
+    /// </param>
+    public virtual void AddAndLoad(IAsset asset)
+    {
+        ArgumentNullException.ThrowIfNull(asset);
+
+        Add(asset);
+        LoadAsset(asset);
+    }
+
+    /// <summary>
+    /// Adds an asset to the store, assigns its loader source,
+    /// and loads it immediately.
+    /// </summary>
+    /// <param name="asset">
+    /// The asset to add and load.
+    /// </param>
+    /// <param name="loaderSource">
+    /// The resource source used to load the asset.
+    /// </param>
+    public virtual void AddAndLoad(
+        IAsset asset,
+        Sasogine.Resources.ResourceSourceBase loaderSource)
+    {
+        ArgumentNullException.ThrowIfNull(asset);
+        ArgumentNullException.ThrowIfNull(loaderSource);
+
+        asset.LoaderSource = loaderSource;
+
+        AddAndLoad(asset);
+    }
+
+    // ---------------------------------------------------------------------
+    // Remove
+    // ---------------------------------------------------------------------
+
+    /// <summary>
+    /// Removes the specified asset from the store.
+    /// </summary>
+    /// <param name="asset">
+    /// The asset to remove.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if the asset was removed;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public virtual bool Remove(IAsset asset)
+    {
+        ArgumentNullException.ThrowIfNull(asset);
+
+        if (!_assets.Remove(asset))
+            return false;
+
+        OnAssetRemoved(asset);
+
+        return true;
     }
 
     /// <summary>
@@ -333,76 +211,153 @@ public partial class AssetStore : IReadOnlyAssetStore
     /// The identifier of the asset to remove.
     /// </param>
     /// <returns>
-    /// <see langword="true"/> if the asset was removed; otherwise,
-    /// <see langword="false"/>.
+    /// <see langword="true"/> if the asset was removed;
+    /// otherwise, <see langword="false"/>.
     /// </returns>
-    public bool Remove(string id)
+    public virtual bool Remove(string id)
     {
-        ArgumentNullException.ThrowIfNull(id);
+        ArgumentException.ThrowIfNullOrEmpty(id);
 
-        if (!_assets.Remove(id, out IAsset? asset))
-            return false;
+        IAsset? asset = _assets.Find(id);
 
-        if (asset is IEngineObjectIdentityChanged identityChanged)
-            identityChanged.IdChanged -= OnAssetIdChanged;
-
-        return true;
+        return asset is not null && Remove(asset);
     }
 
-    /// <inheritdoc/>
-    public bool Contains(string id)
+    /// <summary>
+    /// Removes all assets from the store.
+    /// </summary>
+    public virtual void Clear()
     {
-        ArgumentNullException.ThrowIfNull(id);
-        return _assets.ContainsKey(id);
+        IAsset[] assets = [.. _assets];
+
+        _assets.Clear();
+
+        foreach (IAsset asset in assets)
+            OnAssetRemoved(asset);
     }
 
-    /// <inheritdoc/>
-    public IAsset Get(string id)
-    {
-        ArgumentNullException.ThrowIfNull(id);
+    // ---------------------------------------------------------------------
+    // Contains
+    // ---------------------------------------------------------------------
 
-        if (!_assets.TryGetValue(id, out IAsset? asset))
-            throw new KeyNotFoundException($"Asset '{id}' was not found.");
+    /// <summary>
+    /// Determines whether an asset with the specified identifier exists.
+    /// </summary>
+    public virtual bool Contains(string id)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(id);
+
+        return _assets.Find(id) is not null;
+    }
+
+    /// <summary>
+    /// Determines whether an asset with the specified identifier
+    /// is assignable to the specified type.
+    /// </summary>
+    public virtual bool Contains(
+        Type assetType,
+        string id)
+    {
+        ValidateAssetType(assetType);
+        ArgumentException.ThrowIfNullOrEmpty(id);
+
+        IAsset? asset = _assets.Find(id);
+
+        return asset is not null &&
+               assetType.IsInstanceOfType(asset);
+    }
+
+    /// <summary>
+    /// Determines whether an asset with the specified identifier
+    /// is assignable to <typeparamref name="TAsset"/>.
+    /// </summary>
+    public virtual bool Contains<TAsset>(string id)
+        where TAsset : class, IAsset
+    {
+        return Contains(typeof(TAsset), id);
+    }
+
+    // ---------------------------------------------------------------------
+    // Get
+    // ---------------------------------------------------------------------
+
+    /// <summary>
+    /// Gets the asset with the specified identifier.
+    /// </summary>
+    public virtual IAsset Get(string id)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(id);
+
+        return _assets.Find(id)
+            ?? throw new KeyNotFoundException(
+                $"Asset '{id}' was not found.");
+    }
+
+    /// <summary>
+    /// Gets the asset with the specified identifier
+    /// and verifies its type.
+    /// </summary>
+    public virtual IAsset Get(
+        Type assetType,
+        string id)
+    {
+        ValidateAssetType(assetType);
+
+        IAsset asset = Get(id);
+
+        if (!assetType.IsInstanceOfType(asset))
+        {
+            throw new InvalidCastException(
+                $"Asset '{id}' is of type " +
+                $"'{asset.GetType().FullName}' and cannot be assigned to " +
+                $"'{assetType.FullName}'.");
+        }
 
         return asset;
     }
 
-    /// <inheritdoc/>
-    public TAsset Get<TAsset>(string id)
+    /// <summary>
+    /// Gets the asset with the specified identifier.
+    /// </summary>
+    public virtual TAsset Get<TAsset>(string id)
         where TAsset : class, IAsset
     {
-        IAsset asset = Get(id);
-
-        if (asset is not TAsset typedAsset)
-        {
-            throw new InvalidCastException(
-                $"Asset '{id}' is of type '{asset.GetType().Name}' and cannot be cast to '{typeof(TAsset).Name}'.");
-        }
-
-        return typedAsset;
+        return (TAsset)Get(typeof(TAsset), id);
     }
 
-    /// <inheritdoc/>
-    public bool TryGet(
+    // ---------------------------------------------------------------------
+    // TryGet
+    // ---------------------------------------------------------------------
+
+    /// <summary>
+    /// Attempts to get the asset with the specified identifier.
+    /// </summary>
+    public virtual bool TryGet(
         string id,
         out IAsset? asset)
     {
-        ArgumentNullException.ThrowIfNull(id);
-        return _assets.TryGetValue(id, out asset);
+        ArgumentException.ThrowIfNullOrEmpty(id);
+
+        return _assets.TryGet(id, out asset);
     }
 
-    /// <inheritdoc/>
-    public bool TryGet<TAsset>(
+    /// <summary>
+    /// Attempts to get the asset with the specified identifier
+    /// and type.
+    /// </summary>
+    public virtual bool TryGet(
+        Type assetType,
         string id,
-        out TAsset? asset)
-        where TAsset : class, IAsset
+        out IAsset? asset)
     {
-        ArgumentNullException.ThrowIfNull(id);
+        ValidateAssetType(assetType);
+        ArgumentException.ThrowIfNullOrEmpty(id);
 
-        if (_assets.TryGetValue(id, out IAsset? value) &&
-            value is TAsset typedAsset)
+        if (_assets.TryGet(id, out IAsset? value) &&
+            value is not null &&
+            assetType.IsInstanceOfType(value))
         {
-            asset = typedAsset;
+            asset = value;
             return true;
         }
 
@@ -410,245 +365,275 @@ public partial class AssetStore : IReadOnlyAssetStore
         return false;
     }
 
-    private void OnAssetIdChanged(
-        object? sender,
-        EngineObjectChangedEventArgs e)
+    /// <summary>
+    /// Attempts to get the asset with the specified identifier.
+    /// </summary>
+    public virtual bool TryGet<TAsset>(
+        string id,
+        out TAsset? asset)
+        where TAsset : class, IAsset
     {
-        if (sender is not IAsset asset)
-            return;
+        ArgumentException.ThrowIfNullOrEmpty(id);
 
-        string? currentId = null;
-
-        foreach (KeyValuePair<string, IAsset> pair in _assets)
-        {
-            if (!ReferenceEquals(pair.Value, asset))
-                continue;
-
-            currentId = pair.Key;
-            break;
-        }
-
-        string? newId = asset.Id;
-
-        if (string.Equals(currentId, newId, StringComparison.Ordinal))
-            return;
-
-        if (currentId != null)
-            _assets.Remove(currentId);
-
-        if (string.IsNullOrEmpty(newId))
-            return;
-
-        if (_assets.TryGetValue(newId, out IAsset? existing) &&
-            !ReferenceEquals(existing, asset))
-        {
-            throw new InvalidOperationException(
-                $"Asset '{newId}' already exists.");
-        }
-
-        _assets[newId] = asset;
+        return _assets.TryGet(id, out asset);
     }
 
-    // ------------------------ LOAD ------------------------
-
-    [Obsolete]
-    public TData Load<TData>(string key, CultureInfo? culture = null)
-    {
-        return (TData)Load(key, culture);
-    }
-
-    // Konzept:
-    //public TAsset Load<TAsset>(string key, CultureInfo? culture = null)
-    //    where TAsset : IAsset
-    //{
-    //}
-
-    [Obsolete]
-    public Stream LoadStream(string key, CultureInfo? culture = null)
-    {
-        return (Stream)Load(key, culture);
-    }
-
-    [Obsolete]
-    public object Load(string key, CultureInfo? culture = null)
-    {
-        culture ??= CultureInfo.CurrentCulture;
-
-        // 1) Versuche: exakte Kultur + alle Parent-Kulturen
-        var currentCulture = culture;
-        while (currentCulture != CultureInfo.InvariantCulture)
-        {
-            if (_items.TryGetValue(currentCulture, out var dict) &&
-                dict.TryGetValue(key, out var entryObj) &&
-                entryObj is ResourceEntry entry)
-            {
-                return entry.Value;
-            }
-
-            currentCulture = currentCulture.Parent; // z.B. de-DE → de
-        }
-
-        // 2) Fallback invariant
-        if (_items.TryGetValue(CultureInfo.InvariantCulture, out var invariantDict) &&
-            invariantDict.TryGetValue(key, out var fallbackObj) &&
-            fallbackObj is ResourceEntry fallbackEntry)
-        {
-            return fallbackEntry.Value;
-        }
-
-        // 3) Fehler
-        throw new KeyNotFoundException(
-            $"Asset '{key}' not found for culture '{culture.Name}' or any parent culture.");
-    }
-
-    [Obsolete]
-    public async Task<TData?> LoadAsync<TData>(string key, CultureInfo? culture = null)
-    {
-        var obj = await LoadAsync(key, culture);
-        return (TData?)obj;
-    }
-
-    [Obsolete]
-    public async Task<object?> LoadAsync(string key, CultureInfo? culture = null)
-    {
-        culture ??= CultureInfo.CurrentCulture;
-
-        if (_items.TryGetValue(culture, out var cultureDict) &&
-            cultureDict.TryGetValue(key, out var entryObj))
-        {
-            switch (entryObj)
-            {
-                case ResourceEntryAsync asyncEntry:
-                    return await asyncEntry.ValueAsync();
-                case ResourceEntry syncEntry:
-                    return await Task.FromResult(syncEntry.Value);
-            }
-        }
-
-        // Fallback invariant
-        if (_items.TryGetValue(CultureInfo.InvariantCulture, out var invariantDict) &&
-            invariantDict.TryGetValue(key, out var fallbackObj))
-        {
-            switch (fallbackObj)
-            {
-                case ResourceEntryAsync asyncFallback:
-                    return await asyncFallback.ValueAsync();
-                case ResourceEntry syncFallback:
-                    return await Task.FromResult(syncFallback.Value);
-            }
-        }
-
-        throw new KeyNotFoundException($"Asset '{key}' not found for culture '{culture.Name}'.");
-    }
-
-    // ------------------------ ADD & LOAD ------------------------
+    // ---------------------------------------------------------------------
+    // GetAll
+    // ---------------------------------------------------------------------
 
     /// <summary>
-    /// Fügt einen Asset hinzu und lädt ihn sofort synchron.
+    /// Gets all assets contained in the store.
     /// </summary>
-    [Obsolete]
-    public TData AddAndLoad<TData>(string key, string path, CultureInfo? culture = null, ResourceSourceType type = ResourceSourceType.Content)
+    public virtual IEnumerable<IAsset> GetAll()
     {
-        Add<TData>(key, path, culture, type);
-        return Load<TData>(key, culture);
+        return _assets.ToArray();
     }
-
-    // Konzept:
-    //public TAsset AddAndLoad<TAsset>(string key, CultureInfo? culture = null)
-    //    where TAsset : IAsset
-    //{
-    //}
 
     /// <summary>
-    /// Fügt einen Asset hinzu und lädt ihn sofort asynchron.
+    /// Gets all assets assignable to the specified type.
     /// </summary>
-    [Obsolete]
-    public async Task<TData?> AddAndLoadAsync<TData>(string key, string path, CultureInfo? culture = null, ResourceSourceType type = ResourceSourceType.Content)
+    public virtual IEnumerable<IAsset> GetAll(Type assetType)
     {
-        await Task.Yield(); // optional: minimaler async Kontext
-        AddAsync<TData>(key, path, culture, type);
-        return await LoadAsync<TData>(key, culture);
+        ValidateAssetType(assetType);
+
+        return _assets
+            .Where(assetType.IsInstanceOfType)
+            .ToArray();
     }
 
-    // ------------------------ WRAPPER ------------------------
-
-    [Obsolete]
-    private class FactoryWrapper<TData>
+    /// <summary>
+    /// Gets all assets assignable to
+    /// <typeparamref name="TAsset"/>.
+    /// </summary>
+    public virtual IEnumerable<TAsset> GetAll<TAsset>()
+        where TAsset : class, IAsset
     {
-        public Func<AssetStore, ResourceSourceBase, TData>? SyncFactory { get; }
-        public Func<AssetStore, ResourceSourceBase, Task<TData>>? AsyncFactory { get; }
+        return _assets
+            .OfType<TAsset>()
+            .ToArray();
+    }
 
-        public FactoryWrapper(
-            Func<AssetStore, ResourceSourceBase, TData>? syncFactory,
-            Func<AssetStore, ResourceSourceBase, Task<TData>>? asyncFactory)
-        {
-            SyncFactory = syncFactory;
-            AsyncFactory = asyncFactory;
-        }
+    // ---------------------------------------------------------------------
+    // Load
+    // ---------------------------------------------------------------------
 
-        public TData CreateSync(AssetStore app, ResourceSourceBase loader)
-        {
-            if (SyncFactory == null)
-                throw new InvalidOperationException($"No synchronous factory registered for type {typeof(TData).Name}.");
-            return SyncFactory(app, loader);
-        }
+    /// <summary>
+    /// Loads the asset with the specified identifier.
+    /// </summary>
+    public virtual void LoadAsset(string id)
+    {
+        LoadAsset(Get(id));
+    }
 
-        public Task<TData> CreateAsync(AssetStore app, ResourceSourceBase loader)
+    /// <summary>
+    /// Loads the specified asset.
+    /// </summary>
+    public virtual void LoadAsset(IAsset asset)
+    {
+        ArgumentNullException.ThrowIfNull(asset);
+
+        OnLoadingAsset(asset);
+
+        asset.Load();
+
+        OnAssetLoaded(asset);
+    }
+
+    /// <summary>
+    /// Loads all assets contained in the store.
+    /// </summary>
+    public virtual void LoadAll()
+    {
+        foreach (IAsset asset in GetAssetSnapshot())
+            LoadAsset(asset);
+    }
+
+    /// <summary>
+    /// Loads all assets assignable to the specified type.
+    /// </summary>
+    public virtual void LoadAll(Type assetType)
+    {
+        ValidateAssetType(assetType);
+
+        foreach (IAsset asset in GetAssetSnapshot())
         {
-            if (AsyncFactory != null)
-                return AsyncFactory(app, loader);
-            if (SyncFactory != null)
-                return Task.FromResult(SyncFactory(app, loader));
-            throw new InvalidOperationException($"No factory registered for type {typeof(TData).Name}.");
+            if (assetType.IsInstanceOfType(asset))
+                LoadAsset(asset);
         }
     }
 
-    [Obsolete]
-    private class ResourceEntry
+    /// <summary>
+    /// Loads all assets assignable to
+    /// <typeparamref name="TAsset"/>.
+    /// </summary>
+    public virtual void LoadAll<TAsset>()
+        where TAsset : class, IAsset
     {
-        private readonly Func<object?> _factory;
-        private object? _value;
-        private bool _loaded;
-
-        public ResourceEntry(Func<object?> factory)
-        {
-            _factory = factory ?? throw new ArgumentNullException(nameof(factory));
-        }
-
-        public object Value
-        {
-            get
-            {
-                if (!_loaded)
-                {
-                    _value = _factory();
-                    _loaded = true;
-                }
-                return _value!;
-            }
-        }
-
-        public bool IsLoaded => _loaded;
+        LoadAll(typeof(TAsset));
     }
 
-    [Obsolete]
-    private class ResourceEntryAsync
+    // ---------------------------------------------------------------------
+    // Unload
+    // ---------------------------------------------------------------------
+
+    /// <summary>
+    /// Unloads the asset with the specified identifier.
+    /// </summary>
+    public virtual void UnloadAsset(string id)
     {
-        private readonly Func<Task<object?>> _factory;
-        private Task<object?>? _loadingTask;
+        UnloadAsset(Get(id));
+    }
 
-        public ResourceEntryAsync(Func<Task<object?>> factory)
+    /// <summary>
+    /// Unloads the specified asset.
+    /// </summary>
+    public virtual void UnloadAsset(IAsset asset)
+    {
+        ArgumentNullException.ThrowIfNull(asset);
+
+        OnUnloadingAsset(asset);
+
+        asset.Unload();
+
+        OnAssetUnloaded(asset);
+    }
+
+    /// <summary>
+    /// Unloads all assets contained in the store.
+    /// </summary>
+    public virtual void UnloadAll()
+    {
+        foreach (IAsset asset in GetAssetSnapshot())
+            UnloadAsset(asset);
+    }
+
+    /// <summary>
+    /// Unloads all assets assignable to the specified type.
+    /// </summary>
+    public virtual void UnloadAll(Type assetType)
+    {
+        ValidateAssetType(assetType);
+
+        foreach (IAsset asset in GetAssetSnapshot())
         {
-            _factory = factory ?? throw new ArgumentNullException(nameof(factory));
+            if (assetType.IsInstanceOfType(asset))
+                UnloadAsset(asset);
         }
+    }
 
-        public Task<object?> ValueAsync()
+    /// <summary>
+    /// Unloads all assets assignable to
+    /// <typeparamref name="TAsset"/>.
+    /// </summary>
+    public virtual void UnloadAll<TAsset>()
+        where TAsset : class, IAsset
+    {
+        UnloadAll(typeof(TAsset));
+    }
+
+    // ---------------------------------------------------------------------
+    // Protected
+    // ---------------------------------------------------------------------
+
+    /// <summary>
+    /// Called after the asset store has been initialized.
+    /// </summary>
+    protected virtual void OnInitialized(IApplicationContext context)
+    {
+    }
+
+    /// <summary>
+    /// Creates the assets that are integrated into this asset store.
+    /// </summary>
+    /// <returns>
+    /// The integrated assets.
+    /// </returns>
+    protected virtual IEnumerable<IAsset> CreateIntegratedAssets()
+    {
+        yield break;
+    }
+
+    /// <summary>
+    /// Gets a snapshot of the currently stored assets.
+    /// </summary>
+    protected virtual IAsset[] GetAssetSnapshot()
+    {
+        return [.. _assets];
+    }
+
+    /// <summary>
+    /// Validates that the specified type represents an asset type.
+    /// </summary>
+    protected virtual void ValidateAssetType(Type assetType)
+    {
+        ArgumentNullException.ThrowIfNull(assetType);
+
+        if (!typeof(IAsset).IsAssignableFrom(assetType))
         {
-            if (_loadingTask == null)
-                _loadingTask = _factory();
-            return _loadingTask;
+            throw new ArgumentException(
+                $"Type '{assetType.FullName}' does not implement " +
+                $"'{typeof(IAsset).FullName}'.",
+                nameof(assetType));
         }
+    }
 
-        public bool IsLoaded => _loadingTask?.IsCompleted ?? false;
+    /// <summary>
+    /// Called after an asset has been added.
+    /// </summary>
+    protected virtual void OnAssetAdded(IAsset asset)
+    {
+    }
+
+    /// <summary>
+    /// Called after an asset has been removed.
+    /// </summary>
+    protected virtual void OnAssetRemoved(IAsset asset)
+    {
+    }
+
+    /// <summary>
+    /// Called immediately before an asset is loaded.
+    /// </summary>
+    protected virtual void OnLoadingAsset(IAsset asset)
+    {
+    }
+
+    /// <summary>
+    /// Called after an asset has been loaded.
+    /// </summary>
+    protected virtual void OnAssetLoaded(IAsset asset)
+    {
+    }
+
+    /// <summary>
+    /// Called immediately before an asset is unloaded.
+    /// </summary>
+    protected virtual void OnUnloadingAsset(IAsset asset)
+    {
+    }
+
+    /// <summary>
+    /// Called after an asset has been unloaded.
+    /// </summary>
+    protected virtual void OnAssetUnloaded(IAsset asset)
+    {
+    }
+
+    // ---------------------------------------------------------------------
+    // Enumeration
+    // ---------------------------------------------------------------------
+
+    /// <summary>
+    /// Returns an enumerator that iterates through the assets.
+    /// </summary>
+    public IEnumerator<IAsset> GetEnumerator()
+    {
+        return _assets.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }

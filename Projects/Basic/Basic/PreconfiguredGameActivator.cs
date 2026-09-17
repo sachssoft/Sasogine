@@ -2,7 +2,7 @@ using Sachssoft.Sasogine.Common;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Experimental;
+namespace Sachssoft.Sasogine;
 
 /// <summary>
 /// Provides a base implementation for a game activator
@@ -10,11 +10,10 @@ namespace Sachssoft.Sasogine.Experimental;
 /// </summary>
 public abstract class PreconfiguredGameActivator : IGameActivator
 {
-    private readonly GameRegistry _gameRegistry;
+    private readonly IGameRegistry _gameRegistry;
 
     /// <summary>
-    /// Initializes a new instance of the
-    /// <see cref="PreconfiguredGameActivator"/> class.
+    /// Initializes a new instance of the <see cref="PreconfiguredGameActivator"/> class.
     /// </summary>
     protected PreconfiguredGameActivator()
     {
@@ -26,65 +25,93 @@ public abstract class PreconfiguredGameActivator : IGameActivator
     /// <summary>
     /// Creates the game registry used by this activator.
     /// </summary>
-    /// <returns>
-    /// The preconfigured game registry.
-    /// </returns>
-    protected abstract GameRegistry CreateRegistry();
+    /// <returns>The preconfigured game registry.</returns>
+    protected abstract IGameRegistry CreateRegistry();
 
     /// <inheritdoc/>
-    public IEngineObject Create<TKey>(
-        TKey key,
-        IEngineObjectDefinition definition)
-        where TKey : notnull
-        => _gameRegistry.Create(key, definition);
+    public bool IsDefinitionSupported(Type definitionType)
+    {
+        ArgumentNullException.ThrowIfNull(definitionType);
+        return _gameRegistry.IsDefinitionRegistered(definitionType);
+    }
 
     /// <inheritdoc/>
-    public TObject Create<TKey, TObject>(
-        TKey key,
-        IEngineObjectDefinition definition)
-        where TKey : notnull
-        where TObject : class, IEngineObject
-        => _gameRegistry.Create<TKey, TObject>(key, definition);
+    public bool IsObjectSupported(Type objectType)
+    {
+        ArgumentNullException.ThrowIfNull(objectType);
+        return _gameRegistry.IsObjectRegistered(objectType);
+    }
 
     /// <inheritdoc/>
-    public IEngineObject Create(
-        Type type,
-        IEngineObjectDefinition definition)
-        => _gameRegistry.Create(type, definition);
+    public IEngineObject Create(IGameRegistryKey key, IDefinition definition)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        ArgumentNullException.ThrowIfNull(definition);
+
+        IDefinition registeredDefinition = _gameRegistry.CreateDefinition(key);
+
+        if (registeredDefinition.GetType() != definition.GetType())
+        {
+            throw new ArgumentException(
+                $"Definition type '{definition.GetType().FullName}' does not match the definition type " +
+                $"'{registeredDefinition.GetType().FullName}' registered for key '{key}'.",
+                nameof(definition));
+        }
+
+        return _gameRegistry.CreateFromDefinition(definition);
+    }
 
     /// <inheritdoc/>
-    public TObject Create<TObject>(
-        IEngineObjectDefinition definition)
-        where TObject : class, IEngineObject
-        => _gameRegistry.Create<TObject>(definition);
+    public IEngineObject Create(Type objectType, IDefinition definition)
+    {
+        ArgumentNullException.ThrowIfNull(objectType);
+        ArgumentNullException.ThrowIfNull(definition);
+        return _gameRegistry.Create(objectType, definition);
+    }
 
     /// <inheritdoc/>
-    public bool TryCreate<TKey>(
-        TKey key,
-        IEngineObjectDefinition definition,
+    public IEngineObject CreateFromDefinition(IDefinition definition)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+        return _gameRegistry.CreateFromDefinition(definition);
+    }
+
+    /// <inheritdoc/>
+    public bool TryCreate(
+        IGameRegistryKey key,
+        IDefinition definition,
         [NotNullWhen(true)] out IEngineObject? instance)
-        where TKey : notnull
-        => _gameRegistry.TryCreate(key, definition, out instance);
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        ArgumentNullException.ThrowIfNull(definition);
+
+        if (!_gameRegistry.TryCreateDefinition(key, out IDefinition? registeredDefinition) ||
+            registeredDefinition.GetType() != definition.GetType())
+        {
+            instance = null;
+            return false;
+        }
+
+        return _gameRegistry.TryCreateFromDefinition(definition, out instance);
+    }
 
     /// <inheritdoc/>
-    public bool TryCreate<TKey, TObject>(
-        TKey key,
-        IEngineObjectDefinition definition,
-        [NotNullWhen(true)] out TObject? instance)
-        where TKey : notnull
-        where TObject : class, IEngineObject
-        => _gameRegistry.TryCreate<TKey, TObject>(
-            key,
-            definition,
-            out instance);
+    public bool TryCreate(
+        Type objectType,
+        IDefinition definition,
+        [NotNullWhen(true)] out IEngineObject? instance)
+    {
+        ArgumentNullException.ThrowIfNull(objectType);
+        ArgumentNullException.ThrowIfNull(definition);
+        return _gameRegistry.TryCreate(objectType, definition, out instance);
+    }
 
     /// <inheritdoc/>
-    public bool IsSupported<TKey>(TKey key)
-        where TKey : notnull
-        => _gameRegistry.IsRegistered(key);
-
-    /// <inheritdoc/>
-    public bool IsSupported<TObject>()
-        where TObject : class, IEngineObject
-        => _gameRegistry.IsRegistered<TObject>();
+    public bool TryCreateFromDefinition(
+        IDefinition definition,
+        [NotNullWhen(true)] out IEngineObject? instance)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+        return _gameRegistry.TryCreateFromDefinition(definition, out instance);
+    }
 }

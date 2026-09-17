@@ -7,5 +7,5 @@ namespace Sachssoft.Sasogine.Graphics.Rendering;
 /// </summary>
 public interface ITransformRotatable2Definition : ITransformRotation2
 {
-    
+
 }

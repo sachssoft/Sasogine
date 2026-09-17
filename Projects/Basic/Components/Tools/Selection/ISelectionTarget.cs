@@ -1,18 +1,19 @@
-﻿namespace Sachssoft.Sasogine.Components.Tools.Selection
+﻿using Sachssoft.Sasogine.Common;
+
+namespace Sachssoft.Sasogine.Components.Tools.Selection;
+
+/// <summary>
+/// Represents an engine object that can be selected by a selection tool.
+/// </summary>
+public interface ISelectionTarget : IEngineObject
 {
     /// <summary>
-    /// Represents an object that can be selected by a selection tool.
+    /// Gets a value indicating whether the selection target is selected.
     /// </summary>
-    public interface ISelectionTarget
-    {
-        /// <summary>
-        /// Gets or sets a value indicating whether the selection target is selected.
-        /// </summary>
-        bool IsSelected { get; set; }
+    bool IsSelected { get; }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the selection target is locked.
-        /// </summary>
-        bool IsLocked { get; set; }
-    }
+    /// <summary>
+    /// Gets a value indicating whether the selection target is locked.
+    /// </summary>
+    bool IsLocked { get; }
 }

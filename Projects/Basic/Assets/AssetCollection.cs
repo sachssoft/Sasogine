@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Sachssoft.Sasogine.Assets;
 
@@ -14,15 +15,47 @@ namespace Sachssoft.Sasogine.Assets;
 /// <remarks>
 /// Asset instances and non-null identifiers must be unique within the
 /// collection. Collection changes are reported through
-/// <see cref="INotifyCollectionChanged"/> and <see cref="INotifyPropertyChanged"/>.
+/// <see cref="INotifyCollectionChanged"/> and
+/// <see cref="INotifyPropertyChanged"/>.
 /// </remarks>
 public class AssetCollection :
     IList<IAsset>,
+    IReadOnlyList<IAsset>,
     IEngineObjectResolver,
     INotifyCollectionChanged,
     INotifyPropertyChanged
 {
-    private readonly List<IAsset> _items = [];
+    private readonly List<IAsset> _items;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AssetCollection"/> class.
+    /// </summary>
+    public AssetCollection()
+    {
+        _items = [];
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AssetCollection"/> class
+    /// with the specified assets.
+    /// </summary>
+    /// <param name="assets">
+    /// The assets to initially add to the collection.
+    /// </param>
+    public AssetCollection(IEnumerable<IAsset> assets)
+    {
+        ArgumentNullException.ThrowIfNull(assets);
+
+        _items = [];
+
+        foreach (IAsset asset in assets)
+        {
+            ArgumentNullException.ThrowIfNull(asset);
+
+            EnsureUnique(asset);
+            _items.Add(asset);
+        }
+    }
 
     /// <summary>
     /// Occurs when the collection changes.
@@ -50,6 +83,7 @@ public class AssetCollection :
     public IAsset this[int index]
     {
         get => _items[index];
+
         set
         {
             ArgumentNullException.ThrowIfNull(value);
@@ -64,6 +98,7 @@ public class AssetCollection :
             _items[index] = value;
 
             OnPropertyChanged("Item[]");
+
             OnCollectionChanged(
                 new NotifyCollectionChangedEventArgs(
                     NotifyCollectionChangedAction.Replace,
@@ -79,7 +114,7 @@ public class AssetCollection :
     /// <param name="item">
     /// The asset to add.
     /// </param>
-    public void Add(IAsset item)
+    public virtual void Add(IAsset item)
     {
         ArgumentNullException.ThrowIfNull(item);
 
@@ -91,6 +126,7 @@ public class AssetCollection :
 
         OnPropertyChanged(nameof(Count));
         OnPropertyChanged("Item[]");
+
         OnCollectionChanged(
             new NotifyCollectionChangedEventArgs(
                 NotifyCollectionChangedAction.Add,
@@ -99,9 +135,23 @@ public class AssetCollection :
     }
 
     /// <summary>
+    /// Adds the specified assets to the collection.
+    /// </summary>
+    /// <param name="assets">
+    /// The assets to add.
+    /// </param>
+    public virtual void AddRange(IEnumerable<IAsset> assets)
+    {
+        ArgumentNullException.ThrowIfNull(assets);
+
+        foreach (IAsset asset in assets)
+            Add(asset);
+    }
+
+    /// <summary>
     /// Removes all assets from the collection.
     /// </summary>
-    public void Clear()
+    public virtual void Clear()
     {
         if (_items.Count == 0)
             return;
@@ -110,6 +160,7 @@ public class AssetCollection :
 
         OnPropertyChanged(nameof(Count));
         OnPropertyChanged("Item[]");
+
         OnCollectionChanged(
             new NotifyCollectionChangedEventArgs(
                 NotifyCollectionChangedAction.Reset));
@@ -118,28 +169,46 @@ public class AssetCollection :
     /// <summary>
     /// Determines whether the collection contains the specified asset instance.
     /// </summary>
-    /// <param name="item">
-    /// The asset to locate.
-    /// </param>
-    /// <returns>
-    /// <see langword="true"/> if the asset is contained in the collection;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    public bool Contains(IAsset item)
+    public virtual bool Contains(IAsset item)
     {
+        ArgumentNullException.ThrowIfNull(item);
+
         return IndexOfReference(item) >= 0;
+    }
+
+    /// <summary>
+    /// Determines whether an asset with the specified identifier exists.
+    /// </summary>
+    public virtual bool Contains(string? id)
+    {
+        return Find(id) is not null;
+    }
+
+    /// <summary>
+    /// Determines whether an asset with the specified identifier and type exists.
+    /// </summary>
+    public virtual bool Contains(
+        Type assetType,
+        string? id)
+    {
+        return Find(assetType, id) is not null;
+    }
+
+    /// <summary>
+    /// Determines whether an asset with the specified identifier and type exists.
+    /// </summary>
+    public virtual bool Contains<TAsset>(string? id)
+        where TAsset : class, IAsset
+    {
+        return Find<TAsset>(id) is not null;
     }
 
     /// <summary>
     /// Copies the assets to the specified array.
     /// </summary>
-    /// <param name="array">
-    /// The destination array.
-    /// </param>
-    /// <param name="arrayIndex">
-    /// The zero-based index in the destination array at which copying begins.
-    /// </param>
-    public void CopyTo(IAsset[] array, int arrayIndex)
+    public virtual void CopyTo(
+        IAsset[] array,
+        int arrayIndex)
     {
         _items.CopyTo(array, arrayIndex);
     }
@@ -147,27 +216,19 @@ public class AssetCollection :
     /// <summary>
     /// Returns the index of the specified asset instance.
     /// </summary>
-    /// <param name="item">
-    /// The asset to locate.
-    /// </param>
-    /// <returns>
-    /// The zero-based index of the asset if found; otherwise, <c>-1</c>.
-    /// </returns>
-    public int IndexOf(IAsset item)
+    public virtual int IndexOf(IAsset item)
     {
+        ArgumentNullException.ThrowIfNull(item);
+
         return IndexOfReference(item);
     }
 
     /// <summary>
     /// Inserts an asset at the specified index.
     /// </summary>
-    /// <param name="index">
-    /// The zero-based index at which the asset should be inserted.
-    /// </param>
-    /// <param name="item">
-    /// The asset to insert.
-    /// </param>
-    public void Insert(int index, IAsset item)
+    public virtual void Insert(
+        int index,
+        IAsset item)
     {
         ArgumentNullException.ThrowIfNull(item);
 
@@ -177,6 +238,7 @@ public class AssetCollection :
 
         OnPropertyChanged(nameof(Count));
         OnPropertyChanged("Item[]");
+
         OnCollectionChanged(
             new NotifyCollectionChangedEventArgs(
                 NotifyCollectionChangedAction.Add,
@@ -187,31 +249,34 @@ public class AssetCollection :
     /// <summary>
     /// Removes the specified asset instance from the collection.
     /// </summary>
-    /// <param name="item">
-    /// The asset to remove.
-    /// </param>
-    /// <returns>
-    /// <see langword="true"/> if the asset was removed; otherwise,
-    /// <see langword="false"/>.
-    /// </returns>
-    public bool Remove(IAsset item)
+    public virtual bool Remove(IAsset item)
     {
+        ArgumentNullException.ThrowIfNull(item);
+
         int index = IndexOfReference(item);
 
         if (index < 0)
             return false;
 
         RemoveAt(index);
+
         return true;
+    }
+
+    /// <summary>
+    /// Removes the asset with the specified identifier.
+    /// </summary>
+    public virtual bool Remove(string? id)
+    {
+        IAsset? asset = Find(id);
+
+        return asset is not null && Remove(asset);
     }
 
     /// <summary>
     /// Removes the asset at the specified index.
     /// </summary>
-    /// <param name="index">
-    /// The zero-based index of the asset to remove.
-    /// </param>
-    public void RemoveAt(int index)
+    public virtual void RemoveAt(int index)
     {
         IAsset item = _items[index];
 
@@ -219,6 +284,7 @@ public class AssetCollection :
 
         OnPropertyChanged(nameof(Count));
         OnPropertyChanged("Item[]");
+
         OnCollectionChanged(
             new NotifyCollectionChangedEventArgs(
                 NotifyCollectionChangedAction.Remove,
@@ -227,36 +293,49 @@ public class AssetCollection :
     }
 
     /// <summary>
-    /// Returns an enumerator that iterates through the assets.
-    /// </summary>
-    public IEnumerator<IAsset> GetEnumerator()
-    {
-        return _items.GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
-
-    /// <summary>
     /// Finds an asset with the specified identifier.
     /// </summary>
-    /// <param name="id">
-    /// The identifier of the asset to find.
-    /// </param>
-    /// <returns>
-    /// The matching asset, or <see langword="null"/> if no asset was found.
-    /// </returns>
-    public IAsset? Find(string? id)
+    public virtual IAsset? Find(string? id)
     {
-        if (id == null)
+        if (id is null)
             return null;
 
         foreach (IAsset asset in _items)
         {
-            if (asset.Id == id)
+            if (string.Equals(
+                asset.Id,
+                id,
+                StringComparison.Ordinal))
+            {
                 return asset;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Finds an asset with the specified identifier and type.
+    /// </summary>
+    public virtual IAsset? Find(
+        Type assetType,
+        string? id)
+    {
+        ValidateAssetType(assetType);
+
+        if (id is null)
+            return null;
+
+        foreach (IAsset asset in _items)
+        {
+            if (string.Equals(
+                    asset.Id,
+                    id,
+                    StringComparison.Ordinal) &&
+                assetType.IsInstanceOfType(asset))
+            {
+                return asset;
+            }
         }
 
         return null;
@@ -265,25 +344,22 @@ public class AssetCollection :
     /// <summary>
     /// Finds an asset of the specified type with the specified identifier.
     /// </summary>
-    /// <typeparam name="T">
-    /// The asset type to find.
-    /// </typeparam>
-    /// <param name="id">
-    /// The identifier of the asset to find.
-    /// </param>
-    /// <returns>
-    /// The matching asset, or <see langword="null"/> if no asset was found.
-    /// </returns>
-    public T? Find<T>(string? id)
-        where T : class, IAsset
+    public virtual TAsset? Find<TAsset>(string? id)
+        where TAsset : class, IAsset
     {
-        if (id == null)
+        if (id is null)
             return null;
 
         foreach (IAsset asset in _items)
         {
-            if (asset.Id == id && asset is T typedAsset)
+            if (string.Equals(
+                    asset.Id,
+                    id,
+                    StringComparison.Ordinal) &&
+                asset is TAsset typedAsset)
+            {
                 return typedAsset;
+            }
         }
 
         return null;
@@ -292,39 +368,63 @@ public class AssetCollection :
     /// <summary>
     /// Finds all assets with the specified class.
     /// </summary>
-    /// <param name="class">
-    /// The class of the assets to find.
-    /// </param>
-    /// <returns>
-    /// All matching assets.
-    /// </returns>
-    public IEnumerable<IAsset> FindAll(string? @class)
+    public virtual IEnumerable<IAsset> FindAll(string? @class)
     {
         foreach (IAsset asset in _items)
         {
-            if (asset.Class == @class)
+            if (string.Equals(
+                asset.Class,
+                @class,
+                StringComparison.Ordinal))
+            {
                 yield return asset;
+            }
         }
     }
 
     /// <summary>
     /// Finds all assets of the specified type with the specified class.
     /// </summary>
-    /// <typeparam name="T">
-    /// The asset type to find.
-    /// </typeparam>
-    /// <param name="class">
-    /// The class of the assets to find.
-    /// </param>
-    /// <returns>
-    /// All matching assets.
-    /// </returns>
-    public IEnumerable<T> FindAll<T>(string? @class)
-        where T : class, IAsset
+    public virtual IEnumerable<TAsset> FindAll<TAsset>(
+        string? @class)
+        where TAsset : class, IAsset
     {
         foreach (IAsset asset in _items)
         {
-            if (asset.Class == @class && asset is T typedAsset)
+            if (string.Equals(
+                    asset.Class,
+                    @class,
+                    StringComparison.Ordinal) &&
+                asset is TAsset typedAsset)
+            {
+                yield return typedAsset;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gets all assets assignable to the specified type.
+    /// </summary>
+    public virtual IEnumerable<IAsset> GetAll(Type assetType)
+    {
+        ValidateAssetType(assetType);
+
+        foreach (IAsset asset in _items)
+        {
+            if (assetType.IsInstanceOfType(asset))
+                yield return asset;
+        }
+    }
+
+    /// <summary>
+    /// Gets all assets assignable to the specified type.
+    /// </summary>
+    public virtual IEnumerable<TAsset> GetAll<TAsset>()
+        where TAsset : class, IAsset
+    {
+        foreach (IAsset asset in _items)
+        {
+            if (asset is TAsset typedAsset)
                 yield return typedAsset;
         }
     }
@@ -332,70 +432,141 @@ public class AssetCollection :
     /// <summary>
     /// Attempts to find an asset with the specified identifier.
     /// </summary>
-    /// <param name="id">
-    /// The identifier of the asset to find.
-    /// </param>
-    /// <param name="result">
-    /// When this method returns, contains the matching asset if found;
-    /// otherwise, <see langword="null"/>.
-    /// </param>
-    /// <returns>
-    /// <see langword="true"/> if an asset was found; otherwise,
-    /// <see langword="false"/>.
-    /// </returns>
-    public bool TryGet(string? id, out IAsset? result)
+    public virtual bool TryGet(
+        string? id,
+        [NotNullWhen(true)] out IAsset? result)
     {
         result = Find(id);
-        return result != null;
+
+        return result is not null;
+    }
+
+    /// <summary>
+    /// Attempts to find an asset with the specified identifier and type.
+    /// </summary>
+    public virtual bool TryGet(
+        Type assetType,
+        string? id,
+        [NotNullWhen(true)] out IAsset? result)
+    {
+        result = Find(assetType, id);
+
+        return result is not null;
     }
 
     /// <summary>
     /// Attempts to find an asset of the specified type with the specified identifier.
     /// </summary>
-    /// <typeparam name="T">
-    /// The asset type to find.
-    /// </typeparam>
-    /// <param name="id">
-    /// The identifier of the asset to find.
-    /// </param>
-    /// <param name="result">
-    /// When this method returns, contains the matching asset if found;
-    /// otherwise, <see langword="null"/>.
-    /// </param>
-    /// <returns>
-    /// <see langword="true"/> if an asset was found; otherwise,
-    /// <see langword="false"/>.
-    /// </returns>
-    public bool TryGet<T>(string? id, out T? result)
-        where T : class, IAsset
+    public virtual bool TryGet<TAsset>(
+        string? id,
+        [NotNullWhen(true)] out TAsset? result)
+        where TAsset : class, IAsset
     {
-        result = Find<T>(id);
-        return result != null;
+        result = Find<TAsset>(id);
+
+        return result is not null;
+    }
+
+    /// <summary>
+    /// Returns an enumerator that iterates through the assets.
+    /// </summary>
+    public virtual IEnumerator<IAsset> GetEnumerator()
+    {
+        return _items.GetEnumerator();
     }
 
     /// <summary>
     /// Raises the <see cref="CollectionChanged"/> event.
     /// </summary>
-    /// <param name="e">
-    /// The event data describing the collection change.
-    /// </param>
     protected virtual void OnCollectionChanged(
         NotifyCollectionChangedEventArgs e)
     {
+        ArgumentNullException.ThrowIfNull(e);
+
         CollectionChanged?.Invoke(this, e);
     }
 
     /// <summary>
     /// Raises the <see cref="PropertyChanged"/> event.
     /// </summary>
-    /// <param name="propertyName">
-    /// The name of the property that changed.
-    /// </param>
     protected virtual void OnPropertyChanged(string propertyName)
     {
+        ArgumentException.ThrowIfNullOrEmpty(propertyName);
+
         PropertyChanged?.Invoke(
             this,
             new PropertyChangedEventArgs(propertyName));
+    }
+
+    /// <summary>
+    /// Ensures that the specified asset can be inserted into the collection.
+    /// </summary>
+    protected virtual void EnsureUnique(
+        IAsset item,
+        IAsset? excludedItem = null)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+
+        foreach (IAsset existing in _items)
+        {
+            if (ReferenceEquals(existing, excludedItem))
+                continue;
+
+            if (ReferenceEquals(existing, item))
+            {
+                throw new ArgumentException(
+                    "The asset is already contained in the collection.",
+                    nameof(item));
+            }
+
+            if (item.Id is not null &&
+                string.Equals(
+                    existing.Id,
+                    item.Id,
+                    StringComparison.Ordinal))
+            {
+                throw new ArgumentException(
+                    $"An asset with the identifier '{item.Id}' already exists.",
+                    nameof(item));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Returns the index of the specified asset instance.
+    /// </summary>
+    protected virtual int IndexOfReference(IAsset item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+
+        for (int i = 0; i < _items.Count; i++)
+        {
+            if (ReferenceEquals(_items[i], item))
+                return i;
+        }
+
+        return -1;
+    }
+
+    /// <summary>
+    /// Validates that the specified type represents an asset type.
+    /// </summary>
+    protected virtual void ValidateAssetType(Type assetType)
+    {
+        ArgumentNullException.ThrowIfNull(assetType);
+
+        if (!typeof(IAsset).IsAssignableFrom(assetType))
+        {
+            throw new ArgumentException(
+                $"Type '{assetType.FullName}' does not implement " +
+                $"'{typeof(IAsset).FullName}'.",
+                nameof(assetType));
+        }
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 
     IEngineReferenceable? IEngineObjectResolver.Find(string? id)
@@ -414,44 +585,9 @@ public class AssetCollection :
         out IEngineReferenceable? result)
     {
         IAsset? asset = Find(id);
+
         result = asset;
 
-        return asset != null;
-    }
-
-    private void EnsureUnique(
-        IAsset item,
-        IAsset? excludedItem = null)
-    {
-        foreach (IAsset existing in _items)
-        {
-            if (ReferenceEquals(existing, excludedItem))
-                continue;
-
-            if (ReferenceEquals(existing, item))
-            {
-                throw new ArgumentException(
-                    "The asset is already contained in the collection.",
-                    nameof(item));
-            }
-
-            if (item.Id != null && existing.Id == item.Id)
-            {
-                throw new ArgumentException(
-                    $"An asset with the identifier '{item.Id}' already exists.",
-                    nameof(item));
-            }
-        }
-    }
-
-    private int IndexOfReference(IAsset item)
-    {
-        for (int i = 0; i < _items.Count; i++)
-        {
-            if (ReferenceEquals(_items[i], item))
-                return i;
-        }
-
-        return -1;
+        return asset is not null;
     }
 }
