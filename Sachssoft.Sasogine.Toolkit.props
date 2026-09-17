@@ -34,6 +34,10 @@
 	<ItemGroup>
 		<PackageReference Include="Sachssoft.Sasogine.DesktopGL"
 						  Version="$(VersionPrefix)-$(VersionSuffix)" />
+		<PackageReference Include="Sachssoft.Sasogine.Documents.DesktopGL"
+						  Version="$(VersionPrefix)-$(VersionSuffix)" />
+		<PackageReference Include="Sachssoft.Sasodoc"
+						  Version="1.0.0" />
 	</ItemGroup>
 
 </Project>
