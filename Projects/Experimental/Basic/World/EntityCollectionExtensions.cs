@@ -17,6 +17,57 @@ namespace Sachssoft.Sasogine.World;
 public static class EntityCollectionExtensions
 {
     /// <summary>
+    /// Initializes all entities that support initialization using the specified
+    /// entity context type.
+    /// </summary>
+    /// <typeparam name="TEntityContext">
+    /// The type of context used to initialize the entities.
+    /// </typeparam>
+    /// <param name="entities">
+    /// The entities to initialize.
+    /// </param>
+    /// <param name="context">
+    /// The context used to initialize the entities.
+    /// </param>
+    public static void InitializeAll<TEntityContext>(
+        this IEnumerable<IEntity> entities,
+        TEntityContext context)
+        where TEntityContext : IEntityContext
+    {
+        ArgumentNullException.ThrowIfNull(entities);
+        ArgumentNullException.ThrowIfNull(context);
+
+        foreach (var entity in entities)
+        {
+            if (entity is IInitializableEntity<TEntityContext> initializable)
+                initializable.Initialize(context);
+        }
+    }
+
+    /// <summary>
+    /// Deinitializes all entities that support initialization using the specified
+    /// entity context type.
+    /// </summary>
+    /// <typeparam name="TEntityContext">
+    /// The entity context type associated with the entities.
+    /// </typeparam>
+    /// <param name="entities">
+    /// The entities to deinitialize.
+    /// </param>
+    public static void DeinitializeAll<TEntityContext>(
+        this IEnumerable<IEntity> entities)
+        where TEntityContext : IEntityContext
+    {
+        ArgumentNullException.ThrowIfNull(entities);
+
+        foreach (var entity in entities)
+        {
+            if (entity is IInitializableEntity<TEntityContext> initializable)
+                initializable.Deinitialize();
+        }
+    }
+
+    /// <summary>
     /// Loads all entities in the collection.
     /// </summary>
     /// <param name="entities">The entities to load.</param>
