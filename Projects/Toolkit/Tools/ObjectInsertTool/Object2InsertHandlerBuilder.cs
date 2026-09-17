@@ -1,3 +1,4 @@
+using Sachssoft.Sasogine.Common;
 using System;
 
 namespace Sachssoft.Sasogine.Components.Tools
@@ -7,28 +8,28 @@ namespace Sachssoft.Sasogine.Components.Tools
     /// </summary>
     public sealed class Object2InsertHandlerBuilder
     {
-        private readonly Func<Object2InsertContext, object> _create;
-        private Action<object, Object2InsertContext>? _drag;
-        private Action<object, Object2InsertContext>? _complete;
-        private Action<object, Object2InsertContext>? _cancel;
+        private readonly Func<Object2InsertContext, IDefinition> _create;
+        private Action<IDefinition, Object2InsertContext>? _drag;
+        private Action<IDefinition, Object2InsertContext>? _complete;
+        private Action<IDefinition, Object2InsertContext>? _cancel;
 
         private Object2InsertHandlerBuilder(
-            Func<Object2InsertContext, object> create)
+            Func<Object2InsertContext, IDefinition> create)
         {
             _create = create;
         }
 
         /// <summary>
-        /// Creates a new builder using the specified object creation callback.
+        /// Creates a new builder using the specified definition creation callback.
         /// </summary>
         /// <param name="callback">
-        /// The callback used to create the object when insertion begins.
+        /// The callback used to create the definition when insertion begins.
         /// </param>
         /// <returns>
         /// A new builder instance.
         /// </returns>
         public static Object2InsertHandlerBuilder Create(
-            Func<Object2InsertContext, object> callback)
+            Func<Object2InsertContext, IDefinition> callback)
         {
             ArgumentNullException.ThrowIfNull(callback);
 
@@ -36,16 +37,16 @@ namespace Sachssoft.Sasogine.Components.Tools
         }
 
         /// <summary>
-        /// Sets the callback invoked while the object is being dragged.
+        /// Sets the callback invoked while the definition is being dragged.
         /// </summary>
         /// <param name="callback">
-        /// The callback invoked while the object is being dragged.
+        /// The callback invoked while the definition is being dragged.
         /// </param>
         /// <returns>
         /// This builder instance.
         /// </returns>
         public Object2InsertHandlerBuilder OnDrag(
-            Action<object, Object2InsertContext> callback)
+            Action<IDefinition, Object2InsertContext> callback)
         {
             ArgumentNullException.ThrowIfNull(callback);
 
@@ -63,7 +64,7 @@ namespace Sachssoft.Sasogine.Components.Tools
         /// This builder instance.
         /// </returns>
         public Object2InsertHandlerBuilder OnComplete(
-            Action<object, Object2InsertContext> callback)
+            Action<IDefinition, Object2InsertContext> callback)
         {
             ArgumentNullException.ThrowIfNull(callback);
 
@@ -81,7 +82,7 @@ namespace Sachssoft.Sasogine.Components.Tools
         /// This builder instance.
         /// </returns>
         public Object2InsertHandlerBuilder OnCancel(
-            Action<object, Object2InsertContext> callback)
+            Action<IDefinition, Object2InsertContext> callback)
         {
             ArgumentNullException.ThrowIfNull(callback);
 
@@ -106,16 +107,16 @@ namespace Sachssoft.Sasogine.Components.Tools
 
         private sealed class ObjectInsertHandler : IObject2InsertHandler
         {
-            private readonly Func<Object2InsertContext, object> _create;
-            private readonly Action<object, Object2InsertContext>? _drag;
-            private readonly Action<object, Object2InsertContext>? _complete;
-            private readonly Action<object, Object2InsertContext>? _cancel;
+            private readonly Func<Object2InsertContext, IDefinition> _create;
+            private readonly Action<IDefinition, Object2InsertContext>? _drag;
+            private readonly Action<IDefinition, Object2InsertContext>? _complete;
+            private readonly Action<IDefinition, Object2InsertContext>? _cancel;
 
             public ObjectInsertHandler(
-                Func<Object2InsertContext, object> create,
-                Action<object, Object2InsertContext>? drag,
-                Action<object, Object2InsertContext>? complete,
-                Action<object, Object2InsertContext>? cancel)
+                Func<Object2InsertContext, IDefinition> create,
+                Action<IDefinition, Object2InsertContext>? drag,
+                Action<IDefinition, Object2InsertContext>? complete,
+                Action<IDefinition, Object2InsertContext>? cancel)
             {
                 _create = create;
                 _drag = drag;
@@ -123,7 +124,7 @@ namespace Sachssoft.Sasogine.Components.Tools
                 _cancel = cancel;
             }
 
-            public object Create(
+            public IDefinition Create(
                 Object2InsertContext context)
             {
                 return _create(context) ??
@@ -132,29 +133,29 @@ namespace Sachssoft.Sasogine.Components.Tools
             }
 
             public void Drag(
-                object value,
+                IDefinition definition,
                 Object2InsertContext context)
             {
                 _drag?.Invoke(
-                    value,
+                    definition,
                     context);
             }
 
             public void Complete(
-                object value,
+                IDefinition definition,
                 Object2InsertContext context)
             {
                 _complete?.Invoke(
-                    value,
+                    definition,
                     context);
             }
 
             public void Cancel(
-                object value,
+                IDefinition definition,
                 Object2InsertContext context)
             {
                 _cancel?.Invoke(
-                    value,
+                    definition,
                     context);
             }
         }

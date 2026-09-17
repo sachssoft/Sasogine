@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Components.Tools.Selection;
 using System;
 using System.Collections.Generic;
 
@@ -21,7 +20,7 @@ internal sealed class SelectionToolResizeHelper
 
     private SelectionToolNode? _dragNode;
     private Size2 _dragStartSize;
-    private Vector2 _dragOffset;
+    private Point2 _dragStartCursorPosition;
     private Vector2 _appliedOriginOffset;
 
     public SelectionToolResizeHelper()
@@ -157,12 +156,14 @@ internal sealed class SelectionToolResizeHelper
         {
             _dragNode = node;
             _dragStartSize = currentSize;
-            _dragOffset = Vector2.Zero;
+            _dragStartCursorPosition = cursorPosition;
             _appliedOriginOffset = Vector2.Zero;
             return false;
         }
 
-        _dragOffset += delta.ToVector2();
+        Vector2 dragOffset =
+            cursorPosition -
+            _dragStartCursorPosition;
 
         float left = 0f;
         float top = 0f;
@@ -190,16 +191,16 @@ internal sealed class SelectionToolResizeHelper
             ReferenceEquals(node, _bottomRightCornerNode);
 
         if (resizeLeft)
-            left += _dragOffset.X;
+            left += dragOffset.X;
 
         if (resizeRight)
-            right += _dragOffset.X;
+            right += dragOffset.X;
 
         if (resizeTop)
-            top += _dragOffset.Y;
+            top += dragOffset.Y;
 
         if (resizeBottom)
-            bottom += _dragOffset.Y;
+            bottom += dragOffset.Y;
 
         if (context.EnableGridSnap)
         {
@@ -208,14 +209,16 @@ internal sealed class SelectionToolResizeHelper
                 if (resizeLeft)
                 {
                     left = MathF.Round(
-                        left / context.GridSnapStep.Width) *
+                        left / context.GridSnapStep.Width,
+                        MidpointRounding.AwayFromZero) *
                         context.GridSnapStep.Width;
                 }
 
                 if (resizeRight)
                 {
                     right = MathF.Round(
-                        right / context.GridSnapStep.Width) *
+                        right / context.GridSnapStep.Width,
+                        MidpointRounding.AwayFromZero) *
                         context.GridSnapStep.Width;
                 }
             }
@@ -225,14 +228,16 @@ internal sealed class SelectionToolResizeHelper
                 if (resizeTop)
                 {
                     top = MathF.Round(
-                        top / context.GridSnapStep.Height) *
+                        top / context.GridSnapStep.Height,
+                        MidpointRounding.AwayFromZero) *
                         context.GridSnapStep.Height;
                 }
 
                 if (resizeBottom)
                 {
                     bottom = MathF.Round(
-                        bottom / context.GridSnapStep.Height) *
+                        bottom / context.GridSnapStep.Height,
+                        MidpointRounding.AwayFromZero) *
                         context.GridSnapStep.Height;
                 }
             }
@@ -263,7 +268,13 @@ internal sealed class SelectionToolResizeHelper
         if (target is ISelectionResizable2 targetResizable &&
             targetResizable.AllowResize)
         {
-            targetResizable.Size = newSize;
+            if (target.Definition is not ISelectionResizable2Definition resizableDefinition)
+            {
+                throw new InvalidOperationException(
+                    $"The resizable selection target requires an '{nameof(ISelectionResizable2Definition)}' definition.");
+            }
+
+            resizableDefinition.Size = newSize;
         }
 
         if (definition is ISelectionResizable2Definition definitionResizable)

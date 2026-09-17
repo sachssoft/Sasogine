@@ -16,8 +16,7 @@ internal sealed class SelectionToolRotationHelper
     private readonly SelectionToolNode[] _rotationNodes;
 
     private SelectionToolNode? _dragNode;
-    private Point2 _dragStartCursorPosition;
-    private float _dragStartRotation;
+    private float _dragRotationOffset;
 
     public SelectionToolRotationHelper()
     {
@@ -170,40 +169,49 @@ internal sealed class SelectionToolRotationHelper
             target,
             definition);
 
+        Vector2 pivotToCursor =
+            cursorPosition.ToVector2() -
+            pivotPosition.ToVector2();
+
+        if (pivotToCursor.LengthSquared() <= float.Epsilon)
+            return;
+
+        float cursorAngle = MathF.Atan2(
+            pivotToCursor.Y,
+            pivotToCursor.X);
+
         if (delta == Vector2.Zero ||
             !ReferenceEquals(_dragNode, node))
         {
             _dragNode = node;
-            _dragStartCursorPosition = cursorPosition;
-            _dragStartRotation = currentRotation;
-            return;
+            _dragRotationOffset =
+                currentRotation - cursorAngle;
         }
 
-        float startAngle = MathF.Atan2(
-            _dragStartCursorPosition.Y - pivotPosition.Y,
-            _dragStartCursorPosition.X - pivotPosition.X);
-
-        float currentAngle = MathF.Atan2(
-            cursorPosition.Y - pivotPosition.Y,
-            cursorPosition.X - pivotPosition.X);
-
+        // The cursor always remains unsnapped. The desired rotation is
+        // calculated directly from the line from the pivot to the cursor.
         float rotation =
-            _dragStartRotation +
-            currentAngle -
-            startAngle;
+            cursorAngle + _dragRotationOffset;
 
         if (context.EnableAngleSnap &&
             context.AngleSnapStep > 0f)
         {
             rotation = MathF.Round(
-                rotation / context.AngleSnapStep) *
+                rotation / context.AngleSnapStep,
+                MidpointRounding.AwayFromZero) *
                 context.AngleSnapStep;
         }
 
         if (target is ISelectionRotatable2 targetRotatable &&
             targetRotatable.AllowRotate)
         {
-            targetRotatable.Rotation = rotation;
+            if (target.Definition is not ISelectionRotatable2Definition rotatableDefinition)
+            {
+                throw new InvalidOperationException(
+                    $"The rotatable selection target requires an '{nameof(ISelectionRotatable2Definition)}' definition.");
+            }
+
+            rotatableDefinition.Rotation = rotation;
         }
 
         if (definition is ISelectionRotatable2Definition definitionRotatable)
@@ -261,7 +269,8 @@ internal sealed class SelectionToolRotationHelper
                 newPivot = new Point2(
                     MathF.Round(
                         newPivot.X /
-                        context.PivotSnapStep.X) *
+                        context.PivotSnapStep.X,
+                        MidpointRounding.AwayFromZero) *
                         context.PivotSnapStep.X,
                     newPivot.Y);
             }
@@ -272,7 +281,8 @@ internal sealed class SelectionToolRotationHelper
                     newPivot.X,
                     MathF.Round(
                         newPivot.Y /
-                        context.PivotSnapStep.Y) *
+                        context.PivotSnapStep.Y,
+                        MidpointRounding.AwayFromZero) *
                         context.PivotSnapStep.Y);
             }
         }
@@ -303,12 +313,24 @@ internal sealed class SelectionToolRotationHelper
         if (target is ISelectionRotatable2 targetRotatable &&
             targetRotatable.AllowRotate)
         {
-            targetRotatable.RotationPivot = newPivot;
+            if (target.Definition is not ISelectionRotatable2Definition rotatableDefinition)
+            {
+                throw new InvalidOperationException(
+                    $"The rotatable selection target requires an '{nameof(ISelectionRotatable2Definition)}' definition.");
+            }
+
+            rotatableDefinition.RotationPivot = newPivot;
 
             if (target is ISelectionMovable2 movable &&
                 movable.AllowMove)
             {
-                movable.Position += positionOffset;
+                if (target.Definition is not ISelectionMovable2Definition movableDefinition)
+                {
+                    throw new InvalidOperationException(
+                        $"The movable selection target requires an '{nameof(ISelectionMovable2Definition)}' definition.");
+                }
+
+                movableDefinition.Position += positionOffset;
             }
         }
 

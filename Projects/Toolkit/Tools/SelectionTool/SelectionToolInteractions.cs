@@ -1,4 +1,4 @@
-﻿using Sachssoft.Sasogine.Input;
+using Sachssoft.Sasogine.Input;
 
 namespace Sachssoft.Sasogine.Components.Tools;
 

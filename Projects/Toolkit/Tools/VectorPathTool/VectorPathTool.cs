@@ -1,0 +1,1873 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Components.Tools.Vector;
+using Sachssoft.Sasogine.Graphics.Rendering;
+using Sachssoft.Sasogine.Graphics.Rendering.Batches;
+using Sachssoft.Sasogine.Input;
+using Sachssoft.Sasogine.Scenes;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace Sachssoft.Sasogine.Components.Tools;
+
+public sealed class VectorPathTool : ToolBase
+{
+    private readonly ShapeBatch _lineBatch;
+    private readonly ShapeBatch _pointBatch;
+    private readonly ShapeBatch _vertexBatch;
+    private readonly BasicShader _lineShader;
+    private readonly BasicShader _pointShader;
+    private readonly BasicShader _vertexShader;
+    private readonly IEnumerable _targetsSource;
+
+    private readonly Matrix _transform;
+    private Point2 _cursorPosition;
+    private bool _isInViewport;
+    private Point2 _snappedCursorPosition;
+    private bool _isPressed;
+    private bool _isMoving;
+    private VectorNode? _selectedNode;
+    private Point2 _moveStartPosition;
+    private readonly List<(VectorNode Node, Point2 Position)> _movingNodes = [];
+    private readonly HashSet<VectorShape> _changingShapes = [];
+    private bool _hasLiveChanges;
+    private bool _initialized;
+    private ToolInteractions? _interactions;
+    private bool _isAreaSelecting;
+    private Point2 _areaSelectionStart;
+    private Point2 _areaSelectionEnd;
+
+    private Box2? _insertRect;
+    private VectorPath? _drawingPath;
+    private IVectorSegment? _drawingSegment;
+
+    public event EventHandler<VectorPathNodesEventArgs>? NodeSelected;
+    public event EventHandler<VectorPathNodesEventArgs>? NodeMoved;
+    public event EventHandler<VectorPathSegmentsEventArgs>? SegmentAdded;
+    public event EventHandler<VectorPathSegmentsEventArgs>? SegmentRemoved;
+    public event EventHandler<VectorPathEventArgs>? PathRemoved;
+    public event EventHandler<VectorPathEventArgs>? PathConnectionChanged;
+
+    public VectorPathTool(
+        IEnumerable targetsSource,
+        GraphicsDevice graphicsDevice)
+    {
+        ArgumentNullException.ThrowIfNull(targetsSource);
+        ArgumentNullException.ThrowIfNull(graphicsDevice);
+
+        _targetsSource = targetsSource;
+        _lineBatch = new ShapeBatch(graphicsDevice);
+        _pointBatch = new ShapeBatch(graphicsDevice);
+        _vertexBatch = new ShapeBatch(graphicsDevice);
+        _lineShader = new BasicShader();
+        _lineShader.GraphicsDevice = graphicsDevice;
+        _pointShader = new BasicShader();
+        _pointShader.GraphicsDevice = graphicsDevice;
+        _vertexShader = new BasicShader();
+        _vertexShader.GraphicsDevice = graphicsDevice;
+
+        _transform = Matrix.CreateScale(1f, 1f, 1f);
+
+    }
+
+    //public VectorPathToolOperation Operation { get; private set; }
+
+    public VectorPathToolMode Mode { get; set; } = VectorPathToolMode.Selection;
+    public Func<IVectorSegment>? SegmentFactory { get; set; }
+    public Func<Bounds2, VectorPath>? PathFactory { get; set; }
+
+    public bool SnapGridEnabled { get; set; } = true;
+    public bool ShowControlNodes { get; set; } = true;
+    public bool ShowVertices { get; set; } = true;
+
+    public bool AllowConnectToClosedPath { get; set; } = false;
+
+    public Size2 GridSize { get; set; } = new Size2(10f);
+    public Size2 PointSize { get; set; } = new Size2(10f);
+    public Size2 VertexSize { get; set; } = new Size2(1f);
+
+    public float LineThickness { get; set; } = 2f;
+    public float ControlLineThickness { get; set; } = 1f;
+    public float StrokedPointThickness { get; set; } = 2.5f;
+
+    public float SampleLength { get; set; } = 10f;
+    public bool SnapInsertedPosition { get; set; } = true;
+
+    public Color PointColor { get; set; } = Color.Red;
+    public Color LineColor { get; set; } = Color.SkyBlue;
+    public Color VertexColor { get; set; } = Color.Blue;
+
+    public Color TargetBorderColor { get; set; } = Color.Gray;
+    public Color TargetSelectionColor { get; set; } = Color.Yellow;
+    public float TargetBorderThickness { get; set; } = 2f;
+    public float TargetBorderPadding { get; set; } = 4f;
+
+    public override void Update(SceneUpdateContext context)
+    {
+        base.Update(context);
+
+        if (!_isInViewport || _interactions == null)
+            return;
+
+        switch (Mode)
+        {
+            case VectorPathToolMode.Selection:
+
+                if (!_initialized)
+                {
+                    // Bestehende Auswahl aus dem Document übernehmen.
+                    _selectedNode = FindSelectedNode();
+                    _initialized = true;
+                }
+
+                if (_interactions.Cancel.HasFlag(InteractionFlags.WasJustReleased))
+                {
+                    DeselectAllNodes();
+
+                    _selectedNode = null;
+                    _isPressed = false;
+                    _isMoving = false;
+                    _isAreaSelecting = false;
+
+                    _movingNodes.Clear();
+                    _changingShapes.Clear();
+                    _hasLiveChanges = false;
+
+                    return;
+                }
+
+                bool multiSelection =
+                    _interactions.Modifier.HasFlag(InteractionFlags.IsPressed);
+
+                if (_interactions.Action.HasFlag(InteractionFlags.IsPressed))
+                {
+                    if (!_isPressed)
+                    {
+                        var hit = HitTest(_cursorPosition);
+
+                        if (_selectedNode == null)
+                            _selectedNode = FindSelectedNode();
+
+                        // Control Node
+                        if (hit.ControlNode != null)
+                        {
+                            if (multiSelection)
+                            {
+                                hit.ControlNode.Definition.IsSelected = !hit.ControlNode.IsSelected;
+                                hit.ControlNode.Reload();
+                                _selectedNode = hit.ControlNode;
+
+                                NodeSelected?.Invoke(
+                                    this,
+                                    new VectorPathNodesEventArgs(GetSelectedNodes()));
+
+                                _isMoving = false;
+                            }
+                            else if (hit.ControlNode.IsSelected)
+                            {
+                                if (IsNodeLocked(hit.ControlNode))
+                                {
+                                    _isMoving = false;
+                                    _isPressed = true;
+                                    break;
+                                }
+
+                                _selectedNode = hit.ControlNode;
+                                _moveStartPosition = _snappedCursorPosition;
+
+                                StoreSelectedNodes();
+
+                                _isMoving = true;
+                            }
+                            else
+                            {
+                                DeselectAllNodes();
+
+                                hit.ControlNode.Definition.IsSelected = true;
+
+                                hit.ControlNode.Reload();
+                                _selectedNode = hit.ControlNode;
+
+                                NodeSelected?.Invoke(
+                                    this,
+                                    new VectorPathNodesEventArgs(GetSelectedNodes()));
+
+                                _isMoving = false;
+                            }
+                        }
+                        // Normal Node
+                        else if (hit.Node != null)
+                        {
+                            if (multiSelection)
+                            {
+                                hit.Node.Definition.IsSelected = !hit.Node.IsSelected;
+                                hit.Node.Reload();
+                                _selectedNode = hit.Node;
+
+                                NodeSelected?.Invoke(
+                                    this,
+                                    new VectorPathNodesEventArgs(GetSelectedNodes()));
+
+                                _isMoving = false;
+                            }
+                            else if (hit.Node.IsSelected)
+                            {
+                                if (IsNodeLocked(hit.Node))
+                                {
+                                    _isMoving = false;
+                                    _isPressed = true;
+                                    break;
+                                }
+
+                                _selectedNode = hit.Node;
+                                _moveStartPosition = _snappedCursorPosition;
+
+                                StoreSelectedNodes();
+
+                                _isMoving = true;
+                            }
+                            else
+                            {
+                                DeselectAllNodes();
+
+                                hit.Node.Definition.IsSelected = true;
+
+                                hit.Node.Reload();
+                                _selectedNode = hit.Node;
+
+                                NodeSelected?.Invoke(
+                                    this,
+                                    new VectorPathNodesEventArgs(GetSelectedNodes()));
+
+                                _isMoving = false;
+                            }
+                        }
+                        else
+                        {
+                            if (!multiSelection)
+                            {
+                                DeselectAllNodes();
+                                _selectedNode = null;
+                            }
+
+                            BeginAreaSelection();
+                            _isMoving = false;
+                        }
+
+                        _isPressed = true;
+                    }
+
+                    if (_isAreaSelecting)
+                    {
+                        _areaSelectionEnd = _cursorPosition;
+                    }
+                    else if (_isMoving)
+                    {
+                        var delta = _snappedCursorPosition - _moveStartPosition;
+                        bool changed = false;
+
+                        foreach (var movingNode in _movingNodes)
+                        {
+                            Point2 position = movingNode.Position + delta;
+
+                            if (movingNode.Node.Position == position)
+                                continue;
+
+                            movingNode.Node.Definition.Position = position;
+
+                            movingNode.Node.Reload();
+                            changed = true;
+                        }
+
+                        if (changed)
+                        {
+                            _hasLiveChanges = true;
+
+                            foreach (var shape in _changingShapes)
+                                shape.NotifyChanging();
+                        }
+                    }
+                }
+                else if (_interactions.Action.HasFlag(InteractionFlags.WasJustReleased))
+                {
+                    _isPressed = false;
+                    _isMoving = false;
+
+                    if (_isAreaSelecting)
+                    {
+                        EndAreaSelection(multiSelection);
+                        _movingNodes.Clear();
+                        break;
+                    }
+
+                    if (_movingNodes.Count > 0 && _hasLiveChanges)
+                    {
+                        var movedNodes = new List<VectorNode>(_movingNodes.Count);
+
+                        for (int i = 0; i < _movingNodes.Count; i++)
+                            movedNodes.Add(_movingNodes[i].Node);
+
+                        foreach (var shape in _changingShapes)
+                            shape.NotifyChanged();
+
+                        NodeMoved?.Invoke(
+                            this,
+                            new VectorPathNodesEventArgs(movedNodes));
+                    }
+
+                    _movingNodes.Clear();
+                    _changingShapes.Clear();
+                    _hasLiveChanges = false;
+                }
+
+                break;
+
+            case VectorPathToolMode.Draw:
+                {
+                    if (_interactions.Cancel.HasFlag(InteractionFlags.WasJustReleased))
+                    {
+                        _drawingPath = null;
+                        _drawingSegment = null;
+                        return;
+                    }
+
+                    var position = _snappedCursorPosition;
+
+                    if (_drawingPath == null)
+                    {
+                        if (_interactions.Action.HasFlag(InteractionFlags.WasJustPressed))
+                        {
+                            _drawingPath = new VectorPath(
+                                position,
+                                false,
+                                false);
+
+                            _drawingSegment = CreateDrawingSegment();
+                            _drawingSegment.Node.Definition.Position = position;
+                            _drawingSegment.Node.Reload();
+
+                            SetControlNodes(
+                                _drawingSegment,
+                                _drawingPath.Start.Position);
+                        }
+
+                        break;
+                    }
+
+                    if (_drawingSegment != null)
+                    {
+                        var startPosition = _drawingPath.Segments.Count == 0
+                            ? _drawingPath.Start.Position
+                            : _drawingPath.Segments[^1].Node.Position;
+
+                        _drawingSegment.Node.Definition.Position = position;
+
+                        _drawingSegment.Node.Reload();
+
+                        SetControlNodes(
+                            _drawingSegment,
+                            startPosition);
+                    }
+
+                    if (!_interactions.Action.HasFlag(InteractionFlags.WasJustPressed))
+                        break;
+
+                    if (IsInNode(_cursorPosition, _drawingPath.Start))
+                    {
+                        if (_drawingPath.Segments.Count > 0)
+                        {
+                            _drawingPath.Definition.IsClosed = true;
+                            _drawingPath.Reload();
+                            var shape = GetPrimaryShape();
+                            shape?.MutablePaths.Add(_drawingPath);
+                            shape?.NotifyChanged();
+                        }
+
+                        _drawingPath = null;
+                        _drawingSegment = null;
+
+                        return;
+                    }
+
+                    if (_drawingPath.Segments.Count > 0)
+                    {
+                        var lastNode = _drawingPath.Segments[^1].Node;
+
+                        if (IsInNode(_cursorPosition, lastNode))
+                        {
+                            var shape = GetPrimaryShape();
+                            shape?.MutablePaths.Add(_drawingPath);
+                            shape?.NotifyChanged();
+
+                            _drawingPath = null;
+                            _drawingSegment = null;
+
+                            return;
+                        }
+                    }
+
+                    var hit = HitTestPathEndpoint(_cursorPosition);
+
+                    if (hit.Path != null &&
+                        hit.Node != null &&
+                        hit.Path != _drawingPath)
+                    {
+                        bool isStart = hit.Node == hit.Path.Start;
+
+                        bool isEnd =
+                            hit.Path.Segments.Count > 0 &&
+                            hit.Node == hit.Path.Segments[^1].Node;
+
+                        if (isStart || isEnd)
+                        {
+                            ConnectDrawingPath(
+                                _drawingPath,
+                                hit.Path,
+                                hit.Node);
+
+                            _drawingPath = null;
+                            _drawingSegment = null;
+
+                            return;
+                        }
+                    }
+
+                    if (_drawingSegment != null)
+                        _drawingPath.MutableSegments.Add(_drawingSegment);
+
+                    _drawingSegment = CreateDrawingSegment();
+
+                    var nextStartPosition = _drawingPath.Segments.Count == 0
+                        ? _drawingPath.Start.Position
+                        : _drawingPath.Segments[^1].Node.Position;
+
+                    _drawingSegment.Node.Definition.Position = position;
+
+                    _drawingSegment.Node.Reload();
+
+                    SetControlNodes(
+                        _drawingSegment,
+                        nextStartPosition);
+
+                    break;
+                }
+
+            case VectorPathToolMode.Insert:
+                {
+                    if (_interactions.Cancel.HasFlag(InteractionFlags.WasJustReleased))
+                    {
+                        _insertRect = null;
+                        return;
+                    }
+
+                    if (_interactions.Action.HasFlag(InteractionFlags.WasJustReleased))
+                    {
+                        if (_insertRect.HasValue)
+                        {
+                            var bounds = _insertRect.Value.ToBounds();
+
+                            if (PathFactory != null)
+                            {
+                                var path = PathFactory(bounds);
+
+                                if (path != null)
+                                {
+                                    var shape = GetPrimaryShape();
+                                    shape?.MutablePaths.Add(path);
+                                    shape?.NotifyChanged();
+                                }
+                            }
+
+                            _insertRect = null;
+                        }
+
+                        return;
+                    }
+
+                    var position = GetInsertPosition(_cursorPosition);
+
+                    if (_interactions.Action.HasFlag(InteractionFlags.IsPressed))
+                    {
+                        if (!_insertRect.HasValue)
+                        {
+                            _insertRect = new Box2(
+                                position.X,
+                                position.Y,
+                                position.X,
+                                position.Y);
+                        }
+                        else
+                        {
+                            var start = _insertRect.Value.Min;
+
+                            if (_interactions.Modifier.HasFlag(InteractionFlags.IsPressed))
+                            {
+                                var delta = position - start;
+                                var size = MathF.Max(MathF.Abs(delta.X), MathF.Abs(delta.Y));
+
+                                position = new Point2(
+                                    start.X + MathF.CopySign(size, delta.X),
+                                    start.Y + MathF.CopySign(size, delta.Y));
+                            }
+
+                            _insertRect = new Box2(
+                                start.X,
+                                start.Y,
+                                position.X,
+                                position.Y);
+                        }
+                    }
+
+                    break;
+                }
+        }
+    }
+
+    public override void Draw(SceneDrawContext context)
+    {
+        base.Draw(context);
+
+        var graphicsDevice = context.GraphicsDevice;
+
+        using (var scope = new RenderScope(
+            graphicsDevice,
+            new RenderOptions
+            {
+                CullMode = CullMode.None,
+                Depth = DepthMode.Disabled,
+                AlphaBlend = true
+            }))
+        {
+            _lineShader.Color = LineColor;
+            _lineShader.Opacity = 1;
+            _lineShader.Camera = context.ViewCamera;
+            _lineShader.Apply();
+
+            _pointShader.Color = PointColor;
+            _pointShader.Opacity = 1;
+            _pointShader.Camera = context.ViewCamera;
+            _pointShader.Apply();
+
+            _vertexShader.Color = VertexColor;
+            _vertexShader.Opacity = 1;
+            _vertexShader.Camera = context.ViewCamera;
+            _vertexShader.Apply();
+
+            _lineBatch.Begin(
+                shader: _lineShader,
+                camera: context.ViewCamera
+            );
+
+            _pointBatch.Begin(
+                shader: _pointShader,
+                camera: context.ViewCamera
+            );
+
+            _vertexBatch.Begin(
+                shader: _vertexShader,
+                camera: context.ViewCamera
+            );
+
+            foreach (var shape in GetActiveShapes())
+            {
+                foreach (var path in shape.Paths)
+                {
+                    DrawNode(path.Start.Position, path.Start.IsSelected, true);
+
+                    for (int i = 0; i < path.Segments.Count; i++)
+                    {
+                        var segment = path.Segments[i];
+                        var startPosition = (i == 0) ?
+                            path.Start.Position : path.Segments[i - 1].Node.Position;
+                        var endPosition = segment.Node.Position;
+
+                        var vertices = segment.GetVertices(startPosition, SampleLength);
+
+                        DrawLine(startPosition, endPosition, vertices);
+                        DrawNode(endPosition, segment.Node.IsSelected);
+
+                        if (ShowVertices)
+                        {
+                            foreach (var vertex in vertices)
+                            {
+                                DrawVertex(vertex);
+                            }
+                        }
+
+                        // Control Nodes zeichnen, wenn ShowControlNodes aktiviert ist
+                        if (ShowControlNodes)
+                        {
+                            DrawControlLine(startPosition, endPosition, segment.GetControlNodes());
+                            for (int j = 0; j < segment.GetControlNodes().Count; j++)
+                            {
+                                var controlNode = segment.GetControlNodes()[j];
+                                DrawControlNode(controlNode.Position, controlNode.IsSelected);
+                            }
+                        }
+                    }
+
+                    if (path.IsClosed && path.Segments.Count > 0)
+                    {
+                        var lastPosition = path.Segments[path.Segments.Count - 1].Node.Position;
+                        DrawLine(lastPosition, path.Start.Position, []);
+                    }
+                }
+            }
+
+            DrawAreaSelection();
+
+            if (Mode == VectorPathToolMode.Insert &&
+                _insertRect.HasValue)
+            {
+                if (PathFactory != null)
+                {
+                    var path = PathFactory(_insertRect.Value.ToBounds());
+                    var vertices = path.GetVertices(SampleLength);
+                    _lineBatch.AddLine(vertices, LineThickness);
+                }
+            }
+
+            if (Mode == VectorPathToolMode.Draw && _drawingPath != null)
+            {
+                DrawNode(
+                    _drawingPath.Start.Position,
+                    false,
+                    true);
+
+                for (int i = 0; i < _drawingPath.Segments.Count; i++)
+                {
+                    var segment = _drawingPath.Segments[i];
+
+                    var segmentStartPosition = i == 0
+                        ? _drawingPath.Start.Position
+                        : _drawingPath.Segments[i - 1].Node.Position;
+
+                    var vertices = segment.GetVertices(
+                        segmentStartPosition,
+                        SampleLength);
+
+                    DrawLine(
+                        segmentStartPosition,
+                        segment.Node.Position,
+                        vertices);
+
+                    DrawNode(
+                        segment.Node.Position,
+                        false);
+
+                    if (ShowVertices)
+                    {
+                        foreach (var vertex in vertices)
+                        {
+                            DrawVertex(vertex);
+                        }
+                    }
+
+                    if (ShowControlNodes)
+                    {
+                        DrawControlLine(
+                            segmentStartPosition,
+                            segment.Node.Position,
+                            segment.GetControlNodes());
+
+                        foreach (var controlNode in segment.GetControlNodes())
+                        {
+                            DrawControlNode(
+                                controlNode.Position,
+                                false);
+                        }
+                    }
+                }
+
+                // Nur das aktuelle Segment als Preview zeichnen.
+                if (_drawingSegment != null)
+                {
+                    var previewStartPosition = _drawingPath.Segments.Count == 0
+                        ? _drawingPath.Start.Position
+                        : _drawingPath.Segments[^1].Node.Position;
+
+                    var vertices = _drawingSegment.GetVertices(
+                        previewStartPosition,
+                        SampleLength);
+
+                    DrawLine(
+                        previewStartPosition,
+                        _drawingSegment.Node.Position,
+                        vertices);
+
+                    DrawNode(
+                        _drawingSegment.Node.Position,
+                        false);
+
+                    if (ShowVertices)
+                    {
+                        foreach (var vertex in vertices)
+                        {
+                            DrawVertex(vertex);
+                        }
+                    }
+
+                    if (ShowControlNodes)
+                    {
+                        DrawControlLine(
+                            previewStartPosition,
+                            _drawingSegment.Node.Position,
+                            _drawingSegment.GetControlNodes());
+
+                        foreach (var controlNode in _drawingSegment.GetControlNodes())
+                        {
+                            DrawControlNode(
+                                controlNode.Position,
+                                false);
+                        }
+                    }
+                }
+            }
+
+            _lineBatch.End();
+            _pointBatch.End();
+            _vertexBatch.End();
+
+            DrawTargetBounds(context);
+        }
+    }
+
+    protected override void ApplyContext(ToolContext context)
+    {
+        base.ApplyContext(context);
+
+        _interactions = context.Interactions;
+
+        Vector2 worldPosition =
+            context.CursorState.GetWorldPosition(context.Camera);
+
+        _cursorPosition = new Point2(
+            worldPosition.X,
+            worldPosition.Y);
+
+        _snappedCursorPosition =
+            GetGridPosition(_cursorPosition);
+
+        _isInViewport =
+            context.CursorState.IsInViewport;
+    }
+
+    // Touched Position: berührte Position wie Maus oder Touch
+    public VectorNodeHitTestResult HitTest(
+        Point2 touchedPosition)
+    {
+        foreach (var path in GetPaths())
+        {
+            // Start Node
+            if (IsInEllipse(
+                touchedPosition,
+                GetNodeBounds(path.Start.Position)))
+            {
+                return new VectorNodeHitTestResult(
+                    path.Start,
+                    null,
+                    null);
+            }
+
+            foreach (var segment in path.Segments)
+            {
+                // Control Nodes
+                foreach (var controlNode in segment.GetControlNodes())
+                {
+                    if (IsInEllipse(
+                        touchedPosition,
+                        GetNodeBounds(controlNode.Position)))
+                    {
+                        return new VectorNodeHitTestResult(
+                            null,
+                            controlNode,
+                            segment);
+                    }
+                }
+
+                // End Node
+                if (IsInEllipse(
+                    touchedPosition,
+                    GetNodeBounds(segment.Node.Position)))
+                {
+                    return new VectorNodeHitTestResult(
+                        segment.Node,
+                        null,
+                        segment);
+                }
+            }
+        }
+
+        return new VectorNodeHitTestResult(
+            null,
+            null,
+            null);
+    }
+
+    public void SelectAllNodes()
+    {
+        SelectAllNodes(true);
+    }
+
+    public void DeselectAllNodes()
+    {
+        SelectAllNodes(false);
+    }
+
+    public void SwitchPathConnection(bool isClosed)
+    {
+        var paths = GetPrimaryShapePaths();
+
+        for (int i = 0; i < paths.Count; i++)
+        {
+            var path = paths[i];
+
+            if (IsPathLocked(path))
+                continue;
+
+            if (path.Start.IsSelected)
+            {
+                SwitchPathConnection(i, isClosed);
+                return;
+            }
+
+            foreach (var segment in path.Segments)
+            {
+                if (segment.Node.IsSelected)
+                {
+                    SwitchPathConnection(i, isClosed);
+                    return;
+                }
+            }
+        }
+    }
+
+    public void SwitchPathConnection(int pathIndex, bool isClosed)
+    {
+        var paths = GetPrimaryShapePaths();
+
+        if (pathIndex < 0 || pathIndex >= paths.Count)
+            throw new ArgumentOutOfRangeException(nameof(pathIndex));
+
+        var path = paths[pathIndex];
+
+        if (IsPathLocked(path) || path.IsClosed == isClosed)
+            return;
+
+        path.Definition.IsClosed = isClosed;
+        path.Reload();
+        NotifyShapeChanged(path);
+
+        PathConnectionChanged?.Invoke(
+            this,
+            new VectorPathEventArgs(path));
+    }
+
+    public void AddPath(
+        Point2 position,
+        IEnumerable<IVectorSegment> segments)
+    {
+        ArgumentNullException.ThrowIfNull(segments);
+
+        //var path = new VectorPath(
+        //    new VectorNode(position),
+        //    false);
+
+        var path = new VectorPath(
+            position,
+            false,
+            false);
+
+        foreach (var segment in segments)
+            path.MutableSegments.Add(segment);
+        //path.MutableSegments.AddRange(segments);
+
+        var shape = GetPrimaryShape();
+        shape?.MutablePaths.Add(path);
+        shape?.NotifyChanged();
+    }
+
+    public void RemovePath()
+    {
+        for (int pathIndex = 0; pathIndex < GetPrimaryShapePaths().Count; pathIndex++)
+        {
+            var path = GetPrimaryShapePaths()[pathIndex];
+
+            if (IsPathLocked(path))
+                continue;
+
+            if (path.Start.IsSelected)
+            {
+                RemovePath(pathIndex);
+                return;
+            }
+
+            for (int segmentIndex = 0;
+                 segmentIndex < path.Segments.Count;
+                 segmentIndex++)
+            {
+                if (!path.Segments[segmentIndex].Node.IsSelected)
+                    continue;
+
+                RemovePath(pathIndex);
+                return;
+            }
+        }
+    }
+
+    public void RemovePath(int pathIndex)
+    {
+        if (pathIndex < 0 ||
+            pathIndex >= GetPrimaryShapePaths().Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(pathIndex));
+        }
+
+        var path = GetPrimaryShapePaths()[pathIndex];
+
+        if (IsPathLocked(path))
+            return;
+
+        GetPrimaryShapePaths().RemoveAt(pathIndex);
+        GetPrimaryShape()?.NotifyChanged();
+
+        _selectedNode = null;
+
+        PathRemoved?.Invoke(
+            this,
+            new VectorPathEventArgs(path));
+    }
+
+    public void AddSegment()
+    {
+        for (int pathIndex = 0; pathIndex < GetPrimaryShapePaths().Count; pathIndex++)
+        {
+            var path = GetPrimaryShapePaths()[pathIndex];
+
+            if (IsPathLocked(path))
+                continue;
+
+            if (path.Start.IsSelected)
+            {
+                if (path.Segments.Count > 0)
+                    AddSegment(pathIndex, 0);
+
+                return;
+            }
+
+            for (int segmentIndex = 0; segmentIndex < path.Segments.Count; segmentIndex++)
+            {
+                if (path.Segments[segmentIndex].Node.IsSelected)
+                {
+                    if (segmentIndex + 1 < path.Segments.Count)
+                        AddSegment(pathIndex, segmentIndex + 1);
+                    else
+                        AddSegmentAfterLast(path);
+
+                    return;
+                }
+            }
+        }
+    }
+
+    public void RemoveSegments()
+    {
+        var removedSegments = new List<IVectorSegment>();
+
+        foreach (var path in GetPaths())
+        {
+            if (IsPathLocked(path))
+                continue;
+
+            bool pathChanged = false;
+
+            for (int i = path.Segments.Count - 1; i >= 0; i--)
+            {
+                if (path.Segments[i].Node.IsSelected)
+                {
+                    removedSegments.Add(path.Segments[i]);
+                    path.MutableSegments.RemoveAt(i);
+                    pathChanged = true;
+                }
+            }
+
+            if (pathChanged)
+                NotifyShapeChanged(path);
+        }
+
+        _selectedNode = null;
+
+        if (removedSegments.Count > 0)
+        {
+            SegmentRemoved?.Invoke(
+                this,
+                new VectorPathSegmentsEventArgs(removedSegments));
+        }
+    }
+
+    public void AddSegment(int selectedPathIndex = 0, int selectedSegmentIndex = 0)
+    {
+        var paths = GetPrimaryShapePaths();
+
+        if (selectedPathIndex < 0 || selectedPathIndex >= paths.Count)
+            throw new ArgumentOutOfRangeException(nameof(selectedPathIndex));
+
+        var path = paths[selectedPathIndex];
+
+        if (IsPathLocked(path))
+            return;
+
+        if (selectedSegmentIndex < 0 ||
+            selectedSegmentIndex >= path.Segments.Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(selectedSegmentIndex));
+        }
+
+        var segmentFactory = SegmentFactory ??
+            (() => new VectorLineSegment());
+
+        var targetSegment = path.Segments[selectedSegmentIndex];
+
+        var startPosition = selectedSegmentIndex == 0
+            ? path.Start.Position
+            : path.Segments[selectedSegmentIndex - 1].Node.Position;
+
+        var segment = segmentFactory();
+        EnsureAddControlPoints(segment);
+
+        segment.Node.Definition.Position = GetSegmentInsertPosition(
+            startPosition,
+            targetSegment.Node.Position);
+
+        segment.Node.Reload();
+
+        SetControlNodes(segment, startPosition);
+
+        path.MutableSegments.Insert(selectedSegmentIndex, segment);
+        NotifyShapeChanged(path);
+
+        SegmentAdded?.Invoke(
+            this,
+            new VectorPathSegmentsEventArgs([segment]));
+    }
+
+    public void ReplaceSegment(
+        int pathIndex,
+        int segmentIndex)
+    {
+        var paths = GetPrimaryShapePaths();
+
+        if (pathIndex < 0 || pathIndex >= paths.Count)
+            throw new ArgumentOutOfRangeException(nameof(pathIndex));
+
+        var path = paths[pathIndex];
+
+        if (IsPathLocked(path))
+            return;
+
+        if (segmentIndex < 0 ||
+            segmentIndex >= path.Segments.Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(segmentIndex));
+        }
+
+        var oldSegment = path.Segments[segmentIndex];
+
+        var segmentFactory = SegmentFactory ??
+            (() => new VectorLineSegment());
+
+        var newSegment = segmentFactory();
+
+        newSegment.Node.Definition.Position = oldSegment.Node.Position;
+
+        newSegment.Node.Reload();
+        newSegment.Node.Definition.IsSelected = oldSegment.Node.IsSelected;
+        newSegment.Node.Reload();
+
+        if (newSegment is IVectorVariableSegment variableSegment)
+        {
+            variableSegment.ControlNodes.Clear();
+
+            foreach (var oldControlNode in oldSegment.GetControlNodes())
+            {
+                variableSegment.ControlNodes.Add(
+                    new VectorNode(oldControlNode.Position));
+            }
+        }
+
+        path.MutableSegments[segmentIndex] = newSegment;
+        NotifyShapeChanged(path);
+
+        SegmentAdded?.Invoke(
+            this,
+            new VectorPathSegmentsEventArgs([newSegment]));
+    }
+
+    private void AddSegmentAfterLast(VectorPath path)
+    {
+        if (IsPathLocked(path))
+            return;
+
+        var lastPosition = path.Segments[^1].Node.Position;
+        var startPosition = path.Start.Position;
+
+        var segmentFactory = SegmentFactory ??
+            (() => new VectorLineSegment());
+
+        var segment = segmentFactory();
+        EnsureAddControlPoints(segment);
+
+        segment.Node.Definition.Position = GetSegmentInsertPosition(
+            lastPosition,
+            startPosition);
+
+        segment.Node.Reload();
+
+        SetControlNodes(segment, lastPosition);
+
+        path.MutableSegments.Add(segment);
+        NotifyShapeChanged(path);
+
+        SegmentAdded?.Invoke(
+            this,
+            new VectorPathSegmentsEventArgs([segment]));
+    }
+    private IVectorSegment CreateDrawingSegment()
+    {
+        var segmentFactory = SegmentFactory ??
+            (() => new VectorLineSegment());
+
+        var segment = segmentFactory();
+
+        EnsureAddControlPoints(segment);
+
+        return segment;
+    }
+
+    private bool IsInNode(
+        Point2 position,
+        VectorNode node)
+    {
+        return IsInEllipse(
+            position,
+            GetNodeBounds(node.Position));
+    }
+
+    private (VectorPath? Path, VectorNode? Node) HitTestPathEndpoint(
+        Point2 position)
+    {
+        foreach (var path in GetPaths())
+        {
+            if (IsPathLocked(path))
+                continue;
+
+            if (path.IsClosed && !AllowConnectToClosedPath)
+                continue;
+
+            if (IsInNode(position, path.Start))
+            {
+                return (path, path.Start);
+            }
+
+            if (path.Segments.Count > 0)
+            {
+                var endNode = path.Segments[^1].Node;
+
+                if (IsInNode(position, endNode))
+                {
+                    return (path, endNode);
+                }
+            }
+        }
+
+        return (null, null);
+    }
+
+    private void ConnectDrawingPath(
+        VectorPath drawingPath,
+        VectorPath targetPath,
+        VectorNode targetNode)
+    {
+        if (_drawingSegment == null || IsPathLocked(targetPath))
+            return;
+
+        bool targetIsStart =
+            targetNode == targetPath.Start;
+
+        bool targetIsEnd =
+            targetPath.Segments.Count > 0 &&
+            targetNode == targetPath.Segments[^1].Node;
+
+        if (!targetIsStart && !targetIsEnd)
+            return;
+
+        if (targetPath.IsClosed)
+        {
+            if (!AllowConnectToClosedPath)
+                return;
+
+            targetPath.Definition.IsClosed = false;
+            targetPath.Reload();
+
+            PathConnectionChanged?.Invoke(
+                this,
+                new VectorPathEventArgs(targetPath));
+        }
+
+        _drawingSegment.Node.Definition.Position = targetNode.Position;
+
+        _drawingSegment.Node.Reload();
+        drawingPath.MutableSegments.Add(_drawingSegment);
+
+        if (targetIsEnd)
+        {
+            drawingPath.Reverse();
+
+            foreach (var segment in drawingPath.MutableSegments)
+                targetPath.MutableSegments.Add(segment);
+            //targetPath.MutableSegments.AddRange(drawingPath.Segments);
+
+            NotifyShapeChanged(targetPath);
+            return;
+        }
+
+        var targetSegments =
+            new List<IVectorSegment>(targetPath.Segments);
+
+        targetPath.MutableSegments.Clear();
+        targetPath.Start.Definition.Position = drawingPath.Start.Position;
+        targetPath.Start.Reload();
+        targetPath.Start.Definition.IsSelected = drawingPath.Start.IsSelected;
+        targetPath.Start.Reload();
+
+        foreach (var segment in drawingPath.MutableSegments)
+            targetPath.MutableSegments.Add(segment);
+
+        foreach (var targetSegment in targetSegments)
+            targetPath.MutableSegments.Add(targetSegment);
+
+        //targetPath.MutableSegments.AddRange(drawingPath.Segments);
+        //targetPath.MutableSegments.AddRange(targetSegments);
+        NotifyShapeChanged(targetPath);
+    }
+
+    private Point2 GetSegmentInsertPosition(
+        Point2 startPosition,
+        Point2 endPosition)
+    {
+        Point2 position = Point2.Lerp(
+            startPosition,
+            endPosition,
+            0.5f);
+
+        return SnapPosition(
+            position.X,
+            position.Y);
+    }
+
+    private Point2 GetGridPosition(Point2 worldPosition)
+    {
+        if (!SnapGridEnabled)
+            return worldPosition;
+
+        return new Point2(
+            float.Floor(worldPosition.X / GridSize.Width) * GridSize.Width,
+            float.Floor(worldPosition.Y / GridSize.Height) * GridSize.Height);
+    }
+
+    private Point2 GetInsertPosition(Point2 position)
+    {
+        if (!SnapGridEnabled)
+            return position;
+
+        return new Point2(
+            float.Round(position.X / GridSize.Width) * GridSize.Width,
+            float.Round(position.Y / GridSize.Height) * GridSize.Height);
+    }
+
+    private Point2 SnapPosition(float posX, float posY)
+    {
+        if (!SnapInsertedPosition)
+            return new Point2(posX, posY);
+
+        return new Point2(
+            float.Round(posX / GridSize.Width) * GridSize.Width,
+            float.Round(posY / GridSize.Height) * GridSize.Height);
+    }
+
+    private void SetControlNodes(
+        IVectorSegment segment,
+        Point2 startPosition)
+    {
+        int count = segment.GetControlNodes().Count;
+
+        for (int i = 0; i < count; i++)
+        {
+            float t = (i + 1f) / (count + 1f);
+
+            Point2 position = Point2.Lerp(
+                startPosition,
+                segment.Node.Position,
+                t);
+
+            segment.GetControlNodes()[i].Definition.Position =
+                SnapPosition(
+                    position.X,
+                    position.Y);
+            segment.GetControlNodes()[i].Reload();
+        }
+    }
+
+    private void EnsureAddControlPoints(IVectorSegment segment)
+    {
+        if (segment is IVectorVariableSegment variable)
+        {
+            variable.ControlNodes.Add(new VectorNode());
+            variable.ControlNodes.Add(new VectorNode());
+        }
+    }
+
+    private void DrawLine(
+        Point2 startPosition,
+        Point2 endPosition,
+        Point2[] sampledVertices)
+    {
+        Point2[] vertices;
+
+        if (sampledVertices.Length == 0)
+        {
+            vertices = [startPosition, endPosition];
+        }
+        else
+        {
+            vertices = sampledVertices;
+        }
+
+        _lineBatch.AddLine(
+            vertices,
+            LineThickness,
+            LineJoin.Round,
+            LineCap.Round,
+            _transform);
+    }
+
+    private void DrawControlLine(
+        Point2 startPosition,
+        Point2 endPosition,
+        IReadOnlyList<VectorNode> controlNodes)
+    {
+        if (controlNodes.Count == 0)
+            return;
+
+        var vertices = new Point2[controlNodes.Count + 2];
+
+        vertices[0] = startPosition;
+
+        for (int i = 0; i < controlNodes.Count; i++)
+            vertices[i + 1] = controlNodes[i].Position;
+
+        vertices[^1] = endPosition;
+
+        _lineBatch.AddLine(
+            vertices,
+            ControlLineThickness,
+            LineJoin.Round,
+            LineCap.Round,
+            _transform);
+    }
+
+    private bool IsPathLocked(VectorPath path)
+    {
+        foreach (var shape in GetActiveShapes())
+        {
+            if (shape.MutablePaths.Contains(path))
+                return shape.IsLocked;
+        }
+
+        return false;
+    }
+
+    private bool IsNodeLocked(VectorNode node)
+    {
+        foreach (var path in GetPaths())
+        {
+            if (!IsPathLocked(path))
+                continue;
+
+            if (ReferenceEquals(path.Start, node))
+                return true;
+
+            foreach (var segment in path.Segments)
+            {
+                if (ReferenceEquals(segment.Node, node))
+                    return true;
+
+                foreach (var controlNode in segment.GetControlNodes())
+                {
+                    if (ReferenceEquals(controlNode, node))
+                        return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private void StoreSelectedNodes()
+    {
+        _movingNodes.Clear();
+        _changingShapes.Clear();
+        _hasLiveChanges = false;
+
+        foreach (var path in GetPaths())
+        {
+            if (IsPathLocked(path))
+                continue;
+
+            bool pathIsMoving = false;
+
+            if (path.Start.IsSelected)
+            {
+                _movingNodes.Add((path.Start, path.Start.Position));
+                pathIsMoving = true;
+            }
+
+            foreach (var segment in path.Segments)
+            {
+                if (segment.Node.IsSelected)
+                {
+                    _movingNodes.Add((segment.Node, segment.Node.Position));
+                    pathIsMoving = true;
+                }
+
+                foreach (var controlNode in segment.GetControlNodes())
+                {
+                    if (!controlNode.IsSelected)
+                        continue;
+
+                    _movingNodes.Add((controlNode, controlNode.Position));
+                    pathIsMoving = true;
+                }
+            }
+
+            if (pathIsMoving && path.Owner != null)
+                _changingShapes.Add(path.Owner);
+        }
+    }
+
+    private IReadOnlyList<VectorNode> GetSelectedNodes()
+    {
+        var nodes = new List<VectorNode>();
+
+        foreach (var path in GetPaths())
+        {
+            if (path.Start.IsSelected)
+                nodes.Add(path.Start);
+
+            foreach (var segment in path.Segments)
+            {
+                if (segment.Node.IsSelected)
+                    nodes.Add(segment.Node);
+
+                foreach (var controlNode in segment.GetControlNodes())
+                {
+                    if (controlNode.IsSelected)
+                        nodes.Add(controlNode);
+                }
+            }
+        }
+
+        return nodes;
+    }
+
+    private void DrawVertex(
+        Point2 position)
+    {
+        _vertexBatch.AddFillEllipse(
+            position,
+            new Vector2(
+                VertexSize.Width / 2f,
+                VertexSize.Height / 2f),
+            _transform);
+    }
+
+    private void DrawNode(
+        Point2 position,
+        bool isSelected,
+        bool isStart = false)
+    {
+        var bounds = new Bounds2(
+            new Point2(
+                position.X - PointSize.Width / 2f,
+                position.Y - PointSize.Height / 2f),
+            PointSize);
+
+        if (isStart)
+        {
+            _pointBatch.AddStrokeEllipse(
+                bounds,
+                StrokedPointThickness,
+                LineJoin.Round,
+                _transform);
+        }
+        else
+        {
+            _pointBatch.AddFillEllipse(
+                bounds,
+                _transform);
+        }
+
+        if (!isSelected)
+            return;
+
+        float ringThickness =
+            StrokedPointThickness;
+
+        float ringGap =
+            StrokedPointThickness / 2f;
+
+        float ringOffset =
+            ringThickness + ringGap;
+
+        var ringBounds = new Bounds2(
+            new Point2(
+                position.X - PointSize.Width / 2f - ringOffset,
+                position.Y - PointSize.Height / 2f - ringOffset),
+            new Size2(
+                PointSize.Width + ringOffset * 2f,
+                PointSize.Height + ringOffset * 2f));
+
+        _pointBatch.AddStrokeEllipse(
+            ringBounds,
+            ringThickness,
+            LineJoin.Round,
+            _transform);
+    }
+
+    private void DrawControlNode(
+        Point2 position,
+        bool isSelected)
+    {
+        var bounds = new Bounds2(
+            new Point2(
+                position.X - PointSize.Width / 2f,
+                position.Y - PointSize.Height / 2f),
+            PointSize);
+
+        _pointBatch.AddFillRectangle(
+            bounds,
+            _transform);
+
+        if (!isSelected)
+            return;
+
+        float ringThickness =
+            StrokedPointThickness;
+
+        float ringGap =
+            StrokedPointThickness / 2f;
+
+        float ringOffset =
+            ringThickness + ringGap;
+
+        var ringBounds = new Bounds2(
+            new Point2(
+                position.X - PointSize.Width / 2f - ringOffset,
+                position.Y - PointSize.Height / 2f - ringOffset),
+            new Size2(
+                PointSize.Width + ringOffset * 2f,
+                PointSize.Height + ringOffset * 2f));
+
+        _pointBatch.AddStrokeRectangle(
+            ringBounds,
+            ringThickness,
+            LineJoin.Round,
+            _transform);
+    }
+
+    private void SelectAllNodes(bool isSelected)
+    {
+        foreach (var path in GetPaths())
+        {
+            path.Start.Definition.IsSelected = isSelected;
+            path.Start.Reload();
+
+            foreach (var segment in path.Segments)
+            {
+                segment.Node.Definition.IsSelected = isSelected;
+                segment.Node.Reload();
+
+                foreach (var controlNode in segment.GetControlNodes())
+                {
+                    controlNode.Definition.IsSelected = isSelected;
+                    controlNode.Reload();
+                }
+            }
+        }
+    }
+
+    private VectorNode? FindSelectedNode()
+    {
+        foreach (var path in GetPaths())
+        {
+            if (path.Start.IsSelected)
+                return path.Start;
+
+            foreach (var segment in path.Segments)
+            {
+                if (segment.Node.IsSelected)
+                    return segment.Node;
+            }
+        }
+
+        return null;
+    }
+
+    private IEnumerable<VectorShape> GetActiveShapes()
+    {
+        foreach (var target in GetVectorTargets())
+        {
+            if (target.IsSelected)
+                yield return target.Shape;
+        }
+    }
+
+    private static void NotifyShapeChanged(VectorPath path)
+    {
+        path.Owner?.NotifyChanged();
+    }
+
+    private VectorShape? GetPrimaryShape()
+    {
+        foreach (var shape in GetActiveShapes())
+            return shape;
+
+        return null;
+    }
+
+    private void DrawTargetBounds(SceneDrawContext context)
+    {
+        DrawTargetBounds(context, false, TargetBorderColor);
+        DrawTargetBounds(context, true, TargetSelectionColor);
+    }
+
+    private void DrawTargetBounds(
+        SceneDrawContext context,
+        bool isSelected,
+        Color color)
+    {
+        _lineShader.Color = color;
+        _lineShader.Apply();
+
+        _lineBatch.Begin(
+            shader: _lineShader,
+            camera: context.ViewCamera);
+
+        foreach (var target in GetVectorTargets())
+        {
+            if (target.IsSelected != isSelected)
+                continue;
+
+            if (!TryGetShapeBounds(target.Shape, out var bounds))
+                continue;
+
+            _lineBatch.AddStrokeRectangle(
+                bounds,
+                TargetBorderThickness,
+                LineJoin.Round,
+                _transform);
+        }
+
+        _lineBatch.End();
+    }
+
+    private bool TryGetShapeBounds(VectorShape shape, out Bounds2 bounds)
+    {
+        if (!shape.TryGetBounds(out var shapeBounds, SampleLength))
+        {
+            bounds = default;
+            return false;
+        }
+
+        bounds = new Bounds2(
+            new Point2(
+                shapeBounds.X - TargetBorderPadding,
+                shapeBounds.Y - TargetBorderPadding),
+            new Size2(
+                shapeBounds.Width + TargetBorderPadding * 2f,
+                shapeBounds.Height + TargetBorderPadding * 2f));
+
+        return true;
+    }
+
+    private IList<VectorPath> GetPrimaryShapePaths()
+    {
+        var shape = GetPrimaryShape();
+        if (shape == null)
+            return [];
+
+        return shape.MutablePaths;
+    }
+
+    private IEnumerable<VectorPath> GetPaths()
+    {
+        foreach (var shape in GetActiveShapes())
+        {
+            foreach (var path in shape.Paths)
+                yield return path;
+        }
+    }
+
+    private void BeginAreaSelection()
+    {
+        _isAreaSelecting = true;
+        _areaSelectionStart = _cursorPosition;
+        _areaSelectionEnd = _cursorPosition;
+    }
+
+    private void EndAreaSelection(bool multiSelection)
+    {
+        _areaSelectionEnd = _cursorPosition;
+        var bounds = GetAreaSelectionBounds();
+
+        foreach (var path in GetPaths())
+        {
+            SelectNodeInArea(path.Start, bounds, multiSelection);
+
+            foreach (var segment in path.Segments)
+            {
+                SelectNodeInArea(segment.Node, bounds, multiSelection);
+
+                foreach (var controlNode in segment.GetControlNodes())
+                    SelectNodeInArea(controlNode, bounds, multiSelection);
+            }
+        }
+
+        _isAreaSelecting = false;
+        _selectedNode = FindSelectedNode();
+
+        NodeSelected?.Invoke(this, new VectorPathNodesEventArgs(GetSelectedNodes()));
+    }
+
+    private void SelectNodeInArea(
+        VectorNode node,
+        Bounds2 bounds,
+        bool multiSelection)
+    {
+        if (!IsInAreaSelection(node.Position, bounds))
+            return;
+
+        if (multiSelection)
+        {
+            node.Definition.IsSelected = !node.IsSelected;
+            node.Reload();
+        }
+        else
+        {
+            node.Definition.IsSelected = true;
+            node.Reload();
+        }
+    }
+
+    private Bounds2 GetAreaSelectionBounds()
+    {
+        float minX = float.Min(_areaSelectionStart.X, _areaSelectionEnd.X);
+        float minY = float.Min(_areaSelectionStart.Y, _areaSelectionEnd.Y);
+        float maxX = float.Max(_areaSelectionStart.X, _areaSelectionEnd.X);
+        float maxY = float.Max(_areaSelectionStart.Y, _areaSelectionEnd.Y);
+
+        return new Bounds2(
+            new Point2(minX, minY),
+            new Size2(maxX - minX, maxY - minY));
+    }
+
+    private static bool IsInAreaSelection(Point2 position, Bounds2 bounds)
+    {
+        return position.X >= bounds.X &&
+               position.X <= bounds.X + bounds.Width &&
+               position.Y >= bounds.Y &&
+               position.Y <= bounds.Y + bounds.Height;
+    }
+
+    private void DrawAreaSelection()
+    {
+        if (!_isAreaSelecting)
+            return;
+
+        var bounds = GetAreaSelectionBounds();
+
+        _lineBatch.AddLine(
+        [
+            new Point2(bounds.X, bounds.Y),
+            new Point2(bounds.X + bounds.Width, bounds.Y),
+            new Point2(bounds.X + bounds.Width, bounds.Y + bounds.Height),
+            new Point2(bounds.X, bounds.Y + bounds.Height),
+            new Point2(bounds.X, bounds.Y)
+        ],
+        LineThickness);
+    }
+
+    private Bounds2 GetNodeBounds(Point2 position)
+    {
+        return new Bounds2(
+            new Point2(
+                position.X - PointSize.Width / 2f,
+                position.Y - PointSize.Height / 2f),
+            PointSize);
+    }
+
+    private static bool IsInEllipse(
+        Point2 point,
+        Bounds2 bounds)
+    {
+        float centerX = bounds.X + bounds.Width / 2f;
+        float centerY = bounds.Y + bounds.Height / 2f;
+
+        float radiusX = bounds.Width / 2f;
+        float radiusY = bounds.Height / 2f;
+
+        float dx = point.X - centerX;
+        float dy = point.Y - centerY;
+
+        return
+            (dx * dx) / (radiusX * radiusX) +
+            (dy * dy) / (radiusY * radiusY) <= 1f;
+    }
+
+    private IEnumerable<(VectorShape Shape, bool IsSelected)> GetVectorTargets()
+    {
+        var shapes = new HashSet<VectorShape>();
+
+        foreach (var item in _targetsSource)
+        {
+            VectorShape? shape = null;
+            bool isSelected = false;
+
+            if (item is IVectorPathTarget target)
+            {
+                shape = target.ActiveShape;
+                isSelected = target.IsSelected;
+            }
+            else if (item is IEngineObject engineObject &&
+                     engineObject.Definition is IVectorPathTargetDefinition definition)
+            {
+                shape = definition.ActiveShape;
+                isSelected = definition.IsSelected;
+            }
+
+            if (shape == null || shape.Paths.Count == 0)
+                continue;
+
+            if (!shapes.Add(shape))
+            {
+                throw new InvalidOperationException(
+                    "A VectorShape instance cannot be shared by multiple vector path targets.");
+            }
+
+            yield return (shape, isSelected);
+        }
+    }
+}
+

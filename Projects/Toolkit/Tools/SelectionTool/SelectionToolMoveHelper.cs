@@ -102,18 +102,16 @@ internal sealed class SelectionToolMoveHelper
             _isDragging = true;
         }
 
-        Point2 newPosition;
+        Vector2 dragOffset =
+            cursorPosition -
+            _dragStartCursorPosition;
+
+        Point2 newPosition =
+            _dragStartPosition +
+            dragOffset;
 
         if (context.EnableGridSnap)
         {
-            Vector2 dragOffset =
-                cursorPosition -
-                _dragStartCursorPosition;
-
-            newPosition =
-                _dragStartPosition +
-                dragOffset;
-
             Size2 gridSize =
                 context.GridSnapStep;
 
@@ -122,7 +120,8 @@ internal sealed class SelectionToolMoveHelper
                 newPosition = new Point2(
                     MathF.Round(
                         newPosition.X /
-                        gridSize.Width) *
+                        gridSize.Width,
+                        MidpointRounding.AwayFromZero) *
                     gridSize.Width,
                     newPosition.Y);
             }
@@ -133,15 +132,10 @@ internal sealed class SelectionToolMoveHelper
                     newPosition.X,
                     MathF.Round(
                         newPosition.Y /
-                        gridSize.Height) *
+                        gridSize.Height,
+                        MidpointRounding.AwayFromZero) *
                     gridSize.Height);
             }
-        }
-        else
-        {
-            newPosition =
-                currentPosition +
-                delta;
         }
 
         Vector2 movement =
@@ -154,7 +148,13 @@ internal sealed class SelectionToolMoveHelper
         if (target is ISelectionMovable2 movableTarget &&
             movableTarget.AllowMove)
         {
-            movableTarget.Position += movement;
+            if (target.Definition is not ISelectionMovable2Definition movableDefinition)
+            {
+                throw new InvalidOperationException(
+                    $"The movable selection target requires an '{nameof(ISelectionMovable2Definition)}' definition.");
+            }
+
+            movableDefinition.Position += movement;
         }
 
         if (definition is ISelectionMovable2Definition movableDefinitionTarget)
@@ -169,7 +169,13 @@ internal sealed class SelectionToolMoveHelper
                 if (otherTarget is ISelectionMovable2 otherMovable &&
                     otherMovable.AllowMove)
                 {
-                    otherMovable.Position += movement;
+                    if (otherTarget.Definition is not ISelectionMovable2Definition otherDefinition)
+                    {
+                        throw new InvalidOperationException(
+                            $"The movable selection target requires an '{nameof(ISelectionMovable2Definition)}' definition.");
+                    }
+
+                    otherDefinition.Position += movement;
                 }
             }
         }

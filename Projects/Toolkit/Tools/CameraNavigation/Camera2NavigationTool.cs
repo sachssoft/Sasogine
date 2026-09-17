@@ -1,8 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Input;
 using Sachssoft.Sasogine.Graphics.Cameras;
+using Sachssoft.Sasogine.Input;
 using Sachssoft.Sasogine.Scenes;
-using System;
 
 namespace Sachssoft.Sasogine.Components.Tools;
 

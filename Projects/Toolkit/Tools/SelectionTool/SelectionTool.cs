@@ -1,12 +1,10 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Components.Rendering.Cameras;
 using Sachssoft.Sasogine.Components.Tools.Selection;
-using Sachssoft.Sasogine.Input;
-using Sachssoft.Sasogine.Graphics.Cameras;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using Sachssoft.Sasogine.Graphics.Rendering.Batches;
+using Sachssoft.Sasogine.Input;
 using Sachssoft.Sasogine.Scenes;
 using System;
 using System.Collections;
@@ -25,7 +23,7 @@ namespace Sachssoft.Sasogine.Components.Tools;
 /// Targets may either implement <see cref="ISelectionTarget2"/> directly or expose
 /// an <see cref="ISelectionTarget2Definition"/> through an <see cref="IEngineObject"/>.
 /// </remarks>
-public class SelectionTool : ToolBase
+public class SelectionTool : ToolBase, INotifyTransformChanged
 {
     private readonly ShapeBatch _lineBatch;
     private readonly ShapeBatch _pointBatch;
@@ -46,6 +44,8 @@ public class SelectionTool : ToolBase
 
     private SelectionToolLayer? _layer;
     private bool _invalidateLayer;
+
+    private bool _transformCompleted;
 
     private bool _isAreaSelecting;
     private Point2 _areaSelectionStart;
@@ -151,6 +151,42 @@ public class SelectionTool : ToolBase
     }
 
     /// <summary>
+    /// Gets a value indicating whether a selection transform interaction is currently active.
+    /// </summary>
+    public bool IsTransforming { get; private set; }
+
+    /// <summary>
+    /// Occurs when a selection transform interaction starts.
+    /// </summary>
+    public event EventHandler? TransformStarted;
+
+    /// <summary>
+    /// Occurs while a selection transform interaction changes one or more targets.
+    /// </summary>
+    public event EventHandler? TransformChanged;
+
+    /// <summary>
+    /// Occurs when a selection transform interaction completes.
+    /// </summary>
+    public event EventHandler? TransformCompleted;
+
+    /// <summary>
+    /// Returns whether a transform has completed since the previous call and clears the state.
+    /// </summary>
+    /// <returns>
+    /// <see langword="true"/> if a transform completed since the previous call; otherwise,
+    /// <see langword="false"/>.
+    /// </returns>
+    public bool ConsumeTransformCompleted()
+    {
+        if (!_transformCompleted)
+            return false;
+
+        _transformCompleted = false;
+        return true;
+    }
+
+    /// <summary>
     /// Gets the source containing the selectable targets.
     /// </summary>
     public IEnumerable TargetsSource { get; }
@@ -240,14 +276,8 @@ public class SelectionTool : ToolBase
     /// <param name="context">The current scene update context.</param>
     public override void Update(SceneUpdateContext context)
     {
-        if (!_isInViewport || _interactions == null)
+        if (_interactions == null)
             return;
-
-        if (_invalidateLayer)
-        {
-            _invalidateLayer = false;
-            UpdateTargetInvalidation();
-        }
 
         var action = _interactions.Action;
 
@@ -256,6 +286,23 @@ public class SelectionTool : ToolBase
         {
             CancelInteraction();
             return;
+        }
+
+        if (!_isInViewport)
+        {
+            if (action.HasFlag(
+                InteractionFlags.WasJustReleased))
+            {
+                HandleActionReleased();
+            }
+
+            return;
+        }
+
+        if (_invalidateLayer)
+        {
+            _invalidateLayer = false;
+            UpdateTargetInvalidation();
         }
 
         if (action.HasFlag(
@@ -294,6 +341,12 @@ public class SelectionTool : ToolBase
                             _activeDefinition),
                         _cursorPosition,
                         delta);
+
+                    if (IsTransforming &&
+                        delta != Vector2.Zero)
+                    {
+                        NotifyTransformChanged();
+                    }
                 }
             }
 
@@ -320,6 +373,8 @@ public class SelectionTool : ToolBase
             _activeTarget = selectedTarget;
             _activeDefinition = selectedDefinition;
             _selectedNode = selectedNode;
+
+            BeginTransform();
 
             Layer!.OnNodeInteract(
                 GetLayerContext(),
@@ -359,7 +414,7 @@ public class SelectionTool : ToolBase
 
         var hitTarget = hit.Targets[0];
 
-        if (!TryGetTargetPair(
+        if (!TryGetTargetEntry(
             hitTarget,
             out var target,
             out var definition))
@@ -383,10 +438,7 @@ public class SelectionTool : ToolBase
         }
 
         if (!IsSelected(hitTarget))
-        {
             Select(hitTarget);
-            return;
-        }
 
         _activeTarget = target;
         _activeDefinition = definition;
@@ -413,6 +465,7 @@ public class SelectionTool : ToolBase
         }
 
         _selectedNode = node;
+        BeginTransform();
 
         Layer?.OnNodeInteract(
             GetLayerContext(),
@@ -432,6 +485,9 @@ public class SelectionTool : ToolBase
         if (_isAreaSelecting)
             EndAreaSelection();
 
+        if (IsTransforming)
+            CompleteTransform();
+
         _selectedNode = null;
         _activeTarget = null;
         _activeDefinition = null;
@@ -440,12 +496,65 @@ public class SelectionTool : ToolBase
     private void CancelInteraction()
     {
         _isAreaSelecting = false;
+        IsTransforming = false;
 
         _selectedNode = null;
         _activeTarget = null;
         _activeDefinition = null;
 
         DeselectAll();
+    }
+
+    private void BeginTransform()
+    {
+        if (IsTransforming)
+            return;
+
+        IsTransforming = true;
+        NotifyTransformStarted();
+        TransformStarted?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void NotifyTransformChanged()
+    {
+        NotifySelectedTargets(
+            static notify => notify.OnTransformChanged());
+
+        TransformChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void CompleteTransform()
+    {
+        IsTransforming = false;
+        _transformCompleted = true;
+
+        NotifySelectedTargets(
+            static notify => notify.OnTransformCompleted());
+
+        TransformCompleted?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void NotifyTransformStarted()
+    {
+        NotifySelectedTargets(
+            static notify => notify.OnTransformStarted());
+    }
+
+    private void NotifySelectedTargets(
+        Action<ITransformChangeObserver> notifyAction)
+    {
+        foreach (var entry in GetTargetEntries())
+        {
+            bool isSelected =
+                entry.Target?.IsSelected == true ||
+                entry.TargetDefinition?.IsSelected == true;
+
+            if (!isSelected)
+                continue;
+
+            if (entry.TransformObserver != null)
+                notifyAction(entry.TransformObserver);
+        }
     }
 
     private SelectionToolNode? HitTestNode(
@@ -489,19 +598,19 @@ public class SelectionTool : ToolBase
         var layerContext =
             GetLayerContext();
 
-        foreach (var pair in GetTargetPairs())
+        foreach (var entry in GetTargetEntries())
         {
             bool isSelected =
-                pair.Target?.IsSelected == true ||
-                pair.Definition?.IsSelected == true;
+                entry.Target?.IsSelected == true ||
+                entry.TargetDefinition?.IsSelected == true;
 
             if (!isSelected)
                 continue;
 
             Layer.OnTargetInvalidated(
                 layerContext,
-                pair.Target,
-                pair.Definition);
+                entry.Target,
+                entry.TargetDefinition);
 
             for (int i = Layer.Nodes.Count - 1;
                  i >= 0;
@@ -513,23 +622,23 @@ public class SelectionTool : ToolBase
                 if (!IsInNode(
                     position,
                     currentNode,
-                    pair.Target,
-                    pair.Definition))
+                    entry.Target,
+                    entry.TargetDefinition))
                 {
                     continue;
                 }
 
                 if (!Layer.AllowHandle(
                     currentNode,
-                    pair.Target,
-                    pair.Definition))
+                    entry.Target,
+                    entry.TargetDefinition))
                 {
                     continue;
                 }
 
                 node = currentNode;
-                target = pair.Target;
-                definition = pair.Definition;
+                target = entry.Target;
+                definition = entry.TargetDefinition;
 
                 return true;
             }
@@ -588,21 +697,21 @@ public class SelectionTool : ToolBase
         GetOtherSelectedTargets(
             ISelectionTarget2? target)
     {
-        foreach (var pair in GetTargetPairs())
+        foreach (var entry in GetTargetEntries())
         {
-            if (pair.Target == null)
+            if (entry.Target == null)
                 continue;
 
             if (target != null &&
                 ReferenceEquals(
-                    pair.Target,
+                    entry.Target,
                     target))
             {
                 continue;
             }
 
-            if (pair.Target.IsSelected)
-                yield return pair.Target;
+            if (entry.Target.IsSelected)
+                yield return entry.Target;
         }
     }
 
@@ -610,61 +719,47 @@ public class SelectionTool : ToolBase
         GetOtherSelectedTargetDefinitions(
             ISelectionTarget2Definition? definition)
     {
-        foreach (var pair in GetTargetPairs())
+        foreach (var entry in GetTargetEntries())
         {
-            if (pair.Definition == null)
+            if (entry.TargetDefinition == null)
                 continue;
 
             if (definition != null &&
                 ReferenceEquals(
-                    pair.Definition,
+                    entry.TargetDefinition,
                     definition))
             {
                 continue;
             }
 
-            if (pair.Definition.IsSelected)
-                yield return pair.Definition;
+            if (entry.TargetDefinition.IsSelected)
+                yield return entry.TargetDefinition;
         }
     }
 
-    private IEnumerable<TargetPair> GetTargetPairs()
+    private IEnumerable<SelectionTargetEntry> GetTargetEntries()
     {
         foreach (var item in TargetsSource)
         {
-            if (item is ISelectionTarget2 target)
+            if (item is IEngineObject engineObject)
             {
-                ISelectionTarget2Definition?
-                    definition = null;
+                var entry = new SelectionTargetEntry(engineObject);
 
-                if (item is IEngineObject engineObject &&
-                    engineObject.Definition
-                        is ISelectionTarget2Definition
-                            targetDefinition)
+                if (entry.Target != null ||
+                    entry.TargetDefinition != null)
                 {
-                    definition = targetDefinition;
+                    yield return entry;
                 }
-
-                yield return new TargetPair(
-                    target,
-                    definition);
 
                 continue;
             }
 
-            if (item is IEngineObject engineObject2 &&
-                engineObject2.Definition
-                    is ISelectionTarget2Definition
-                        definition2)
-            {
-                yield return new TargetPair(
-                    null,
-                    definition2);
-            }
+            if (item is ISelectionTarget2 target)
+                yield return new SelectionTargetEntry(target);
         }
     }
 
-    private bool TryGetTargetPair(
+    private bool TryGetTargetEntry(
         object targetObject,
         out ISelectionTarget2? target,
         out ISelectionTarget2Definition? definition)
@@ -672,25 +767,25 @@ public class SelectionTool : ToolBase
         target = null;
         definition = null;
 
-        foreach (var pair in GetTargetPairs())
+        foreach (var entry in GetTargetEntries())
         {
-            if (pair.Target != null &&
+            if (entry.Target != null &&
                 ReferenceEquals(
-                    pair.Target,
+                    entry.Target,
                     targetObject))
             {
-                target = pair.Target;
-                definition = pair.Definition;
+                target = entry.Target;
+                definition = entry.TargetDefinition;
                 return true;
             }
 
-            if (pair.Definition != null &&
+            if (entry.TargetDefinition != null &&
                 ReferenceEquals(
-                    pair.Definition,
+                    entry.TargetDefinition,
                     targetObject))
             {
-                target = pair.Target;
-                definition = pair.Definition;
+                target = entry.Target;
+                definition = entry.TargetDefinition;
                 return true;
             }
         }
@@ -803,19 +898,19 @@ public class SelectionTool : ToolBase
         var layerContext =
             GetLayerContext();
 
-        foreach (var pair in GetTargetPairs())
+        foreach (var entry in GetTargetEntries())
         {
             bool isSelected =
-                pair.Target?.IsSelected == true ||
-                pair.Definition?.IsSelected == true;
+                entry.Target?.IsSelected == true ||
+                entry.TargetDefinition?.IsSelected == true;
 
             if (!isSelected)
                 continue;
 
             Layer.OnTargetInvalidated(
                 layerContext,
-                pair.Target,
-                pair.Definition);
+                entry.Target,
+                entry.TargetDefinition);
 
             foreach (var node in Layer.Nodes)
             {
@@ -825,8 +920,8 @@ public class SelectionTool : ToolBase
                 var position =
                     GetNodeWorldPosition(
                         node,
-                        pair.Target,
-                        pair.Definition);
+                        entry.Target,
+                        entry.TargetDefinition);
 
                 DrawNode(
                     node,
@@ -870,19 +965,19 @@ public class SelectionTool : ToolBase
 
     private void DrawSelections()
     {
-        foreach (var pair in GetTargetPairs())
+        foreach (var entry in GetTargetEntries())
         {
-            if (pair.Target != null &&
-                pair.Target.IsSelected)
+            if (entry.Target != null &&
+                entry.Target.IsSelected)
             {
                 DrawSelection(
-                    pair.Target);
+                    entry.Target);
             }
-            else if (pair.Definition != null &&
-                     pair.Definition.IsSelected)
+            else if (entry.TargetDefinition != null &&
+                     entry.TargetDefinition.IsSelected)
             {
                 DrawSelection(
-                    pair.Definition);
+                    entry.TargetDefinition);
             }
         }
     }
@@ -1045,7 +1140,7 @@ public class SelectionTool : ToolBase
         ArgumentNullException.ThrowIfNull(
             target);
 
-        if (!TryGetTargetPair(
+        if (!TryGetTargetEntry(
             target,
             out var activeTarget,
             out var activeDefinition))
@@ -1055,21 +1150,21 @@ public class SelectionTool : ToolBase
                 nameof(target));
         }
 
-        foreach (var pair in GetTargetPairs())
+        foreach (var entry in GetTargetEntries())
         {
-            if (pair.Target != null)
-            {
-                pair.Target.IsSelected =
-                    ReferenceEquals(
-                        pair.Target,
-                        activeTarget);
-            }
+            //if (entry.Target != null)
+            //{
+            //    entry.Target.IsSelected =
+            //        ReferenceEquals(
+            //            entry.Target,
+            //            activeTarget);
+            //}
 
-            if (pair.Definition != null)
+            if (entry.TargetDefinition != null)
             {
-                pair.Definition.IsSelected =
+                entry.TargetDefinition.IsSelected =
                     ReferenceEquals(
-                        pair.Definition,
+                        entry.TargetDefinition,
                         activeDefinition);
             }
         }
@@ -1097,28 +1192,28 @@ public class SelectionTool : ToolBase
         ArgumentNullException.ThrowIfNull(
             target);
 
-        foreach (var pair in GetTargetPairs())
+        foreach (var entry in GetTargetEntries())
         {
+            //if (ReferenceEquals(
+            //    entry.Target,
+            //    target))
+            //{
+            //    entry.Target!.IsSelected = true;
+            //    _activeTarget = entry.Target;
+            //    _activeDefinition = entry.TargetDefinition;
+            //    _selectedNode = null;
+
+            //    UpdateTargetInvalidation();
+            //    return;
+            //}
+
             if (ReferenceEquals(
-                pair.Target,
+                entry.TargetDefinition,
                 target))
             {
-                pair.Target!.IsSelected = true;
-                _activeTarget = pair.Target;
-                _activeDefinition = pair.Definition;
-                _selectedNode = null;
-
-                UpdateTargetInvalidation();
-                return;
-            }
-
-            if (ReferenceEquals(
-                pair.Definition,
-                target))
-            {
-                pair.Definition!.IsSelected = true;
-                _activeTarget = pair.Target;
-                _activeDefinition = pair.Definition;
+                entry.TargetDefinition!.IsSelected = true;
+                _activeTarget = entry.Target;
+                _activeDefinition = entry.TargetDefinition;
                 _selectedNode = null;
 
                 UpdateTargetInvalidation();
@@ -1167,13 +1262,13 @@ public class SelectionTool : ToolBase
     /// </summary>
     public void DeselectAll()
     {
-        foreach (var pair in GetTargetPairs())
+        foreach (var entry in GetTargetEntries())
         {
-            if (pair.Target != null)
-                pair.Target.IsSelected = false;
+            //if (entry.Target != null)
+            //    entry.Target.IsSelected = false;
 
-            if (pair.Definition != null)
-                pair.Definition.IsSelected = false;
+            if (entry.TargetDefinition != null)
+                entry.TargetDefinition.IsSelected = false;
         }
 
         _activeTarget = null;
@@ -1204,12 +1299,12 @@ public class SelectionTool : ToolBase
         object target,
         bool selected)
     {
-        if (target is ISelectionTarget2
-            selectionTarget)
-        {
-            selectionTarget.IsSelected = selected;
-            return;
-        }
+        //if (target is ISelectionTarget2
+        //    selectionTarget)
+        //{
+        //    selectionTarget.IsSelected = selected;
+        //    return;
+        //}
 
         if (target
             is ISelectionTarget2Definition
@@ -1234,20 +1329,20 @@ public class SelectionTool : ToolBase
         var targets =
             new List<object>();
 
-        foreach (var pair in GetTargetPairs())
+        foreach (var entry in GetTargetEntries())
         {
             if (!IsInTarget(
                 touchedPosition,
-                pair.Target,
-                pair.Definition))
+                entry.Target,
+                entry.TargetDefinition))
             {
                 continue;
             }
 
-            if (pair.Target != null)
-                targets.Add(pair.Target);
-            else if (pair.Definition != null)
-                targets.Add(pair.Definition);
+            if (entry.Target != null)
+                targets.Add(entry.Target);
+            else if (entry.TargetDefinition != null)
+                targets.Add(entry.TargetDefinition);
         }
 
         return new SelectionTargetHitTestResult(
@@ -1343,21 +1438,21 @@ public class SelectionTool : ToolBase
         Bounds2 bounds =
             GetAreaSelectionBounds();
 
-        foreach (var pair in GetTargetPairs())
+        foreach (var entry in GetTargetEntries())
         {
             if (!IsInAreaSelection(
                 bounds,
-                pair.Target,
-                pair.Definition))
+                entry.Target,
+                entry.TargetDefinition))
             {
                 continue;
             }
 
-            if (pair.Target != null)
-                pair.Target.IsSelected = true;
+            //if (entry.Target != null)
+            //    entry.Target.IsSelected = true;
 
-            if (pair.Definition != null)
-                pair.Definition.IsSelected = true;
+            if (entry.TargetDefinition != null)
+                entry.TargetDefinition.IsSelected = true;
         }
 
         _isAreaSelecting = false;
@@ -1514,18 +1609,36 @@ public class SelectionTool : ToolBase
             maxY <= area.Y + area.Height;
     }
 
-    private readonly struct TargetPair
+    private readonly struct SelectionTargetEntry
     {
-        public TargetPair(
-            ISelectionTarget2? target,
-            ISelectionTarget2Definition? definition)
+        public SelectionTargetEntry(IEngineObject engineObject)
         {
-            Target = target;
-            Definition = definition;
+            Source = engineObject;
+            Target = engineObject as ISelectionTarget2;
+            TargetDefinition =
+                engineObject.Definition as ISelectionTarget2Definition;
+            TransformObserver = engineObject as ITransformChangeObserver;
+            NotifyTransformChanged = engineObject as INotifyTransformChanged;
         }
+
+        public SelectionTargetEntry(ISelectionTarget2 target)
+        {
+            Source = target as IEngineObject;
+            Target = target;
+            TargetDefinition =
+                Source?.Definition as ISelectionTarget2Definition;
+            TransformObserver = target as ITransformChangeObserver;
+            NotifyTransformChanged = target as INotifyTransformChanged;
+        }
+
+        public IEngineObject? Source { get; }
+
+        public ITransformChangeObserver? TransformObserver { get; }
+
+        public INotifyTransformChanged? NotifyTransformChanged { get; }
 
         public ISelectionTarget2? Target { get; }
 
-        public ISelectionTarget2Definition? Definition { get; }
+        public ISelectionTarget2Definition? TargetDefinition { get; }
     }
 }

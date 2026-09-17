@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
 using System.Collections.Generic;
 

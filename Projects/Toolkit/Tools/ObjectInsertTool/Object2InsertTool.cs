@@ -1,19 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Components.Rendering.Cameras;
-using Sachssoft.Sasogine.Input;
-using Sachssoft.Sasogine.Graphics.Cameras;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using Sachssoft.Sasogine.Graphics.Rendering.Batches;
+using Sachssoft.Sasogine.Input;
 using Sachssoft.Sasogine.Scenes;
 using System;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Components.Tools;
 
 /// <summary>
-/// Provides a tool for inserting 2D objects by clicking or dragging in a viewport.
+/// Provides a tool for inserting 2D object definitions by clicking or dragging in a viewport.
 /// </summary>
 public sealed class Object2InsertTool : ToolBase
 {
@@ -25,47 +23,39 @@ public sealed class Object2InsertTool : ToolBase
     private Vector2 _insertEnd;
     private bool _isInViewport;
     private bool _isInserting;
-    private object? _insertObject;
+    private IDefinition? _insertDefinition;
     private ToolInteractions? _interactions;
-    //private ObjectInsertToolInteractions? _interactions;
     private bool _hasDragged;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Object2InsertTool"/> class.
     /// </summary>
-    /// <param name="objectsSource">
-    /// The collection that receives inserted objects.
+    /// <param name="definitions">
+    /// The collection that receives inserted definitions.
     /// </param>
     /// <param name="insertHandler">
-    /// The handler used to create and manage inserted objects.
+    /// The handler used to create and manage inserted definitions.
     /// </param>
     /// <param name="graphicsDevice">
     /// The graphics device used to create rendering resources.
     /// </param>
     public Object2InsertTool(
-        IList objectsSource,
+        IList<IDefinition> definitions,
         IObject2InsertHandler insertHandler,
         GraphicsDevice graphicsDevice)
     {
-        ArgumentNullException.ThrowIfNull(objectsSource);
+        ArgumentNullException.ThrowIfNull(definitions);
         ArgumentNullException.ThrowIfNull(insertHandler);
         ArgumentNullException.ThrowIfNull(graphicsDevice);
 
-        if (objectsSource.IsReadOnly)
+        if (definitions.IsReadOnly)
         {
             throw new ArgumentException(
-                "The object source must be mutable.",
-                nameof(objectsSource));
+                "The definition collection must be mutable.",
+                nameof(definitions));
         }
 
-        if (objectsSource.IsFixedSize)
-        {
-            throw new ArgumentException(
-                "The object source must allow objects to be added.",
-                nameof(objectsSource));
-        }
-
-        ObjectsSource = objectsSource;
+        Definitions = definitions;
         InsertHandler = insertHandler;
 
         _lineBatch = new ShapeBatch(graphicsDevice);
@@ -76,12 +66,12 @@ public sealed class Object2InsertTool : ToolBase
     }
 
     /// <summary>
-    /// Gets the collection that receives inserted objects.
+    /// Gets the collection that receives inserted definitions.
     /// </summary>
-    public IList ObjectsSource { get; }
+    public IList<IDefinition> Definitions { get; }
 
     /// <summary>
-    /// Gets the handler used to manage 2D object insertion operations.
+    /// Gets the handler used to manage 2D definition insertion operations.
     /// </summary>
     public IObject2InsertHandler InsertHandler { get; }
 
@@ -172,13 +162,13 @@ public sealed class Object2InsertTool : ToolBase
         var bounds = GetInsertionBounds();
 
         _lineBatch.AddLine(
-            [
-                new Point2(bounds.X, bounds.Y),
-                new Point2(bounds.X + bounds.Width, bounds.Y),
-                new Point2(bounds.X + bounds.Width, bounds.Y + bounds.Height),
-                new Point2(bounds.X, bounds.Y + bounds.Height),
-                new Point2(bounds.X, bounds.Y)
-            ],
+        [
+            new Point2(bounds.X, bounds.Y),
+            new Point2(bounds.X + bounds.Width, bounds.Y),
+            new Point2(bounds.X + bounds.Width, bounds.Y + bounds.Height),
+            new Point2(bounds.X, bounds.Y + bounds.Height),
+            new Point2(bounds.X, bounds.Y)
+        ],
             LineThickness);
 
         _lineBatch.End();
@@ -192,40 +182,16 @@ public sealed class Object2InsertTool : ToolBase
         _isInViewport = context.CursorState.IsInViewport;
     }
 
-    ///// <summary>
-    ///// Sets the interaction bindings used by the object insertion tool.
-    ///// </summary>
-    //public void SetInteractions(ObjectInsertToolInteractions interactions)
-    //{
-    //    ArgumentNullException.ThrowIfNull(interactions);
-    //    _interactions = interactions;
-    //}
-
-    ///// <summary>
-    ///// Sets the current cursor position and viewport state.
-    ///// </summary>
-    ///// <param name="position">The current cursor position.</param>
-    ///// <param name="isInViewport">
-    ///// Indicates whether the cursor is currently inside the active viewport.
-    ///// </param>
-    //public void SetCursorPosition(
-    //    Vector2 position,
-    //    bool isInViewport = true)
-    //{
-    //    _cursorPosition = position;
-    //    _isInViewport = isInViewport;
-    //}
-
     private void BeginInsertion()
     {
         _insertStart = SnapPosition(_cursorPosition);
         _insertEnd = _insertStart;
         _hasDragged = false;
 
-        _insertObject = InsertHandler.Create(
+        _insertDefinition = InsertHandler.Create(
             CreateInsertContext());
 
-        if (_insertObject == null)
+        if (_insertDefinition == null)
         {
             throw new InvalidOperationException(
                 "The object insert handler returned null.");
@@ -236,7 +202,7 @@ public sealed class Object2InsertTool : ToolBase
 
     private void DragInsertion()
     {
-        if (_insertObject == null)
+        if (_insertDefinition == null)
             return;
 
         _insertEnd = SnapPosition(_cursorPosition);
@@ -250,27 +216,27 @@ public sealed class Object2InsertTool : ToolBase
         }
 
         InsertHandler.Drag(
-            _insertObject,
+            _insertDefinition,
             CreateInsertContext());
     }
 
     private void CompleteInsertion()
     {
-        if (_insertObject == null)
+        if (_insertDefinition == null)
             return;
 
         _insertEnd = SnapPosition(_cursorPosition);
 
-        var value = _insertObject;
+        var definition = _insertDefinition;
         var insertContext = CreateInsertContext();
 
         try
         {
             InsertHandler.Complete(
-                value,
+                definition,
                 insertContext);
 
-            ObjectsSource.Add(value);
+            Definitions.Add(definition);
         }
         finally
         {
@@ -283,14 +249,14 @@ public sealed class Object2InsertTool : ToolBase
         if (!_isInserting)
             return;
 
-        var value = _insertObject;
+        var definition = _insertDefinition;
 
         try
         {
-            if (value != null)
+            if (definition != null)
             {
                 InsertHandler.Cancel(
-                    value,
+                    definition,
                     CreateInsertContext());
             }
         }
@@ -302,7 +268,7 @@ public sealed class Object2InsertTool : ToolBase
 
     private void ResetInsertion()
     {
-        _insertObject = null;
+        _insertDefinition = null;
         _isInserting = false;
         _hasDragged = false;
     }
@@ -333,7 +299,7 @@ public sealed class Object2InsertTool : ToolBase
 
         return new Bounds2(
             new Point2(position.X, position.Y),
-           new Size2(maximum - position));
+            new Size2(maximum - position));
     }
 
     private Vector2 SnapPosition(Vector2 position)
