@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Common
 {
@@ -44,8 +45,14 @@ namespace Sachssoft.Sasogine.Common
         /// <summary>
         /// Loads the element asynchronously.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A token that can be used to cancel the loading operation.
+        /// </param>
+        /// <returns>
+        /// A task representing the asynchronous load operation.
+        /// </returns>
         // Lädt das Element asynchron.
-        Task LoadAsync();
+        Task LoadAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Unloads the element, releasing any resources.

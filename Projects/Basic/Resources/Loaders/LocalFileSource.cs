@@ -1,6 +1,6 @@
-﻿using Sachssoft.Sasogine.Graphics.Rendering;
-using System;
+﻿using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Resources.Sources
@@ -48,20 +48,24 @@ namespace Sachssoft.Sasogine.Resources.Sources
                     FileAccess.Read,
                     FileShare.Read,
                     bufferSize: 4096,
-                    useAsync: false
-                );
+                    useAsync: false);
             }
             catch (Exception ex)
             {
-                throw new IOException($"Failed to open file: {FilePath}", ex);
+                throw new IOException(
+                    $"Failed to open file: {FilePath}",
+                    ex);
             }
         }
 
         /// <inheritdoc/>
-        protected override Task<Stream> OpenStreamAsync()
+        protected override Task<Stream> OpenStreamAsync(
+            CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(FilePath))
                 throw new InvalidOperationException("FilePath is not set.");
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             try
             {
@@ -71,8 +75,7 @@ namespace Sachssoft.Sasogine.Resources.Sources
                     FileAccess.Read,
                     FileShare.Read,
                     bufferSize: 4096,
-                    useAsync: true
-                );
+                    useAsync: true);
 
                 return Task.FromResult(stream);
             }

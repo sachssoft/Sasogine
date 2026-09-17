@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Resources.Sources
@@ -95,18 +96,30 @@ namespace Sachssoft.Sasogine.Resources.Sources
         }
 
         /// <inheritdoc/>
-        protected override async Task<Stream> OpenStreamAsync()
+        protected override async Task<Stream> OpenStreamAsync(
+            CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             using var originalStream = OpenStream();
 
             var memoryStream = new MemoryStream();
 
-            await originalStream
-                .CopyToAsync(memoryStream)
-                .ConfigureAwait(false);
+            try
+            {
+                await originalStream
+                    .CopyToAsync(memoryStream, cancellationToken)
+                    .ConfigureAwait(false);
 
-            memoryStream.Position = 0;
-            return memoryStream;
+                memoryStream.Position = 0;
+
+                return memoryStream;
+            }
+            catch
+            {
+                memoryStream.Dispose();
+                throw;
+            }
         }
 
         private static string NormalizeFilePath(string filePath)

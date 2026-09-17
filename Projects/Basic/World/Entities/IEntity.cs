@@ -1,5 +1,6 @@
 ﻿using Sachssoft.Sasogine.Common;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.World
@@ -16,6 +17,9 @@ namespace Sachssoft.Sasogine.World
     /// <see cref="Integrity"/> represents the persistent health or validity state
     /// of the entity, while <see cref="ActivityState"/> represents its current
     /// runtime activity.
+    /// </para>
+    /// <para>
+    /// The loading state is represented independently by <see cref="IsLoaded"/>.
     /// </para>
     /// <para>
     /// Entities that require update or drawing behavior can additionally
@@ -37,7 +41,7 @@ namespace Sachssoft.Sasogine.World
         /// <summary>
         /// Occurs when the integrity state of the entity changes.
         /// </summary>
-        event EventHandler? StatusChanged;
+        event EventHandler? IntegrityChanged;
 
         /// <summary>
         /// Occurs when the activity state of the entity changes.
@@ -88,6 +92,15 @@ namespace Sachssoft.Sasogine.World
         ActivityState ActivityState { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the entity is currently loaded.
+        /// </summary>
+        /// <value>
+        /// <see langword="true"/> if the entity is loaded; otherwise,
+        /// <see langword="false"/>.
+        /// </value>
+        bool IsLoaded { get; }
+
+        /// <summary>
         /// Loads the entity and its required resources.
         /// </summary>
         void Load();
@@ -95,10 +108,13 @@ namespace Sachssoft.Sasogine.World
         /// <summary>
         /// Asynchronously loads the entity and its required resources.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A token that can be used to cancel the loading operation.
+        /// </param>
         /// <returns>
         /// A task representing the asynchronous loading operation.
         /// </returns>
-        Task LoadAsync();
+        Task LoadAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Unloads the entity and releases resources associated with it.

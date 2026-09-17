@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Resources.Sources
@@ -46,8 +47,11 @@ namespace Sachssoft.Sasogine.Resources.Sources
         }
 
         /// <inheritdoc/>
-        protected override Task<Stream> OpenStreamAsync()
+        protected override Task<Stream> OpenStreamAsync(
+            CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             return Task.FromResult(OpenStream());
         }
     }

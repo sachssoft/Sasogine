@@ -2,6 +2,7 @@
 using Sachssoft.Sasogine.Resources;
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Assets;
@@ -104,19 +105,11 @@ public abstract class AssetBase<T, TDefinition> :
     /// Gets or sets a value indicating whether asset errors are rethrown after
     /// they have been reported through <see cref="OnError(Exception)"/>.
     /// </summary>
-    /// <value>
-    /// <see langword="true"/> to rethrow errors; otherwise,
-    /// <see langword="false"/>.
-    /// </value>
     public bool ThrowOnError { get; set; }
 
     /// <summary>
     /// Gets or sets the resource source used to provide the asset data.
     /// </summary>
-    /// <value>
-    /// The resource source, or <see langword="null"/> if no source has been
-    /// assigned.
-    /// </value>
     public ResourceSourceBase? LoaderSource
     {
         get => _loaderSource;
@@ -133,10 +126,6 @@ public abstract class AssetBase<T, TDefinition> :
     /// <summary>
     /// Gets the currently loaded runtime instance.
     /// </summary>
-    /// <value>
-    /// The loaded instance, or <see langword="null"/> if no instance is
-    /// currently available.
-    /// </value>
     public T? Instance => _instance;
 
     object? IAsset.Instance => _instance;
@@ -144,10 +133,6 @@ public abstract class AssetBase<T, TDefinition> :
     /// <summary>
     /// Ensures that the asset is loaded and returns its runtime instance.
     /// </summary>
-    /// <returns>
-    /// The loaded asset instance, or <see langword="null"/> if loading did not
-    /// produce an instance.
-    /// </returns>
     public T? GetOrLoad()
     {
         if (!IsLoaded)
@@ -160,14 +145,18 @@ public abstract class AssetBase<T, TDefinition> :
     /// Ensures that the asset is loaded asynchronously and returns its runtime
     /// instance.
     /// </summary>
+    /// <param name="cancellationToken">
+    /// A token that can be used to cancel the loading operation.
+    /// </param>
     /// <returns>
     /// A task containing the loaded asset instance, or <see langword="null"/>
     /// if loading did not produce an instance.
     /// </returns>
-    public async Task<T?> GetOrLoadAsync()
+    public async Task<T?> GetOrLoadAsync(
+        CancellationToken cancellationToken = default)
     {
         if (!IsLoaded)
-            await LoadAsync().ConfigureAwait(false);
+            await LoadAsync(cancellationToken).ConfigureAwait(false);
 
         return _instance;
     }
@@ -193,14 +182,22 @@ public abstract class AssetBase<T, TDefinition> :
     /// <summary>
     /// Asynchronously loads the asset data and builds the runtime instance.
     /// </summary>
+    /// <param name="cancellationToken">
+    /// A token that can be used to cancel the loading operation.
+    /// </param>
     /// <returns>
     /// A task representing the asynchronous loading operation.
     /// </returns>
-    protected override async Task OnLoadAsync()
+    protected override async Task OnLoadAsync(
+        CancellationToken cancellationToken = default)
     {
         try
         {
-            await LoadCoreAsync().ConfigureAwait(false);
+            await LoadCoreAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception exception)
         {
@@ -232,13 +229,6 @@ public abstract class AssetBase<T, TDefinition> :
     /// <summary>
     /// Builds a runtime asset instance from the specified resource stream.
     /// </summary>
-    /// <param name="stream">
-    /// The stream containing the asset data.
-    /// </param>
-    /// <returns>
-    /// The constructed runtime instance, or <see langword="null"/> if no
-    /// instance is produced.
-    /// </returns>
     protected virtual T? Build(Stream stream)
     {
         return default;
@@ -247,13 +237,6 @@ public abstract class AssetBase<T, TDefinition> :
     /// <summary>
     /// Releases a previously built runtime asset instance.
     /// </summary>
-    /// <param name="asset">
-    /// The asset instance to release.
-    /// </param>
-    /// <remarks>
-    /// The default implementation disposes the instance when it implements
-    /// <see cref="IDisposable"/>.
-    /// </remarks>
     protected virtual void DisposeInstance(T asset)
     {
         if (asset is IDisposable disposable)
@@ -264,9 +247,6 @@ public abstract class AssetBase<T, TDefinition> :
     /// Handles an error that occurred while processing the asset and raises the
     /// <see cref="Error"/> event.
     /// </summary>
-    /// <param name="exception">
-    /// The exception that caused the error.
-    /// </param>
     protected virtual void OnError(Exception exception)
     {
         ArgumentNullException.ThrowIfNull(exception);
@@ -330,13 +310,22 @@ public abstract class AssetBase<T, TDefinition> :
         OnInstanceChanged();
     }
 
-    private async Task LoadCoreAsync()
+    private async Task LoadCoreAsync(
+        CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         ResourceSourceBase source = _loaderSource ??
             throw new InvalidOperationException("LoaderSource is not set.");
 
-        using Stream stream = await source.GetStreamAsync().ConfigureAwait(false);
+        using Stream stream = await source.GetStreamAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        cancellationToken.ThrowIfCancellationRequested();
+
         T? instance = Build(stream);
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         lock (_sync)
         {

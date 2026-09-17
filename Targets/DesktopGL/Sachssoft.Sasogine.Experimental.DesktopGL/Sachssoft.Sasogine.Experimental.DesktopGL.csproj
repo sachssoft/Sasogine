@@ -14,11 +14,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Remove="..\..\..\Projects\Experimental\Toolkit\Vector\VectorPathTool.bak.cs" />
-	  <Compile Remove="..\..\..\Projects\Experimental\Toolkit\Vector\VectorPathToolInteractions.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Sachssoft.Sasodoc" Version="1.0.0" />
 		<PackageReference Include="Sachssoft.Sasodoc.Json" Version="1.0.0" />
 		<PackageReference Include="Sachssoft.Sasogine.DesktopGL" Version="0.1.7-alpha" />

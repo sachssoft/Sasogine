@@ -1,10 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Diagnostics;
+using Sachssoft.Sasogine.Experimental;
 using Sachssoft.Sasogine.Resources;
 using Sachssoft.Sasogine.Resources.Localization;
 using Sachssoft.Sasogine.Scenes;
-using System;
 
 namespace Sachssoft.Sasogine;
 
@@ -13,22 +13,9 @@ namespace Sachssoft.Sasogine;
 /// </summary>
 public interface IGameApplication
 {
-    ///// <summary>
-    ///// Gets the currently active game application instance.
-    ///// </summary>
-    ///// <remarks>
-    ///// This global access point is obsolete and will be removed in a future version.
-    ///// Application dependencies should be provided explicitly instead.
-    ///// </remarks>
-    //[Obsolete(
-    //    "Global application access is obsolete and will be removed in a future version.")]
-    //public static IGameApplication Current { get; internal set; } = null!;
-
-    ///// <summary>
-    ///// Gets the configuration associated with the game application.
-    ///// </summary>
-    //GameConfiguration Configuration { get; }
-
+    /// <summary>
+    /// Gets the application diagnostic output.
+    /// </summary>
     IApplicationDebug Debug { get; }
 
     /// <summary>
@@ -42,7 +29,13 @@ public interface IGameApplication
     LocalizationManager Localization { get; }
 
     /// <summary>
-    /// Gets the scene manager responsible for managing scenes.
+    /// Gets the game activator used to create engine objects
+    /// from registered definitions.
+    /// </summary>
+    IGameActivator Activator { get; }
+
+    /// <summary>
+    /// Gets the scene manager used by the application.
     /// </summary>
     ISceneManager Scenes { get; }
 
@@ -52,22 +45,18 @@ public interface IGameApplication
     AssetStore Assets { get; }
 
     /// <summary>
-    /// Gets the registry containing shared engine objects.
+    /// Gets the application settings, or <see langword="null"/> when
+    /// the application does not provide persistent settings.
     /// </summary>
-    GameRegistry Registry { get; }
+    IGameSettings? Settings { get; }
 
     /// <summary>
-    /// Gets the application settings.
-    /// </summary>
-    IGameSettings Settings { get; }
-
-    /// <summary>
-    /// Gets the service container associated with the application.
+    /// Gets the service container used by the application.
     /// </summary>
     GameServiceContainer Services { get; }
 
     /// <summary>
-    /// Requests termination of the game application.
+    /// Requests termination of the application.
     /// </summary>
     void Exit();
 }

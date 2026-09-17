@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Common;
@@ -97,23 +98,34 @@ public abstract class EngineObject<TDefinition> : EngineObjectBase, IEngineObjec
     /// <summary>
     /// Asynchronously loads the engine object and applies its definition.
     /// </summary>
+    /// <param name="cancellationToken">
+    /// A token that can be used to cancel the loading operation.
+    /// </param>
     /// <returns>
-    /// A task representing the asynchronous load operation.
+    /// A task representing the asynchronous loading operation.
     /// </returns>
     /// <remarks>
     /// Calling this method when the object is already loaded has no effect.
+    /// If the operation is canceled, the object remains unloaded.
     /// </remarks>
-    public sealed override async Task LoadAsync()
+    public sealed override async Task LoadAsync(
+        CancellationToken cancellationToken = default)
     {
         if (IsLoaded)
             return;
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         EnsureDefinition();
 
         ConfigureFromDefinitionInternal();
         ConfigureFromDefinition();
 
-        await OnLoadAsync().ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        await OnLoadAsync(cancellationToken).ConfigureAwait(false);
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         IsLoaded = true;
     }
@@ -189,15 +201,22 @@ public abstract class EngineObject<TDefinition> : EngineObjectBase, IEngineObjec
     /// <summary>
     /// Called when the engine object should asynchronously load its runtime resources.
     /// </summary>
+    /// <param name="cancellationToken">
+    /// A token that can be used to cancel the loading operation.
+    /// </param>
     /// <returns>
-    /// A task representing the asynchronous load operation.
+    /// A task representing the asynchronous loading operation.
     /// </returns>
     /// <remarks>
     /// The default implementation invokes <see cref="OnLoad"/>.
     /// </remarks>
-    protected virtual Task OnLoadAsync()
+    protected virtual Task OnLoadAsync(
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         OnLoad();
+
         return Task.CompletedTask;
     }
 

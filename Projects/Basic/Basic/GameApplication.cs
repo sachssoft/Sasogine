@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Diagnostics;
 using Sachssoft.Sasogine.Diagnostics.Internals;
+using Sachssoft.Sasogine.Experimental;
 using Sachssoft.Sasogine.Resources;
 using Sachssoft.Sasogine.Resources.Localization;
 using Sachssoft.Sasogine.Scenes;
@@ -17,7 +18,8 @@ namespace Sachssoft.Sasogine;
 /// </summary>
 /// <remarks>
 /// Manages the core application services, graphics device,
-/// assets, localization, settings, scenes, and application lifecycle.
+/// object activation, assets, localization, settings, scenes,
+/// and application lifecycle.
 /// </remarks>
 public abstract class GameApplicationBase : Game, IGameApplication
 {
@@ -25,7 +27,7 @@ public abstract class GameApplicationBase : Game, IGameApplication
 
     private protected readonly IApplicationDebug _applicationDebug;
     private protected readonly LocalizationManager _localization;
-    private protected readonly GameRegistry _registry;
+    private protected readonly IGameActivator _activator;
     private protected readonly AssetStore _assets;
     private protected readonly ISceneManager _scenes;
     private protected readonly IGameSettings? _settings;
@@ -81,9 +83,9 @@ public abstract class GameApplicationBase : Game, IGameApplication
 
         _localization = new LocalizationManager(this);
 
-        _registry =
+        _activator = new GameActivator(
             CreateRegistry(Configuration) ??
-            throw new GameException("Registry creation failed.");
+            throw new GameException("Registry creation failed."));
 
         _assets =
             CreateAssets(Configuration) ??
@@ -127,9 +129,10 @@ public abstract class GameApplicationBase : Game, IGameApplication
     public LocalizationManager Localization => _localization;
 
     /// <summary>
-    /// Gets the game registry.
+    /// Gets the game activator used to create engine objects
+    /// from registered definitions.
     /// </summary>
-    public GameRegistry Registry => _registry;
+    public IGameActivator Activator => _activator;
 
     /// <summary>
     /// Gets the scene manager.
@@ -358,13 +361,14 @@ public abstract class GameApplicationBase : Game, IGameApplication
     }
 
     /// <summary>
-    /// Creates the game registry.
+    /// Creates the game registry used by the application
+    /// to resolve engine object factories.
     /// </summary>
     /// <param name="configuration">
     /// The application configuration.
     /// </param>
     /// <returns>
-    /// The created game registry.
+    /// The game registry used by the application's game activator.
     /// </returns>
     protected virtual GameRegistry CreateRegistry(
         GameConfiguration configuration) =>

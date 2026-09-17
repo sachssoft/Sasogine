@@ -3,6 +3,7 @@ using Sachssoft.Sasogine.Components;
 using Sachssoft.Sasogine.Scenes;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.World;
@@ -51,7 +52,7 @@ public abstract class EntityBase<TDefinition> :
     /// <summary>
     /// Occurs when the integrity state of the entity changes.
     /// </summary>
-    public event EventHandler? StatusChanged;
+    public event EventHandler? IntegrityChanged;
 
     /// <summary>
     /// Occurs when the activity state of the entity changes.
@@ -77,11 +78,11 @@ public abstract class EntityBase<TDefinition> :
         get => _integrity;
         protected set
         {
-            if (Equals(_integrity, value))
+            if (_integrity == value)
                 return;
 
             _integrity = value;
-            OnStatusChanged();
+            OnIntegrityChanged();
         }
     }
 
@@ -93,13 +94,22 @@ public abstract class EntityBase<TDefinition> :
         get => _activityState;
         protected set
         {
-            if (Equals(_activityState, value))
+            if (_activityState == value)
                 return;
 
             _activityState = value;
             OnActivityStateChanged();
         }
     }
+
+    /// <summary>
+    /// Gets a value indicating whether the entity is currently loaded.
+    /// </summary>
+    /// <value>
+    /// <see langword="true"/> if the entity is loaded; otherwise,
+    /// <see langword="false"/>.
+    /// </value>
+    public bool IsLoaded { get; private set; }
 
     /// <summary>
     /// Updates all updateable components attached to the entity.
@@ -166,19 +176,29 @@ public abstract class EntityBase<TDefinition> :
     {
         base.OnLoad();
 
+        IsLoaded = true;
         OnLoaded();
     }
 
     /// <summary>
     /// Called when the entity is loaded asynchronously.
     /// </summary>
+    /// <param name="cancellationToken">
+    /// A token that can be used to cancel the loading operation.
+    /// </param>
     /// <returns>
     /// A task representing the asynchronous load operation.
     /// </returns>
-    protected override async Task OnLoadAsync()
+    protected override async Task OnLoadAsync(
+        CancellationToken cancellationToken = default)
     {
-        await base.OnLoadAsync().ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
 
+        await base.OnLoadAsync(cancellationToken).ConfigureAwait(false);
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        IsLoaded = true;
         OnLoaded();
     }
 
@@ -189,6 +209,7 @@ public abstract class EntityBase<TDefinition> :
     {
         base.OnUnload();
 
+        IsLoaded = false;
         OnUnloaded();
     }
 
@@ -209,11 +230,11 @@ public abstract class EntityBase<TDefinition> :
     }
 
     /// <summary>
-    /// Raises the <see cref="StatusChanged"/> event.
+    /// Raises the <see cref="IntegrityChanged"/> event.
     /// </summary>
-    protected virtual void OnStatusChanged()
+    protected virtual void OnIntegrityChanged()
     {
-        StatusChanged?.Invoke(this, EventArgs.Empty);
+        IntegrityChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>

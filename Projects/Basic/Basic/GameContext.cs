@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Diagnostics;
+using Sachssoft.Sasogine.Experimental;
 using System;
 
 namespace Sachssoft.Sasogine;
@@ -78,8 +79,8 @@ public class GameContext
     /// <summary>
     /// Gets the game registry associated with the application.
     /// </summary>
-    public GameRegistry Registry =>
-        _application.Registry;
+    public IGameActivator Registry =>
+        _application.Activator;
 
     /// <summary>
     /// Gets the benchmark duration associated with the current frame.

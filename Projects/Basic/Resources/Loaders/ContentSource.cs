@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Resources.Sources
@@ -23,7 +24,8 @@ namespace Sachssoft.Sasogine.Resources.Sources
         /// <exception cref="NotSupportedException">
         /// Asynchronous stream access is not supported for content manager resources.
         /// </exception>
-        protected override Task<Stream> OpenStreamAsync()
+        protected override Task<Stream> OpenStreamAsync(
+            CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(
                 "Asynchronous stream access is not supported for content manager resources.");

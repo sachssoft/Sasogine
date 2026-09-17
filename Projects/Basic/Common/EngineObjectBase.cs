@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Common
@@ -80,10 +81,14 @@ namespace Sachssoft.Sasogine.Common
         /// <summary>
         /// Asynchronously loads and initializes the engine object.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A token that can be used to cancel the loading operation.
+        /// </param>
         /// <returns>
         /// A task representing the asynchronous load operation.
         /// </returns>
-        public abstract Task LoadAsync();
+        public abstract Task LoadAsync(
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Unloads the engine object and releases or resets load-related state.
@@ -100,16 +105,23 @@ namespace Sachssoft.Sasogine.Common
         }
 
         /// <summary>
-        /// Asynchronously reloads the engine object by unloading it and
+        /// Asynchronously reloads the engine object by unloading and
         /// asynchronously loading it again.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A token that can be used to cancel the loading operation.
+        /// </param>
         /// <returns>
         /// A task representing the asynchronous reload operation.
         /// </returns>
-        public async Task ReloadAsync()
+        public async Task ReloadAsync(
+            CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             Unload();
-            await LoadAsync();
+
+            await LoadAsync(cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>

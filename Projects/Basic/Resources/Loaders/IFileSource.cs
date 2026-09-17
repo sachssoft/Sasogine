@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Sachssoft.Sasogine.Resources.Sources
@@ -24,10 +25,14 @@ namespace Sachssoft.Sasogine.Resources.Sources
         /// <summary>
         /// Gets a stream asynchronously for reading the resource.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A token that can be used to cancel the asynchronous operation.
+        /// </param>
         /// <returns>
         /// A task representing the asynchronous operation, containing a stream
         /// with the resource data.
         /// </returns>
-        Task<Stream> GetStreamAsync();
+        Task<Stream> GetStreamAsync(
+            CancellationToken cancellationToken = default);
     }
 }

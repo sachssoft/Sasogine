@@ -52,9 +52,11 @@ namespace Sachssoft.Sasogine.Resources.Sources
         }
 
         /// <inheritdoc/>
-        protected override async Task<Stream> OpenStreamAsync()
+        protected override async Task<Stream> OpenStreamAsync(
+            CancellationToken cancellationToken = default)
         {
-            await EnsureDataLoadedAsync().ConfigureAwait(false);
+            await EnsureDataLoadedAsync(cancellationToken)
+                .ConfigureAwait(false);
 
             return new MemoryStream(_cachedData!, writable: false);
         }
@@ -93,12 +95,15 @@ namespace Sachssoft.Sasogine.Resources.Sources
             }
         }
 
-        private async Task EnsureDataLoadedAsync()
+        private async Task EnsureDataLoadedAsync(
+            CancellationToken cancellationToken)
         {
             if (_cachedData != null)
                 return;
 
-            await _loadLock.WaitAsync().ConfigureAwait(false);
+            await _loadLock
+                .WaitAsync(cancellationToken)
+                .ConfigureAwait(false);
 
             try
             {
@@ -110,8 +115,12 @@ namespace Sachssoft.Sasogine.Resources.Sources
                 try
                 {
                     _cachedData = await _httpClient
-                        .GetByteArrayAsync(Url!)
+                        .GetByteArrayAsync(Url!, cancellationToken)
                         .ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
                 }
                 catch (Exception ex)
                 {
