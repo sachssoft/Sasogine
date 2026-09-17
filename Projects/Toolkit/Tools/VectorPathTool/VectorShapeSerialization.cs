@@ -1,5 +1,6 @@
 ﻿using Sachssoft.Sasodoc;
 using System.Collections.Generic;
+using Sachssoft.Sasogine.Documents.Serialization;
 
 namespace Sachssoft.Sasogine.Components.Tools.Vector;
 
