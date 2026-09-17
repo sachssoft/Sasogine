@@ -7,18 +7,18 @@
 
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 
-		<PackageId>Sachssoft.Sasogine.Markup.DesktopGL</PackageId>
-		<Title>Sasogine Markup</Title>
+		<PackageId>Sachssoft.Sasogine.Documents.DesktopGL</PackageId>
+		<Title>Sasogine Documents</Title>
 		<Description>
-			Markup support for the Sasogine game engine.
+			Document and serialization support for the Sasogine game engine.
 		</Description>
 
 		<PackageTags>
-			Sasogine;Markup;XML;GameEngine;Framework
+			Sasogine;Documents;Serialization;Resources;XML;JSON;Binary;GameEngine;Framework
 		</PackageTags>
 	</PropertyGroup>
 
-	<Import Project="..\..\..\Sachssoft.Sasogine.Markup.props" />
+	<Import Project="..\..\..\Sachssoft.Sasogine.Documents.props" />
 
 	<PropertyGroup>
 		<DefineConstants>
@@ -29,8 +29,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Include="..\..\..\Projects\Markup\**\*.cs">
-			<LinkBase>Markup</LinkBase>
+		<Compile Include="..\..\..\Projects\Documents\**\*.cs">
+			<LinkBase>Documents</LinkBase>
 		</Compile>
 	</ItemGroup>
 

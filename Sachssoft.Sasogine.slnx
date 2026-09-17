@@ -24,7 +24,7 @@
   <Folder Name="/Targets/DesktopGL/">
     <Project Path="Targets/DesktopGL/Sachssoft.Sasogine.DesktopGL/Sachssoft.Sasogine.DesktopGL.csproj" />
     <Project Path="Targets/DesktopGL/Sachssoft.Sasogine.Experimental.DesktopGL/Sachssoft.Sasogine.Experimental.DesktopGL.csproj" />
-    <Project Path="Targets/DesktopGL/Sachssoft.Sasogine.Markup.DesktopGL/Sachssoft.Sasogine.Markup.DesktopGL.csproj" />
+    <Project Path="Targets/DesktopGL/Sachssoft.Sasogine.Markup.DesktopGL/Sachssoft.Sasogine.Documents.DesktopGL.csproj" />
     <Project Path="Targets/DesktopGL/Sachssoft.Sasogine.Toolkit.DesktopGL/Sachssoft.Sasogine.Toolkit.DesktopGL.csproj" />
     <Project Path="Targets/DesktopGL/Sachssoft.Sasogine.UI.DesktopGL/Sachssoft.Sasogine.UI.DesktopGL.csproj" />
   </Folder>
