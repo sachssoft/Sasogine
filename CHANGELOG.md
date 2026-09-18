@@ -19,10 +19,24 @@ All notable changes to this project will be documented in this file.
 
 </small>
 
-## [0.2.1-alpha] - Planned
+## [0.3.0-alpha] - Planned (API Corrections and Architectural Improvements)
+* [Feature] Introduced asset support for indexed `IndexedFrameSet<TEnum>` and keyed `KeyedFrameSet` frame sets.
+* [Feature] Added context-aware `Template<T, TContext>` support for runtime object creation.
+* [Feature] Added context-aware shader creation using `ShaderAssetContext`.
+* [Feature] Added custom frame index converters to `IndexedFrameSetAsset<TEnum>`.
+* [Feature] Added texture asset references to indexed frame set constructors.
+* [Feature] Added built-in language lookup by name, language code, and `CultureInfo` using `Language.Find` and `Language.TryGet`.
+* [Change] Separated frame set runtime types from the asset system by replacing `Texture2DAsset` references with `Texture2D`.
+* [Change] Simplified shader and frame set asset creation with factory-based convenience constructors.
+* [Change] Improved asset reference handling and runtime dependency resolution.
+	
+## [0.2.1-alpha] - 2026-09-17
 * [Feature] Added `MultilingualValue` for multi-language values with fallback support.
+* [Change] **Documents**: Moved `DocumentFormatType` from Documents to the engine core.
+* [Change] Simplified asset definitions by removing the asset type parameter from `AssetDefinitionBase`.
+* [Improve] Improved attributes across asset definitions for better editor and inspector integration.
 
-## [0.2.0-alpha] - 2026-09-18
+## [0.2.0-alpha] - 2026-09-17
 * [Feature] **Toolkit**: Added `VectorPathTool` for creating, editing, and transforming vector paths.
 * [Feature] **Toolkit**: Introduced a new bridge between the selection and vector path tools.
 * [Feature] **Documents**: Introduced serialization support and integrated the existing `Extension/Sasodoc` serialization functionality into Documents.
