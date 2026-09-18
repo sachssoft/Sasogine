@@ -32,6 +32,23 @@ namespace Sachssoft.Sasogine.Common
         }
 
         /// <summary>
+        /// Initializes a new reference using the identifier of the specified
+        /// engine object.
+        /// </summary>
+        /// <param name="obj">
+        /// The engine object whose identifier is assigned to the reference.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="obj"/> is <see langword="null"/>.
+        /// </exception>
+        public Reference(IEngineReferenceable obj)
+        {
+            ArgumentNullException.ThrowIfNull(obj);
+
+            Id = obj.Id;
+        }
+
+        /// <summary>
         /// Gets the expected type of the referenced object.
         /// </summary>
         public Type TargetType => typeof(T);
@@ -61,10 +78,11 @@ namespace Sachssoft.Sasogine.Common
         /// The resolved object when found; otherwise, <see langword="null"/>.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        /// <paramref name="resolver"/> is <see langword="null"/>.
+        /// Thrown when <paramref name="resolver"/> is <see langword="null"/>.
         /// </exception>
         /// <exception cref="InvalidOperationException">
-        /// The resolved object is not compatible with <typeparamref name="T"/>.
+        /// Thrown when the resolved object is not compatible with
+        /// <typeparamref name="T"/>.
         /// </exception>
         public virtual T? Resolve(IEngineObjectResolver resolver)
         {
@@ -75,7 +93,7 @@ namespace Sachssoft.Sasogine.Common
 
             IEngineReferenceable? referenceable = resolver.Find(Id);
 
-            if (referenceable == null)
+            if (referenceable is null)
                 return null;
 
             if (referenceable is not T result)
@@ -98,7 +116,11 @@ namespace Sachssoft.Sasogine.Common
         /// The resolved object when found; otherwise, <see langword="null"/>.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        /// <paramref name="provider"/> is <see langword="null"/>.
+        /// Thrown when <paramref name="provider"/> is <see langword="null"/>.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when the resolved object is not compatible with
+        /// <typeparamref name="T"/>.
         /// </exception>
         public virtual T? Resolve(IEngineObjectResolverProvider provider)
         {

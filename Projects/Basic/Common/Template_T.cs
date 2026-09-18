@@ -7,6 +7,10 @@ namespace Sachssoft.Sasogine.Common
     /// using either a factory delegate or an <see cref="IFactoryRegistry"/>.
     /// </summary>
     /// <typeparam name="T">Type of object created by the template.</typeparam>
+    /// <remarks>
+    /// This template does not require a creation context. When accessed through
+    /// <see cref="ITemplate"/>, the supplied context is ignored.
+    /// </remarks>
     public class Template<T> : ITemplate
         where T : class
     {
@@ -84,7 +88,7 @@ namespace Sachssoft.Sasogine.Common
             };
         }
 
-        object ITemplate.Create()
+        object ITemplate.Create(object? context)
         {
             return Create();
         }
