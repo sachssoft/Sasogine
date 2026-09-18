@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Graphics.Rendering;
+using Sachssoft.Sasogine.Resources;
 using System;
 using System.IO;
 
@@ -9,141 +11,159 @@ namespace Sachssoft.Sasogine.Assets.Graphics;
 /// Represents a managed shader asset for the Sasogine graphics system.
 /// </summary>
 /// <remarks>
-/// <para>
-/// <see cref="ShaderAsset"/> creates and configures an <see cref="IShader"/>
-/// instance from a shader template defined by <see cref="ShaderAssetDefinition"/>.
-/// </para>
-/// <para>
-/// A valid <see cref="GraphicsDevice"/> must be assigned before the runtime
-/// shader resource can be created.
-/// </para>
+/// <see cref="ShaderAsset"/> creates an <see cref="IShader"/> instance from
+/// the context-aware template defined by <see cref="ShaderAssetDefinition"/>.
 /// </remarks>
 public class ShaderAsset : AssetBase<IShader, ShaderAssetDefinition>
 {
     /// <summary>
-    /// Initializes a new empty instance of the <see cref="ShaderAsset"/> class.
+    /// Initializes a new shader asset.
     /// </summary>
-    /// <param name="id">
-    /// The optional identifier of the asset.
-    /// </param>
-    /// <param name="class">
-    /// The optional class of the asset.
-    /// </param>
+    /// <param name="id">The optional asset identifier.</param>
+    public ShaderAsset(string? id)
+        : base(new ShaderAssetDefinition { Id = id })
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new shader asset using the specified definition.
+    /// </summary>
+    /// <param name="definition">The shader asset definition.</param>
+    public ShaderAsset(ShaderAssetDefinition definition)
+        : base(definition)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new shader asset using the specified resource source
+    /// and context-aware shader template.
+    /// </summary>
+    /// <param name="id">The optional asset identifier.</param>
+    /// <param name="loaderSource">The resource source associated with the shader.</param>
+    /// <param name="template">The context-aware shader template.</param>
     public ShaderAsset(
-        string? id = null,
-        string? @class = null)
+        string? id,
+        ResourceSourceBase? loaderSource,
+        Template<IShader, ShaderAssetContext> template)
         : base(new ShaderAssetDefinition
         {
             Id = id,
-            Class = @class,
+            Template = template
         })
     {
+        ArgumentNullException.ThrowIfNull(template);
+
+        LoaderSource = loaderSource;
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ShaderAsset"/> class
-    /// using the specified definition.
+    /// Initializes a new shader asset using the specified resource source
+    /// and context-aware shader factory.
     /// </summary>
-    /// <param name="definition">
-    /// The asset definition containing the shader configuration.
+    /// <param name="id">The optional asset identifier.</param>
+    /// <param name="loaderSource">The resource source associated with the shader.</param>
+    /// <param name="factory">
+    /// The factory used to create the shader using the supplied
+    /// <see cref="ShaderAssetContext"/>.
     /// </param>
     public ShaderAsset(
-        ShaderAssetDefinition definition)
+        string? id,
+        ResourceSourceBase? loaderSource,
+        Func<ShaderAssetContext, IShader> factory)
+        : this(
+            id,
+            loaderSource,
+            new Template<IShader, ShaderAssetContext>(factory))
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new shader asset using the specified definition,
+    /// resource source, and context-aware shader template.
+    /// </summary>
+    /// <param name="definition">The shader asset definition.</param>
+    /// <param name="loaderSource">The resource source associated with the shader.</param>
+    /// <param name="template">The context-aware shader template.</param>
+    public ShaderAsset(
+        ShaderAssetDefinition definition,
+        ResourceSourceBase? loaderSource,
+        Template<IShader, ShaderAssetContext> template)
         : base(definition)
     {
+        ArgumentNullException.ThrowIfNull(template);
+
+        Definition.Template = template;
+        LoaderSource = loaderSource;
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ShaderAsset"/> class
-    /// using the specified graphics device.
+    /// Initializes a new shader asset using the specified definition,
+    /// resource source, and context-aware shader factory.
     /// </summary>
-    /// <param name="graphicsDevice">
-    /// The graphics device used to create the shader.
-    /// </param>
-    /// <param name="id">
-    /// The optional identifier of the asset.
-    /// </param>
-    /// <param name="class">
-    /// The optional class of the asset.
+    /// <param name="definition">The shader asset definition.</param>
+    /// <param name="loaderSource">The resource source associated with the shader.</param>
+    /// <param name="factory">
+    /// The factory used to create the shader using the supplied
+    /// <see cref="ShaderAssetContext"/>.
     /// </param>
     public ShaderAsset(
-        GraphicsDevice graphicsDevice,
-        string? id = null,
-        string? @class = null)
-        : this(id, @class)
+        ShaderAssetDefinition definition,
+        ResourceSourceBase? loaderSource,
+        Func<ShaderAssetContext, IShader> factory)
+        : this(
+            definition,
+            loaderSource,
+            new Template<IShader, ShaderAssetContext>(factory))
     {
-        GraphicsDevice = graphicsDevice;
     }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ShaderAsset"/> class
-    /// using the specified graphics device and asset definition.
-    /// </summary>
-    /// <param name="graphicsDevice">
-    /// The graphics device used to create the shader.
-    /// </param>
-    /// <param name="definition">
-    /// The asset definition containing the shader configuration.
-    /// </param>
-    public ShaderAsset(
-        GraphicsDevice graphicsDevice,
-        ShaderAssetDefinition definition)
-        : base(definition)
-    {
-        GraphicsDevice = graphicsDevice;
-    }
-
-    /// <summary>
-    /// Gets or sets the graphics device used to create the shader.
-    /// </summary>
-    /// <value>
-    /// The graphics device, or <see langword="null"/> if no graphics device
-    /// has been assigned.
-    /// </value>
-    public GraphicsDevice? GraphicsDevice { get; set; }
 
     /// <summary>
     /// Resolves the default definition used by this asset.
     /// </summary>
-    /// <returns>
-    /// A new <see cref="ShaderAssetDefinition"/> instance.
-    /// </returns>
+    /// <returns>A new <see cref="ShaderAssetDefinition"/> instance.</returns>
     protected override ShaderAssetDefinition ResolveDefinition()
     {
         return new ShaderAssetDefinition();
     }
 
     /// <summary>
-    /// Creates the runtime shader resource from the supplied stream.
+    /// Creates the runtime shader instance from the supplied shader data.
     /// </summary>
     /// <param name="stream">
-    /// The stream associated with the shader resource.
+    /// The stream containing the compiled shader data.
     /// </param>
     /// <returns>
     /// The created <see cref="IShader"/> instance, or <see langword="null"/>
     /// if no shader template is configured.
     /// </returns>
     /// <exception cref="ArgumentNullException">
-    /// <paramref name="stream"/> is <see langword="null"/>.
+    /// Thrown when <paramref name="stream"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="InvalidOperationException">
-    /// No <see cref="GraphicsDevice"/> has been assigned.
+    /// Thrown when the asset has not been initialized.
     /// </exception>
     protected override IShader? Build(Stream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        if (GraphicsDevice == null)
-        {
+        AssetContext context = Context ??
             throw new InvalidOperationException(
-                $"{nameof(ShaderAsset)} requires a valid {nameof(GraphicsDevice)} before loading.");
-        }
+                $"{nameof(ShaderAsset)} must be initialized before loading.");
 
-        if (Definition.Template == null)
+        if (Definition.Template is null)
             return null;
 
-        var shader = Definition.Template.Create();
-        shader.GraphicsDevice = GraphicsDevice;
+        using var memoryStream = new MemoryStream();
+        stream.CopyTo(memoryStream);
+
+        var rawEffect = new Effect(
+            context.GraphicsDevice,
+            memoryStream.ToArray());
+
+        var shaderContext = new ShaderAssetContext(rawEffect);
+
+        IShader shader = Definition.Template.Create(shaderContext);
+        shader.GraphicsDevice = context.GraphicsDevice;
 
         return shader;
     }

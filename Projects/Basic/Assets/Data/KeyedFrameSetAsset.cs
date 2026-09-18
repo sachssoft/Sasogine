@@ -1,0 +1,99 @@
+using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Assets.Graphics;
+using Sachssoft.Sasogine.Resources;
+using Sachssoft.Sasogine.Resources.Importers;
+using System.IO;
+
+namespace Sachssoft.Sasogine.Assets.Data;
+
+/// <summary>
+/// Represents a managed asset that builds a keyed frame set.
+/// </summary>
+public class KeyedFrameSetAsset
+    : AssetBase<KeyedFrameSet, KeyedFrameSetAssetDefinition>
+{
+    private Texture2D? _texture;
+
+    /// <summary>
+    /// Initializes a new keyed frame set asset.
+    /// </summary>
+    /// <param name="id">The optional asset identifier.</param>
+    public KeyedFrameSetAsset(string? id)
+        : base(new KeyedFrameSetAssetDefinition { Id = id })
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new keyed frame set asset using the specified definition.
+    /// </summary>
+    /// <param name="definition">The asset definition.</param>
+    public KeyedFrameSetAsset(KeyedFrameSetAssetDefinition definition)
+        : base(definition)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new keyed frame set asset using the specified resource source.
+    /// </summary>
+    /// <param name="id">The optional asset identifier.</param>
+    /// <param name="loaderSource">The resource source used to load the frame set.</param>
+    public KeyedFrameSetAsset(
+        string? id,
+        ResourceSourceBase? loaderSource)
+        : base(new KeyedFrameSetAssetDefinition { Id = id })
+    {
+        LoaderSource = loaderSource;
+    }
+
+    /// <summary>
+    /// Initializes a new keyed frame set asset using the specified definition
+    /// and resource source.
+    /// </summary>
+    /// <param name="definition">The asset definition.</param>
+    /// <param name="loaderSource">The resource source used to load the frame set.</param>
+    public KeyedFrameSetAsset(
+        KeyedFrameSetAssetDefinition definition,
+        ResourceSourceBase? loaderSource)
+        : base(definition)
+    {
+        LoaderSource = loaderSource;
+    }
+
+    /// <summary>
+    /// Builds the runtime keyed frame set.
+    /// </summary>
+    /// <param name="stream">The resource stream.</param>
+    /// <returns>
+    /// The created keyed frame set, or <see langword="null"/> if the required
+    /// texture is unavailable.
+    /// </returns>
+    protected override KeyedFrameSet? Build(Stream stream)
+    {
+        if (_texture is null || LoaderSource is null)
+            return null;
+
+        FrameSetImporter importer = FrameSetImporter.Create(
+            Definition.FormatType,
+            LoaderSource);
+
+        return importer.ToKeyed(_texture);
+    }
+
+    /// <summary>
+    /// Applies the current asset definition.
+    /// </summary>
+    protected override void ConfigureFromDefinition()
+    {
+        base.ConfigureFromDefinition();
+
+        _texture = null;
+
+        if (Context is not null &&
+            Definition.Texture is not null &&
+            Context.Source.TryGet(Definition.Texture.Id, out IAsset? asset) &&
+            asset is Texture2DAsset textureAsset)
+        {
+            _texture = textureAsset.GetOrLoad();
+        }
+    }
+}

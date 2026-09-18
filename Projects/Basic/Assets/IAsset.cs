@@ -56,6 +56,24 @@ namespace Sachssoft.Sasogine.Assets
         /// </summary>
         object? Instance { get; }
 
+        /// <summary>
+        /// Gets whether the asset is currently initialized.
+        /// </summary>
+        bool IsInitialized { get; }
+
+        /// <summary>
+        /// Initializes the asset using the specified asset context.
+        /// </summary>
+        /// <param name="context">
+        /// The asset context providing runtime dependencies.
+        /// </param>
+        void Initialize(AssetContext context);
+
+        /// <summary>
+        /// Deinitializes the asset.
+        /// </summary>
+        void Deinitialize();
+
         void IAssemblyContract.Initialize()
         {
             // Für Dritte nicht implementierbar
