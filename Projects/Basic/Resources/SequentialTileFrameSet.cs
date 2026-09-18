@@ -1,5 +1,6 @@
-﻿using Sachssoft.Sasogine.Assets.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,35 +21,34 @@ public sealed class SequentialTileFrameSet : ITileFrameSet
 {
     private readonly List<TileFrameData> _frames = new();
 
-
     /// <summary>
     /// Creates a new sequential tile frame set.
     /// </summary>
     /// <param name="tileSize">
     /// Size of a single tile in pixels.
     /// </param>
-    /// <param name="asset">
-    /// Texture asset containing the tile frames.
+    /// <param name="texture">
+    /// Texture containing the tile frames.
     /// </param>
     public SequentialTileFrameSet(
         PixelSize2 tileSize,
-        Texture2DAsset asset)
+        Texture2D texture)
     {
-        TileSize = tileSize;
-        Asset = asset;
-    }
+        ArgumentNullException.ThrowIfNull(texture);
 
+        TileSize = tileSize;
+        Texture = texture;
+    }
 
     /// <summary>
     /// Gets the tile size used by this frame set.
     /// </summary>
     public PixelSize2 TileSize { get; }
 
-
     /// <summary>
-    /// Gets the texture asset containing the frames.
+    /// Gets the texture containing the tile frames.
     /// </summary>
-    public Texture2DAsset Asset { get; }
+    public Texture2D Texture { get; }
 
     /// <summary>
     /// Gets the number of tile frames contained in this frame set.
@@ -92,7 +92,6 @@ public sealed class SequentialTileFrameSet : ITileFrameSet
     {
         return _frames.GetEnumerator();
     }
-
 
     IEnumerator IEnumerable.GetEnumerator()
     {

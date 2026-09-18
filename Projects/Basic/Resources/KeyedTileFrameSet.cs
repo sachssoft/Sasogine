@@ -1,5 +1,6 @@
-﻿using Sachssoft.Sasogine.Assets.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -8,13 +9,12 @@ namespace Sachssoft.Sasogine.Resources;
 /// <summary>
 /// Represents a tile frame set where frames are accessed using string keys.
 ///
-/// This implementation is mainly intended for asset loading, editor usage,
-/// and content definitions where readable frame names are useful.
+/// This implementation is intended for runtime usage where readable
+/// frame names are useful.
 /// </summary>
 public sealed class KeyedTileFrameSet : ITileFrameSet
 {
     private readonly Dictionary<string, TileFrameData> _frames = new();
-
 
     /// <summary>
     /// Creates a new keyed tile frame set.
@@ -22,28 +22,28 @@ public sealed class KeyedTileFrameSet : ITileFrameSet
     /// <param name="tileSize">
     /// Size of a single tile in pixels.
     /// </param>
-    /// <param name="asset">
-    /// Texture asset containing the tile frames.
+    /// <param name="texture">
+    /// Texture containing the tile frames.
     /// </param>
     public KeyedTileFrameSet(
         PixelSize2 tileSize,
-        Texture2DAsset asset)
+        Texture2D texture)
     {
-        TileSize = tileSize;
-        Asset = asset;
-    }
+        ArgumentNullException.ThrowIfNull(texture);
 
+        TileSize = tileSize;
+        Texture = texture;
+    }
 
     /// <summary>
     /// Gets the tile size used by this frame set.
     /// </summary>
     public PixelSize2 TileSize { get; }
 
-
     /// <summary>
-    /// Gets the texture asset containing the frames.
+    /// Gets the texture containing the tile frames.
     /// </summary>
-    public Texture2DAsset Asset { get; }
+    public Texture2D Texture { get; }
 
     /// <summary>
     /// Gets all string keys used to identify the registered tile frames.
@@ -53,7 +53,6 @@ public sealed class KeyedTileFrameSet : ITileFrameSet
 
     IEnumerable<object> ITileFrameSet.Keys
         => _frames.Keys;
-
 
     /// <summary>
     /// Gets the frame associated with the specified key.
@@ -66,7 +65,6 @@ public sealed class KeyedTileFrameSet : ITileFrameSet
 
     TileFrameData ITileFrameSet.this[object key]
         => this[(string)key];
-
 
     /// <summary>
     /// Adds a frame using a string key and atlas cell coordinate.
@@ -86,7 +84,6 @@ public sealed class KeyedTileFrameSet : ITileFrameSet
             new TileFrameData(TileSize, cell));
     }
 
-
     /// <summary>
     /// Returns an enumerator that iterates through all tile frames.
     /// </summary>
@@ -94,7 +91,6 @@ public sealed class KeyedTileFrameSet : ITileFrameSet
     {
         return _frames.Values.GetEnumerator();
     }
-
 
     IEnumerator IEnumerable.GetEnumerator()
     {

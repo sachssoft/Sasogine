@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Sachssoft.Sasogine.Resources.Localization;
 
@@ -56,13 +57,79 @@ public sealed class Language
     }
 
     /// <summary>
-    /// Returns the language code.
+    /// Finds a built-in language by its full name or language code.
     /// </summary>
+    /// <param name="name">
+    /// The full language name or language code.
+    /// </param>
     /// <returns>
-    /// The language code.
+    /// The matching language, or <see langword="null"/> if no matching language
+    /// is registered.
     /// </returns>
-    public override string ToString()
+    public static Language? Find(string? name)
     {
-        return Name;
+        return Languages.Find(name);
+    }
+
+    /// <summary>
+    /// Finds a built-in language corresponding to the specified culture.
+    /// </summary>
+    /// <param name="culture">
+    /// The culture used to determine the language.
+    /// </param>
+    /// <returns>
+    /// The matching language, or <see langword="null"/> if no matching language
+    /// is registered.
+    /// </returns>
+    public static Language? Find(CultureInfo? culture)
+    {
+        if (culture is null)
+            return null;
+
+        return Find(culture.TwoLetterISOLanguageName);
+    }
+
+    /// <summary>
+    /// Attempts to get a built-in language by its full name or language code.
+    /// </summary>
+    /// <param name="name">
+    /// The full language name or language code.
+    /// </param>
+    /// <param name="language">
+    /// When this method returns, contains the matching language when found;
+    /// otherwise, <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if a matching language was found; otherwise,
+    /// <see langword="false"/>.
+    /// </returns>
+    public static bool TryGet(
+        string? name,
+        out Language? language)
+    {
+        language = Find(name);
+        return language is not null;
+    }
+
+    /// <summary>
+    /// Attempts to get a built-in language corresponding to the specified culture.
+    /// </summary>
+    /// <param name="culture">
+    /// The culture used to determine the language.
+    /// </param>
+    /// <param name="language">
+    /// When this method returns, contains the matching language when found;
+    /// otherwise, <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if a matching language was found; otherwise,
+    /// <see langword="false"/>.
+    /// </returns>
+    public static bool TryGet(
+        CultureInfo? culture,
+        out Language? language)
+    {
+        language = Find(culture);
+        return language is not null;
     }
 }

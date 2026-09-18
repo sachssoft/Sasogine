@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Resources.Localization;
 
@@ -7,6 +8,9 @@ namespace Sachssoft.Sasogine.Resources.Localization;
 /// </summary>
 public static class Languages
 {
+    private static readonly Dictionary<string, Language> _languages =
+        new(StringComparer.OrdinalIgnoreCase);
+
     private static readonly Func<int, LocalizationPluralCase>
         DefaultPluralSelector =
             quantity => quantity == 1
@@ -154,149 +158,228 @@ public static class Languages
     /// Gets the German language definition.
     /// </summary>
     public static Language German { get; } =
-        new("de", DefaultPluralSelector);
+        Register("German", "de", DefaultPluralSelector);
 
     /// <summary>
     /// Gets the English language definition.
     /// </summary>
     public static Language English { get; } =
-        new("en", DefaultPluralSelector);
+        Register("English", "en", DefaultPluralSelector);
 
     /// <summary>
     /// Gets the Spanish language definition.
     /// </summary>
     public static Language Spanish { get; } =
-        new("es", DefaultPluralSelector);
+        Register("Spanish", "es", DefaultPluralSelector);
 
     /// <summary>
     /// Gets the Italian language definition.
     /// </summary>
     public static Language Italian { get; } =
-        new("it", DefaultPluralSelector);
+        Register("Italian", "it", DefaultPluralSelector);
 
     /// <summary>
     /// Gets the Portuguese language definition.
     /// </summary>
     public static Language Portuguese { get; } =
-        new("pt", DefaultPluralSelector);
+        Register("Portuguese", "pt", DefaultPluralSelector);
 
     /// <summary>
     /// Gets the Dutch language definition.
     /// </summary>
     public static Language Dutch { get; } =
-        new("nl", DefaultPluralSelector);
+        Register("Dutch", "nl", DefaultPluralSelector);
 
     /// <summary>
     /// Gets the Swedish language definition.
     /// </summary>
     public static Language Swedish { get; } =
-        new("sv", DefaultPluralSelector);
+        Register("Swedish", "sv", DefaultPluralSelector);
 
     /// <summary>
     /// Gets the Norwegian language definition.
     /// </summary>
     public static Language Norwegian { get; } =
-        new("no", DefaultPluralSelector);
+        Register("Norwegian", "no", DefaultPluralSelector);
 
     /// <summary>
     /// Gets the Danish language definition.
     /// </summary>
     public static Language Danish { get; } =
-        new("da", DefaultPluralSelector);
+        Register("Danish", "da", DefaultPluralSelector);
 
     /// <summary>
     /// Gets the Finnish language definition.
     /// </summary>
     public static Language Finnish { get; } =
-        new("fi", DefaultPluralSelector);
+        Register("Finnish", "fi", DefaultPluralSelector);
 
     /// <summary>
     /// Gets the Greek language definition.
     /// </summary>
     public static Language Greek { get; } =
-        new("el", DefaultPluralSelector);
+        Register("Greek", "el", DefaultPluralSelector);
 
     /// <summary>
     /// Gets the Bulgarian language definition.
     /// </summary>
     public static Language Bulgarian { get; } =
-        new("bg", DefaultPluralSelector);
+        Register("Bulgarian", "bg", DefaultPluralSelector);
 
     /// <summary>
     /// Gets the Estonian language definition.
     /// </summary>
     public static Language Estonian { get; } =
-        new("et", DefaultPluralSelector);
+        Register("Estonian", "et", DefaultPluralSelector);
 
     /// <summary>
     /// Gets the Hungarian language definition.
     /// </summary>
     public static Language Hungarian { get; } =
-        new("hu", DefaultPluralSelector);
+        Register("Hungarian", "hu", DefaultPluralSelector);
 
     /// <summary>
     /// Gets the French language definition.
     /// </summary>
     public static Language French { get; } =
-        new("fr", FrenchPluralSelector);
+        Register("French", "fr", FrenchPluralSelector);
 
     /// <summary>
     /// Gets the Russian language definition.
     /// </summary>
     public static Language Russian { get; } =
-        new("ru", RussianPluralSelector);
+        Register("Russian", "ru", RussianPluralSelector);
 
     /// <summary>
     /// Gets the Ukrainian language definition.
     /// </summary>
     public static Language Ukrainian { get; } =
-        new("uk", RussianPluralSelector);
+        Register("Ukrainian", "uk", RussianPluralSelector);
 
     /// <summary>
     /// Gets the Belarusian language definition.
     /// </summary>
     public static Language Belarusian { get; } =
-        new("be", RussianPluralSelector);
+        Register("Belarusian", "be", RussianPluralSelector);
 
     /// <summary>
     /// Gets the Polish language definition.
     /// </summary>
     public static Language Polish { get; } =
-        new("pl", PolishPluralSelector);
+        Register("Polish", "pl", PolishPluralSelector);
 
     /// <summary>
     /// Gets the Czech language definition.
     /// </summary>
     public static Language Czech { get; } =
-        new("cs", CzechPluralSelector);
+        Register("Czech", "cs", CzechPluralSelector);
 
     /// <summary>
     /// Gets the Slovak language definition.
     /// </summary>
     public static Language Slovak { get; } =
-        new("sk", CzechPluralSelector);
+        Register("Slovak", "sk", CzechPluralSelector);
 
     /// <summary>
     /// Gets the Slovenian language definition.
     /// </summary>
     public static Language Slovenian { get; } =
-        new("sl", SlovenianPluralSelector);
+        Register("Slovenian", "sl", SlovenianPluralSelector);
 
     /// <summary>
     /// Gets the Lithuanian language definition.
     /// </summary>
     public static Language Lithuanian { get; } =
-        new("lt", LithuanianPluralSelector);
+        Register("Lithuanian", "lt", LithuanianPluralSelector);
 
     /// <summary>
     /// Gets the Latvian language definition.
     /// </summary>
     public static Language Latvian { get; } =
-        new("lv", LatvianPluralSelector);
+        Register("Latvian", "lv", LatvianPluralSelector);
 
     /// <summary>
     /// Gets the Romanian language definition.
     /// </summary>
     public static Language Romanian { get; } =
-        new("ro", RomanianPluralSelector);
+        Register("Romanian", "ro", RomanianPluralSelector);
+
+    /// <summary>
+    /// Finds a language by its full name or language code.
+    /// </summary>
+    /// <param name="name">
+    /// The full language name or language code.
+    /// </param>
+    /// <returns>
+    /// The matching language, or <see langword="null"/> if no matching
+    /// language is registered.
+    /// </returns>
+    public static Language? Find(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return null;
+
+        return _languages.TryGetValue(
+            name,
+            out Language? language)
+                ? language
+                : null;
+    }
+
+    /// <summary>
+    /// Attempts to find a language by its full name or language code.
+    /// </summary>
+    /// <param name="name">
+    /// The full language name or language code.
+    /// </param>
+    /// <param name="language">
+    /// When this method returns, contains the matching language when found;
+    /// otherwise, <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if a matching language was found; otherwise,
+    /// <see langword="false"/>.
+    /// </returns>
+    public static bool TryFind(
+        string? name,
+        out Language? language)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            language = null;
+            return false;
+        }
+
+        return _languages.TryGetValue(name, out language);
+    }
+
+    /// <summary>
+    /// Registers a built-in language using its full name and language code.
+    /// </summary>
+    /// <param name="fullName">
+    /// The full language name.
+    /// </param>
+    /// <param name="name">
+    /// The language code.
+    /// </param>
+    /// <param name="pluralSelector">
+    /// The pluralization rule used by the language.
+    /// </param>
+    /// <returns>
+    /// The registered language.
+    /// </returns>
+    private static Language Register(
+        string fullName,
+        string name,
+        Func<int, LocalizationPluralCase> pluralSelector)
+    {
+        var language = new Language(
+            name,
+            pluralSelector);
+
+        _languages.Add(fullName, language);
+        _languages.Add(name, language);
+
+        return language;
+    }
 }

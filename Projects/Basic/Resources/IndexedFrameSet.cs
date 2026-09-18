@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Assets.Graphics;
+using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
 using System;
 using System.Collections;
@@ -25,19 +25,20 @@ public sealed class IndexedFrameSet<TEnum> : IFrameSet
     /// <summary>
     /// Initializes a new instance of the <see cref="IndexedFrameSet{TEnum}"/> class.
     /// </summary>
-    /// <param name="asset">
-    /// Texture asset containing the frame data.
+    /// <param name="texture">
+    /// Texture containing the frame data.
     /// </param>
-    public IndexedFrameSet(
-        Texture2DAsset asset)
+    public IndexedFrameSet(Texture2D texture)
     {
-        Asset = asset;
+        ArgumentNullException.ThrowIfNull(texture);
+
+        Texture = texture;
     }
 
     /// <summary>
-    /// Gets the texture asset containing the frames.
+    /// Gets the texture containing the frames.
     /// </summary>
-    public Texture2DAsset Asset { get; }
+    public Texture2D Texture { get; }
 
     /// <summary>
     /// Gets all enum keys of the registered frames.

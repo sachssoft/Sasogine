@@ -1,4 +1,4 @@
-﻿using Sachssoft.Sasogine.Assets.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
 using System;
 using System.Collections;
@@ -21,35 +21,34 @@ public sealed class IndexedTileFrameSet<TEnum> : ITileFrameSet
 {
     private readonly Dictionary<TEnum, TileFrameData> _frames = new();
 
-
     /// <summary>
     /// Creates a new indexed tile frame set.
     /// </summary>
     /// <param name="tileSize">
     /// Size of a single tile in pixels.
     /// </param>
-    /// <param name="asset">
-    /// Texture asset containing the tile frames.
+    /// <param name="texture">
+    /// Texture containing the tile frames.
     /// </param>
     public IndexedTileFrameSet(
         PixelSize2 tileSize,
-        Texture2DAsset asset)
+        Texture2D texture)
     {
-        TileSize = tileSize;
-        Asset = asset;
-    }
+        ArgumentNullException.ThrowIfNull(texture);
 
+        TileSize = tileSize;
+        Texture = texture;
+    }
 
     /// <summary>
     /// Gets the tile size used by this frame set.
     /// </summary>
     public PixelSize2 TileSize { get; }
 
-
     /// <summary>
-    /// Gets the texture asset containing the frames.
+    /// Gets the texture containing the frames.
     /// </summary>
-    public Texture2DAsset Asset { get; }
+    public Texture2D Texture { get; }
 
     /// <summary>
     /// Gets all enum keys of the registered tile frames.
@@ -67,7 +66,6 @@ public sealed class IndexedTileFrameSet<TEnum> : ITileFrameSet
     /// </summary>
     public TileFrameData this[TEnum index]
         => _frames[index];
-
 
     /// <summary>
     /// Adds a new frame using an enum index and atlas cell coordinate.
@@ -87,7 +85,6 @@ public sealed class IndexedTileFrameSet<TEnum> : ITileFrameSet
             new TileFrameData(TileSize, cell));
     }
 
-
     /// <summary>
     /// Returns an enumerator that iterates through all tile frames.
     /// </summary>
@@ -95,7 +92,6 @@ public sealed class IndexedTileFrameSet<TEnum> : ITileFrameSet
     {
         return _frames.Values.GetEnumerator();
     }
-
 
     IEnumerator IEnumerable.GetEnumerator()
     {

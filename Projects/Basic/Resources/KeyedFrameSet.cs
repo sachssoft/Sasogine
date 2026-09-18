@@ -1,49 +1,48 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Assets.Graphics;
+using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Resources;
 
 /// <summary>
-/// Represents a tile frame set where frames are accessed using string keys.
+/// Represents a frame set where frames are accessed using string keys.
 ///
-/// This implementation is mainly intended for asset loading, editor usage,
-/// and content definitions where readable frame names are useful.
+/// This implementation is mainly intended for runtime usage where readable
+/// frame names are useful.
 /// </summary>
 public sealed class KeyedFrameSet : IFrameSet
 {
     private readonly Dictionary<string, FrameData> _frames = new();
 
-
     /// <summary>
     /// Initializes a new instance of the <see cref="KeyedFrameSet"/> class.
     /// </summary>
-    /// <param name="asset">
-    /// Texture asset containing the frame data.
+    /// <param name="texture">
+    /// Texture containing the frame data.
     /// </param>
-    public KeyedFrameSet(
-        Texture2DAsset asset)
+    public KeyedFrameSet(Texture2D texture)
     {
-        Asset = asset;
+        ArgumentNullException.ThrowIfNull(texture);
+
+        Texture = texture;
     }
 
-
     /// <summary>
-    /// Gets the texture asset containing the frames.
+    /// Gets the texture containing the frames.
     /// </summary>
-    public Texture2DAsset Asset { get; }
+    public Texture2D Texture { get; }
 
     /// <summary>
-    /// Gets all string keys used to identify the registered tile frames.
+    /// Gets all string keys used to identify the registered frames.
     /// </summary>
     public IEnumerable<string> Keys
         => _frames.Keys;
 
     IEnumerable<object> IFrameSet.Keys
         => _frames.Keys;
-
 
     /// <summary>
     /// Gets the frame associated with the specified key.
@@ -56,7 +55,6 @@ public sealed class KeyedFrameSet : IFrameSet
 
     FrameData IFrameSet.this[object key]
         => this[(string)key];
-
 
     /// <summary>
     /// Adds a frame using a string key and atlas position.
@@ -80,15 +78,13 @@ public sealed class KeyedFrameSet : IFrameSet
             new FrameData(position, size));
     }
 
-
     /// <summary>
-    /// Returns an enumerator that iterates through all tile frames.
+    /// Returns an enumerator that iterates through all frames.
     /// </summary>
     public IEnumerator<FrameData> GetEnumerator()
     {
         return _frames.Values.GetEnumerator();
     }
-
 
     IEnumerator IEnumerable.GetEnumerator()
     {

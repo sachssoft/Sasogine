@@ -1,10 +1,10 @@
-﻿using Sachssoft.Sasogine.Assets.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Resources;
 
 /// <summary>
-/// Defines a collection of tile frames that belong to a texture asset.
+/// Defines a collection of tile frames that belong to a texture.
 ///
 /// A tile frame set provides access to registered tile frames using an
 /// implementation-specific key type and supports enumeration of all contained
@@ -16,9 +16,9 @@ namespace Sachssoft.Sasogine.Resources;
 public interface ITileFrameSet : IEnumerable<TileFrameData>
 {
     /// <summary>
-    /// Gets the texture asset containing the tile frames.
+    /// Gets the texture containing the tile frames.
     /// </summary>
-    Texture2DAsset Asset { get; }
+    Texture2D Texture { get; }
 
     /// <summary>
     /// Gets a tile frame using an implementation-specific key.
