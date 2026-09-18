@@ -1,6 +1,7 @@
 using Sachssoft.Sasodoc;
 using Sachssoft.Sasogine.Assets;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Resources.Localization;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -18,55 +19,76 @@ namespace Sachssoft.Sasogine.Documents.Serialization
                 .ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
 
 
-        ///// <summary>
-        ///// Reads a CulturedValue value from the specified markup property.
-        ///// </summary>
-        ///// <typeparam name="T">The generic T type.</typeparam>
-        ///// <param name="reader">The markup reader.</param>
-        ///// <param name="property">The property name.</param>
-        ///// <param name="readCulturedItem">The callback used to read an individual culture-specific value.</param>
-        ///// <param name="fallback">The value returned when the property cannot be read.</param>
-        ///// <returns>The deserialized value, or the supplied fallback when no usable value is available.</returns>
-        //public static CulturedValue<T>? ReadCulturedValue<T>(
-        //    this FormatReaderBase reader,
-        //    string property,
-        //    Func<FormatReaderBase, string, T> readCulturedItem,
-        //    CulturedValue<T>? fallback = null
-        //)
-        //{
-        //    var readers = reader.ReadArray(property);
+        /// <summary>
+        /// Reads a <see cref="MultilingualValue{T}"/> from the specified property.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The type of value stored for each language.
+        /// </typeparam>
+        /// <param name="reader">
+        /// The format reader.
+        /// </param>
+        /// <param name="property">
+        /// The property name.
+        /// </param>
+        /// <param name="readLanguageItem">
+        /// The callback used to read an individual language-specific value.
+        /// </param>
+        /// <param name="invariantLanguage">
+        /// The language used when no explicit language is specified.
+        /// Defaults to English when not provided.
+        /// </param>
+        /// <param name="fallback">
+        /// The value returned when the property cannot be read.
+        /// </param>
+        /// <returns>
+        /// The deserialized multilingual value, or the supplied fallback when no
+        /// usable value is available.
+        /// </returns>
+        public static MultilingualValue<T>? ReadMultilingualValue<T>(
+            this FormatReaderBase reader,
+            string property,
+            Func<FormatReaderBase, string, T> readLanguageItem,
+            Language? invariantLanguage = null,
+            MultilingualValue<T>? fallback = null)
+        {
+            var readers = reader.ReadArray(property);
 
-        //    if (readers == null)
-        //        return fallback;
+            if (readers is null)
+                return fallback;
 
-        //    var dict = new Dictionary<CultureInfo, T>();
-        //    foreach (var cultureReader in readers)
-        //    {
-        //        if (!cultureReader.Contains("Culture"))
-        //            continue;
+            var dict = new Dictionary<Language, T>();
 
-        //        var cultureName = cultureReader.ReadString("Culture");
-        //        CultureInfo? culture;
+            foreach (var languageReader in readers)
+            {
+                if (!languageReader.Contains("Language"))
+                    continue;
 
-        //        if (string.IsNullOrEmpty(cultureName))
-        //        {
-        //            culture = CultureInfo.InvariantCulture;
-        //        }
-        //        else if (_cultureCache.TryGetValue(cultureName, out culture))
-        //        { }
-        //        else
-        //        {
-        //            continue;
-        //        }
+                var languageName = languageReader.ReadString("Language");
+                Language? language;
 
-        //        if (!dict.ContainsKey(culture))
-        //        {
-        //            dict[culture] = readCulturedItem(cultureReader, "Value");
-        //        }
-        //    }
+                if (string.IsNullOrEmpty(languageName))
+                {
+                    language = invariantLanguage ?? Languages.English;
+                }
+                else if (_languageCache.TryGetValue(languageName, out language))
+                {
+                }
+                else
+                {
+                    continue;
+                }
 
-        //    return new CulturedValue<T>(dict);
-        //}
+                if (!dict.ContainsKey(language))
+                {
+                    dict[language] = readLanguageItem(
+                        languageReader,
+                        "Value");
+                }
+            }
+
+            return new MultilingualValue<T>(dict);
+        }
 
 
         /// <summary>

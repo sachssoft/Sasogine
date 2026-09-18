@@ -1,6 +1,7 @@
 using Sachssoft.Sasodoc;
 using Sachssoft.Sasodoc.Formats.Json;
 using System;
+using Sachssoft.Sasogine.Resources;
 
 namespace Sachssoft.Sasogine.Documents;
 
