@@ -1853,7 +1853,7 @@ public sealed class VectorPathTool : ToolBase
             else if (item is IEngineObject engineObject &&
                      engineObject.Definition is IVectorPathTargetDefinition definition)
             {
-                shape = definition.ActiveShape;
+                //shape = definition.ActiveShape;
                 isSelected = definition.IsSelected;
             }
 
