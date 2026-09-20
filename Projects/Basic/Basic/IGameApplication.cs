@@ -4,6 +4,7 @@ using Sachssoft.Sasogine.Diagnostics;
 using Sachssoft.Sasogine.Resources;
 using Sachssoft.Sasogine.Resources.Localization;
 using Sachssoft.Sasogine.Scenes;
+using System.Reflection;
 
 namespace Sachssoft.Sasogine;
 
@@ -12,6 +13,11 @@ namespace Sachssoft.Sasogine;
 /// </summary>
 public interface IGameApplication
 {
+    /// <summary>
+    /// Gets the assembly containing the game application.
+    /// </summary>
+    Assembly Assembly { get; }
+
     /// <summary>
     /// Gets the application diagnostic output.
     /// </summary>
