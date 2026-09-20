@@ -33,6 +33,11 @@ namespace Sachssoft.Sasogine.Common.Collections
         }
 
         /// <summary>
+        /// Occurs when the reference resolution state of an item changes.
+        /// </summary>
+        public event EventHandler<ReferenceChangedEventArgs<T>>? ReferenceChanged;
+
+        /// <summary>
         /// Initializes a new, empty instance of the
         /// <see cref="ReferencableCollection{T}"/> class with the specified initial capacity.
         /// </summary>
@@ -158,6 +163,7 @@ namespace Sachssoft.Sasogine.Common.Collections
             AddReference(item);
             Subscribe(item);
             base.OnInserted(index, item);
+            OnReferenceChanged(item);
         }
 
         /// <summary>
@@ -192,6 +198,9 @@ namespace Sachssoft.Sasogine.Common.Collections
             Subscribe(newItem);
 
             base.OnSet(index, oldItem, newItem);
+
+            OnReferenceChanged(oldItem);
+            OnReferenceChanged(newItem);
         }
 
         /// <summary>
@@ -204,6 +213,7 @@ namespace Sachssoft.Sasogine.Common.Collections
             Unsubscribe(item);
             RemoveReference(item);
             base.OnRemoved(index, item);
+            OnReferenceChanged(item);
         }
 
         /// <summary>
@@ -235,9 +245,16 @@ namespace Sachssoft.Sasogine.Common.Collections
         }
 
         /// <summary>
-        /// Stores the current identifier and subscribes to identifier changes.
+        /// Raises the <see cref="ReferenceChanged"/> event for the specified item.
         /// </summary>
-        /// <param name="item">The item to subscribe to.</param>
+        /// <param name="item">The item affected by the reference change.</param>
+        protected virtual void OnReferenceChanged(T item)
+        {
+            ReferenceChanged?.Invoke(
+                this,
+                new ReferenceChangedEventArgs<T>(item));
+        }
+
         private void Subscribe(T item)
         {
             _knownIds[item] = item.Id;
@@ -246,10 +263,6 @@ namespace Sachssoft.Sasogine.Common.Collections
                 changed.IdChanged += ItemIdChanged;
         }
 
-        /// <summary>
-        /// Removes the identifier-change subscription and cached identifier.
-        /// </summary>
-        /// <param name="item">The item to unsubscribe from.</param>
         private void Unsubscribe(T item)
         {
             if (item is IEngineReferenceableChanged changed)
@@ -258,11 +271,6 @@ namespace Sachssoft.Sasogine.Common.Collections
             _knownIds.Remove(item);
         }
 
-        /// <summary>
-        /// Updates the internal reference index when an item's identifier changes.
-        /// </summary>
-        /// <param name="sender">The object whose identifier changed.</param>
-        /// <param name="e">The event data associated with the change.</param>
         private void ItemIdChanged(object? sender, EngineObjectChangedEventArgs e)
         {
             if (sender is not T item ||
@@ -289,19 +297,10 @@ namespace Sachssoft.Sasogine.Common.Collections
                 _references.Add(newId, item);
 
             _knownIds[item] = newId;
+
+            OnReferenceChanged(item);
         }
 
-        /// <summary>
-        /// Validates an identifier before it is registered in the collection.
-        /// </summary>
-        /// <param name="id">The identifier to validate.</param>
-        /// <param name="replacingItem">
-        /// The item that may already own the identifier.
-        /// </param>
-        /// <exception cref="ArgumentException">
-        /// <paramref name="id"/> is empty or consists only of white-space characters,
-        /// or another object already uses the identifier.
-        /// </exception>
         private void ValidateId(string? id, T replacingItem)
         {
             if (id is null)
@@ -321,10 +320,6 @@ namespace Sachssoft.Sasogine.Common.Collections
             }
         }
 
-        /// <summary>
-        /// Adds the specified item's identifier to the reference index.
-        /// </summary>
-        /// <param name="item">The item to register.</param>
         private void AddReference(T item)
         {
             string? id = item.Id;
@@ -335,10 +330,6 @@ namespace Sachssoft.Sasogine.Common.Collections
             _knownIds[item] = id;
         }
 
-        /// <summary>
-        /// Removes the specified item's identifier from the reference index.
-        /// </summary>
-        /// <param name="item">The item to unregister.</param>
         private void RemoveReference(T item)
         {
             if (!_knownIds.TryGetValue(item, out string? id))
