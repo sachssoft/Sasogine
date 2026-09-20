@@ -14,15 +14,13 @@ namespace Sachssoft.Sasogine.Assets.Data;
 /// Represents an asset that loads an indexed frame set using enum values as
 /// frame indices.
 /// </summary>
-/// <typeparam name="TEnum">
-/// The enum type used to identify frames.
-/// </typeparam>
+/// <typeparam name="TEnum">The enum type used to identify frames.</typeparam>
 public class IndexedFrameSetAsset<TEnum>
     : AssetBase<IndexedFrameSet<TEnum>, IndexedFrameSetDefinition>
     where TEnum : struct, Enum
 {
     private readonly Func<string, TEnum>? _customConvert;
-    private Texture2D? _texture;
+    private Texture2DAsset? _textureAsset;
     private Func<string, TEnum>? _convert;
 
     /// <summary>
@@ -48,15 +46,9 @@ public class IndexedFrameSetAsset<TEnum>
     /// source, texture asset reference, and optional enum-to-name mapping.
     /// </summary>
     /// <param name="id">The optional asset identifier.</param>
-    /// <param name="loaderSource">
-    /// The resource source used to load the frame set.
-    /// </param>
-    /// <param name="textureAsset">
-    /// The reference to the texture asset used by the frame set.
-    /// </param>
-    /// <param name="indexMapping">
-    /// The optional enum-to-name mapping.
-    /// </param>
+    /// <param name="loaderSource">The resource source used to load the frame set.</param>
+    /// <param name="textureAsset">The reference to the texture asset used by the frame set.</param>
+    /// <param name="indexMapping">The optional enum-to-name mapping.</param>
     public IndexedFrameSetAsset(
         string? id,
         ResourceSourceBase? loaderSource,
@@ -70,7 +62,6 @@ public class IndexedFrameSetAsset<TEnum>
         })
     {
         ArgumentNullException.ThrowIfNull(textureAsset);
-
         LoaderSource = loaderSource;
     }
 
@@ -79,15 +70,9 @@ public class IndexedFrameSetAsset<TEnum>
     /// resource source, texture asset reference, and optional enum-to-name mapping.
     /// </summary>
     /// <param name="definition">The asset definition.</param>
-    /// <param name="loaderSource">
-    /// The resource source used to load the frame set.
-    /// </param>
-    /// <param name="textureAsset">
-    /// The reference to the texture asset used by the frame set.
-    /// </param>
-    /// <param name="indexMapping">
-    /// The optional enum-to-name mapping.
-    /// </param>
+    /// <param name="loaderSource">The resource source used to load the frame set.</param>
+    /// <param name="textureAsset">The reference to the texture asset used by the frame set.</param>
+    /// <param name="indexMapping">The optional enum-to-name mapping.</param>
     public IndexedFrameSetAsset(
         IndexedFrameSetDefinition definition,
         ResourceSourceBase? loaderSource,
@@ -110,19 +95,9 @@ public class IndexedFrameSetAsset<TEnum>
     /// source, texture asset reference, and frame index converter.
     /// </summary>
     /// <param name="id">The optional asset identifier.</param>
-    /// <param name="loaderSource">
-    /// The resource source used to load the frame set.
-    /// </param>
-    /// <param name="textureAsset">
-    /// The reference to the texture asset used by the frame set.
-    /// </param>
-    /// <param name="convert">
-    /// The function used to convert frame names to enum values.
-    /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="textureAsset"/> or
-    /// <paramref name="convert"/> is <see langword="null"/>.
-    /// </exception>
+    /// <param name="loaderSource">The resource source used to load the frame set.</param>
+    /// <param name="textureAsset">The reference to the texture asset used by the frame set.</param>
+    /// <param name="convert">The function used to convert frame names to enum values.</param>
     public IndexedFrameSetAsset(
         string? id,
         ResourceSourceBase? loaderSource,
@@ -146,19 +121,9 @@ public class IndexedFrameSetAsset<TEnum>
     /// resource source, texture asset reference, and frame index converter.
     /// </summary>
     /// <param name="definition">The asset definition.</param>
-    /// <param name="loaderSource">
-    /// The resource source used to load the frame set.
-    /// </param>
-    /// <param name="textureAsset">
-    /// The reference to the texture asset used by the frame set.
-    /// </param>
-    /// <param name="convert">
-    /// The function used to convert frame names to enum values.
-    /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="textureAsset"/> or
-    /// <paramref name="convert"/> is <see langword="null"/>.
-    /// </exception>
+    /// <param name="loaderSource">The resource source used to load the frame set.</param>
+    /// <param name="textureAsset">The reference to the texture asset used by the frame set.</param>
+    /// <param name="convert">The function used to convert frame names to enum values.</param>
     public IndexedFrameSetAsset(
         IndexedFrameSetDefinition definition,
         ResourceSourceBase? loaderSource,
@@ -177,9 +142,7 @@ public class IndexedFrameSetAsset<TEnum>
     /// <summary>
     /// Resolves the default definition used by this asset.
     /// </summary>
-    /// <returns>
-    /// A new <see cref="IndexedFrameSetDefinition"/> instance.
-    /// </returns>
+    /// <returns>A new <see cref="IndexedFrameSetDefinition"/> instance.</returns>
     protected override IndexedFrameSetDefinition ResolveDefinition()
     {
         return new IndexedFrameSetDefinition();
@@ -189,33 +152,35 @@ public class IndexedFrameSetAsset<TEnum>
     /// Builds the runtime indexed frame set.
     /// </summary>
     /// <param name="stream">The resource stream.</param>
-    /// <returns>
-    /// The created indexed frame set, or <see langword="null"/> if no texture
-    /// is available.
-    /// </returns>
-    protected override IndexedFrameSet<TEnum>? Build(Stream stream)
+    /// <returns>The created indexed frame set.</returns>
+    protected override IndexedFrameSet<TEnum> Build(Stream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        if (_texture is null || LoaderSource is null)
-            return null;
+        Texture2DAsset textureAsset = _textureAsset ??
+            throw new InvalidOperationException(
+                "The texture asset could not be resolved.");
+
+        Texture2D texture = textureAsset.GetOrLoad();
+
+        ResourceSourceBase loaderSource = LoaderSource ??
+            throw new InvalidOperationException(
+                $"{nameof(LoaderSource)} is not configured.");
 
         FrameSetImporter importer = FrameSetImporter.Create(
             Definition.FormatType,
-            LoaderSource);
+            loaderSource);
 
-        return importer.ToIndexed(_texture, _convert);
+        return importer.ToIndexed(texture, _convert);
     }
 
     /// <summary>
-    /// Applies the current asset definition and resolves its runtime
-    /// dependencies.
+    /// Applies the current asset definition and resolves its runtime dependencies.
     /// </summary>
     protected override void ConfigureFromDefinition()
     {
         base.ConfigureFromDefinition();
 
-        _texture = null;
         _convert = _customConvert;
 
         if (Context is not null &&
@@ -225,7 +190,7 @@ public class IndexedFrameSetAsset<TEnum>
                 out IAsset? asset) &&
             asset is Texture2DAsset textureAsset)
         {
-            _texture = textureAsset.GetOrLoad();
+            _textureAsset = textureAsset;
         }
 
         if (_convert is null &&
@@ -233,47 +198,43 @@ public class IndexedFrameSetAsset<TEnum>
         {
             _convert = name =>
             {
-                IndexMapping? entry = mapping.FirstOrDefault(
-                    item => string.Equals(
+                IndexMapping? entry = mapping.FirstOrDefault(item =>
+                    string.Equals(
                         item.Name,
                         name,
                         StringComparison.OrdinalIgnoreCase));
 
                 if (entry is not null)
-                {
-                    return (TEnum)Enum.ToObject(
-                        typeof(TEnum),
-                        entry.Index);
-                }
+                    return (TEnum)Enum.ToObject(typeof(TEnum), entry.Index);
 
-                return Enum.Parse<TEnum>(
-                    name,
-                    ignoreCase: true);
+                return Enum.Parse<TEnum>(name, ignoreCase: true);
             };
         }
     }
 
     /// <summary>
-    /// Converts an enum-to-name dictionary to the serializable index mapping
-    /// representation.
+    /// Handles changes to assets that affect this asset's runtime dependencies.
     /// </summary>
-    /// <param name="mapping">The mapping to convert.</param>
-    /// <returns>
-    /// The converted mapping, or <see langword="null"/> if no mapping was
-    /// supplied.
-    /// </returns>
+    /// <param name="asset">The asset affected by the reference change.</param>
+    protected override void OnReferenceChanged(IAsset asset)
+    {
+        if (!ReferenceEquals(asset, _textureAsset))
+            return;
+
+        if (IsLoaded)
+            Reload();
+    }
+
     private static IList<IndexMapping>? ConvertToMapping(
         IDictionary<TEnum, string>? mapping)
     {
         if (mapping is null)
             return null;
 
-        return mapping
-            .Select(pair => new IndexMapping
-            {
-                Index = Convert.ToInt32(pair.Key),
-                Name = pair.Value
-            })
-            .ToList();
+        return mapping.Select(pair => new IndexMapping
+        {
+            Index = Convert.ToInt32(pair.Key),
+            Name = pair.Value
+        }).ToList();
     }
 }

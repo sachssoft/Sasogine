@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Assets.Graphics;
 using Sachssoft.Sasogine.Resources;
 using Sachssoft.Sasogine.Resources.Importers;
+using System;
 using System.IO;
 
 namespace Sachssoft.Sasogine.Assets.Data;
@@ -37,9 +38,7 @@ public class KeyedFrameSetAsset
     /// </summary>
     /// <param name="id">The optional asset identifier.</param>
     /// <param name="loaderSource">The resource source used to load the frame set.</param>
-    public KeyedFrameSetAsset(
-        string? id,
-        ResourceSourceBase? loaderSource)
+    public KeyedFrameSetAsset(string? id, ResourceSourceBase? loaderSource)
         : base(new KeyedFrameSetAssetDefinition { Id = id })
     {
         LoaderSource = loaderSource;
@@ -63,24 +62,34 @@ public class KeyedFrameSetAsset
     /// Builds the runtime keyed frame set.
     /// </summary>
     /// <param name="stream">The resource stream.</param>
-    /// <returns>
-    /// The created keyed frame set, or <see langword="null"/> if the required
-    /// texture is unavailable.
-    /// </returns>
-    protected override KeyedFrameSet? Build(Stream stream)
+    /// <returns>The created keyed frame set.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="stream"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// The required texture or loader source is unavailable.
+    /// </exception>
+    protected override KeyedFrameSet Build(Stream stream)
     {
-        if (_texture is null || LoaderSource is null)
-            return null;
+        ArgumentNullException.ThrowIfNull(stream);
+
+        Texture2D texture = _texture ??
+            throw new InvalidOperationException(
+                "The texture asset could not be resolved.");
+
+        ResourceSourceBase loaderSource = LoaderSource ??
+            throw new InvalidOperationException(
+                $"{nameof(LoaderSource)} is not configured.");
 
         FrameSetImporter importer = FrameSetImporter.Create(
             Definition.FormatType,
-            LoaderSource);
+            loaderSource);
 
-        return importer.ToKeyed(_texture);
+        return importer.ToKeyed(texture);
     }
 
     /// <summary>
-    /// Applies the current asset definition.
+    /// Applies the current asset definition and resolves its runtime dependencies.
     /// </summary>
     protected override void ConfigureFromDefinition()
     {
