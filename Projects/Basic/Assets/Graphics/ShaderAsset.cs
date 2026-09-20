@@ -52,7 +52,6 @@ public class ShaderAsset : AssetBase<IShader, ShaderAssetDefinition>
         })
     {
         ArgumentNullException.ThrowIfNull(template);
-
         LoaderSource = loaderSource;
     }
 
@@ -70,9 +69,7 @@ public class ShaderAsset : AssetBase<IShader, ShaderAssetDefinition>
         string? id,
         ResourceSourceBase? loaderSource,
         Func<ShaderAssetContext, IShader> factory)
-        : this(
-            id,
-            loaderSource,
+        : this(id, loaderSource,
             new Template<IShader, ShaderAssetContext>(factory))
     {
     }
@@ -110,9 +107,7 @@ public class ShaderAsset : AssetBase<IShader, ShaderAssetDefinition>
         ShaderAssetDefinition definition,
         ResourceSourceBase? loaderSource,
         Func<ShaderAssetContext, IShader> factory)
-        : this(
-            definition,
-            loaderSource,
+        : this(definition, loaderSource,
             new Template<IShader, ShaderAssetContext>(factory))
     {
     }
@@ -129,20 +124,15 @@ public class ShaderAsset : AssetBase<IShader, ShaderAssetDefinition>
     /// <summary>
     /// Creates the runtime shader instance from the supplied shader data.
     /// </summary>
-    /// <param name="stream">
-    /// The stream containing the compiled shader data.
-    /// </param>
-    /// <returns>
-    /// The created <see cref="IShader"/> instance, or <see langword="null"/>
-    /// if no shader template is configured.
-    /// </returns>
+    /// <param name="stream">The stream containing the compiled shader data.</param>
+    /// <returns>The created <see cref="IShader"/> instance.</returns>
     /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="stream"/> is <see langword="null"/>.
+    /// <paramref name="stream"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when the asset has not been initialized.
+    /// The asset has not been initialized or no shader template is configured.
     /// </exception>
-    protected override IShader? Build(Stream stream)
+    protected override IShader Build(Stream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
@@ -150,19 +140,17 @@ public class ShaderAsset : AssetBase<IShader, ShaderAssetDefinition>
             throw new InvalidOperationException(
                 $"{nameof(ShaderAsset)} must be initialized before loading.");
 
-        if (Definition.Template is null)
-            return null;
+        Template<IShader, ShaderAssetContext> template = Definition.Template ??
+            throw new InvalidOperationException(
+                $"{nameof(ShaderAssetDefinition.Template)} is not configured.");
 
         using var memoryStream = new MemoryStream();
         stream.CopyTo(memoryStream);
 
-        var rawEffect = new Effect(
-            context.GraphicsDevice,
-            memoryStream.ToArray());
-
+        var rawEffect = new Effect(context.GraphicsDevice, memoryStream.ToArray());
         var shaderContext = new ShaderAssetContext(rawEffect);
 
-        IShader shader = Definition.Template.Create(shaderContext);
+        IShader shader = template.Create(shaderContext);
         shader.GraphicsDevice = context.GraphicsDevice;
 
         return shader;

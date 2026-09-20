@@ -7,22 +7,22 @@ namespace Sachssoft.Sasogine.Assets;
 
 /// <summary>
 /// Represents an ordered and trackable collection of assets with
-/// reference resolution and automatic asset lifecycle management.
+/// reference resolution and context-based lifecycle management.
 /// </summary>
 /// <remarks>
 /// Asset identifiers are tracked by the underlying
 /// <see cref="ReferencableCollection{T}"/> and must be unique within
 /// the collection.
 ///
-/// When an <see cref="AssetContext"/> is associated with the collection,
-/// contained assets are initialized automatically. Assets added afterwards
-/// are initialized immediately. Assets are deinitialized when they are
-/// removed, replaced, or when the collection is cleared.
+/// Asset lifecycle management is provided by
+/// <see cref="ContextualReferencableCollection{T, TContext}"/>.
+/// When the collection is initialized with an <see cref="AssetContext"/>,
+/// existing and subsequently added assets are initialized automatically.
+/// Removed, replaced, or cleared assets are deinitialized automatically.
 /// </remarks>
-public class AssetCollection : ReferencableCollection<IAsset>
+public class AssetCollection :
+    ContextualReferencableCollection<IAsset, AssetContext>
 {
-    private AssetContext? _context;
-
     /// <summary>
     /// Initializes a new, empty instance of the
     /// <see cref="AssetCollection"/> class.
@@ -60,15 +60,6 @@ public class AssetCollection : ReferencableCollection<IAsset>
     }
 
     /// <summary>
-    /// Gets the asset context associated with this collection.
-    /// </summary>
-    /// <value>
-    /// The associated asset context, or <see langword="null"/> if no
-    /// context has been assigned.
-    /// </value>
-    public AssetContext? Context => _context;
-
-    /// <summary>
     /// Determines whether an asset of the specified type with the
     /// specified identifier exists in the collection.
     /// </summary>
@@ -82,9 +73,7 @@ public class AssetCollection : ReferencableCollection<IAsset>
     /// <see langword="true"/> if a matching asset exists;
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    public bool Contains(
-        Type assetType,
-        string? id)
+    public bool Contains(Type assetType, string? id)
     {
         return Find(assetType, id) is not null;
     }
@@ -129,9 +118,7 @@ public class AssetCollection : ReferencableCollection<IAsset>
     /// <paramref name="assetType"/> does not implement
     /// <see cref="IAsset"/>.
     /// </exception>
-    public IAsset? Find(
-        Type assetType,
-        string? id)
+    public IAsset? Find(Type assetType, string? id)
     {
         ValidateAssetType(assetType);
 
@@ -310,144 +297,6 @@ public class AssetCollection : ReferencableCollection<IAsset>
             return false;
 
         return Remove(asset);
-    }
-
-    /// <summary>
-    /// Associates the specified asset context with this collection and
-    /// initializes all assets currently contained in the collection.
-    /// </summary>
-    /// <param name="context">
-    /// The asset context to associate with this collection.
-    /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="context"/> is <see langword="null"/>.
-    /// </exception>
-    /// <exception cref="InvalidOperationException">
-    /// A context is already associated with this collection or the
-    /// specified context references another asset collection.
-    /// </exception>
-    internal void SetContext(AssetContext context)
-    {
-        ArgumentNullException.ThrowIfNull(context);
-
-        if (_context is not null)
-        {
-            throw new InvalidOperationException(
-                "The asset collection already has an asset context.");
-        }
-
-        if (!ReferenceEquals(context.Source, this))
-        {
-            throw new InvalidOperationException(
-                "The asset context source does not reference this collection.");
-        }
-
-        _context = context;
-
-        foreach (IAsset asset in this)
-            asset.Initialize(context);
-    }
-
-    /// <summary>
-    /// Validates and initializes an asset before it is inserted into
-    /// the collection.
-    /// </summary>
-    /// <param name="index">
-    /// The index at which the asset will be inserted.
-    /// </param>
-    /// <param name="item">
-    /// The asset to insert.
-    /// </param>
-    /// <returns>
-    /// <see langword="true"/> if the insertion may continue;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    protected override bool OnInserting(
-        int index,
-        IAsset item)
-    {
-        if (!base.OnInserting(index, item))
-            return false;
-
-        if (_context is not null)
-            item.Initialize(_context);
-
-        return true;
-    }
-
-    /// <summary>
-    /// Validates a replacement and updates the initialization state
-    /// of the affected assets.
-    /// </summary>
-    /// <param name="index">
-    /// The index of the asset being replaced.
-    /// </param>
-    /// <param name="oldItem">
-    /// The existing asset.
-    /// </param>
-    /// <param name="newItem">
-    /// The replacement asset.
-    /// </param>
-    /// <returns>
-    /// <see langword="true"/> if the replacement may continue;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    protected override bool OnSetting(
-        int index,
-        IAsset oldItem,
-        IAsset newItem)
-    {
-        if (!base.OnSetting(index, oldItem, newItem))
-            return false;
-
-        if (oldItem.IsInitialized)
-            oldItem.Deinitialize();
-
-        if (_context is not null)
-            newItem.Initialize(_context);
-
-        return true;
-    }
-
-    /// <summary>
-    /// Deinitializes an asset after it has been removed from the collection.
-    /// </summary>
-    /// <param name="index">
-    /// The previous index of the removed asset.
-    /// </param>
-    /// <param name="item">
-    /// The removed asset.
-    /// </param>
-    protected override void OnRemoved(
-        int index,
-        IAsset item)
-    {
-        if (item.IsInitialized)
-            item.Deinitialize();
-
-        base.OnRemoved(index, item);
-    }
-
-    /// <summary>
-    /// Prepares the collection for clearing by deinitializing all
-    /// contained assets.
-    /// </summary>
-    /// <returns>
-    /// <see langword="true"/> if the collection may be cleared;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    protected override bool OnClearing()
-    {
-        if (!base.OnClearing())
-            return false;
-
-        foreach (IAsset asset in this)
-        {
-            if (asset.IsInitialized)
-                asset.Deinitialize();
-        }
-
-        return true;
     }
 
     /// <summary>

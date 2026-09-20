@@ -8,58 +8,66 @@ namespace Sachssoft.Sasogine.Assets
     /// Base interface for all assets (e.g., Texture2D, Model, Sound).
     /// Provides lifecycle events, synchronous/asynchronous loading, and error handling.
     /// </summary>
-    public interface IAsset : IEngineObject, IAssemblyContract
+    public interface IAsset :
+        IEngineObject,
+        IInitializableEngineObject,
+        IAssemblyContract
     {
         /// <summary>
-        /// Relative path of the asset within the content or project structure.
+        /// Gets the relative path of the asset within the content or project structure.
         /// </summary>
         string? RelativePath { get; }
 
         /// <summary>
-        /// Fired after the asset instance has been successfully loaded.
+        /// Occurs after the asset instance has been successfully loaded.
         /// </summary>
         event EventHandler? Loaded;
 
         /// <summary>
-        /// Fired after the asset instance has been unloaded.
+        /// Occurs after the asset instance has been unloaded.
         /// </summary>
         event EventHandler? Unloaded;
 
         /// <summary>
-        /// Fired when the source/loader of the asset has been changed.
+        /// Occurs when the source used by the asset changes.
         /// </summary>
         event EventHandler? LoaderSourceChanged;
 
         /// <summary>
-        /// Fired when the asset instance changes (e.g., loaded, reloaded, unloaded).
+        /// Occurs when the runtime asset instance changes.
         /// </summary>
         event EventHandler? InstanceChanged;
 
         /// <summary>
-        /// True if an error occurred during loading or building.
+        /// Gets a value indicating whether an error occurred while processing the asset.
         /// </summary>
         bool HasError { get; }
 
         /// <summary>
-        /// Returns the exception that occurred during loading or building, if any.
+        /// Gets the most recent exception associated with the asset.
         /// </summary>
+        /// <value>
+        /// The captured exception, or <see langword="null"/> if no error exists.
+        /// </value>
         Exception? Exception { get; }
 
         /// <summary>
-        /// The loader/source used to provide the asset stream.
-        /// Can be replaced to reload a different source.
+        /// Gets or sets the resource source used to provide the asset data.
         /// </summary>
         ResourceSourceBase? LoaderSource { get; set; }
 
         /// <summary>
-        /// The currently loaded asset instance.
+        /// Gets a value indicating whether a runtime asset instance is currently available.
         /// </summary>
-        object? Instance { get; }
+        bool HasInstance { get; }
 
         /// <summary>
-        /// Gets whether the asset is currently initialized.
+        /// Gets the currently loaded runtime asset instance.
         /// </summary>
-        bool IsInitialized { get; }
+        /// <exception cref="InvalidOperationException">
+        /// The asset does not currently contain a loaded runtime instance.
+        /// </exception>
+        object Instance { get; }
 
         /// <summary>
         /// Initializes the asset using the specified asset context.
@@ -68,11 +76,6 @@ namespace Sachssoft.Sasogine.Assets
         /// The asset context providing runtime dependencies.
         /// </param>
         void Initialize(AssetContext context);
-
-        /// <summary>
-        /// Deinitializes the asset.
-        /// </summary>
-        void Deinitialize();
 
         void IAssemblyContract.Initialize()
         {

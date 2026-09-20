@@ -22,7 +22,6 @@ namespace Sachssoft.Sasogine.Assets.Graphics
         private Texture2DAddressMode _addressMode;
         private Matrix _transformCache = Matrix.Identity;
         private bool _transformDirty = true;
-        private AssetContext? _context;
 
         /// <summary>
         /// Initializes a new texture asset.
@@ -62,25 +61,6 @@ namespace Sachssoft.Sasogine.Assets.Graphics
             : base(definition)
         {
             LoaderSource = loaderSource;
-        }
-
-        /// <summary>
-        /// Initializes the asset with its runtime context.
-        /// </summary>
-        /// <param name="context">The asset context providing runtime dependencies.</param>
-        protected override void OnInitialize(AssetContext context)
-        {
-            base.OnInitialize(context);
-            _context = context;
-        }
-
-        /// <summary>
-        /// Releases the runtime context associated with the asset.
-        /// </summary>
-        protected override void OnDeinitialize()
-        {
-            _context = null;
-            base.OnDeinitialize();
         }
 
         /// <summary>
@@ -140,18 +120,17 @@ namespace Sachssoft.Sasogine.Assets.Graphics
         /// </summary>
         /// <param name="stream">The stream containing the texture data.</param>
         /// <returns>The created runtime texture.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="stream"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">The asset has not been initialized.</exception>
-        protected override Texture2D? Build(Stream stream)
+        protected override Texture2D Build(Stream stream)
         {
             ArgumentNullException.ThrowIfNull(stream);
 
-            if (_context is null)
+            var graphicsDevice = Context?.GraphicsDevice ??
                 throw new InvalidOperationException(
                     $"{nameof(Texture2DAsset)} must be initialized before calling {nameof(Build)}.");
 
-            GraphicsDevice graphicsDevice = _context.GraphicsDevice;
-            Texture2D original = Texture2D.FromStream(graphicsDevice, stream);
+            var original = Texture2D.FromStream(graphicsDevice, stream);
 
             if (!Definition.UseMipmaps)
                 return original;
@@ -160,10 +139,9 @@ namespace Sachssoft.Sasogine.Assets.Graphics
             int height = original.Height;
             int mipLevels = (int)MathF.Floor(MathF.Log(Math.Max(width, height), 2)) + 1;
 
-            Texture2D texture = new(
-                graphicsDevice, width, height, true, SurfaceFormat.Color);
-
+            Texture2D texture = new(graphicsDevice, width, height, true, SurfaceFormat.Color);
             Color[] pixels = new Color[width * height];
+
             original.GetData(pixels);
             texture.SetData(0, null, pixels, 0, pixels.Length);
 

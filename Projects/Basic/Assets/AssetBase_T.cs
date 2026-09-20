@@ -1,4 +1,5 @@
 ﻿using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Common.Collections;
 using Sachssoft.Sasogine.Resources;
 using System;
 using System.IO;
@@ -13,7 +14,9 @@ namespace Sachssoft.Sasogine.Assets;
 /// state tracking.
 /// </summary>
 /// <typeparam name="T">The runtime type of the loaded asset instance.</typeparam>
-/// <typeparam name="TDefinition">The definition type used to configure the asset.</typeparam>
+/// <typeparam name="TDefinition">
+/// The definition type used to configure the asset.
+/// </typeparam>
 /// <remarks>
 /// <para>
 /// <see cref="AssetBase{T, TDefinition}"/> loads asset data from a
@@ -24,6 +27,9 @@ namespace Sachssoft.Sasogine.Assets;
 /// when the asset is initialized.
 /// </para>
 /// <para>
+/// An asset must be initialized before it can be loaded.
+/// </para>
+/// <para>
 /// Loading and unloading errors are exposed through <see cref="Exception"/>,
 /// <see cref="HasError"/>, and the <see cref="Error"/> event.
 /// </para>
@@ -32,21 +38,26 @@ namespace Sachssoft.Sasogine.Assets;
 /// <see cref="OnError(Exception)"/> has been invoked.
 /// </para>
 /// </remarks>
-public abstract class AssetBase<T, TDefinition> : EngineObject<TDefinition>, IAsset
+public abstract class AssetBase<T, TDefinition> :
+    EngineObject<TDefinition>,
+    IAsset
     where T : class
     where TDefinition : class, IAssetDefinition
 {
     private readonly object _sync = new();
-
     private ResourceSourceBase? _loaderSource;
     private T? _instance;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AssetBase{T, TDefinition}"/> class.
+    /// Initializes a new instance of the
+    /// <see cref="AssetBase{T, TDefinition}"/> class.
     /// </summary>
     /// <param name="definition">The definition associated with the asset.</param>
     protected AssetBase(TDefinition definition)
-        : base(definition)
+        : base(
+            definition,
+            id: definition.Id,
+            @class: definition.Class)
     {
     }
 
@@ -81,14 +92,17 @@ public abstract class AssetBase<T, TDefinition> : EngineObject<TDefinition>, IAs
     public string? RelativePath { get; }
 
     /// <summary>
-    /// Gets a value indicating whether an error is currently associated with the asset.
+    /// Gets a value indicating whether an error is currently associated
+    /// with the asset.
     /// </summary>
-    public bool HasError => Exception != null;
+    public bool HasError => Exception is not null;
 
     /// <summary>
     /// Gets the most recent exception associated with the asset.
     /// </summary>
-    /// <value>The captured exception, or <see langword="null"/> if no error exists.</value>
+    /// <value>
+    /// The captured exception, or <see langword="null"/> if no error exists.
+    /// </value>
     public Exception? Exception { get; protected set; }
 
     /// <summary>
@@ -114,11 +128,21 @@ public abstract class AssetBase<T, TDefinition> : EngineObject<TDefinition>, IAs
     }
 
     /// <summary>
+    /// Gets a value indicating whether a runtime instance is currently available.
+    /// </summary>
+    public bool HasInstance => _instance is not null;
+
+    /// <summary>
     /// Gets the currently loaded runtime instance.
     /// </summary>
-    public T? Instance => _instance;
+    /// <exception cref="InvalidOperationException">
+    /// The asset does not currently contain a loaded runtime instance.
+    /// If loading previously failed, the original error is available through
+    /// <see cref="System.Exception.InnerException"/>.
+    /// </exception>
+    public T Instance => _instance ?? throw CreateInstanceException();
 
-    object? IAsset.Instance => _instance;
+    object IAsset.Instance => Instance;
 
     /// <summary>
     /// Gets a value indicating whether the asset is currently initialized.
@@ -137,7 +161,9 @@ public abstract class AssetBase<T, TDefinition> : EngineObject<TDefinition>, IAs
     /// <summary>
     /// Initializes the asset using the specified asset context.
     /// </summary>
-    /// <param name="context">The asset context providing runtime dependencies.</param>
+    /// <param name="context">
+    /// The asset context providing runtime dependencies.
+    /// </param>
     /// <exception cref="ArgumentNullException">
     /// <paramref name="context"/> is <see langword="null"/>.
     /// </exception>
@@ -149,7 +175,22 @@ public abstract class AssetBase<T, TDefinition> : EngineObject<TDefinition>, IAs
             return;
 
         Context = context;
+        context.Source.ReferenceChanged += SourceReferenceChanged;
         OnInitialize(context);
+    }
+
+    void IInitializableEngineObject.Initialize(IEngineObjectContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (context is not AssetContext assetContext)
+        {
+            throw new ArgumentException(
+                $"The context must be of type '{typeof(AssetContext).FullName}'.",
+                nameof(context));
+        }
+
+        Initialize(assetContext);
     }
 
     /// <summary>
@@ -160,14 +201,19 @@ public abstract class AssetBase<T, TDefinition> : EngineObject<TDefinition>, IAs
         if (!IsInitialized)
             return;
 
+        AssetContext context = Context!;
+
         OnDeinitialize();
+        context.Source.ReferenceChanged -= SourceReferenceChanged;
         Context = null;
     }
 
     /// <summary>
     /// Called when the asset is initialized.
     /// </summary>
-    /// <param name="context">The asset context providing runtime dependencies.</param>
+    /// <param name="context">
+    /// The asset context providing runtime dependencies.
+    /// </param>
     protected virtual void OnInitialize(AssetContext context)
     {
     }
@@ -180,31 +226,48 @@ public abstract class AssetBase<T, TDefinition> : EngineObject<TDefinition>, IAs
     }
 
     /// <summary>
+    /// Called when a reference in the associated asset collection changes.
+    /// </summary>
+    /// <param name="asset">The asset affected by the reference change.</param>
+    protected virtual void OnReferenceChanged(IAsset asset)
+    {
+    }
+
+    /// <summary>
     /// Ensures that the asset is loaded and returns its runtime instance.
     /// </summary>
-    /// <returns>The loaded runtime instance, or <see langword="null"/> if none was created.</returns>
-    public T? GetOrLoad()
+    /// <returns>The loaded runtime instance.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// The asset has not been initialized, loading did not produce a runtime
+    /// instance, or loading previously failed.
+    /// </exception>
+    public T GetOrLoad()
     {
         if (!IsLoaded)
             Load();
 
-        return _instance;
+        return _instance ?? throw CreateInstanceException();
     }
 
     /// <summary>
-    /// Ensures that the asset is loaded asynchronously and returns its runtime instance.
+    /// Ensures that the asset is loaded asynchronously and returns its
+    /// runtime instance.
     /// </summary>
-    /// <param name="cancellationToken">A token used to cancel the loading operation.</param>
-    /// <returns>
-    /// A task containing the loaded runtime instance, or <see langword="null"/>
-    /// if loading did not produce an instance.
-    /// </returns>
-    public async Task<T?> GetOrLoadAsync(CancellationToken cancellationToken = default)
+    /// <param name="cancellationToken">
+    /// A token used to cancel the loading operation.
+    /// </param>
+    /// <returns>A task containing the loaded runtime instance.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// The asset has not been initialized, loading did not produce a runtime
+    /// instance, or loading previously failed.
+    /// </exception>
+    public async Task<T> GetOrLoadAsync(
+        CancellationToken cancellationToken = default)
     {
         if (!IsLoaded)
             await LoadAsync(cancellationToken).ConfigureAwait(false);
 
-        return _instance;
+        return _instance ?? throw CreateInstanceException();
     }
 
     /// <summary>
@@ -228,9 +291,12 @@ public abstract class AssetBase<T, TDefinition> : EngineObject<TDefinition>, IAs
     /// <summary>
     /// Asynchronously loads the asset data and builds the runtime instance.
     /// </summary>
-    /// <param name="cancellationToken">A token used to cancel the loading operation.</param>
+    /// <param name="cancellationToken">
+    /// A token used to cancel the loading operation.
+    /// </param>
     /// <returns>A task representing the asynchronous loading operation.</returns>
-    protected override async Task OnLoadAsync(CancellationToken cancellationToken = default)
+    protected override async Task OnLoadAsync(
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -271,11 +337,8 @@ public abstract class AssetBase<T, TDefinition> : EngineObject<TDefinition>, IAs
     /// Builds a runtime asset instance from the specified resource stream.
     /// </summary>
     /// <param name="stream">The stream containing the asset data.</param>
-    /// <returns>The created runtime instance, or <see langword="null"/> if none was created.</returns>
-    protected virtual T? Build(Stream stream)
-    {
-        return default;
-    }
+    /// <returns>The created runtime instance.</returns>
+    protected abstract T Build(Stream stream);
 
     /// <summary>
     /// Releases a previously built runtime asset instance.
@@ -337,16 +400,48 @@ public abstract class AssetBase<T, TDefinition> : EngineObject<TDefinition>, IAs
         InstanceChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    /// <summary>
-    /// Loads the resource data and builds the runtime instance.
-    /// </summary>
+    private void SourceReferenceChanged(
+        object? sender,
+        ReferenceChangedEventArgs<IAsset> e)
+    {
+        if (ReferenceEquals(e.Item, this))
+            return;
+
+        OnReferenceChanged(e.Item);
+    }
+
+    private InvalidOperationException CreateInstanceException()
+    {
+        return HasError
+            ? new InvalidOperationException(
+                "The asset instance is unavailable because the asset failed to load.",
+                Exception)
+            : new InvalidOperationException(
+                "The asset instance is not loaded.");
+    }
+
+    private void EnsureInitialized()
+    {
+        if (!IsInitialized)
+        {
+            throw new InvalidOperationException(
+                "The asset must be initialized before it can be loaded.");
+        }
+    }
+
     private void LoadCore()
     {
+        EnsureInitialized();
+
         ResourceSourceBase source = _loaderSource ??
-            throw new InvalidOperationException("LoaderSource is not set.");
+            throw new InvalidOperationException(
+                "LoaderSource is not set.");
 
         using Stream stream = source.GetStream();
-        T? instance = Build(stream);
+
+        T instance = Build(stream) ??
+            throw new InvalidOperationException(
+                "The asset builder returned a null instance.");
 
         lock (_sync)
         {
@@ -358,23 +453,25 @@ public abstract class AssetBase<T, TDefinition> : EngineObject<TDefinition>, IAs
         OnInstanceChanged();
     }
 
-    /// <summary>
-    /// Asynchronously loads the resource data and builds the runtime instance.
-    /// </summary>
-    /// <param name="cancellationToken">A token used to cancel the loading operation.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    private async Task LoadCoreAsync(CancellationToken cancellationToken)
+    private async Task LoadCoreAsync(
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        EnsureInitialized();
 
         ResourceSourceBase source = _loaderSource ??
-            throw new InvalidOperationException("LoaderSource is not set.");
+            throw new InvalidOperationException(
+                "LoaderSource is not set.");
 
-        using Stream stream = await source.GetStreamAsync(cancellationToken).ConfigureAwait(false);
+        using Stream stream =
+            await source.GetStreamAsync(cancellationToken)
+                .ConfigureAwait(false);
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        T? instance = Build(stream);
+        T instance = Build(stream) ??
+            throw new InvalidOperationException(
+                "The asset builder returned a null instance.");
 
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -388,9 +485,6 @@ public abstract class AssetBase<T, TDefinition> : EngineObject<TDefinition>, IAs
         OnInstanceChanged();
     }
 
-    /// <summary>
-    /// Releases and clears the current runtime instance.
-    /// </summary>
     private void UnloadCore()
     {
         T? instance;
@@ -401,7 +495,7 @@ public abstract class AssetBase<T, TDefinition> : EngineObject<TDefinition>, IAs
             _instance = null;
         }
 
-        if (instance != null)
+        if (instance is not null)
             DisposeInstance(instance);
 
         Exception = null;

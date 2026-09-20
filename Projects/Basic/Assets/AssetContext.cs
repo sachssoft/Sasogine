@@ -1,19 +1,20 @@
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Common;
 using System;
 
 namespace Sachssoft.Sasogine.Assets;
 
 /// <summary>
-/// Provides runtime dependencies required by assets associated with
-/// an asset collection.
+/// Provides runtime dependencies required for asset initialization and
+/// runtime asset creation.
 /// </summary>
-public sealed class AssetContext
+public sealed class AssetContext : IEngineObjectContext
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="AssetContext"/> class.
     /// </summary>
     /// <param name="source">
-    /// The asset source used to resolve asset references.
+    /// The asset collection used to resolve asset references.
     /// </param>
     /// <param name="graphicsDevice">
     /// The graphics device used by graphics-related assets.
@@ -30,7 +31,7 @@ public sealed class AssetContext
     }
 
     /// <summary>
-    /// Gets the asset source used to resolve asset references.
+    /// Gets the asset collection used to resolve asset references.
     /// </summary>
     public AssetCollection Source { get; }
 
