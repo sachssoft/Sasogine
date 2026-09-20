@@ -38,6 +38,45 @@ public abstract class EngineObject<TDefinition> : EngineObjectBase, IEngineObjec
     }
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="EngineObject{TDefinition}"/> class
+    /// with the specified definition, identifier, and class.
+    /// </summary>
+    /// <param name="definition">
+    /// The definition used to configure the engine object.
+    /// </param>
+    /// <param name="id">The optional engine object identifier.</param>
+    /// <param name="class">The optional engine object class.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="definition"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// The definition does not implement <see cref="IEngineObjectDefinition"/>.
+    /// </exception>
+    protected EngineObject(
+        TDefinition definition,
+        string? id = null,
+        string? @class = null)
+    {
+        _definition = definition ??
+            throw new ArgumentNullException(nameof(definition));
+
+        if (_definition is not IEngineObjectDefinition engineObjectDefinition)
+        {
+            throw new ArgumentException(
+                $"The definition must implement {nameof(IEngineObjectDefinition)}.",
+                nameof(definition));
+        }
+
+        engineObjectDefinition.Id = id;
+        engineObjectDefinition.Class = @class;
+
+        Id = id;
+        Class = @class;
+
+        ConfigureFromDefinition();
+    }
+
+    /// <summary>
     /// Occurs when the identifier of the engine object changes while applying
     /// its definition.
     /// </summary>
