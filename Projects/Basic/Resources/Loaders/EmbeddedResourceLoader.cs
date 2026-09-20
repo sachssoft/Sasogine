@@ -1,133 +1,154 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Resources.Sources
+namespace Sachssoft.Sasogine.Resources.Sources;
+
+/// <summary>
+/// Provides access to resources embedded in an assembly.
+/// </summary>
+public sealed class EmbeddedResourceSource : ResourceSourceBase, IFileSource
 {
+    private Assembly _assembly = Assembly.GetExecutingAssembly();
+
     /// <summary>
-    /// Provides access to resources embedded in an assembly.
+    /// Initializes a new instance of the
+    /// <see cref="EmbeddedResourceSource"/> class.
     /// </summary>
-    public sealed class EmbeddedResourceSource : ResourceSourceBase, IFileSource
+    public EmbeddedResourceSource()
     {
-        private string[]? _cachedResourceNames;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="EmbeddedResourceSource"/> class.
-        /// </summary>
-        public EmbeddedResourceSource()
+    /// <summary>
+    /// Initializes a new instance of the
+    /// <see cref="EmbeddedResourceSource"/> class with the specified file path.
+    /// </summary>
+    /// <param name="filePath">
+    /// The path used to locate the embedded resource.
+    /// </param>
+    public EmbeddedResourceSource(string? filePath)
+    {
+        FilePath = filePath;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the
+    /// <see cref="EmbeddedResourceSource"/> class with the specified file path
+    /// and assembly.
+    /// </summary>
+    /// <param name="filePath">
+    /// The path used to locate the embedded resource.
+    /// </param>
+    /// <param name="assembly">
+    /// The assembly containing the embedded resource.
+    /// </param>
+    public EmbeddedResourceSource(
+        string? filePath,
+        Assembly assembly)
+    {
+        ArgumentNullException.ThrowIfNull(assembly);
+
+        FilePath = filePath;
+        Assembly = assembly;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the
+    /// <see cref="EmbeddedResourceSource"/> class with the specified file path
+    /// and game application.
+    /// </summary>
+    /// <param name="filePath">
+    /// The path used to locate the embedded resource.
+    /// </param>
+    /// <param name="application">
+    /// The game application whose assembly contains the embedded resource.
+    /// </param>
+    public EmbeddedResourceSource(
+        string? filePath,
+        IGameApplication application)
+    {
+        ArgumentNullException.ThrowIfNull(application);
+
+        FilePath = filePath;
+        Assembly = application.Assembly;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the
+    /// <see cref="EmbeddedResourceSource"/> class with the specified file path
+    /// and asset store.
+    /// </summary>
+    /// <param name="filePath">
+    /// The path used to locate the embedded resource.
+    /// </param>
+    /// <param name="assetStore">
+    /// The asset store whose application context provides the assembly
+    /// containing the embedded resource.
+    /// </param>
+    public EmbeddedResourceSource(
+        string? filePath,
+        AssetStore assetStore)
+    {
+        ArgumentNullException.ThrowIfNull(assetStore);
+
+        FilePath = filePath;
+        Assembly = assetStore.GameApplication.Assembly;
+    }
+
+    /// <summary>
+    /// Gets or sets the assembly containing the embedded resource.
+    /// </summary>
+    public Assembly Assembly
+    {
+        get => _assembly;
+        set
         {
+            ArgumentNullException.ThrowIfNull(value);
+            _assembly = value;
         }
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="EmbeddedResourceSource"/> class
-        /// with the specified file path.
-        /// </summary>
-        /// <param name="filePath">
-        /// The path used to locate the embedded resource.
-        /// </param>
-        public EmbeddedResourceSource(string? filePath)
+    /// <summary>
+    /// Gets or sets the path used to locate the embedded resource.
+    /// </summary>
+    public string? FilePath { get; set; }
+
+    /// <inheritdoc/>
+    protected override Stream OpenStream()
+    {
+        if (string.IsNullOrWhiteSpace(FilePath))
+            throw new InvalidOperationException(
+                $"{nameof(FilePath)} is not set.");
+
+        return AssemblyResource.Open(
+            Assembly,
+            FilePath);
+    }
+
+    /// <inheritdoc/>
+    protected override async Task<Stream> OpenStreamAsync(
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        using Stream originalStream = OpenStream();
+        var memoryStream = new MemoryStream();
+
+        try
         {
-            FilePath = filePath;
+            await originalStream
+                .CopyToAsync(memoryStream, cancellationToken)
+                .ConfigureAwait(false);
+
+            memoryStream.Position = 0;
+            return memoryStream;
         }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="EmbeddedResourceSource"/> class
-        /// with the specified file path and assembly.
-        /// </summary>
-        /// <param name="filePath">
-        /// The path used to locate the embedded resource.
-        /// </param>
-        /// <param name="assembly">
-        /// The assembly containing the embedded resource.
-        /// </param>
-        public EmbeddedResourceSource(string? filePath, Assembly assembly)
+        catch
         {
-            FilePath = filePath;
-            Assembly = assembly;
-        }
-
-        /// <summary>
-        /// Gets or sets the assembly containing the embedded resource.
-        /// </summary>
-        public Assembly Assembly { get; set; } = Assembly.GetExecutingAssembly();
-
-        /// <summary>
-        /// Gets or sets the path used to locate the embedded resource.
-        /// </summary>
-        public string? FilePath { get; set; }
-
-        /// <inheritdoc/>
-        protected override Stream OpenStream()
-        {
-            if (string.IsNullOrWhiteSpace(FilePath))
-                throw new InvalidOperationException("FilePath is not set.");
-
-            var resourceNames = _cachedResourceNames ??=
-                Assembly.GetManifestResourceNames();
-
-            string normalizedFile = NormalizeFilePath(FilePath);
-
-            string? resourceName = resourceNames
-                .FirstOrDefault(n =>
-                    n.EndsWith(
-                        normalizedFile,
-                        StringComparison.OrdinalIgnoreCase));
-
-            if (resourceName == null)
-            {
-                var availableResources =
-                    string.Join(Environment.NewLine + "  ", resourceNames);
-
-                throw new FileNotFoundException(
-                    $"Embedded resource not found: {normalizedFile}{Environment.NewLine}" +
-                    $"Available resources:{Environment.NewLine}  {availableResources}");
-            }
-
-            var stream = Assembly.GetManifestResourceStream(resourceName);
-
-            if (stream == null)
-                throw new IOException(
-                    $"Failed to open embedded resource stream: {resourceName}");
-
-            return stream;
-        }
-
-        /// <inheritdoc/>
-        protected override async Task<Stream> OpenStreamAsync(
-            CancellationToken cancellationToken = default)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            using var originalStream = OpenStream();
-
-            var memoryStream = new MemoryStream();
-
-            try
-            {
-                await originalStream
-                    .CopyToAsync(memoryStream, cancellationToken)
-                    .ConfigureAwait(false);
-
-                memoryStream.Position = 0;
-
-                return memoryStream;
-            }
-            catch
-            {
-                memoryStream.Dispose();
-                throw;
-            }
-        }
-
-        private static string NormalizeFilePath(string filePath)
-        {
-            return filePath
-                .Replace('/', '.')
-                .Replace('\\', '.')
-                .ToLowerInvariant();
+            memoryStream.Dispose();
+            throw;
         }
     }
 }

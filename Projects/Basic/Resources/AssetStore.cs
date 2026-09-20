@@ -14,6 +14,7 @@ public class AssetStore : IReadOnlyAssetStore
 {
     private readonly GameApplicationBase _gameApplication;
     private readonly AssetCollection _assets;
+    private IApplicationContext? _applicationContext;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AssetStore"/> class.
@@ -26,7 +27,6 @@ public class AssetStore : IReadOnlyAssetStore
         ArgumentNullException.ThrowIfNull(application);
 
         _gameApplication = application;
-
         _assets = [];
 
         IEnumerable<IAsset>? integratedAssets = CreateIntegratedAssets();
@@ -63,8 +63,6 @@ public class AssetStore : IReadOnlyAssetStore
     /// </summary>
     protected AssetCollection AssetCollection => _assets;
 
-    private IApplicationContext? _applicationContext;
-
     /// <summary>
     /// Gets the application context associated with the asset store.
     /// </summary>
@@ -96,15 +94,14 @@ public class AssetStore : IReadOnlyAssetStore
 
         _applicationContext = context;
 
-        foreach (IAsset asset in CreateIntegratedAssets())
-            Add(asset);
+        AssetContext assetContext = new(
+            _assets,
+            GraphicsDevice);
+
+        _assets.Initialize(assetContext);
 
         OnInitialized(context);
     }
-
-    // ---------------------------------------------------------------------
-    // Add
-    // ---------------------------------------------------------------------
 
     /// <summary>
     /// Adds an asset to the store.
@@ -117,7 +114,6 @@ public class AssetStore : IReadOnlyAssetStore
         ArgumentNullException.ThrowIfNull(asset);
 
         _assets.Add(asset);
-
         OnAssetAdded(asset);
     }
 
@@ -132,13 +128,12 @@ public class AssetStore : IReadOnlyAssetStore
     /// </param>
     public virtual void Add(
         IAsset asset,
-        Sasogine.Resources.ResourceSourceBase loaderSource)
+        ResourceSourceBase loaderSource)
     {
         ArgumentNullException.ThrowIfNull(asset);
         ArgumentNullException.ThrowIfNull(loaderSource);
 
         asset.LoaderSource = loaderSource;
-
         Add(asset);
     }
 
@@ -168,19 +163,14 @@ public class AssetStore : IReadOnlyAssetStore
     /// </param>
     public virtual void AddAndLoad(
         IAsset asset,
-        Sasogine.Resources.ResourceSourceBase loaderSource)
+        ResourceSourceBase loaderSource)
     {
         ArgumentNullException.ThrowIfNull(asset);
         ArgumentNullException.ThrowIfNull(loaderSource);
 
         asset.LoaderSource = loaderSource;
-
         AddAndLoad(asset);
     }
-
-    // ---------------------------------------------------------------------
-    // Remove
-    // ---------------------------------------------------------------------
 
     /// <summary>
     /// Removes the specified asset from the store.
@@ -200,7 +190,6 @@ public class AssetStore : IReadOnlyAssetStore
             return false;
 
         OnAssetRemoved(asset);
-
         return true;
     }
 
@@ -219,7 +208,6 @@ public class AssetStore : IReadOnlyAssetStore
         ArgumentException.ThrowIfNullOrEmpty(id);
 
         IAsset? asset = _assets.Find(id);
-
         return asset is not null && Remove(asset);
     }
 
@@ -236,13 +224,16 @@ public class AssetStore : IReadOnlyAssetStore
             OnAssetRemoved(asset);
     }
 
-    // ---------------------------------------------------------------------
-    // Contains
-    // ---------------------------------------------------------------------
-
     /// <summary>
     /// Determines whether an asset with the specified identifier exists.
     /// </summary>
+    /// <param name="id">
+    /// The asset identifier.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if the asset exists; otherwise,
+    /// <see langword="false"/>.
+    /// </returns>
     public virtual bool Contains(string id)
     {
         ArgumentException.ThrowIfNullOrEmpty(id);
@@ -251,39 +242,58 @@ public class AssetStore : IReadOnlyAssetStore
     }
 
     /// <summary>
-    /// Determines whether an asset with the specified identifier
-    /// is assignable to the specified type.
+    /// Determines whether an asset with the specified identifier is assignable
+    /// to the specified type.
     /// </summary>
-    public virtual bool Contains(
-        Type assetType,
-        string id)
+    /// <param name="assetType">
+    /// The asset type.
+    /// </param>
+    /// <param name="id">
+    /// The asset identifier.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if a matching asset exists; otherwise,
+    /// <see langword="false"/>.
+    /// </returns>
+    public virtual bool Contains(Type assetType, string id)
     {
         ValidateAssetType(assetType);
         ArgumentException.ThrowIfNullOrEmpty(id);
 
-        IAsset? asset = _assets.Find(id);
-
-        return asset is not null &&
-               assetType.IsInstanceOfType(asset);
+        return _assets.Contains(assetType, id);
     }
 
     /// <summary>
-    /// Determines whether an asset with the specified identifier
-    /// is assignable to <typeparamref name="TAsset"/>.
+    /// Determines whether an asset with the specified identifier is assignable
+    /// to <typeparamref name="TAsset"/>.
     /// </summary>
+    /// <typeparam name="TAsset">
+    /// The asset type.
+    /// </typeparam>
+    /// <param name="id">
+    /// The asset identifier.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if a matching asset exists; otherwise,
+    /// <see langword="false"/>.
+    /// </returns>
     public virtual bool Contains<TAsset>(string id)
         where TAsset : class, IAsset
     {
-        return Contains(typeof(TAsset), id);
-    }
+        ArgumentException.ThrowIfNullOrEmpty(id);
 
-    // ---------------------------------------------------------------------
-    // Get
-    // ---------------------------------------------------------------------
+        return _assets.Contains<TAsset>(id);
+    }
 
     /// <summary>
     /// Gets the asset with the specified identifier.
     /// </summary>
+    /// <param name="id">
+    /// The asset identifier.
+    /// </param>
+    /// <returns>
+    /// The matching asset.
+    /// </returns>
     public virtual IAsset Get(string id)
     {
         ArgumentException.ThrowIfNullOrEmpty(id);
@@ -294,12 +304,18 @@ public class AssetStore : IReadOnlyAssetStore
     }
 
     /// <summary>
-    /// Gets the asset with the specified identifier
-    /// and verifies its type.
+    /// Gets the asset with the specified identifier and verifies its type.
     /// </summary>
-    public virtual IAsset Get(
-        Type assetType,
-        string id)
+    /// <param name="assetType">
+    /// The required asset type.
+    /// </param>
+    /// <param name="id">
+    /// The asset identifier.
+    /// </param>
+    /// <returns>
+    /// The matching asset.
+    /// </returns>
+    public virtual IAsset Get(Type assetType, string id)
     {
         ValidateAssetType(assetType);
 
@@ -319,19 +335,34 @@ public class AssetStore : IReadOnlyAssetStore
     /// <summary>
     /// Gets the asset with the specified identifier.
     /// </summary>
+    /// <typeparam name="TAsset">
+    /// The required asset type.
+    /// </typeparam>
+    /// <param name="id">
+    /// The asset identifier.
+    /// </param>
+    /// <returns>
+    /// The matching asset.
+    /// </returns>
     public virtual TAsset Get<TAsset>(string id)
         where TAsset : class, IAsset
     {
         return (TAsset)Get(typeof(TAsset), id);
     }
 
-    // ---------------------------------------------------------------------
-    // TryGet
-    // ---------------------------------------------------------------------
-
     /// <summary>
     /// Attempts to get the asset with the specified identifier.
     /// </summary>
+    /// <param name="id">
+    /// The asset identifier.
+    /// </param>
+    /// <param name="asset">
+    /// The matching asset if found.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if the asset was found; otherwise,
+    /// <see langword="false"/>.
+    /// </returns>
     public virtual bool TryGet(
         string id,
         out IAsset? asset)
@@ -342,9 +373,21 @@ public class AssetStore : IReadOnlyAssetStore
     }
 
     /// <summary>
-    /// Attempts to get the asset with the specified identifier
-    /// and type.
+    /// Attempts to get an asset with the specified identifier and type.
     /// </summary>
+    /// <param name="assetType">
+    /// The required asset type.
+    /// </param>
+    /// <param name="id">
+    /// The asset identifier.
+    /// </param>
+    /// <param name="asset">
+    /// The matching asset if found.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if a matching asset was found; otherwise,
+    /// <see langword="false"/>.
+    /// </returns>
     public virtual bool TryGet(
         Type assetType,
         string id,
@@ -353,21 +396,25 @@ public class AssetStore : IReadOnlyAssetStore
         ValidateAssetType(assetType);
         ArgumentException.ThrowIfNullOrEmpty(id);
 
-        if (_assets.TryGet(id, out IAsset? value) &&
-            value is not null &&
-            assetType.IsInstanceOfType(value))
-        {
-            asset = value;
-            return true;
-        }
-
-        asset = null;
-        return false;
+        return _assets.TryGet(assetType, id, out asset);
     }
 
     /// <summary>
-    /// Attempts to get the asset with the specified identifier.
+    /// Attempts to get an asset with the specified identifier.
     /// </summary>
+    /// <typeparam name="TAsset">
+    /// The required asset type.
+    /// </typeparam>
+    /// <param name="id">
+    /// The asset identifier.
+    /// </param>
+    /// <param name="asset">
+    /// The matching asset if found.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if a matching asset was found; otherwise,
+    /// <see langword="false"/>.
+    /// </returns>
     public virtual bool TryGet<TAsset>(
         string id,
         out TAsset? asset)
@@ -378,13 +425,12 @@ public class AssetStore : IReadOnlyAssetStore
         return _assets.TryGet(id, out asset);
     }
 
-    // ---------------------------------------------------------------------
-    // GetAll
-    // ---------------------------------------------------------------------
-
     /// <summary>
     /// Gets all assets contained in the store.
     /// </summary>
+    /// <returns>
+    /// All assets contained in the store.
+    /// </returns>
     public virtual IEnumerable<IAsset> GetAll()
     {
         return _assets.ToArray();
@@ -393,34 +439,40 @@ public class AssetStore : IReadOnlyAssetStore
     /// <summary>
     /// Gets all assets assignable to the specified type.
     /// </summary>
+    /// <param name="assetType">
+    /// The asset type.
+    /// </param>
+    /// <returns>
+    /// All matching assets.
+    /// </returns>
     public virtual IEnumerable<IAsset> GetAll(Type assetType)
     {
         ValidateAssetType(assetType);
 
-        return _assets
-            .Where(assetType.IsInstanceOfType)
-            .ToArray();
+        return _assets.GetAll(assetType).ToArray();
     }
 
     /// <summary>
-    /// Gets all assets assignable to
-    /// <typeparamref name="TAsset"/>.
+    /// Gets all assets assignable to <typeparamref name="TAsset"/>.
     /// </summary>
+    /// <typeparam name="TAsset">
+    /// The asset type.
+    /// </typeparam>
+    /// <returns>
+    /// All matching assets.
+    /// </returns>
     public virtual IEnumerable<TAsset> GetAll<TAsset>()
         where TAsset : class, IAsset
     {
-        return _assets
-            .OfType<TAsset>()
-            .ToArray();
+        return _assets.GetAll<TAsset>().ToArray();
     }
-
-    // ---------------------------------------------------------------------
-    // Load
-    // ---------------------------------------------------------------------
 
     /// <summary>
     /// Loads the asset with the specified identifier.
     /// </summary>
+    /// <param name="id">
+    /// The asset identifier.
+    /// </param>
     public virtual void LoadAsset(string id)
     {
         LoadAsset(Get(id));
@@ -429,14 +481,15 @@ public class AssetStore : IReadOnlyAssetStore
     /// <summary>
     /// Loads the specified asset.
     /// </summary>
+    /// <param name="asset">
+    /// The asset to load.
+    /// </param>
     public virtual void LoadAsset(IAsset asset)
     {
         ArgumentNullException.ThrowIfNull(asset);
 
         OnLoadingAsset(asset);
-
         asset.Load();
-
         OnAssetLoaded(asset);
     }
 
@@ -445,18 +498,21 @@ public class AssetStore : IReadOnlyAssetStore
     /// </summary>
     public virtual void LoadAll()
     {
-        foreach (IAsset asset in GetAssetSnapshot())
+        foreach (IAsset asset in this)
             LoadAsset(asset);
     }
 
     /// <summary>
     /// Loads all assets assignable to the specified type.
     /// </summary>
+    /// <param name="assetType">
+    /// The asset type.
+    /// </param>
     public virtual void LoadAll(Type assetType)
     {
         ValidateAssetType(assetType);
 
-        foreach (IAsset asset in GetAssetSnapshot())
+        foreach (IAsset asset in this)
         {
             if (assetType.IsInstanceOfType(asset))
                 LoadAsset(asset);
@@ -464,22 +520,23 @@ public class AssetStore : IReadOnlyAssetStore
     }
 
     /// <summary>
-    /// Loads all assets assignable to
-    /// <typeparamref name="TAsset"/>.
+    /// Loads all assets assignable to <typeparamref name="TAsset"/>.
     /// </summary>
+    /// <typeparam name="TAsset">
+    /// The asset type.
+    /// </typeparam>
     public virtual void LoadAll<TAsset>()
         where TAsset : class, IAsset
     {
         LoadAll(typeof(TAsset));
     }
 
-    // ---------------------------------------------------------------------
-    // Unload
-    // ---------------------------------------------------------------------
-
     /// <summary>
     /// Unloads the asset with the specified identifier.
     /// </summary>
+    /// <param name="id">
+    /// The asset identifier.
+    /// </param>
     public virtual void UnloadAsset(string id)
     {
         UnloadAsset(Get(id));
@@ -488,14 +545,15 @@ public class AssetStore : IReadOnlyAssetStore
     /// <summary>
     /// Unloads the specified asset.
     /// </summary>
+    /// <param name="asset">
+    /// The asset to unload.
+    /// </param>
     public virtual void UnloadAsset(IAsset asset)
     {
         ArgumentNullException.ThrowIfNull(asset);
 
         OnUnloadingAsset(asset);
-
         asset.Unload();
-
         OnAssetUnloaded(asset);
     }
 
@@ -504,18 +562,21 @@ public class AssetStore : IReadOnlyAssetStore
     /// </summary>
     public virtual void UnloadAll()
     {
-        foreach (IAsset asset in GetAssetSnapshot())
+        foreach (IAsset asset in this)
             UnloadAsset(asset);
     }
 
     /// <summary>
     /// Unloads all assets assignable to the specified type.
     /// </summary>
+    /// <param name="assetType">
+    /// The asset type.
+    /// </param>
     public virtual void UnloadAll(Type assetType)
     {
         ValidateAssetType(assetType);
 
-        foreach (IAsset asset in GetAssetSnapshot())
+        foreach (IAsset asset in this)
         {
             if (assetType.IsInstanceOfType(asset))
                 UnloadAsset(asset);
@@ -523,22 +584,23 @@ public class AssetStore : IReadOnlyAssetStore
     }
 
     /// <summary>
-    /// Unloads all assets assignable to
-    /// <typeparamref name="TAsset"/>.
+    /// Unloads all assets assignable to <typeparamref name="TAsset"/>.
     /// </summary>
+    /// <typeparam name="TAsset">
+    /// The asset type.
+    /// </typeparam>
     public virtual void UnloadAll<TAsset>()
         where TAsset : class, IAsset
     {
         UnloadAll(typeof(TAsset));
     }
 
-    // ---------------------------------------------------------------------
-    // Protected
-    // ---------------------------------------------------------------------
-
     /// <summary>
     /// Called after the asset store has been initialized.
     /// </summary>
+    /// <param name="context">
+    /// The application context used to initialize the store.
+    /// </param>
     protected virtual void OnInitialized(IApplicationContext context)
     {
     }
@@ -555,16 +617,11 @@ public class AssetStore : IReadOnlyAssetStore
     }
 
     /// <summary>
-    /// Gets a snapshot of the currently stored assets.
-    /// </summary>
-    protected virtual IAsset[] GetAssetSnapshot()
-    {
-        return [.. _assets];
-    }
-
-    /// <summary>
     /// Validates that the specified type represents an asset type.
     /// </summary>
+    /// <param name="assetType">
+    /// The type to validate.
+    /// </param>
     protected virtual void ValidateAssetType(Type assetType)
     {
         ArgumentNullException.ThrowIfNull(assetType);
@@ -581,6 +638,9 @@ public class AssetStore : IReadOnlyAssetStore
     /// <summary>
     /// Called after an asset has been added.
     /// </summary>
+    /// <param name="asset">
+    /// The added asset.
+    /// </param>
     protected virtual void OnAssetAdded(IAsset asset)
     {
     }
@@ -588,6 +648,9 @@ public class AssetStore : IReadOnlyAssetStore
     /// <summary>
     /// Called after an asset has been removed.
     /// </summary>
+    /// <param name="asset">
+    /// The removed asset.
+    /// </param>
     protected virtual void OnAssetRemoved(IAsset asset)
     {
     }
@@ -595,6 +658,9 @@ public class AssetStore : IReadOnlyAssetStore
     /// <summary>
     /// Called immediately before an asset is loaded.
     /// </summary>
+    /// <param name="asset">
+    /// The asset being loaded.
+    /// </param>
     protected virtual void OnLoadingAsset(IAsset asset)
     {
     }
@@ -602,6 +668,9 @@ public class AssetStore : IReadOnlyAssetStore
     /// <summary>
     /// Called after an asset has been loaded.
     /// </summary>
+    /// <param name="asset">
+    /// The loaded asset.
+    /// </param>
     protected virtual void OnAssetLoaded(IAsset asset)
     {
     }
@@ -609,6 +678,9 @@ public class AssetStore : IReadOnlyAssetStore
     /// <summary>
     /// Called immediately before an asset is unloaded.
     /// </summary>
+    /// <param name="asset">
+    /// The asset being unloaded.
+    /// </param>
     protected virtual void OnUnloadingAsset(IAsset asset)
     {
     }
@@ -616,17 +688,19 @@ public class AssetStore : IReadOnlyAssetStore
     /// <summary>
     /// Called after an asset has been unloaded.
     /// </summary>
+    /// <param name="asset">
+    /// The unloaded asset.
+    /// </param>
     protected virtual void OnAssetUnloaded(IAsset asset)
     {
     }
 
-    // ---------------------------------------------------------------------
-    // Enumeration
-    // ---------------------------------------------------------------------
-
     /// <summary>
     /// Returns an enumerator that iterates through the assets.
     /// </summary>
+    /// <returns>
+    /// An enumerator for the assets.
+    /// </returns>
     public IEnumerator<IAsset> GetEnumerator()
     {
         return _assets.GetEnumerator();

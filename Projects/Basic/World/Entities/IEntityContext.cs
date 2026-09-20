@@ -1,3 +1,5 @@
+using Sachssoft.Sasogine.Common;
+
 namespace Sachssoft.Sasogine.World
 {
     /// <summary>
@@ -7,7 +9,7 @@ namespace Sachssoft.Sasogine.World
     /// Implementations can expose runtime services and resources required by
     /// entities during initialization.
     /// </remarks>
-    public interface IEntityContext
+    public interface IEntityContext : IEngineObjectContext
     {
     }
 }

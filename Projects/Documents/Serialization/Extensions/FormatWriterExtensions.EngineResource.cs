@@ -1,47 +1,66 @@
 using Sachssoft.Sasodoc;
 using Sachssoft.Sasogine.Assets;
 using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Resources.Localization;
 using System;
 using System.Collections.Generic;
 
 namespace Sachssoft.Sasogine.Documents.Serialization
 {
     /// <summary>
-    /// Provides markup serialization extensions for reading EngineResource values.
+    /// Provides markup serialization extensions for writing EngineResource values.
     /// </summary>
     public static partial class FormatWriterExtensions
     {
+        /// <summary>
+        /// Writes a <see cref="MultilingualValue{T}"/> to the specified property.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The type of value stored for each language.
+        /// </typeparam>
+        /// <param name="writer">
+        /// The format writer.
+        /// </param>
+        /// <param name="property">
+        /// The property name.
+        /// </param>
+        /// <param name="value">
+        /// The multilingual value to write.
+        /// </param>
+        /// <param name="writeLanguageItem">
+        /// The callback used to write an individual language-specific value.
+        /// </param>
+        public static void WriteMultilingualValue<T>(
+            this FormatWriterBase writer,
+            string property,
+            MultilingualValue<T>? value,
+            Action<FormatWriterBase, string, T?> writeLanguageItem)
+        {
+            if (value is null)
+                return;
 
-        ///// <summary>
-        ///// Writes a CulturedValue value to the specified markup property.
-        ///// </summary>
-        ///// <typeparam name="T">The generic T type.</typeparam>
-        ///// <param name="writer">The markup writer.</param>
-        ///// <param name="property">The property name.</param>
-        ///// <param name="value">The value to write.</param>
-        ///// <param name="writeCulturedItem">The callback used to write an individual culture-specific value.</param>
-        //public static void WriteCulturedValue<T>(
-        //    this FormatWriterBase writer,
-        //    string property,
-        //    CulturedValue<T>? value,
-        //    Action<FormatWriterBase, string, T?> writeCulturedItem
-        //)
-        //{
-        //    if (value == null)
-        //        return;
+            var writers = new List<FormatWriterBase>();
 
-        //    var writers = new List<FormatWriterBase>();
-        //    foreach (var culture in value.Cultures)
-        //    {
-        //        var cultureWriter = writer.CreateWriter();
-        //        cultureWriter.WriteString("Culture", culture.Name);
-        //        writeCulturedItem(cultureWriter, "Value", value.Get(culture));
-        //        writers.Add(cultureWriter);
-        //    }
+            foreach (var language in value.Languages)
+            {
+                var languageWriter = writer.CreateWriter();
 
-        //    writer.WriteArray(property, writers.ToArray());
-        //}
+                languageWriter.WriteString(
+                    "Language",
+                    language);
 
+                writeLanguageItem(
+                    languageWriter,
+                    "Value",
+                    value.Get(language));
+
+                writers.Add(languageWriter);
+            }
+
+            writer.WriteArray(
+                property,
+                writers.ToArray());
+        }
 
         /// <summary>
         /// Writes a Reference value to the specified markup property.
@@ -53,19 +72,19 @@ namespace Sachssoft.Sasogine.Documents.Serialization
         public static void WriteReference<T>(
             this FormatWriterBase writer,
             string property,
-            Reference<T>? value
-        )
+            Reference<T>? value)
             where T : class, IEngineReferenceable
         {
-            if (value == null)
+            if (value is null)
                 return;
 
-            writer.WriteString(context: property, value.Id);
+            writer.WriteString(
+                context: property,
+                value.Id);
         }
 
-
         /// <summary>
-        /// Writes a AssetFile value to the specified markup property.
+        /// Writes an AssetFile value to the specified markup property.
         /// </summary>
         /// <typeparam name="T">The generic T type.</typeparam>
         /// <param name="writer">The markup writer.</param>
@@ -74,14 +93,15 @@ namespace Sachssoft.Sasogine.Documents.Serialization
         public static void WriteAssetFile<T>(
             this FormatWriterBase writer,
             string property,
-            AssetFile<T>? value
-        )
+            AssetFile<T>? value)
             where T : class, IAssetDefinition
         {
-            if (value == null)
+            if (value is null)
                 return;
 
-            writer.WriteString(context: property, value.FullRelativePath);
+            writer.WriteString(
+                context: property,
+                value.FullRelativePath);
         }
     }
 }

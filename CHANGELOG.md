@@ -26,10 +26,18 @@ All notable changes to this project will be documented in this file.
 * [Feature] Added custom frame index converters to `IndexedFrameSetAsset<TEnum>`.
 * [Feature] Added texture asset references to indexed frame set constructors.
 * [Feature] Added built-in language lookup by name, language code, and `CultureInfo` using `Language.Find` and `Language.TryGet`.
+* [Feature] Added `AssemblyResource` utilities for locating and accessing embedded assembly resources.
+* [Feature] Added generalized context-based engine object lifecycle management.
+* [Feature] Added `ContextualReferencableCollection<T, TContext>`.
 * [Change] Separated frame set runtime types from the asset system by replacing `Texture2DAsset` references with `Texture2D`.
 * [Change] Simplified shader and frame set asset creation with factory-based convenience constructors.
 * [Change] Improved asset reference handling and runtime dependency resolution.
-	
+* [Change] Improved `EmbeddedResourceSource` resource lookup and error handling.
+* [Change] Refactored asset and entity collections to use shared context-based lifecycle management.
+* [Change] Redesigned asset and entity collection architecture around shared reference resolution and context-based lifecycle management.
+* [Improve] Applied `Id` and `Class` from engine object definitions during construction instead of waiting for the first load or reload.
+* [Bug] **Toolkit**: Fixed incorrect initial selection bounds before the first vector shape edit.
+
 ## [0.2.1-alpha] - 2026-09-17
 * [Feature] Added `MultilingualValue` for multi-language values with fallback support.
 * [Change] **Documents**: Moved `DocumentFormatType` from Documents to the engine core.

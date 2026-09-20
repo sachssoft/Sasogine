@@ -107,8 +107,23 @@ public sealed class MultilingualValue<T>
     public T? Get(Language language)
     {
         ArgumentNullException.ThrowIfNull(language);
+        return Get(language.Name);
+    }
 
-        return _values.TryGetValue(language.Name, out T? value)
+    /// <summary>
+    /// Gets the value associated with the specified language name.
+    /// </summary>
+    /// <param name="language">
+    /// The language name or code whose value should be retrieved.
+    /// </param>
+    /// <returns>
+    /// The language-specific value when available; otherwise the fallback value.
+    /// </returns>
+    public T? Get(string language)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(language);
+
+        return _values.TryGetValue(language, out T? value)
             ? value
             : _fallback;
     }
@@ -128,8 +143,28 @@ public sealed class MultilingualValue<T>
     public bool TryGet(Language language, out T? value)
     {
         ArgumentNullException.ThrowIfNull(language);
+        return TryGet(language.Name, out value);
+    }
 
-        if (_values.TryGetValue(language.Name, out T? languageValue))
+    /// <summary>
+    /// Attempts to get a value explicitly associated with the specified language name.
+    /// </summary>
+    /// <param name="language">
+    /// The language name or code whose value should be retrieved.
+    /// </param>
+    /// <param name="value">
+    /// When this method returns, contains the language-specific value when found;
+    /// otherwise the fallback value.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if a language-specific value exists;
+    /// otherwise <see langword="false"/>.
+    /// </returns>
+    public bool TryGet(string language, out T? value)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(language);
+
+        if (_values.TryGetValue(language, out T? languageValue))
         {
             value = languageValue;
             return true;

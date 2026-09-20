@@ -93,15 +93,13 @@ namespace Sachssoft.Sasogine.Components.Tools
                 return;
 
             Trim();
-
-            _lastTransform =
-                SelectionToolExtensions.ToMatrix(_target);
-
-            _shape.UpdateState();
+            FitSelectionBounds();
 
             _isInitialized = true;
 
-            Changed?.Invoke(this, EventArgs.Empty);
+            Changed?.Invoke(
+                this,
+                EventArgs.Empty);
         }
 
         /// <summary>

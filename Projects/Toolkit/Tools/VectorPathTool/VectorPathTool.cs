@@ -1625,12 +1625,24 @@ public sealed class VectorPathTool : ToolBase
         return null;
     }
 
+    //private IEnumerable<VectorShape> GetActiveShapes()
+    //{
+    //    foreach (var target in GetVectorTargets())
+    //    {
+    //        if (target.IsSelected)
+    //            yield return target.Shape;
+    //    }
+    //}
+
     private IEnumerable<VectorShape> GetActiveShapes()
     {
         foreach (var target in GetVectorTargets())
         {
-            if (target.IsSelected)
-                yield return target.Shape;
+            if (target.IsSelected &&
+                target.ActiveShape is { } shape)
+            {
+                yield return shape;
+            }
         }
     }
 
@@ -1653,10 +1665,40 @@ public sealed class VectorPathTool : ToolBase
         DrawTargetBounds(context, true, TargetSelectionColor);
     }
 
+    //private void DrawTargetBounds(
+    //    SceneDrawContext context,
+    //    bool isSelected,
+    //    Color color)
+    //{
+    //    _lineShader.Color = color;
+    //    _lineShader.Apply();
+
+    //    _lineBatch.Begin(
+    //        shader: _lineShader,
+    //        camera: context.ViewCamera);
+
+    //    foreach (var target in GetVectorTargets())
+    //    {
+    //        if (target.IsSelected != isSelected)
+    //            continue;
+
+    //        if (!TryGetShapeBounds(target.Shape, out var bounds))
+    //            continue;
+
+    //        _lineBatch.AddStrokeRectangle(
+    //            bounds,
+    //            TargetBorderThickness,
+    //            LineJoin.Round,
+    //            _transform);
+    //    }
+
+    //    _lineBatch.End();
+    //}
+
     private void DrawTargetBounds(
-        SceneDrawContext context,
-        bool isSelected,
-        Color color)
+    SceneDrawContext context,
+    bool isSelected,
+    Color color)
     {
         _lineShader.Color = color;
         _lineShader.Apply();
@@ -1665,12 +1707,17 @@ public sealed class VectorPathTool : ToolBase
             shader: _lineShader,
             camera: context.ViewCamera);
 
-        foreach (var target in GetVectorTargets())
+        foreach (IVectorPathTarget target in GetVectorTargets())
         {
             if (target.IsSelected != isSelected)
                 continue;
 
-            if (!TryGetShapeBounds(target.Shape, out var bounds))
+            VectorShape? shape = target.ActiveShape;
+
+            if (shape is null)
+                continue;
+
+            if (!TryGetShapeBounds(shape, out var bounds))
                 continue;
 
             _lineBatch.AddStrokeRectangle(
@@ -1836,26 +1883,50 @@ public sealed class VectorPathTool : ToolBase
             (dy * dy) / (radiusY * radiusY) <= 1f;
     }
 
-    private IEnumerable<(VectorShape Shape, bool IsSelected)> GetVectorTargets()
+    //private IEnumerable<(VectorShape Shape, bool IsSelected)> GetVectorTargets()
+    //{
+    //    var shapes = new HashSet<VectorShape>();
+
+    //    foreach (var item in _targetsSource)
+    //    {
+    //        VectorShape? shape = null;
+    //        bool isSelected = false;
+
+    //        if (item is IVectorPathTarget target)
+    //        {
+    //            shape = target.ActiveShape;
+    //            isSelected = target.IsSelected;
+    //        }
+    //        //else if (item is IEngineObject engineObject &&
+    //        //         engineObject.Definition is IVectorPathTargetDefinition definition)
+    //        //{
+    //        //    //shape = definition.ActiveShape;
+    //        //    isSelected = definition.IsSelected;
+    //        //}
+
+    //        if (shape == null || shape.Paths.Count == 0)
+    //            continue;
+
+    //        if (!shapes.Add(shape))
+    //        {
+    //            throw new InvalidOperationException(
+    //                "A VectorShape instance cannot be shared by multiple vector path targets.");
+    //        }
+
+    //        yield return (shape, isSelected);
+    //    }
+    //}
+
+    private IEnumerable<IVectorPathTarget> GetVectorTargets()
     {
         var shapes = new HashSet<VectorShape>();
 
         foreach (var item in _targetsSource)
         {
-            VectorShape? shape = null;
-            bool isSelected = false;
+            if (item is not IVectorPathTarget target)
+                continue;
 
-            if (item is IVectorPathTarget target)
-            {
-                shape = target.ActiveShape;
-                isSelected = target.IsSelected;
-            }
-            else if (item is IEngineObject engineObject &&
-                     engineObject.Definition is IVectorPathTargetDefinition definition)
-            {
-                //shape = definition.ActiveShape;
-                isSelected = definition.IsSelected;
-            }
+            VectorShape? shape = target.ActiveShape;
 
             if (shape == null || shape.Paths.Count == 0)
                 continue;
@@ -1866,7 +1937,7 @@ public sealed class VectorPathTool : ToolBase
                     "A VectorShape instance cannot be shared by multiple vector path targets.");
             }
 
-            yield return (shape, isSelected);
+            yield return target;
         }
     }
 }
