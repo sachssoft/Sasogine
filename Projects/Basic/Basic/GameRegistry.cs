@@ -396,13 +396,6 @@ public class GameRegistry<TKey, TDefinition, TObject> : IGameRegistry
 
         lock (_lock)
         {
-            Console.WriteLine("=== RegisterEntry ===");
-            Console.WriteLine($"Key:            {entry.Key}");
-            Console.WriteLine($"KeyType:        {entry.KeyType.FullName}");
-            Console.WriteLine($"DefinitionType: {entry.DefinitionType.FullName}");
-            Console.WriteLine($"ObjectType:     {entry.ObjectType.FullName}");
-            Console.WriteLine();
-
             if (_entriesByKey.ContainsKey(entry.Key))
             {
                 throw new InvalidOperationException(
