@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Resources;
 using Sachssoft.Sasogine.Scenes;
 
 namespace Sachssoft.Sasogine.Components.Rendering;
@@ -28,6 +29,11 @@ public class ScreenCursor : CursorComponent
     /// Gets or sets the rendering layer of the cursor.
     /// </summary>
     public float Layer { get; set; }
+
+    /// <summary>
+    /// Gets or sets the source region of the cursor texture.
+    /// </summary>
+    public ISourceRegion? TextureRegion { get; set; }
 
     /// <summary>
     /// Gets the current runtime state of the cursor.
@@ -64,9 +70,21 @@ public class ScreenCursor : CursorComponent
         _spriteBatch.Draw(
             Texture,
             new Vector2(
-                _state.Position.X,
-                _state.Position.Y),
-            DiffuseColor * Opacity);
+                _state.Position.X + _state.Offset.X,
+                _state.Position.Y + _state.Offset.Y),
+            sourceRectangle: TextureRegion != null ?
+                new Rectangle(
+                    TextureRegion.SourceBounds.X,
+                    TextureRegion.SourceBounds.Y,
+                    TextureRegion.SourceBounds.Width,
+                    TextureRegion.SourceBounds.Height) :
+                null,
+            color: DiffuseColor * Opacity,
+            rotation: 0f,
+            origin: Vector2.Zero,
+            scale: Vector2.One,
+            effects: SpriteEffects.None,
+            layerDepth: Layer);
 
         _spriteBatch.End();
     }

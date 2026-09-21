@@ -77,6 +77,8 @@ public class ParallaxComponent : ResourceComponentBase, IDrawableComponent
     /// <param name="context">Provides scene update information.</param>
     public override void Update(SceneUpdateContext context)
     {
+        base.Update(context);
+
         if (!IsEnabled)
             return;
 
@@ -91,8 +93,10 @@ public class ParallaxComponent : ResourceComponentBase, IDrawableComponent
     /// Draws all visible parallax layers in ascending draw order.
     /// </summary>
     /// <param name="context">Provides scene rendering information.</param>
-    public void Draw(SceneDrawContext context)
+    public override void Draw(SceneDrawContext context)
     {
+        base.Draw(context);
+
         if (!IsVisible)
             return;
 

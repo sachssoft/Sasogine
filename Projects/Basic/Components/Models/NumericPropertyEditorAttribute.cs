@@ -10,10 +10,6 @@ namespace Sachssoft.Sasogine.Components.Models
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class NumericPropertyEditorAttribute : PropertyEditorAttribute
     {
-        private NumericPropertyEditorAttribute()
-        {
-        }
-
         /// <summary>
         /// Initializes a new instance for a floating-point numeric property.
         /// </summary>

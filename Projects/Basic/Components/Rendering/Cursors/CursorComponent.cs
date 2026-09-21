@@ -52,12 +52,4 @@ public abstract class CursorComponent : ResourceComponentBase, IDrawableComponen
     /// Gets or sets the texture used to render the cursor.
     /// </summary>
     public Texture2D? Texture { get; set; }
-
-    /// <summary>
-    /// Draws the cursor.
-    /// </summary>
-    /// <param name="context">
-    /// Provides information about the current scene draw operation.
-    /// </param>
-    public abstract void Draw(SceneDrawContext context);
 }

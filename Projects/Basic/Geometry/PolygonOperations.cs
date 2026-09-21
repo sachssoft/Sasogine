@@ -118,14 +118,14 @@ public static class PolygonOperations
     /// </returns>
     public static IReadOnlyList<IReadOnlyList<Vector2>> Simplify(
         IReadOnlyList<IReadOnlyList<Vector2>> contours,
-        PolygonSimplificationOptions options = default,
+        PolygonSimplificationOptions? options = null,
         IPolygonSimplifier? simplifierBackend = null)
     {
         simplifierBackend ??= new Clipper2PolygonSimplifier();
 
         return simplifierBackend.Simplify(
             contours,
-            options);
+            options ?? new PolygonSimplificationOptions());
     }
 
     /// <summary>

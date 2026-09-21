@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Components.Rendering;
@@ -13,15 +14,15 @@ public readonly struct ScreenCursorState
     /// <param name="position">
     /// The current cursor position in screen coordinates.
     /// </param>
-    /// <param name="clickPosition">
-    /// The screen position at which the current click started.
+    /// <param name="offset">
+    /// The offset applied to the cursor representation.
     /// </param>
     public ScreenCursorState(
         PixelPoint2 position,
-        PixelPoint2 clickPosition)
+        Vector2 offset)
     {
         Position = position;
-        ClickPosition = clickPosition;
+        Offset = offset;
     }
 
     /// <summary>
@@ -30,7 +31,7 @@ public readonly struct ScreenCursorState
     public PixelPoint2 Position { get; }
 
     /// <summary>
-    /// Gets the screen position at which the current click started.
+    /// Gets the offset applied to the cursor representation.
     /// </summary>
-    public PixelPoint2 ClickPosition { get; }
+    public Vector2 Offset { get; }
 }

@@ -64,5 +64,5 @@ public interface IVectorSegment : IEngineObject
     /// <value>
     /// The <see cref="VectorSegmentDefinition"/> associated with this segment.
     /// </value>
-    VectorSegmentDefinition Definition { get; }
+    new VectorSegmentDefinition Definition { get; }
 }

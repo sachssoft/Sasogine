@@ -134,6 +134,9 @@ namespace Sachssoft.Sasogine.Documents.Serialization
             var relativeFilePath =
                 reader.ReadString(context: property);
 
+            if (string.IsNullOrEmpty(relativeFilePath))
+                return null;
+
             return new AssetFile<T>(relativeFilePath);
         }
     }

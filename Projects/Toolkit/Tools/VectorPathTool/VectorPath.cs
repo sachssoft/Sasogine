@@ -248,6 +248,15 @@ public class VectorPath : EngineObject<VectorPathDefinition>
         return vertices.ToArray();
     }
 
+    /// <summary>
+    /// Called when the owning vector shape changes.
+    /// </summary>
+    /// <param name="oldOwner">
+    /// The previous owner, or <see langword="null"/> if the path had no owner.
+    /// </param>
+    /// <param name="newOwner">
+    /// The new owner, or <see langword="null"/> if the path no longer has an owner.
+    /// </param>
     protected virtual void OnOwnerChanged(
         VectorShape? oldOwner,
         VectorShape? newOwner)

@@ -49,9 +49,6 @@ public interface IReadOnlyAssetStore : IReadOnlyCollection<IAsset>
     /// <exception cref="KeyNotFoundException">
     /// No asset with the specified identifier exists.
     /// </exception>
-    /// <exception cref="InvalidCastException">
-    /// The asset is not of type <typeparamref name="TAsset"/>.
-    /// </exception>
     TAsset Get<TAsset>(string id)
         where TAsset : class, IAsset;
 

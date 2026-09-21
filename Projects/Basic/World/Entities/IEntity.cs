@@ -49,15 +49,6 @@ namespace Sachssoft.Sasogine.World
         event EventHandler? ActivityStateChanged;
 
         /// <summary>
-        /// Gets the unique identifier of the entity.
-        /// </summary>
-        /// <value>
-        /// The entity identifier, or <see langword="null"/> if no identifier
-        /// has been assigned.
-        /// </value>
-        string? Id { get; }
-
-        /// <summary>
         /// Gets the class associated with the entity.
         /// </summary>
         /// <value>

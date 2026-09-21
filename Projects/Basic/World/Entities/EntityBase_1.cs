@@ -103,15 +103,6 @@ public abstract class EntityBase<TDefinition> :
     }
 
     /// <summary>
-    /// Gets a value indicating whether the entity is currently loaded.
-    /// </summary>
-    /// <value>
-    /// <see langword="true"/> if the entity is loaded; otherwise,
-    /// <see langword="false"/>.
-    /// </value>
-    public bool IsLoaded { get; private set; }
-
-    /// <summary>
     /// Updates all updateable components attached to the entity.
     /// </summary>
     /// <param name="context">

@@ -6,9 +6,9 @@ namespace Sachssoft.Sasogine.Common
     /// Specifies which parts of an engine object should be reloaded.
     /// </summary>
     /// <remarks>
-    // Legt fest, welche Bereiche eines Engine-Objekts beim Reload
-    // aktualisiert werden sollen.
-    // </remarks>
+    /// Legt fest, welche Bereiche eines Engine-Objekts beim Reload
+    /// aktualisiert werden sollen.
+    /// </remarks>
     [Flags]
     public enum DirtyAction
     {

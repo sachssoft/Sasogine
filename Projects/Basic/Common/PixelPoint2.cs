@@ -224,11 +224,14 @@ public readonly struct PixelPoint2 : IEquatable<PixelPoint2>
 
     /// <summary>
     /// Implicitly converts a <see cref="PixelPoint2"/> to a
-    /// <see cref="Point"/>.
+    /// <see cref="Microsoft.Xna.Framework.Point"/>.
     /// </summary>
-    /// <param name="value">The pixel point to convert.</param>
+    /// <param name="value">
+    /// The pixel point to convert.
+    /// </param>
     /// <returns>
-    /// A point containing the coordinates of <paramref name="value"/>.
+    /// A <see cref="Microsoft.Xna.Framework.Point"/> containing the coordinates
+    /// of <paramref name="value"/>.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Microsoft.Xna.Framework.Point(PixelPoint2 value)

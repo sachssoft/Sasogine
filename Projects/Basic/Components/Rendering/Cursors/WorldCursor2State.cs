@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
 
 namespace Sachssoft.Sasogine.Components.Rendering;
@@ -13,15 +14,15 @@ public readonly struct WorldCursor2State
     /// <param name="position">
     /// The current cursor position in world coordinates.
     /// </param>
-    /// <param name="clickPosition">
-    /// The world position at which the current click started.
+    /// <param name="offset">
+    /// The offset applied to the cursor representation.
     /// </param>
     public WorldCursor2State(
         Point2 position,
-        Point2 clickPosition)
+        Vector2 offset)
     {
         Position = position;
-        ClickPosition = clickPosition;
+        Offset = offset;
     }
 
     /// <summary>
@@ -30,7 +31,7 @@ public readonly struct WorldCursor2State
     public Point2 Position { get; }
 
     /// <summary>
-    /// Gets the world position at which the current click started.
+    /// Gets the offset applied to the cursor representation.
     /// </summary>
-    public Point2 ClickPosition { get; }
+    public Vector2 Offset { get; }
 }

@@ -3,13 +3,24 @@ using Sachssoft.Sasogine.Documents.Serialization;
 
 namespace Sachssoft.Sasogine.Components.Tools;
 
-public sealed class VectorLineSegmentSerialization : SerializationBase<VectorLineSegmentDefinition>
+/// <summary>
+/// Provides serialization support for
+/// <see cref="VectorLineSegmentDefinition"/> instances.
+/// </summary>
+public sealed class VectorLineSegmentSerialization :
+    SerializationBase<VectorLineSegmentDefinition>
 {
-    public override void Deserialize(VectorLineSegmentDefinition target, FormatReaderBase reader)
+    /// <inheritdoc/>
+    public override void Deserialize(
+        VectorLineSegmentDefinition target,
+        FormatReaderBase reader)
     {
     }
 
-    public override void Serialize(VectorLineSegmentDefinition source, FormatWriterBase writer)
+    /// <inheritdoc/>
+    public override void Serialize(
+        VectorLineSegmentDefinition source,
+        FormatWriterBase writer)
     {
     }
 }

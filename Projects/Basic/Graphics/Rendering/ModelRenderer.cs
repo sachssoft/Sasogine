@@ -91,7 +91,7 @@ namespace Sachssoft.Sasogine.Graphics.Rendering
                         basic.View = cam.View;
                         basic.Projection = cam.Projection;
 
-                        ShaderSetupCallback?.Invoke(null, cam, finalWorld);
+                        //ShaderSetupCallback?.Invoke(null, cam, finalWorld);
                         basic.CurrentTechnique.Passes[0].Apply();
                     }
                 }

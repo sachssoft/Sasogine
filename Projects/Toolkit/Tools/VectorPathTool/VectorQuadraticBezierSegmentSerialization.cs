@@ -3,28 +3,54 @@ using Sachssoft.Sasogine.Documents.Serialization;
 
 namespace Sachssoft.Sasogine.Components.Tools;
 
-public sealed class VectorQuadraticBezierSegmentSerialization : SerializationBase<VectorQuadraticBezierSegmentDefinition>
+/// <summary>
+/// Provides serialization support for
+/// <see cref="VectorQuadraticBezierSegmentDefinition"/> instances.
+/// </summary>
+public sealed class VectorQuadraticBezierSegmentSerialization :
+    SerializationBase<VectorQuadraticBezierSegmentDefinition>
 {
-    private VectorNodeSerialization _nodeSerialization;
+    private readonly VectorNodeSerialization _nodeSerialization;
 
+    /// <summary>
+    /// Initializes a new instance of the
+    /// <see cref="VectorQuadraticBezierSegmentSerialization"/> class.
+    /// </summary>
     public VectorQuadraticBezierSegmentSerialization()
     {
         _nodeSerialization = new VectorNodeSerialization();
     }
 
-    public override void Deserialize(VectorQuadraticBezierSegmentDefinition target, FormatReaderBase reader)
+    /// <inheritdoc/>
+    public override void Deserialize(
+        VectorQuadraticBezierSegmentDefinition target,
+        FormatReaderBase reader)
     {
-        if (reader.Contains(nameof(VectorQuadraticBezierSegmentDefinition.ControlNode)))
+        if (reader.Contains(
+            nameof(VectorQuadraticBezierSegmentDefinition.ControlNode)))
         {
-            var nodeReader = reader.Read(nameof(VectorQuadraticBezierSegmentDefinition.ControlNode));
-            _nodeSerialization.Deserialize(target.ControlNode, nodeReader);
+            var nodeReader = reader.Read(
+                nameof(VectorQuadraticBezierSegmentDefinition.ControlNode));
+
+            _nodeSerialization.Deserialize(
+                target.ControlNode,
+                nodeReader!);
         }
     }
 
-    public override void Serialize(VectorQuadraticBezierSegmentDefinition source, FormatWriterBase writer)
+    /// <inheritdoc/>
+    public override void Serialize(
+        VectorQuadraticBezierSegmentDefinition source,
+        FormatWriterBase writer)
     {
         var nodeWriter = writer.CreateWriter();
-        _nodeSerialization.Serialize(source.ControlNode, nodeWriter);
-        writer.Write(nameof(VectorQuadraticBezierSegmentDefinition.ControlNode), nodeWriter);
+
+        _nodeSerialization.Serialize(
+            source.ControlNode,
+            nodeWriter);
+
+        writer.Write(
+            nameof(VectorQuadraticBezierSegmentDefinition.ControlNode),
+            nodeWriter);
     }
 }

@@ -83,7 +83,7 @@ public class SoundAsset :
     /// <exception cref="FormatException">
     /// The configured or detected audio format is unsupported.
     /// </exception>
-    protected override ISoundPlayer? Build(Stream stream)
+    protected override ISoundPlayer Build(Stream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 

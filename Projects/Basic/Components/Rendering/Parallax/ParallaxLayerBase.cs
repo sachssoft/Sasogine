@@ -88,12 +88,6 @@ public abstract class ParallaxLayerBase : ResourceComponentBase, IParallaxLayerC
     public void SetDrawOrder(int index) => Index = index;
 
     /// <summary>
-    /// Draws the content of the parallax layer.
-    /// </summary>
-    /// <param name="context">Provides scene rendering information.</param>
-    public abstract void Draw(SceneDrawContext context);
-
-    /// <summary>
     /// Resets the runtime state of the parallax layer.
     /// </summary>
     public virtual void Reset() { }

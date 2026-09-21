@@ -12,6 +12,7 @@ namespace Sachssoft.Sasogine.Components
     public abstract class ComponentBase :
         IComponent,
         IUpdatableComponent,
+        IDrawableComponent,
         IServiceProvider
     {
         private readonly List<IComponentService> _componentServices = new();
@@ -29,6 +30,27 @@ namespace Sachssoft.Sasogine.Components
             {
                 if (_componentServices[i] is IUpdatableComponent updatableService)
                     updatableService.Update(context);
+            }
+
+            for (int i = 0; i < _components.Count; i++)
+            {
+                if (_components[i] is IUpdatableComponent updatableComponent)
+                    updatableComponent.Update(context);
+            }
+        }
+
+        /// <summary>
+        /// Draws all drawable child components.
+        /// </summary>
+        /// <param name="context">
+        /// Provides information about the current scene draw operation.
+        /// </param>
+        public virtual void Draw(SceneDrawContext context)
+        {
+            for (int i = 0; i < _components.Count; i++)
+            {
+                if (_components[i] is IDrawableComponent drawableComponent)
+                    drawableComponent.Draw(context);
             }
         }
 

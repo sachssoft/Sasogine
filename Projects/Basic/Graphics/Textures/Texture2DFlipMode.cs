@@ -1,13 +1,25 @@
 ﻿using System;
 
+namespace Sachssoft.Sasogine.Graphics;
 
-namespace Sachssoft.Sasogine.Graphics
+/// <summary>
+/// Specifies how a two-dimensional texture is flipped during rendering.
+/// </summary>
+[Flags]
+public enum Texture2DFlipMode
 {
-    [Flags]
-    public enum Texture2DFlipMode
-    {
-        None = 0,
-        Horizontal = 1,
-        Vertical = 2
-    }
+    /// <summary>
+    /// Specifies that the texture is not flipped.
+    /// </summary>
+    None = 0,
+
+    /// <summary>
+    /// Flips the texture horizontally.
+    /// </summary>
+    Horizontal = 1,
+
+    /// <summary>
+    /// Flips the texture vertically.
+    /// </summary>
+    Vertical = 2
 }

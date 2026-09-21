@@ -8,7 +8,8 @@ namespace Sachssoft.Sasogine.Components.Tools;
 /// Represents a quadratic Bézier segment of a vector path
 /// with a single control node.
 /// </summary>
-public sealed class VectorQuadraticBezierSegment : VectorFixedSegment<VectorQuadraticBezierSegmentDefinition>
+public sealed class VectorQuadraticBezierSegment :
+    VectorFixedSegment<VectorQuadraticBezierSegmentDefinition>
 {
     private Point2 _startPositionCache;
     private Point2 _controlPositionCache;
@@ -66,18 +67,32 @@ public sealed class VectorQuadraticBezierSegment : VectorFixedSegment<VectorQuad
         Point2 position,
         Point2 controlPosition,
         bool isSelected)
-        : this(CreateDefinition(position, controlPosition, isSelected))
+        : this(
+            CreateDefinition(
+                position,
+                controlPosition,
+                isSelected))
     {
     }
 
-    public VectorQuadraticBezierSegment(VectorQuadraticBezierSegmentDefinition definition)
+    /// <summary>
+    /// Initializes a new instance of the
+    /// <see cref="VectorQuadraticBezierSegment"/> class
+    /// using the specified definition.
+    /// </summary>
+    /// <param name="definition">
+    /// The definition used to initialize the quadratic Bézier segment.
+    /// </param>
+    public VectorQuadraticBezierSegment(
+        VectorQuadraticBezierSegmentDefinition definition)
         : base(controlCount: 1, definition)
     {
-        //if (definition.ControlNodes.Count != 1)
-        //    throw new ArgumentException("Quadratic Bézier segments require exactly one control node.", nameof(definition));
     }
 
-    protected override VectorNode CreateVectorNode(int index, VectorQuadraticBezierSegmentDefinition definition)
+    /// <inheritdoc/>
+    protected override VectorNode CreateVectorNode(
+        int index,
+        VectorQuadraticBezierSegmentDefinition definition)
     {
         return index switch
         {
@@ -88,7 +103,9 @@ public sealed class VectorQuadraticBezierSegment : VectorFixedSegment<VectorQuad
 
     private static VectorQuadraticBezierSegmentDefinition CreateDefinition()
     {
-        var definition = new VectorQuadraticBezierSegmentDefinition();
+        var definition =
+            new VectorQuadraticBezierSegmentDefinition();
+
         return definition;
     }
 
@@ -97,7 +114,8 @@ public sealed class VectorQuadraticBezierSegment : VectorFixedSegment<VectorQuad
         Point2 controlPosition,
         bool isSelected)
     {
-        var definition = new VectorQuadraticBezierSegmentDefinition();
+        var definition =
+            new VectorQuadraticBezierSegmentDefinition();
 
         definition.Node.Position = position;
         definition.Node.IsSelected = isSelected;

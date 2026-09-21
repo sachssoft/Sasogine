@@ -1,7 +1,10 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Sasogine.Common;
+using Sachssoft.Sasogine.Graphics.Cameras;
 using Sachssoft.Sasogine.Graphics.Meshes;
 using Sachssoft.Sasogine.Graphics.Rendering;
+using Sachssoft.Sasogine.Input;
 using Sachssoft.Sasogine.Scenes;
 
 namespace Sachssoft.Sasogine.Components.Rendering;
@@ -44,9 +47,32 @@ public class WorldCursor2 : CursorComponent
     /// <param name="state">
     /// The runtime state to apply.
     /// </param>
-    public void ApplyState(WorldCursor2State state)
+    public void ApplyState(
+        WorldCursor2State state)
     {
         _state = state;
+    }
+
+    /// <summary>
+    /// Applies the specified cursor state using the given camera and offset.
+    /// </summary>
+    /// <param name="cursorState">
+    /// The cursor state used to determine the world position.
+    /// </param>
+    /// <param name="camera">
+    /// The camera used to transform the cursor position into world coordinates.
+    /// </param>
+    /// <param name="offset">
+    /// The offset applied to the cursor representation.
+    /// </param>
+    public void ApplyState(
+        ICursorState cursorState,
+        ICamera camera,
+        Vector2 offset)
+    {
+        _state = new WorldCursor2State(
+            cursorState.GetWorldPosition(camera),
+            offset);
     }
 
     /// <inheritdoc/>
@@ -72,8 +98,8 @@ public class WorldCursor2 : CursorComponent
         shader.Apply();
 
         var transform = Matrix.CreateTranslation(
-            _state.Position.X,
-            _state.Position.Y,
+            _state.Position.X + _state.Offset.X,
+            _state.Position.Y + _state.Offset.Y,
             Layer);
 
         MeshRenderer.Draw(

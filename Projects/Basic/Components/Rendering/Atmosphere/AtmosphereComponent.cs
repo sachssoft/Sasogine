@@ -47,27 +47,5 @@ namespace Sachssoft.Sasogine.Components.Rendering
         /// Gets or sets whether the atmosphere component is rendered.
         /// </summary>
         public bool IsVisible { get; set; } = true;
-
-
-        /// <summary>
-        /// Updates the atmosphere state.
-        /// </summary>
-        /// <param name="context">
-        /// Provides scene update information.
-        /// </param>
-        public void Update(SceneUpdateContext context)
-        {
-        }
-
-
-        /// <summary>
-        /// Draws atmospheric effects.
-        /// </summary>
-        /// <param name="context">
-        /// Provides scene rendering information.
-        /// </param>
-        public void Draw(SceneDrawContext context)
-        {
-        }
     }
 }

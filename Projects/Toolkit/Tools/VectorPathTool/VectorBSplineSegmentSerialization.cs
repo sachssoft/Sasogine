@@ -2,19 +2,34 @@
 
 namespace Sachssoft.Sasogine.Components.Tools;
 
-public sealed class VectorBSplineSegmentSerialization : VectorVariableSegmentSerializationBase<VectorBSplineSegmentDefinition>
+/// <summary>
+/// Provides serialization support for
+/// <see cref="VectorBSplineSegmentDefinition"/> instances.
+/// </summary>
+public sealed class VectorBSplineSegmentSerialization :
+    VectorVariableSegmentSerializationBase<VectorBSplineSegmentDefinition>
 {
-    public override void Deserialize(VectorBSplineSegmentDefinition target, FormatReaderBase reader)
+    /// <inheritdoc/>
+    public override void Deserialize(
+        VectorBSplineSegmentDefinition target,
+        FormatReaderBase reader)
     {
         base.Deserialize(target, reader);
 
-        target.Degree = reader.ReadInt32(nameof(VectorBSplineSegmentDefinition.Degree), target.Degree);
+        target.Degree = reader.ReadInt32(
+            nameof(VectorBSplineSegmentDefinition.Degree),
+            target.Degree);
     }
 
-    public override void Serialize(VectorBSplineSegmentDefinition source, FormatWriterBase writer)
+    /// <inheritdoc/>
+    public override void Serialize(
+        VectorBSplineSegmentDefinition source,
+        FormatWriterBase writer)
     {
         base.Serialize(source, writer);
 
-        writer.WriteInt32(nameof(VectorBSplineSegmentDefinition.Degree), source.Degree);
+        writer.WriteInt32(
+            nameof(VectorBSplineSegmentDefinition.Degree),
+            source.Degree);
     }
 }

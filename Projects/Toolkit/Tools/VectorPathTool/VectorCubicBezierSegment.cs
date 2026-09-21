@@ -74,14 +74,23 @@ public sealed class VectorCubicBezierSegment : VectorFixedSegment<VectorCubicBez
     {
     }
 
-    public VectorCubicBezierSegment(VectorCubicBezierSegmentDefinition definition)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="VectorCubicBezierSegment"/> class
+    /// using the specified definition.
+    /// </summary>
+    /// <param name="definition">
+    /// The definition used to initialize the cubic Bézier segment.
+    /// </param>
+    public VectorCubicBezierSegment(
+        VectorCubicBezierSegmentDefinition definition)
         : base(controlCount: 2, definition)
     {
-        //if (definition.ControlNodes.Count != 2)
-        //    throw new ArgumentException("Cubic Bézier segments require exactly two control nodes.", nameof(definition));
     }
 
-    protected override VectorNode CreateVectorNode(int index, VectorCubicBezierSegmentDefinition definition)
+    /// <inheritdoc/>
+    protected override VectorNode CreateVectorNode(
+        int index,
+        VectorCubicBezierSegmentDefinition definition)
     {
         return index switch
         {

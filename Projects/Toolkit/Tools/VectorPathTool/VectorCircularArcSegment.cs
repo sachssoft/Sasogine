@@ -69,14 +69,26 @@ public sealed class VectorCircularArcSegment : VectorFixedSegment<VectorCircular
     {
     }
 
-    public VectorCircularArcSegment(VectorCircularArcSegmentDefinition definition)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="VectorCircularArcSegment"/> class
+    /// using the specified definition.
+    /// </summary>
+    /// <param name="definition">
+    /// The definition used to initialize the circular arc segment.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="definition"/> is <see langword="null"/>.
+    /// </exception>
+    public VectorCircularArcSegment(
+        VectorCircularArcSegmentDefinition definition)
         : base(controlCount: 1, definition)
     {
-        //if (definition.ControlNodes.Count != 1)
-        //    throw new ArgumentException("Circular arc segments require exactly one control node.", nameof(definition));
     }
 
-    protected override VectorNode CreateVectorNode(int index, VectorCircularArcSegmentDefinition definition)
+    /// <inheritdoc/>
+    protected override VectorNode CreateVectorNode(
+        int index,
+        VectorCircularArcSegmentDefinition definition)
     {
         return index switch
         {

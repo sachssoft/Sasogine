@@ -82,7 +82,7 @@ public class MusicAsset : AssetBase<IMusicPlayer, MusicAssetDefinition>
     /// <exception cref="FormatException">
     /// The configured or detected audio format is unsupported.
     /// </exception>
-    protected override IMusicPlayer? Build(Stream stream)
+    protected override IMusicPlayer Build(Stream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 

@@ -1,12 +1,11 @@
-﻿using System;
+﻿//using System;
 
-namespace Sachssoft.Sasogine.Scenes
-{
-    public abstract class SceneConfiguration
-    {
+//namespace Sachssoft.Sasogine.Scenes;
 
-        public Func<IGameApplication, IScene, GameContext>? ConfigureGameContext { get; set; }
+//public abstract class SceneConfiguration
+//{
+
+//    public Func<IGameApplication, IScene, GameContext>? ConfigureGameContext { get; set; }
 
 
-    }
-}
+//}

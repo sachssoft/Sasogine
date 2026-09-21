@@ -1,5 +1,7 @@
 <Project>
 	<PropertyGroup>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
 		<!-- NuGet Metadata -->
 		<VersionPrefix>0.2.1</VersionPrefix>
 		<VersionSuffix>alpha</VersionSuffix>

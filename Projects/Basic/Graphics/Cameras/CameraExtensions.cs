@@ -66,10 +66,10 @@ namespace Sachssoft.Sasogine.Graphics.Cameras
         /// visible through the camera.
         /// </returns>
         public static Box2 GetWorldBounds(
-            this ICamera2 camera2D,
+            this ICamera2 camera2,
             Viewport screenViewport)
         {
-            var inverseView = Matrix.Invert(camera2D.View);
+            var inverseView = Matrix.Invert(camera2.View);
 
             Vector2 topLeft = Vector2.Transform(
                 Vector2.Zero,

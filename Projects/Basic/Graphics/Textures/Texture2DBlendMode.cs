@@ -1,31 +1,36 @@
-﻿namespace Sachssoft.Sasogine.Graphics
+﻿namespace Sachssoft.Sasogine.Graphics;
+
+/// <summary>
+/// Specifies the blending mode used when rendering a two-dimensional texture.
+/// </summary>
+public enum Texture2DBlendMode
 {
-    public enum Texture2DBlendMode
-    {
-        /// <summary>
-        /// Standardmäßiges Alpha-Blending (häufig für transparente Texturen).
-        /// </summary>
-        AlphaBlend,
+    /// <summary>
+    /// Uses standard premultiplied alpha blending, commonly used
+    /// for transparent textures.
+    /// </summary>
+    AlphaBlend,
 
-        /// <summary>
-        /// Additives Blending (Farben werden addiert, gut für Effekte wie Licht).
-        /// </summary>
-        Additive,
+    /// <summary>
+    /// Uses additive blending, where source and destination colors
+    /// are added together. Commonly used for light and glow effects.
+    /// </summary>
+    Additive,
 
-        /// <summary>
-        /// Nicht-prämultipliziertes Alpha-Blending.
-        /// </summary>
-        NonPremultiplied,
+    /// <summary>
+    /// Uses alpha blending for textures whose color values
+    /// are not premultiplied by their alpha values.
+    /// </summary>
+    NonPremultiplied,
 
-        /// <summary>
-        /// Kein Blending, die Textur überschreibt die Pixel direkt.
-        /// </summary>
-        Opaque,
+    /// <summary>
+    /// Disables blending so that rendered texture pixels directly
+    /// replace the destination pixels.
+    /// </summary>
+    Opaque,
 
-        /// <summary>
-        /// Benutzerdefiniertes BlendState, wird aus CustomBlendState verwendet.
-        /// </summary>
-        Custom
-
-    }
+    /// <summary>
+    /// Uses a custom blend state supplied separately by the renderer.
+    /// </summary>
+    Custom
 }

@@ -136,8 +136,10 @@ namespace Sachssoft.Sasogine.Components.Tools
         /// <param name="context">
         /// Provides information about the current scene draw operation.
         /// </param>
-        public virtual void Draw(SceneDrawContext context)
+        public override void Draw(SceneDrawContext context)
         {
+            base.Draw(context);
+
             for (int i = 0; i < _tools.Count; i++)
             {
                 ToolBase tool = _tools[i];
