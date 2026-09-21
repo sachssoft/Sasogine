@@ -29,11 +29,19 @@ All notable changes to this project will be documented in this file.
 * [Feature] Added `AssemblyResource` utilities for locating and accessing embedded assembly resources.
 * [Feature] Added generalized context-based engine object lifecycle management.
 * [Feature] Added `ContextualReferencableCollection<T, TContext>`.
+* [Feature] Introduced a cursor system for rendering components.
+* [Feature] Added child component support in `ComponentBase`.
+* [Change] **Toolkit**: Flattened tool namespaces by consolidating selection and vector tools under `Sachssoft.Sasogine.Components.Tools`.
+* [Change] Moved general timing and easing functionality to the `Sachssoft.Sasogine.Timing` namespace.
 * [Change] Separated frame set runtime types from the asset system by replacing `Texture2DAsset` references with `Texture2D`.
 * [Change] Simplified shader and frame set asset creation with factory-based convenience constructors.
 * [Change] Improved asset reference handling and runtime dependency resolution.
 * [Change] Improved `EmbeddedResourceSource` resource lookup and error handling.
+* [Change] Refactored rendering components into the `Sachssoft.Sasogine.Components.Rendering` namespace and removed obsolete definition-based component architecture.
+* [Change] Removed the definition-based `ResourceComponentBase<TDefinition>`.
 * [Change] Refactored asset and entity collections to use shared context-based lifecycle management.
+* [Change] Updated `ResourceComponentBase` to inherit from `ComponentBase`.
+* [Change] Moved `AssetDefinitionRegistry` to the `Sachssoft.Sasogine.Assets` namespace.
 * [Change] Redesigned asset and entity collection architecture around shared reference resolution and context-based lifecycle management.
 * [Improve] Applied `Id` and `Class` from engine object definitions during construction instead of waiting for the first load or reload.
 * [Bug] **Toolkit**: Fixed incorrect initial selection bounds before the first vector shape edit.

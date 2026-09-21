@@ -1,6 +1,6 @@
 ﻿using Sachssoft.Sasogine.Common;
 
-namespace Sachssoft.Sasogine.Components.Tools.Selection;
+namespace Sachssoft.Sasogine.Components.Tools;
 
 /// <summary>
 /// Represents an engine object that can be selected by a selection tool.

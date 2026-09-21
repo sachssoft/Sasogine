@@ -1,7 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Components.Tools.Selection;
 using Sachssoft.Sasogine.Graphics.Rendering;
 using Sachssoft.Sasogine.Graphics.Rendering.Batches;
 using Sachssoft.Sasogine.Input;

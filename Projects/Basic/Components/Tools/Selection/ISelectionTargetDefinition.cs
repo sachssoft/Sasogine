@@ -1,20 +1,19 @@
 ﻿using Sachssoft.Sasogine.Common;
 
-namespace Sachssoft.Sasogine.Components.Tools.Selection
+namespace Sachssoft.Sasogine.Components.Tools;
+
+/// <summary>
+/// Defines the selection state of a selection target.
+/// </summary>
+public interface ISelectionTargetDefinition : IDefinition
 {
     /// <summary>
-    /// Defines the selection state of a selection target.
+    /// Gets or sets a value indicating whether the selection target is selected.
     /// </summary>
-    public interface ISelectionTargetDefinition : IDefinition
-    {
-        /// <summary>
-        /// Gets or sets a value indicating whether the selection target is selected.
-        /// </summary>
-        bool IsSelected { get; set; }
+    bool IsSelected { get; set; }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the selection target is locked.
-        /// </summary>
-        bool IsLocked { get; set; }
-    }
+    /// <summary>
+    /// Gets or sets a value indicating whether the selection target is locked.
+    /// </summary>
+    bool IsLocked { get; set; }
 }

@@ -3,271 +3,270 @@ using Sachssoft.Sasogine.Geometry;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools.Vector
+namespace Sachssoft.Sasogine.Components.Tools;
+
+/// <summary>
+/// Represents a Catmull-Rom spline segment of a vector path defined by
+/// a sequence of control nodes.
+/// </summary>
+public sealed class VectorCatmullRomSegment : VectorVariableSegment<VectorCatmullRomSegmentDefinition>
 {
+    //private bool _closed;
+    private bool _lastClosed;
+    private Point2 _startPositionCache;
+    private Point2 _nodePositionCache;
+
+    private float _sampleLengthCache;
+    private bool _closedCache;
+
+    private Point2[]? _controlPositionsCache;
+    private Point2[]? _sampledVerticesCache;
+
     /// <summary>
-    /// Represents a Catmull-Rom spline segment of a vector path defined by
-    /// a sequence of control nodes.
+    /// Initializes a new instance of the <see cref="VectorCatmullRomSegment"/> class.
     /// </summary>
-    public sealed class VectorCatmullRomSegment : VectorVariableSegment<VectorCatmullRomSegmentDefinition>
+    public VectorCatmullRomSegment()
+        : this(new VectorCatmullRomSegmentDefinition())
     {
-        //private bool _closed;
-        private bool _lastClosed;
-        private Point2 _startPositionCache;
-        private Point2 _nodePositionCache;
+    }
 
-        private float _sampleLengthCache;
-        private bool _closedCache;
+    /// <summary>
+    /// Initializes a new instance of the <see cref="VectorCatmullRomSegment"/> class
+    /// using the specified endpoint, control points, and selection state.
+    /// </summary>
+    /// <param name="position">
+    /// The endpoint of the Catmull-Rom spline segment.
+    /// </param>
+    /// <param name="controlPoints">
+    /// The control points that define the shape of the Catmull-Rom spline.
+    /// </param>
+    /// <param name="isSelected">
+    /// <see langword="true"/> if the endpoint node should initially be selected;
+    /// otherwise, <see langword="false"/>.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="controlPoints"/> is <see langword="null"/>.
+    /// </exception>
+    public VectorCatmullRomSegment(
+        Point2 position,
+        IEnumerable<Point2> controlPoints,
+        bool isSelected)
+        : this(CreateDefinition(position, controlPoints, isSelected))
+    {
+    }
 
-        private Point2[]? _controlPositionsCache;
-        private Point2[]? _sampledVerticesCache;
+    /// <summary>
+    /// Initializes a new instance of the <see cref="VectorCatmullRomSegment"/> class
+    /// using the specified definition.
+    /// </summary>
+    public VectorCatmullRomSegment(VectorCatmullRomSegmentDefinition definition)
+        : base(definition)
+    {
+        //_closed = definition.IsClosed;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="VectorCatmullRomSegment"/> class.
-        /// </summary>
-        public VectorCatmullRomSegment()
-            : this(new VectorCatmullRomSegmentDefinition())
+    /// <summary>
+    /// Gets the definition used to configure this segment.
+    /// </summary>
+    public new VectorCatmullRomSegmentDefinition Definition =>
+        (VectorCatmullRomSegmentDefinition)base.Definition;
+
+    /// <summary>
+    /// Gets or sets whether the Catmull-Rom spline is closed.
+    /// </summary>
+    //public bool Closed => Definition.IsClosed;
+    public bool Closed
+    {
+        get
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="VectorCatmullRomSegment"/> class
-        /// using the specified endpoint, control points, and selection state.
-        /// </summary>
-        /// <param name="position">
-        /// The endpoint of the Catmull-Rom spline segment.
-        /// </param>
-        /// <param name="controlPoints">
-        /// The control points that define the shape of the Catmull-Rom spline.
-        /// </param>
-        /// <param name="isSelected">
-        /// <see langword="true"/> if the endpoint node should initially be selected;
-        /// otherwise, <see langword="false"/>.
-        /// </param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown when <paramref name="controlPoints"/> is <see langword="null"/>.
-        /// </exception>
-        public VectorCatmullRomSegment(
-            Point2 position,
-            IEnumerable<Point2> controlPoints,
-            bool isSelected)
-            : this(CreateDefinition(position, controlPoints, isSelected))
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="VectorCatmullRomSegment"/> class
-        /// using the specified definition.
-        /// </summary>
-        public VectorCatmullRomSegment(VectorCatmullRomSegmentDefinition definition)
-            : base(definition)
-        {
-            //_closed = definition.IsClosed;
-        }
-
-        /// <summary>
-        /// Gets the definition used to configure this segment.
-        /// </summary>
-        public new VectorCatmullRomSegmentDefinition Definition =>
-            (VectorCatmullRomSegmentDefinition)base.Definition;
-
-        /// <summary>
-        /// Gets or sets whether the Catmull-Rom spline is closed.
-        /// </summary>
-        //public bool Closed => Definition.IsClosed;
-        public bool Closed
-        {
-            get
+            if (_lastClosed != Definition.IsClosed)
             {
-                if (_lastClosed != Definition.IsClosed)
-                {
-                    _sampledVerticesCache = null;
-                    _lastClosed = Definition.IsClosed;
-                }
-
-                return _lastClosed;
-            }
-        }
-
-        /// <inheritdoc/>
-        //protected override void ConfigureFromDefinition()
-        //{
-        //    base.ConfigureFromDefinition();
-        //    _closed = Definition.IsClosed;
-        //    _sampledVerticesCache = null;
-        //}
-
-        private static VectorCatmullRomSegmentDefinition CreateDefinition(
-            Point2 position,
-            IEnumerable<Point2> controlPoints,
-            bool isSelected)
-        {
-            ArgumentNullException.ThrowIfNull(controlPoints);
-
-            var definition = new VectorCatmullRomSegmentDefinition();
-
-            definition.Node.Position = position;
-            definition.Node.IsSelected = isSelected;
-
-            foreach (var point in controlPoints)
-            {
-                definition.ControlNodes.Add(
-                    new VectorNodeDefinition { Position = point });
+                _sampledVerticesCache = null;
+                _lastClosed = Definition.IsClosed;
             }
 
-            return definition;
+            return _lastClosed;
+        }
+    }
+
+    /// <inheritdoc/>
+    //protected override void ConfigureFromDefinition()
+    //{
+    //    base.ConfigureFromDefinition();
+    //    _closed = Definition.IsClosed;
+    //    _sampledVerticesCache = null;
+    //}
+
+    private static VectorCatmullRomSegmentDefinition CreateDefinition(
+        Point2 position,
+        IEnumerable<Point2> controlPoints,
+        bool isSelected)
+    {
+        ArgumentNullException.ThrowIfNull(controlPoints);
+
+        var definition = new VectorCatmullRomSegmentDefinition();
+
+        definition.Node.Position = position;
+        definition.Node.IsSelected = isSelected;
+
+        foreach (var point in controlPoints)
+        {
+            definition.ControlNodes.Add(
+                new VectorNodeDefinition { Position = point });
         }
 
-        /// <summary>
-        /// Generates a sampled representation of the Catmull-Rom spline
-        /// between the specified start position and the segment endpoint.
-        /// </summary>
-        /// <param name="startPosition">
-        /// The start position of the Catmull-Rom spline segment.
-        /// </param>
-        /// <param name="sampleLength">
-        /// The desired approximate distance between consecutive sampled vertices.
-        /// Must be greater than zero.
-        /// </param>
-        /// <returns>
-        /// An array containing the sampled vertices that represent
-        /// the Catmull-Rom spline.
-        /// </returns>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// Thrown when <paramref name="sampleLength"/> is less than or equal to zero.
-        /// </exception>
-        public override Point2[] GetVertices(
-            Point2 startPosition,
-            float sampleLength)
+        return definition;
+    }
+
+    /// <summary>
+    /// Generates a sampled representation of the Catmull-Rom spline
+    /// between the specified start position and the segment endpoint.
+    /// </summary>
+    /// <param name="startPosition">
+    /// The start position of the Catmull-Rom spline segment.
+    /// </param>
+    /// <param name="sampleLength">
+    /// The desired approximate distance between consecutive sampled vertices.
+    /// Must be greater than zero.
+    /// </param>
+    /// <returns>
+    /// An array containing the sampled vertices that represent
+    /// the Catmull-Rom spline.
+    /// </returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when <paramref name="sampleLength"/> is less than or equal to zero.
+    /// </exception>
+    public override Point2[] GetVertices(
+        Point2 startPosition,
+        float sampleLength)
+    {
+        if (sampleLength <= 0f)
         {
-            if (sampleLength <= 0f)
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(sampleLength));
-            }
+            throw new ArgumentOutOfRangeException(
+                nameof(sampleLength));
+        }
 
-            int controlCount =
-                ControlNodes.Count;
+        int controlCount =
+            ControlNodes.Count;
 
-            int pointCount =
-                controlCount + 2;
+        int pointCount =
+            controlCount + 2;
 
-            if (pointCount < 2)
-                return Array.Empty<Point2>();
+        if (pointCount < 2)
+            return Array.Empty<Point2>();
 
-            bool controlPointsChanged =
-                _controlPositionsCache == null ||
-                _controlPositionsCache.Length != controlCount ||
-                _nodePositionCache != Node.Position;
+        bool controlPointsChanged =
+            _controlPositionsCache == null ||
+            _controlPositionsCache.Length != controlCount ||
+            _nodePositionCache != Node.Position;
 
-            if (!controlPointsChanged)
-            {
-                for (int i = 0; i < controlCount; i++)
-                {
-                    if (_controlPositionsCache![i] !=
-                        ControlNodes[i].Position)
-                    {
-                        controlPointsChanged = true;
-                        break;
-                    }
-                }
-            }
-
-            if (_sampledVerticesCache != null &&
-                _startPositionCache == startPosition &&
-                _sampleLengthCache == sampleLength &&
-                _closedCache == Closed &&
-                !controlPointsChanged)
-            {
-                return _sampledVerticesCache;
-            }
-
-            _startPositionCache =
-                startPosition;
-
-            _nodePositionCache =
-                Node.Position;
-
-            _sampleLengthCache =
-                sampleLength;
-
-            _closedCache =
-                Closed;
-
-            var points =
-                new Point2[pointCount];
-
-            points[0] =
-                startPosition;
-
+        if (!controlPointsChanged)
+        {
             for (int i = 0; i < controlCount; i++)
             {
-                points[i + 1] =
-                    ControlNodes[i].Position;
+                if (_controlPositionsCache![i] !=
+                    ControlNodes[i].Position)
+                {
+                    controlPointsChanged = true;
+                    break;
+                }
             }
+        }
 
-            points[^1] =
-                Node.Position;
-
-            int segmentsPerSpan =
-                CalculateSegments(
-                    points,
-                    sampleLength);
-
-            _sampledVerticesCache =
-                GeometrySampler.SampleCatmullRom(
-                    points,
-                    segmentsPerSpan,
-                    Closed);
-
-            if (_controlPositionsCache == null ||
-                _controlPositionsCache.Length != controlCount)
-            {
-                _controlPositionsCache =
-                    new Point2[controlCount];
-            }
-
-            for (int i = 0; i < controlCount; i++)
-            {
-                _controlPositionsCache[i] =
-                    ControlNodes[i].Position;
-            }
-
+        if (_sampledVerticesCache != null &&
+            _startPositionCache == startPosition &&
+            _sampleLengthCache == sampleLength &&
+            _closedCache == Closed &&
+            !controlPointsChanged)
+        {
             return _sampledVerticesCache;
         }
 
-        /// <summary>
-        /// Calculates the number of segments used to sample each spline span
-        /// based on the approximate length of the control polygon.
-        /// </summary>
-        /// <param name="points">
-        /// The points defining the Catmull-Rom spline.
-        /// </param>
-        /// <param name="sampleLength">
-        /// The desired approximate distance between consecutive sampled vertices.
-        /// </param>
-        /// <returns>
-        /// The number of segments used to sample each spline span.
-        /// The returned value is always at least one.
-        /// </returns>
-        private static int CalculateSegments(
-            Point2[] points,
-            float sampleLength)
+        _startPositionCache =
+            startPosition;
+
+        _nodePositionCache =
+            Node.Position;
+
+        _sampleLengthCache =
+            sampleLength;
+
+        _closedCache =
+            Closed;
+
+        var points =
+            new Point2[pointCount];
+
+        points[0] =
+            startPosition;
+
+        for (int i = 0; i < controlCount; i++)
         {
-            float length = 0f;
-
-            for (int i = 1; i < points.Length; i++)
-            {
-                length += Point2.Distance(
-                    points[i - 1],
-                    points[i]);
-            }
-
-            return Math.Max(
-                1,
-                (int)MathF.Ceiling(
-                    length /
-                    sampleLength));
+            points[i + 1] =
+                ControlNodes[i].Position;
         }
+
+        points[^1] =
+            Node.Position;
+
+        int segmentsPerSpan =
+            CalculateSegments(
+                points,
+                sampleLength);
+
+        _sampledVerticesCache =
+            GeometrySampler.SampleCatmullRom(
+                points,
+                segmentsPerSpan,
+                Closed);
+
+        if (_controlPositionsCache == null ||
+            _controlPositionsCache.Length != controlCount)
+        {
+            _controlPositionsCache =
+                new Point2[controlCount];
+        }
+
+        for (int i = 0; i < controlCount; i++)
+        {
+            _controlPositionsCache[i] =
+                ControlNodes[i].Position;
+        }
+
+        return _sampledVerticesCache;
+    }
+
+    /// <summary>
+    /// Calculates the number of segments used to sample each spline span
+    /// based on the approximate length of the control polygon.
+    /// </summary>
+    /// <param name="points">
+    /// The points defining the Catmull-Rom spline.
+    /// </param>
+    /// <param name="sampleLength">
+    /// The desired approximate distance between consecutive sampled vertices.
+    /// </param>
+    /// <returns>
+    /// The number of segments used to sample each spline span.
+    /// The returned value is always at least one.
+    /// </returns>
+    private static int CalculateSegments(
+        Point2[] points,
+        float sampleLength)
+    {
+        float length = 0f;
+
+        for (int i = 1; i < points.Length; i++)
+        {
+            length += Point2.Distance(
+                points[i - 1],
+                points[i]);
+        }
+
+        return Math.Max(
+            1,
+            (int)MathF.Ceiling(
+                length /
+                sampleLength));
     }
 }

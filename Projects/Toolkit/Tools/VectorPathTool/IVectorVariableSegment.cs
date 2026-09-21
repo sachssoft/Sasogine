@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Components.Tools.Vector;
+namespace Sachssoft.Sasogine.Components.Tools;
 
 /// <summary>
 /// Defines the common contract for a vector segment that supports a variable

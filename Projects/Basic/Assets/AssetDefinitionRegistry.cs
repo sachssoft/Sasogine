@@ -1,9 +1,11 @@
-﻿using Sachssoft.Sasogine.Assets;
-using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Sasogine.Common;
 
-namespace Sachssoft.Sasogine.Components
+namespace Sachssoft.Sasogine.Assets;
+
+/// <summary>
+/// Provides a registry for asset definitions and their associated asset types.
+/// </summary>
+public sealed class AssetDefinitionRegistry :
+    DefinitionRegistry<IAsset, IAssetDefinition>
 {
-    public sealed class AssetDefinitionRegistry : DefinitionRegistry<IAsset, IAssetDefinition>
-    {
-    }
 }

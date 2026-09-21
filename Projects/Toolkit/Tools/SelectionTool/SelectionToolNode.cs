@@ -1,6 +1,6 @@
 using Sachssoft.Sasogine.Common;
 
-namespace Sachssoft.Sasogine.Components.Tools.Selection;
+namespace Sachssoft.Sasogine.Components.Tools;
 
 /// <summary>
 /// Represents an interaction node used by a selection tool layer.

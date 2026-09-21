@@ -1,4 +1,3 @@
-using Sachssoft.Sasogine.Resources;
 using Sachssoft.Sasogine.Resources.Importers.Internal;
 using System;
 using System.Collections.Generic;

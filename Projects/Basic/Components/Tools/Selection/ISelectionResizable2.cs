@@ -1,15 +1,14 @@
 ﻿using Sachssoft.Sasogine.Common;
 
-namespace Sachssoft.Sasogine.Components.Tools.Selection
+namespace Sachssoft.Sasogine.Components.Tools;
+
+/// <summary>
+/// Represents a selection target that can be resized by the Selection Tool.
+/// </summary>
+public interface ISelectionResizable2 : ISelectionTarget2, IReadOnlyTransformSize2
 {
     /// <summary>
-    /// Represents a selection target that can be resized by the Selection Tool.
+    /// Gets a value indicating whether resizing is allowed.
     /// </summary>
-    public interface ISelectionResizable2 : ISelectionTarget2, IReadOnlyTransformSize2
-    {
-        /// <summary>
-        /// Gets a value indicating whether resizing is allowed.
-        /// </summary>
-        bool AllowResize { get; }
-    }
+    bool AllowResize { get; }
 }

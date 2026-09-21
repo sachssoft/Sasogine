@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace Sachssoft.Sasogine.Assets;
+namespace Sachssoft.Sasogine.Assets.Graphics;
 
 /// <summary>
 /// Provides the runtime context required to create a shader instance.

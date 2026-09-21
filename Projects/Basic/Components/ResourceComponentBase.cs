@@ -3,7 +3,7 @@
 /// <summary>
 /// Provides a base implementation for components that manage loadable resources.
 /// </summary>
-public abstract class ResourceComponentBase : IResourceComponent
+public abstract class ResourceComponentBase : ComponentBase, IResourceComponent
 {
     /// <summary>
     /// Gets a value indicating whether the component resources are currently loaded.

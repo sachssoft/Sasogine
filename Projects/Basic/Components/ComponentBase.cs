@@ -6,7 +6,8 @@ using System.Diagnostics.CodeAnalysis;
 namespace Sachssoft.Sasogine.Components
 {
     /// <summary>
-    /// Provides a base implementation for components with supporting services.
+    /// Provides a base implementation for components with supporting services
+    /// and child components.
     /// </summary>
     public abstract class ComponentBase :
         IComponent,
@@ -14,6 +15,7 @@ namespace Sachssoft.Sasogine.Components
         IServiceProvider
     {
         private readonly List<IComponentService> _componentServices = new();
+        private readonly List<IComponent> _components = new();
 
         /// <summary>
         /// Updates the component and its registered services.
@@ -26,9 +28,7 @@ namespace Sachssoft.Sasogine.Components
             for (int i = 0; i < _componentServices.Count; i++)
             {
                 if (_componentServices[i] is IUpdatableComponent updatableService)
-                {
                     updatableService.Update(context);
-                }
             }
         }
 
@@ -155,6 +155,9 @@ namespace Sachssoft.Sasogine.Components
         /// <param name="service">
         /// The service to add.
         /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="service"/> is <see langword="null"/>.
+        /// </exception>
         /// <exception cref="InvalidOperationException">
         /// A service of the same type is already registered.
         /// </exception>
@@ -178,11 +181,116 @@ namespace Sachssoft.Sasogine.Components
 
         object? IServiceProvider.GetService(Type serviceType)
         {
-            return TryGetService(
-                serviceType,
-                out var service)
+            return TryGetService(serviceType, out var service)
                 ? service
                 : null;
+        }
+
+        /// <summary>
+        /// Adds a child component of the specified type.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The type under which the component is registered.
+        /// </typeparam>
+        /// <param name="component">
+        /// The component to add.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="component"/> is <see langword="null"/>.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// A component matching the specified type is already registered.
+        /// </exception>
+        protected void AddComponent<T>(T component)
+            where T : class, IComponent
+        {
+            ArgumentNullException.ThrowIfNull(component);
+
+            if (TryGetComponent<T>(out _))
+            {
+                throw new InvalidOperationException(
+                    $"A component of type '{typeof(T).FullName}' is already registered.");
+            }
+
+            _components.Add(component);
+        }
+
+        /// <summary>
+        /// Removes the child component of the specified type.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The type of component to remove.
+        /// </typeparam>
+        /// <returns>
+        /// <see langword="true"/> if the component was found and removed;
+        /// otherwise, <see langword="false"/>.
+        /// </returns>
+        protected bool RemoveComponent<T>()
+            where T : class, IComponent
+        {
+            for (int i = 0; i < _components.Count; i++)
+            {
+                if (_components[i] is T)
+                {
+                    _components.RemoveAt(i);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the component of the specified type.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The type of component to retrieve.
+        /// </typeparam>
+        /// <returns>
+        /// The registered component.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">
+        /// No component of the specified type is registered.
+        /// </exception>
+        public T GetComponent<T>()
+            where T : class, IComponent
+        {
+            if (TryGetComponent<T>(out var component))
+                return component;
+
+            throw new InvalidOperationException(
+                $"No component of type '{typeof(T).FullName}' is registered.");
+        }
+
+        /// <summary>
+        /// Attempts to get the component of the specified type.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The type of component to retrieve.
+        /// </typeparam>
+        /// <param name="component">
+        /// When this method returns, contains the component if found;
+        /// otherwise, <see langword="null"/>.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if the component was found; otherwise,
+        /// <see langword="false"/>.
+        /// </returns>
+        public bool TryGetComponent<T>(
+            [MaybeNullWhen(false)] out T component)
+            where T : class, IComponent
+        {
+            for (int i = 0; i < _components.Count; i++)
+            {
+                if (_components[i] is T value)
+                {
+                    component = value;
+                    return true;
+                }
+            }
+
+            component = null;
+            return false;
         }
     }
 }

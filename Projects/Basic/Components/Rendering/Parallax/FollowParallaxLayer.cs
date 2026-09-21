@@ -1,99 +1,63 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
+using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Graphics.Cameras;
 using Sachssoft.Sasogine.Scenes;
 
-namespace Sachssoft.Sasogine.Components.Rendering.Parallaxes
+namespace Sachssoft.Sasogine.Components.Rendering;
+
+/// <summary>
+/// Provides a parallax layer that follows the movement of a two-dimensional camera.
+/// </summary>
+public class FollowParallaxLayer : ParallaxLayerBase
 {
+    private Vector2 _parallaxOffset;
+    private Point2 _originCameraPosition;
+    private bool _hasOrigin;
+
     /// <summary>
-    /// Provides a parallax layer that follows camera movement with a configurable
-    /// depth factor.
-    ///
-    /// The layer calculates its offset based on camera movement and the configured
-    /// parallax depth. Rendering content can be added by overriding the draw logic
-    /// or extending this component.
+    /// Gets or sets an additional multiplier applied to camera movement.
     /// </summary>
-    public class FollowParallaxLayer : ParallaxLayerBase<FollowParallaxLayerDefinition>
+    public Vector2 Factor { get; set; } = Vector2.One;
+
+    /// <summary>
+    /// Gets or sets the spacing used by repeating layer content.
+    /// </summary>
+    public Vector2 Spacing { get; set; }
+
+    /// <inheritdoc/>
+    public override Vector2 ParallaxOffset => _parallaxOffset;
+
+    /// <inheritdoc/>
+    public override void Update(SceneUpdateContext context)
     {
-        private Vector2 _offset;
-        private Vector2 _lastCameraPosition;
+        if (!IsEnabled || context.Cameras.Length == 0 || context.Cameras[0] is not ICamera2 camera)
+            return;
 
+        Point2 cameraPosition = camera.Position;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FollowParallaxLayer"/> class
-        /// using a default definition.
-        /// </summary>
-        public FollowParallaxLayer()
-            : base(new FollowParallaxLayerDefinition())
+        if (!_hasOrigin)
         {
+            _originCameraPosition = cameraPosition;
+            _hasOrigin = true;
+            return;
         }
 
+        Vector2 movement = cameraPosition.ToVector2() - _originCameraPosition.ToVector2();
+        _parallaxOffset = movement * Factor * GetDepthFactor();
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FollowParallaxLayer"/> class.
-        /// </summary>
-        /// <param name="definition">
-        /// The definition containing parallax layer configuration.
-        /// </param>
-        public FollowParallaxLayer(FollowParallaxLayerDefinition definition)
-            : base(definition)
-        {
-        }
+    /// <inheritdoc/>
+    public override void Draw(SceneDrawContext context)
+    {
+        if (!IsVisible)
+            return;
+    }
 
-
-        /// <summary>
-        /// Creates a default definition for this parallax layer.
-        /// </summary>
-        /// <returns>
-        /// A new <see cref="FollowParallaxLayerDefinition"/> instance.
-        /// </returns>
-        protected override FollowParallaxLayerDefinition ResolveDefinition()
-        {
-            return new FollowParallaxLayerDefinition();
-        }
-
-
-        /// <summary>
-        /// Gets the calculated parallax offset.
-        /// </summary>
-        public Vector2 Offset => _offset;
-
-
-        /// <summary>
-        /// Updates the parallax layer based on camera movement.
-        /// </summary>
-        /// <param name="context">
-        /// Provides scene update information.
-        /// </param>
-        public override void Update(SceneUpdateContext context)
-        {
-            if (context.Cameras.Length == 0 || context.Cameras[0] is not ICamera2 camera2D)
-                return;
-
-
-            var cameraPosition = camera2D.Position.ToVector2();
-
-
-            var movement = cameraPosition - _lastCameraPosition;
-
-
-            _offset += movement * GetDepthFactor(Definition.Depth);
-
-
-            _lastCameraPosition = cameraPosition;
-        }
-
-
-        /// <summary>
-        /// Draws the parallax layer.
-        ///
-        /// The actual rendering implementation depends on the layer content.
-        /// </summary>
-        /// <param name="context">
-        /// Provides scene rendering information.
-        /// </param>
-        public override void Draw(SceneDrawContext context)
-        {
-            // Rendering will be implemented by derived layer types.
-        }
+    /// <inheritdoc/>
+    public override void Reset()
+    {
+        _parallaxOffset = Vector2.Zero;
+        _originCameraPosition = default;
+        _hasOrigin = false;
     }
 }

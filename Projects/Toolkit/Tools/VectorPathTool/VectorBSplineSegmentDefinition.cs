@@ -1,8 +1,7 @@
 using Sachssoft.Sasogine.Components.Models;
-using Sachssoft.Sasogine.Components.Tools.Vector;
 using System.ComponentModel;
 
-namespace Sachssoft.Sasogine.Components.Tools.Vector;
+namespace Sachssoft.Sasogine.Components.Tools;
 
 /// <summary>
 /// Defines the configurable state of a B-spline segment.

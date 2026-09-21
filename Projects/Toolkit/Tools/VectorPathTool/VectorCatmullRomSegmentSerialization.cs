@@ -1,7 +1,6 @@
 ﻿using Sachssoft.Sasodoc;
-using Sachssoft.Sasogine.Documents.Serialization;
 
-namespace Sachssoft.Sasogine.Components.Tools.Vector;
+namespace Sachssoft.Sasogine.Components.Tools;
 
 public sealed class VectorCatmullRomSegmentSerialization : VectorVariableSegmentSerializationBase<VectorCatmullRomSegmentDefinition>
 {

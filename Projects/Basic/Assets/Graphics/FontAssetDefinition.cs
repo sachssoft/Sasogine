@@ -1,6 +1,6 @@
-﻿using System.ComponentModel;
-using Sachssoft.Sasogine.Components.Models;
+﻿using Sachssoft.Sasogine.Components.Models;
 using Sachssoft.Sasogine.Graphics.Text;
+using System.ComponentModel;
 
 namespace Sachssoft.Sasogine.Assets.Graphics
 {

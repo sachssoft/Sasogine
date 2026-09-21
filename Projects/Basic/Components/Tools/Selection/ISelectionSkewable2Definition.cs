@@ -1,12 +1,11 @@
 using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Graphics.Rendering;
 
-namespace Sachssoft.Sasogine.Components.Tools.Selection
+namespace Sachssoft.Sasogine.Components.Tools;
+
+/// <summary>
+/// Defines a 2D selection target definition that supports skew transformation.
+/// </summary>
+public interface ISelectionSkewable2Definition : ISelectionTarget2Definition, ITransformSkewable2Definition, ITransformSkew2
 {
-    /// <summary>
-    /// Defines a 2D selection target definition that supports skew transformation.
-    /// </summary>
-    public interface ISelectionSkewable2Definition : ISelectionTarget2Definition, ITransformSkewable2Definition, ITransformSkew2
-    {
-    }
 }

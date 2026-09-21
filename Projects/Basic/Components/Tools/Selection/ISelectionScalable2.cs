@@ -1,15 +1,14 @@
 ﻿using Sachssoft.Sasogine.Common;
 
-namespace Sachssoft.Sasogine.Components.Tools.Selection
+namespace Sachssoft.Sasogine.Components.Tools;
+
+/// <summary>
+/// Represents a selection target that can be scaled by the Selection Tool.
+/// </summary>
+public interface ISelectionScalable2 : ISelectionTarget2, IReadOnlyTransformScale2
 {
     /// <summary>
-    /// Represents a selection target that can be scaled by the Selection Tool.
+    /// Gets a value indicating whether scaling is allowed.
     /// </summary>
-    public interface ISelectionScalable2 : ISelectionTarget2, IReadOnlyTransformScale2
-    {
-        /// <summary>
-        /// Gets a value indicating whether scaling is allowed.
-        /// </summary>
-        bool AllowScale { get; }
-    }
+    bool AllowScale { get; }
 }

@@ -3,7 +3,7 @@ using Sachssoft.Sasogine.Common;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools.Selection;
+namespace Sachssoft.Sasogine.Components.Tools;
 
 internal sealed class SelectionToolResizeHelper
 {

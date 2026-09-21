@@ -3,7 +3,7 @@ using Sachssoft.Sasogine.Common.Collections;
 using Sachssoft.Sasogine.Components.Models;
 using System.ComponentModel;
 
-namespace Sachssoft.Sasogine.Components.Tools.Vector;
+namespace Sachssoft.Sasogine.Components.Tools;
 
 /// <summary>
 /// Defines the configurable state of a vector shape.

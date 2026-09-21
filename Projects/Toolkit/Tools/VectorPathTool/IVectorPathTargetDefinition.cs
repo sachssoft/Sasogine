@@ -1,6 +1,4 @@
 using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Components.Tools.Selection;
-using Sachssoft.Sasogine.Components.Tools.Vector;
 using System.ComponentModel;
 
 namespace Sachssoft.Sasogine.Components.Tools;

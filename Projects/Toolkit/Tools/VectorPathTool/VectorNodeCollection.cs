@@ -2,137 +2,136 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools.Vector
+namespace Sachssoft.Sasogine.Components.Tools;
+
+/// <summary>
+/// Represents a modifiable collection of control nodes owned by a <see cref="VectorSegment"/>.
+/// </summary>
+public sealed class VectorNodeCollection : IList<VectorNode>, IReadOnlyList<VectorNode>
 {
-    /// <summary>
-    /// Represents a modifiable collection of control nodes owned by a <see cref="VectorSegment"/>.
-    /// </summary>
-    public sealed class VectorNodeCollection : IList<VectorNode>, IReadOnlyList<VectorNode>
+    private readonly List<VectorNode> _nodes = [];
+    private readonly IVectorSegment _segment;
+
+    internal VectorNodeCollection(IVectorSegment segment)
     {
-        private readonly List<VectorNode> _nodes = [];
-        private readonly IVectorSegment _segment;
+        _segment = segment ?? throw new ArgumentNullException(nameof(segment));
+    }
 
-        internal VectorNodeCollection(IVectorSegment segment)
+    public VectorNode this[int index]
+    {
+        get => _nodes[index];
+        set
         {
-            _segment = segment ?? throw new ArgumentNullException(nameof(segment));
-        }
+            ArgumentNullException.ThrowIfNull(value);
 
-        public VectorNode this[int index]
-        {
-            get => _nodes[index];
-            set
-            {
-                ArgumentNullException.ThrowIfNull(value);
+            VectorNode current = _nodes[index];
 
-                VectorNode current = _nodes[index];
-
-                if (ReferenceEquals(current, value))
-                    return;
-
-                EnsureCanAttach(value);
-                current.Segment = null;
-                value.Segment = _segment;
-                _nodes[index] = value;
-                SynchronizeDefinition();
-            }
-        }
-
-        public int Count => _nodes.Count;
-        public bool IsReadOnly => false;
-
-        public void Add(VectorNode item)
-        {
-            ArgumentNullException.ThrowIfNull(item);
-            EnsureCanAttach(item);
-            item.Segment = _segment;
-            _nodes.Add(item);
-            SynchronizeDefinition();
-        }
-
-        /// <summary>
-        /// Adds the specified items to the collection.
-        /// </summary>
-        /// <param name="items">The items to add.</param>
-        public void AddRange(IEnumerable<VectorNode> items)
-        {
-            ArgumentNullException.ThrowIfNull(items);
-
-            var range = new List<VectorNode>(items);
-
-            for (int i = 0; i < range.Count; i++)
-            {
-                ArgumentNullException.ThrowIfNull(range[i]);
-                EnsureCanAttach(range[i]);
-            }
-
-            for (int i = 0; i < range.Count; i++)
-                Add(range[i]);
-        }
-
-        public void Clear()
-        {
-            for (int i = 0; i < _nodes.Count; i++)
-                _nodes[i].Segment = null;
-
-            _nodes.Clear();
-            SynchronizeDefinition();
-        }
-
-        public bool Contains(VectorNode item) => _nodes.Contains(item);
-        public void CopyTo(VectorNode[] array, int arrayIndex) => _nodes.CopyTo(array, arrayIndex);
-        public IEnumerator<VectorNode> GetEnumerator() => _nodes.GetEnumerator();
-        public int IndexOf(VectorNode item) => _nodes.IndexOf(item);
-
-        public void Insert(int index, VectorNode item)
-        {
-            ArgumentNullException.ThrowIfNull(item);
-            EnsureCanAttach(item);
-            item.Segment = _segment;
-            _nodes.Insert(index, item);
-            SynchronizeDefinition();
-        }
-
-        public bool Remove(VectorNode item)
-        {
-            if (!_nodes.Remove(item))
-                return false;
-
-            item.Segment = null;
-            SynchronizeDefinition();
-            return true;
-        }
-
-        public void RemoveAt(int index)
-        {
-            VectorNode item = _nodes[index];
-            _nodes.RemoveAt(index);
-            item.Segment = null;
-            SynchronizeDefinition();
-        }
-
-        public void Reverse()
-        {
-            _nodes.Reverse();
-            SynchronizeDefinition();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-
-        private void SynchronizeDefinition()
-        {
-            if (_segment.Definition is not VectorVariableSegmentDefinition definition)
+            if (ReferenceEquals(current, value))
                 return;
 
-            definition.ControlNodes.Clear();
-            for (int i = 0; i < _nodes.Count; i++)
-                definition.ControlNodes.Add(_nodes[i].Definition);
+            EnsureCanAttach(value);
+            current.Segment = null;
+            value.Segment = _segment;
+            _nodes[index] = value;
+            SynchronizeDefinition();
+        }
+    }
+
+    public int Count => _nodes.Count;
+    public bool IsReadOnly => false;
+
+    public void Add(VectorNode item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        EnsureCanAttach(item);
+        item.Segment = _segment;
+        _nodes.Add(item);
+        SynchronizeDefinition();
+    }
+
+    /// <summary>
+    /// Adds the specified items to the collection.
+    /// </summary>
+    /// <param name="items">The items to add.</param>
+    public void AddRange(IEnumerable<VectorNode> items)
+    {
+        ArgumentNullException.ThrowIfNull(items);
+
+        var range = new List<VectorNode>(items);
+
+        for (int i = 0; i < range.Count; i++)
+        {
+            ArgumentNullException.ThrowIfNull(range[i]);
+            EnsureCanAttach(range[i]);
         }
 
-        private static void EnsureCanAttach(VectorNode node)
-        {
-            if (node.Segment != null)
-                throw new InvalidOperationException("The vector node already belongs to a vector segment.");
-        }
+        for (int i = 0; i < range.Count; i++)
+            Add(range[i]);
+    }
+
+    public void Clear()
+    {
+        for (int i = 0; i < _nodes.Count; i++)
+            _nodes[i].Segment = null;
+
+        _nodes.Clear();
+        SynchronizeDefinition();
+    }
+
+    public bool Contains(VectorNode item) => _nodes.Contains(item);
+    public void CopyTo(VectorNode[] array, int arrayIndex) => _nodes.CopyTo(array, arrayIndex);
+    public IEnumerator<VectorNode> GetEnumerator() => _nodes.GetEnumerator();
+    public int IndexOf(VectorNode item) => _nodes.IndexOf(item);
+
+    public void Insert(int index, VectorNode item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        EnsureCanAttach(item);
+        item.Segment = _segment;
+        _nodes.Insert(index, item);
+        SynchronizeDefinition();
+    }
+
+    public bool Remove(VectorNode item)
+    {
+        if (!_nodes.Remove(item))
+            return false;
+
+        item.Segment = null;
+        SynchronizeDefinition();
+        return true;
+    }
+
+    public void RemoveAt(int index)
+    {
+        VectorNode item = _nodes[index];
+        _nodes.RemoveAt(index);
+        item.Segment = null;
+        SynchronizeDefinition();
+    }
+
+    public void Reverse()
+    {
+        _nodes.Reverse();
+        SynchronizeDefinition();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+
+    private void SynchronizeDefinition()
+    {
+        if (_segment.Definition is not VectorVariableSegmentDefinition definition)
+            return;
+
+        definition.ControlNodes.Clear();
+        for (int i = 0; i < _nodes.Count; i++)
+            definition.ControlNodes.Add(_nodes[i].Definition);
+    }
+
+    private static void EnsureCanAttach(VectorNode node)
+    {
+        if (node.Segment != null)
+            throw new InvalidOperationException("The vector node already belongs to a vector segment.");
     }
 }

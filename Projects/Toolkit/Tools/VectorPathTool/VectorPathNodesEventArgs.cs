@@ -1,29 +1,28 @@
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools.Vector
+namespace Sachssoft.Sasogine.Components.Tools;
+
+/// <summary>
+/// Provides data for an event involving multiple nodes of a vector path.
+/// </summary>
+public sealed class VectorPathNodesEventArgs : EventArgs
 {
     /// <summary>
-    /// Provides data for an event involving multiple nodes of a vector path.
+    /// Initializes a new instance of the <see cref="VectorPathNodesEventArgs"/> class
+    /// using the specified vector nodes.
     /// </summary>
-    public sealed class VectorPathNodesEventArgs : EventArgs
+    /// <param name="nodes">
+    /// The vector nodes associated with the event.
+    /// </param>
+    public VectorPathNodesEventArgs(
+        IReadOnlyList<VectorNode> nodes)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="VectorPathNodesEventArgs"/> class
-        /// using the specified vector nodes.
-        /// </summary>
-        /// <param name="nodes">
-        /// The vector nodes associated with the event.
-        /// </param>
-        public VectorPathNodesEventArgs(
-            IReadOnlyList<VectorNode> nodes)
-        {
-            Nodes = nodes;
-        }
-
-        /// <summary>
-        /// Gets the vector nodes associated with the event.
-        /// </summary>
-        public IReadOnlyList<VectorNode> Nodes { get; }
+        Nodes = nodes;
     }
+
+    /// <summary>
+    /// Gets the vector nodes associated with the event.
+    /// </summary>
+    public IReadOnlyList<VectorNode> Nodes { get; }
 }

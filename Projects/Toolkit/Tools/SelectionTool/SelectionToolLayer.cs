@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 using Sachssoft.Sasogine.Common;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools.Selection;
+namespace Sachssoft.Sasogine.Components.Tools;
 
 /// <summary>
 /// Defines a base class for selection tool layers that provide interaction nodes,

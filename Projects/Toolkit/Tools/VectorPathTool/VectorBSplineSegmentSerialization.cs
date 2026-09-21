@@ -1,6 +1,6 @@
 ﻿using Sachssoft.Sasodoc;
 
-namespace Sachssoft.Sasogine.Components.Tools.Vector;
+namespace Sachssoft.Sasogine.Components.Tools;
 
 public sealed class VectorBSplineSegmentSerialization : VectorVariableSegmentSerializationBase<VectorBSplineSegmentDefinition>
 {

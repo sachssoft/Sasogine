@@ -1,7 +1,7 @@
 using Sachssoft.Sasogine.Common;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools.Vector;
+namespace Sachssoft.Sasogine.Components.Tools;
 
 /// <summary>
 /// Defines the common contract for a vector segment that forms part of a

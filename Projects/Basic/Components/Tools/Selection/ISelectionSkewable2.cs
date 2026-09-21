@@ -1,15 +1,14 @@
 using Sachssoft.Sasogine.Common;
 
-namespace Sachssoft.Sasogine.Components.Tools.Selection
+namespace Sachssoft.Sasogine.Components.Tools;
+
+/// <summary>
+/// Represents a 2D selection target that supports skew transformation.
+/// </summary>
+public interface ISelectionSkewable2 : ISelectionTarget2, IReadOnlyTransformSkew2
 {
     /// <summary>
-    /// Represents a 2D selection target that supports skew transformation.
+    /// Gets a value indicating whether the target can be skewed.
     /// </summary>
-    public interface ISelectionSkewable2 : ISelectionTarget2, IReadOnlyTransformSkew2
-    {
-        /// <summary>
-        /// Gets a value indicating whether the target can be skewed.
-        /// </summary>
-        bool AllowSkew { get; }
-    }
+    bool AllowSkew { get; }
 }

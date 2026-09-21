@@ -1,6 +1,6 @@
 ﻿using Sachssoft.Sasogine.Scenes;
 
-namespace Sachssoft.Sasogine.Components.Rendering.Atmosphere
+namespace Sachssoft.Sasogine.Components.Rendering
 {
     /// <summary>
     /// Provides an atmosphere rendering component that manages atmospheric
@@ -9,7 +9,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Atmosphere
     /// The component is designed to combine multiple visual atmosphere effects
     /// through shader-based rendering while minimizing render target switches.
     /// </summary>
-    public class AtmosphereComponent : ResourceComponentBase<AtmosphereDefinition>, IUpdatableComponent, IDrawableComponent
+    public class AtmosphereComponent : ResourceComponentBase, IUpdatableComponent, IDrawableComponent
     {
         // Mehrere RenderTargets sollten möglichst vermieden werden,
         // da jeder RenderTarget-Wechsel zusätzlichen GPU-Overhead verursacht
@@ -32,18 +32,7 @@ namespace Sachssoft.Sasogine.Components.Rendering.Atmosphere
         /// Initializes a new instance of the <see cref="AtmosphereComponent"/> class
         /// using a default atmosphere definition.
         /// </summary>
-        public AtmosphereComponent() : this(new AtmosphereDefinition())
-        {
-        }
-
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AtmosphereComponent"/> class.
-        /// </summary>
-        /// <param name="definition">
-        /// The atmosphere definition containing configuration data.
-        /// </param>
-        public AtmosphereComponent(AtmosphereDefinition definition) : base(definition)
+        public AtmosphereComponent()
         {
         }
 
@@ -58,18 +47,6 @@ namespace Sachssoft.Sasogine.Components.Rendering.Atmosphere
         /// Gets or sets whether the atmosphere component is rendered.
         /// </summary>
         public bool IsVisible { get; set; } = true;
-
-
-        /// <summary>
-        /// Creates a default atmosphere definition when no definition is available.
-        /// </summary>
-        /// <returns>
-        /// A new default <see cref="AtmosphereDefinition"/> instance.
-        /// </returns>
-        protected override AtmosphereDefinition ResolveDefinition()
-        {
-            return new AtmosphereDefinition();
-        }
 
 
         /// <summary>

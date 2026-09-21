@@ -1,8 +1,8 @@
 ﻿using Sachssoft.Sasodoc;
-using System.Collections.Generic;
 using Sachssoft.Sasogine.Documents.Serialization;
+using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools.Vector;
+namespace Sachssoft.Sasogine.Components.Tools;
 
 public sealed class VectorShapeSerialization : SerializationBase<VectorShapeDefinition>
 {

@@ -1,8 +1,8 @@
-using System;
 using Sachssoft.Sasogine.Documents.Serialization;
+using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools.Vector;
+namespace Sachssoft.Sasogine.Components.Tools;
 
 /// <summary>
 /// Provides a registry for serialization handlers associated exclusively with

@@ -1,6 +1,5 @@
 using Sachssoft.Sasogine.Common;
 using Sachssoft.Sasogine.Scenes;
-using Sachssoft.Sasogine.World;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,9 +1,8 @@
-namespace Sachssoft.Sasogine.Components.Tools.Vector
-{
-    internal interface IVectorSegmentInternal
-    {
-        VectorPath? Owner { get; set; }
+namespace Sachssoft.Sasogine.Components.Tools;
 
-        void OnOwnerChanged(VectorPath? oldOwner, VectorPath? newOwner);
-    }
+internal interface IVectorSegmentInternal
+{
+    VectorPath? Owner { get; set; }
+
+    void OnOwnerChanged(VectorPath? oldOwner, VectorPath? newOwner);
 }
