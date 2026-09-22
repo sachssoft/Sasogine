@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Common.Schedule;
+namespace Sachssoft.Engine.Common.Schedule;
 
 /// <summary>
 /// Provides data for an event that reports progress of scheduled task execution.

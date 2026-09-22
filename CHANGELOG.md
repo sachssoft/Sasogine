@@ -19,7 +19,7 @@ All notable changes to this project will be documented in this file.
 
 </small>
 
-## [0.3.0-alpha] - Planned (API Corrections and Architectural Improvements)
+## [0.5.0-alpha] - Planned (Major API Modernization and Architectural Improvements)
 * [Feature] Introduced asset support for indexed `IndexedFrameSet<TEnum>` and keyed `KeyedFrameSet` frame sets.
 * [Feature] Added context-aware `Template<T, TContext>` support for runtime object creation.
 * [Feature] Added context-aware shader creation using `ShaderAssetContext`.
@@ -31,20 +31,29 @@ All notable changes to this project will be documented in this file.
 * [Feature] Added `ContextualReferencableCollection<T, TContext>`.
 * [Feature] Introduced a cursor system for rendering components.
 * [Feature] Added child component support in `ComponentBase`.
-* [Change] **Toolkit**: Flattened tool namespaces by consolidating selection and vector tools under `Sachssoft.Sasogine.Components.Tools`.
-* [Change] Moved general timing and easing functionality to the `Sachssoft.Sasogine.Timing` namespace.
+* [Change] **Documents**: Aligned document and serialization integration with Sasodoc under the shared `Sachssoft.Documents` namespace hierarchy.
+* [Change] **Documents**: Moved Engine-specific document integration under `Sachssoft.Documents.Engine`.
+* [Change] **Toolkit**: Flattened tool namespaces by consolidating selection and vector tools under the common components tool namespace.
+* [Change] Changed the root namespace from `Sachssoft.Sasogine` to `Sachssoft.Engine`.
+* [Change] Moved general timing and easing functionality to the common timing namespace.
 * [Change] Separated frame set runtime types from the asset system by replacing `Texture2DAsset` references with `Texture2D`.
 * [Change] Simplified shader and frame set asset creation with factory-based convenience constructors.
 * [Change] Improved asset reference handling and runtime dependency resolution.
 * [Change] Improved `EmbeddedResourceSource` resource lookup and error handling.
-* [Change] Refactored rendering components into the `Sachssoft.Sasogine.Components.Rendering` namespace and removed obsolete definition-based component architecture.
+* [Change] Refactored rendering components into the common rendering namespace and removed obsolete definition-based component architecture.
 * [Change] Removed the definition-based `ResourceComponentBase<TDefinition>`.
 * [Change] Refactored asset and entity collections to use shared context-based lifecycle management.
 * [Change] Updated `ResourceComponentBase` to inherit from `ComponentBase`.
-* [Change] Moved `AssetDefinitionRegistry` to the `Sachssoft.Sasogine.Assets` namespace.
+* [Change] Moved `AssetDefinitionRegistry` to the common assets namespace.
 * [Change] Redesigned asset and entity collection architecture around shared reference resolution and context-based lifecycle management.
+* [Change] **API**: Cleaned up the public API by removing unused, redundant, obsolete, or unintentionally exposed types and members.
 * [Improve] Applied `Id` and `Class` from engine object definitions during construction instead of waiting for the first load or reload.
+* [Improve] Added `Texture2DFlipMode` support and refactored quad generation to `QuadMesh<TVertex>`.
+* [Improve] Refactored `MeshGenerator` to use generic mesh implementations for quad, polygon, cube, sphere, and skybox generation.
+* [Improve] Strengthened API library guidelines by treating most warnings as errors, improving code stability and cleanliness, and completing XML documentation.
+* [Improve] Improved consistency between Sasogine and Sasodoc APIs to simplify shared document and serialization code.
 * [Bug] **Toolkit**: Fixed incorrect initial selection bounds before the first vector shape edit.
+* [Bug] Fixed several bugs revealed by stricter code guidelines, including issues with incorrect overrides, virtual members, and other API inconsistencies.
 
 ## [0.2.1-alpha] - 2026-09-17
 * [Feature] Added `MultilingualValue` for multi-language values with fallback support.

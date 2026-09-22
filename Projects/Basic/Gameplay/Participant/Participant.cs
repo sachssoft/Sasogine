@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Gameplay;
+namespace Sachssoft.Engine.Gameplay;
 
 /// <summary>
 /// Represents a participant that can take part in a gameplay session

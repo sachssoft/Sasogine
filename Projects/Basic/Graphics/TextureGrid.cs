@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Engine.Graphics;
 
 /// <summary>
 /// Represents a two-dimensional grid of textures.

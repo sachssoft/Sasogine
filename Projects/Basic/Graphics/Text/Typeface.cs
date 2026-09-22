@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Sachssoft.Sasogine.Graphics.Text
+namespace Sachssoft.Engine.Graphics.Text
 {
     /// <summary>
     /// Represents a font family containing multiple font faces with different

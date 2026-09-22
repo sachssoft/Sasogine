@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Resources.Sources;
+namespace Sachssoft.Engine.Resources.Sources;
 
 /// <summary>
 /// Provides access to resources embedded in an assembly.

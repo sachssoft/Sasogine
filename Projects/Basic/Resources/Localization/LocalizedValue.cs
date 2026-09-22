@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Resources.Localization;
+namespace Sachssoft.Engine.Resources.Localization;
 
 /// <summary>
 /// Represents a reference to a localized string with an optional fallback value.

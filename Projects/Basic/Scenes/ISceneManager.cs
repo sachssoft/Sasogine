@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Scenes
+namespace Sachssoft.Engine.Scenes
 {
     /// <summary>
     /// Defines a manager responsible for loading, switching, updating,

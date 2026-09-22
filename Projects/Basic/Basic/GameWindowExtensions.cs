@@ -2,7 +2,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Sachssoft.Sasogine;
+namespace Sachssoft.Engine;
 
 /// <summary>
 /// Provides extensions for <see cref="GameWindow"/>.

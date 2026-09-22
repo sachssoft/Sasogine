@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Audio
+namespace Sachssoft.Engine.Audio
 {
     /// <summary>
     /// Provides a base implementation for audio players that operate

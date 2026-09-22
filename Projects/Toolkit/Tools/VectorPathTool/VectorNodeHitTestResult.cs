@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Represents the result of a hit test against a vector path node,

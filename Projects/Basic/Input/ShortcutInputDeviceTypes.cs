@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Input
+﻿namespace Sachssoft.Engine.Input
 {
     /// <summary>
     /// Specifies the input device type used by a shortcut.

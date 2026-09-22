@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Input
+﻿namespace Sachssoft.Engine.Input
 {
     /// <summary>
     /// Specifies a mouse button.

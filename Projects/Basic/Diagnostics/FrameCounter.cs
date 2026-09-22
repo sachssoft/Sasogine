@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Diagnostics;
+namespace Sachssoft.Engine.Diagnostics;
 
 /// <summary>
 /// Tracks frame rate statistics using a fixed-size rolling frame-time window

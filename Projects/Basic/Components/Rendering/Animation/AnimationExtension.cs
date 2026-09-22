@@ -1,7 +1,7 @@
 ﻿
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Scenes;
 
-namespace Sachssoft.Sasogine.Components.Rendering;
+namespace Sachssoft.Engine.Components.Rendering;
 
 /// <summary>
 /// Provides extension methods for objects implementing <see cref="IAnimatable"/>

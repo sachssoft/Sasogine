@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Engine.Graphics;
 
 /// <summary>
 /// Provides functionality for capturing screenshots from the graphics

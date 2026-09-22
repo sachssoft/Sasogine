@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics;
+﻿namespace Sachssoft.Engine.Graphics;
 
 /// <summary>
 /// Specifies the texture filtering method used when sampling

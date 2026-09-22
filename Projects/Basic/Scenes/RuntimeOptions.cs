@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Scenes;
+namespace Sachssoft.Engine.Scenes;
 
 /// <summary>
 /// Defines optional runtime features that can be enabled for a runtime environment.

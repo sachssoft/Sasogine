@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System;
 
-namespace Sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Engine.Graphics;
 
 /// <summary>
 /// Provides shared management of a render target used for an optional

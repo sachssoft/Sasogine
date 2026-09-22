@@ -1,7 +1,7 @@
-using Sachssoft.Sasogine.Components.Models;
+using Sachssoft.Engine.Components.Models;
 using System.ComponentModel;
 
-namespace Sachssoft.Sasogine.Assets.Graphics;
+namespace Sachssoft.Engine.Assets.Graphics;
 
 /// <summary>
 /// Defines a cell within a texture grid asset.

@@ -33,7 +33,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace Sachssoft.Sasogine.Geometry
+namespace Sachssoft.Engine.Geometry
 {
     /// <summary>
     /// Provides functionality for parsing SVG-style path data into geometric paths.

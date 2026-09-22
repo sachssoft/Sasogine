@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework.Input;
-using Sachssoft.Sasogine.Services.Platform;
+using Sachssoft.Engine.Services.Platform;
 using System;
 
-namespace Sachssoft.Sasogine.Input
+namespace Sachssoft.Engine.Input
 {
     /// <summary>
     /// Represents a keyboard or gamepad shortcut.

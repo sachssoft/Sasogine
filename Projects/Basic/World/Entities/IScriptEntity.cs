@@ -1,9 +1,9 @@
-using Sachssoft.Sasogine.Common.Execution;
+using Sachssoft.Engine.Common.Execution;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.World;
+namespace Sachssoft.Engine.World;
 
 /// <summary>
 /// Represents an entity that provides executable script logic.

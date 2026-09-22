@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Graphics.Cameras;
-using Sachssoft.Sasogine.Graphics.Materials;
+using Sachssoft.Engine.Graphics.Cameras;
+using Sachssoft.Engine.Graphics.Materials;
 using System;
 
-namespace Sachssoft.Sasogine.Scenes;
+namespace Sachssoft.Engine.Scenes;
 
 /// <summary>
 /// Provides contextual information required during scene rendering.

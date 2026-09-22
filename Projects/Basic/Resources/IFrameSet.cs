@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Resources;
+namespace Sachssoft.Engine.Resources;
 
 /// <summary>
 /// Defines a collection of tile frames that belong to a texture.

@@ -1,7 +1,9 @@
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Documents.Serialization;
+using Sachssoft.Engine;
+using Sachssoft.Engine.Common;
 using System;
 
-namespace Sachssoft.Sasogine.Documents.Serialization;
+namespace Sachssoft.Documents.Serialization;
 
 /// <summary>
 /// Represents a game registry entry with serialization support.

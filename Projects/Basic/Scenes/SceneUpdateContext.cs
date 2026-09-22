@@ -1,7 +1,7 @@
-﻿using Sachssoft.Sasogine.Graphics.Cameras;
+﻿using Sachssoft.Engine.Graphics.Cameras;
 using System;
 
-namespace Sachssoft.Sasogine.Scenes;
+namespace Sachssoft.Engine.Scenes;
 
 /// <summary>
 /// Provides contextual information required during scene updates.

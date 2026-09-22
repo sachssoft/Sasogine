@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Services.Platform;
+﻿namespace Sachssoft.Engine.Services.Platform;
 
 /// <summary>
 /// Specifies common platform-specific special directories.

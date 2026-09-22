@@ -1,12 +1,12 @@
-﻿using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Components;
-using Sachssoft.Sasogine.Scenes;
+﻿using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Components;
+using Sachssoft.Engine.Scenes;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.World;
+namespace Sachssoft.Engine.World;
 
 /// <summary>
 /// Provides a base implementation for entities that are defined by data

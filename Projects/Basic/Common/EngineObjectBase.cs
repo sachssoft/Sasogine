@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Common
+namespace Sachssoft.Engine.Common
 {
     /// <summary>
     /// Provides the non-generic base implementation for engine objects.

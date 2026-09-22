@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Represents a vector segment with a variable number of control nodes.

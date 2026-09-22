@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Services.Platform
+namespace Sachssoft.Engine.Services.Platform
 {
     /// <summary>
     /// Platform service to handle runtime permissions on the device.

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Sachssoft.Sasogine.Gameplay.Randomization;
+namespace Sachssoft.Engine.Gameplay.Randomization;
 
 /// <summary>
 /// Generates random integer values using a cosine-based weighting distribution

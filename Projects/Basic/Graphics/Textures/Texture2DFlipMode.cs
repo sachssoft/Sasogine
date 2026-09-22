@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Engine.Graphics;
 
 /// <summary>
 /// Specifies how a two-dimensional texture is flipped during rendering.

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Resources.Localization;
+namespace Sachssoft.Engine.Resources.Localization;
 
 /// <summary>
 /// Manages localized strings and assets for the active language.

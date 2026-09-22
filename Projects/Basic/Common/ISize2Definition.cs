@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Common;
+﻿namespace Sachssoft.Engine.Common;
 
 /// <summary>
 /// Defines an object definition that has a two-dimensional transform size.

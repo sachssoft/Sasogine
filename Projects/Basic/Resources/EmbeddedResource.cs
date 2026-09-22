@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace Sachssoft.Sasogine.Resources;
+namespace Sachssoft.Engine.Resources;
 
 /// <summary>
 /// Provides utility methods for locating and accessing resources

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 
-namespace Sachssoft.Sasogine.Geometry
+namespace Sachssoft.Engine.Geometry
 {
     /// <summary>
     /// Provides sampling functions for common 2D geometric curves.

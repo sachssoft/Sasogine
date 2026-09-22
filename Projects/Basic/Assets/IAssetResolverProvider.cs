@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Assets
+namespace Sachssoft.Engine.Assets
 {
     /// <summary>
     /// Provides functionality to detect asset formats,

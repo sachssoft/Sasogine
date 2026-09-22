@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Common.Collections
+namespace Sachssoft.Engine.Common.Collections
 {
     /// <summary>
     /// Represents a set of collection changes accumulated between consume operations.

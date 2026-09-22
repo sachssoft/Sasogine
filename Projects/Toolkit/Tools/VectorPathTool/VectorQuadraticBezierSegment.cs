@@ -1,8 +1,8 @@
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Geometry;
+using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Geometry;
 using System;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Represents a quadratic Bézier segment of a vector path

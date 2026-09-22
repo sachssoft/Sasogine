@@ -1,6 +1,6 @@
-﻿using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Engine.Common;
 
-namespace Sachssoft.Sasogine.Resources;
+namespace Sachssoft.Engine.Resources;
 
 /// <summary>
 /// Represents a single frame region inside a texture atlas.

@@ -1,7 +1,7 @@
-﻿using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Engine.Common;
 using System;
 
-namespace Sachssoft.Sasogine.World.Tiles
+namespace Sachssoft.Engine.World.Tiles
 {
     /// <summary>
     /// Represents a generic layered tile map that stores and manages tile objects.

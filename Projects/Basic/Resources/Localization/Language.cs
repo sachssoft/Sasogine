@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Sachssoft.Sasogine.Resources.Localization;
+namespace Sachssoft.Engine.Resources.Localization;
 
 /// <summary>
 /// Represents a language and its pluralization rule.

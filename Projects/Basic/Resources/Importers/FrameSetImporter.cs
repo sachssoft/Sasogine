@@ -1,9 +1,9 @@
-using Sachssoft.Sasogine.Resources.Importers.Internal;
+using Sachssoft.Engine.Resources.Importers.Internal;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Resources.Importers;
+namespace Sachssoft.Engine.Resources.Importers;
 
 /// <summary>
 /// Provides a base class for importing external frame set documents.

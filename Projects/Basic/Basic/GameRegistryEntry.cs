@@ -1,7 +1,7 @@
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System;
 
-namespace Sachssoft.Sasogine;
+namespace Sachssoft.Engine;
 
 /// <summary>
 /// Represents an entry in a game registry that associates a registry key

@@ -1,9 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System;
 
-namespace Sachssoft.Sasogine.Resources.Importers;
+namespace Sachssoft.Engine.Resources.Importers;
 
 /// <summary>
 /// Provides extension methods for converting imported frame set data

@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Geometry.Internal;
+using Sachssoft.Engine.Geometry.Internal;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Geometry;
+namespace Sachssoft.Engine.Geometry;
 
 /// <summary>
 /// Provides high-level polygon operations such as stroking, triangulation,

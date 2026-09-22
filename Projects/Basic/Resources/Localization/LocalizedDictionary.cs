@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Resources.Localization;
+namespace Sachssoft.Engine.Resources.Localization;
 
 /// <summary>
 /// Stores localized string values and their plural variants.

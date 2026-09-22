@@ -2,7 +2,7 @@
 using System;
 using System.ComponentModel;
 
-namespace Sachssoft.Sasogine.Common.Schedule;
+namespace Sachssoft.Engine.Common.Schedule;
 
 /// <summary>
 /// Provides data for a scheduled action and allows the action

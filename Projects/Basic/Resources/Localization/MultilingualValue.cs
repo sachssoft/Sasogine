@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Resources.Localization;
+namespace Sachssoft.Engine.Resources.Localization;
 
 /// <summary>
 /// Represents an immutable value that can provide different values

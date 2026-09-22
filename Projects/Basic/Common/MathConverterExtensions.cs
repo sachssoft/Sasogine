@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace Sachssoft.Sasogine.Common;
+namespace Sachssoft.Engine.Common;
 
 /// <summary>
 /// Provides conversion and transformation extensions for common

@@ -1,6 +1,6 @@
 using System;
 
-namespace Sachssoft.Sasogine;
+namespace Sachssoft.Engine;
 
 /// <summary>
 /// Represents a game registry key identified by a string name.

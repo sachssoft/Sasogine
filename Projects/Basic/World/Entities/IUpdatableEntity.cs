@@ -1,6 +1,6 @@
-﻿using Sachssoft.Sasogine.Scenes;
+﻿using Sachssoft.Engine.Scenes;
 
-namespace Sachssoft.Sasogine.World
+namespace Sachssoft.Engine.World
 {
     /// <summary>
     /// Defines an entity that participates in the scene update cycle.

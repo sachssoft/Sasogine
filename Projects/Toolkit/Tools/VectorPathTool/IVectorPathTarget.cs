@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Defines a selection target that provides a vector shape for editing

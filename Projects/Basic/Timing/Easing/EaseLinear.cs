@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Timing.Easing;
+namespace Sachssoft.Engine.Timing.Easing;
 
 /// <summary>
 /// Applies linear easing without modifying the normalized progress.

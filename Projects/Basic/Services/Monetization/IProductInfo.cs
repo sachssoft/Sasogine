@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Services.Monetization;
+﻿namespace Sachssoft.Engine.Services.Monetization;
 
 /// <summary>
 /// Provides information about a product available for purchase.

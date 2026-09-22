@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace Sachssoft.Sasogine.Common;
+namespace Sachssoft.Engine.Common;
 
 /// <summary>
 /// Represents an immutable three-dimensional grid coordinate (X, Y, Z).

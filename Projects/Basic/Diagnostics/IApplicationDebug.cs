@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Diagnostics;
+﻿namespace Sachssoft.Engine.Diagnostics;
 
 /// <summary>
 /// Defines diagnostic output provided by a game application.

@@ -1,10 +1,10 @@
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Graphics.Meshes;
-using Sachssoft.Sasogine.Graphics.Rendering;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Graphics.Meshes;
+using Sachssoft.Engine.Graphics.Rendering;
+using Sachssoft.Engine.Scenes;
 using System;
 
-namespace Sachssoft.Sasogine.Components.Rendering;
+namespace Sachssoft.Engine.Components.Rendering;
 
 /// <summary>
 /// Represents a cursor positioned and rendered in a three-dimensional world.

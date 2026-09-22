@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Input
+﻿namespace Sachssoft.Engine.Input
 {
     /// <summary>
     /// Represents the result of a vibration request.

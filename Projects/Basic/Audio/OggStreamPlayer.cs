@@ -3,7 +3,7 @@ using NVorbis;
 using System;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Audio;
+namespace Sachssoft.Engine.Audio;
 
 /// <summary>
 /// Provides streaming playback of Ogg Vorbis audio using a

@@ -1,11 +1,11 @@
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Assets;
+using Sachssoft.Engine.Assets;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Sachssoft.Sasogine.Resources;
+namespace Sachssoft.Engine.Resources;
 
 /// <summary>
 /// Provides storage and lifecycle management for game assets.

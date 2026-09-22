@@ -1,6 +1,6 @@
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Represents an interaction node used by a selection tool layer.
@@ -75,6 +75,11 @@ public sealed class SelectionToolNode
     /// Gets or sets the size of the node.
     /// </summary>
     public Size2 Size { get; set; }
+
+    /// <summary>
+    /// Gets or sets the additional hit-test padding around the node.
+    /// </summary>
+    public float HitPadding { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether the node is visible.

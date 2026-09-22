@@ -1,8 +1,8 @@
-﻿using Sachssoft.Sasogine.Audio;
+﻿using Sachssoft.Engine.Audio;
 using System;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Assets.Audio;
+namespace Sachssoft.Engine.Assets.Audio;
 
 /// <summary>
 /// Represents a managed sound asset for the Sasogine audio system.

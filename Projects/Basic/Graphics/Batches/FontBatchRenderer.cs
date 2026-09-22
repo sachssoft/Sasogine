@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
+namespace Sachssoft.Engine.Graphics.Rendering.Batches
 {
     /// <summary>
     /// Adapts FontStashSharp glyph rendering to a

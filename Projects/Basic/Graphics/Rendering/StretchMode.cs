@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics.Rendering
+﻿namespace Sachssoft.Engine.Graphics.Rendering
 {
     /// <summary>
     /// Defines how content is scaled to fit within the available area.

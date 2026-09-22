@@ -1,6 +1,6 @@
 using System;
 
-namespace Sachssoft.Sasogine.Resources.Localization;
+namespace Sachssoft.Engine.Resources.Localization;
 
 /// <summary>
 /// Provides helper methods for accessing and binding localized strings.

@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Geometry;
+﻿namespace Sachssoft.Engine.Geometry;
 
 /// <summary>
 /// Specifies how the ends of paths are handled when generating

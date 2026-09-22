@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics.Text
+﻿namespace Sachssoft.Engine.Graphics.Text
 {
     /// <summary>
     /// Specifies the horizontal alignment of text within its layout area.

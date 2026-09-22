@@ -1,7 +1,7 @@
-﻿using Sachssoft.Sasogine.Components.Models;
+﻿using Sachssoft.Engine.Components.Models;
 using System.ComponentModel;
 
-namespace Sachssoft.Sasogine.World;
+namespace Sachssoft.Engine.World;
 
 /// <summary>
 /// Provides a base implementation for entity definitions.

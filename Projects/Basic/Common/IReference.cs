@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Common
+namespace Sachssoft.Engine.Common
 {
     /// <summary>
     /// Represents a reference to an engine object that can be resolved

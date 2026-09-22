@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Common
+namespace Sachssoft.Engine.Common
 {
     /// <summary>
     /// Provides lookup functionality for resolving engine objects

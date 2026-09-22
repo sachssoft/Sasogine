@@ -1,9 +1,9 @@
-using Sachssoft.Sasogine.Common.Collections;
+using Sachssoft.Engine.Common.Collections;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Assets;
+namespace Sachssoft.Engine.Assets;
 
 /// <summary>
 /// Represents an ordered and trackable collection of assets with

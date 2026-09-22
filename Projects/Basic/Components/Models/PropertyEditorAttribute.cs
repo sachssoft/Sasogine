@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Components.Models;
+namespace Sachssoft.Engine.Components.Models;
 
 /// <summary>
 /// Marks a property as available for editing by a property editor.

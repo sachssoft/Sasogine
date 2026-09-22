@@ -1,9 +1,9 @@
-﻿using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Engine.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Sachssoft.Sasogine.Geometry;
+namespace Sachssoft.Engine.Geometry;
 
 /// <summary>
 /// Provides a mutable fluent builder for constructing <see cref="Path"/> instances

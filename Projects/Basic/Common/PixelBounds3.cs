@@ -3,7 +3,7 @@ using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
-namespace Sachssoft.Sasogine.Common;
+namespace Sachssoft.Engine.Common;
 
 /// <summary>
 /// Represents a three-dimensional pixel-aligned bounding volume defined by

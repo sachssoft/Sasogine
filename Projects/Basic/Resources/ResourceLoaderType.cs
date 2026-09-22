@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Resources;
+namespace Sachssoft.Engine.Resources;
 
 /// <summary>
 /// Defines the source type used to load a resource.

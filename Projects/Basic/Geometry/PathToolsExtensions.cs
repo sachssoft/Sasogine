@@ -1,7 +1,7 @@
-﻿using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Engine.Common;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Geometry;
+namespace Sachssoft.Engine.Geometry;
 
 /// <summary>
 /// Provides extension methods for transforming, simplifying,

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Input
+namespace Sachssoft.Engine.Input
 {
     /// <summary>
     /// Defines an input state that provides button state information.

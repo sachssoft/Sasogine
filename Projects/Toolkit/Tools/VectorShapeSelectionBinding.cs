@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Connects a <see cref="VectorShape"/> with a two-dimensional

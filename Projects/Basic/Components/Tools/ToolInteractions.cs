@@ -1,6 +1,6 @@
-﻿using Sachssoft.Sasogine.Input;
+﻿using Sachssoft.Engine.Input;
 
-namespace Sachssoft.Sasogine.Components.Tools
+namespace Sachssoft.Engine.Components.Tools
 {
     /// <summary>
     /// Provides the common interaction states used by tools.

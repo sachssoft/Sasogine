@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics.Rendering
+﻿namespace Sachssoft.Engine.Graphics.Rendering
 {
     /// <summary>
     /// Defines the flipping mode applied to a rendered object or texture.

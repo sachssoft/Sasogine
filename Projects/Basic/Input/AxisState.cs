@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 
-namespace Sachssoft.Sasogine.Input
+namespace Sachssoft.Engine.Input
 {
     /// <summary>
     /// Represents two-dimensional input values for enum-based axes.

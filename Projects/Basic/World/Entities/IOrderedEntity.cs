@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.World
+﻿namespace Sachssoft.Engine.World
 {
     /// <summary>
     /// Defines an entity that participates in ordered processing.

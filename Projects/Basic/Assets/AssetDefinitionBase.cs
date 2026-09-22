@@ -1,7 +1,7 @@
-﻿using Sachssoft.Sasogine.Components.Models;
+﻿using Sachssoft.Engine.Components.Models;
 using System.ComponentModel;
 
-namespace Sachssoft.Sasogine.Assets;
+namespace Sachssoft.Engine.Assets;
 
 /// <summary>
 /// Provides a base implementation for asset definitions that describe

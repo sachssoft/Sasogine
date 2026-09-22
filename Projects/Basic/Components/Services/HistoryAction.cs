@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Components.Services
+namespace Sachssoft.Engine.Components.Services
 {
     /// <summary>
     /// Represents a reversible editor operation.

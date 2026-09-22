@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Geometry;
+﻿namespace Sachssoft.Engine.Geometry;
 
 /// <summary>
 /// Specifies the winding direction of a polygon's vertices.

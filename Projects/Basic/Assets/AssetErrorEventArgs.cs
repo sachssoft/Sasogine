@@ -1,6 +1,6 @@
 using System;
 
-namespace Sachssoft.Sasogine.Assets;
+namespace Sachssoft.Engine.Assets;
 
 /// <summary>
 /// Provides data for the <see cref="AssetBase{T, TDefinition}.Error"/> event.

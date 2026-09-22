@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Common
+namespace Sachssoft.Engine.Common
 {
     /// <summary>
     /// Specifies which parts of an engine object should be reloaded.

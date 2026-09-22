@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics.Rendering;
+﻿namespace Sachssoft.Engine.Graphics.Rendering;
 
 /// <summary>
 /// Specifies how the frame rate is limited.

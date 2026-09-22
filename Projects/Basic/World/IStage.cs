@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.World;
+namespace Sachssoft.Engine.World;
 
 /// <summary>
 /// Defines a container representing a single playable section of a game.

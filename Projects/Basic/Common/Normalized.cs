@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Sachssoft.Sasogine.Common
+namespace Sachssoft.Engine.Common
 {
     /// <summary>
     /// Represents a normalized floating-point value constrained to the range

@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics.Cameras
+﻿namespace Sachssoft.Engine.Graphics.Cameras
 {
     /// <summary>
     /// Simplified camera projection types.

@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Gameplay.Randomization;
+﻿namespace Sachssoft.Engine.Gameplay.Randomization;
 
 /// <summary>
 /// Defines a generator that produces random integer values within

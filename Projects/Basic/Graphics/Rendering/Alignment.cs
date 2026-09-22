@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Graphics.Rendering
+namespace Sachssoft.Engine.Graphics.Rendering
 {
     /// <summary>
     /// Defines the alignment position of an element relative to an axis or reference point.

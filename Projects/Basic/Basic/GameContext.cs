@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Diagnostics;
+using Sachssoft.Engine.Diagnostics;
 using System;
 
-namespace Sachssoft.Sasogine;
+namespace Sachssoft.Engine;
 
 /// <summary>
 /// Provides runtime context information for the current game execution.

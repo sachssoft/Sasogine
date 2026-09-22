@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Services.Platform;
+namespace Sachssoft.Engine.Services.Platform;
 
 /// <summary>
 /// Represents the result of a file picker operation.

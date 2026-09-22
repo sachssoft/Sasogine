@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics.Text
+﻿namespace Sachssoft.Engine.Graphics.Text
 {
     /// <summary>
     /// Specifies the direction in which text content flows along an axis.

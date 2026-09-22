@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Sachssoft.Sasogine.Graphics.Rendering
+namespace Sachssoft.Engine.Graphics.Rendering
 {
     /// <summary>
     /// Defines rendering state options used to configure the graphics pipeline.

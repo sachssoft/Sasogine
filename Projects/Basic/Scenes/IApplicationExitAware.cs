@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Scenes
+﻿namespace Sachssoft.Engine.Scenes
 {
     /// <summary>
     /// Defines a callback for objects that need to handle

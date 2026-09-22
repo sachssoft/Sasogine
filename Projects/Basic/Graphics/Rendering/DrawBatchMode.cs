@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics.Rendering;
+﻿namespace Sachssoft.Engine.Graphics.Rendering;
 
 // Für mehrere Batches vorgesehen, aktuell jedoch noch nicht implementiert.
 // Die Implementierung ist für die nächste Version geplant.

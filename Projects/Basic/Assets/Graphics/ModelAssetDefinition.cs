@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Assets.Graphics
+﻿namespace Sachssoft.Engine.Assets.Graphics
 {
     /// <summary>
     /// Defines the configuration used to create a <see cref="ModelAsset"/>.

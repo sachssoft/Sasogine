@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Resources.Sources
+namespace Sachssoft.Engine.Resources.Sources
 {
     /// <summary>
     /// Provides access to resource data from a remote location.

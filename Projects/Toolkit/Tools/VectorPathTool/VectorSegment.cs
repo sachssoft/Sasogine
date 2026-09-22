@@ -1,8 +1,8 @@
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Represents the base class for a vector path segment.

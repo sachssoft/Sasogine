@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Timing.Easing;
+namespace Sachssoft.Engine.Timing.Easing;
 
 /// <summary>
 /// Provides the base implementation for easing functions that map normalized

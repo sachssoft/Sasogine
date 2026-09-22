@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Graphics.Rendering;
+using Sachssoft.Engine.Graphics.Rendering;
 
-namespace Sachssoft.Sasogine.Graphics.Materials
+namespace Sachssoft.Engine.Graphics.Materials
 {
     /// <summary>
     /// Defines a basic material that renders geometry using a diffuse shader.

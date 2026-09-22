@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Services.Platform;
+﻿namespace Sachssoft.Engine.Services.Platform;
 
 /// <summary>
 /// Provides information about the current device and its display.

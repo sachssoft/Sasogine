@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 
-namespace Sachssoft.Sasogine.Gameplay.Capabilities
+namespace Sachssoft.Engine.Gameplay.Capabilities
 {
     /// <summary>
     /// Defines the position of a movable object.

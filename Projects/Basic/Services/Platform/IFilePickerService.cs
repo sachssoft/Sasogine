@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Services.Platform
+﻿namespace Sachssoft.Engine.Services.Platform
 {
     /// <summary>
     /// Platform service for picking files or folders using native OS dialogs.

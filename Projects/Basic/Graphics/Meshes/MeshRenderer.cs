@@ -1,11 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Graphics.Cameras;
-using Sachssoft.Sasogine.Graphics.Meshes;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Graphics.Cameras;
+using Sachssoft.Engine.Graphics.Meshes;
+using Sachssoft.Engine.Scenes;
 using System;
 
-namespace Sachssoft.Sasogine.Graphics.Rendering;
+namespace Sachssoft.Engine.Graphics.Rendering;
 
 /// <summary>
 /// Renders GPU meshes.

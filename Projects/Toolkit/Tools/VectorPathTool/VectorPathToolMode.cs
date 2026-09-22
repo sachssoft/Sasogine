@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Specifies the current editing mode of a vector path tool.

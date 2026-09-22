@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Geometry
+﻿namespace Sachssoft.Engine.Geometry
 {
     /// <summary>
     /// Defines whether a stroked path is treated as open or closed.

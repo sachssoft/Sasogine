@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Gameplay;
+﻿namespace Sachssoft.Engine.Gameplay;
 
 /// <summary>
 /// Defines the possible states of a participant throughout the game lifecycle.

@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Services.Monetization;
+﻿namespace Sachssoft.Engine.Services.Monetization;
 
 /// <summary>
 /// Represents the result of a purchase operation.

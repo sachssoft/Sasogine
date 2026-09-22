@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.World.Tiles
+namespace Sachssoft.Engine.World.Tiles
 {
     /// <summary>
     /// Represents a runtime tile object stored in a tile map.

@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Provides extension methods for working with selection targets and selection capabilities.

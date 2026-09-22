@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.World
+namespace Sachssoft.Engine.World
 {
     /// <summary>
     /// Represents an entity that supports initialization and deinitialization

@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Common;
+namespace Sachssoft.Engine.Common;
 
 /// <summary>
 /// Provides the base implementation for engine objects driven by a definition.

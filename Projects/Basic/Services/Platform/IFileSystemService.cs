@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Sachssoft.Sasogine.Services.Platform;
+namespace Sachssoft.Engine.Services.Platform;
 
 /// <summary>
 /// Platform-independent access to file system functions.

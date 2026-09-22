@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Scenes;
 
-namespace Sachssoft.Sasogine.Components.Rendering;
+namespace Sachssoft.Engine.Components.Rendering;
 
 /// <summary>
 /// Provides a static parallax layer that does not produce an additional runtime displacement.

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Sachssoft.Sasogine.Diagnostics;
+namespace Sachssoft.Engine.Diagnostics;
 
 /// <summary>
 /// Measures the execution time of a scope and records the result

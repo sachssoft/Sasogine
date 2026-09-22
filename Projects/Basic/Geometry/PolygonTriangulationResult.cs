@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Geometry
+namespace Sachssoft.Engine.Geometry
 {
     /// <summary>
     /// Represents the result of a polygon triangulation operation.

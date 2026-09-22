@@ -1,11 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Graphics.Cameras;
-using Sachssoft.Sasogine.Graphics.Meshes;
+using Sachssoft.Engine.Graphics.Cameras;
+using Sachssoft.Engine.Graphics.Meshes;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Graphics.Rendering.Batches;
+namespace Sachssoft.Engine.Graphics.Rendering.Batches;
 
 /// <summary>
 /// Provides batched rendering for GPU meshes using a shared shader and camera.

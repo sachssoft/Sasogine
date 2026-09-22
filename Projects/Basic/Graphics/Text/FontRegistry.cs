@@ -1,9 +1,9 @@
-using Sachssoft.Sasogine.Graphics.Rendering;
+using Sachssoft.Engine.Graphics.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Sachssoft.Sasogine.Graphics.Text
+namespace Sachssoft.Engine.Graphics.Text
 {
     /// <summary>
     /// Provides a central registry for font families and font faces.

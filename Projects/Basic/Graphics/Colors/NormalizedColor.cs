@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using System;
 
-namespace Sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Engine.Graphics;
 
 /// <summary>
 /// Represents a color using normalized floating-point components.

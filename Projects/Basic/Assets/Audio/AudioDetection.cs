@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Assets.Audio;
+namespace Sachssoft.Engine.Assets.Audio;
 
 /// <summary>
 /// Provides utility methods for detecting audio formats from stream headers.

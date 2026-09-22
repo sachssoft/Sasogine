@@ -1,6 +1,6 @@
-﻿using Sachssoft.Sasogine.Input;
+﻿using Sachssoft.Engine.Input;
 
-namespace Sachssoft.Sasogine.Services.Platform
+namespace Sachssoft.Engine.Services.Platform
 {
     /// <summary>
     /// Provides platform-specific information and handling for keyboard modifier keys.

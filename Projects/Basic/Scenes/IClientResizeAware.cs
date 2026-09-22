@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Scenes
+﻿namespace Sachssoft.Engine.Scenes
 {
     /// <summary>
     /// Defines callbacks for receiving client window size and orientation changes.

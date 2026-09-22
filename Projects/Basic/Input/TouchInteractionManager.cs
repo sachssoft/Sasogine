@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Input.Touch;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Scenes;
 
-namespace Sachssoft.Sasogine.Input
+namespace Sachssoft.Engine.Input
 {
     /// <summary>
     /// Manages touch input interactions.

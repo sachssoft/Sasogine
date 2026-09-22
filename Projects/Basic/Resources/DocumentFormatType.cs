@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Resources
+namespace Sachssoft.Engine.Resources
 {
     /// <summary>
     /// Specifies the supported document formats.

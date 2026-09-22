@@ -1,6 +1,6 @@
 using System;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Provides data for an event involving a vector path.

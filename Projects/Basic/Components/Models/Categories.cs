@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Components.Models;
+﻿namespace Sachssoft.Engine.Components.Models;
 
 /// <summary>
 /// Provides category names used to organize model properties,

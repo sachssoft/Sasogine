@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 
-namespace Sachssoft.Sasogine.Graphics.Cameras
+namespace Sachssoft.Engine.Graphics.Cameras
 {
     /// <summary>
     /// Provides extension methods for camera calculations.

@@ -1,11 +1,11 @@
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Scenes;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.World
+namespace Sachssoft.Engine.World
 {
     /// <summary>
     /// Represents a strongly typed read-only collection of entities with support

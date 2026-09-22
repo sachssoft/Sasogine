@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine;
+namespace Sachssoft.Engine;
 
 /// <summary>
 /// Provides the default application context used by engine components.

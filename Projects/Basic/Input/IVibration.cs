@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Input
+namespace Sachssoft.Engine.Input
 {
     /// <summary>
     /// Defines vibration control for an input device.

@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Input
+﻿namespace Sachssoft.Engine.Input
 {
     /// <summary>
     /// Specifies the state of a touch interaction.

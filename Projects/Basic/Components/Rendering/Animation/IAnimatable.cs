@@ -1,7 +1,7 @@
-﻿using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Engine.Common;
 using System.Collections.ObjectModel;
 
-namespace Sachssoft.Sasogine.Components.Rendering;
+namespace Sachssoft.Engine.Components.Rendering;
 
 /// <summary>
 /// Represents an object that supports animations.

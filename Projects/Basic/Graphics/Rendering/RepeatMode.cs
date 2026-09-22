@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics.Rendering
+﻿namespace Sachssoft.Engine.Graphics.Rendering
 {
     /// <summary>
     /// Defines how a texture or rendered element is repeated along its axes.

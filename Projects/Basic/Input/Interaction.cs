@@ -1,10 +1,10 @@
-﻿using Sachssoft.Sasogine.Components;
-using Sachssoft.Sasogine.Scenes;
+﻿using Sachssoft.Engine.Components;
+using Sachssoft.Engine.Scenes;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace Sachssoft.Sasogine.Input
+namespace Sachssoft.Engine.Input
 {
     /// <summary>
     /// Provides interaction state tracking for values of the specified enumeration type.

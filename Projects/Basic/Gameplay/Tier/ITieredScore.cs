@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Gameplay;
+namespace Sachssoft.Engine.Gameplay;
 
 /// <summary>
 /// Defines a non-generic contract for tiered score thresholds.

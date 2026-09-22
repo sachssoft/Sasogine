@@ -1,9 +1,10 @@
-using Sachssoft.Sasodoc;
-using Sachssoft.Sasodoc.Formats.Json;
+using Sachssoft.Documents;
+using Sachssoft.Documents.Formats.Json;
+using Sachssoft.Documents.Formats.Xml;
 using System;
-using Sachssoft.Sasogine.Resources;
+using Sachssoft.Engine.Resources;
 
-namespace Sachssoft.Sasogine.Documents;
+namespace Sachssoft.Engine.Documents;
 
 /// <summary>
 /// Provides functionality for working with supported document formats.

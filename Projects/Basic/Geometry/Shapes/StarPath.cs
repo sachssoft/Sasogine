@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Geometry.Shapes;
+namespace Sachssoft.Engine.Geometry.Shapes;
 
 /// <summary>
 /// Represents a star-shaped path with configurable inner and outer radii

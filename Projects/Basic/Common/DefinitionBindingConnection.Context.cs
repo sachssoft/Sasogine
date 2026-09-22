@@ -1,6 +1,6 @@
 using System;
 
-namespace Sachssoft.Sasogine.Common.Collections;
+namespace Sachssoft.Engine.Common.Collections;
 
 /// <summary>
 /// Provides helpers for creating context-aware definition binding collections.

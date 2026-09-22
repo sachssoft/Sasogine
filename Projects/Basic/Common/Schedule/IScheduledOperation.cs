@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 
-namespace Sachssoft.Sasogine.Common.Schedule;
+namespace Sachssoft.Engine.Common.Schedule;
 
 /// <summary>
 /// Defines an operation that can be activated and updated

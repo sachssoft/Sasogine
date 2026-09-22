@@ -3,7 +3,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Audio;
+namespace Sachssoft.Engine.Audio;
 
 /// <summary>
 /// Provides playback of WAV audio using a <see cref="SoundEffect"/>.

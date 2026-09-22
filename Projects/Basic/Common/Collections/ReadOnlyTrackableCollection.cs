@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 
-namespace Sachssoft.Sasogine.Common.Collections
+namespace Sachssoft.Engine.Common.Collections
 {
     /// <summary>
     /// Provides a read-only view over a <see cref="TrackableCollection{T}"/>

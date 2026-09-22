@@ -1,11 +1,11 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Graphics.Rendering;
-using Sachssoft.Sasogine.Resources;
+using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Graphics.Rendering;
+using Sachssoft.Engine.Resources;
 using System;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Assets.Graphics;
+namespace Sachssoft.Engine.Assets.Graphics;
 
 /// <summary>
 /// Represents a managed shader asset for the Sasogine graphics system.

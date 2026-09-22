@@ -1,8 +1,8 @@
-﻿using Sachssoft.Sasogine.Components.Models;
-using Sachssoft.Sasogine.Graphics.Text;
+﻿using Sachssoft.Engine.Components.Models;
+using Sachssoft.Engine.Graphics.Text;
 using System.ComponentModel;
 
-namespace Sachssoft.Sasogine.Assets.Graphics
+namespace Sachssoft.Engine.Assets.Graphics
 {
     /// <summary>
     /// Defines the configuration used to create a <see cref="FontAsset"/>.

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Common.Schedule;
+namespace Sachssoft.Engine.Common.Schedule;
 
 /// <summary>
 /// Manages and executes a sequence of asynchronous or synchronous tasks

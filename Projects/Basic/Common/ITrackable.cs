@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Common
+namespace Sachssoft.Engine.Common
 {
     /// <summary>
     /// Represents an object that records changes which can be consumed by polling code.

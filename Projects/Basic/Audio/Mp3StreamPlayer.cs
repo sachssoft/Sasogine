@@ -3,7 +3,7 @@ using NLayer;
 using System;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Audio;
+namespace Sachssoft.Engine.Audio;
 
 /// <summary>
 /// Provides streaming playback of MP3 audio using an

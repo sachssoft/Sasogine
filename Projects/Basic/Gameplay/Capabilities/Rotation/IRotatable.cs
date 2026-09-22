@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace Sachssoft.Sasogine.Gameplay.Capabilities
+namespace Sachssoft.Engine.Gameplay.Capabilities
 {
     /// <summary>
     /// Represents an object whose rotation state can be changed.

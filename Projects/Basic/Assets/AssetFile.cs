@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Assets
+namespace Sachssoft.Engine.Assets
 {
     /// <summary>
     /// Represents a strongly typed asset file reference inside a package.

@@ -1,6 +1,6 @@
-﻿using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Engine.Common;
 
-namespace Sachssoft.Sasogine.World
+namespace Sachssoft.Engine.World
 {
     /// <summary>
     /// Provides a registry for entity definitions and their associated entity types.

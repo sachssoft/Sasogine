@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Geometry.Shapes;
+namespace Sachssoft.Engine.Geometry.Shapes;
 
 /// <summary>
 /// Represents an elliptical shape path defined within normalized

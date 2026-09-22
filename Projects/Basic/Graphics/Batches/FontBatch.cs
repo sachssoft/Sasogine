@@ -1,12 +1,12 @@
 using FontStashSharp;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Graphics.Cameras;
-using Sachssoft.Sasogine.Graphics.Text;
-using Sachssoft.Sasogine.Graphics.Text.Internals;
+using Sachssoft.Engine.Graphics.Cameras;
+using Sachssoft.Engine.Graphics.Text;
+using Sachssoft.Engine.Graphics.Text.Internals;
 using System;
 
-namespace Sachssoft.Sasogine.Graphics.Rendering.Batches
+namespace Sachssoft.Engine.Graphics.Rendering.Batches
 {
     /// <summary>
     /// Provides batched text rendering through the Sasogine rendering pipeline.

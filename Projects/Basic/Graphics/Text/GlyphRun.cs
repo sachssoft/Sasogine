@@ -1,9 +1,9 @@
-﻿using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Graphics.Rendering;
+﻿using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Graphics.Rendering;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Graphics.Text
+namespace Sachssoft.Engine.Graphics.Text
 {
     /// <summary>
     /// Represents a sequence of positioned glyphs produced by a text layout

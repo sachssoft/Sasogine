@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics.Rendering
+﻿namespace Sachssoft.Engine.Graphics.Rendering
 {
     /// <summary>
     /// Defines the direction or axis in which a position-related operation is applied.

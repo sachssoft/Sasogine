@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Scenes;
 using System;
 
-namespace Sachssoft.Sasogine.Common.Schedule;
+namespace Sachssoft.Engine.Common.Schedule;
 
 /// <summary>
 /// Repeatedly triggers an action after an initial delay

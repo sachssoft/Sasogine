@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace Sachssoft.Sasogine.Diagnostics;
+namespace Sachssoft.Engine.Diagnostics;
 
 /// <summary>
 /// Provides functionality for measuring and tracking execution times

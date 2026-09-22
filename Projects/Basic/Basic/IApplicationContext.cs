@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine;
+﻿namespace Sachssoft.Engine;
 
 /// <summary>
 /// Defines the application context available to engine components.

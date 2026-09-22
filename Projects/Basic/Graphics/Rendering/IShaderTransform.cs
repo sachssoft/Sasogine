@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Graphics.Cameras;
+using Sachssoft.Engine.Graphics.Cameras;
 
-namespace Sachssoft.Sasogine.Graphics.Rendering
+namespace Sachssoft.Engine.Graphics.Rendering
 {
     /// <summary>
     /// Provides transformation data required by a shader during rendering.

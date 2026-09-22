@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Graphics.Cameras;
+using Sachssoft.Engine.Graphics.Cameras;
 using System;
 
-namespace Sachssoft.Sasogine.Graphics.Rendering
+namespace Sachssoft.Engine.Graphics.Rendering
 {
     /// <summary>
     /// Provides a shader implementation based on MonoGame's <see cref="BasicEffect"/>.

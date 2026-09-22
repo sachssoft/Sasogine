@@ -1,8 +1,8 @@
-﻿using Sachssoft.Sasogine.Scenes;
+﻿using Sachssoft.Engine.Scenes;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Input
+namespace Sachssoft.Engine.Input
 {
     /// <summary>
     /// Manages button combinations and button sequences for an input state.

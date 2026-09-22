@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Common;
+namespace Sachssoft.Engine.Common;
 
 /// <summary>
 /// Defines a factory that creates and releases engine objects from definitions.

@@ -2,7 +2,7 @@
 using System;
 using System.Threading;
 
-namespace Sachssoft.Sasogine.Input
+namespace Sachssoft.Engine.Input
 {
     /// <summary>
     /// Provides vibration control for a gamepad.

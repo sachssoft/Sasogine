@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Assets
+namespace Sachssoft.Engine.Assets
 {
     /// <summary>
     /// Provides functionality to synchronize assets from a directory.

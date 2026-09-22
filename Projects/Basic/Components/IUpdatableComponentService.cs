@@ -1,6 +1,6 @@
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Scenes;
 
-namespace Sachssoft.Sasogine.Components
+namespace Sachssoft.Engine.Components
 {
     /// <summary>
     /// Defines a component service that participates in the update cycle.

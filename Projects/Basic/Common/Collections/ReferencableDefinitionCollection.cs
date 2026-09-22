@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Common.Collections
+namespace Sachssoft.Engine.Common.Collections
 {
     /// <summary>
     /// Represents an ordered, trackable collection of engine-referenceable definitions

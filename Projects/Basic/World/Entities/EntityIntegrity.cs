@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.World
+﻿namespace Sachssoft.Engine.World
 {
     /// <summary>
     /// Specifies the integrity state of an entity.

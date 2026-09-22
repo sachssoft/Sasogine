@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Common
+﻿namespace Sachssoft.Engine.Common
 {
     /// <summary>
     /// Represents a binary switch state.

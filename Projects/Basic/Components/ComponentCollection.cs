@@ -1,10 +1,10 @@
-﻿using Sachssoft.Sasogine.Scenes;
+﻿using Sachssoft.Engine.Scenes;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Components
+namespace Sachssoft.Engine.Components
 {
     /// <summary>
     /// Provides a collection of components with optimized caches for

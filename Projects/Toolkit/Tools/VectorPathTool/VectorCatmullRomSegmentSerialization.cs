@@ -1,6 +1,7 @@
-﻿using Sachssoft.Sasodoc;
+﻿using Sachssoft.Documents;
+using Sachssoft.Documents.Serialization;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Provides serialization support for

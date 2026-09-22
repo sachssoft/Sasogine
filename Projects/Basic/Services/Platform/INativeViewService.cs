@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Services.Platform;
+﻿namespace Sachssoft.Engine.Services.Platform;
 
 /// <summary>
 /// Provides access to native platform views such as WebViews,

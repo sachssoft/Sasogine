@@ -1,10 +1,10 @@
 ﻿using FontStashSharp;
-using Sachssoft.Sasogine.Graphics.Rendering;
+using Sachssoft.Engine.Graphics.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Sachssoft.Sasogine.Graphics.Text.Internals
+namespace Sachssoft.Engine.Graphics.Text.Internals
 {
     /// <summary>
     /// Provides a FontStashSharp-based implementation of

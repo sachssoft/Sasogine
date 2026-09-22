@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Diagnostics;
+﻿namespace Sachssoft.Engine.Diagnostics;
 
 /// <summary>
 /// Defines a display for presenting runtime diagnostic information.

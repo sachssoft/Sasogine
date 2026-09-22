@@ -4,7 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Xml.Linq;
 
-namespace Sachssoft.Sasogine.Resources.Importers.Internal;
+namespace Sachssoft.Engine.Resources.Importers.Internal;
 
 internal sealed class XmlFrameSetImporter : FrameSetImporter
 {

@@ -1,7 +1,7 @@
-﻿using Sachssoft.Sasogine.Resources;
+﻿using Sachssoft.Engine.Resources;
 using System;
 
-namespace Sachssoft.Sasogine.Services.Platform
+namespace Sachssoft.Engine.Services.Platform
 {
     /// <summary>
     /// Provides access to platform-specific resource files.

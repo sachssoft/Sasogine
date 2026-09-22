@@ -1,9 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Scenes;
 using System;
 
-namespace Sachssoft.Sasogine.Components.Rendering;
+namespace Sachssoft.Engine.Components.Rendering;
 
 /// <summary>
 /// Represents the base class for runtime cursor components.

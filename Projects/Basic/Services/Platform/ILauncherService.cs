@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Services.Platform
+namespace Sachssoft.Engine.Services.Platform
 {
     /// <summary>
     /// Platform service to open URLs in the browser or reveal files in the OS explorer.

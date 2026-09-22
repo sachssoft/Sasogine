@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Diagnostics.Internals
+namespace Sachssoft.Engine.Diagnostics.Internals
 {
     internal sealed class DesktopApplicationDebug : IApplicationDebug
     {

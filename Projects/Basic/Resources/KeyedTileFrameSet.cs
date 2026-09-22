@@ -1,10 +1,10 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Resources;
+namespace Sachssoft.Engine.Resources;
 
 /// <summary>
 /// Represents a tile frame set where frames are accessed using string keys.

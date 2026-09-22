@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Timing.Easing;
+namespace Sachssoft.Engine.Timing.Easing;
 
 /// <summary>
 /// Applies a back easing function that accelerates from the start with an initial overshoot in the opposite direction.

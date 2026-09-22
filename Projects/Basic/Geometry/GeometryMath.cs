@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System.Runtime.CompilerServices;
 
-namespace Sachssoft.Sasogine.Geometry;
+namespace Sachssoft.Engine.Geometry;
 
 /// <summary>
 /// Provides utility methods for common geometric calculations on paths

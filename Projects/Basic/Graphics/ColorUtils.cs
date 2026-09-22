@@ -2,7 +2,7 @@
 using System;
 using System.Globalization;
 
-namespace Sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Engine.Graphics;
 
 /// <summary>
 /// Provides utility methods for converting, parsing, and adjusting colors.

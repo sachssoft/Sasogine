@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 
-namespace Sachssoft.Sasogine.Components.Tools
+namespace Sachssoft.Engine.Components.Tools
 {
     /// <summary>
     /// Provides information about a 2D object insertion operation.

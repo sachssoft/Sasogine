@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Scenes;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Common.Schedule;
+namespace Sachssoft.Engine.Common.Schedule;
 
 /// <summary>
 /// Executes a sequence of scheduled loading operations in a defined order

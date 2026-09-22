@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Components.Models
+namespace Sachssoft.Engine.Components.Models
 {
     /// <summary>
     /// Defines color editor settings for a property.

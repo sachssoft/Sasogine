@@ -1,9 +1,9 @@
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Assets;
+namespace Sachssoft.Engine.Assets;
 
 /// <summary>
 /// Represents an immutable collection of assets that supports asset resolution

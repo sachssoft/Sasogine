@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Assets.Audio
+﻿namespace Sachssoft.Engine.Assets.Audio
 {
     /// <summary>
     /// Specifies the purpose or playback context of a music asset.

@@ -1,38 +1,40 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 
-namespace Sachssoft.Sasogine.Graphics.Meshes.Internal;
+namespace Sachssoft.Engine.Graphics.Meshes.Internal;
 
-internal sealed class TextureSphereMesh
-    : Mesh<VertexPositionTexture>
+internal sealed class TextureSphereMesh<TVertex> : Mesh<TVertex>
+    where TVertex : struct, IVertexType
 {
     public TextureSphereMesh(
         GraphicsDevice graphicsDevice,
+        MeshVertexFactory<TVertex> vertexFactory,
         float radius = 0.5f,
         int segments = 32,
         int rings = 16)
         : base(
             graphicsDevice,
-            CreateVertices(radius, segments, rings),
+            CreateVertices(radius, segments, rings, vertexFactory),
             CreateIndices(segments, rings))
     {
     }
 
-
-    private static VertexPositionTexture[] CreateVertices(
+    private static TVertex[] CreateVertices(
         float radius,
         int segments,
-        int rings)
+        int rings,
+        MeshVertexFactory<TVertex> vertexFactory)
     {
-        var vertices = new VertexPositionTexture[(segments + 1) * (rings + 1)];
+        Validate(segments, rings);
 
+        var vertices = new TVertex[(segments + 1) * (rings + 1)];
         int index = 0;
 
         for (int y = 0; y <= rings; y++)
         {
             float v = (float)y / rings;
             float phi = v * MathHelper.Pi;
-
             float sinPhi = float.Sin(phi);
             float cosPhi = float.Cos(phi);
 
@@ -40,50 +42,83 @@ internal sealed class TextureSphereMesh
             {
                 float u = (float)x / segments;
                 float theta = u * MathHelper.TwoPi;
-
                 float sinTheta = float.Sin(theta);
                 float cosTheta = float.Cos(theta);
 
-                Vector3 position = new(
+                var normal = new Vector3(
                     sinPhi * cosTheta,
                     cosPhi,
                     sinPhi * sinTheta);
 
-                vertices[index++] = new VertexPositionTexture(
-                    position * radius,
+                var tangent = new Vector3(-sinTheta, 0f, cosTheta);
+
+                if (tangent.LengthSquared() > 0f)
+                    tangent.Normalize();
+                else
+                    tangent = Vector3.UnitX;
+
+                var bitangent = Vector3.Cross(normal, tangent);
+
+                if (bitangent.LengthSquared() > 0f)
+                    bitangent.Normalize();
+
+                var data = new MeshVertexData(
+                    normal * radius,
+                    normal,
+                    tangent,
+                    bitangent,
+                    Color.White,
                     new Vector2(u, v));
+
+                vertices[index++] = vertexFactory(in data);
             }
         }
 
         return vertices;
     }
 
-
-    private static short[] CreateIndices(
-        int segments,
-        int rings)
+    private static short[] CreateIndices(int segments, int rings)
     {
-        var indices = new short[segments * rings * 6];
+        Validate(segments, rings);
 
+        var indices = new short[segments * rings * 6];
         int index = 0;
 
         for (int y = 0; y < rings; y++)
         {
             for (int x = 0; x < segments; x++)
             {
-                short current = (short)(y * (segments + 1) + x);
-                short next = (short)(current + segments + 1);
+                short current = checked((short)(y * (segments + 1) + x));
+                short next = checked((short)(current + segments + 1));
 
                 indices[index++] = current;
                 indices[index++] = next;
-                indices[index++] = (short)(current + 1);
+                indices[index++] = checked((short)(current + 1));
 
-                indices[index++] = (short)(current + 1);
+                indices[index++] = checked((short)(current + 1));
                 indices[index++] = next;
-                indices[index++] = (short)(next + 1);
+                indices[index++] = checked((short)(next + 1));
             }
         }
 
         return indices;
+    }
+
+    private static void Validate(int segments, int rings)
+    {
+        if (segments < 3)
+            throw new ArgumentOutOfRangeException(nameof(segments));
+
+        if (rings < 2)
+            throw new ArgumentOutOfRangeException(nameof(rings));
+
+        int count = (segments + 1) * (rings + 1);
+
+        if (count > short.MaxValue)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(segments),
+                "The sphere contains too many vertices for a 16-bit index buffer.");
+        }
     }
 }

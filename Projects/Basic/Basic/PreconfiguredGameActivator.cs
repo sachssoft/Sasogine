@@ -1,8 +1,8 @@
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine;
+namespace Sachssoft.Engine;
 
 /// <summary>
 /// Provides a base implementation for a game activator

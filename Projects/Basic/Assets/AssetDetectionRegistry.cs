@@ -1,5 +1,5 @@
-﻿using Sachssoft.Sasogine.Assets.Audio;
-using Sachssoft.Sasogine.Assets.Graphics;
+﻿using Sachssoft.Engine.Assets.Audio;
+using Sachssoft.Engine.Assets.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -7,7 +7,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Assets
+namespace Sachssoft.Engine.Assets
 {
     /// <summary>
     /// Provides a registry for detecting asset types from streams

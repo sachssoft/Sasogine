@@ -1,10 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Graphics.Text;
-using Sachssoft.Sasogine.Graphics.Text.Internals;
+using Sachssoft.Engine.Graphics.Text;
+using Sachssoft.Engine.Graphics.Text.Internals;
 using System;
 
-namespace Sachssoft.Sasogine.Graphics.Rendering
+namespace Sachssoft.Engine.Graphics.Rendering
 {
     /// <summary>
     /// Provides text rendering using a <see cref="SpriteBatch"/> and a managed

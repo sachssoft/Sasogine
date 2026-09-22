@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace Sachssoft.Sasogine.Graphics.Rendering;
+namespace Sachssoft.Engine.Graphics.Rendering;
 
 /// <summary>
 /// Represents a local transformation applied to an individual tile.

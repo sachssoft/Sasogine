@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Scenes
+﻿namespace Sachssoft.Engine.Scenes
 {
     /// <summary>
     /// Defines runtime settings used for executing a scene.

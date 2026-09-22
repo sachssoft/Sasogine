@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Runtime.CompilerServices;
 
-namespace Sachssoft.Sasogine.Common;
+namespace Sachssoft.Engine.Common;
 
 /// <summary>
 /// Provides extension methods for common operations on three-dimensional points.

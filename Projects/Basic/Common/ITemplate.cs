@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Common
+﻿namespace Sachssoft.Engine.Common
 {
     /// <summary>
     /// Represents a template capable of creating object instances using an

@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System;
 
-namespace Sachssoft.Sasogine.Assets;
+namespace Sachssoft.Engine.Assets;
 
 /// <summary>
 /// Provides runtime dependencies required for asset initialization and

@@ -1,9 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Resources;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Resources;
+using Sachssoft.Engine.Scenes;
 
-namespace Sachssoft.Sasogine.Components.Rendering;
+namespace Sachssoft.Engine.Components.Rendering;
 
 /// <summary>
 /// Represents a cursor positioned in screen coordinates.

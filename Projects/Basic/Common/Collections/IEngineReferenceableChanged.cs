@@ -1,6 +1,6 @@
 using System;
 
-namespace Sachssoft.Sasogine.Common
+namespace Sachssoft.Engine.Common
 {
     /// <summary>
     /// Provides notification when the identifier of an engine referenceable changes.

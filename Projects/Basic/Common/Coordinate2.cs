@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace Sachssoft.Sasogine.Common;
+namespace Sachssoft.Engine.Common;
 
 /// <summary>
 /// Repräsentiert eine unveränderliche diskrete 2D-Koordinate (X, Y)

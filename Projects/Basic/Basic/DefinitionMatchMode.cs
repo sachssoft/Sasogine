@@ -1,5 +1,5 @@
 
-namespace Sachssoft.Sasogine;
+namespace Sachssoft.Engine;
 
 /// <summary>
 /// Specifies how definition types are matched against registered definition types.

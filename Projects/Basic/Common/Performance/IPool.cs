@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Common.Performance
+﻿namespace Sachssoft.Engine.Common.Performance
 {
     /// <summary>
     /// Generic interface for object pools.

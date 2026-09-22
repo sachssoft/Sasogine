@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Assets.Data;
+namespace Sachssoft.Engine.Assets.Data;
 
 /// <summary>
 /// Represents a mapping between a numeric frame index and its associated name.

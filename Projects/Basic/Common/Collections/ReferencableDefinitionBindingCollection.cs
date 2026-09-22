@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Common.Collections;
+namespace Sachssoft.Engine.Common.Collections;
 
 /// <summary>
 /// Provides a read-only definition binding collection with engine object

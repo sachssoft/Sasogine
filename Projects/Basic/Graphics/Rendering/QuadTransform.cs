@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 
-namespace Sachssoft.Sasogine.Graphics.Rendering;
+namespace Sachssoft.Engine.Graphics.Rendering;
 
 /// <summary>
 /// Represents a complete 2D transformation for rendering quad-based objects.

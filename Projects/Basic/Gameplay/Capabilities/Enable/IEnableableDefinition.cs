@@ -1,6 +1,6 @@
-﻿using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Engine.Common;
 
-namespace Sachssoft.Sasogine.Gameplay.Capabilities
+namespace Sachssoft.Engine.Gameplay.Capabilities
 {
     /// <summary>
     /// Defines the enabled state of an object.

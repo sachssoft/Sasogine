@@ -1,7 +1,7 @@
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System.ComponentModel;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Defines a selection target definition that can be edited by a vector path tool.

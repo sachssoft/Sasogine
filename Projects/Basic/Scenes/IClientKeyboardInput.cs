@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace Sachssoft.Sasogine.Scenes
+namespace Sachssoft.Engine.Scenes
 {
     /// <summary>
     /// Defines callbacks for receiving keyboard input events from the client.

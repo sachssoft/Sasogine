@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Diagnostics;
+namespace Sachssoft.Engine.Diagnostics;
 
 /// <summary>
 /// Specifies the diagnostic information and overlays that can be displayed.

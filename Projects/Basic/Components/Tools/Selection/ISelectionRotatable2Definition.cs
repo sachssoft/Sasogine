@@ -1,6 +1,6 @@
-﻿using Sachssoft.Sasogine.Graphics.Rendering;
+﻿using Sachssoft.Engine.Graphics.Rendering;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Defines the rotation properties of a selection target.

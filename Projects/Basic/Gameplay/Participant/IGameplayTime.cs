@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Gameplay;
+namespace Sachssoft.Engine.Gameplay;
 
 /// <summary>
 /// Provides the elapsed game time since the start of the gameplay session.

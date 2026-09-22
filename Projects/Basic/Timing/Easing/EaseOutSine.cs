@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Timing.Easing;
+namespace Sachssoft.Engine.Timing.Easing;
 
 /// <summary>
 /// Applies a sinusoidal easing function that decelerates toward the end.

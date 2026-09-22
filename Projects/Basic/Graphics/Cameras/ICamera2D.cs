@@ -1,6 +1,6 @@
-﻿using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Engine.Common;
 
-namespace Sachssoft.Sasogine.Graphics.Cameras
+namespace Sachssoft.Engine.Graphics.Cameras
 {
     /// <summary>
     /// Defines a two-dimensional camera with position and zoom control.

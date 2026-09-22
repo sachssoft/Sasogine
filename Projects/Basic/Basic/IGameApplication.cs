@@ -1,12 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Diagnostics;
-using Sachssoft.Sasogine.Resources;
-using Sachssoft.Sasogine.Resources.Localization;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Diagnostics;
+using Sachssoft.Engine.Resources;
+using Sachssoft.Engine.Resources.Localization;
+using Sachssoft.Engine.Scenes;
 using System.Reflection;
 
-namespace Sachssoft.Sasogine;
+namespace Sachssoft.Engine;
 
 /// <summary>
 /// Defines the core contract for a Sasogine game application.

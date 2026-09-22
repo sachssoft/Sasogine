@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics.Text
+﻿namespace Sachssoft.Engine.Graphics.Text
 {
     /// <summary>
     /// Defines layout options that control character and line spacing during

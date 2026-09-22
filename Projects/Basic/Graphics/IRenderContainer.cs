@@ -1,6 +1,6 @@
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 
-namespace Sachssoft.Sasogine.Graphics
+namespace Sachssoft.Engine.Graphics
 {
     // Für UI empfohlen z.B. Widget mit IRenderContainer,
     // um die Position des Cursors in der UI zu bestimmen.

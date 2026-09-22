@@ -41,6 +41,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Sachssoft.Sasogine.DesktopGL\Sachssoft.Sasogine.DesktopGL.csproj" />
+		<ProjectReference Include="..\Sachssoft.Sasogine.Documents.DesktopGL\Sachssoft.Sasogine.Documents.DesktopGL.csproj" />
 	</ItemGroup>
-
+	
 </Project>

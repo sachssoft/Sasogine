@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Assets.Audio
+﻿namespace Sachssoft.Engine.Assets.Audio
 {
     /// <summary>
     /// Specifies an audio format detected from an audio resource.

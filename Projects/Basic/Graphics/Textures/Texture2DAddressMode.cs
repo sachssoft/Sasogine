@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics;
+﻿namespace Sachssoft.Engine.Graphics;
 
 /// <summary>
 /// Specifies how texture coordinates outside the standard texture range

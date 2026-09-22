@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Common
+﻿namespace Sachssoft.Engine.Common
 {
     /// <summary>
     /// Defines common configuration data for an engine object,

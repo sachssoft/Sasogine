@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Graphics.Cameras;
+using Sachssoft.Engine.Graphics.Cameras;
 
-namespace Sachssoft.Sasogine.Input
+namespace Sachssoft.Engine.Input
 {
     /// <summary>
     /// Provides the current state and coordinate information of a cursor.

@@ -1,12 +1,12 @@
-﻿using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Common.Collections;
-using Sachssoft.Sasogine.Resources;
+﻿using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Common.Collections;
+using Sachssoft.Engine.Resources;
 using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Assets;
+namespace Sachssoft.Engine.Assets;
 
 /// <summary>
 /// Provides a base implementation for managed assets that support synchronous

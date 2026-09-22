@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Geometry;
+﻿namespace Sachssoft.Engine.Geometry;
 
 /// <summary>
 /// Specifies the directions in which geometry is subdivided into segments.

@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace Sachssoft.Sasogine.Common;
+namespace Sachssoft.Engine.Common;
 
 /// <summary>
 /// Defines read-only access to a two-dimensional transform skew.

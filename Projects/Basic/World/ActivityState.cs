@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.World
+﻿namespace Sachssoft.Engine.World
 {
     /// <summary>
     /// Specifies the current runtime activity state of an entity.

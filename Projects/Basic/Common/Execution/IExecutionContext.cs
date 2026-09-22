@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Common.Execution
+namespace Sachssoft.Engine.Common.Execution
 {
     /// <summary>
     /// Represents contextual information associated with a runtime execution.

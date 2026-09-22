@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Graphics.Cameras;
+using Sachssoft.Engine.Graphics.Cameras;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Scenes
+namespace Sachssoft.Engine.Scenes
 {
     /// <summary>
     /// Manages scene lifecycle, scene transitions, updating, and rendering.

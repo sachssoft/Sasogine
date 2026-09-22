@@ -1,5 +1,5 @@
 ﻿
-namespace Sachssoft.Sasogine.Components.Rendering;
+namespace Sachssoft.Engine.Components.Rendering;
 
 /// <summary>
 /// Provides a rotation animation that continuously rotates an object over time.

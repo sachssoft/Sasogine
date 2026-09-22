@@ -1,16 +1,16 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Graphics.Cameras;
-using Sachssoft.Sasogine.Graphics.Meshes;
-using Sachssoft.Sasogine.Graphics.Rendering;
-using Sachssoft.Sasogine.Input;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Graphics.Cameras;
+using Sachssoft.Engine.Graphics.Meshes;
+using Sachssoft.Engine.Graphics.Rendering;
+using Sachssoft.Engine.Input;
+using Sachssoft.Engine.Scenes;
 
-namespace Sachssoft.Sasogine.Components.Rendering;
+namespace Sachssoft.Engine.Components.Rendering;
 
 /// <summary>
-/// Represents a cursor positioned in a two-dimensional world.
+/// Represents a cursor positioned and rendered in a two-dimensional world.
 /// </summary>
 public class WorldCursor2 : CursorComponent
 {
@@ -28,13 +28,25 @@ public class WorldCursor2 : CursorComponent
     {
         _cursorMesh = MeshGenerator.CreateQuad(
             graphicsDevice,
-            centerOrigin: false);
+            size: 1f,
+            centerOrigin: false,
+            flipMode: Graphics.Texture2DFlipMode.Vertical);
     }
 
     /// <summary>
     /// Gets or sets the rendering layer of the cursor.
     /// </summary>
     public float Layer { get; set; }
+
+    /// <summary>
+    /// Gets or sets the additional local transformation applied to the cursor.
+    /// </summary>
+    /// <remarks>
+    /// The transformation is applied after the unit cursor mesh has been scaled
+    /// to the dimensions of its texture. The cursor world position and runtime
+    /// offset are applied separately.
+    /// </remarks>
+    public QuadTransform Transform { get; set; } = QuadTransform.Identity;
 
     /// <summary>
     /// Gets the current runtime state of the cursor.
@@ -44,11 +56,8 @@ public class WorldCursor2 : CursorComponent
     /// <summary>
     /// Applies the specified runtime state to the cursor.
     /// </summary>
-    /// <param name="state">
-    /// The runtime state to apply.
-    /// </param>
-    public void ApplyState(
-        WorldCursor2State state)
+    /// <param name="state">The runtime state to apply.</param>
+    public void ApplyState(WorldCursor2State state)
     {
         _state = state;
     }
@@ -97,10 +106,17 @@ public class WorldCursor2 : CursorComponent
         shader.Opacity = Opacity;
         shader.Apply();
 
-        var transform = Matrix.CreateTranslation(
-            _state.Position.X + _state.Offset.X,
-            _state.Position.Y + _state.Offset.Y,
-            Layer);
+        var textureScale = Texture != null
+            ? new Vector3(Texture.Bounds.Width, Texture.Bounds.Height, 1f)
+            : Vector3.One;
+
+        var transform =
+            Matrix.CreateScale(textureScale) *
+            Transform.ToMatrix() *
+            Matrix.CreateTranslation(
+                _state.Position.X + _state.Offset.X,
+                _state.Position.Y + _state.Offset.Y,
+                Layer);
 
         MeshRenderer.Draw(
             context,

@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Common;
+namespace Sachssoft.Engine.Common;
 
 /// <summary>
 /// Observes the lifecycle of a transform operation.

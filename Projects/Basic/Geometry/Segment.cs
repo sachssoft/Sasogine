@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System;
 using System.Globalization;
 
-namespace Sachssoft.Sasogine.Geometry;
+namespace Sachssoft.Engine.Geometry;
 
 /// <summary>
 /// Represents a two-dimensional line segment defined by a start point and an end point.

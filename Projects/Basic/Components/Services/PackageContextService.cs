@@ -1,8 +1,8 @@
-﻿using Sachssoft.Sasogine.Packages;
+﻿using Sachssoft.Engine.Packages;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Components.Services
+namespace Sachssoft.Engine.Components.Services
 {
     /// <summary>
     /// Manages the current package context and notifies listeners when

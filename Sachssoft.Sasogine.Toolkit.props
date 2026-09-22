@@ -32,12 +32,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Sachssoft.Sasogine.DesktopGL"
+		<!--<PackageReference Include="Sachssoft.Sasogine.DesktopGL"
 						  Version="$(VersionPrefix)-$(VersionSuffix)" />
 		<PackageReference Include="Sachssoft.Sasogine.Documents.DesktopGL"
-						  Version="$(VersionPrefix)-$(VersionSuffix)" />
+						  Version="$(VersionPrefix)-$(VersionSuffix)" />-->
 		<PackageReference Include="Sachssoft.Sasodoc"
-						  Version="1.0.0" />
+						  Version="2.0.0" />
 	</ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine;
+namespace Sachssoft.Engine;
 
 /// <summary>
 /// Represents a game registry key that combines a string identifier

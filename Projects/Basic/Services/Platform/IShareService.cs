@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Services.Platform
+﻿namespace Sachssoft.Engine.Services.Platform
 {
     /// <summary>
     /// Platform service to share text or files using the device's native sharing functionality.

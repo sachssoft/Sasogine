@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Graphics.Cameras;
-using Sachssoft.Sasogine.Graphics.Materials;
+using Sachssoft.Engine.Graphics.Cameras;
+using Sachssoft.Engine.Graphics.Materials;
 
-namespace Sachssoft.Sasogine.Scenes
+namespace Sachssoft.Engine.Scenes
 {
     /// <summary>
     /// Defines a game scene that manages its lifecycle, state updates,

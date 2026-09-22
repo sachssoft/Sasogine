@@ -1,6 +1,6 @@
-﻿using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Engine.Common;
 
-namespace Sachssoft.Sasogine.Components;
+namespace Sachssoft.Engine.Components;
 
 /// <summary>
 /// Defines the base contract for definitions used to describe engine components.

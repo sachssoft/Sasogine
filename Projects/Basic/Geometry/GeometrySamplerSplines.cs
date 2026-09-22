@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System;
 
-namespace Sachssoft.Sasogine.Geometry
+namespace Sachssoft.Engine.Geometry
 {
 
     /// <summary>

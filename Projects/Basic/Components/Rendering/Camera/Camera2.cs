@@ -1,10 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Graphics.Cameras;
+using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Graphics.Cameras;
 using System;
 
-namespace Sachssoft.Sasogine.Components.Rendering
+namespace Sachssoft.Engine.Components.Rendering
 {
     /// <summary>
     /// Provides a two-dimensional camera implementation with position,

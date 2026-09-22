@@ -1,7 +1,7 @@
-using Sachssoft.Sasogine.Assets;
+using Sachssoft.Engine.Assets;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Resources;
+namespace Sachssoft.Engine.Resources;
 
 /// <summary>
 /// Provides read-only access to a collection of assets.

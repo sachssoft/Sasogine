@@ -1,8 +1,8 @@
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Components.Models;
+using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Components.Models;
 using System.ComponentModel;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Defines the configurable state of a vector node.

@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Gameplay.Capabilities
+﻿namespace Sachssoft.Engine.Gameplay.Capabilities
 {
     /// <summary>
     /// Provides read-only access to the enabled state of an object.

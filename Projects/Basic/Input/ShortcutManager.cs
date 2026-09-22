@@ -1,10 +1,10 @@
 ﻿using Microsoft.Xna.Framework.Input;
-using Sachssoft.Sasogine.Services.Platform;
+using Sachssoft.Engine.Services.Platform;
 using System;
 using System.Collections.Generic;
 using System.Windows.Input;
 
-namespace Sachssoft.Sasogine.Input
+namespace Sachssoft.Engine.Input
 {
     /// <summary>
     /// Manages command shortcuts for keyboard and gamepad input.

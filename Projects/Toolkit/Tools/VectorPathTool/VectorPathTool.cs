@@ -1,15 +1,15 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Graphics.Rendering;
-using Sachssoft.Sasogine.Graphics.Rendering.Batches;
-using Sachssoft.Sasogine.Input;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Graphics.Rendering;
+using Sachssoft.Engine.Graphics.Rendering.Batches;
+using Sachssoft.Engine.Input;
+using Sachssoft.Engine.Scenes;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Provides interactive editing functionality for vector paths,

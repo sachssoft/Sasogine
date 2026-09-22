@@ -1,11 +1,11 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Graphics.Cameras;
+using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Graphics.Cameras;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Graphics.Rendering.Batches;
+namespace Sachssoft.Engine.Graphics.Rendering.Batches;
 
 /// <summary>
 /// Batches frames from multiple textures by grouping them by texture.

@@ -1,8 +1,8 @@
-﻿using Sachssoft.Sasogine.Components.Models;
+﻿using Sachssoft.Engine.Components.Models;
 using System;
 using System.ComponentModel;
 
-namespace Sachssoft.Sasogine.Common
+namespace Sachssoft.Engine.Common
 {
     /// <summary>
     /// Provides the base definition for engine objects.

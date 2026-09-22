@@ -1,6 +1,6 @@
-using Sachssoft.Sasogine.Input;
+using Sachssoft.Engine.Input;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Defines the input interactions used by the <see cref="SelectionTool"/>.

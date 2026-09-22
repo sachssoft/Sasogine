@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Geometry;
+﻿namespace Sachssoft.Engine.Geometry;
 
 /// <summary>
 /// Specifies the boolean operation used to combine or clip polygons.

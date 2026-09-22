@@ -1,6 +1,6 @@
 using System.Collections.Specialized;
 
-namespace Sachssoft.Sasogine.Common.Collections
+namespace Sachssoft.Engine.Common.Collections
 {
     /// <summary>
     /// Describes a single change made to a collection without allocating

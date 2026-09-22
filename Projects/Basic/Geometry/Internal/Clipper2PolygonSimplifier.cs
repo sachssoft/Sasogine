@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Geometry.Internal
+namespace Sachssoft.Engine.Geometry.Internal
 {
     internal class Clipper2PolygonSimplifier : IPolygonSimplifier
     {

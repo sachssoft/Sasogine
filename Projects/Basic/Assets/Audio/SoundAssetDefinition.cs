@@ -1,7 +1,7 @@
-﻿using Sachssoft.Sasogine.Components.Models;
+﻿using Sachssoft.Engine.Components.Models;
 using System.ComponentModel;
 
-namespace Sachssoft.Sasogine.Assets.Audio;
+namespace Sachssoft.Engine.Assets.Audio;
 
 /// <summary>
 /// Defines the configuration used to create and initialize a

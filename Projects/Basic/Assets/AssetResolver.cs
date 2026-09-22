@@ -1,10 +1,10 @@
-﻿using Sachssoft.Sasogine.Assets.Audio;
-using Sachssoft.Sasogine.Assets.Graphics;
+﻿using Sachssoft.Engine.Assets.Audio;
+using Sachssoft.Engine.Assets.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Assets
+namespace Sachssoft.Engine.Assets
 {
     /// <summary>
     /// Detects asset formats and creates the corresponding asset files

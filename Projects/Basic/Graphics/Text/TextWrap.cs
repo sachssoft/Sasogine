@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics.Text
+﻿namespace Sachssoft.Engine.Graphics.Text
 {
     /// <summary>
     /// Specifies how text is wrapped when it exceeds the available layout width.

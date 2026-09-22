@@ -1,7 +1,7 @@
-﻿using Sachssoft.Sasogine.Scenes;
+﻿using Sachssoft.Engine.Scenes;
 using System;
 
-namespace Sachssoft.Sasogine.Input
+namespace Sachssoft.Engine.Input
 {
     /// <summary>
     /// Defines a non-generic interface for managing and querying interaction states.

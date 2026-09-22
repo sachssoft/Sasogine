@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Assets.Graphics;
+﻿namespace Sachssoft.Engine.Assets.Graphics;
 
 /// <summary>
 /// Specifies how a texture is mapped to a target area.

@@ -1,10 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Graphics.Cameras;
+using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Graphics.Cameras;
 using System;
 
-namespace Sachssoft.Sasogine.Graphics.Rendering.Batches;
+namespace Sachssoft.Engine.Graphics.Rendering.Batches;
 
 /// <summary>
 /// Base class for tile based rendering batches.

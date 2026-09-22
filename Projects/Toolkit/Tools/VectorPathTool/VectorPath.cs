@@ -1,10 +1,10 @@
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Common.Collections;
+using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Common.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Represents a vector path consisting of a start node and a sequence

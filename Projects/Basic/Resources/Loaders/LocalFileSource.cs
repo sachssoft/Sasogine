@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Resources.Sources
+namespace Sachssoft.Engine.Resources.Sources
 {
     /// <summary>
     /// Provides access to resources stored in the local file system.

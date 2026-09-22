@@ -1,7 +1,7 @@
-﻿using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Graphics.Rendering;
+﻿using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Graphics.Rendering;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Defines the resizing properties of a selection target.

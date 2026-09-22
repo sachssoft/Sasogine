@@ -1,8 +1,9 @@
 using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
+using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Defines a base class for selection tool layers that provide interaction nodes,
@@ -61,6 +62,30 @@ public abstract class SelectionToolLayer
         ISelectionTarget2Definition? definition)
     {
         return true;
+    }
+
+    /// <summary>
+    /// Begins an interaction with the specified selection tool node.
+    /// </summary>
+    /// <param name="context">The current selection tool layer context.</param>
+    /// <param name="node">The interaction node being manipulated.</param>
+    /// <param name="target">The primary runtime selection target, if available.</param>
+    /// <param name="definition">The primary selection target definition, if available.</param>
+    /// <param name="cursorPosition">The cursor position in world space at the start of the interaction.</param>
+    protected internal virtual void BeginNodeInteraction(
+        SelectionToolLayerContext context,
+        SelectionToolNode node,
+        ISelectionTarget2? target,
+        ISelectionTarget2Definition? definition,
+        Point2 cursorPosition)
+    {
+    }
+
+    /// <summary>
+    /// Ends the current node interaction and clears any layer-specific drag state.
+    /// </summary>
+    protected internal virtual void EndNodeInteraction()
+    {
     }
 
     /// <summary>
@@ -212,9 +237,11 @@ public abstract class SelectionToolLayer
         ISelectionTarget2Definition? definition,
         Point2 nodeWorldPosition)
     {
-        return position.X >= nodeWorldPosition.X &&
-               position.X <= nodeWorldPosition.X + node.Size.Width &&
-               position.Y >= nodeWorldPosition.Y &&
-               position.Y <= nodeWorldPosition.Y + node.Size.Height;
+        float padding = MathF.Max(0f, node.HitPadding);
+
+        return position.X >= nodeWorldPosition.X - padding &&
+               position.X <= nodeWorldPosition.X + node.Size.Width + padding &&
+               position.Y >= nodeWorldPosition.Y - padding &&
+               position.Y <= nodeWorldPosition.Y + node.Size.Height + padding;
     }
 }

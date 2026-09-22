@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Common
+namespace Sachssoft.Engine.Common
 {
     /// <summary>
     /// Represents an object that provides an engine-specific classification.

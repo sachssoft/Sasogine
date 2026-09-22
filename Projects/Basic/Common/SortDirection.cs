@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Common
+namespace Sachssoft.Engine.Common
 {
     /// <summary>
     /// Specifies the direction used when sorting values.

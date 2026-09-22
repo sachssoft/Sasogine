@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Common.Performance
+namespace Sachssoft.Engine.Common.Performance
 {
     /// <summary>
     /// Lightweight buffer holding old and new values.

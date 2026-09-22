@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine;
+namespace Sachssoft.Engine;
 
 /// <summary>
 /// Represents an exception raised by the Sasogine game framework.

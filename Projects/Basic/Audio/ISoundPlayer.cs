@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Audio
+﻿namespace Sachssoft.Engine.Audio
 {
     /// <summary>
     /// Defines a contract for sound effect playback.

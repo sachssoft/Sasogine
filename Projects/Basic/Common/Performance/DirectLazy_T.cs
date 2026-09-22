@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Common.Performance
+namespace Sachssoft.Engine.Common.Performance
 {
     /// <summary>
     /// Provides lightweight lazy initialization for reference types.

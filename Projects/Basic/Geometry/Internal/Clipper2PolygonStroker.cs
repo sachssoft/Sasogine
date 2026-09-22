@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Geometry.Internal
+namespace Sachssoft.Engine.Geometry.Internal
 {
     internal sealed class Clipper2PolygonStroker : IPolygonStroker
     {

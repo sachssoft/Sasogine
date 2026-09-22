@@ -1,9 +1,9 @@
-﻿using Sachssoft.Sasogine.Graphics.Text;
-using Sachssoft.Sasogine.Resources;
+﻿using Sachssoft.Engine.Graphics.Text;
+using Sachssoft.Engine.Resources;
 using System;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Assets.Graphics
+namespace Sachssoft.Engine.Assets.Graphics
 {
     /// <summary>
     /// Represents a managed font asset for the Sasogine graphics system.

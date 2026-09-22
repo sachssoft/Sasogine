@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Timing.Easing;
+using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Timing.Easing;
 using System;
 
-namespace Sachssoft.Sasogine.Components.Rendering;
+namespace Sachssoft.Engine.Components.Rendering;
 
 /// <summary>
 /// Provides a base implementation for animation components with timing,

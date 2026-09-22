@@ -1,12 +1,12 @@
 using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Common.Collections;
+using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Common.Collections;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Represents a vector shape containing a collection of vector paths.

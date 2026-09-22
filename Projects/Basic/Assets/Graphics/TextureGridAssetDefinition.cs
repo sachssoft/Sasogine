@@ -1,8 +1,8 @@
-using Sachssoft.Sasogine.Common.Collections;
-using Sachssoft.Sasogine.Components.Models;
+using Sachssoft.Engine.Common.Collections;
+using Sachssoft.Engine.Components.Models;
 using System.ComponentModel;
 
-namespace Sachssoft.Sasogine.Assets.Graphics;
+namespace Sachssoft.Engine.Assets.Graphics;
 
 /// <summary>
 /// Defines a texture grid asset.

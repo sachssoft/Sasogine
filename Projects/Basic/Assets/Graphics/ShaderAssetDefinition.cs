@@ -1,7 +1,7 @@
-﻿using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Graphics.Rendering;
+﻿using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Graphics.Rendering;
 
-namespace Sachssoft.Sasogine.Assets.Graphics;
+namespace Sachssoft.Engine.Assets.Graphics;
 
 /// <summary>
 /// Defines the configuration used to create a shader asset.

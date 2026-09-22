@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Components;
+namespace Sachssoft.Engine.Components;
 
 /// <summary>
 /// Defines a provider that can retrieve components by type.

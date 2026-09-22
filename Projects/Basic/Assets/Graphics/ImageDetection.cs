@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Assets.Graphics
+namespace Sachssoft.Engine.Assets.Graphics
 {
     /// <summary>
     /// Provides methods for detecting image formats from streams.

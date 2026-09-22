@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Graphics.Text
+namespace Sachssoft.Engine.Graphics.Text
 {
     /// <summary>
     /// Defines a backend for registering and resolving font families and faces.

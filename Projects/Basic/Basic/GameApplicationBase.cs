@@ -1,16 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Diagnostics;
-using Sachssoft.Sasogine.Diagnostics.Internals;
-using Sachssoft.Sasogine.Resources;
-using Sachssoft.Sasogine.Resources.Localization;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Diagnostics;
+using Sachssoft.Engine.Diagnostics.Internals;
+using Sachssoft.Engine.Resources;
+using Sachssoft.Engine.Resources.Localization;
+using Sachssoft.Engine.Scenes;
 using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace Sachssoft.Sasogine;
+namespace Sachssoft.Engine;
 
 /// <summary>
 /// Provides the base implementation for a Sasogine game application.

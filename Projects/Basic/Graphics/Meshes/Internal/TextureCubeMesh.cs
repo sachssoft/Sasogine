@@ -1,92 +1,93 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Graphics.Meshes.Internal;
+namespace Sachssoft.Engine.Graphics.Meshes.Internal;
 
-internal sealed class TextureCubeMesh
-    : Mesh<VertexPositionTexture>
+internal sealed class TextureCubeMesh<TVertex> : Mesh<TVertex>
+    where TVertex : struct, IVertexType
 {
     public TextureCubeMesh(
         GraphicsDevice graphicsDevice,
+        MeshVertexFactory<TVertex> vertexFactory,
         float size = 1f)
         : base(
             graphicsDevice,
-            CreateVertices(size),
+            CreateVertices(size, vertexFactory),
             CreateIndices())
     {
     }
 
-    private static VertexPositionTexture[] CreateVertices(float size)
+    private static TVertex[] CreateVertices(
+        float size,
+        MeshVertexFactory<TVertex> vertexFactory)
     {
         float h = size * 0.5f;
+        var data = new List<MeshVertexData>(24);
 
-        return
-        [
-            // Front
-            new(new Vector3(-h, -h, -h), new Vector2(0, 1)),
-            new(new Vector3( h, -h, -h), new Vector2(1, 1)),
-            new(new Vector3( h,  h, -h), new Vector2(1, 0)),
-            new(new Vector3(-h,  h, -h), new Vector2(0, 0)),
+        AddFace(data, new Vector3(-h, -h, -h), new Vector3(h, -h, -h),
+            new Vector3(h, h, -h), new Vector3(-h, h, -h), -Vector3.UnitZ);
 
-            // Back
-            new(new Vector3( h, -h, h), new Vector2(0, 1)),
-            new(new Vector3(-h, -h, h), new Vector2(1, 1)),
-            new(new Vector3(-h,  h, h), new Vector2(1, 0)),
-            new(new Vector3( h,  h, h), new Vector2(0, 0)),
+        AddFace(data, new Vector3(h, -h, h), new Vector3(-h, -h, h),
+            new Vector3(-h, h, h), new Vector3(h, h, h), Vector3.UnitZ);
 
-            // Top
-            new(new Vector3(-h, h, -h), new Vector2(0, 1)),
-            new(new Vector3( h, h, -h), new Vector2(1, 1)),
-            new(new Vector3( h, h, h), new Vector2(1, 0)),
-            new(new Vector3(-h, h, h), new Vector2(0, 0)),
+        AddFace(data, new Vector3(-h, h, -h), new Vector3(h, h, -h),
+            new Vector3(h, h, h), new Vector3(-h, h, h), Vector3.UnitY);
 
-            // Bottom
-            new(new Vector3(-h, -h, h), new Vector2(0, 1)),
-            new(new Vector3( h, -h, h), new Vector2(1, 1)),
-            new(new Vector3( h, -h, -h), new Vector2(1, 0)),
-            new(new Vector3(-h, -h, -h), new Vector2(0, 0)),
+        AddFace(data, new Vector3(-h, -h, h), new Vector3(h, -h, h),
+            new Vector3(h, -h, -h), new Vector3(-h, -h, -h), -Vector3.UnitY);
 
-            // Right
-            new(new Vector3(h, -h, -h), new Vector2(0, 1)),
-            new(new Vector3(h, -h, h), new Vector2(1, 1)),
-            new(new Vector3(h, h, h), new Vector2(1, 0)),
-            new(new Vector3(h, h, -h), new Vector2(0, 0)),
+        AddFace(data, new Vector3(h, -h, -h), new Vector3(h, -h, h),
+            new Vector3(h, h, h), new Vector3(h, h, -h), Vector3.UnitX);
 
-            // Left
-            new(new Vector3(-h, -h, h), new Vector2(0, 1)),
-            new(new Vector3(-h, -h, -h), new Vector2(1, 1)),
-            new(new Vector3(-h, h, -h), new Vector2(1, 0)),
-            new(new Vector3(-h, h, h), new Vector2(0, 0))
-        ];
+        AddFace(data, new Vector3(-h, -h, h), new Vector3(-h, -h, -h),
+            new Vector3(-h, h, -h), new Vector3(-h, h, h), -Vector3.UnitX);
+
+        var vertices = new TVertex[data.Count];
+
+        for (var i = 0; i < data.Count; i++)
+        {
+            var vertexData = data[i];
+            vertices[i] = vertexFactory(in vertexData);
+        }
+
+        return vertices;
     }
 
-    private static short[] CreateIndices()
+    private static int[] CreateIndices()
     {
-        return
-        [
-            // Front
-            0, 1, 2,
-            0, 2, 3,
+        var indices = new int[36];
+        var k = 0;
 
-            // Back
-            4, 5, 6,
-            4, 6, 7,
+        for (var face = 0; face < 6; face++)
+        {
+            int b = face * 4;
 
-            // Top
-            8, 9, 10,
-            8, 10, 11,
+            indices[k++] = b;
+            indices[k++] = b + 1;
+            indices[k++] = b + 2;
+            indices[k++] = b;
+            indices[k++] = b + 2;
+            indices[k++] = b + 3;
+        }
 
-            // Bottom
-            12, 13, 14,
-            12, 14, 15,
+        return indices;
+    }
 
-            // Right
-            16, 17, 18,
-            16, 18, 19,
+    private static void AddFace(
+        List<MeshVertexData> data,
+        Vector3 a,
+        Vector3 b,
+        Vector3 c,
+        Vector3 d,
+        Vector3 normal)
+    {
+        var tangent = Vector3.Normalize(b - a);
+        var bitangent = Vector3.Normalize(d - a);
 
-            // Left
-            20, 21, 22,
-            20, 22, 23
-        ];
+        data.Add(new(a, normal, tangent, bitangent, Color.White, new Vector2(0f, 1f)));
+        data.Add(new(b, normal, tangent, bitangent, Color.White, new Vector2(1f, 1f)));
+        data.Add(new(c, normal, tangent, bitangent, Color.White, new Vector2(1f, 0f)));
+        data.Add(new(d, normal, tangent, bitangent, Color.White, new Vector2(0f, 0f)));
     }
 }

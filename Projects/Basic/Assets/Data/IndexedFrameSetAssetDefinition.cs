@@ -1,11 +1,11 @@
-using Sachssoft.Sasogine.Assets.Graphics;
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Components.Models;
-using Sachssoft.Sasogine.Resources;
+using Sachssoft.Engine.Assets.Graphics;
+using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Components.Models;
+using Sachssoft.Engine.Resources;
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace Sachssoft.Sasogine.Assets.Data;
+namespace Sachssoft.Engine.Assets.Data;
 
 /// <summary>
 /// Defines an indexed frame set asset.

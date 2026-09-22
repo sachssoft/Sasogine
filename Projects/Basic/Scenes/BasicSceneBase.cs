@@ -1,12 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Components;
-using Sachssoft.Sasogine.Graphics.Cameras;
-using Sachssoft.Sasogine.Graphics.Materials;
-using Sachssoft.Sasogine.Graphics.Rendering;
+using Sachssoft.Engine.Components;
+using Sachssoft.Engine.Graphics.Cameras;
+using Sachssoft.Engine.Graphics.Materials;
+using Sachssoft.Engine.Graphics.Rendering;
 using System;
 
-namespace Sachssoft.Sasogine.Scenes
+namespace Sachssoft.Engine.Scenes
 {
     /// <summary>
     /// Provides a basic implementation of a game scene.

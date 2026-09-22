@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Graphics.Cameras;
-using Sachssoft.Sasogine.Input;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Graphics.Cameras;
+using Sachssoft.Engine.Input;
+using Sachssoft.Engine.Scenes;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Provides navigation controls for a 2D camera.

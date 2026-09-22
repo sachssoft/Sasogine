@@ -1,10 +1,10 @@
-﻿using Sachssoft.Sasogine.Graphics.Cameras;
-using Sachssoft.Sasogine.Input;
-using Sachssoft.Sasogine.Scenes;
+﻿using Sachssoft.Engine.Graphics.Cameras;
+using Sachssoft.Engine.Input;
+using Sachssoft.Engine.Scenes;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools
+namespace Sachssoft.Engine.Components.Tools
 {
     /// <summary>
     /// Provides a base component for managing interactive tools.

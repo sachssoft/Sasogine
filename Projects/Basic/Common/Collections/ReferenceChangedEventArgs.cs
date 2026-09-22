@@ -1,6 +1,6 @@
 using System;
 
-namespace Sachssoft.Sasogine.Common.Collections;
+namespace Sachssoft.Engine.Common.Collections;
 
 /// <summary>
 /// Provides data for a reference change within a referencable collection.

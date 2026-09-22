@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using System;
 
-namespace Sachssoft.Sasogine.Common;
+namespace Sachssoft.Engine.Common;
 
 /// <summary>
 /// Tracks the state of a two-dimensional transform source and provides

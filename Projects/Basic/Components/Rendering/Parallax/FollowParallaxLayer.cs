@@ -1,9 +1,9 @@
 using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Graphics.Cameras;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Graphics.Cameras;
+using Sachssoft.Engine.Scenes;
 
-namespace Sachssoft.Sasogine.Components.Rendering;
+namespace Sachssoft.Engine.Components.Rendering;
 
 /// <summary>
 /// Provides a parallax layer that follows the movement of a two-dimensional camera.

@@ -1,6 +1,6 @@
 using System;
 
-namespace Sachssoft.Sasogine.Common;
+namespace Sachssoft.Engine.Common;
 
 /// <summary>
 /// Provides a fluent builder for creating an

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Graphics.Text
+namespace Sachssoft.Engine.Graphics.Text
 {
     /// <summary>
     /// Represents a loaded font face defined by its binary data, name,

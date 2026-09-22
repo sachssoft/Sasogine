@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Geometry
+﻿namespace Sachssoft.Engine.Geometry
 {
     /// <summary>
     /// Defines options used when triangulating polygon geometry.

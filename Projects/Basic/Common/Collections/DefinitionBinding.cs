@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Common.Collections;
+namespace Sachssoft.Engine.Common.Collections;
 
 /// <summary>
 /// Provides controlled mutable connections to definition binding collections.

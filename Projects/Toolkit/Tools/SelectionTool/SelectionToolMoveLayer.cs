@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Provides a selection layer that allows selected targets to be moved,
@@ -46,6 +46,23 @@ public sealed class SelectionToolMoveLayer : SelectionToolLayer
     }
 
     /// <inheritdoc/>
+    protected internal override void BeginNodeInteraction(
+        SelectionToolLayerContext context,
+        SelectionToolNode node,
+        ISelectionTarget2? target,
+        ISelectionTarget2Definition? definition,
+        Point2 cursorPosition)
+    {
+        _move.BeginInteraction(node, target, definition, cursorPosition);
+    }
+
+    /// <inheritdoc/>
+    protected internal override void EndNodeInteraction()
+    {
+        _move.EndInteraction();
+    }
+
+    /// <inheritdoc/>
     protected internal override void OnNodeInteract(
         SelectionToolLayerContext context,
         SelectionToolNode node,
@@ -63,7 +80,6 @@ public sealed class SelectionToolMoveLayer : SelectionToolLayer
             definition,
             otherSelectedTargets,
             otherSelectedTargetDefinitions,
-            cursorPosition,
-            delta);
+            cursorPosition);
     }
 }

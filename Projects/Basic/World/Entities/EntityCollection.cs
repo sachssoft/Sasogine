@@ -1,10 +1,10 @@
-﻿using Sachssoft.Sasogine.Common.Collections;
-using Sachssoft.Sasogine.Scenes;
+﻿using Sachssoft.Engine.Common.Collections;
+using Sachssoft.Engine.Scenes;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.World
+namespace Sachssoft.Engine.World
 {
     /// <summary>
     /// Represents a contextual collection of entities with support for

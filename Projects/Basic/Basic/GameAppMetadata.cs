@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Sachssoft.Sasogine;
+namespace Sachssoft.Engine;
 
 /// <summary>
 /// Provides metadata information about the application assembly.

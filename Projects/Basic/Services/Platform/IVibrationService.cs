@@ -1,6 +1,6 @@
-﻿using Sachssoft.Sasogine.Input;
+﻿using Sachssoft.Engine.Input;
 
-namespace Sachssoft.Sasogine.Services.Platform
+namespace Sachssoft.Engine.Services.Platform
 {
     /// <summary>
     /// Service for providing haptic feedback / device vibration.

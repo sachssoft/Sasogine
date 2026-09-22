@@ -1,8 +1,8 @@
-﻿using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Resources;
+﻿using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Resources;
 using System;
 
-namespace Sachssoft.Sasogine.Assets
+namespace Sachssoft.Engine.Assets
 {
     /// <summary>
     /// Base interface for all assets (e.g., Texture2D, Model, Sound).

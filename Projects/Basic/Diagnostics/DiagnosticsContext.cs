@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Diagnostics;
+﻿namespace Sachssoft.Engine.Diagnostics;
 
 /// <summary>
 /// Provides configuration and services used for runtime diagnostics.

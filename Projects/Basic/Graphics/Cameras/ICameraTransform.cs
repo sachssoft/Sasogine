@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace Sachssoft.Sasogine.Graphics.Cameras
+namespace Sachssoft.Engine.Graphics.Cameras
 {
     /// <summary>
     /// Provides read-only access to camera transformation matrices

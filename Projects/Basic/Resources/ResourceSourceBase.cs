@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Resources
+namespace Sachssoft.Engine.Resources
 {
     /// <summary>
     /// Provides a base implementation for accessing resource data.

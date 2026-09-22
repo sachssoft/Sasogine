@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Components;
+﻿namespace Sachssoft.Engine.Components;
 
 /// <summary>
 /// Defines a component that manages loadable resources.

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
 
-namespace Sachssoft.Sasogine.Common;
+namespace Sachssoft.Engine.Common;
 
 /// <summary>
 /// Represents an observable typed reference to an engine object that

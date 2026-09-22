@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace Sachssoft.Sasogine.Graphics.Meshes;
+namespace Sachssoft.Engine.Graphics.Meshes;
 
 /// <summary>
 /// Contains source data generated for a mesh vertex before it is converted

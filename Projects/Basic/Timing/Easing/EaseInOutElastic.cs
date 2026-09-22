@@ -1,6 +1,6 @@
 using System;
 
-namespace Sachssoft.Sasogine.Timing.Easing;
+namespace Sachssoft.Engine.Timing.Easing;
 
 /// <summary>
 /// Applies an elastic easing function that oscillates at both the beginning and end.

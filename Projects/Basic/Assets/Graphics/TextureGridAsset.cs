@@ -1,8 +1,8 @@
-using Sachssoft.Sasogine.Graphics;
+using Sachssoft.Engine.Graphics;
 using System;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Assets.Graphics;
+namespace Sachssoft.Engine.Assets.Graphics;
 
 /// <summary>
 /// Represents a managed texture grid asset.

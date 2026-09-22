@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics;
+﻿namespace Sachssoft.Engine.Graphics;
 
 /// <summary>
 /// Specifies the blending mode used when rendering a two-dimensional texture.

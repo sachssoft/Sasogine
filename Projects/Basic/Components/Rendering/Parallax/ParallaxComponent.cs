@@ -1,8 +1,8 @@
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Scenes;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Rendering;
+namespace Sachssoft.Engine.Components.Rendering;
 
 /// <summary>
 /// Provides a parallax rendering component that manages multiple independent parallax layers.

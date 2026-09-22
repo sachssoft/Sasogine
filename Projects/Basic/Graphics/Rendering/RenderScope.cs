@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Graphics.Rendering
+namespace Sachssoft.Engine.Graphics.Rendering
 {
     /// <summary>
     /// Temporärer Rendering-Scope: wendet RenderStates an und stellt alte States wieder her.

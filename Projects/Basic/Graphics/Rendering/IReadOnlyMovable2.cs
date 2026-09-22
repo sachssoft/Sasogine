@@ -1,6 +1,6 @@
-﻿using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Engine.Common;
 
-namespace Sachssoft.Sasogine.Graphics.Rendering;
+namespace Sachssoft.Engine.Graphics.Rendering;
 
 /// <summary>
 /// Defines a read-only 2D transform that can be moved.

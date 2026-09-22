@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace Sachssoft.Sasogine.Common
+namespace Sachssoft.Engine.Common
 {
     /// <summary>
     /// Provides extension methods for converting <see cref="Vector3"/> values

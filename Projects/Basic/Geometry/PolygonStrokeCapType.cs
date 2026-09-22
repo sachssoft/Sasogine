@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Geometry
+﻿namespace Sachssoft.Engine.Geometry
 {
     /// <summary>
     /// Defines how the ends of an open polygon stroke are shaped.

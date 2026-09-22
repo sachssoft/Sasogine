@@ -1,8 +1,10 @@
-using Sachssoft.Sasodoc;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Documents;
+using Sachssoft.Documents.Serialization;
+using Sachssoft.Engine;
+using Sachssoft.Engine.Common;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Documents.Serialization;
+namespace Sachssoft.Documents.Serialization;
 
 /// <summary>
 /// Defines a game registry with serialization support.

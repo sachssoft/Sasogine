@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics.Rendering
+﻿namespace Sachssoft.Engine.Graphics.Rendering
 {
     // Für zukünftige Verwendung vorgesehen. Aktuell wird der Enum noch nicht
     // direkt von der Rendering-API verwendet. Zum Beispiel für abgerundete

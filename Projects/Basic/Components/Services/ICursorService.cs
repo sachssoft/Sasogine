@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Graphics;
-using Sachssoft.Sasogine.Input;
+using Sachssoft.Engine.Graphics;
+using Sachssoft.Engine.Input;
 
-namespace Sachssoft.Sasogine.Components.Services
+namespace Sachssoft.Engine.Components.Services
 {
     /// <summary>
     /// Provides cursor state and coordinate information for a rendered scene.

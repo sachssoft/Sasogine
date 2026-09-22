@@ -1,6 +1,6 @@
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 
-namespace Sachssoft.Sasogine.Graphics.Rendering;
+namespace Sachssoft.Engine.Graphics.Rendering;
 
 /// <summary>
 /// Defines a 2D transform definition that can be scaled.

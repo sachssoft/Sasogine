@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Resources.Sources
+namespace Sachssoft.Engine.Resources.Sources
 {
     /// <summary>
     /// Represents a resource source provided by the MonoGame content manager.

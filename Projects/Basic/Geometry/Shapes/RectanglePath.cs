@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Geometry.Shapes;
+namespace Sachssoft.Engine.Geometry.Shapes;
 
 /// <summary>
 /// Represents a normalized rectangular path with independently configurable

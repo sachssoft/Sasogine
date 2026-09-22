@@ -1,6 +1,6 @@
-﻿using Sachssoft.Sasogine.Graphics.Rendering;
+﻿using Sachssoft.Engine.Graphics.Rendering;
 
-namespace Sachssoft.Sasogine.Graphics.Materials
+namespace Sachssoft.Engine.Graphics.Materials
 {
     /// <summary>
     /// Defines a material used for configuring shader-based rendering.

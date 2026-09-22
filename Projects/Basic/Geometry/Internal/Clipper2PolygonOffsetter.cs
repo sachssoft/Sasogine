@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Geometry.Internal
+namespace Sachssoft.Engine.Geometry.Internal
 {
     internal sealed class Clipper2PolygonOffsetter : IPolygonOffsetter
     {

@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Scenes;
 
-namespace Sachssoft.Sasogine.Input
+namespace Sachssoft.Engine.Input
 {
     /// <summary>
     /// Manages gamepad input interactions for a specific player.

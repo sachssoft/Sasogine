@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Resources.Importers;
+namespace Sachssoft.Engine.Resources.Importers;
 
 /// <summary>
 /// Represents a single frame entry imported from an external frame set document.

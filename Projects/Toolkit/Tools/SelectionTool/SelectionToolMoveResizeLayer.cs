@@ -1,9 +1,9 @@
 using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Provides a selection layer that allows selected targets to be moved
@@ -13,6 +13,9 @@ public sealed class SelectionToolMoveResizeLayer : SelectionToolLayer
 {
     private readonly SelectionToolMoveHelper _move;
     private readonly SelectionToolResizeHelper _resize;
+
+    private Point2 _dragStartPosition;
+    private bool _hasDragPosition;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SelectionToolMoveResizeLayer"/> class.
@@ -49,6 +52,38 @@ public sealed class SelectionToolMoveResizeLayer : SelectionToolLayer
     }
 
     /// <inheritdoc/>
+    protected internal override void BeginNodeInteraction(
+        SelectionToolLayerContext context,
+        SelectionToolNode node,
+        ISelectionTarget2? target,
+        ISelectionTarget2Definition? definition,
+        Point2 cursorPosition)
+    {
+        if (_move.AllowHandle(node, target, definition))
+        {
+            _move.BeginInteraction(node, target, definition, cursorPosition);
+            return;
+        }
+
+        if (_resize.AllowHandle(node, target, definition))
+        {
+            _dragStartPosition = GetPosition(target, definition);
+            _hasDragPosition = true;
+
+            Point2 localCursorPosition = new Point2(cursorPosition - _dragStartPosition);
+            _resize.BeginInteraction(node, target, definition, localCursorPosition);
+        }
+    }
+
+    /// <inheritdoc/>
+    protected internal override void EndNodeInteraction()
+    {
+        _move.EndInteraction();
+        _resize.EndInteraction();
+        _hasDragPosition = false;
+    }
+
+    /// <inheritdoc/>
     protected internal override void OnNodeInteract(
         SelectionToolLayerContext context,
         SelectionToolNode node,
@@ -68,17 +103,15 @@ public sealed class SelectionToolMoveResizeLayer : SelectionToolLayer
                 definition,
                 otherSelectedTargets,
                 otherSelectedTargetDefinitions,
-                cursorPosition,
-                delta);
+                cursorPosition);
 
             return;
         }
 
-        if (!_resize.AllowHandle(node, target, definition))
+        if (!_resize.AllowHandle(node, target, definition) || !_hasDragPosition)
             return;
 
-        Vector2 localCursorPosition =
-            cursorPosition - GetPosition(target, definition);
+        Point2 localCursorPosition = new Point2(cursorPosition - _dragStartPosition);
 
         if (!_resize.OnNodeInteract(
             context,
@@ -86,7 +119,6 @@ public sealed class SelectionToolMoveResizeLayer : SelectionToolLayer
             target,
             definition,
             localCursorPosition,
-            delta,
             out var originOffset,
             out _,
             out _))
@@ -110,36 +142,32 @@ public sealed class SelectionToolMoveResizeLayer : SelectionToolLayer
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
     {
-        if (target is ISelectionMovable2 movable)
-            return movable.Position;
-
         if (definition is ISelectionMovable2Definition movableDefinition)
             return movableDefinition.Position;
+
+        if (target is ISelectionMovable2 movable)
+            return movable.Position;
 
         return Point2.Zero;
     }
 
     private static void ApplyPositionOffset(
-       Vector2 offset,
-       ISelectionTarget2? target,
-       ISelectionTarget2Definition? definition)
+        Vector2 offset,
+        ISelectionTarget2? target,
+        ISelectionTarget2Definition? definition)
     {
-        if (target is ISelectionMovable2 movable)
+        if (definition is ISelectionMovable2Definition definitionMovable)
         {
-            if (!movable.AllowMove)
-                return;
-
-            if (target.Definition is not ISelectionMovable2Definition movableDefinition)
-            {
-                throw new InvalidOperationException(
-                    $"The movable selection target requires an '{nameof(ISelectionMovable2Definition)}' definition.");
-            }
-
-            movableDefinition.Position += offset;
+            definitionMovable.Position += offset;
             return;
         }
 
-        if (definition is ISelectionMovable2Definition definitionMovable)
-            definitionMovable.Position += offset;
+        if (target is ISelectionMovable2 movable && movable.AllowMove)
+        {
+            if (target.Definition is not ISelectionMovable2Definition movableDefinition)
+                throw new InvalidOperationException($"The movable selection target requires an '{nameof(ISelectionMovable2Definition)}' definition.");
+
+            movableDefinition.Position += offset;
+        }
     }
 }

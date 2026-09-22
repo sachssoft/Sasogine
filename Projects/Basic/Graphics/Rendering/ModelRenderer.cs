@@ -1,10 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Graphics.Cameras;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Graphics.Cameras;
+using Sachssoft.Engine.Scenes;
 using System;
 
-namespace Sachssoft.Sasogine.Graphics.Rendering
+namespace Sachssoft.Engine.Graphics.Rendering
 {
     /// <summary>
     /// Provides rendering functionality for a <see cref="Model"/>.

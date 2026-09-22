@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Resources.Sources
+namespace Sachssoft.Engine.Resources.Sources
 {
     /// <summary>
     /// Defines a resource source that provides access to a file.

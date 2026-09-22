@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Common;
+namespace Sachssoft.Engine.Common;
 
 /// <summary>
 /// Defines a context-aware factory for creating engine objects from

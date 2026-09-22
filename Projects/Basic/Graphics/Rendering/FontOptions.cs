@@ -1,8 +1,8 @@
-﻿using Sachssoft.Sasogine.Graphics.Text;
+﻿using Sachssoft.Engine.Graphics.Text;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Graphics.Rendering
+namespace Sachssoft.Engine.Graphics.Rendering
 {
     /// <summary>
     /// Represents an immutable font descriptor used for text rendering and

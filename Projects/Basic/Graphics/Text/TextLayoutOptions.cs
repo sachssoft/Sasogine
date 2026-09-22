@@ -1,6 +1,6 @@
-﻿using Sachssoft.Sasogine.Graphics.Rendering;
+﻿using Sachssoft.Engine.Graphics.Rendering;
 
-namespace Sachssoft.Sasogine.Graphics.Text
+namespace Sachssoft.Engine.Graphics.Text
 {
     /// <summary>
     /// Defines options that control the alignment, wrapping, and flow

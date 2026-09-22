@@ -1,10 +1,10 @@
 ﻿using Microsoft.Xna.Framework.Input;
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Scenes;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Input
+namespace Sachssoft.Engine.Input
 {
     /// <summary>
     /// Manages mouse interactions including buttons, position tracking,

@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Components.Models;
-using Sachssoft.Sasogine.Graphics;
+using Sachssoft.Engine.Components.Models;
+using Sachssoft.Engine.Graphics;
 using System.ComponentModel;
 
-namespace Sachssoft.Sasogine.Assets.Graphics
+namespace Sachssoft.Engine.Assets.Graphics
 {
     /// <summary>
     /// Defines the configuration used to create a <see cref="Texture2DAsset"/>.

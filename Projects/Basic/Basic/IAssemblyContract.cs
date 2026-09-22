@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine
+﻿namespace Sachssoft.Engine
 {
     /// <summary>
     /// Defines a contract whose implementation is restricted to the

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Services
+namespace Sachssoft.Engine.Components.Services
 {
     /// <summary>
     /// Provides undo and redo history management.

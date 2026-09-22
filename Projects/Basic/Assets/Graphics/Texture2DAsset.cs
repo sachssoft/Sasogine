@@ -1,12 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
-using Sachssoft.Sasogine.Graphics;
-using Sachssoft.Sasogine.Resources;
+using Sachssoft.Engine.Common;
+using Sachssoft.Engine.Graphics;
+using Sachssoft.Engine.Resources;
 using System;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Assets.Graphics
+namespace Sachssoft.Engine.Assets.Graphics
 {
     /// <summary>
     /// Represents a managed 2D texture asset for the Sasogine graphics system.

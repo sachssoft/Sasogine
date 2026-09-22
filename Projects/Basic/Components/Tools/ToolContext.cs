@@ -1,7 +1,7 @@
-﻿using Sachssoft.Sasogine.Graphics.Cameras;
-using Sachssoft.Sasogine.Input;
+﻿using Sachssoft.Engine.Graphics.Cameras;
+using Sachssoft.Engine.Input;
 
-namespace Sachssoft.Sasogine.Components.Tools
+namespace Sachssoft.Engine.Components.Tools
 {
     /// <summary>
     /// Provides the context required by a tool during an update.

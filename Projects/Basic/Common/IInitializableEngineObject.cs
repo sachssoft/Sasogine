@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Common;
+namespace Sachssoft.Engine.Common;
 
 /// <summary>
 /// Defines an engine object that supports context-based initialization.

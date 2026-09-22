@@ -1,7 +1,7 @@
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System;
 
-namespace Sachssoft.Sasogine.Components.Tools
+namespace Sachssoft.Engine.Components.Tools
 {
     /// <summary>
     /// Provides a fluent builder for creating strongly typed 2D object insert handlers.

@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Input;
+namespace Sachssoft.Engine.Input;
 
 /// <summary>
 /// Provides extension methods for binding keyboard and mouse input

@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System;
 
-namespace Sachssoft.Sasogine.Gameplay.Capabilities
+namespace Sachssoft.Engine.Gameplay.Capabilities
 {
     /// <summary>
     /// Provides extension methods for working with object capabilities.

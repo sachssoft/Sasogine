@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine;
+namespace Sachssoft.Engine;
 
 /// <summary>
 /// Represents a registry key that provides a string identifier.

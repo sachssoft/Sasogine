@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Services.Monetization;
+namespace Sachssoft.Engine.Services.Monetization;
 
 /// <summary>
 /// Provides access to platform-specific advertising services.

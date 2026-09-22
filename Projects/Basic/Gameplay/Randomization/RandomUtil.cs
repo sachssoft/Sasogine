@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine.Gameplay.Randomization;
+namespace Sachssoft.Engine.Gameplay.Randomization;
 
 /// <summary>
 /// Provides utility methods for generating random integer values using

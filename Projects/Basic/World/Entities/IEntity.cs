@@ -1,9 +1,9 @@
-﻿using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Engine.Common;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.World
+namespace Sachssoft.Engine.World
 {
     /// <summary>
     /// Defines the base contract for entities used by the Sasogine world system.

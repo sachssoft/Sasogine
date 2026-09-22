@@ -1,10 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Scenes;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Common.Schedule;
+namespace Sachssoft.Engine.Common.Schedule;
 
 /// <summary>
 /// Represents an asynchronous loading operation that can report progress

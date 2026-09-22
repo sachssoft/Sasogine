@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Resources;
+using Sachssoft.Engine.Resources;
 using System;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Assets.Graphics;
+namespace Sachssoft.Engine.Assets.Graphics;
 
 /// <summary>
 /// Represents a managed 3D model asset for the Sasogine graphics system.

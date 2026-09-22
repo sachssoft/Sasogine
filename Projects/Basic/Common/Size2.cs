@@ -3,7 +3,7 @@ using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
-namespace Sachssoft.Sasogine.Common;
+namespace Sachssoft.Engine.Common;
 
 /// <summary>
 /// Represents a two-dimensional size defined by a width and height.

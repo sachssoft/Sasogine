@@ -1,8 +1,8 @@
-using Sachssoft.Sasodoc;
-using Sachssoft.Sasogine.Documents.Serialization;
+using Sachssoft.Documents;
+using Sachssoft.Documents.Serialization;
 using System.Collections.Generic;
 
-namespace Sachssoft.Sasogine.Components.Tools;
+namespace Sachssoft.Engine.Components.Tools;
 
 /// <summary>
 /// Provides serialization support for vector segment definitions

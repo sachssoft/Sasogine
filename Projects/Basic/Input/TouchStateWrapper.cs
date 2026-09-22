@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Input.Touch;
 
-namespace Sachssoft.Sasogine.Input
+namespace Sachssoft.Engine.Input
 {
     /// <summary>
     /// Provides a touch input state backed by a MonoGame

@@ -3,7 +3,7 @@ using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
-namespace Sachssoft.Sasogine.Common;
+namespace Sachssoft.Engine.Common;
 
 /// <summary>
 /// Represents a three-dimensional axis-aligned bounding box using

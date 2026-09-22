@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace Sachssoft.Sasogine.Input;
+namespace Sachssoft.Engine.Input;
 
 internal static class EnumInteractionConverter<TEnum>
     where TEnum : struct, Enum

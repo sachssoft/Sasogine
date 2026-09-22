@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace Sachssoft.Sasogine.Gameplay;
+namespace Sachssoft.Engine.Gameplay;
 
 /// <summary>
 /// Provides extension methods for formatting gameplay-related values

@@ -1,9 +1,9 @@
-using Sachssoft.Sasogine.Scenes;
+using Sachssoft.Engine.Scenes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sachssoft.Sasogine.Components
+namespace Sachssoft.Engine.Components
 {
     /// <summary>
     /// Provides a base implementation for components with supporting services

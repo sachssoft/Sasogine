@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace Sachssoft.Sasogine.Graphics.Meshes;
+namespace Sachssoft.Engine.Graphics.Meshes;
 
 /// <summary>
 /// Represents a GPU mesh containing vertex and index buffers used for rendering.

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Services.Monetization;
+namespace Sachssoft.Engine.Services.Monetization;
 
 /// <summary>
 /// Provides a pseudo in-app purchase service for testing and development.

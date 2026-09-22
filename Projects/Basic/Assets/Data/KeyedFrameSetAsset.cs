@@ -1,11 +1,11 @@
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Assets.Graphics;
-using Sachssoft.Sasogine.Resources;
-using Sachssoft.Sasogine.Resources.Importers;
+using Sachssoft.Engine.Assets.Graphics;
+using Sachssoft.Engine.Resources;
+using Sachssoft.Engine.Resources.Importers;
 using System;
 using System.IO;
 
-namespace Sachssoft.Sasogine.Assets.Data;
+namespace Sachssoft.Engine.Assets.Data;
 
 /// <summary>
 /// Represents a managed asset that builds a keyed frame set.

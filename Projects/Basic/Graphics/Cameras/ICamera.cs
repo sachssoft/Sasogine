@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Sasogine.Common;
+using Sachssoft.Engine.Common;
 using System;
 
-namespace Sachssoft.Sasogine.Graphics.Cameras
+namespace Sachssoft.Engine.Graphics.Cameras
 {
     /// <summary>
     /// Defines a camera that provides transformation data and camera operations.

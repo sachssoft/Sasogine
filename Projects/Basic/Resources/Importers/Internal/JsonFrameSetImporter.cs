@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 
-namespace Sachssoft.Sasogine.Resources.Importers.Internal;
+namespace Sachssoft.Engine.Resources.Importers.Internal;
 
 internal sealed class JsonFrameSetImporter : FrameSetImporter
 {

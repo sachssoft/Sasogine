@@ -1,7 +1,7 @@
-﻿using Sachssoft.Sasogine.Diagnostics;
-using Sachssoft.Sasogine.Resources.Localization;
+﻿using Sachssoft.Engine.Diagnostics;
+using Sachssoft.Engine.Resources.Localization;
 
-namespace Sachssoft.Sasogine;
+namespace Sachssoft.Engine;
 
 /// <summary>
 /// Provides configuration for a game application.

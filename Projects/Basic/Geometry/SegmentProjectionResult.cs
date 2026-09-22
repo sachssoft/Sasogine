@@ -1,7 +1,7 @@
-﻿using Sachssoft.Sasogine.Common;
+﻿using Sachssoft.Engine.Common;
 using System.Runtime.CompilerServices;
 
-namespace Sachssoft.Sasogine.Geometry
+namespace Sachssoft.Engine.Geometry
 {
     /// <summary>
     /// Represents the result of projecting a point onto a line segment.

@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace Sachssoft.Sasogine.Graphics;
+namespace Sachssoft.Engine.Graphics;
 
 /// <summary>
 /// Defines common conversion operations for color representations.

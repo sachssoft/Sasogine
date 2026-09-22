@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Sachssoft.Sasogine.Services.Platform
+namespace Sachssoft.Engine.Services.Platform
 {
     /// <summary>
     /// Platform service to check for application updates and apply them if available.

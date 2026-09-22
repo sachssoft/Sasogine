@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Sachssoft.Sasogine.Graphics.Meshes;
+namespace Sachssoft.Engine.Graphics.Meshes;
 
 /// <summary>
 /// Creates a concrete GPU vertex from generated mesh vertex data.

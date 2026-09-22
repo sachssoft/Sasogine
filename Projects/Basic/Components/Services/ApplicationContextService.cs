@@ -1,6 +1,6 @@
 using System;
 
-namespace Sachssoft.Sasogine.Components.Services;
+namespace Sachssoft.Engine.Components.Services;
 
 /// <summary>
 /// Provides the application context as a component service.

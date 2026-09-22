@@ -1,4 +1,4 @@
-namespace Sachssoft.Sasogine.Components
+namespace Sachssoft.Engine.Components
 {
     /// <summary>
     /// Defines a service that provides supporting functionality for a component.

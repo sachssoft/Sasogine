@@ -1,6 +1,6 @@
-﻿using Sachssoft.Sasogine.Resources;
+﻿using Sachssoft.Engine.Resources;
 
-namespace Sachssoft.Sasogine
+namespace Sachssoft.Engine
 {
     /// <summary>
     /// Defines a contract for loading, storing, and accessing

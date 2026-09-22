@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Sasogine.Graphics.Text
+﻿namespace Sachssoft.Engine.Graphics.Text
 {
     /// <summary>
     /// Specifies the weight of a font face.
