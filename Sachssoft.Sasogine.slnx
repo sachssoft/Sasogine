@@ -11,6 +11,14 @@
     <Project Path="Examples/DesktopGL/01.FirstStepGL/01.FirstStepGL.csproj" />
     <Project Path="Examples/DesktopGL/02.TexturesGL/02.TexturesGL.csproj" Id="30a29d51-5b65-4ab6-bdd2-ca811d1a56ee" />
     <Project Path="Examples/DesktopGL/03.ComponentsGL/03.ComponentsGL.csproj" Id="8ab0c3d9-4db2-4d14-801d-4d7f43664843" />
+    <Project Path="Examples/DesktopGL/04.TextGL/04.TextGL.csproj" Id="25d63eba-531a-48a4-a182-857b3276a930" />
+    <Project Path="Examples/DesktopGL/05.ShapeBatchGL/05.ShapeBatchGL.csproj" Id="bf67c665-dc86-455c-a03f-4105d6132193" />
+    <Project Path="Examples/DesktopGL/06.AudioGL/06.AudioGL.csproj" Id="4392438f-62ba-49ee-a595-926415e74e4a" />
+    <Project Path="Examples/DesktopGL/07.AssetsGL/07.AssetsGL.csproj" Id="1228c230-b6d6-4763-b61e-3cfe63074944" />
+    <Project Path="Examples/DesktopGL/08.ShadersGL/08.ShadersGL.csproj" Id="e45b8122-66a8-402f-911b-f5fa8af09a3d" />
+    <Project Path="Examples/DesktopGL/10.ObjectDefinitionBindingsGL/10.ObjectDefinitionBindingsGL.csproj" Id="8bd1257c-5a53-4bda-a3ae-ef533b58c612" />
+    <Project Path="Examples/DesktopGL/11.GeometryGL/11.GeometryGL.csproj" Id="bfa6c307-2eed-400f-a87b-5c7d0dc05582" />
+    <Project Path="Examples/DesktopGL/Beginner.01.Scenes/Beginner.01.Scenes.csproj" Id="3d9366f1-a482-4484-a59c-209872c6b393" />
   </Folder>
   <Folder Name="/Platforms/">
     <Project Path="Platforms/Sachssoft.Sasogine.Platform.Linux/Sachssoft.Sasogine.Platform.Linux.csproj" />

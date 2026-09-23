@@ -30,6 +30,8 @@ All notable changes to this project will be documented in this file.
 * [Feature] Added `ContextualReferencableCollection<T, TContext>`.
 * [Feature] Introduced a cursor system for rendering components.
 * [Feature] Added child component support in `ComponentBase`.
+* [Feature] Added file synchronization infrastructure with local resource source support and extensibility for additional source types.
+* [Feature] Added unknown asset definition handling and definition transformation utilities.
 * [Change] **Documents**: Aligned document and serialization integration with Sasodoc under the shared `Sachssoft.Documents` namespace hierarchy.
 * [Change] **Documents**: Moved Engine-specific document integration under `Sachssoft.Documents.Engine`.
 * [Change] **Toolkit**: Flattened tool namespaces by consolidating selection and vector tools under the common components tool namespace.
@@ -59,6 +61,9 @@ All notable changes to this project will be documented in this file.
 * [Improve] Refactored `MeshGenerator` to use generic mesh implementations for quad, polygon, cube, sphere, and skybox generation.
 * [Improve] Strengthened API library guidelines by treating most warnings as errors, improving code stability and cleanliness, and completing XML documentation.
 * [Improve] Improved consistency between Sasogine and Sasodoc APIs to simplify shared document and serialization code.
+* [Improve] Extended asset resolving, synchronization, and resource handling architecture.
+* [Improve] Improved definition binding and referencable collection infrastructure for shared runtime object resolution.
+* [Improve] Extended rendering and mesh APIs with additional utilities and component improvements.
 * [Bug] **Toolkit**: Fixed incorrect initial selection bounds before the first vector shape edit.
 * [Bug] Fixed several bugs revealed by stricter code guidelines, including issues with incorrect overrides, virtual members, and other API inconsistencies.
 
