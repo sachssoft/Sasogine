@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Engine.Common;
 using Sachssoft.Engine.Graphics.Rendering;
@@ -6,7 +6,6 @@ using Sachssoft.Engine.Graphics.Rendering.Batches;
 using Sachssoft.Engine.Input;
 using Sachssoft.Engine.Scenes;
 using System;
-using System.Collections.Generic;
 
 namespace Sachssoft.Engine.Components.Tools;
 
@@ -30,9 +29,6 @@ public sealed class Object2InsertTool : ToolBase
     /// <summary>
     /// Initializes a new instance of the <see cref="Object2InsertTool"/> class.
     /// </summary>
-    /// <param name="definitions">
-    /// The collection that receives inserted definitions.
-    /// </param>
     /// <param name="insertHandler">
     /// The handler used to create and manage inserted definitions.
     /// </param>
@@ -40,22 +36,12 @@ public sealed class Object2InsertTool : ToolBase
     /// The graphics device used to create rendering resources.
     /// </param>
     public Object2InsertTool(
-        IList<IDefinition> definitions,
         IObject2InsertHandler insertHandler,
         GraphicsDevice graphicsDevice)
     {
-        ArgumentNullException.ThrowIfNull(definitions);
         ArgumentNullException.ThrowIfNull(insertHandler);
         ArgumentNullException.ThrowIfNull(graphicsDevice);
 
-        if (definitions.IsReadOnly)
-        {
-            throw new ArgumentException(
-                "The definition collection must be mutable.",
-                nameof(definitions));
-        }
-
-        Definitions = definitions;
         InsertHandler = insertHandler;
 
         _lineBatch = new ShapeBatch(graphicsDevice);
@@ -64,11 +50,6 @@ public sealed class Object2InsertTool : ToolBase
             GraphicsDevice = graphicsDevice
         };
     }
-
-    /// <summary>
-    /// Gets the collection that receives inserted definitions.
-    /// </summary>
-    public IList<IDefinition> Definitions { get; }
 
     /// <summary>
     /// Gets the handler used to manage 2D definition insertion operations.
@@ -235,8 +216,6 @@ public sealed class Object2InsertTool : ToolBase
             InsertHandler.Complete(
                 definition,
                 insertContext);
-
-            Definitions.Add(definition);
         }
         finally
         {

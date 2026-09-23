@@ -19,6 +19,7 @@ public class DefinitionBindingCollection<TDefinition, TObject, TContext> :
     IReadOnlyList<TObject>,
     INotifyCollectionChanged,
     INotifyPropertyChanged,
+    IReadOnlyBindingCollection<TObject>,
     IDisposable
     where TDefinition : class, IDefinition
     where TObject : class, IEngineObject
@@ -43,14 +44,44 @@ public class DefinitionBindingCollection<TDefinition, TObject, TContext> :
         TrackableCollection<TDefinition> definitions,
         IDefinitionBindingFactory<TDefinition, TObject, TContext> factory,
         TContext? context = null)
+        : this(
+            definitions,
+            factory,
+            new TrackableCollection<TObject>(definitions.Count),
+            context)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the context-aware definition binding collection
+    /// using the specified engine object collection.
+    /// </summary>
+    /// <param name="definitions">
+    /// The source collection of definitions.
+    /// </param>
+    /// <param name="factory">
+    /// The factory used to manage engine object bindings.
+    /// </param>
+    /// <param name="objects">
+    /// The collection used to store the bound engine objects.
+    /// </param>
+    /// <param name="context">
+    /// The optional runtime context.
+    /// </param>
+    protected DefinitionBindingCollection(
+        TrackableCollection<TDefinition> definitions,
+        IDefinitionBindingFactory<TDefinition, TObject, TContext> factory,
+        TrackableCollection<TObject> objects,
+        TContext? context = null)
     {
         ArgumentNullException.ThrowIfNull(definitions);
         ArgumentNullException.ThrowIfNull(factory);
+        ArgumentNullException.ThrowIfNull(objects);
 
         _definitions = definitions;
         _factory = factory;
         _context = context;
-        _objects = new TrackableCollection<TObject>(definitions.Count);
+        _objects = objects;
 
         if (_context is not null)
             CreateObjects();

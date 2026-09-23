@@ -29,8 +29,15 @@ namespace Sachssoft.Engine.Assets
         /// Initializes a new instance of the <see cref="AssetResolver"/> class
         /// and registers the default asset format resolvers.
         /// </summary>
-        public AssetResolver()
+        /// <param name="unknownDefinitionFactory">
+        /// Optional factory used to create definitions for unknown or
+        /// unsupported asset formats.
+        /// </param>
+        public AssetResolver(
+            Func<IAssetDefinition>? unknownDefinitionFactory = null)
         {
+            UnknownDefinitionFactory = unknownDefinitionFactory;
+
             Register(
                 s => ImageDetection.DetectFormat(s) == ImageFormatType.Png,
                 p => new AssetFile<Texture2DAssetDefinition>(p),
@@ -51,6 +58,16 @@ namespace Sachssoft.Engine.Assets
                 p => new AssetFile<MusicAssetDefinition>(p),
                 () => new MusicAssetDefinition());
         }
+
+        /// <summary>
+        /// Gets the factory used to create definitions for unknown or
+        /// unsupported asset formats.
+        /// </summary>
+        /// <remarks>
+        /// When <see langword="null"/>, an <see cref="UnknownAssetDefinition"/>
+        /// is created automatically.
+        /// </remarks>
+        public Func<IAssetDefinition>? UnknownDefinitionFactory { get; }
 
         /// <summary>
         /// Registers support for an asset format.
@@ -106,8 +123,8 @@ namespace Sachssoft.Engine.Assets
         /// otherwise, <see langword="null"/>.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when <paramref name="relativePath"/> or <paramref name="stream"/>
-        /// is <see langword="null"/>.
+        /// Thrown when <paramref name="relativePath"/> or
+        /// <paramref name="stream"/> is <see langword="null"/>.
         /// </exception>
         public AssetFile<TDefinition>? Resolve<TDefinition>(
             string relativePath,
@@ -122,7 +139,9 @@ namespace Sachssoft.Engine.Assets
                 if (entry.DefinitionType != typeof(TDefinition))
                     continue;
 
-                long position = stream.CanSeek ? stream.Position : 0;
+                long position = stream.CanSeek
+                    ? stream.Position
+                    : 0;
 
                 bool matches = entry.Match(stream);
 
@@ -130,7 +149,10 @@ namespace Sachssoft.Engine.Assets
                     stream.Position = position;
 
                 if (matches)
-                    return (AssetFile<TDefinition>)entry.FileFactory(relativePath);
+                {
+                    return (AssetFile<TDefinition>)
+                        entry.FileFactory(relativePath);
+                }
             }
 
             return null;
@@ -150,8 +172,8 @@ namespace Sachssoft.Engine.Assets
         /// otherwise, <see langword="null"/>.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when <paramref name="relativePath"/> or <paramref name="stream"/>
-        /// is <see langword="null"/>.
+        /// Thrown when <paramref name="relativePath"/> or
+        /// <paramref name="stream"/> is <see langword="null"/>.
         /// </exception>
         public IAssetFile? Resolve(
             string relativePath,
@@ -162,7 +184,9 @@ namespace Sachssoft.Engine.Assets
 
             foreach (var entry in _entries)
             {
-                long position = stream.CanSeek ? stream.Position : 0;
+                long position = stream.CanSeek
+                    ? stream.Position
+                    : 0;
 
                 bool matches = entry.Match(stream);
 
@@ -174,6 +198,56 @@ namespace Sachssoft.Engine.Assets
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Resolves an asset definition from the specified path and stream.
+        /// </summary>
+        /// <param name="relativePath">
+        /// Relative path of the asset inside the package.
+        /// </param>
+        /// <param name="stream">
+        /// Stream containing the asset data.
+        /// </param>
+        /// <returns>
+        /// The resolved asset definition. If the asset format is unknown,
+        /// an unknown asset definition is returned.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="relativePath"/> or
+        /// <paramref name="stream"/> is <see langword="null"/>.
+        /// </exception>
+        public IAssetDefinition ResolveDefinition(
+            string relativePath,
+            Stream stream)
+        {
+            ArgumentNullException.ThrowIfNull(relativePath);
+            ArgumentNullException.ThrowIfNull(stream);
+
+            foreach (var entry in _entries)
+            {
+                long position = stream.CanSeek
+                    ? stream.Position
+                    : 0;
+
+                bool matches = entry.Match(stream);
+
+                if (stream.CanSeek)
+                    stream.Position = position;
+
+                if (!matches)
+                    continue;
+
+                var definition = entry.DefinitionFactory();
+
+                definition.File =
+                    entry.FileFactory(relativePath);
+
+                return definition;
+            }
+
+            return UnknownDefinitionFactory?.Invoke()
+                ?? new UnknownAssetDefinition();
         }
 
         /// <summary>
@@ -191,7 +265,8 @@ namespace Sachssoft.Engine.Assets
         /// <exception cref="ArgumentNullException">
         /// Thrown when <paramref name="file"/> is <see langword="null"/>.
         /// </exception>
-        public TDefinition GetDefinition<TDefinition>(AssetFile<TDefinition> file)
+        public TDefinition GetDefinition<TDefinition>(
+            AssetFile<TDefinition> file)
             where TDefinition : class, IAssetDefinition
         {
             ArgumentNullException.ThrowIfNull(file);
@@ -199,11 +274,15 @@ namespace Sachssoft.Engine.Assets
             foreach (var entry in _entries)
             {
                 if (entry.DefinitionType == typeof(TDefinition))
-                    return (TDefinition)entry.DefinitionFactory();
+                {
+                    return (TDefinition)
+                        entry.DefinitionFactory();
+                }
             }
 
             throw new InvalidOperationException(
-                $"No asset definition factory is registered for '{typeof(TDefinition).FullName}'.");
+                $"No asset definition factory is registered for " +
+                $"'{typeof(TDefinition).FullName}'.");
         }
 
         /// <summary>

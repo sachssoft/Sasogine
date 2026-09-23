@@ -174,4 +174,59 @@ public static class DefinitionBindingConnection
             factory,
             connectionOwner);
     }
+
+    /// <summary>
+    /// Creates a context-aware referenceable definition binding collection for the
+    /// specified definitions, factory, and runtime context.
+    /// </summary>
+    /// <typeparam name="TDefinition">
+    /// The type of definition contained in the source collection.
+    /// </typeparam>
+    /// <typeparam name="TObject">
+    /// The type of referenceable engine object created from the definitions.
+    /// </typeparam>
+    /// <typeparam name="TContext">
+    /// The type of runtime context used when creating and managing engine objects.
+    /// </typeparam>
+    /// <param name="definitions">
+    /// The source collection of definitions to bind.
+    /// </param>
+    /// <param name="factory">
+    /// The factory used to create, attach, and release engine objects.
+    /// </param>
+    /// <param name="context">
+    /// The runtime context used by the binding factory.
+    /// </param>
+    /// <returns>
+    /// A new context-aware referenceable definition binding collection synchronized
+    /// with the specified definition collection.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="definitions"/>, <paramref name="factory"/>, or
+    /// <paramref name="context"/> is <see langword="null"/>.
+    /// </exception>
+    public static ReferencableDefinitionBindingCollection<
+        TDefinition,
+        TObject,
+        TContext>
+        CreateReferencable<TDefinition, TObject, TContext>(
+            TrackableCollection<TDefinition> definitions,
+            IDefinitionBindingFactory<TDefinition, TObject, TContext> factory,
+            TContext context)
+        where TDefinition : class, IDefinition
+        where TObject : class, IEngineObject, IEngineReferenceable
+        where TContext : class
+    {
+        ArgumentNullException.ThrowIfNull(definitions);
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentNullException.ThrowIfNull(context);
+
+        return new ReferencableDefinitionBindingCollection<
+            TDefinition,
+            TObject,
+            TContext>(
+            definitions,
+            factory,
+            context);
+    }
 }
