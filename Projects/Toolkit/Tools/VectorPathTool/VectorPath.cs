@@ -172,7 +172,7 @@ public class VectorPath : EngineObject<VectorPathDefinition>
     /// contained in <see cref="VectorPathDefinition.Segments"/>.
     /// </remarks>
     //public VectorSegmentCollection Segments { get; }
-    public IReadOnlyList<IVectorSegment> Segments => _segments;
+    public IReadOnlyBindingCollection<IVectorSegment> Segments => _segments;
 
     internal IList<IVectorSegment> MutableSegments => _mutableSegments;
 

@@ -32,7 +32,7 @@ public class SceneUpdateContext : GameContext
     /// or <paramref name="cameras"/> is <see langword="null"/>.
     /// </exception>
     public SceneUpdateContext(
-        IGameApplication application,
+        GameApplicationBase application,
         IScene scene,
         ICamera[] cameras,
         float frameCounterSmoothing = 0.1f)

@@ -18,7 +18,8 @@ namespace Sachssoft.Engine.Common.Collections;
 public class DefinitionBindingCollection<TDefinition, TObject, TContext> :
     IReadOnlyList<TObject>,
     INotifyCollectionChanged,
-    INotifyPropertyChanged
+    INotifyPropertyChanged,
+    IDisposable
     where TDefinition : class, IDefinition
     where TObject : class, IEngineObject
     where TContext : class
@@ -29,6 +30,7 @@ public class DefinitionBindingCollection<TDefinition, TObject, TContext> :
     private readonly Dictionary<TDefinition, TObject> _bindings =
         new(ReferenceEqualityComparer.Instance);
 
+    private bool _disposed;
     private TContext? _context;
 
     /// <summary>
@@ -70,6 +72,8 @@ public class DefinitionBindingCollection<TDefinition, TObject, TContext> :
         get => _context;
         set
         {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+
             if (ReferenceEquals(_context, value))
                 return;
 
@@ -121,6 +125,25 @@ public class DefinitionBindingCollection<TDefinition, TObject, TContext> :
 
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    /// <summary>
+    /// Releases the resources used by the binding collection.
+    /// </summary>
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _definitions.CollectionChanged -= DefinitionsCollectionChanged;
+        _objects.PropertyChanged -= ObjectsPropertyChanged;
+
+        ReleaseObjects();
+        _context = null;
+
+        _disposed = true;
+
+        GC.SuppressFinalize(this);
+    }
 
     /// <summary>Raises the <see cref="PropertyChanged"/> event.</summary>
     protected virtual void OnPropertyChanged(string propertyName)

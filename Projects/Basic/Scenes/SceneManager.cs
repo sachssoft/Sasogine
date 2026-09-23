@@ -12,7 +12,7 @@ namespace Sachssoft.Engine.Scenes
     /// </summary>
     public sealed class SceneManager : ISceneManager
     {
-        private readonly IGameApplication _application;
+        private readonly GameApplicationBase _application;
         private readonly IScene _mainScene;
 
         private readonly List<IScene> _persistentScenes = new();
@@ -34,7 +34,7 @@ namespace Sachssoft.Engine.Scenes
         /// The initial scene loaded when the application starts.
         /// </param>
         public SceneManager(
-            IGameApplication application,
+            GameApplicationBase application,
             IScene mainScene)
         {
             _application = application ??

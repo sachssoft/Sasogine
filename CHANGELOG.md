@@ -20,10 +20,9 @@ All notable changes to this project will be documented in this file.
 </small>
 
 ## [0.5.0-alpha] - Planned (Major API Modernization and Architectural Improvements)
-* [Feature] Introduced asset support for indexed `IndexedFrameSet<TEnum>` and keyed `KeyedFrameSet` frame sets.
+* [Feature] Introduced asset support for integer-indexed `IndexedFrameSet`, strongly typed `IndexedFrameSet<TEnum>`, and keyed `KeyedFrameSet` frame sets.
 * [Feature] Added context-aware `Template<T, TContext>` support for runtime object creation.
 * [Feature] Added context-aware shader creation using `ShaderAssetContext`.
-* [Feature] Added custom frame index converters to `IndexedFrameSetAsset<TEnum>`.
 * [Feature] Added texture asset references to indexed frame set constructors.
 * [Feature] Added built-in language lookup by name, language code, and `CultureInfo` using `Language.Find` and `Language.TryGet`.
 * [Feature] Added `AssemblyResource` utilities for locating and accessing embedded assembly resources.
@@ -40,13 +39,21 @@ All notable changes to this project will be documented in this file.
 * [Change] Simplified shader and frame set asset creation with factory-based convenience constructors.
 * [Change] Improved asset reference handling and runtime dependency resolution.
 * [Change] Improved `EmbeddedResourceSource` resource lookup and error handling.
-* [Change] Refactored rendering components into the common rendering namespace and removed obsolete definition-based component architecture.
+* [Change] Refactored rendering components into the common rendering namespace and removed the obsolete definition-based component architecture.
 * [Change] Removed the definition-based `ResourceComponentBase<TDefinition>`.
-* [Change] Refactored asset and entity collections to use shared context-based lifecycle management.
 * [Change] Updated `ResourceComponentBase` to inherit from `ComponentBase`.
-* [Change] Moved `AssetDefinitionRegistry` to the common assets namespace.
+* [Change] Refactored asset and entity collections to use shared context-based lifecycle management.
 * [Change] Redesigned asset and entity collection architecture around shared reference resolution and context-based lifecycle management.
+* [Change] Redesigned `DefinitionRegistry` as `DefinitionObjectRegistry<TDefinition, TObject>` with explicit definition-to-runtime-object mapping, built-in registration, `Create`/`TryCreate`, improved validation, and AOT/trimming-friendly high-performance type lookup.
+* [Change] Added `DynamicDefinitionObjectRegistry<TDefinition, TObject>` for dynamically managed registrations, including plugin and module scenarios.
+* [Change] Updated asset and entity definition registries to use the shared definition-to-runtime-object registry architecture.
+* [Change] Moved `AssetDefinitionRegistry` to the common assets namespace.
+* [Change] Refactored `IndexedFrameSetAsset<TEnum>` into the non-generic `IndexedFrameSetAsset`, separating asset loading from application-specific enum types.
+* [Change] Added integer-based `IndexedFrameSet` as the neutral runtime representation while retaining `IndexedFrameSet<TEnum>` for strongly typed enum-based access.
+* [Change] Updated indexed frame set definitions to map imported frame names to numeric frame indices independently of application-specific enum types.
 * [Change] **API**: Cleaned up the public API by removing unused, redundant, obsolete, or unintentionally exposed types and members.
+* [Improve] Refactored `IEntry` to derive from `IEngineObject` and removed inconsistent or redundant members.
+* [Improve] Added strongly typed enum-indexed frame set instance creation to `IndexedFrameSetAsset`.
 * [Improve] Applied `Id` and `Class` from engine object definitions during construction instead of waiting for the first load or reload.
 * [Improve] Added `Texture2DFlipMode` support and refactored quad generation to `QuadMesh<TVertex>`.
 * [Improve] Refactored `MeshGenerator` to use generic mesh implementations for quad, polygon, cube, sphere, and skybox generation.

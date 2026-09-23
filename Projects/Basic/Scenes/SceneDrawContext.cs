@@ -45,7 +45,7 @@ public class SceneDrawContext : GameContext
     /// is <see langword="null"/>.
     /// </exception>
     public SceneDrawContext(
-        IGameApplication application,
+        GameApplicationBase application,
         IScene scene,
         ICamera viewCamera,
         IMaterial defaultMaterial,

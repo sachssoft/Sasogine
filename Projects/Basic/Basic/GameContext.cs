@@ -14,7 +14,7 @@ namespace Sachssoft.Engine;
 /// </remarks>
 public class GameContext
 {
-    private readonly IGameApplication _application;
+    private readonly GameApplicationBase _application;
     private readonly FrameCounter _frameCounter;
 
     private GameTime? _gameTime;
@@ -32,7 +32,7 @@ public class GameContext
     /// Thrown when <paramref name="application"/> is <see langword="null"/>.
     /// </exception>
     public GameContext(
-        IGameApplication application,
+        GameApplicationBase application,
         float frameCounterSmoothing = 0.1f)
     {
         _application = application ??

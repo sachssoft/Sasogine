@@ -25,7 +25,7 @@ public static class GameService
     /// game application.
     /// </summary>
     public static T? TryGet<T>(
-        IGameApplication application)
+        GameApplicationBase application)
         where T : class
     {
         ArgumentNullException.ThrowIfNull(application);
@@ -52,7 +52,7 @@ public static class GameService
     /// game application.
     /// </summary>
     public static T GetRequired<T>(
-        IGameApplication application)
+        GameApplicationBase application)
         where T : class
     {
         ArgumentNullException.ThrowIfNull(application);

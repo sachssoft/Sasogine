@@ -20,10 +20,8 @@ namespace Sachssoft.Engine.Common.Collections
     /// the corresponding methods that are called before each operation.
     /// </remarks>
     public class TrackableCollection<T> :
-        IList<T>,
-        IReadOnlyList<T>,
-        INotifyCollectionChanged,
-        INotifyPropertyChanged,
+        IBindingCollection<T>,
+        IReadOnlyCollection<T>,
         ITrackable<CollectionChangeSet<T>>
     {
         private static readonly PropertyChangedEventArgs CountChangedArgs = new(nameof(Count));

@@ -19,7 +19,7 @@ namespace Sachssoft.Engine;
 /// Manages the core application services, graphics device, object activation,
 /// assets, localization, settings, scenes, and application lifecycle.
 /// </remarks>
-public abstract class GameApplicationBase : Game, IGameApplication
+public abstract class GameApplicationBase : Game/*, IGameApplication*/
 {
     private readonly string[] _commandArgs;
     private readonly GraphicsDeviceManager _graphicsDeviceManager;

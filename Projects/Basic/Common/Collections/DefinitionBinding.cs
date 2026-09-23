@@ -74,7 +74,7 @@ public static class DefinitionBindingConnection
     /// The requesting engine object is not the registered connection owner,
     /// or the mutable connection has already been established.
     /// </exception>
-    public static IList<TObject> Connect<TDefinition, TObject>(
+    public static IBindingCollection<TObject> Connect<TDefinition, TObject>(
         IEngineObject connectionOwner,
         DefinitionBindingCollection<TDefinition, TObject> collection)
         where TDefinition : class, IDefinition

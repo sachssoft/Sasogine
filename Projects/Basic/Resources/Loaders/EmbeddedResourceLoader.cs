@@ -67,7 +67,7 @@ public sealed class EmbeddedResourceSource : ResourceSourceBase, IFileSource
     /// </param>
     public EmbeddedResourceSource(
         string? filePath,
-        IGameApplication application)
+        GameApplicationBase application)
     {
         ArgumentNullException.ThrowIfNull(application);
 

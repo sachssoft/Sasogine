@@ -9,21 +9,14 @@ using System.Linq;
 namespace Sachssoft.Engine.Resources;
 
 /// <summary>
-/// Represents a texture frame set where frames are accessed through a strongly typed enum key.
-///
-/// This implementation is intended for runtime usage where frame references are known at compile time.
-/// Using an enum avoids string-based lookups and provides type-safe access to frames.
+/// Represents a texture frame set where frames are accessed through integer indices.
 /// </summary>
-/// <typeparam name="TEnum">
-/// Enum type used as the frame key.
-/// </typeparam>
-public sealed class IndexedFrameSet<TEnum> : IFrameSet
-    where TEnum : struct, Enum
+public sealed class IndexedFrameSet : IFrameSet
 {
-    private readonly Dictionary<TEnum, FrameData> _frames = new();
+    private readonly Dictionary<int, FrameData> _frames = new();
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="IndexedFrameSet{TEnum}"/> class.
+    /// Initializes a new instance of the <see cref="IndexedFrameSet"/> class.
     /// </summary>
     /// <param name="texture">
     /// Texture containing the frame data.
@@ -41,24 +34,24 @@ public sealed class IndexedFrameSet<TEnum> : IFrameSet
     public Texture2D Texture { get; }
 
     /// <summary>
-    /// Gets all enum keys of the registered frames.
+    /// Gets all indices of the registered frames.
     /// </summary>
-    public IEnumerable<TEnum> Indices => _frames.Keys;
+    public IEnumerable<int> Indices => _frames.Keys;
 
     IEnumerable<object> IFrameSet.Keys => _frames.Keys.Cast<object>();
 
     /// <summary>
-    /// Gets the frame associated with the specified enum index.
+    /// Gets the frame associated with the specified index.
     /// </summary>
-    public FrameData this[TEnum index] => _frames[index];
+    public FrameData this[int index] => _frames[index];
 
-    FrameData IFrameSet.this[object key] => this[(TEnum)key];
+    FrameData IFrameSet.this[object key] => this[(int)key];
 
     /// <summary>
-    /// Adds a new frame using an enum index and atlas position.
+    /// Adds a new frame using an integer index and atlas position.
     /// </summary>
     /// <param name="index">
-    /// Enum value used to identify the frame.
+    /// Integer value used to identify the frame.
     /// </param>
     /// <param name="position">
     /// Position of the frame inside the texture atlas.
@@ -67,13 +60,74 @@ public sealed class IndexedFrameSet<TEnum> : IFrameSet
     /// Pixel size of the frame.
     /// </param>
     public void Add(
-        TEnum index,
-        Point position,
+        int index,
+        PixelPoint2 position,
         PixelSize2 size)
     {
         _frames.Add(
             index,
             new FrameData(position, size));
+    }
+
+    /// <summary>
+    /// Gets the frame associated with the specified enum value.
+    /// </summary>
+    /// <typeparam name="TEnum">
+    /// The enum type used as the frame index.
+    /// </typeparam>
+    /// <param name="index">
+    /// The enum value identifying the frame.
+    /// </param>
+    /// <returns>
+    /// The associated frame data.
+    /// </returns>
+    public FrameData Get<TEnum>(
+        TEnum index)
+        where TEnum : struct, Enum
+    {
+        return _frames[Convert.ToInt32(index)];
+    }
+
+    /// <summary>
+    /// Determines whether a frame exists for the specified enum value.
+    /// </summary>
+    public bool Contains<TEnum>(
+        TEnum index)
+        where TEnum : struct, Enum
+    {
+        return _frames.ContainsKey(
+            Convert.ToInt32(index));
+    }
+
+    /// <summary>
+    /// Creates a strongly typed enum-indexed frame set from this frame set.
+    /// </summary>
+    /// <typeparam name="TEnum">
+    /// The enum type used as the frame key.
+    /// </typeparam>
+    /// <returns>
+    /// A strongly typed indexed frame set containing the same frames.
+    /// </returns>
+    public IndexedFrameSet<TEnum> ToEnumIndexed<TEnum>()
+        where TEnum : struct, Enum
+    {
+        IndexedFrameSet<TEnum> result =
+            new(Texture);
+
+        foreach ((int index, FrameData frame) in _frames)
+        {
+            TEnum enumIndex =
+                (TEnum)Enum.ToObject(
+                    typeof(TEnum),
+                    index);
+
+            result.Add(
+                enumIndex,
+                frame.Location,
+                frame.Size);
+        }
+
+        return result;
     }
 
     /// <summary>

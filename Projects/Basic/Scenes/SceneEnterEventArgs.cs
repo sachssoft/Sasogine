@@ -24,7 +24,7 @@ namespace Sachssoft.Engine.Scenes
         /// </param>
         public SceneEnterEventArgs(
             SceneManager manager,
-            IGameApplication application,
+            GameApplicationBase application,
             IEnumerable<IScene> activeScenes)
         {
             Manager = manager;
@@ -42,7 +42,7 @@ namespace Sachssoft.Engine.Scenes
         /// <summary>
         /// Gets the current game application instance.
         /// </summary>
-        public IGameApplication Application { get; }
+        public GameApplicationBase Application { get; }
 
 
         /// <summary>

@@ -32,9 +32,8 @@ namespace Sachssoft.Engine.Common.Collections;
 /// </para>
 /// </remarks>
 public class DefinitionBindingCollection<TDefinition, TObject> :
-    IReadOnlyList<TObject>,
-    INotifyCollectionChanged,
-    INotifyPropertyChanged
+    IReadOnlyBindingCollection<TObject>,
+    IDisposable
     where TDefinition : class, IDefinition
     where TObject : class, IEngineObject
 {
@@ -47,6 +46,7 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
     private readonly Dictionary<TDefinition, TObject> _bindings =
         new(ReferenceEqualityComparer.Instance);
 
+    private bool _disposed;
     private bool _wasConnected;
 
     private TDefinition? _pendingDefinition;
@@ -171,6 +171,27 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
         GetEnumerator();
 
     /// <summary>
+    /// Releases the resources used by the binding collection.
+    /// </summary>
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _definitions.CollectionChanged -= DefinitionsCollectionChanged;
+
+        foreach (KeyValuePair<TDefinition, TObject> pair in _bindings)
+            _factory.ReleaseInstance(pair.Key, pair.Value);
+
+        _bindings.Clear();
+        _objects.Clear();
+
+        _disposed = true;
+
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
     /// Gets the internally managed engine object collection.
     /// </summary>
     /// <remarks>
@@ -179,8 +200,10 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
     /// </remarks>
     protected TrackableCollection<TObject> Objects => _objects;
 
-    internal IList<TObject> Connect(IEngineObject connectionOwner)
+    internal IBindingCollection<TObject> Connect(IEngineObject connectionOwner)
     {
+        ThrowIfDisposed();
+
         ArgumentNullException.ThrowIfNull(connectionOwner);
 
         if (_connectionOwner is null)
@@ -204,6 +227,11 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
         _wasConnected = true;
 
         return _mutable;
+    }
+
+    private void ThrowIfDisposed()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
     }
 
     private void DefinitionsCollectionChanged(
@@ -404,6 +432,8 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
         int index,
         TObject item)
     {
+        ThrowIfDisposed();
+
         ArgumentNullException.ThrowIfNull(item);
 
         if (item.Definition is not TDefinition definition)
@@ -443,6 +473,8 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
         int index,
         TObject item)
     {
+        ThrowIfDisposed();
+
         ArgumentNullException.ThrowIfNull(item);
 
         if (item.Definition is not TDefinition definition)
@@ -480,7 +512,7 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
         }
     }
 
-    private sealed class MutableList : IList<TObject>
+    private sealed class MutableList : IBindingCollection<TObject>
     {
         private readonly DefinitionBindingCollection<TDefinition, TObject> _owner;
 
@@ -488,6 +520,18 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
             DefinitionBindingCollection<TDefinition, TObject> owner)
         {
             _owner = owner;
+        }
+
+        public event NotifyCollectionChangedEventHandler? CollectionChanged
+        {
+            add => _owner._objects.CollectionChanged += value;
+            remove => _owner._objects.CollectionChanged -= value;
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged
+        {
+            add => _owner._objects.PropertyChanged += value;
+            remove => _owner._objects.PropertyChanged -= value;
         }
 
         public int Count => _owner._objects.Count;
@@ -509,6 +553,7 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
 
         public void Clear()
         {
+            _owner.ThrowIfDisposed();
             _owner._definitions.Clear();
         }
 
@@ -535,6 +580,8 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
 
         public bool Remove(TObject item)
         {
+            _owner.ThrowIfDisposed();
+
             int index = _owner._objects.IndexOf(item);
 
             if (index < 0)
@@ -547,6 +594,7 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
 
         public void RemoveAt(int index)
         {
+            _owner.ThrowIfDisposed();
             _owner._definitions.RemoveAt(index);
         }
 

@@ -18,7 +18,7 @@ namespace Sachssoft.Engine.Scenes
         private readonly ComponentCollection _components = new();
 
         private GraphicsDevice? _graphicsDevice;
-        private IGameApplication? _application;
+        private GameApplicationBase? _application;
 
         private bool _loaded;
         private bool _disposed;
@@ -70,7 +70,7 @@ namespace Sachssoft.Engine.Scenes
         /// <exception cref="InvalidOperationException">
         /// Thrown when the scene has not been initialized.
         /// </exception>
-        public IGameApplication Application =>
+        public GameApplicationBase Application =>
             _application ?? throw new InvalidOperationException(
                 "Scene not initialized.");
 
@@ -126,7 +126,7 @@ namespace Sachssoft.Engine.Scenes
         /// Initializes the scene with the specified application instance.
         /// </summary>
         internal void EnsureInitialized(
-            IGameApplication application)
+            GameApplicationBase application)
         {
             if (_application != null)
                 return;

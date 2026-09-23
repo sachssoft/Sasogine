@@ -31,7 +31,7 @@ public static class Localized
     /// Gets a localized string for the specified application.
     /// </summary>
     public static string? GetValue(
-        IGameApplication application,
+        GameApplicationBase application,
         string key,
         string? defaultValue = null)
     {
