@@ -1,4 +1,5 @@
-﻿using Sachssoft.Engine.Components.Models;
+﻿using Sachssoft.Engine.Common.Collections;
+using Sachssoft.Engine.Components.Models;
 using System.ComponentModel;
 
 namespace Sachssoft.Engine.Assets;
@@ -29,4 +30,25 @@ public abstract class AssetDefinitionBase : IAssetDefinition
     [Category(Categories.Common)]
     [DisplayName("File")]
     public IAssetFile? File { get; set; }
+
+    /// <summary>
+    /// Gets the tags associated with the asset.
+    /// </summary>
+    /// <remarks>
+    /// Tags can be used to categorize, search, and filter assets.
+    /// </remarks>
+    [Category(Categories.Common)]
+    [DisplayName("Tags")]
+    public TrackableCollection<string> Tags { get; } = new();
+
+    /// <summary>
+    /// Gets or sets the optional description of the asset.
+    /// </summary>
+    /// <remarks>
+    /// The description provides additional information about the purpose
+    /// or intended usage of the asset.
+    /// </remarks>
+    [Category(Categories.Common)]
+    [DisplayName("Description")]
+    public string? Description { get; set; }
 }

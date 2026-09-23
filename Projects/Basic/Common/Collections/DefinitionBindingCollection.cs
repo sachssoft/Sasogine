@@ -65,7 +65,37 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
     public DefinitionBindingCollection(
         TrackableCollection<TDefinition> definitions,
         IDefinitionBindingFactory<TDefinition, TObject> factory)
-        : this(definitions, factory, null)
+        : this(
+            definitions,
+            factory,
+            new TrackableCollection<TObject>(definitions.Count),
+            null)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the
+    /// <see cref="DefinitionBindingCollection{TDefinition, TObject}"/> class
+    /// using the specified engine object collection.
+    /// </summary>
+    /// <param name="definitions">
+    /// The definition collection to observe.
+    /// </param>
+    /// <param name="factory">
+    /// The factory used to create and release engine objects.
+    /// </param>
+    /// <param name="objects">
+    /// The collection used to store the bound engine objects.
+    /// </param>
+    protected DefinitionBindingCollection(
+        TrackableCollection<TDefinition> definitions,
+        IDefinitionBindingFactory<TDefinition, TObject> factory,
+        TrackableCollection<TObject> objects)
+        : this(
+            definitions,
+            factory,
+            objects,
+            null)
     {
     }
 
@@ -73,13 +103,27 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
         TrackableCollection<TDefinition> definitions,
         IDefinitionBindingFactory<TDefinition, TObject> factory,
         IEngineObject? connectionOwner)
+        : this(
+            definitions,
+            factory,
+            new TrackableCollection<TObject>(definitions.Count),
+            connectionOwner)
+    {
+    }
+
+    private protected DefinitionBindingCollection(
+        TrackableCollection<TDefinition> definitions,
+        IDefinitionBindingFactory<TDefinition, TObject> factory,
+        TrackableCollection<TObject> objects,
+        IEngineObject? connectionOwner)
     {
         ArgumentNullException.ThrowIfNull(definitions);
         ArgumentNullException.ThrowIfNull(factory);
+        ArgumentNullException.ThrowIfNull(objects);
 
         _definitions = definitions;
         _factory = factory;
-        _objects = new TrackableCollection<TObject>(definitions.Count);
+        _objects = objects;
         _connectionOwner = connectionOwner;
         _mutable = new MutableList(this);
 
@@ -119,6 +163,15 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
     /// The zero-based index of the engine object.
     /// </param>
     public TObject this[int index] => _objects[index];
+
+    /// <summary>
+    /// Gets the internally managed engine object collection.
+    /// </summary>
+    /// <remarks>
+    /// Derived collection types may use this collection to provide additional
+    /// lookup functionality. It must not be exposed as mutable public API.
+    /// </remarks>
+    protected TrackableCollection<TObject> Objects => _objects;
 
     /// <summary>
     /// Gets the engine object associated with the specified definition.
@@ -191,16 +244,8 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
         GC.SuppressFinalize(this);
     }
 
-    /// <summary>
-    /// Gets the internally managed engine object collection.
-    /// </summary>
-    /// <remarks>
-    /// Derived collection types may use this collection to provide additional
-    /// lookup functionality. It must not be exposed as mutable public API.
-    /// </remarks>
-    protected TrackableCollection<TObject> Objects => _objects;
-
-    internal IBindingCollection<TObject> Connect(IEngineObject connectionOwner)
+    internal IBindingCollection<TObject> Connect(
+        IEngineObject connectionOwner)
     {
         ThrowIfDisposed();
 
@@ -266,7 +311,8 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
         }
     }
 
-    private void HandleAdd(NotifyCollectionChangedEventArgs e)
+    private void HandleAdd(
+        NotifyCollectionChangedEventArgs e)
     {
         if (e.NewItems is null)
             return;
@@ -280,7 +326,8 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
         }
     }
 
-    private void HandleRemove(NotifyCollectionChangedEventArgs e)
+    private void HandleRemove(
+        NotifyCollectionChangedEventArgs e)
     {
         if (e.OldItems is null)
             return;
@@ -292,10 +339,14 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
         }
     }
 
-    private void HandleReplace(NotifyCollectionChangedEventArgs e)
+    private void HandleReplace(
+        NotifyCollectionChangedEventArgs e)
     {
-        if (e.OldItems is null || e.NewItems is null)
+        if (e.OldItems is null ||
+            e.NewItems is null)
+        {
             return;
+        }
 
         int count = Math.Min(
             e.OldItems.Count,
@@ -316,7 +367,8 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
         }
     }
 
-    private void HandleMove(NotifyCollectionChangedEventArgs e)
+    private void HandleMove(
+        NotifyCollectionChangedEventArgs e)
     {
         if (e.OldStartingIndex < 0 ||
             e.NewStartingIndex < 0)
@@ -362,7 +414,8 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
         }
     }
 
-    private void Remove(TDefinition definition)
+    private void Remove(
+        TDefinition definition)
     {
         if (!_bindings.Remove(
                 definition,
@@ -512,7 +565,8 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
         }
     }
 
-    private sealed class MutableList : IBindingCollection<TObject>
+    private sealed class MutableList :
+        IBindingCollection<TObject>
     {
         private readonly DefinitionBindingCollection<TDefinition, TObject> _owner;
 
@@ -544,7 +598,8 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
             set => _owner.ReplaceObject(index, value);
         }
 
-        public void Add(TObject item)
+        public void Add(
+            TObject item)
         {
             _owner.InsertObject(
                 _owner._objects.Count,
@@ -557,28 +612,35 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
             _owner._definitions.Clear();
         }
 
-        public bool Contains(TObject item) =>
+        public bool Contains(
+            TObject item) =>
             _owner._objects.Contains(item);
 
         public void CopyTo(
             TObject[] array,
             int arrayIndex) =>
-            _owner._objects.CopyTo(array, arrayIndex);
+            _owner._objects.CopyTo(
+                array,
+                arrayIndex);
 
         public IEnumerator<TObject> GetEnumerator() =>
             _owner._objects.GetEnumerator();
 
-        public int IndexOf(TObject item) =>
+        public int IndexOf(
+            TObject item) =>
             _owner._objects.IndexOf(item);
 
         public void Insert(
             int index,
             TObject item)
         {
-            _owner.InsertObject(index, item);
+            _owner.InsertObject(
+                index,
+                item);
         }
 
-        public bool Remove(TObject item)
+        public bool Remove(
+            TObject item)
         {
             _owner.ThrowIfDisposed();
 
@@ -592,7 +654,8 @@ public class DefinitionBindingCollection<TDefinition, TObject> :
             return true;
         }
 
-        public void RemoveAt(int index)
+        public void RemoveAt(
+            int index)
         {
             _owner.ThrowIfDisposed();
             _owner._definitions.RemoveAt(index);

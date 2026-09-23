@@ -6,11 +6,11 @@
   <Folder Name="/Build/">
     <Project Path="Build/Sachssoft.Sasogine.Analyzers/Sachssoft.Sasogine.Analyzers.csproj" />
   </Folder>
-  <Folder Name="/Examples/">
-    <Project Path="Examples/Sachssoft.Sasogine.Example.Architecture/Sachssoft.Sasogine.Example.Architecture.csproj" Id="d00152ec-e353-4aed-a369-1934744d71a7" />
-    <Project Path="Examples/Sachssoft.Sasogine.Example.MemoryGame/Sachssoft.Sasogine.Example.MemoryGame.csproj" />
-    <Project Path="Examples/Sachssoft.Sasogine.Example.Primitives/Sachssoft.Sasogine.Example.Primitives.csproj" />
-    <Project Path="Examples/Sachssoft.Sasogine.Example.Surface/Sachssoft.Sasogine.Example.UI.csproj" />
+  <Folder Name="/Examples/" />
+  <Folder Name="/Examples/DesktopGL/">
+    <Project Path="Examples/DesktopGL/01.FirstStepGL/01.FirstStepGL.csproj" />
+    <Project Path="Examples/DesktopGL/02.TexturesGL/02.TexturesGL.csproj" Id="30a29d51-5b65-4ab6-bdd2-ca811d1a56ee" />
+    <Project Path="Examples/DesktopGL/03.ComponentsGL/03.ComponentsGL.csproj" Id="8ab0c3d9-4db2-4d14-801d-4d7f43664843" />
   </Folder>
   <Folder Name="/Platforms/">
     <Project Path="Platforms/Sachssoft.Sasogine.Platform.Linux/Sachssoft.Sasogine.Platform.Linux.csproj" />
@@ -20,8 +20,8 @@
   <Folder Name="/Targets/" />
   <Folder Name="/Targets/DesktopGL/">
     <Project Path="Targets/DesktopGL/Sachssoft.Sasogine.DesktopGL/Sachssoft.Sasogine.DesktopGL.csproj" />
-    <Project Path="Targets/DesktopGL/Sachssoft.Sasogine.Experimental.DesktopGL/Sachssoft.Sasogine.Experimental.DesktopGL.csproj" />
     <Project Path="Targets/DesktopGL/Sachssoft.Sasogine.Documents.DesktopGL/Sachssoft.Sasogine.Documents.DesktopGL.csproj" />
+    <Project Path="Targets/DesktopGL/Sachssoft.Sasogine.Experimental.DesktopGL/Sachssoft.Sasogine.Experimental.DesktopGL.csproj" />
     <Project Path="Targets/DesktopGL/Sachssoft.Sasogine.Toolkit.DesktopGL/Sachssoft.Sasogine.Toolkit.DesktopGL.csproj" />
     <Project Path="Targets/DesktopGL/Sachssoft.Sasogine.UI.DesktopGL/Sachssoft.Sasogine.UI.DesktopGL.csproj" />
   </Folder>

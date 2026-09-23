@@ -134,4 +134,44 @@ public static class DefinitionBindingConnection
             factory,
             context);
     }
+
+    /// <summary>
+    /// Creates a referenceable definition binding collection associated with the
+    /// specified connection owner.
+    /// </summary>
+    /// <typeparam name="TDefinition">
+    /// The type of definition used to create engine objects.
+    /// </typeparam>
+    /// <typeparam name="TObject">
+    /// The type of referenceable engine object exposed by the collection.
+    /// </typeparam>
+    /// <param name="connectionOwner">
+    /// The engine object that is allowed to establish the mutable connection.
+    /// </param>
+    /// <param name="definitions">
+    /// The definition collection to bind.
+    /// </param>
+    /// <param name="factory">
+    /// The factory used to create and release engine objects.
+    /// </param>
+    /// <returns>
+    /// The created referenceable definition binding collection.
+    /// </returns>
+    public static ReferencableDefinitionBindingCollection<TDefinition, TObject>
+        CreateReferencable<TDefinition, TObject>(
+            IEngineObject connectionOwner,
+            TrackableCollection<TDefinition> definitions,
+            IDefinitionBindingFactory<TDefinition, TObject> factory)
+        where TDefinition : class, IDefinition
+        where TObject : class, IEngineObject, IEngineReferenceable
+    {
+        ArgumentNullException.ThrowIfNull(connectionOwner);
+        ArgumentNullException.ThrowIfNull(definitions);
+        ArgumentNullException.ThrowIfNull(factory);
+
+        return new ReferencableDefinitionBindingCollection<TDefinition, TObject>(
+            definitions,
+            factory,
+            connectionOwner);
+    }
 }
