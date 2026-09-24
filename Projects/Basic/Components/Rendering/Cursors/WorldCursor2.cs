@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Engine.Common;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Graphics.Cameras;
 using Sachssoft.Engine.Graphics.Meshes;
 using Sachssoft.Engine.Graphics.Rendering;

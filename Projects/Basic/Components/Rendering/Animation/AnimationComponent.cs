@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Engine.Common;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Timing.Easing;
 using System;
 

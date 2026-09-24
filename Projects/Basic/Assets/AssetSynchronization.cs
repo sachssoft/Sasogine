@@ -1,4 +1,4 @@
-﻿using Sachssoft.Engine.Common.Collections;
+﻿using Sachssoft.Engine.Collections;
 using Sachssoft.Engine.Resources;
 using System;
 using System.Collections;

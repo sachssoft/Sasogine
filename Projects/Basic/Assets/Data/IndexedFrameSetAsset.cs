@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Engine.Assets.Graphics;
-using Sachssoft.Engine.Common;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Resources;
 using Sachssoft.Engine.Resources.Importers;
 using System;

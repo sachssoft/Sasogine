@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Engine.Common;
 using Sachssoft.Engine.Graphics.Rendering;
 using Sachssoft.Engine.Graphics.Rendering.Batches;
 using Sachssoft.Engine.Input;

@@ -1,7 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Engine.Assets;
 using Sachssoft.Engine.Diagnostics;
-using Sachssoft.Engine.Diagnostics.Internals;
+using Sachssoft.Engine.Diagnostics.Internal;
 using Sachssoft.Engine.Resources;
 using Sachssoft.Engine.Resources.Localization;
 using Sachssoft.Engine.Scenes;

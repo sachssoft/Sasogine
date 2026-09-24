@@ -49,7 +49,7 @@ public sealed class Camera2NavigationTool : ToolBase
                 var movement = currentScreenPosition - _previousScreenPosition;
 
                 var pos = movement / _camera.Zoom;
-                _camera.Position -= new Common.Point2(pos.X, pos.Y);
+                _camera.Position -= new Point2(pos.X, pos.Y);
             }
 
             _previousScreenPosition = currentScreenPosition;

@@ -1,4 +1,4 @@
-﻿using Sachssoft.Engine.Common;
+﻿using Sachssoft.Engine;
 using System.Runtime.CompilerServices;
 
 namespace Sachssoft.Engine.Geometry

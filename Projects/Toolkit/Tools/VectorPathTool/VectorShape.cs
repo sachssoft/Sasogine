@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
-using Sachssoft.Engine.Common;
-using Sachssoft.Engine.Common.Collections;
+using Sachssoft.Engine.Collections;
 using System;
 using System.Collections.Generic;
 using System.Threading;

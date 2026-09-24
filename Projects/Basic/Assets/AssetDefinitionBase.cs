@@ -1,5 +1,5 @@
-﻿using Sachssoft.Engine.Common.Collections;
-using Sachssoft.Engine.Components.Models;
+﻿using Sachssoft.Engine.Collections;
+using Sachssoft.Engine.Components.Definitions;
 using System.ComponentModel;
 
 namespace Sachssoft.Engine.Assets;

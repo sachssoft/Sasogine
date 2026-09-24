@@ -1,6 +1,6 @@
 using Sachssoft.Engine.Assets.Graphics;
-using Sachssoft.Engine.Common;
-using Sachssoft.Engine.Components.Models;
+using Sachssoft.Engine;
+using Sachssoft.Engine.Components.Definitions;
 using Sachssoft.Engine.Resources;
 using System.Collections.Generic;
 using System.ComponentModel;

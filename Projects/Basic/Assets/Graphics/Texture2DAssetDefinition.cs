@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Engine.Components.Models;
+using Sachssoft.Engine.Components.Definitions;
 using Sachssoft.Engine.Graphics;
 using System.ComponentModel;
 

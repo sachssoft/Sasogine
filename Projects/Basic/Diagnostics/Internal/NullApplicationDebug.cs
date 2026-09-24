@@ -1,4 +1,4 @@
-﻿namespace Sachssoft.Engine.Diagnostics.Internals
+﻿namespace Sachssoft.Engine.Diagnostics.Internal
 {
     internal sealed class NullApplicationDebug : IApplicationDebug
     {
