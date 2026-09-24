@@ -19,7 +19,7 @@ All notable changes to this project will be documented in this file.
 
 </small>
 
-## [0.5.0-alpha] - Planned (Major API Modernization and Architectural Improvements)
+## [0.11.0-alpha] - Planned (Major Development Milestone — Large API and Architecture Overhaul)
 * [Feature] Introduced asset support for integer-indexed `IndexedFrameSet`, strongly typed `IndexedFrameSet<TEnum>`, and keyed `KeyedFrameSet` frame sets.
 * [Feature] Added context-aware `Template<T, TContext>` support for runtime object creation.
 * [Feature] Added context-aware shader creation using `ShaderAssetContext`.
@@ -47,6 +47,7 @@ All notable changes to this project will be documented in this file.
 * [Change] Refactored rendering components into the common rendering namespace and removed the obsolete definition-based component architecture.
 * [Change] Removed the definition-based `ResourceComponentBase<TDefinition>`.
 * [Change] Updated `ResourceComponentBase` to inherit from `ComponentBase`.
+* [Change] Reorganized and simplified engine namespaces by removing the `Common` namespace and relocating its APIs to their appropriate namespaces.
 * [Change] Refactored asset and entity collections to use shared context-based lifecycle management.
 * [Change] Redesigned asset and entity collection architecture around shared reference resolution and context-based lifecycle management.
 * [Change] Redesigned `DefinitionRegistry` as `DefinitionObjectRegistry<TDefinition, TObject>` with explicit definition-to-runtime-object mapping, built-in registration, `Create`/`TryCreate`, improved validation, and AOT/trimming-friendly high-performance type lookup.
