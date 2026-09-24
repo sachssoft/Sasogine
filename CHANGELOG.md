@@ -32,6 +32,9 @@ All notable changes to this project will be documented in this file.
 * [Feature] Added child component support in `ComponentBase`.
 * [Feature] Added file synchronization infrastructure with local resource source support and extensibility for additional source types.
 * [Feature] Added unknown asset definition handling and definition transformation utilities.
+* [Feature] Introduced strongly typed definition property metadata and value access using `DefinitionProperty<TDefinition, TValue>` and `DefinitionProperties`.
+* [Feature] Added property validation, coercion, change notifications, and attribute metadata support for definition properties.
+* [Feature] Added cached reflection-based definition property discovery and access as an optional fallback.
 * [Change] **Documents**: Aligned document and serialization integration with Sasodoc under the shared `Sachssoft.Documents` namespace hierarchy.
 * [Change] **Documents**: Moved Engine-specific document integration under `Sachssoft.Documents.Engine`.
 * [Change] **Toolkit**: Flattened tool namespaces by consolidating selection and vector tools under the common components tool namespace.
@@ -64,6 +67,8 @@ All notable changes to this project will be documented in this file.
 * [Improve] Extended asset resolving, synchronization, and resource handling architecture.
 * [Improve] Improved definition binding and referencable collection infrastructure for shared runtime object resolution.
 * [Improve] Extended rendering and mesh APIs with additional utilities and component improvements.
+* [Improve] Added runtime and platform capability checks for safe reflection-based functionality.
+* [Improve] Improved trimming and AOT compatibility through explicit definition property metadata without requiring reflection.
 * [Bug] **Toolkit**: Fixed incorrect initial selection bounds before the first vector shape edit.
 * [Bug] Fixed several bugs revealed by stricter code guidelines, including issues with incorrect overrides, virtual members, and other API inconsistencies.
 

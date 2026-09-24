@@ -32,6 +32,18 @@ Sasogine is a lightweight and extensible game engine built on top of **[MonoGame
 | Desktop  | Windows, macOS, Linux-based systems |
 | Mobile   | Android, iOS                        |
 
+### AOT & Trimming
+
+Sasogine is designed to be **AOT- and trimming-compatible**.
+
+Core engine functionality can be used without runtime reflection. APIs that require metadata discovery provide explicit, AOT-friendly alternatives where applicable.
+
+Some optional functionality can use runtime reflection. Reflection-based features are only available when supported by the current runtime and platform and may be unavailable or restricted in Native AOT, trimmed, or platform-constrained environments.
+
+Use `RuntimeCapabilities.IsReflectionSupported` and `RuntimeCapabilities.IsPlatformReflectionSupported` to determine whether reflection-based functionality is available before using reflection-dependent APIs.
+
+> **Note:** Reflection is an optional fallback and is not required for the core definition metadata system. For maximum AOT and trimming compatibility, explicit metadata APIs such as `IDefinitionMetadata` should be preferred.
+
 ## Downloads
 
 | Library       | Usage                            | Status              | DesktopGL                                                                                                                                                | WindowsDX | Vulkan |
