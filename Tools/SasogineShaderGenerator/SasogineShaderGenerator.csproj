@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+
+		<AssemblyName>Sachssoft.ShaderGenerator</AssemblyName>
+		<RootNamespace>Sachssoft.ShaderGenerator</RootNamespace>
+
+		<Product>Sachssoft Shader Generator</Product>
+		<Title>Sachssoft Shader Generator</Title>
+		<Description>A graphical shader compilation tool for MonoGame.</Description>
+
+		<Company>Sachssoft</Company>
+		<Authors>Tobias Sachs</Authors>
+		<Copyright>Copyright © Tobias Sachs 2026</Copyright>
+
+		<Version>1.0.0</Version>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<FileVersion>1.0.0.0</FileVersion>
+		<InformationalVersion>1.0.0</InformationalVersion>
+
+		<ApplicationIcon>Assets\icon.ico</ApplicationIcon>
+
+		<PublishAot>true</PublishAot>
+		<PublishTrimmed>true</PublishTrimmed>
+		<TrimMode>full</TrimMode>
+		<InvariantGlobalization>false</InvariantGlobalization>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<AvaloniaResource Include="Assets\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Avalonia" Version="11.3.8" />
+		<PackageReference Include="Avalonia.Desktop" Version="11.3.8" />
+		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.8" />
+		<PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.8" />
+	</ItemGroup>
+</Project>

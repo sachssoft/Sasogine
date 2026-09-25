@@ -1,0 +1,52 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SasogineShaderGenerator.MainWindow"
+        Title="Sasogine Shader Generator"
+        Width="820" Height="560"
+        MinWidth="680" MinHeight="480"
+        Icon="avares://Sachssoft.ShaderGenerator/Assets/icon.ico">
+	<Grid Margin="20" RowDefinitions="Auto,Auto,Auto,Auto,*,Auto" ColumnDefinitions="*">
+		<TextBlock Grid.Row="0" Text="MonoGame Shader Generator" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,18" />
+
+		<Grid Grid.Row="1" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" Margin="0,0,0,12">
+			<TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="FX file" Margin="0,0,0,5" />
+			<TextBox x:Name="FxPathBox" Grid.Row="1" Grid.Column="0" Watermark="Path to .fx file" />
+			<Button Grid.Row="1" Grid.Column="1" Content="Browse…" Margin="8,0,0,0" Click="BrowseFx_Click" />
+		</Grid>
+
+		<Grid Grid.Row="2" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" Margin="0,0,0,12">
+			<TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="Output file" Margin="0,0,0,5" />
+			<TextBox x:Name="OutputPathBox" Grid.Row="1" Grid.Column="0" Watermark="Path to compiled .mgfx file" />
+			<Button Grid.Row="1" Grid.Column="1" Content="Browse…" Margin="8,0,0,0" Click="BrowseOutput_Click" />
+		</Grid>
+
+		<Grid Grid.Row="3" ColumnDefinitions="*,*" Margin="0,0,0,16">
+			<StackPanel Grid.Column="0" Margin="0,0,8,0">
+				<TextBlock Text="Target" Margin="0,0,0,5" />
+				<ComboBox x:Name="TargetBox" SelectedIndex="0">
+					<ComboBoxItem Content="OpenGL" />
+					<ComboBoxItem Content="DirectX 11" />
+				</ComboBox>
+			</StackPanel>
+			<StackPanel Grid.Column="1" Margin="8,0,0,0">
+				<TextBlock Text="mgfxc" Margin="0,0,0,5" />
+				<TextBox x:Name="CompilerPathBox" Text="mgfxc" Watermark="mgfxc executable/path" />
+			</StackPanel>
+		</Grid>
+
+		<Grid Grid.Row="4" RowDefinitions="Auto,*">
+			<TextBlock Grid.Row="0" Text="Compiler output" Margin="0,0,0,5" />
+			<TextBox x:Name="LogBox"
+					 Grid.Row="1"
+					 IsReadOnly="True"
+					 AcceptsReturn="True"
+					 TextWrapping="Wrap"
+					 ScrollViewer.VerticalScrollBarVisibility="Auto"
+					 FontFamily="Consolas" />
+		</Grid>
+
+		<StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+			<Button x:Name="CompileButton" Content="Compile" MinWidth="110" Click="Compile_Click" />
+		</StackPanel>
+	</Grid>
+</Window>
