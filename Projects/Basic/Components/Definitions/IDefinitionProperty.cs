@@ -81,4 +81,24 @@ public interface IDefinitionProperty
     /// <see langword="false"/>.
     /// </returns>
     bool HasAttribute<TAttribute>() where TAttribute : Attribute;
+
+    /// <summary>
+    /// Detects whether the current property value has changed since the last check.
+    /// </summary>
+    /// <param name="source">The definition whose property value is checked.</param>
+    /// <returns>
+    /// <see langword="true"/> if the value has changed or has not yet been
+    /// initialized; otherwise, <see langword="false"/>.
+    /// </returns>
+    // Der aktuelle Rohwert wird direkt über den Reflection-Zugriff ausgelesen.
+    // Da bei Reflection keine automatische Benachrichtigung über Änderungen
+    // vorausgesetzt werden kann, wird der tatsächliche Property-Wert bei jedem
+    // Aufruf erneut abgefragt.
+    //
+    // Der ValueBuffer speichert den zuletzt beobachteten Wert und vergleicht
+    // diesen mit dem aktuell ausgelesenen Wert. Dadurch können auch Änderungen
+    // erkannt werden, die außerhalb von SetValue vorgenommen wurden.
+    //
+    // Die Methode ist für regelmäßige Update-/Polling-Aufrufe vorgesehen.
+    bool DetectValueChange(IDefinition source);
 }

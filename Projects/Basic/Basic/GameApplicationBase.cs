@@ -74,7 +74,7 @@ public abstract class GameApplicationBase : Game/*, IGameApplication*/
         _localization = CreateLocalization()
             ?? throw new GameException("Localization manager creation failed.");
 
-        _localization.CurrentLanguage = Configuration.Language;
+        _localization.CurrentLanguage = Configuration.Language ?? _localization.FallbackLanguage;
         ConfigureLocalization(_localization, Configuration);
 
         IGameRegistry? registry = CreateRegistry(Configuration);

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Sachssoft.Engine.Graphics.Text.Internals
+namespace Sachssoft.Engine.Graphics.Text.Internal
 {
     /// <summary>
     /// Provides a FontStashSharp-based implementation of

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Engine.Graphics.Text;
-using Sachssoft.Engine.Graphics.Text.Internals;
+using Sachssoft.Engine.Graphics.Text.Internal;
 using System;
 
 namespace Sachssoft.Engine.Graphics.Rendering

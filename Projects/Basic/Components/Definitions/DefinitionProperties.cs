@@ -1,4 +1,5 @@
 using Sachssoft.Engine;
+using Sachssoft.Engine.Performance;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -98,19 +99,49 @@ public static class DefinitionProperties
     /// No property with the specified <paramref name="name"/> exists.
     /// </exception>
     public static IDefinitionProperty GetFromReflection<
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TDefinition>(string name)
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TDefinition>(
+        string name)
         where TDefinition : IDefinition
     {
+        return GetFromReflection(typeof(TDefinition), name);
+    }
+
+    /// <summary>
+    /// Gets the property with the specified name from the specified definition type using reflection.
+    /// </summary>
+    /// <param name="definitionType">The definition type.</param>
+    /// <param name="name">The name of the property.</param>
+    /// <returns>The property associated with the specified name.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="definitionType"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="definitionType"/> does not implement <see cref="IDefinition"/>.
+    /// </exception>
+    /// <exception cref="PlatformNotSupportedException">
+    /// Reflection-based functionality is not supported by the current runtime or platform.
+    /// </exception>
+    /// <exception cref="KeyNotFoundException">
+    /// No property with the specified <paramref name="name"/> exists.
+    /// </exception>
+    public static IDefinitionProperty GetFromReflection(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+        Type definitionType,
+        string name)
+    {
         RuntimeCapabilities.EnsureReflectionSupported();
+        ArgumentNullException.ThrowIfNull(definitionType);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        var entry = GetReflectionCacheEntry(typeof(TDefinition));
+        ValidateDefinitionType(definitionType);
+
+        var entry = GetReflectionCacheEntry(definitionType);
 
         if (entry.PropertiesByName.TryGetValue(name, out var property))
             return property;
 
         throw new KeyNotFoundException(
-            $"Property '{name}' was not found on definition type '{typeof(TDefinition).FullName}'.");
+            $"Property '{name}' was not found on definition type '{definitionType.FullName}'.");
     }
 
     /// <summary>
@@ -125,9 +156,33 @@ public static class DefinitionProperties
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TDefinition>()
         where TDefinition : IDefinition
     {
-        RuntimeCapabilities.EnsureReflectionSupported();
+        return GetAllFromReflection(typeof(TDefinition));
+    }
 
-        return GetReflectionCacheEntry(typeof(TDefinition)).Properties;
+    /// <summary>
+    /// Gets all properties of the specified definition type using reflection.
+    /// </summary>
+    /// <param name="definitionType">The definition type.</param>
+    /// <returns>A read-only list containing the properties.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="definitionType"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="definitionType"/> does not implement <see cref="IDefinition"/>.
+    /// </exception>
+    /// <exception cref="PlatformNotSupportedException">
+    /// Reflection-based functionality is not supported by the current runtime or platform.
+    /// </exception>
+    public static IReadOnlyList<IDefinitionProperty> GetAllFromReflection(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+        Type definitionType)
+    {
+        RuntimeCapabilities.EnsureReflectionSupported();
+        ArgumentNullException.ThrowIfNull(definitionType);
+
+        ValidateDefinitionType(definitionType);
+
+        return GetReflectionCacheEntry(definitionType).Properties;
     }
 
     /// <summary>
@@ -140,12 +195,34 @@ public static class DefinitionProperties
     /// Reflection-based functionality is not supported by the current runtime or platform.
     /// </exception>
     public static IReadOnlyList<Attribute> GetAttributesFromReflection<
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TDefinition>(string name)
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TDefinition>(
+        string name)
         where TDefinition : IDefinition
     {
-        RuntimeCapabilities.EnsureReflectionSupported();
+        return GetAttributesFromReflection(typeof(TDefinition), name);
+    }
 
-        return GetFromReflection<TDefinition>(name).Attributes;
+    /// <summary>
+    /// Gets the attributes associated with the specified property using reflection.
+    /// </summary>
+    /// <param name="definitionType">The definition type.</param>
+    /// <param name="name">The name of the property.</param>
+    /// <returns>A read-only list containing the property attributes.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="definitionType"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="definitionType"/> does not implement <see cref="IDefinition"/>.
+    /// </exception>
+    /// <exception cref="PlatformNotSupportedException">
+    /// Reflection-based functionality is not supported by the current runtime or platform.
+    /// </exception>
+    public static IReadOnlyList<Attribute> GetAttributesFromReflection(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+        Type definitionType,
+        string name)
+    {
+        return GetFromReflection(definitionType, name).Attributes;
     }
 
     /// <summary>
@@ -162,13 +239,39 @@ public static class DefinitionProperties
     /// </exception>
     public static TAttribute? GetAttributeFromReflection<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TDefinition,
-        TAttribute>(string name)
+        TAttribute>(
+        string name)
         where TDefinition : IDefinition
         where TAttribute : Attribute
     {
-        RuntimeCapabilities.EnsureReflectionSupported();
+        return GetAttributeFromReflection<TAttribute>(typeof(TDefinition), name);
+    }
 
-        return GetFromReflection<TDefinition>(name).GetAttribute<TAttribute>();
+    /// <summary>
+    /// Gets the first attribute of the specified type associated with the specified property using reflection.
+    /// </summary>
+    /// <typeparam name="TAttribute">The attribute type.</typeparam>
+    /// <param name="definitionType">The definition type.</param>
+    /// <param name="name">The name of the property.</param>
+    /// <returns>
+    /// The first matching attribute, or <see langword="null"/> if no matching attribute exists.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="definitionType"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="definitionType"/> does not implement <see cref="IDefinition"/>.
+    /// </exception>
+    /// <exception cref="PlatformNotSupportedException">
+    /// Reflection-based functionality is not supported by the current runtime or platform.
+    /// </exception>
+    public static TAttribute? GetAttributeFromReflection<TAttribute>(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+        Type definitionType,
+        string name)
+        where TAttribute : Attribute
+    {
+        return GetFromReflection(definitionType, name).GetAttribute<TAttribute>();
     }
 
     /// <summary>
@@ -186,17 +289,53 @@ public static class DefinitionProperties
     /// </exception>
     public static bool HasAttributeFromReflection<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TDefinition,
-        TAttribute>(string name)
+        TAttribute>(
+        string name)
         where TDefinition : IDefinition
         where TAttribute : Attribute
     {
-        RuntimeCapabilities.EnsureReflectionSupported();
+        return HasAttributeFromReflection<TAttribute>(typeof(TDefinition), name);
+    }
 
-        return GetFromReflection<TDefinition>(name).HasAttribute<TAttribute>();
+    /// <summary>
+    /// Determines whether an attribute of the specified type is associated with the specified property using reflection.
+    /// </summary>
+    /// <typeparam name="TAttribute">The attribute type.</typeparam>
+    /// <param name="definitionType">The definition type.</param>
+    /// <param name="name">The name of the property.</param>
+    /// <returns>
+    /// <see langword="true"/> if a matching attribute exists; otherwise,
+    /// <see langword="false"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="definitionType"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="definitionType"/> does not implement <see cref="IDefinition"/>.
+    /// </exception>
+    /// <exception cref="PlatformNotSupportedException">
+    /// Reflection-based functionality is not supported by the current runtime or platform.
+    /// </exception>
+    public static bool HasAttributeFromReflection<TAttribute>(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+        Type definitionType,
+        string name)
+        where TAttribute : Attribute
+    {
+        return GetFromReflection(definitionType, name).HasAttribute<TAttribute>();
+    }
+
+    private static void ValidateDefinitionType(Type definitionType)
+    {
+        if (!typeof(IDefinition).IsAssignableFrom(definitionType))
+            throw new ArgumentException(
+                $"Type '{definitionType.FullName}' must implement '{typeof(IDefinition).FullName}'.",
+                nameof(definitionType));
     }
 
     private static ReflectionCacheEntry GetReflectionCacheEntry(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type definitionType)
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+        Type definitionType)
     {
         RuntimeCapabilities.EnsureReflectionSupported();
 
@@ -209,7 +348,8 @@ public static class DefinitionProperties
     }
 
     private static ReflectionCacheEntry CreateReflectionCacheEntry(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type definitionType)
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
+        Type definitionType)
     {
         RuntimeCapabilities.EnsureReflectionSupported();
 
@@ -253,6 +393,7 @@ public static class DefinitionProperties
     {
         private readonly PropertyInfo _property;
         private readonly IReadOnlyList<Attribute> _attributes;
+        private ValueBuffer<object?> _valueBuffer;
 
         public ReflectionDefinitionProperty(PropertyInfo property)
         {
@@ -341,14 +482,39 @@ public static class DefinitionProperties
             var oldValue = _property.GetValue(source);
 
             if (Equals(oldValue, value))
+            {
+                _valueBuffer.Reset(oldValue);
                 return;
+            }
 
             _property.SetValue(source, value);
 
             var newValue = _property.GetValue(source);
 
+            _valueBuffer.Reset(newValue);
+
             if (!Equals(oldValue, newValue))
                 OnValueChanged(source, oldValue, newValue);
+        }
+
+        public bool DetectValueChange(IDefinition source)
+        {
+            RuntimeCapabilities.EnsureReflectionSupported();
+            ArgumentNullException.ThrowIfNull(source);
+
+            // Der aktuelle Rohwert wird direkt über den Reflection-Zugriff ausgelesen.
+            // Da bei Reflection keine automatische Benachrichtigung über Änderungen
+            // vorausgesetzt werden kann, wird der tatsächliche Property-Wert bei jedem
+            // Aufruf erneut abgefragt.
+            //
+            // Der ValueBuffer speichert den zuletzt beobachteten Wert und vergleicht
+            // diesen mit dem aktuell ausgelesenen Wert. Dadurch können auch Änderungen
+            // erkannt werden, die außerhalb von SetValue vorgenommen wurden.
+            //
+            // Die Methode ist für regelmäßige Update-/Polling-Aufrufe vorgesehen.
+            var currentValue = GetValue(source);
+
+            return _valueBuffer.EnsureChange(currentValue);
         }
 
         private bool IsValidSource(IDefinition source)

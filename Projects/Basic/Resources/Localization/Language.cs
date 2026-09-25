@@ -132,4 +132,88 @@ public sealed class Language
         language = Find(culture);
         return language is not null;
     }
+
+    /// <summary>
+    /// Creates culture information for this language.
+    /// </summary>
+    /// <returns>
+    /// The culture corresponding to this language.
+    /// </returns>
+    public CultureInfo ToCulture()
+    {
+        return CultureInfo.GetCultureInfo(Name);
+    }
+
+    /// <summary>
+    /// Creates culture information for this language using the specified region.
+    /// </summary>
+    /// <param name="region">
+    /// The region code, such as <c>DE</c>, <c>CH</c>, or <c>AT</c>.
+    /// </param>
+    /// <returns>
+    /// The culture corresponding to this language and region.
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="region"/> is <see langword="null"/>, empty,
+    /// or consists only of white-space characters.
+    /// </exception>
+    public CultureInfo ToCulture(string region)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(region);
+        return CultureInfo.GetCultureInfo($"{Name}-{region}");
+    }
+
+    /// <summary>
+    /// Creates culture information for this language using the specified number format.
+    /// </summary>
+    /// <param name="numberFormat">
+    /// The number format to use.
+    /// </param>
+    /// <returns>
+    /// A culture using the specified number format.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="numberFormat"/> is <see langword="null"/>.
+    /// </exception>
+    public CultureInfo ToCulture(NumberFormatInfo numberFormat)
+    {
+        ArgumentNullException.ThrowIfNull(numberFormat);
+
+        var culture = (CultureInfo)CultureInfo.GetCultureInfo(Name).Clone();
+        culture.NumberFormat = (NumberFormatInfo)numberFormat.Clone();
+
+        return culture;
+    }
+
+    /// <summary>
+    /// Creates culture information for this language using the specified region
+    /// and number format.
+    /// </summary>
+    /// <param name="region">
+    /// The region code, such as <c>DE</c>, <c>CH</c>, or <c>AT</c>.
+    /// </param>
+    /// <param name="numberFormat">
+    /// The number format to use.
+    /// </param>
+    /// <returns>
+    /// A culture corresponding to this language and region using the specified
+    /// number format.
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="region"/> is <see langword="null"/>, empty,
+    /// or consists only of white-space characters.
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="numberFormat"/> is <see langword="null"/>.
+    /// </exception>
+    public CultureInfo ToCulture(string region, NumberFormatInfo numberFormat)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(region);
+        ArgumentNullException.ThrowIfNull(numberFormat);
+
+        var culture = (CultureInfo)CultureInfo.GetCultureInfo($"{Name}-{region}").Clone();
+        culture.NumberFormat = (NumberFormatInfo)numberFormat.Clone();
+
+        return culture;
+    }
 }

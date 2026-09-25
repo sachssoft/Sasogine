@@ -19,17 +19,14 @@ public sealed class LocalizationManager
     private bool _isClosed;
 
     /// <summary>
-    /// Initializes a new instance of the
-    /// <see cref="LocalizationManager"/> class.
+    /// Initializes a new instance of the <see cref="LocalizationManager"/> class.
     /// </summary>
     /// <param name="fallbackLanguage">
     /// The fallback language, or <see langword="null"/> to use English.
     /// </param>
-    public LocalizationManager(
-        Language? fallbackLanguage = null)
+    public LocalizationManager(Language? fallbackLanguage = null)
     {
-        FallbackLanguage =
-            fallbackLanguage ?? Languages.English;
+        FallbackLanguage = fallbackLanguage ?? Languages.English;
     }
 
     /// <summary>
@@ -47,19 +44,23 @@ public sealed class LocalizationManager
     /// Gets or sets the current language used for localization.
     /// </summary>
     /// <remarks>
-    /// A value of <see langword="null"/> causes the fallback language
-    /// to be used.
+    /// If no language has been explicitly assigned, the fallback language
+    /// is returned.
     /// </remarks>
-    public Language? CurrentLanguage
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="value"/> is <see langword="null"/>.
+    /// </exception>
+    public Language CurrentLanguage
     {
-        get => _currentLanguage;
+        get => _currentLanguage ?? FallbackLanguage;
         set
         {
-            if (ReferenceEquals(_currentLanguage, value))
+            ArgumentNullException.ThrowIfNull(value);
+
+            if (ReferenceEquals(CurrentLanguage, value))
                 return;
 
             _currentLanguage = value;
-
             LanguageChanged?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -74,25 +75,18 @@ public sealed class LocalizationManager
     /// Gets the localized string dictionary for the current language.
     /// </summary>
     /// <remarks>
-    /// If no current language is specified, or no dictionary exists for
-    /// the current language, the fallback language dictionary is returned.
-    /// If neither exists, an empty dictionary is returned.
+    /// If no dictionary exists for the current language, the fallback language
+    /// dictionary is returned. If neither exists, an empty dictionary is returned.
     /// </remarks>
     public LocalizedDictionary Entries
     {
         get
         {
-            if (CurrentLanguage is not null &&
-                TryGetEntry(
-                    CurrentLanguage,
-                    out LanguageEntry? entry))
-            {
+            if (TryGetEntry(CurrentLanguage, out LanguageEntry? entry))
                 return entry.Dictionary;
-            }
 
-            if (TryGetEntry(
-                FallbackLanguage,
-                out LanguageEntry? fallback))
+            if (!ReferenceEquals(CurrentLanguage, FallbackLanguage) &&
+                TryGetEntry(FallbackLanguage, out LanguageEntry? fallback))
             {
                 return fallback.Dictionary;
             }
@@ -105,8 +99,8 @@ public sealed class LocalizationManager
     /// Gets the localized asset store for the current language.
     /// </summary>
     /// <remarks>
-    /// If no current language is specified, or no asset store exists for
-    /// the current language, the fallback language asset store is returned.
+    /// If no asset store exists for the current language, the fallback language
+    /// asset store is returned.
     /// </remarks>
     /// <exception cref="InvalidOperationException">
     /// No localized assets are registered for either the current language
@@ -116,25 +110,34 @@ public sealed class LocalizationManager
     {
         get
         {
-            if (CurrentLanguage is not null &&
-                TryGetEntry(
-                    CurrentLanguage,
-                    out LanguageEntry? entry))
-            {
+            if (TryGetEntry(CurrentLanguage, out LanguageEntry? entry))
                 return entry.Assets;
-            }
 
-            if (TryGetEntry(
-                FallbackLanguage,
-                out LanguageEntry? fallback))
+            if (!ReferenceEquals(CurrentLanguage, FallbackLanguage) &&
+                TryGetEntry(FallbackLanguage, out LanguageEntry? fallback))
             {
                 return fallback.Assets;
             }
 
             throw new InvalidOperationException(
-                $"No localized assets are registered for the current " +
-                $"or fallback language '{FallbackLanguage.Name}'.");
+                $"No localized assets are registered for the current language " +
+                $"'{CurrentLanguage.Name}' or fallback language '{FallbackLanguage.Name}'.");
         }
+    }
+
+    /// <summary>
+    /// Resets the current language to the fallback language.
+    /// </summary>
+    public void ResetLanguage()
+    {
+        if (_currentLanguage is null)
+            return;
+
+        var previousLanguage = _currentLanguage;
+        _currentLanguage = null;
+
+        if (!ReferenceEquals(previousLanguage, FallbackLanguage))
+            LanguageChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -199,9 +202,7 @@ public sealed class LocalizationManager
     {
         ArgumentNullException.ThrowIfNull(language);
 
-        return _languages.TryGetValue(
-            language.Name,
-            out entry);
+        return _languages.TryGetValue(language.Name, out entry);
     }
 
     internal void Close()

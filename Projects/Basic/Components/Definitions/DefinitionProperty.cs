@@ -1,4 +1,5 @@
 using Sachssoft.Engine;
+using Sachssoft.Engine.Performance;
 using System;
 using System.Collections.Generic;
 
@@ -27,6 +28,8 @@ public class DefinitionProperty<TDefinition, TValue> : IDefinitionProperty
     private readonly Func<TDefinition, TValue, TValue>? _coerceValue;
     private readonly Func<TDefinition, TValue, bool>? _validateValue;
     private readonly Action<TDefinition, TValue, TValue>? _valueChanged;
+
+    private ValueBuffer<TValue> _valueBuffer;
 
     /// <summary>
     /// Initializes a new instance of the
@@ -243,6 +246,7 @@ public class DefinitionProperty<TDefinition, TValue> : IDefinitionProperty
             return;
 
         _setter(source, coercedValue);
+        _valueBuffer = coercedValue;
 
         OnValueChanged(source, oldValue, coercedValue);
     }
@@ -272,6 +276,48 @@ public class DefinitionProperty<TDefinition, TValue> : IDefinitionProperty
         throw new ArgumentException(
             $"Value must be of type '{typeof(TValue).FullName}'.",
             nameof(value));
+    }
+
+    /// <summary>
+    /// Detects whether the current property value has changed since the last check.
+    /// </summary>
+    /// <param name="source">The definition whose property value is checked.</param>
+    /// <returns>
+    /// <see langword="true"/> if the value has changed or has not yet been
+    /// initialized; otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool DetectValueChange(TDefinition source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        // Der aktuelle Wert wird immer über GetValue abgerufen.
+        // Je nach Implementierung stammt dieser entweder direkt aus der Definition
+        // oder wird über einen Reflection-basierten Zugriff ausgelesen.
+        //
+        // Direkte Änderungen an der Definition können hier nicht automatisch erkannt
+        // werden, da keine Benachrichtigung wie INotifyPropertyChanged vorausgesetzt wird.
+        // Deshalb wird diese Methode regelmäßig während eines Updates aufgerufen
+        // und arbeitet damit bewusst nach dem Polling-Prinzip.
+        //
+        // Der aktuelle Wert wird mit dem zuletzt im ValueBuffer gespeicherten Wert
+        // verglichen. Bei der ersten Prüfung oder wenn sich der Wert seit der letzten
+        // Prüfung geändert hat, aktualisiert EnsureChange den Buffer und gibt true zurück.
+
+        var currentValue = GetValue(source);
+        return _valueBuffer.EnsureChange(currentValue);
+    }
+
+    /// <inheritdoc/>
+    bool IDefinitionProperty.DetectValueChange(IDefinition source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (source is not TDefinition definition)
+            throw new ArgumentException(
+                $"Definition must be of type '{typeof(TDefinition).FullName}'.",
+                nameof(source));
+
+        return DetectValueChange(definition);
     }
 
     /// <summary>
