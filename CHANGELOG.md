@@ -35,6 +35,7 @@ All notable changes to this project will be documented in this file.
 * [Feature] Introduced strongly typed definition property metadata and value access using `DefinitionProperty<TDefinition, TValue>` and `DefinitionProperties`.
 * [Feature] Added property validation, coercion, change notifications, and attribute metadata support for definition properties.
 * [Feature] Added cached reflection-based definition property discovery and access as an optional fallback.
+* [Feature] Added `Language.ToCulture()` overloads for default culture conversion, region-specific cultures, custom `NumberFormatInfo`, and combined region/number-format customization.
 * [Change] **Documents**: Aligned document and serialization integration with Sasodoc under the shared `Sachssoft.Documents` namespace hierarchy.
 * [Change] **Documents**: Moved Engine-specific document integration under `Sachssoft.Documents.Engine`.
 * [Change] **Toolkit**: Flattened tool namespaces by consolidating selection and vector tools under the common components tool namespace.
