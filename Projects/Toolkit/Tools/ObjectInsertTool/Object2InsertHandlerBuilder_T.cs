@@ -16,6 +16,8 @@ namespace Sachssoft.Engine.Components.Tools
         private readonly Func<TDefinition, bool> _removeDefinition;
         private readonly Func<TDefinition, TObject?> _findObject;
         private readonly Func<Object2InsertContext, TDefinition> _create;
+        private Object2InsertMode _mode = Object2InsertMode.Free;
+        private Func<TDefinition, TObject, Object2InsertMode>? _modeSelector;
         private Action<TDefinition, TObject, Object2InsertContext>? _attached;
         private Action<TDefinition, Object2InsertContext>? _drag;
         private Action<TDefinition, Object2InsertContext>? _complete;
@@ -81,6 +83,28 @@ namespace Sachssoft.Engine.Components.Tools
         }
 
         /// <summary>
+        /// Sets the insertion mode.
+        /// </summary>
+        public Object2InsertHandlerBuilder<TDefinition, TObject> WithMode(Object2InsertMode mode)
+        {
+            _mode = mode;
+            _modeSelector = null;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets a callback used to determine the insertion mode from the created definition
+        /// and its bound engine object.
+        /// </summary>
+        public Object2InsertHandlerBuilder<TDefinition, TObject> WithMode(
+            Func<TDefinition, TObject, Object2InsertMode> callback)
+        {
+            ArgumentNullException.ThrowIfNull(callback);
+            _modeSelector = callback;
+            return this;
+        }
+
+        /// <summary>
         /// Sets the callback invoked after the bound engine object has been attached.
         /// </summary>
         public Object2InsertHandlerBuilder<TDefinition, TObject> OnAttached(
@@ -138,6 +162,8 @@ namespace Sachssoft.Engine.Components.Tools
         public IObject2InsertHandler Build()
         {
             return new ObjectInsertHandler(
+                _mode,
+                _modeSelector,
                 _addDefinition,
                 _removeDefinition,
                 _findObject,
@@ -151,6 +177,8 @@ namespace Sachssoft.Engine.Components.Tools
 
         private sealed class ObjectInsertHandler : IObject2InsertHandler
         {
+            private readonly Object2InsertMode _defaultMode;
+            private readonly Func<TDefinition, TObject, Object2InsertMode>? _modeSelector;
             private readonly Action<TDefinition> _addDefinition;
             private readonly Func<TDefinition, bool> _removeDefinition;
             private readonly Func<TDefinition, TObject?> _findObject;
@@ -164,6 +192,8 @@ namespace Sachssoft.Engine.Components.Tools
             private TObject? _activeObject;
 
             public ObjectInsertHandler(
+                Object2InsertMode mode,
+                Func<TDefinition, TObject, Object2InsertMode>? modeSelector,
                 Action<TDefinition> addDefinition,
                 Func<TDefinition, bool> removeDefinition,
                 Func<TDefinition, TObject?> findObject,
@@ -174,6 +204,9 @@ namespace Sachssoft.Engine.Components.Tools
                 Action<TDefinition, Object2InsertContext>? cancel,
                 Action<TDefinition, TObject, Object2InsertContext>? release)
             {
+                _defaultMode = mode;
+                _modeSelector = modeSelector;
+                Mode = mode;
                 _addDefinition = addDefinition;
                 _removeDefinition = removeDefinition;
                 _findObject = findObject;
@@ -184,6 +217,8 @@ namespace Sachssoft.Engine.Components.Tools
                 _cancel = cancel;
                 _release = release;
             }
+
+            public Object2InsertMode Mode { get; private set; }
 
             public IDefinition Create(Object2InsertContext context)
             {
@@ -198,6 +233,7 @@ namespace Sachssoft.Engine.Components.Tools
 
                 _activeDefinition = definition;
                 _activeObject = obj;
+                Mode = _modeSelector?.Invoke(definition, obj) ?? _defaultMode;
                 _attached?.Invoke(definition, obj, context);
 
                 return definition;
@@ -238,6 +274,7 @@ namespace Sachssoft.Engine.Components.Tools
 
                 _activeDefinition = null;
                 _activeObject = null;
+                Mode = _defaultMode;
             }
 
             private static TDefinition GetDefinition(IDefinition definition)

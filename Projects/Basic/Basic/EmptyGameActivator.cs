@@ -1,12 +1,12 @@
-using Sachssoft.Engine;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Sachssoft.Engine;
 
 /// <summary>
 /// Represents an empty game activator that does not support
-/// engine object creation.
+/// definition or engine object creation.
 /// </summary>
 internal sealed class EmptyGameActivator : IGameActivator
 {
@@ -17,6 +17,20 @@ internal sealed class EmptyGameActivator : IGameActivator
 
     internal EmptyGameActivator()
     {
+    }
+
+    /// <inheritdoc/>
+    public IReadOnlyList<IGameRegistryKey> GetKeys()
+    {
+        return Array.Empty<IGameRegistryKey>();
+    }
+
+    /// <inheritdoc/>
+    public bool IsSupported(IGameRegistryKey key)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+
+        return false;
     }
 
     /// <inheritdoc/>
@@ -36,9 +50,7 @@ internal sealed class EmptyGameActivator : IGameActivator
     }
 
     /// <inheritdoc/>
-    public IEngineObject Create(
-        IGameRegistryKey key,
-        IDefinition definition)
+    public IEngineObject Create(IGameRegistryKey key, IDefinition definition)
     {
         ArgumentNullException.ThrowIfNull(key);
         ArgumentNullException.ThrowIfNull(definition);
@@ -48,9 +60,7 @@ internal sealed class EmptyGameActivator : IGameActivator
     }
 
     /// <inheritdoc/>
-    public IEngineObject Create(
-        Type objectType,
-        IDefinition definition)
+    public IEngineObject Create(Type objectType, IDefinition definition)
     {
         ArgumentNullException.ThrowIfNull(objectType);
         ArgumentNullException.ThrowIfNull(definition);
@@ -60,13 +70,32 @@ internal sealed class EmptyGameActivator : IGameActivator
     }
 
     /// <inheritdoc/>
-    public IEngineObject CreateFromDefinition(
-        IDefinition definition)
+    public IEngineObject CreateFromDefinition(IDefinition definition)
     {
         ArgumentNullException.ThrowIfNull(definition);
 
         throw new NotSupportedException(
             "The empty game activator does not support engine object creation.");
+    }
+
+    /// <inheritdoc/>
+    public IDefinition CreateDefinition(IGameRegistryKey key)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+
+        throw new NotSupportedException(
+            "The empty game activator does not support definition creation.");
+    }
+
+    /// <inheritdoc/>
+    public bool TryCreateDefinition(
+        IGameRegistryKey key,
+        [NotNullWhen(true)] out IDefinition? definition)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+
+        definition = null;
+        return false;
     }
 
     /// <inheritdoc/>

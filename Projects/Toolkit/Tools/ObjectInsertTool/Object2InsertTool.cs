@@ -178,14 +178,17 @@ public sealed class Object2InsertTool : ToolBase
         }
 
         _isInserting = true;
+
+        if (InsertHandler.Mode == Object2InsertMode.Fixed)
+            CompleteInsertion();
     }
 
     private void DragInsertion()
     {
-        if (_insertDefinition == null)
+        if (_insertDefinition == null || InsertHandler.Mode == Object2InsertMode.Fixed)
             return;
 
-        _insertEnd = SnapPosition(_cursorPosition);
+        _insertEnd = GetInsertEnd(SnapPosition(_cursorPosition));
 
         if (!_hasDragged)
         {
@@ -205,7 +208,8 @@ public sealed class Object2InsertTool : ToolBase
         if (_insertDefinition == null)
             return;
 
-        _insertEnd = SnapPosition(_cursorPosition);
+        if (InsertHandler.Mode != Object2InsertMode.Fixed)
+            _insertEnd = GetInsertEnd(SnapPosition(_cursorPosition));
 
         var definition = _insertDefinition;
         var insertContext = CreateInsertContext();
@@ -278,6 +282,19 @@ public sealed class Object2InsertTool : ToolBase
         return new Bounds2(
             new Point2(position.X, position.Y),
             new Size2(maximum - position));
+    }
+
+    private Vector2 GetInsertEnd(Vector2 position)
+    {
+        if (InsertHandler.Mode != Object2InsertMode.Square)
+            return position;
+
+        Vector2 delta = position - _insertStart;
+        float size = MathF.Max(MathF.Abs(delta.X), MathF.Abs(delta.Y));
+
+        return _insertStart + new Vector2(
+            MathF.CopySign(size, delta.X),
+            MathF.CopySign(size, delta.Y));
     }
 
     private Vector2 SnapPosition(Vector2 position)

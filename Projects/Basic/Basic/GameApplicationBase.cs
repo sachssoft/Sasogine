@@ -29,7 +29,7 @@ public abstract class GameApplicationBase : Game/*, IGameApplication*/
     private protected readonly IApplicationDebug _applicationDebug;
     private protected readonly LocalizationManager _localization;
     private protected readonly IGameActivator _activator;
-    private protected readonly AssetStore _assets;
+    private protected readonly AssetStore _integratedAssets;
     private protected readonly ISceneManager _scenes;
     private protected readonly IGameSettings? _settings;
 
@@ -77,12 +77,12 @@ public abstract class GameApplicationBase : Game/*, IGameApplication*/
         _localization.CurrentLanguage = Configuration.Language ?? _localization.FallbackLanguage;
         ConfigureLocalization(_localization, Configuration);
 
-        IGameRegistry? registry = CreateRegistry(Configuration);
-        _activator = registry is not null
-            ? new GameActivator(registry)
-            : EmptyGameActivator.Instance;
+        _activator = CreateActivator(Configuration) ?? 
+            CreateDefaultActivator(Configuration);
 
-        _assets = CreateAssets(Configuration) ?? new AssetStore(this);
+        _integratedAssets = CreateIntegratedAssets(Configuration) ?? 
+            new AssetStore(this);
+
         _settings = CreateSettings(Configuration);
 
         _scenes = CreateScenes(Configuration)
@@ -125,9 +125,9 @@ public abstract class GameApplicationBase : Game/*, IGameApplication*/
     public ISceneManager Scenes => _scenes;
 
     /// <summary>
-    /// Gets the asset store.
+    /// Gets the integrated asset store provided by the application.
     /// </summary>
-    public AssetStore Assets => _assets;
+    public AssetStore IntegratedAssets => _integratedAssets;
 
     /// <summary>
     /// Gets the application settings.
@@ -167,7 +167,7 @@ public abstract class GameApplicationBase : Game/*, IGameApplication*/
         if (Window is not null)
             RegisterWindowEvents();
 
-        _assets.Initialize(_context);
+        _integratedAssets.Initialize(_context);
         _localization.Close();
 
         base.Initialize();
@@ -225,7 +225,7 @@ public abstract class GameApplicationBase : Game/*, IGameApplication*/
     protected override void LoadContent()
     {
         _settings?.Load();
-        _assets.LoadAll();
+        _integratedAssets.LoadAll();
         _scenes.Load();
     }
 
@@ -234,7 +234,7 @@ public abstract class GameApplicationBase : Game/*, IGameApplication*/
     /// </summary>
     protected override void UnloadContent()
     {
-        _assets.UnloadAll();
+        _integratedAssets.UnloadAll();
         base.UnloadContent();
     }
 
@@ -333,19 +333,33 @@ public abstract class GameApplicationBase : Game/*, IGameApplication*/
     }
 
     /// <summary>
-    /// Creates the game registry used by the application.
+    /// Creates the game activator used by the application.
     /// </summary>
     /// <param name="configuration">The application configuration.</param>
-    /// <returns>The game registry, or <see langword="null"/> when none is provided.</returns>
+    /// <returns>
+    /// The game activator, or <see langword="null"/> to create one from the game registry.
+    /// </returns>
+    protected virtual IGameActivator? CreateActivator(GameConfiguration configuration) =>
+        null;
+
+    /// <summary>
+    /// Creates the game registry used by the application when no custom activator is provided.
+    /// </summary>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>
+    /// The game registry, or <see langword="null"/> when none is provided.
+    /// </returns>
     protected virtual IGameRegistry? CreateRegistry(GameConfiguration configuration) =>
         null;
 
     /// <summary>
-    /// Creates the asset store.
+    /// Creates the integrated asset store provided by the application.
     /// </summary>
     /// <param name="configuration">The application configuration.</param>
-    /// <returns>The asset store, or <see langword="null"/> to use the default.</returns>
-    protected virtual AssetStore? CreateAssets(GameConfiguration configuration) =>
+    /// <returns>
+    /// The integrated asset store, or <see langword="null"/> to use the default.
+    /// </returns>
+    protected virtual AssetStore? CreateIntegratedAssets(GameConfiguration configuration) =>
         null;
 
     /// <summary>
@@ -373,6 +387,15 @@ public abstract class GameApplicationBase : Game/*, IGameApplication*/
         Window.KeyDown += Window_KeyDown;
         Window.KeyUp += Window_KeyUp;
         Window.TextInput += Window_TextInput;
+    }
+
+    private IGameActivator CreateDefaultActivator(GameConfiguration configuration)
+    {
+        IGameRegistry? registry = CreateRegistry(configuration);
+
+        return registry is not null
+            ? new GameActivator(registry)
+            : EmptyGameActivator.Instance;
     }
 
     private void Window_FileDrop(object? sender, FileDropEventArgs e)

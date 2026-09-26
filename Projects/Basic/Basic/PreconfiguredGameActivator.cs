@@ -1,5 +1,5 @@
-using Sachssoft.Engine;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Sachssoft.Engine;
@@ -18,8 +18,7 @@ public abstract class PreconfiguredGameActivator : IGameActivator
     protected PreconfiguredGameActivator()
     {
         _gameRegistry = CreateRegistry() ??
-            throw new InvalidOperationException(
-                "Registry creation returned null.");
+            throw new InvalidOperationException("Registry creation returned null.");
     }
 
     /// <summary>
@@ -27,6 +26,19 @@ public abstract class PreconfiguredGameActivator : IGameActivator
     /// </summary>
     /// <returns>The preconfigured game registry.</returns>
     protected abstract IGameRegistry CreateRegistry();
+
+    /// <inheritdoc/>
+    public IReadOnlyList<IGameRegistryKey> GetKeys()
+    {
+        return _gameRegistry.GetKeys();
+    }
+
+    /// <inheritdoc/>
+    public bool IsSupported(IGameRegistryKey key)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        return _gameRegistry.IsRegistered(key);
+    }
 
     /// <inheritdoc/>
     public bool IsDefinitionSupported(Type definitionType)
@@ -74,6 +86,22 @@ public abstract class PreconfiguredGameActivator : IGameActivator
     {
         ArgumentNullException.ThrowIfNull(definition);
         return _gameRegistry.CreateFromDefinition(definition);
+    }
+
+    /// <inheritdoc/>
+    public IDefinition CreateDefinition(IGameRegistryKey key)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        return _gameRegistry.CreateDefinition(key);
+    }
+
+    /// <inheritdoc/>
+    public bool TryCreateDefinition(
+        IGameRegistryKey key,
+        [NotNullWhen(true)] out IDefinition? definition)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        return _gameRegistry.TryCreateDefinition(key, out definition);
     }
 
     /// <inheritdoc/>

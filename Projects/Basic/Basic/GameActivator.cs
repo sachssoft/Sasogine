@@ -1,5 +1,5 @@
-using Sachssoft.Engine;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Sachssoft.Engine;
@@ -19,7 +19,7 @@ public sealed class GameActivator : IGameActivator
     /// <summary>
     /// Gets the shared empty game activator instance.
     /// </summary>
-    public static IGameActivator Instance { get; } = new EmptyGameActivator();
+    public static IGameActivator Instance => EmptyGameActivator.Instance;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GameActivator"/> class.
@@ -32,6 +32,19 @@ public sealed class GameActivator : IGameActivator
     {
         ArgumentNullException.ThrowIfNull(registry);
         _registry = registry;
+    }
+
+    /// <inheritdoc/>
+    public IReadOnlyList<IGameRegistryKey> GetKeys()
+    {
+        return _registry.GetKeys();
+    }
+
+    /// <inheritdoc/>
+    public bool IsSupported(IGameRegistryKey key)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        return _registry.IsRegistered(key);
     }
 
     /// <inheritdoc/>
@@ -80,6 +93,22 @@ public sealed class GameActivator : IGameActivator
     {
         ArgumentNullException.ThrowIfNull(definition);
         return _registry.CreateFromDefinition(definition);
+    }
+
+    /// <inheritdoc/>
+    public IDefinition CreateDefinition(IGameRegistryKey key)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        return _registry.CreateDefinition(key);
+    }
+
+    /// <inheritdoc/>
+    public bool TryCreateDefinition(
+        IGameRegistryKey key,
+        [NotNullWhen(true)] out IDefinition? definition)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        return _registry.TryCreateDefinition(key, out definition);
     }
 
     /// <inheritdoc/>

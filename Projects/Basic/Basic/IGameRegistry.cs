@@ -1,5 +1,6 @@
 using Sachssoft.Engine;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Sachssoft.Engine;
@@ -11,6 +12,12 @@ namespace Sachssoft.Engine;
 public interface IGameRegistry
 {
     /// <summary>
+    /// Gets all registered registry keys.
+    /// </summary>
+    /// <returns>The registered registry keys.</returns>
+    IReadOnlyList<IGameRegistryKey> GetKeys();
+
+    /// <summary>
     /// Registers a definition factory and its corresponding engine object factory
     /// using the specified registry key.
     /// </summary>
@@ -21,6 +28,16 @@ public interface IGameRegistry
         IGameRegistryKey key,
         Func<IDefinition> definitionFactory,
         Func<IDefinition, IEngineObject> objectFactory);
+
+    /// <summary>
+    /// Determines whether the specified registry key is registered.
+    /// </summary>
+    /// <param name="key">The registry key to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if the registry key is registered;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    bool IsRegistered(IGameRegistryKey key);
 
     /// <summary>
     /// Determines whether the specified definition type is registered.

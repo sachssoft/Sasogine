@@ -7,6 +7,11 @@ namespace Sachssoft.Engine.Components.Tools;
 public interface IObject2InsertHandler
 {
     /// <summary>
+    /// Gets the insertion mode used by the handler.
+    /// </summary>
+    Object2InsertMode Mode { get; }
+
+    /// <summary>
     /// Creates a definition when an insertion operation begins.
     /// </summary>
     /// <param name="context">

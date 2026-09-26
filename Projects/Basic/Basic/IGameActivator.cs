@@ -1,5 +1,6 @@
 using Sachssoft.Engine;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Sachssoft.Engine;
@@ -10,6 +11,24 @@ namespace Sachssoft.Engine;
 /// </summary>
 public interface IGameActivator
 {
+    /// <summary>
+    /// Gets the registry keys supported by this activator.
+    /// </summary>
+    /// <returns>
+    /// A snapshot containing the supported registry keys.
+    /// </returns>
+    IReadOnlyList<IGameRegistryKey> GetKeys();
+
+    /// <summary>
+    /// Determines whether the specified registry key is supported.
+    /// </summary>
+    /// <param name="key">The registry key to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if the registry key is supported;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    bool IsSupported(IGameRegistryKey key);
+
     /// <summary>
     /// Determines whether the specified definition type is supported.
     /// </summary>
@@ -55,6 +74,29 @@ public interface IGameActivator
     /// <param name="definition">The definition used to locate the corresponding object factory.</param>
     /// <returns>The created engine object.</returns>
     IEngineObject CreateFromDefinition(IDefinition definition);
+
+    /// <summary>
+    /// Creates a definition associated with the specified registry key.
+    /// </summary>
+    /// <param name="key">The registry key used to locate the corresponding definition factory.</param>
+    /// <returns>The created definition.</returns>
+    IDefinition CreateDefinition(IGameRegistryKey key);
+
+    /// <summary>
+    /// Attempts to create a definition associated with the specified registry key.
+    /// </summary>
+    /// <param name="key">The registry key used to locate the corresponding definition factory.</param>
+    /// <param name="definition">
+    /// When this method returns <see langword="true"/>, contains the created
+    /// definition; otherwise, <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if the definition could be created;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    bool TryCreateDefinition(
+        IGameRegistryKey key,
+        [NotNullWhen(true)] out IDefinition? definition);
 
     /// <summary>
     /// Attempts to create an engine object associated with the specified

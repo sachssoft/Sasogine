@@ -39,6 +39,7 @@ All notable changes to this project will be documented in this file.
 * [Change] **Documents**: Aligned document and serialization integration with Sasodoc under the shared `Sachssoft.Documents` namespace hierarchy.
 * [Change] **Documents**: Moved Engine-specific document integration under `Sachssoft.Documents.Engine`.
 * [Change] **Toolkit**: Flattened tool namespaces by consolidating selection and vector tools under the common components tool namespace.
+* [Change] **Toolkit**: Extended `Object2InsertHandlerBuilder` with `WithMode()` for fixed and dynamically resolved insertion modes.
 * [Change] Changed the root namespace from `Sachssoft.Sasogine` to `Sachssoft.Engine`.
 * [Change] Moved general timing and easing functionality to the common timing namespace.
 * [Change] Separated frame set runtime types from the asset system by replacing `Texture2DAsset` references with `Texture2D`.
@@ -48,6 +49,8 @@ All notable changes to this project will be documented in this file.
 * [Change] Refactored rendering components into the common rendering namespace and removed the obsolete definition-based component architecture.
 * [Change] Removed the definition-based `ResourceComponentBase<TDefinition>`.
 * [Change] Updated `ResourceComponentBase` to inherit from `ComponentBase`.
+* [Change] **Application**: Reworked application initialization with customizable activator creation and renamed application assets to integrated assets.
+* [Change] Extended game registries and activators with registry key support and definition creation.
 * [Change] Reorganized and simplified engine namespaces by removing the `Common` namespace and relocating its APIs to their appropriate namespaces.
 * [Change] Refactored asset and entity collections to use shared context-based lifecycle management.
 * [Change] Redesigned asset and entity collection architecture around shared reference resolution and context-based lifecycle management.
@@ -58,7 +61,7 @@ All notable changes to this project will be documented in this file.
 * [Change] Refactored `IndexedFrameSetAsset<TEnum>` into the non-generic `IndexedFrameSetAsset`, separating asset loading from application-specific enum types.
 * [Change] Added integer-based `IndexedFrameSet` as the neutral runtime representation while retaining `IndexedFrameSet<TEnum>` for strongly typed enum-based access.
 * [Change] Updated indexed frame set definitions to map imported frame names to numeric frame indices independently of application-specific enum types.
-* [Change] **API**: Cleaned up the public API by removing unused, redundant, obsolete, or unintentionally exposed types and members.
+* [Change] Cleaned up the public API by removing unused, redundant, obsolete, or unintentionally exposed types and members.
 * [Improve] Refactored `IEntry` to derive from `IEngineObject` and removed inconsistent or redundant members.
 * [Improve] Added strongly typed enum-indexed frame set instance creation to `IndexedFrameSetAsset`.
 * [Improve] Applied `Id` and `Class` from engine object definitions during construction instead of waiting for the first load or reload.

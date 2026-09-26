@@ -46,6 +46,26 @@ public class GameRegistry<TKey, TDefinition, TObject> : IGameRegistry
     public DefinitionMatchMode DefinitionMatchMode { get; }
 
     /// <summary>
+    /// Gets all registered registry keys.
+    /// </summary>
+    /// <returns>The registered registry keys.</returns>
+    public IReadOnlyList<TKey> GetKeys()
+    {
+        lock (_lock)
+        {
+            return _entriesByKey.Keys.Cast<TKey>().ToArray();
+        }
+    }
+
+    IReadOnlyList<IGameRegistryKey> IGameRegistry.GetKeys()
+    {
+        lock (_lock)
+        {
+            return _entriesByKey.Keys.ToArray();
+        }
+    }
+
+    /// <summary>
     /// Gets a snapshot of all registered entries.
     /// </summary>
     protected IReadOnlyList<IGameRegistryEntry> GetEntries()
@@ -94,6 +114,31 @@ public class GameRegistry<TKey, TDefinition, TObject> : IGameRegistry
             definition => objectFactory((TConcreteDefinition)definition));
 
         RegisterEntry(entry);
+    }
+
+    /// <summary>
+    /// Determines whether the specified registry key is registered.
+    /// </summary>
+    /// <param name="key">The registry key to check.</param>
+    /// <returns>
+    /// <see langword="true"/> if the registry key is registered;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool IsRegistered(TKey key)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+
+        lock (_lock)
+        {
+            return _entriesByKey.ContainsKey(key);
+        }
+    }
+
+    bool IGameRegistry.IsRegistered(IGameRegistryKey key)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+
+        return TryGetKeyEntry(key, out _);
     }
 
     /// <summary>
