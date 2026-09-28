@@ -453,17 +453,40 @@ public class GameRegistry<TKey, TDefinition, TObject> : IGameRegistry
                     $"Definition type '{entry.DefinitionType.FullName}' is already registered.");
             }
 
-            if (_entriesByObjectType.ContainsKey(entry.ObjectType))
-            {
-                throw new InvalidOperationException(
-                    $"Object type '{entry.ObjectType.FullName}' is already registered.");
-            }
-
             _entriesByKey.Add(entry.Key, entry);
             _entriesByDefinitionType.Add(entry.DefinitionType, entry);
-            _entriesByObjectType.Add(entry.ObjectType, entry);
+            _entriesByObjectType.TryAdd(entry.ObjectType, entry);
         }
     }
+    //protected virtual void RegisterEntry(IGameRegistryEntry entry)
+    //{
+    //    ArgumentNullException.ThrowIfNull(entry);
+
+    //    lock (_lock)
+    //    {
+    //        if (_entriesByKey.ContainsKey(entry.Key))
+    //        {
+    //            throw new InvalidOperationException(
+    //                $"Registry key '{entry.Key}' is already registered.");
+    //        }
+
+    //        if (_entriesByDefinitionType.ContainsKey(entry.DefinitionType))
+    //        {
+    //            throw new InvalidOperationException(
+    //                $"Definition type '{entry.DefinitionType.FullName}' is already registered.");
+    //        }
+
+    //        if (_entriesByObjectType.ContainsKey(entry.ObjectType))
+    //        {
+    //            throw new InvalidOperationException(
+    //                $"Object type '{entry.ObjectType.FullName}' is already registered.");
+    //        }
+
+    //        _entriesByKey.Add(entry.Key, entry);
+    //        _entriesByDefinitionType.Add(entry.DefinitionType, entry);
+    //        _entriesByObjectType.Add(entry.ObjectType, entry);
+    //    }
+    //}
 
     private bool TryGetKeyEntry(IGameRegistryKey key, [NotNullWhen(true)] out IGameRegistryEntry? entry)
     {

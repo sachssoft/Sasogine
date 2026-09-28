@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Sachssoft.Engine.Graphics.Meshes;
 
@@ -12,43 +13,37 @@ public class Mesh<TVertex> : IMesh
     where TVertex : struct, IVertexType
 {
     /// <summary>
-    /// Gets the GPU vertex buffer containing the mesh vertex data.
-    /// </summary>
-    public VertexBuffer VertexBuffer { get; }
-
-    /// <summary>
-    /// Gets the GPU index buffer defining the mesh primitives.
-    /// </summary>
-    public IndexBuffer IndexBuffer { get; }
-
-    /// <summary>
-    /// Gets the number of vertices contained in the mesh.
-    /// </summary>
-    public int VertexCount { get; }
-
-    /// <summary>
-    /// Gets the number of indices contained in the mesh.
-    /// </summary>
-    public int IndexCount { get; }
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="Mesh{TVertex}"/> class
     /// using 16-bit indices and uploads the vertex and index data to the GPU.
     /// </summary>
     /// <param name="graphicsDevice">
-    /// The graphics device used to create GPU resources.
+    /// The graphics device used to create the GPU resources.
     /// </param>
     /// <param name="vertices">
     /// The vertex data of the mesh.
     /// </param>
     /// <param name="indices">
-    /// The 16-bit index data of the mesh.
+    /// The 16-bit index data defining the mesh primitives.
     /// </param>
-    public Mesh(
-        GraphicsDevice graphicsDevice,
-        TVertex[] vertices,
-        short[] indices)
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="graphicsDevice"/>, <paramref name="vertices"/>,
+    /// or <paramref name="indices"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="vertices"/> or <paramref name="indices"/> is empty.
+    /// </exception>
+    public Mesh(GraphicsDevice graphicsDevice, TVertex[] vertices, short[] indices)
     {
+        ArgumentNullException.ThrowIfNull(graphicsDevice);
+        ArgumentNullException.ThrowIfNull(vertices);
+        ArgumentNullException.ThrowIfNull(indices);
+
+        if (vertices.Length == 0)
+            throw new ArgumentException("Mesh must contain at least one vertex.", nameof(vertices));
+
+        if (indices.Length == 0)
+            throw new ArgumentException("Mesh must contain at least one index.", nameof(indices));
+
         VertexCount = vertices.Length;
         IndexCount = indices.Length;
 
@@ -74,19 +69,33 @@ public class Mesh<TVertex> : IMesh
     /// using 32-bit indices and uploads the vertex and index data to the GPU.
     /// </summary>
     /// <param name="graphicsDevice">
-    /// The graphics device used to create GPU resources.
+    /// The graphics device used to create the GPU resources.
     /// </param>
     /// <param name="vertices">
     /// The vertex data of the mesh.
     /// </param>
     /// <param name="indices">
-    /// The 32-bit index data of the mesh.
+    /// The 32-bit index data defining the mesh primitives.
     /// </param>
-    public Mesh(
-        GraphicsDevice graphicsDevice,
-        TVertex[] vertices,
-        int[] indices)
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="graphicsDevice"/>, <paramref name="vertices"/>,
+    /// or <paramref name="indices"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="vertices"/> or <paramref name="indices"/> is empty.
+    /// </exception>
+    public Mesh(GraphicsDevice graphicsDevice, TVertex[] vertices, int[] indices)
     {
+        ArgumentNullException.ThrowIfNull(graphicsDevice);
+        ArgumentNullException.ThrowIfNull(vertices);
+        ArgumentNullException.ThrowIfNull(indices);
+
+        if (vertices.Length == 0)
+            throw new ArgumentException("Mesh must contain at least one vertex.", nameof(vertices));
+
+        if (indices.Length == 0)
+            throw new ArgumentException("Mesh must contain at least one index.", nameof(indices));
+
         VertexCount = vertices.Length;
         IndexCount = indices.Length;
 
@@ -106,6 +115,26 @@ public class Mesh<TVertex> : IMesh
 
         IndexBuffer.SetData(indices);
     }
+
+    /// <summary>
+    /// Gets the GPU vertex buffer containing the mesh vertex data.
+    /// </summary>
+    public VertexBuffer VertexBuffer { get; }
+
+    /// <summary>
+    /// Gets the GPU index buffer defining the mesh primitives.
+    /// </summary>
+    public IndexBuffer IndexBuffer { get; }
+
+    /// <summary>
+    /// Gets the number of vertices contained in the mesh.
+    /// </summary>
+    public int VertexCount { get; }
+
+    /// <summary>
+    /// Gets the number of indices contained in the mesh.
+    /// </summary>
+    public int IndexCount { get; }
 
     /// <summary>
     /// Releases the GPU resources used by this mesh.

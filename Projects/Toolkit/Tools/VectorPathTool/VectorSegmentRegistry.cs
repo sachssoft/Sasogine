@@ -366,6 +366,11 @@ public sealed class VectorSegmentRegistry
             definition => new VectorCubicBezierSegment(definition));
 
         registry.Register<
+            VectorArcSegmentDefinition,
+            VectorArcSegment>(
+            definition => new VectorArcSegment(definition));
+
+        registry.Register<
             VectorCircularArcSegmentDefinition,
             VectorCircularArcSegment>(
             definition => new VectorCircularArcSegment(definition));

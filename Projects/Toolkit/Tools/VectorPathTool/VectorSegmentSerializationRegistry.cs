@@ -31,7 +31,7 @@ public sealed class VectorSegmentSerializationRegistry
 
         Register(
             "Arc",
-            new VectorCircularArcSegmentSerialization());
+            new VectorArcSegmentSerialization());
 
         Register(
             "QuadraticBezier",

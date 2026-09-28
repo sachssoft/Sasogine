@@ -30,6 +30,8 @@ All notable changes to this project will be documented in this file.
 * [Feature] Added `ContextualReferencableCollection<T, TContext>`.
 * [Feature] Introduced a cursor system for rendering components.
 * [Feature] Added child component support in `ComponentBase`.
+* [Feature] Added definition metadata attributes for display information and value units.
+* [Feature] Introduced a value unit system with unit groups, conversion factors, and registry support.
 * [Feature] Added file synchronization infrastructure with local resource source support and extensibility for additional source types.
 * [Feature] Added unknown asset definition handling and definition transformation utilities.
 * [Feature] Introduced strongly typed definition property metadata and value access using `DefinitionProperty<TDefinition, TValue>` and `DefinitionProperties`.
