@@ -221,6 +221,127 @@ public static partial class MeshGenerator
     }
 
     /// <summary>
+    /// Creates a planar polygon mesh by triangulating the specified path.
+    /// </summary>
+    /// <param name="graphicsDevice">
+    /// The graphics device used to create the mesh resources.
+    /// </param>
+    /// <param name="path">
+    /// The path providing the polygon contours to triangulate.
+    /// </param>
+    /// <param name="size">
+    /// The scale applied to the generated polygon positions.
+    /// </param>
+    /// <param name="centerOrigin">
+    /// <see langword="true"/> to center the polygon bounds around the origin
+    /// before applying the scale; otherwise, <see langword="false"/> to
+    /// preserve the source origin.
+    /// </param>
+    /// <param name="triangulatorBackend">
+    /// The triangulator used to generate triangle indices. If
+    /// <see langword="null"/>, <see cref="LibTessPolygonTriangulator"/> is used.
+    /// </param>
+    /// <returns>The generated polygon mesh.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="graphicsDevice"/> or
+    /// <paramref name="path"/> is <see langword="null"/>.
+    /// </exception>
+    public static IMesh CreatePolygon(
+        GraphicsDevice graphicsDevice,
+        Path path,
+        float size = 1f,
+        bool centerOrigin = false,
+        IPolygonTriangulator? triangulatorBackend = null)
+    {
+        ArgumentNullException.ThrowIfNull(graphicsDevice);
+        ArgumentNullException.ThrowIfNull(path);
+
+        return CreatePolygon(
+            graphicsDevice,
+            path,
+            static (in MeshVertexData data) => new VertexPositionColorTexture(
+                data.Position,
+                data.Color,
+                data.TextureCoordinate),
+            size,
+            centerOrigin,
+            triangulatorBackend);
+    }
+
+    /// <summary>
+    /// Creates a planar polygon mesh by triangulating the specified path
+    /// using a custom vertex type.
+    /// </summary>
+    /// <typeparam name="TVertex">
+    /// The GPU vertex type produced for the generated mesh.
+    /// </typeparam>
+    /// <param name="graphicsDevice">
+    /// The graphics device used to create the mesh resources.
+    /// </param>
+    /// <param name="path">
+    /// The path providing the polygon contours to triangulate.
+    /// </param>
+    /// <param name="vertexFactory">
+    /// The factory used to convert generated mesh vertex data
+    /// into the requested GPU vertex type.
+    /// </param>
+    /// <param name="size">
+    /// The scale applied to the generated polygon positions.
+    /// </param>
+    /// <param name="centerOrigin">
+    /// <see langword="true"/> to center the polygon bounds around the origin
+    /// before applying the scale; otherwise, <see langword="false"/> to
+    /// preserve the source origin.
+    /// </param>
+    /// <param name="triangulatorBackend">
+    /// The triangulator used to generate triangle indices. If
+    /// <see langword="null"/>, <see cref="LibTessPolygonTriangulator"/> is used.
+    /// </param>
+    /// <returns>The generated polygon mesh.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="graphicsDevice"/>,
+    /// <paramref name="path"/>, or <paramref name="vertexFactory"/>
+    /// is <see langword="null"/>.
+    /// </exception>
+    public static IMesh CreatePolygon<TVertex>(
+        GraphicsDevice graphicsDevice,
+        Path path,
+        MeshVertexFactory<TVertex> vertexFactory,
+        float size = 1f,
+        bool centerOrigin = false,
+        IPolygonTriangulator? triangulatorBackend = null)
+        where TVertex : struct, IVertexType
+    {
+        ArgumentNullException.ThrowIfNull(graphicsDevice);
+        ArgumentNullException.ThrowIfNull(path);
+        ArgumentNullException.ThrowIfNull(vertexFactory);
+
+        var polygons = new IReadOnlyList<Vector2>[path.PolygonCount];
+
+        for (int i = 0; i < path.PolygonCount; i++)
+        {
+            int count = path.GetPointCount(i);
+            var polygon = new Vector2[count];
+
+            for (int j = 0; j < count; j++)
+            {
+                Point2 point = path.GetPoint(i, j);
+                polygon[j] = new Vector2(point.X, point.Y);
+            }
+
+            polygons[i] = polygon;
+        }
+
+        return CreatePolygon(
+            graphicsDevice,
+            polygons,
+            vertexFactory,
+            size,
+            centerOrigin,
+            triangulatorBackend);
+    }
+
+    /// <summary>
     /// Creates a textured cube mesh using
     /// <see cref="VertexPositionTexture"/> vertices.
     /// </summary>

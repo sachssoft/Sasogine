@@ -571,6 +571,48 @@ public sealed class Path :
     }
 
     /// <summary>
+    /// Creates a read-only list of polygon contours represented by points.
+    /// </summary>
+    /// <returns>A read-only list containing copies of all polygon contours.</returns>
+    public IReadOnlyList<IReadOnlyList<Point2>> ToPointLists()
+    {
+        var polygons = new IReadOnlyList<Point2>[_polygons.Length];
+
+        for (int i = 0; i < _polygons.Length; i++)
+            polygons[i] = ConvertToPoints(_polygons[i]);
+
+        return polygons;
+    }
+
+    /// <summary>
+    /// Creates a read-only list of polygon contours represented by vectors.
+    /// </summary>
+    /// <returns>A read-only list containing copies of all polygon contours.</returns>
+    public IReadOnlyList<IReadOnlyList<Vector2>> ToVectorLists()
+    {
+        var polygons = new IReadOnlyList<Vector2>[_polygons.Length];
+
+        for (int i = 0; i < _polygons.Length; i++)
+            polygons[i] = (Vector2[])_polygons[i].Clone();
+
+        return polygons;
+    }
+
+    /// <summary>
+    /// Creates a read-only list of polygon contours represented by pixel points.
+    /// </summary>
+    /// <returns>A read-only list containing copies of all polygon contours.</returns>
+    public IReadOnlyList<IReadOnlyList<PixelPoint2>> ToPixelPointLists()
+    {
+        var polygons = new IReadOnlyList<PixelPoint2>[_polygons.Length];
+
+        for (int i = 0; i < _polygons.Length; i++)
+            polygons[i] = ConvertToPixelPoints(_polygons[i]);
+
+        return polygons;
+    }
+
+    /// <summary>
     /// Creates an independent clone of this path.
     /// </summary>
     /// <returns>A new path containing the same geometry.</returns>
@@ -864,5 +906,15 @@ public sealed class Path :
             minY,
             maxX,
             maxY);
+    }
+
+    private static PixelPoint2[] ConvertToPixelPoints(Vector2[] polygon)
+    {
+        var points = new PixelPoint2[polygon.Length];
+
+        for (int i = 0; i < polygon.Length; i++)
+            points[i] = new PixelPoint2((int)polygon[i].X, (int)polygon[i].Y);
+
+        return points;
     }
 }

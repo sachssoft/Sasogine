@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Sachssoft.Engine.Collections;
+using Sachssoft.Engine.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -259,6 +260,47 @@ public class VectorShape : EngineObject<VectorShapeDefinition>
         }
 
         return polygons;
+    }
+
+    /// <summary>
+    /// Creates a polygon path from the sampled vector geometry.
+    /// </summary>
+    /// <param name="valueMode">
+    /// Specifies whether the generated path uses absolute or relative coordinates.
+    /// </param>
+    /// <param name="trim">
+    /// Specifies whether relative vertices are trimmed to the bounds of the shape.
+    /// </param>
+    /// <param name="sampleLength">
+    /// The desired approximate distance between consecutive sampled vertices.
+    /// </param>
+    /// <returns>
+    /// A new path containing the sampled polygon contours.
+    /// </returns>
+    public Path ToPath(
+        ValueMode valueMode = ValueMode.Absolute,
+        bool trim = true,
+        float sampleLength = DefaultSampleLength)
+    {
+        IReadOnlyList<IReadOnlyList<Point2>> polygons =
+            GetPointVertices(valueMode, trim, sampleLength);
+
+        var result = new Point2[polygons.Count][];
+
+        for (int i = 0; i < polygons.Count; i++)
+        {
+            IReadOnlyList<Point2> polygon = polygons[i];
+            var points = new Point2[polygon.Count];
+
+            for (int j = 0; j < polygon.Count; j++)
+                points[j] = polygon[j];
+
+            result[i] = points;
+        }
+
+        return result.Length == 0
+            ? Path.Empty
+            : new Path(result);
     }
 
     /// <summary>
