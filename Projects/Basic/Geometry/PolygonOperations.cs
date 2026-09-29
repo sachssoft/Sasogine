@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 using Sachssoft.Engine.Geometry.Internal;
 using System.Collections.Generic;
 
@@ -6,7 +8,7 @@ namespace Sachssoft.Engine.Geometry;
 
 /// <summary>
 /// Provides high-level polygon operations such as stroking, triangulation,
-/// clipping, simplification, transformation, and offset generation.
+/// clipping, simplification, transformation, offset generation, and raster tracing.
 /// </summary>
 public static class PolygonOperations
 {
@@ -183,6 +185,43 @@ public static class PolygonOperations
 
         return offsetterBackend.Offset(
             contours,
+            options);
+    }
+
+    /// <summary>
+    /// Traces the specified texture into vector contours.
+    /// </summary>
+    /// <param name="texture">The texture to trace.</param>
+    /// <param name="options">
+    /// The options that control raster-to-vector tracing.
+    /// When <see langword="null"/>, default options are used.
+    /// </param>
+    /// <param name="tracerBackend">
+    /// The optional tracing backend to use.
+    /// When <see langword="null"/>, the fully managed default backend is used.
+    /// </param>
+    /// <returns>The generated vector tracing result.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="texture"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ObjectDisposedException">
+    /// Thrown when <paramref name="texture"/> has already been disposed.
+    /// </exception>
+    public static PolygonTraceResult Trace(
+        Texture2D texture,
+        PolygonTraceOptions? options = null,
+        IPolygonTracer? tracerBackend = null)
+    {
+        ArgumentNullException.ThrowIfNull(texture);
+
+        if (texture.IsDisposed)
+            throw new ObjectDisposedException(nameof(texture));
+
+        options ??= new PolygonTraceOptions();
+        tracerBackend ??= ManagedPolygonTracer.Instance;
+
+        return tracerBackend.Trace(
+            texture,
             options);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Sachssoft.Engine;
-using Sachssoft.Engine.Timing.Easing;
+using Sachssoft.Engine.Gameplay.Curves;
 using System;
 
 namespace Sachssoft.Engine.Components.Rendering;
@@ -43,13 +42,13 @@ public abstract class AnimationComponent : ResourceComponentBase, IAnimationComp
     public int Delay { get; set; }
 
     /// <summary>
-    /// Gets or sets the optional easing function applied to the normalized
+    /// Gets or sets the optional curve function applied to the normalized
     /// animation progress.
     /// </summary>
     /// <remarks>
     /// When no easing function is specified, the animation progress remains linear.
     /// </remarks>
-    public EasingBase? Easing { get; set; }
+    public CurveBase? Easing { get; set; }
 
     /// <summary>
     /// Starts the animation at the specified position and rotation.

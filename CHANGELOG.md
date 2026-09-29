@@ -48,6 +48,7 @@ All notable changes to this project will be documented in this file.
 * [Change] Simplified shader and frame set asset creation with factory-based convenience constructors.
 * [Change] Improved asset reference handling and runtime dependency resolution.
 * [Change] Improved `EmbeddedResourceSource` resource lookup and error handling.
+* [Change] Renamed `Easing` to `Curve` for global normalized distrubtion.
 * [Change] Refactored rendering components into the common rendering namespace and removed the obsolete definition-based component architecture.
 * [Change] Removed the definition-based `ResourceComponentBase<TDefinition>`.
 * [Change] Updated `ResourceComponentBase` to inherit from `ComponentBase`.
