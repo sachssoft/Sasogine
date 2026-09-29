@@ -47,7 +47,7 @@ public sealed class Path :
     /// Thrown when <paramref name="points"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="ArgumentException">
-    /// Thrown when the polygon contains fewer than three points.
+    /// Thrown when the polygon contains fewer than three points or contains non-finite coordinates.
     /// </exception>
     public Path(Point2[] points)
         : this(new[] { points })
@@ -62,7 +62,7 @@ public sealed class Path :
     /// Thrown when <paramref name="points"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="ArgumentException">
-    /// Thrown when the polygon contains fewer than three points.
+    /// Thrown when the polygon contains fewer than three points or contains non-finite coordinates.
     /// </exception>
     public Path(Vector2[] points)
         : this(new[] { points })
@@ -92,8 +92,8 @@ public sealed class Path :
     /// Thrown when <paramref name="polygons"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="ArgumentException">
-    /// Thrown when a polygon is <see langword="null"/> or contains
-    /// fewer than three points.
+    /// Thrown when a polygon is <see langword="null"/>, contains fewer than three points,
+    /// or contains non-finite coordinates.
     /// </exception>
     public Path(IEnumerable<Point2[]> polygons)
     {
@@ -120,18 +120,32 @@ public sealed class Path :
             var vectors = new Vector2[polygon.Length];
 
             for (int i = 0; i < polygon.Length; i++)
-                vectors[i] = polygon[i];
+            {
+                Point2 point = polygon[i];
+
+                if (!IsFinite(point))
+                {
+                    throw new ArgumentException(
+                        "Polygon coordinates must be finite.",
+                        nameof(polygons));
+                }
+
+                vectors[i] = point;
+            }
 
             list.Add(vectors);
         }
 
         _polygons = list.ToArray();
+
         _directions = new PolygonDirection[_polygons.Length];
         _polygonBounds = new Box2[_polygons.Length];
 
         InitializeGeometry();
 
         _bounds = ComputeBounds(_polygonBounds);
+        ValidateBounds(_bounds);
+
         _hashCode = ComputeHashCode();
     }
 
@@ -143,8 +157,8 @@ public sealed class Path :
     /// Thrown when <paramref name="polygons"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="ArgumentException">
-    /// Thrown when a polygon is <see langword="null"/> or contains
-    /// fewer than three points.
+    /// Thrown when a polygon is <see langword="null"/>, contains fewer than three points,
+    /// or contains non-finite coordinates.
     /// </exception>
     public Path(IEnumerable<Vector2[]> polygons)
     {
@@ -168,16 +182,29 @@ public sealed class Path :
                     nameof(polygons));
             }
 
+            for (int i = 0; i < polygon.Length; i++)
+            {
+                if (!IsFinite(polygon[i]))
+                {
+                    throw new ArgumentException(
+                        "Polygon coordinates must be finite.",
+                        nameof(polygons));
+                }
+            }
+
             list.Add((Vector2[])polygon.Clone());
         }
 
         _polygons = list.ToArray();
+
         _directions = new PolygonDirection[_polygons.Length];
         _polygonBounds = new Box2[_polygons.Length];
 
         InitializeGeometry();
 
         _bounds = ComputeBounds(_polygonBounds);
+        ValidateBounds(_bounds);
+
         _hashCode = ComputeHashCode();
     }
 
@@ -230,12 +257,15 @@ public sealed class Path :
         }
 
         _polygons = list.ToArray();
+
         _directions = new PolygonDirection[_polygons.Length];
         _polygonBounds = new Box2[_polygons.Length];
 
         InitializeGeometry();
 
         _bounds = ComputeBounds(_polygonBounds);
+        ValidateBounds(_bounds);
+
         _hashCode = ComputeHashCode();
     }
 
@@ -243,6 +273,8 @@ public sealed class Path :
         Vector2[][] polygons,
         bool takeOwnership)
     {
+        ArgumentNullException.ThrowIfNull(polygons);
+
         _polygons = takeOwnership
             ? polygons
             : ClonePolygons(polygons);
@@ -253,6 +285,8 @@ public sealed class Path :
         InitializeGeometry();
 
         _bounds = ComputeBounds(_polygonBounds);
+        ValidateBounds(_bounds);
+
         _hashCode = ComputeHashCode();
     }
 
@@ -359,6 +393,7 @@ public sealed class Path :
     /// <returns>The polygon points.</returns>
     public Point2[] GetPolygonPoints(int index)
     {
+        ValidateIndex(index, _polygons.Length, nameof(index));
         return ConvertToPoints(_polygons[index]);
     }
 
@@ -369,6 +404,7 @@ public sealed class Path :
     /// <returns>The polygon direction.</returns>
     public PolygonDirection GetPolygonDirection(int index)
     {
+        ValidateIndex(index, _polygons.Length, nameof(index));
         return _directions[index];
     }
 
@@ -379,6 +415,7 @@ public sealed class Path :
     /// <returns>The polygon bounds.</returns>
     public Box2 GetPolygonBounds(int index)
     {
+        ValidateIndex(index, _polygons.Length, nameof(index));
         return _polygonBounds[index];
     }
 
@@ -392,7 +429,12 @@ public sealed class Path :
         int polygonIndex,
         int pointIndex)
     {
-        Vector2 point = _polygons[polygonIndex][pointIndex];
+        ValidateIndex(polygonIndex, _polygons.Length, nameof(polygonIndex));
+
+        Vector2[] polygon = _polygons[polygonIndex];
+        ValidateIndex(pointIndex, polygon.Length, nameof(pointIndex));
+
+        Vector2 point = polygon[pointIndex];
 
         return new Point2(
             point.X,
@@ -406,6 +448,7 @@ public sealed class Path :
     /// <returns>The number of points.</returns>
     public int GetPointCount(int polygonIndex)
     {
+        ValidateIndex(polygonIndex, _polygons.Length, nameof(polygonIndex));
         return _polygons[polygonIndex].Length;
     }
 
@@ -416,6 +459,8 @@ public sealed class Path :
     /// <returns>A new path containing the selected polygon.</returns>
     public Path PolygonToPath(int index)
     {
+        ValidateIndex(index, _polygons.Length, nameof(index));
+
         return new Path(
             new[]
             {
@@ -429,6 +474,9 @@ public sealed class Path :
     /// </summary>
     /// <param name="transform">The transformation matrix to apply.</param>
     /// <returns>A new transformed path.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// The transformation produces non-finite coordinates.
+    /// </exception>
     public Path Transform(Matrix transform)
     {
         var polygons = new Vector2[_polygons.Length][];
@@ -440,10 +488,15 @@ public sealed class Path :
 
             for (int j = 0; j < source.Length; j++)
             {
-                transformed[j] =
-                    Vector2.Transform(
-                        source[j],
-                        transform);
+                Vector2 point = Vector2.Transform(source[j], transform);
+
+                if (!IsFinite(point))
+                {
+                    throw new InvalidOperationException(
+                        "The transformation produced non-finite coordinates.");
+                }
+
+                transformed[j] = point;
             }
 
             polygons[i] = transformed;
@@ -462,6 +515,9 @@ public sealed class Path :
     /// <returns>A new transformed path.</returns>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="transform"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// The transformation produces non-finite coordinates.
     /// </exception>
     public Path Transform(
         Func<Point2, Point2> transform)
@@ -483,6 +539,13 @@ public sealed class Path :
                         source[j].Y);
 
                 Point2 result = transform(sourcePoint);
+
+                if (!IsFinite(result))
+                {
+                    throw new ArgumentException(
+                        "The transformation must produce finite coordinates.",
+                        nameof(transform));
+                }
 
                 transformed[j] =
                     new Vector2(
@@ -515,12 +578,20 @@ public sealed class Path :
         int polygonIndex,
         Matrix transform)
     {
+        ValidateIndex(polygonIndex, _polygons.Length, nameof(polygonIndex));
+
+        if (!IsFinite(point))
+            return false;
+
         Vector2[] polygon = _polygons[polygonIndex];
 
         Box2 bounds =
             TransformBounds(
                 _polygonBounds[polygonIndex],
                 transform);
+
+        if (!IsFinite(bounds))
+            return false;
 
         if (point.X < bounds.MinX ||
             point.X > bounds.MaxX ||
@@ -549,6 +620,9 @@ public sealed class Path :
                     polygon[(i + 1) % polygon.Length],
                     transform);
 
+            if (!IsFinite(a) || !IsFinite(b))
+                return false;
+
             Vector2 pa = a - position;
             Vector2 pb = b - position;
 
@@ -571,40 +645,58 @@ public sealed class Path :
         if (IsEmpty || (Left == 0f && Top == 0f))
             return this;
 
-        return Transform(point =>
-            new Point2(
-                point.X - Left,
-                point.Y - Top));
+        return TransformCoordinates(
+            1d,
+            1d,
+            -(double)Left,
+            -(double)Top);
     }
 
     /// <summary>
-    /// Creates a normalized copy of the path whose left and top bounds are zero
-    /// and whose width and height are one.
+    /// Creates a trimmed and normalized copy of the path.
     /// </summary>
-    /// <returns>A trimmed and normalized copy of the path.</returns>
+    /// <remarks>
+    /// Non-degenerate dimensions are mapped to the range 0 to 1.
+    /// Degenerate dimensions are collapsed to zero.
+    /// </remarks>
+    /// <returns>
+    /// A trimmed and normalized copy of the path.
+    /// </returns>
     public Path TrimNormalized()
     {
         if (IsEmpty)
             return this;
 
-        float left = Left;
-        float top = Top;
         float width = Width;
         float height = Height;
 
-        if (width == 0f || height == 0f)
-            return Trim();
+        if (Left == 0f &&
+            Top == 0f &&
+            (width == 0f || width == 1f) &&
+            (height == 0f || height == 1f))
+        {
+            return this;
+        }
 
-        return Transform(point =>
-            new Point2(
-                (point.X - left) / width,
-                (point.Y - top) / height));
+        double scaleX = width == 0f ? 0d : 1d / width;
+        double scaleY = height == 0f ? 0d : 1d / height;
+        double offsetX = width == 0f ? 0d : -(double)Left * scaleX;
+        double offsetY = height == 0f ? 0d : -(double)Top * scaleY;
+
+        return TransformCoordinates(
+            scaleX,
+            scaleY,
+            offsetX,
+            offsetY);
     }
 
     /// <summary>
-    /// Creates a normalized copy of the path whose bounds start at zero
-    /// and have a width and height of one.
+    /// Creates a normalized copy of the path without trimming or translating it.
     /// </summary>
+    /// <remarks>
+    /// Each non-degenerate dimension is scaled to a length of one.
+    /// Degenerate dimensions remain unchanged.
+    /// </remarks>
     /// <returns>
     /// A normalized copy of the path.
     /// </returns>
@@ -616,16 +708,55 @@ public sealed class Path :
         float width = Width;
         float height = Height;
 
-        if (width == 0f || height == 0f)
-            return Trim();
+        bool normalizeX = width != 0f && width != 1f;
+        bool normalizeY = height != 0f && height != 1f;
 
-        float left = Left;
-        float top = Top;
+        if (!normalizeX && !normalizeY)
+            return this;
 
-        return Transform(point =>
-            new Point2(
-                (point.X - left) / width,
-                (point.Y - top) / height));
+        return TransformCoordinates(
+            normalizeX ? 1d / width : 1d,
+            normalizeY ? 1d / height : 1d,
+            0d,
+            0d);
+    }
+
+    /// <summary>
+    /// Creates a normalized copy of the path whose bounds range from minus one to one.
+    /// </summary>
+    /// <remarks>
+    /// Non-degenerate dimensions are mapped to the range -1 to 1.
+    /// Degenerate dimensions are centered at zero.
+    /// </remarks>
+    /// <returns>
+    /// A signed normalized copy of the path.
+    /// </returns>
+    public Path NormalizeSigned()
+    {
+        if (IsEmpty)
+            return this;
+
+        float width = Width;
+        float height = Height;
+
+        if (Left == -1f &&
+            Top == -1f &&
+            width == 2f &&
+            height == 2f)
+        {
+            return this;
+        }
+
+        double scaleX = width == 0f ? 0d : 2d / width;
+        double scaleY = height == 0f ? 0d : 2d / height;
+        double offsetX = width == 0f ? 0d : -1d - (double)Left * scaleX;
+        double offsetY = height == 0f ? 0d : -1d - (double)Top * scaleY;
+
+        return TransformCoordinates(
+            scaleX,
+            scaleY,
+            offsetX,
+            offsetY);
     }
 
     /// <summary>
@@ -636,15 +767,19 @@ public sealed class Path :
     /// </returns>
     public Path Center()
     {
-        if (IsEmpty || (Origin.X == 0f && Origin.Y == 0f))
+        if (IsEmpty)
             return this;
 
         Point2 origin = Origin;
 
-        return Transform(point =>
-            new Point2(
-                point.X - origin.X,
-                point.Y - origin.Y));
+        if (origin.X == 0f && origin.Y == 0f)
+            return this;
+
+        return TransformCoordinates(
+            1d,
+            1d,
+            -(double)origin.X,
+            -(double)origin.Y);
     }
 
     /// <summary>
@@ -728,12 +863,12 @@ public sealed class Path :
     /// </returns>
     public float GetArea()
     {
-        float area = 0f;
+        double area = 0d;
 
         for (int i = 0; i < _polygons.Length; i++)
-            area += GetPolygonArea(i);
+            area += Math.Abs(ComputeSignedPolygonArea(_polygons[i]));
 
-        return area;
+        return ToFiniteSingle(area, "The total path area exceeds the supported range.");
     }
 
     /// <summary>
@@ -745,18 +880,10 @@ public sealed class Path :
     /// </returns>
     public float GetPolygonArea(int index)
     {
-        Vector2[] polygon = _polygons[index];
-        float area = 0f;
+        ValidateIndex(index, _polygons.Length, nameof(index));
 
-        for (int i = 0; i < polygon.Length; i++)
-        {
-            Vector2 a = polygon[i];
-            Vector2 b = polygon[(i + 1) % polygon.Length];
-
-            area += a.X * b.Y - b.X * a.Y;
-        }
-
-        return MathF.Abs(area) * 0.5f;
+        double area = Math.Abs(ComputeSignedPolygonArea(_polygons[index]));
+        return ToFiniteSingle(area, "The polygon area exceeds the supported range.");
     }
 
     /// <summary>
@@ -962,28 +1089,117 @@ public sealed class Path :
         }
     }
 
-    private static PolygonDirection ComputePolygonDirection(
-        Vector2[] points)
+    private Path TransformCoordinates(
+        double scaleX,
+        double scaleY,
+        double offsetX,
+        double offsetY)
     {
-        float area = 0f;
+        var polygons = new Vector2[_polygons.Length][];
 
-        for (int i = 0; i < points.Length; i++)
+        for (int i = 0; i < _polygons.Length; i++)
         {
-            Vector2 a = points[i];
-            Vector2 b = points[(i + 1) % points.Length];
+            Vector2[] source = _polygons[i];
+            var transformed = new Vector2[source.Length];
 
-            area +=
-                a.X * b.Y -
-                b.X * a.Y;
+            for (int j = 0; j < source.Length; j++)
+            {
+                double x = source[j].X * scaleX + offsetX;
+                double y = source[j].Y * scaleY + offsetY;
+
+                transformed[j] =
+                    new Vector2(
+                        ToFiniteSingle(
+                            x,
+                            "The geometry operation produced an invalid X coordinate."),
+                        ToFiniteSingle(
+                            y,
+                            "The geometry operation produced an invalid Y coordinate."));
+            }
+
+            polygons[i] = transformed;
         }
 
-        if (area < 0f)
+        return new Path(polygons, true);
+    }
+
+    private static PolygonDirection ComputePolygonDirection(Vector2[] points)
+    {
+        double area = ComputeSignedPolygonArea(points);
+
+        if (area < 0d)
             return PolygonDirection.Clockwise;
 
-        if (area > 0f)
+        if (area > 0d)
             return PolygonDirection.Anticlockwise;
 
         return PolygonDirection.Unknown;
+    }
+
+    private static double ComputeSignedPolygonArea(Vector2[] polygon)
+    {
+        double area = 0d;
+
+        for (int i = 0; i < polygon.Length; i++)
+        {
+            Vector2 a = polygon[i];
+            Vector2 b = polygon[(i + 1) % polygon.Length];
+
+            area +=
+                (double)a.X * b.Y -
+                (double)b.X * a.Y;
+        }
+
+        return area * 0.5d;
+    }
+
+    private static bool IsFinite(Point2 point)
+    {
+        return float.IsFinite(point.X) &&
+               float.IsFinite(point.Y);
+    }
+
+    private static bool IsFinite(Vector2 point)
+    {
+        return float.IsFinite(point.X) &&
+               float.IsFinite(point.Y);
+    }
+
+    private static bool IsFinite(Box2 bounds)
+    {
+        return float.IsFinite(bounds.MinX) &&
+               float.IsFinite(bounds.MinY) &&
+               float.IsFinite(bounds.MaxX) &&
+               float.IsFinite(bounds.MaxY) &&
+               float.IsFinite(bounds.Width) &&
+               float.IsFinite(bounds.Height);
+    }
+
+    private static void ValidateBounds(Box2 bounds)
+    {
+        if (!IsFinite(bounds))
+        {
+            throw new OverflowException(
+                "Path bounds exceed the supported finite coordinate range.");
+        }
+    }
+
+    private static void ValidateIndex(int index, int count, string paramName)
+    {
+        if ((uint)index >= (uint)count)
+            throw new ArgumentOutOfRangeException(paramName);
+    }
+
+    private static float ToFiniteSingle(double value, string message)
+    {
+        if (!double.IsFinite(value) ||
+            value < -float.MaxValue ||
+            value > float.MaxValue)
+        {
+            throw new OverflowException(message);
+        }
+
+        return (float)value;
     }
 
     private static Box2 ComputePolygonBounds(
@@ -1112,7 +1328,12 @@ public sealed class Path :
         var points = new PixelPoint2[polygon.Length];
 
         for (int i = 0; i < polygon.Length; i++)
-            points[i] = new PixelPoint2((int)polygon[i].X, (int)polygon[i].Y);
+        {
+            points[i] =
+                new PixelPoint2(
+                    checked((int)polygon[i].X),
+                    checked((int)polygon[i].Y));
+        }
 
         return points;
     }
