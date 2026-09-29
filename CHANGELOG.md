@@ -29,6 +29,7 @@ All notable changes to this project will be documented in this file.
 * [Feature] Added generalized context-based engine object lifecycle management.
 * [Feature] Added `ContextualReferencableCollection<T, TContext>`.
 * [Feature] Introduced a cursor system for rendering components.
+* [Feature] Introduced extended 2D camera support with oblique and axonometric projection types.
 * [Feature] Added child component support in `ComponentBase`.
 * [Feature] Added definition metadata attributes for display information and value units.
 * [Feature] Introduced a value unit system with unit groups, conversion factors, and registry support.
