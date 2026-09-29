@@ -145,18 +145,37 @@ namespace Sachssoft.Engine.Collections
         public void Insert(int index, T item) => InsertItem(index, item);
 
         /// <summary>
-        /// Removes the first occurrence of the specified element.
+        /// Removes the first occurrence of the specified element from the collection.
         /// </summary>
         /// <param name="item">The element to remove.</param>
         /// <returns>
-        /// <see langword="true"/> if the element was found and removed;
-        /// otherwise, <see langword="false"/>.
+        /// <see langword="true"/> if the element was successfully removed;
+        /// otherwise, <see langword="false"/> if the removal was cancelled.
         /// </returns>
-        /// <remarks>
-        /// The operation can also return <see langword="false"/> when removal is
-        /// cancelled by <see cref="OnRemoving"/>.
-        /// </remarks>
+        /// <exception cref="ArgumentException">
+        /// The specified element is not contained in the collection.
+        /// </exception>
         public bool Remove(T item)
+        {
+            int index = _items.IndexOf(item);
+
+            if (index < 0)
+                throw new ArgumentException(
+                    "The specified element is not contained in the collection.",
+                    nameof(item));
+
+            return RemoveItem(index);
+        }
+
+        /// <summary>
+        /// Attempts to remove the first occurrence of the specified element from the collection.
+        /// </summary>
+        /// <param name="item">The element to remove.</param>
+        /// <returns>
+        /// <see langword="true"/> if the element was successfully removed;
+        /// otherwise, <see langword="false"/> if the element was not found or the removal was cancelled.
+        /// </returns>
+        public bool TryRemove(T item)
         {
             int index = _items.IndexOf(item);
 
@@ -164,6 +183,54 @@ namespace Sachssoft.Engine.Collections
                 return false;
 
             return RemoveItem(index);
+        }
+
+        /// <summary>
+        /// Attempts to remove the specified elements from the collection.
+        /// </summary>
+        /// <param name="collection">The elements to remove.</param>
+        /// <returns>
+        /// <see langword="true"/> if all specified elements were successfully removed;
+        /// otherwise, <see langword="false"/>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="collection"/> is <see langword="null"/>.
+        /// </exception>
+        public bool TryRemoveRange(IEnumerable<T> collection) =>
+            TryRemoveRange(collection, out _);
+
+        /// <summary>
+        /// Attempts to remove the specified elements from the collection.
+        /// </summary>
+        /// <param name="collection">The elements to remove.</param>
+        /// <param name="failedItems">
+        /// When this method returns, contains the elements that could not be removed.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if all specified elements were successfully removed;
+        /// otherwise, <see langword="false"/>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="collection"/> is <see langword="null"/>.
+        /// </exception>
+        public bool TryRemoveRange(IEnumerable<T> collection, out IReadOnlyList<T> failedItems)
+        {
+            ArgumentNullException.ThrowIfNull(collection);
+
+            T[] items = [.. collection];
+            List<T>? failed = null;
+
+            foreach (T item in items)
+            {
+                if (!TryRemove(item))
+                {
+                    failed ??= [];
+                    failed.Add(item);
+                }
+            }
+
+            failedItems = failed ?? [];
+            return failed is null;
         }
 
         /// <summary>
@@ -369,6 +436,107 @@ namespace Sachssoft.Engine.Collections
         /// <param name="e">The event data describing the property change.</param>
         protected virtual void OnPropertyChanged(PropertyChangedEventArgs e) =>
             PropertyChanged?.Invoke(this, e);
+
+        /// <summary>
+        /// Adds the elements of the specified collection to the end of this collection.
+        /// </summary>
+        /// <param name="collection">The elements to add.</param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="collection"/> is <see langword="null"/>.
+        /// </exception>
+        public void AddRange(IEnumerable<T> collection)
+        {
+            ArgumentNullException.ThrowIfNull(collection);
+
+            foreach (T item in collection)
+                InsertItem(_items.Count, item);
+        }
+
+        /// <summary>
+        /// Inserts the elements of the specified collection at the specified index.
+        /// </summary>
+        /// <param name="index">
+        /// The zero-based index at which the elements are inserted.
+        /// </param>
+        /// <param name="collection">The elements to insert.</param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="collection"/> is <see langword="null"/>.
+        /// </exception>
+        public void InsertRange(int index, IEnumerable<T> collection)
+        {
+            ArgumentNullException.ThrowIfNull(collection);
+
+            if ((uint)index > (uint)_items.Count)
+                throw new ArgumentOutOfRangeException(nameof(index));
+
+            foreach (T item in collection)
+            {
+                int count = _items.Count;
+                InsertItem(index, item);
+
+                if (_items.Count > count)
+                    index++;
+            }
+        }
+
+        /// <summary>
+        /// Removes the specified number of elements starting at the specified index.
+        /// </summary>
+        /// <param name="index">
+        /// The zero-based starting index of the range to remove.
+        /// </param>
+        /// <param name="count">The number of elements to remove.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="index"/> or <paramref name="count"/> is outside the valid range.
+        /// </exception>
+        public void RemoveRange(int index, int count)
+        {
+            if (index < 0)
+                throw new ArgumentOutOfRangeException(nameof(index));
+
+            if (count < 0)
+                throw new ArgumentOutOfRangeException(nameof(count));
+
+            if (_items.Count - index < count)
+                throw new ArgumentException("The range exceeds the bounds of the collection.");
+
+            int end = index + count;
+
+            while (index < end)
+            {
+                if (RemoveItem(index))
+                    end--;
+                else
+                    index++;
+            }
+        }
+
+        /// <summary>
+        /// Removes the specified elements from the collection.
+        /// </summary>
+        /// <param name="collection">The elements to remove.</param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="collection"/> is <see langword="null"/>.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// One or more specified elements are not contained in the collection.
+        /// </exception>
+        public void RemoveRange(IEnumerable<T> collection)
+        {
+            ArgumentNullException.ThrowIfNull(collection);
+
+            T[] items = [.. collection];
+
+            foreach (T item in items)
+            {
+                if (!Contains(item))
+                    throw new ArgumentException(
+                        "One or more specified elements are not contained in the collection.",
+                        nameof(collection));
+
+                Remove(item);
+            }
+        }
 
         private void InsertItem(int index, T item)
         {

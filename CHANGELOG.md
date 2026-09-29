@@ -77,6 +77,8 @@ All notable changes to this project will be documented in this file.
 * [Improve] Added runtime and platform capability checks for safe reflection-based functionality.
 * [Improve] Improved trimming and AOT compatibility through explicit definition property metadata without requiring reflection.
 * [Improve] Extended arrange and sorting functionality for `EntityCollections`.
+* [Improve] Extended `Path` with additional geometry utilities.
+* [Improve] Added range operations and safe removal methods to collections.
 * [Bug] **Toolkit**: Fixed incorrect initial selection bounds before the first vector shape edit.
 * [Bug] Fixed several bugs revealed by stricter code guidelines, including issues with incorrect overrides, virtual members, and other API inconsistencies.
 

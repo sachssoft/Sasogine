@@ -561,6 +561,205 @@ public sealed class Path :
     }
 
     /// <summary>
+    /// Creates a copy of the path translated so that its left and top bounds are zero.
+    /// </summary>
+    /// <returns>
+    /// A new path whose left and top bounds are positioned at zero.
+    /// </returns>
+    public Path Trim()
+    {
+        if (IsEmpty || (Left == 0f && Top == 0f))
+            return this;
+
+        return Transform(point =>
+            new Point2(
+                point.X - Left,
+                point.Y - Top));
+    }
+
+    /// <summary>
+    /// Creates a normalized copy of the path whose left and top bounds are zero
+    /// and whose width and height are one.
+    /// </summary>
+    /// <returns>A trimmed and normalized copy of the path.</returns>
+    public Path TrimNormalized()
+    {
+        if (IsEmpty)
+            return this;
+
+        float left = Left;
+        float top = Top;
+        float width = Width;
+        float height = Height;
+
+        if (width == 0f || height == 0f)
+            return Trim();
+
+        return Transform(point =>
+            new Point2(
+                (point.X - left) / width,
+                (point.Y - top) / height));
+    }
+
+    /// <summary>
+    /// Creates a normalized copy of the path whose bounds start at zero
+    /// and have a width and height of one.
+    /// </summary>
+    /// <returns>
+    /// A normalized copy of the path.
+    /// </returns>
+    public Path Normalize()
+    {
+        if (IsEmpty)
+            return this;
+
+        float width = Width;
+        float height = Height;
+
+        if (width == 0f || height == 0f)
+            return Trim();
+
+        float left = Left;
+        float top = Top;
+
+        return Transform(point =>
+            new Point2(
+                (point.X - left) / width,
+                (point.Y - top) / height));
+    }
+
+    /// <summary>
+    /// Creates a copy of the path centered around the coordinate origin.
+    /// </summary>
+    /// <returns>
+    /// A new path whose bounds are centered around zero.
+    /// </returns>
+    public Path Center()
+    {
+        if (IsEmpty || (Origin.X == 0f && Origin.Y == 0f))
+            return this;
+
+        Point2 origin = Origin;
+
+        return Transform(point =>
+            new Point2(
+                point.X - origin.X,
+                point.Y - origin.Y));
+    }
+
+    /// <summary>
+    /// Creates a copy of the path with the winding direction of all polygons reversed.
+    /// </summary>
+    /// <returns>
+    /// A new path containing the polygons in reversed point order.
+    /// </returns>
+    public Path Reverse()
+    {
+        if (IsEmpty)
+            return this;
+
+        Vector2[][] polygons = ClonePolygons(_polygons);
+
+        for (int i = 0; i < polygons.Length; i++)
+            Array.Reverse(polygons[i]);
+
+        return new Path(polygons, true);
+    }
+
+    /// <summary>
+    /// Creates a copy of the path whose polygons use clockwise winding.
+    /// </summary>
+    /// <returns>
+    /// A path whose polygon contours use clockwise winding.
+    /// </returns>
+    public Path EnsureClockwise()
+    {
+        if (IsEmpty)
+            return this;
+
+        Vector2[][]? polygons = null;
+
+        for (int i = 0; i < _polygons.Length; i++)
+        {
+            if (_directions[i] != PolygonDirection.Anticlockwise)
+                continue;
+
+            polygons ??= ClonePolygons(_polygons);
+            Array.Reverse(polygons[i]);
+        }
+
+        return polygons == null
+            ? this
+            : new Path(polygons, true);
+    }
+
+    /// <summary>
+    /// Creates a copy of the path whose polygons use anticlockwise winding.
+    /// </summary>
+    /// <returns>
+    /// A path whose polygon contours use anticlockwise winding.
+    /// </returns>
+    public Path EnsureAnticlockwise()
+    {
+        if (IsEmpty)
+            return this;
+
+        Vector2[][]? polygons = null;
+
+        for (int i = 0; i < _polygons.Length; i++)
+        {
+            if (_directions[i] != PolygonDirection.Clockwise)
+                continue;
+
+            polygons ??= ClonePolygons(_polygons);
+            Array.Reverse(polygons[i]);
+        }
+
+        return polygons == null
+            ? this
+            : new Path(polygons, true);
+    }
+
+    /// <summary>
+    /// Calculates the total area of all polygons contained in the path.
+    /// </summary>
+    /// <returns>
+    /// The total area of all polygon contours.
+    /// </returns>
+    public float GetArea()
+    {
+        float area = 0f;
+
+        for (int i = 0; i < _polygons.Length; i++)
+            area += GetPolygonArea(i);
+
+        return area;
+    }
+
+    /// <summary>
+    /// Calculates the area of the specified polygon.
+    /// </summary>
+    /// <param name="index">The polygon index.</param>
+    /// <returns>
+    /// The area of the specified polygon.
+    /// </returns>
+    public float GetPolygonArea(int index)
+    {
+        Vector2[] polygon = _polygons[index];
+        float area = 0f;
+
+        for (int i = 0; i < polygon.Length; i++)
+        {
+            Vector2 a = polygon[i];
+            Vector2 b = polygon[(i + 1) % polygon.Length];
+
+            area += a.X * b.Y - b.X * a.Y;
+        }
+
+        return MathF.Abs(area) * 0.5f;
+    }
+
+    /// <summary>
     /// Enumerates copies of the polygon point arrays contained in this path.
     /// </summary>
     /// <returns>The polygon point arrays.</returns>
