@@ -355,6 +355,45 @@ public static class EntityCollectionExtensions
         return entities.Where(entity => entity is IScriptEntity);
     }
 
+    /// <summary>
+    /// Enumerates all entities that participate in ordered processing.
+    /// </summary>
+    public static IEnumerable<TEntity> Ordered<TEntity>(this IEnumerable<TEntity> entities)
+        where TEntity : IEntity
+    {
+        foreach (TEntity entity in entities)
+        {
+            if (entity is IOrderedEntity)
+                yield return entity;
+        }
+    }
+
+    /// <summary>
+    /// Enumerates all entities whose definitions support configurable ordering.
+    /// </summary>
+    public static IEnumerable<TEntity> Orderable<TEntity>(this IEnumerable<TEntity> entities)
+        where TEntity : IEngineObject
+    {
+        foreach (TEntity entity in entities)
+        {
+            if (entity.Definition is IOrderedEntityDefinition)
+                yield return entity;
+        }
+    }
+
+    /// <summary>
+    /// Enumerates all entities of the specified type.
+    /// </summary>
+    public static IEnumerable<T> OfEntityType<T>(this IEnumerable<IEntity> entities)
+        where T : class, IEntity
+    {
+        foreach (IEntity entity in entities)
+        {
+            if (entity is T typedEntity)
+                yield return typedEntity;
+        }
+    }
+
     private static IEntity Find(
         IEnumerable<IEntity> entities,
         string id)

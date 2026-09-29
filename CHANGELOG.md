@@ -76,6 +76,7 @@ All notable changes to this project will be documented in this file.
 * [Improve] Extended rendering and mesh APIs with additional utilities and component improvements.
 * [Improve] Added runtime and platform capability checks for safe reflection-based functionality.
 * [Improve] Improved trimming and AOT compatibility through explicit definition property metadata without requiring reflection.
+* [Improve] Extended arrange and sorting functionality for `EntityCollections`.
 * [Bug] **Toolkit**: Fixed incorrect initial selection bounds before the first vector shape edit.
 * [Bug] Fixed several bugs revealed by stricter code guidelines, including issues with incorrect overrides, virtual members, and other API inconsistencies.
 

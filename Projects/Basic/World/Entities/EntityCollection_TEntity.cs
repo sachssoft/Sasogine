@@ -353,5 +353,207 @@ namespace Sachssoft.Engine.World
 
             _cacheDirty = false;
         }
+
+        /// <summary>
+        /// Reorders the collection to match the configured order of its entities.
+        /// </summary>
+        public void ApplyOrder()
+        {
+            UpdateCache();
+
+            if (_sortedCache.Count <= 1)
+                return;
+
+            TEntity[] ordered = _sortedCache.ToArray();
+
+            for (int i = 0; i < ordered.Length; i++)
+            {
+                int currentIndex = IndexOf(ordered[i]);
+
+                if (currentIndex == i)
+                    continue;
+
+                TEntity entity = this[currentIndex];
+
+                RemoveAt(currentIndex);
+                Insert(i, entity);
+            }
+
+            _cacheDirty = true;
+        }
+
+        /// <summary>
+        /// Normalizes the order values of all ordered entity definitions.
+        /// </summary>
+        public void Arrange()
+        {
+            UpdateCache();
+
+            int order = 0;
+
+            foreach (TEntity entity in _sortedCache)
+            {
+                if (entity.Definition is IOrderedEntityDefinition definition)
+                    definition.Order = order++;
+            }
+
+            _cacheDirty = true;
+        }
+
+        /// <summary>
+        /// Applies the specified arrange operation to an entity.
+        /// </summary>
+        /// <param name="entity">The entity to arrange.</param>
+        /// <param name="operation">The arrange operation to apply.</param>
+        public void Arrange(TEntity entity, ArrangeOperation operation)
+        {
+            ArgumentNullException.ThrowIfNull(entity);
+
+            switch (operation)
+            {
+                case ArrangeOperation.BringForward:
+                    BringForward(entity);
+                    break;
+
+                case ArrangeOperation.SendBackward:
+                    SendBackward(entity);
+                    break;
+
+                case ArrangeOperation.BringToFront:
+                    BringToFront(entity);
+                    break;
+
+                case ArrangeOperation.SendToBack:
+                    SendToBack(entity);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(operation));
+            }
+        }
+
+        /// <summary>
+        /// Moves an ordered entity one position forward.
+        /// </summary>
+        /// <param name="entity">The entity to move.</param>
+        public void BringForward(TEntity entity)
+        {
+            ArgumentNullException.ThrowIfNull(entity);
+
+            if (entity.Definition is not IOrderedEntityDefinition definition)
+                return;
+
+            Arrange();
+            UpdateCache();
+
+            int index = _sortedCache.IndexOf(entity);
+
+            if (index < 0)
+                return;
+
+            for (int i = index + 1; i < _sortedCache.Count; i++)
+            {
+                if (_sortedCache[i].Definition is not IOrderedEntityDefinition nextDefinition)
+                    continue;
+
+                int order = definition.Order;
+                definition.Order = nextDefinition.Order;
+                nextDefinition.Order = order;
+
+                _cacheDirty = true;
+                return;
+            }
+        }
+
+        /// <summary>
+        /// Moves an ordered entity one position backward.
+        /// </summary>
+        /// <param name="entity">The entity to move.</param>
+        public void SendBackward(TEntity entity)
+        {
+            ArgumentNullException.ThrowIfNull(entity);
+
+            if (entity.Definition is not IOrderedEntityDefinition definition)
+                return;
+
+            Arrange();
+            UpdateCache();
+
+            int index = _sortedCache.IndexOf(entity);
+
+            if (index < 0)
+                return;
+
+            for (int i = index - 1; i >= 0; i--)
+            {
+                if (_sortedCache[i].Definition is not IOrderedEntityDefinition previousDefinition)
+                    continue;
+
+                int order = definition.Order;
+                definition.Order = previousDefinition.Order;
+                previousDefinition.Order = order;
+
+                _cacheDirty = true;
+                return;
+            }
+        }
+
+        /// <summary>
+        /// Moves an ordered entity to the frontmost position.
+        /// </summary>
+        /// <param name="entity">The entity to move.</param>
+        public void BringToFront(TEntity entity)
+        {
+            ArgumentNullException.ThrowIfNull(entity);
+
+            if (entity.Definition is not IOrderedEntityDefinition definition || !Contains(entity))
+                return;
+
+            Arrange();
+            UpdateCache();
+
+            int order = 0;
+
+            foreach (TEntity current in _sortedCache)
+            {
+                if (ReferenceEquals(current, entity))
+                    continue;
+
+                if (current.Definition is IOrderedEntityDefinition currentDefinition)
+                    currentDefinition.Order = order++;
+            }
+
+            definition.Order = order;
+            _cacheDirty = true;
+        }
+
+        /// <summary>
+        /// Moves an ordered entity to the backmost position.
+        /// </summary>
+        /// <param name="entity">The entity to move.</param>
+        public void SendToBack(TEntity entity)
+        {
+            ArgumentNullException.ThrowIfNull(entity);
+
+            if (entity.Definition is not IOrderedEntityDefinition definition || !Contains(entity))
+                return;
+
+            Arrange();
+            UpdateCache();
+
+            int order = 1;
+
+            foreach (TEntity current in _sortedCache)
+            {
+                if (ReferenceEquals(current, entity))
+                    continue;
+
+                if (current.Definition is IOrderedEntityDefinition currentDefinition)
+                    currentDefinition.Order = order++;
+            }
+
+            definition.Order = 0;
+            _cacheDirty = true;
+        }
     }
 }

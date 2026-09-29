@@ -9,7 +9,7 @@ namespace Sachssoft.Engine.World
     /// Entities implementing this interface can perform rendering operations
     /// during each drawing cycle.
     /// </remarks>
-    public interface IDrawableEntity
+    public interface IDrawableEntity : IEntity
     {
         /// <summary>
         /// Draws the entity using the specified scene draw context.

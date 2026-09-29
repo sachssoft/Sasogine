@@ -4,60 +4,48 @@ using System.Threading.Tasks;
 namespace Sachssoft.Engine
 {
     /// <summary>
-    /// Represents a generic element in the engine.
-    /// Provides access to its definition, identity, class, data context, and lifecycle methods.
+    /// Represents a generic engine object with identity, configuration,
+    /// data context, and lifecycle support.
     /// </summary>
-    // Stellt ein generisches Element in der Engine dar.
-    // Bietet Zugriff auf Definition, ID, Klasse, DataContext und Lebenszyklus-Methoden.
     public interface IEngineObject : IEngineReferenceable, IEngineObjectIdentityChanged
     {
         /// <summary>
-        /// Gets the definition instance that configures this element.
+        /// Gets the definition that configures the object.
         /// </summary>
-        // Liefert die Definition, die dieses Element konfiguriert.
-        // Optional
-        IDefinition? Definition { get; }
+        IDefinition Definition { get; }
 
         /// <summary>
-        /// Indicates whether the element has been loaded.
+        /// Gets a value indicating whether the object is loaded.
         /// </summary>
-        // Gibt an, ob das Element geladen wurde.
         bool IsLoaded { get; }
 
         /// <summary>
-        /// Gets the class/type name of this element.
+        /// Gets the class of the object.
         /// </summary>
-        // Liefert den Klassennamen/Typ des Elements.
         string? Class { get; }
 
         /// <summary>
-        /// Gets or sets a custom data context associated with this element.
+        /// Gets or sets the custom data context associated with the object.
         /// </summary>
-        // Liefert oder setzt einen benutzerdefinierten DataContext für dieses Element.
         object? DataContext { get; set; }
 
         /// <summary>
-        /// Loads the element synchronously.
+        /// Loads the object synchronously.
         /// </summary>
-        // Lädt das Element synchron.
         void Load();
 
         /// <summary>
-        /// Loads the element asynchronously.
+        /// Loads the object asynchronously.
         /// </summary>
         /// <param name="cancellationToken">
         /// A token that can be used to cancel the loading operation.
         /// </param>
-        /// <returns>
-        /// A task representing the asynchronous load operation.
-        /// </returns>
-        // Lädt das Element asynchron.
+        /// <returns>A task representing the asynchronous loading operation.</returns>
         Task LoadAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Unloads the element, releasing any resources.
+        /// Unloads the object and releases its associated resources.
         /// </summary>
-        // Entlädt das Element und gibt Ressourcen frei.
         void Unload();
     }
 }

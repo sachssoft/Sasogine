@@ -9,7 +9,7 @@ namespace Sachssoft.Engine.World
     /// Entities implementing this interface can perform runtime logic during
     /// each update cycle.
     /// </remarks>
-    public interface IUpdatableEntity
+    public interface IUpdatableEntity : IEntity
     {
         /// <summary>
         /// Updates the entity using the specified scene update context.
