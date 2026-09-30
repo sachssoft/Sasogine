@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\..\Sachssoft.Sasogine.Documents.props" />
+
+	<PropertyGroup>
+		<PackageId>Sachssoft.Sasogine.Documents</PackageId>
+		<Title>Sasogine Documents</Title>
+
+		<Description>
+			Document and serialization support for the Sasogine game engine.
+		</Description>
+
+		<PackageTags>
+			Sasogine;Documents;Serialization;Resources;XML;JSON;Binary;GameEngine;Framework
+		</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Basic\Sachssoft.Sasogine.csproj" />
+	</ItemGroup>
+
+</Project>

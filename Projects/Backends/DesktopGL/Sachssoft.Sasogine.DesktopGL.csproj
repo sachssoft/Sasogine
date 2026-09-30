@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- DesktopGL is the classic MonoGame OpenGL backend, not the new Native backend. -->
+		<UseMonoGameNative>false</UseMonoGameNative>
+	</PropertyGroup>
+
+	<Import Project="..\..\..\Sachssoft.Sasogine.Package.props" />
+
+	<PropertyGroup>
+		<MonoGamePlatform>DesktopGL</MonoGamePlatform>
+
+		<PackageId>Sachssoft.Sasogine.DesktopGL</PackageId>
+		<Title>Sasogine DesktopGL</Title>
+		<Description>Sasogine desktop backend based on MonoGame DesktopGL.</Description>
+		<PackageTags>MonoGame;Sasogine;Backend;DesktopGL;OpenGL;GameEngine</PackageTags>
+
+		<RootNamespace>Sachssoft.Engine.Backends.DesktopGL</RootNamespace>
+		<DefineConstants>$(DefineConstants);BACKEND_GL;DEVICE_DESKTOP</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="$(MonoGameVersion)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Basic\Sachssoft.Sasogine.csproj" />
+	</ItemGroup>
+
+</Project>

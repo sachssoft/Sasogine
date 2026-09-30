@@ -3,14 +3,15 @@
 	<Import Project="Sachssoft.Sasogine.Package.props" />
 
 	<PropertyGroup>
+
 		<!-- General -->
-		<RootNamespace>Sachssoft.Sasogine.Documents</RootNamespace>
-		<Nullable>enable</Nullable>
+		<RootNamespace>Sachssoft.Engine.Documents</RootNamespace>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
 		<!-- AOT / Trimming -->
 		<IsTrimmable>true</IsTrimmable>
 		<IsAotCompatible>true</IsAotCompatible>
+
 		<EnableTrimAnalyzer>true</EnableTrimAnalyzer>
 		<EnableAotAnalyzer>true</EnableAotAnalyzer>
 
@@ -19,7 +20,8 @@
 
 		<!-- NuGet Metadata -->
 		<Description>
-			Document and serialization support for the Sasogine game engine, including structured document handling and resource loading.
+			Document and serialization support for the Sasogine game engine,
+			including structured document handling and resource loading.
 		</Description>
 
 		<PackageReleaseNotes>
@@ -29,17 +31,23 @@
 		<PackageTags>
 			Sasogine;Documents;Serialization;Resources;XML;JSON;Binary;FrameSet;TextureAtlas;MonoGame;GameEngine;Framework;AOT;Trimming
 		</PackageTags>
+
 	</PropertyGroup>
 
 	<ItemGroup>
-		<!--<PackageReference Include="Sachssoft.Sasogine.DesktopGL"
-						  Version="$(VersionPrefix)-$(VersionSuffix)" />-->
-		<PackageReference Include="Sachssoft.Sasodoc"
-						  Version="2.0.0" />
-		<PackageReference Include="Sachssoft.Sasodoc.Json"
-						  Version="2.0.0" />
-		<PackageReference Include="Sachssoft.Sasodoc.Xml"
-						  Version="2.0.0" />
+
+		<PackageReference
+			Include="Sachssoft.Sasodoc"
+			Version="2.0.0" />
+
+		<PackageReference
+			Include="Sachssoft.Sasodoc.Json"
+			Version="2.0.0" />
+
+		<PackageReference
+			Include="Sachssoft.Sasodoc.Xml"
+			Version="2.0.0" />
+
 	</ItemGroup>
 
 </Project>

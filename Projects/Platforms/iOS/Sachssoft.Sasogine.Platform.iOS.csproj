@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- iOS uses MonoGame's dedicated mobile framework package in 3.8.5.1. -->
+		<UseMonoGameNative>false</UseMonoGameNative>
+	</PropertyGroup>
+
+	<Import Project="..\..\..\Sachssoft.Sasogine.Package.props" />
+
+	<PropertyGroup>
+		<TargetFrameworks>net8.0-ios;net9.0-ios;net10.0-ios</TargetFrameworks>
+		<SupportedOSPlatformVersion>12.2</SupportedOSPlatformVersion>
+		<MonoGamePlatform>iOS</MonoGamePlatform>
+
+		<PackageId>Sachssoft.Sasogine.Platform.iOS</PackageId>
+		<Title>Sasogine Platform iOS</Title>
+		<Description>iOS platform services for the Sasogine game engine.</Description>
+		<PackageTags>Sasogine;Platform;iOS;Mobile;GameEngine</PackageTags>
+
+		<RootNamespace>Sachssoft.Engine.Platform.iOS</RootNamespace>
+		<DefineConstants>$(DefineConstants);PLATFORM_IOS;DEVICE_MOBILE</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MonoGame.Framework.iOS" Version="$(MonoGameVersion)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Basic\Sachssoft.Sasogine.csproj" />
+	</ItemGroup>
+
+</Project>

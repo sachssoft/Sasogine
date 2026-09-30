@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- DesktopVK is one of MonoGame 3.8.5's new Native backends. -->
+		<UseMonoGameNative>true</UseMonoGameNative>
+		<MonoGameNativeTransitive>true</MonoGameNativeTransitive>
+	</PropertyGroup>
+
+	<Import Project="..\..\..\Sachssoft.Sasogine.Package.props" />
+
+	<PropertyGroup>
+		<MonoGamePlatform>DesktopVK</MonoGamePlatform>
+
+		<PackageId>Sachssoft.Sasogine.DesktopVK</PackageId>
+		<Title>Sasogine DesktopVK</Title>
+		<Description>Sasogine native desktop backend based on MonoGame DesktopVK.</Description>
+		<PackageTags>MonoGame;Sasogine;Backend;DesktopVK;Vulkan;Native;GameEngine</PackageTags>
+
+		<RootNamespace>Sachssoft.Engine.Backends.DesktopVK</RootNamespace>
+		<DefineConstants>$(DefineConstants);BACKEND_VULKAN;DEVICE_DESKTOP</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MonoGame.Runtime.Windows.Vulkan" Version="$(MonoGameVersion)" />
+		<PackageReference Include="MonoGame.Runtime.Linux.Vulkan" Version="$(MonoGameVersion)" />
+		<PackageReference Include="MonoGame.Runtime.Mac.Vulkan" Version="$(MonoGameVersion)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Basic\Sachssoft.Sasogine.csproj" />
+	</ItemGroup>
+
+</Project>

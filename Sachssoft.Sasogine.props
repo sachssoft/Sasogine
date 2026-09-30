@@ -34,7 +34,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\Build\Sachssoft.Sasogine.Analyzers\Sachssoft.Sasogine.Analyzers.csproj"
+		<ProjectReference Include="$(MSBuildThisFileDirectory)Build\Sachssoft.Sasogine.Analyzers\Sachssoft.Sasogine.Analyzers.csproj"
 						  OutputItemType="Analyzer"
 						  ReferenceOutputAssembly="false" />
 	</ItemGroup>

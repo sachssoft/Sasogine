@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\..\..\Sachssoft.Sasogine.Package.props" />
+
+	<PropertyGroup>
+		<PackageId>Sachssoft.Sasogine.Platform.Linux</PackageId>
+		<Title>Sasogine Platform Linux</Title>
+		<Description>Linux platform services for the Sasogine game engine.</Description>
+		<PackageTags>Sasogine;Platform;Linux;GameEngine</PackageTags>
+
+		<RootNamespace>Sachssoft.Engine.Platform.Linux</RootNamespace>
+		<DefineConstants>$(DefineConstants);PLATFORM_LINUX;DEVICE_DESKTOP</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Basic\Sachssoft.Sasogine.csproj" />
+	</ItemGroup>
+
+</Project>

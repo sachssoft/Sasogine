@@ -1,6 +1,22 @@
 <Project>
+
 	<PropertyGroup>
+		<TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+
+		<PackageOutputPath>$(MSBuildThisFileDirectory)Packages</PackageOutputPath>
+
+		<Nullable>enable</Nullable>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+		<!--
+			Sasogine intentionally keeps older mobile workloads
+			for .NET 8 / .NET 9 compatibility.
+		-->
+		<CheckEolWorkloads>false</CheckEolWorkloads>
+
+		<MonoGameVersion>3.8.5.1</MonoGameVersion>
+		<UseMonoGameNative Condition="'$(UseMonoGameNative)' == ''">true</UseMonoGameNative>
+		<MonoGameNativeTransitive Condition="'$(MonoGameNativeTransitive)' == ''">false</MonoGameNativeTransitive>
 
 		<!-- NuGet Metadata -->
 		<VersionPrefix>0.11.0</VersionPrefix>
@@ -14,14 +30,33 @@
 
 		<PackageProjectUrl>https://github.com/sachssoft/Sasogine</PackageProjectUrl>
 
-		<GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">
-			true
-		</GeneratePackageOnBuild>
+		<GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
 
 		<!-- Source Repository -->
 		<RepositoryUrl>https://github.com/sachssoft/Sasogine.git</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
+
+	<PropertyGroup>
+		<DefineConstants>$(DefineConstants);SASOGINE</DefineConstants>
+	</PropertyGroup>
+
+	<!--
+		Core projects compile against the backend-neutral MonoGame API.
+		By default the reference is private so a concrete Sasogine backend can
+		choose the actual MonoGame runtime package for consumers.
+	-->
+	<ItemGroup Condition="'$(UseMonoGameNative)' == 'true' and '$(MonoGameNativeTransitive)' != 'true'">
+		<PackageReference Include="MonoGame.Framework.Native"
+						  Version="$(MonoGameVersion)"
+						  PrivateAssets="all" />
+	</ItemGroup>
+
+	<!-- Native backends such as DesktopVK need MonoGame.Framework.Native transitively. -->
+	<ItemGroup Condition="'$(UseMonoGameNative)' == 'true' and '$(MonoGameNativeTransitive)' == 'true'">
+		<PackageReference Include="MonoGame.Framework.Native"
+						  Version="$(MonoGameVersion)" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="$(MSBuildThisFileDirectory)LICENSE.md"
@@ -32,4 +67,5 @@
 			  Pack="true"
 			  PackagePath="\" />
 	</ItemGroup>
+
 </Project>

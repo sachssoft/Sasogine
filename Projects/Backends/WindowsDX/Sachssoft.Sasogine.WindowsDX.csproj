@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- WindowsDX is the classic MonoGame Direct3D backend. -->
+		<UseMonoGameNative>false</UseMonoGameNative>
+	</PropertyGroup>
+
+	<Import Project="..\..\..\Sachssoft.Sasogine.Package.props" />
+
+	<PropertyGroup>
+		<TargetFrameworks>net8.0-windows;net9.0-windows;net10.0-windows</TargetFrameworks>
+		<MonoGamePlatform>Windows</MonoGamePlatform>
+
+		<PackageId>Sachssoft.Sasogine.WindowsDX</PackageId>
+		<Title>Sasogine WindowsDX</Title>
+		<Description>Sasogine Windows backend based on MonoGame WindowsDX.</Description>
+		<PackageTags>MonoGame;Sasogine;Backend;WindowsDX;DirectX;GameEngine</PackageTags>
+
+		<RootNamespace>Sachssoft.Engine.Backends.WindowsDX</RootNamespace>
+		<DefineConstants>$(DefineConstants);BACKEND_DX;DEVICE_DESKTOP</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MonoGame.Framework.WindowsDX" Version="$(MonoGameVersion)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Basic\Sachssoft.Sasogine.csproj" />
+	</ItemGroup>
+
+</Project>

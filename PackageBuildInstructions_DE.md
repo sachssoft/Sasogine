@@ -1,49 +1,49 @@
 # Sasogine – NuGet Release
 
-Short guide for building and publishing the Sasogine packages.
+Kurzanleitung zum Erstellen und Veröffentlichen der Sasogine-Pakete.
 
-> Run all PowerShell commands from the Sasogine repository root.
-> Android and iOS are currently excluded from the release.
+> Alle PowerShell-Befehle im Sasogine-Hauptordner ausführen.
+> Android und iOS sind aktuell vom Release ausgesetzt.
 
-## 1. Check the version
+## 1. Version prüfen
 
-The version is defined in `Sachssoft.Sasogine.Package.props`:
+Die Version steht in `Sachssoft.Sasogine.Package.props`:
 
 ```xml
 <VersionPrefix>0.11.0</VersionPrefix>
 <VersionSuffix>alpha</VersionSuffix>
 ```
 
-Result: `0.11.0-alpha`
+Ergebnis: `0.11.0-alpha`
 
-Before a new release, update the version and `CHANGELOG.md`.
+Vor einem neuen Release die Version anpassen und `CHANGELOG.md` aktualisieren.
 
-## 2. Delete old packages
+## 2. Alte Pakete löschen
 
 ```powershell
 Remove-Item .\Packages\*.nupkg, .\Packages\*.snupkg -ErrorAction SilentlyContinue
 ```
 
-This prevents packages from an older release from being published accidentally.
+Damit enthält `Packages` keine Dateien eines alten Releases.
 
-## 3. Restore and build
+## 3. Restore und Build
 
 ```powershell
 dotnet restore .\Sachssoft.Sasogine.slnx
 dotnet build .\Sachssoft.Sasogine.slnx -c Release
 ```
 
-The Release build automatically creates the NuGet packages in the `Packages` directory.
+Der Release-Build erzeugt die NuGet-Pakete automatisch im Ordner `Packages`.
 
-The build must succeed.
+Der Build muss erfolgreich sein.
 
-## 4. Check the packages
+## 4. Pakete prüfen
 
 ```powershell
 Get-ChildItem .\Packages\*.nupkg
 ```
 
-Currently published packages:
+Aktuell werden veröffentlicht:
 
 - `Sachssoft.Sasogine`
 - `Sachssoft.Sasogine.Documents`
@@ -56,51 +56,51 @@ Currently published packages:
 - `Sachssoft.Sasogine.WindowsDX`
 - `Sachssoft.Sasogine.WindowsDX12`
 
-Check that the package names and version are correct.
+Prüfen, ob Version und Paketnamen stimmen.
 
-## 5. Set the NuGet API key
+## 5. NuGet API-Key setzen
 
 ```powershell
 $env:NUGET_API_KEY = "YOUR_NUGET_API_KEY"
 ```
 
-Never store the API key in the repository.
+Den API-Key niemals im Repository speichern.
 
-## 6. Publish all packages
+## 6. Alle Pakete veröffentlichen
 
 ```powershell
 Get-ChildItem .\Packages\*.nupkg | % { dotnet nuget push $_ --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate }
 ```
 
-Run this only when the `Packages` directory contains packages for the current release only.
+Diesen Befehl nur ausführen, wenn im Ordner `Packages` wirklich nur die Pakete des aktuellen Releases liegen.
 
-## 7. Check the release
+## 7. Release prüfen
 
-After uploading, check NuGet.org for:
+Nach dem Upload auf NuGet.org kurz prüfen:
 
-- correct version
-- correct packages
-- correct dependencies
+- richtige Version
+- richtige Pakete
+- richtige Abhängigkeiten
 
-## 8. Create the Git tag
+## 8. Git-Tag erstellen
 
-Example for version `0.11.0-alpha`:
+Beispiel für Version `0.11.0-alpha`:
 
 ```powershell
 git tag v0.11.0-alpha
 git push origin v0.11.0-alpha
 ```
 
-## If restore fails
+## Bei Restore-Problemen
 
-Use this only when NuGet restore has problems:
+Nur bei Problemen mit NuGet ausführen:
 
 ```powershell
 dotnet nuget locals all --clear
 dotnet restore .\Sachssoft.Sasogine.slnx --no-cache
 ```
 
-## Short version
+## Kurzfassung
 
 ```powershell
 Remove-Item .\Packages\*.nupkg, .\Packages\*.snupkg -ErrorAction SilentlyContinue

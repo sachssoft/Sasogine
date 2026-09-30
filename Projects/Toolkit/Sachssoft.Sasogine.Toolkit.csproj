@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\..\Sachssoft.Sasogine.Toolkit.props" />
+
+	<PropertyGroup>
+		<PackageId>Sachssoft.Sasogine.Toolkit</PackageId>
+		<Title>Sasogine Toolkit</Title>
+
+		<Description>
+			Reusable components and tools for the Sasogine game engine.
+		</Description>
+
+		<PackageTags>
+			MonoGame;Sasogine;Toolkit;GameEngine;Framework
+		</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Basic\Sachssoft.Sasogine.csproj" />
+		<ProjectReference Include="..\Documents\Sachssoft.Sasogine.Documents.csproj" />
+	</ItemGroup>
+
+</Project>

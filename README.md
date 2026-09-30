@@ -1,69 +1,173 @@
 # Sachssoft Sasogine
 
-Sasogine is a lightweight and extensible game engine built on top of **[MonoGame](https://www.monogame.net/)**.
+Sasogine is a lightweight, extensible and AOT-friendly game engine framework for .NET built on top of [MonoGame](https://monogame.net/).
+
+It provides reusable engine infrastructure for assets, resources, rendering, input, audio, components, tools, serialization and platform integration while keeping platform-specific services and graphics backends separated from the engine core.
 
 > [!WARNING]
-> Sasogine is in an early alpha stage. Not all features are complete yet.
-> APIs and features may change, be replaced, or removed in future releases.
+> Sasogine is currently in an early alpha stage. APIs, project structure and package boundaries may still change before a stable release.
+>
+> Version `0.11.0-alpha` introduces a major architectural refactoring. The core engine is no longer tied directly to DesktopGL; platform integrations and rendering backends are maintained as separate projects.
 
 ## Documentation
 
-* **Programming & Architecture Guidelines**
-
+* **English Documentation:** See [README.md](README.md)
+* **German Documentation:** See [README_DE.md](README_DE.md)
+* **Programming & Architecture Guidelines:**
   * [English](PROGRAMMING_ARCHITECTURE_GUIDELINES_EN.md)
   * [Deutsch](PROGRAMMING_ARCHITECTURE_GUIDELINES_DE.md)
-* **Package Build & Publish Guide**: See [PackageBuildInstructions.md](PackageBuildInstructions.md)
-* **License**: See [LICENSE.md](LICENSE.md)
-* **Changelog**: See [CHANGELOG.md](CHANGELOG.md)
-
+* **Package Build & Publish Guide:** See [PackageBuildInstructions.md](PackageBuildInstructions.md)
+* **Changelog:** See [CHANGELOG.md](CHANGELOG.md)
+* **License:** See [LICENSE.md](LICENSE.md)
+* **Issues & Development:** See [GitHub Issues](https://github.com/sachssoft/Sasogine/issues)
 
 ## Requirements
 
-* MonoGame 3.8.4.1
 * .NET 8.0
-* DesktopGL → OpenGL 3.0+
-* WindowsDX → DirectX 11+
-* Vulkan → Vulkan 1.1+
+* .NET 9.0
+* .NET 10.0
+* MonoGame 3.8.5.1
+* Trimming-compatible design
+* Native AOT-compatible design
 
-### Supported Platforms
+Platform-specific projects use their corresponding .NET target frameworks, such as `net*-windows`, `net*-android` and `net*-ios` where required.
 
-| Category | Platforms                           |
-| -------- | ----------------------------------- |
-| Desktop  | Windows, macOS, Linux-based systems |
-| Mobile   | Android, iOS                        |
+## Packages
 
-### AOT & Trimming
+> [!IMPORTANT]
+> Sasogine is under active alpha development. Package boundaries, APIs and backend availability may still change before a stable release.
 
-Sasogine is designed to be **AOT- and trimming-compatible**.
+### Engine and Modules
 
-Core engine functionality can be used without runtime reflection. APIs that require metadata discovery provide explicit, AOT-friendly alternatives where applicable.
+| Module | Package | Usage | NuGet |
+| --- | --- | --- | --- |
+| **Basic** | `Sachssoft.Sasogine` | Backend-independent engine core | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine) |
+| **Documents** | `Sachssoft.Sasogine.Documents` | Documents, resources and serialization integration | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Documents.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Documents) |
+| **Toolkit** | `Sachssoft.Sasogine.Toolkit` | Reusable editor and development tools | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Toolkit.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Toolkit) |
+| **UI / Surface** | `Sachssoft.Sasogine.UI` | UI and surface infrastructure | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.UI.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.UI) |
 
-Some optional functionality can use runtime reflection. Reflection-based features are only available when supported by the current runtime and platform and may be unavailable or restricted in Native AOT, trimmed, or platform-constrained environments.
+### Rendering Backends
 
-Use `RuntimeCapabilities.IsReflectionSupported` and `RuntimeCapabilities.IsPlatformReflectionSupported` to determine whether reflection-based functionality is available before using reflection-dependent APIs.
+| Backend | Package | Graphics API | NuGet |
+| --- | --- | --- | --- |
+| **DesktopGL** | `Sachssoft.Sasogine.DesktopGL` | OpenGL through MonoGame DesktopGL | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.DesktopGL) |
+| **DesktopVK** | `Sachssoft.Sasogine.DesktopVK` | Vulkan through MonoGame Native | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.DesktopVK.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.DesktopVK) |
+| **WindowsDX** | `Sachssoft.Sasogine.WindowsDX` | Classic MonoGame DirectX backend | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.WindowsDX.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.WindowsDX) |
+| **WindowsDX12** | `Sachssoft.Sasogine.WindowsDX12` | DirectX 12 through MonoGame Native | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.WindowsDX12.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.WindowsDX12) |
 
-> **Note:** Reflection is an optional fallback and is not required for the core definition metadata system. For maximum AOT and trimming compatibility, explicit metadata APIs such as `IDefinitionMetadata` should be preferred.
+### Platforms
 
-## Downloads
+| Platform | Package | Usage | NuGet |
+| --- | --- | --- | --- |
+| **Windows** | `Sachssoft.Sasogine.Platform.Windows` | Windows-specific platform services | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Platform.Windows.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Platform.Windows) |
+| **Linux** | `Sachssoft.Sasogine.Platform.Linux` | Linux-specific platform services | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Platform.Linux.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Platform.Linux) |
+| **macOS** | `Sachssoft.Sasogine.Platform.MacOs` | macOS-specific platform services | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Platform.MacOs.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Platform.MacOs) |
+| **Android** | `Sachssoft.Sasogine.Platform.Android` | Android platform integration | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Platform.Android.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Platform.Android) |
+| **iOS** | `Sachssoft.Sasogine.Platform.iOS` | iOS platform integration | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Platform.iOS.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Platform.iOS) |
 
-| Library       | Usage                            | Status              | DesktopGL                                                                                                                                                | WindowsDX | Vulkan |
-| ------------- | -------------------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ------ |
-| **Basic**     | Core Engine                      | Partially Available | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.DesktopGL)                 |           |        |
-| **Toolkit**   | Editor & Development Tools       | Partially Available | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Toolkit.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Toolkit.DesktopGL) |           |        |
-| **UI**        | User Interface                   | Planned             |                                                                                                                                                          |           |        |
-| **Documents** | Document & Serialization Support | Partially Available | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Documents.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Documents.DesktopGL) |           |        |
-| **Markup**    | Markup & Serialization           | Deprecated          | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Markup.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Markup.DesktopGL)   |           |        |
+Published Sasogine packages can also be found on the [Sachssoft NuGet profile](https://www.nuget.org/profiles/tcs-1986).
 
-> **Note:** **Sasogine Markup** is deprecated and is being replaced by **Sasogine Documents**. New development should target `Sachssoft.Sasogine.Documents` and its related namespaces.
+## Rendering Backends
 
-#### Extensions
+Rendering backends are separate from platform services.
 
-| Library     | Usage               | Status     | DesktopGL                                                                                                                                                                      | WindowsDX | Vulkan | Changelog                                       |
-| ----------- | ------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- | ------ | ----------------------------------------------- |
-| **Sasodoc** | Document Formatting | Deprecated | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Extensions.Sasodoc.DesktopGL) |           |        | [See](Projects/Extensions/Sasodoc/CHANGELOG.md) |
+### DesktopGL
 
-> **Note:** The Sasogine Sasodoc extension is deprecated. Starting with **Sasogine 0.2.0-alpha**, its serialization functionality is being integrated into **Sasogine Documents** under the `Sachssoft.Sasogine.Documents.Serialization` namespace. The standalone extension remains available for earlier Sasogine versions but will no longer be developed.
+`Sachssoft.Sasogine.DesktopGL` uses the MonoGame DesktopGL backend.
 
-## Features
+Typical desktop targets:
 
-(*Coming soon*)
+* Windows
+* Linux
+* macOS
+
+### DesktopVK
+
+`Sachssoft.Sasogine.DesktopVK` uses MonoGame's Native framework together with Vulkan runtimes.
+
+It is currently considered experimental in Sasogine.
+
+### WindowsDX
+
+`Sachssoft.Sasogine.WindowsDX` uses the classic MonoGame WindowsDX backend.
+
+It targets Windows and DirectX-based rendering.
+
+### WindowsDX12
+
+`Sachssoft.Sasogine.WindowsDX12` uses MonoGame's Native framework with the DirectX 12 runtime.
+
+It is currently considered experimental in Sasogine.
+
+## Native AOT and Trimming
+
+Native AOT and trimming compatibility are important design goals of Sasogine.
+
+The engine favors:
+
+* Explicit object creation
+* Explicit registries and factories
+* Strongly typed metadata
+* Predictable dependency resolution
+* Minimal reliance on runtime reflection
+* AOT-compatible serialization paths
+* Trimming-compatible APIs
+
+Reflection may be used as an optional fallback in selected APIs when the runtime supports it. Core functionality should not require reflection where an explicit alternative is available.
+
+Runtime capability checks can be used before invoking reflection-dependent functionality.
+
+## Development Structure
+
+The main source tree is organized by responsibility:
+
+```text
+Projects/
+├── Basic/
+│   └── Sachssoft.Sasogine.csproj
+├── Documents/
+│   └── Sachssoft.Sasogine.Documents.csproj
+├── Toolkit/
+│   └── Sachssoft.Sasogine.Toolkit.csproj
+├── UI/
+├── Platforms/
+│   ├── Windows/
+│   ├── Linux/
+│   ├── MacOs/
+│   ├── Android/
+│   └── iOS/
+└── Backends/
+    ├── DesktopGL/
+    ├── DesktopVK/
+    ├── WindowsDX/
+    └── WindowsDX12/
+```
+
+Shared build and package configuration is maintained in the root-level `.props` files.
+
+## Versioning
+
+Sasogine currently uses prerelease alpha versions.
+
+During the alpha phase:
+
+* APIs may change without compatibility guarantees.
+* Types may move between namespaces or assemblies.
+* Projects and packages may be reorganized.
+* Experimental backends may be incomplete.
+
+See [CHANGELOG.md](CHANGELOG.md) for release-specific changes.
+
+## Issues and Development
+
+Known bugs, planned features and ongoing development are tracked through GitHub Issues:
+
+https://github.com/sachssoft/Sasogine/issues
+
+Bug reports and feature requests can be submitted through the issue tracker.
+
+## License
+
+Sasogine is licensed under the MIT License.
+
+See [LICENSE.md](LICENSE.md) for details.

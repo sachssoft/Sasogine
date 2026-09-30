@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\..\Sachssoft.Sasogine.props" />
+
+	<PropertyGroup>
+		<PackageId>Sachssoft.Sasogine</PackageId>
+		<Title>Sasogine</Title>
+
+		<Description>
+			Sasogine is a lightweight and flexible game engine framework based on MonoGame.
+		</Description>
+
+		<PackageTags>
+			MonoGame;Sasogine;GameEngine;Framework;AOT;Trimming
+		</PackageTags>
+	</PropertyGroup>
+
+</Project>

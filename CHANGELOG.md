@@ -43,6 +43,10 @@ All notable changes to this project will be documented in this file.
 * [Change] **Documents**: Moved Engine-specific document integration under `Sachssoft.Documents.Engine`.
 * [Change] **Toolkit**: Flattened tool namespaces by consolidating selection and vector tools under the common components tool namespace.
 * [Change] **Toolkit**: Extended `Object2InsertHandlerBuilder` with `WithMode()` for fixed and dynamically resolved insertion modes.
+* [Change] Decoupled Sasogine from DesktopGL using `MonoGame.Framework.Native`.
+* [Change] Split the engine into `Basic`, `Documents`, and `Toolkit` projects.
+* [Change] Separated platform and rendering backend projects.
+* [Change] Updated dependent projects to use the backend-independent Sasogine core.
 * [Change] Changed the root namespace from `Sachssoft.Sasogine` to `Sachssoft.Engine`.
 * [Change] Moved general timing and easing functionality to the common timing namespace.
 * [Change] Separated frame set runtime types from the asset system by replacing `Texture2DAsset` references with `Texture2D`.

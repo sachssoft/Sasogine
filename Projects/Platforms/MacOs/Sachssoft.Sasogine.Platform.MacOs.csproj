@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\..\..\Sachssoft.Sasogine.Package.props" />
+
+	<PropertyGroup>
+		<PackageId>Sachssoft.Sasogine.Platform.MacOs</PackageId>
+		<Title>Sasogine Platform macOS</Title>
+		<Description>macOS platform services for the Sasogine game engine.</Description>
+		<PackageTags>Sasogine;Platform;macOS;GameEngine</PackageTags>
+
+		<RootNamespace>Sachssoft.Engine.Platform.MacOs</RootNamespace>
+		<DefineConstants>$(DefineConstants);PLATFORM_MACOS;DEVICE_DESKTOP</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Basic\Sachssoft.Sasogine.csproj" />
+	</ItemGroup>
+
+</Project>

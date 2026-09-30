@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\..\..\Sachssoft.Sasogine.Package.props" />
+
+	<PropertyGroup>
+		<TargetFrameworks>net8.0-windows;net9.0-windows;net10.0-windows</TargetFrameworks>
+
+		<PackageId>Sachssoft.Sasogine.Platform.Windows</PackageId>
+		<Title>Sasogine Platform Windows</Title>
+		<Description>Windows platform services for the Sasogine game engine.</Description>
+		<PackageTags>Sasogine;Platform;Windows;GameEngine</PackageTags>
+
+		<RootNamespace>Sachssoft.Engine.Platform.Windows</RootNamespace>
+		<DefineConstants>$(DefineConstants);PLATFORM_WINDOWS;DEVICE_DESKTOP</DefineConstants>
+
+		<UseWPF>false</UseWPF>
+		<UseWindowsForms>false</UseWindowsForms>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Basic\Sachssoft.Sasogine.csproj" />
+	</ItemGroup>
+
+</Project>
