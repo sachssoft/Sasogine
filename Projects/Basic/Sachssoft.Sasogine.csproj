@@ -15,4 +15,8 @@
 		</PackageTags>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <None Include="..\..\CHANGELOG.md" Link="CHANGELOG.md" />
+	</ItemGroup>
+
 </Project>

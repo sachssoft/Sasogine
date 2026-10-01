@@ -19,7 +19,10 @@ All notable changes to this project will be documented in this file.
 
 </small>
 
-## [0.11.0-alpha] - Planned (Major Development Milestone — Large API and Architecture Overhaul)
+## [0.12.0-alpha] - Planned
+* [Improve] Change old attributes all definitions to new attribute definitions with strongly typed property metadata and value access.
+
+## [0.11.0-alpha] - 2026-09-30 (Major Development Milestone — Large API and Architecture Overhaul)
 * [Feature] Introduced asset support for integer-indexed `IndexedFrameSet`, strongly typed `IndexedFrameSet<TEnum>`, and keyed `KeyedFrameSet` frame sets.
 * [Feature] Added context-aware `Template<T, TContext>` support for runtime object creation.
 * [Feature] Added context-aware shader creation using `ShaderAssetContext`.
