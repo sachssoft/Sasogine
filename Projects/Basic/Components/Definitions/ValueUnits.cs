@@ -168,4 +168,36 @@ public static class ValueUnits
     /// </summary>
     public static readonly ValueUnit Percent =
         new(nameof(Percent), "%", ValueUnitGroups.Percentage, 0.01);
+
+    // Angular Speed
+
+    /// <summary>
+    /// Represents radians per second.
+    /// </summary>
+    public static readonly ValueUnit RadianPerSecond =
+        new(
+            nameof(RadianPerSecond),
+            "rad/s",
+            ValueUnitGroups.AngularSpeed,
+            1.0);
+
+    /// <summary>
+    /// Represents degrees per second.
+    /// </summary>
+    public static readonly ValueUnit DegreePerSecond =
+        new(
+            nameof(DegreePerSecond),
+            "°/s",
+            ValueUnitGroups.AngularSpeed,
+            Math.PI / 180.0);
+
+    /// <summary>
+    /// Represents revolutions per minute.
+    /// </summary>
+    public static readonly ValueUnit RevolutionPerMinute =
+        new(
+            nameof(RevolutionPerMinute),
+            "rpm",
+            ValueUnitGroups.AngularSpeed,
+            2.0 * Math.PI / 60.0);
 }

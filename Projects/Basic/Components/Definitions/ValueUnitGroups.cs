@@ -30,6 +30,12 @@ public static class ValueUnitGroups
     public static readonly ValueUnitGroup Speed = new("speed");
 
     /// <summary>
+    /// Represents units of angular speed, such as radians per second,
+    /// degrees per second, or revolutions per minute.
+    /// </summary>
+    public static readonly ValueUnitGroup AngularSpeed = new("angular-speed");
+
+    /// <summary>
     /// Represents units of acceleration, such as meters per second squared.
     /// </summary>
     public static readonly ValueUnitGroup Acceleration = new("acceleration");
