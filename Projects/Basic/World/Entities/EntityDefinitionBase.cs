@@ -1,5 +1,4 @@
 ﻿using Sachssoft.Engine.Components.Definitions;
-using System.ComponentModel;
 
 namespace Sachssoft.Engine.World;
 
@@ -19,8 +18,10 @@ public abstract class EntityDefinitionBase : IEntityDefinition
     /// The entity identifier, or <see langword="null"/> if no identifier has
     /// been assigned.
     /// </value>
-    [Category(Categories.Common)]
-    [DisplayName("Id")]
+    [DefinitionMember(
+        Title = "Id",
+        Category = Categories.Common,
+        Description = "Specifies the identifier of the entity.")]
     public string? Id { get; set; }
 
     /// <summary>
@@ -29,7 +30,9 @@ public abstract class EntityDefinitionBase : IEntityDefinition
     /// <value>
     /// The entity class, or <see langword="null"/> if no class has been assigned.
     /// </value>
-    [Category(Categories.Common)]
-    [DisplayName("Class")]
+    [DefinitionMember(
+        Title = "Class",
+        Category = Categories.Common,
+        Description = "Specifies the class associated with the entity.")]
     public string? Class { get; set; }
 }
