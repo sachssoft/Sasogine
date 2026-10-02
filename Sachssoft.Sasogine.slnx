@@ -48,7 +48,6 @@
 		<File Path=".github/ISSUE_TEMPLATE/feature_request.yml" />
 		<File Path=".github/ISSUE_TEMPLATE/idea.yml" />
 		<File Path=".github/ISSUE_TEMPLATE/improvement.yml" />
-		<File Path=".github/ISSUE_TEMPLATE/question.yml" />
 		<File Path=".github/ISSUE_TEMPLATE/refactor.yml" />
 	</Folder>
 

@@ -1,5 +1,10 @@
 blank_issues_enabled: false
+
 contact_links:
-  - name: 📚 Dokumentation
-    url: https://dein-projekt-link.de/docs
-    about: Bitte zuerst die Dokumentation prüfen, bevor du ein Issue erstellst.
+  - name: 📚 Documentation
+    url: https://github.com/Sachssoft/Sasogine
+    about: Check the documentation before creating an issue.
+
+  - name: 💬 Discussions
+    url: https://github.com/Sachssoft/Sasogine/discussions
+    about: Ask general questions or discuss ideas that are not ready for an issue.
