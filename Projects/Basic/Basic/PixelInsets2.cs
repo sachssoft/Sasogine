@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
@@ -138,6 +139,20 @@ public readonly struct PixelInsets2
             bounds.Width + Horizontal,
             bounds.Height + Vertical
         );
+
+    /// <summary>
+    /// Converts these pixel insets to a four-dimensional vector.
+    /// </summary>
+    /// <returns>
+    /// A vector containing the left, top, right, and bottom inset values.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector4 ToVector4()
+        => new Vector4(
+            _left,
+            _top,
+            _right,
+            _bottom);
 
     /// <summary>
     /// Parses a string representation of pixel insets.

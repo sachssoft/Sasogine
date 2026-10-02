@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
@@ -220,6 +221,32 @@ public readonly struct Insets3
             bounds.Height + Vertical,
             bounds.Depth + Depth
         );
+
+    /// <summary>
+    /// Converts the minimum-side insets to a three-dimensional vector.
+    /// </summary>
+    /// <returns>
+    /// A vector containing the left, top, and front inset values.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector3 ToMinimumVector3()
+        => new Vector3(
+            Left,
+            Top,
+            Front);
+
+    /// <summary>
+    /// Converts the maximum-side insets to a three-dimensional vector.
+    /// </summary>
+    /// <returns>
+    /// A vector containing the right, bottom, and back inset values.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector3 ToMaximumVector3()
+        => new Vector3(
+            Right,
+            Bottom,
+            Back);
 
     /// <summary>
     /// Parses a string representation of <see cref="Insets3"/>.

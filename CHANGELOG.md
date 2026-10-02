@@ -20,8 +20,9 @@ All notable changes to this project will be documented in this file.
 </small>
 
 ## [0.12.0-alpha] - Planned
-* [Improve] Change old attributes all definitions to new attribute definitions with strongly typed property metadata and value access.
+* [Improve] Migrate all definitions from the old attributes to the new definition attributes with strongly typed property metadata and value access.
 * [Improve] Add missing units and unit groups.
+* [Improve] Add vector conversion methods to all inset types for shader usage.
 
 ## [0.11.0-alpha] - 2026-09-30 (Major Development Milestone — Large API and Architecture Overhaul)
 * [Feature] Introduced asset support for integer-indexed `IndexedFrameSet`, strongly typed `IndexedFrameSet<TEnum>`, and keyed `KeyedFrameSet` frame sets.
