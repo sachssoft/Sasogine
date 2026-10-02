@@ -1,0 +1,34 @@
+name: ✨ Enhancement
+description: Suggest an enhancement to existing functionality
+title: "ENHANCEMENT: "
+labels:
+  - enhancement
+assignees:
+  - Sachssoft
+
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "📝 Description"
+      placeholder: "Describe the enhancement and what it should add."
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: "🎯 Motivation"
+      placeholder: "Explain why this enhancement would be useful."
+
+  - type: textarea
+    id: proposed
+    attributes:
+      label: "💡 Proposed solution"
+      placeholder: "Describe how the enhancement could work."
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: "📎 Additional information"
+      placeholder: "Add examples, mockups, references, or other details."

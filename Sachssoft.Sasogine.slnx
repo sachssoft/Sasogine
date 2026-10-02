@@ -41,6 +41,16 @@
 		<Project Path="Projects/Backends/WindowsDX/Sachssoft.Sasogine.WindowsDX.csproj" />
 		<Project Path="Projects/Backends/WindowsDX12/Sachssoft.Sasogine.WindowsDX12.csproj" />
 	</Folder>
+	<Folder Name="/Docs/GitHub/">
+		<File Path=".github/ISSUE_TEMPLATE/bug_report.yml" />
+		<File Path=".github/ISSUE_TEMPLATE/config.yml" />
+		<File Path=".github/ISSUE_TEMPLATE/enhancement.yml" />
+		<File Path=".github/ISSUE_TEMPLATE/feature_request.yml" />
+		<File Path=".github/ISSUE_TEMPLATE/idea.yml" />
+		<File Path=".github/ISSUE_TEMPLATE/improvement.yml" />
+		<File Path=".github/ISSUE_TEMPLATE/question.yml" />
+		<File Path=".github/ISSUE_TEMPLATE/refactor.yml" />
+	</Folder>
 
 	<Folder Name="/Examples/" />
 </Solution>
