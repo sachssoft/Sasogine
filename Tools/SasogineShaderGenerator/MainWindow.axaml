@@ -10,20 +10,19 @@
 
 		<Grid Grid.Row="1" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" Margin="0,0,0,12">
 			<TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="FX file" Margin="0,0,0,5" />
-			<TextBox x:Name="FxPathBox" Grid.Row="1" Grid.Column="0" Watermark="Path to .fx file" />
+			<TextBox x:Name="FxPathBox" Grid.Row="1" Grid.Column="0" Watermark="Path to .fx file" TextChanged="FxPathBox_TextChanged" />
 			<Button Grid.Row="1" Grid.Column="1" Content="Browse…" Margin="8,0,0,0" Click="BrowseFx_Click" />
 		</Grid>
 
-		<Grid Grid.Row="2" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" Margin="0,0,0,12">
-			<TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="Output file" Margin="0,0,0,5" />
-			<TextBox x:Name="OutputPathBox" Grid.Row="1" Grid.Column="0" Watermark="Path to compiled .mgfx file" />
-			<Button Grid.Row="1" Grid.Column="1" Content="Browse…" Margin="8,0,0,0" Click="BrowseOutput_Click" />
+		<Grid Grid.Row="2" RowDefinitions="Auto,Auto" Margin="0,0,0,12">
+			<TextBlock Grid.Row="0" Text="Output file" Margin="0,0,0,5" />
+			<TextBox x:Name="OutputPathBox" Grid.Row="1" IsReadOnly="True" Watermark="Generated automatically from shader and target" />
 		</Grid>
 
 		<Grid Grid.Row="3" ColumnDefinitions="*,*" Margin="0,0,0,16">
 			<StackPanel Grid.Column="0" Margin="0,0,8,0">
 				<TextBlock Text="Target" Margin="0,0,0,5" />
-				<ComboBox x:Name="TargetBox" SelectedIndex="0">
+				<ComboBox x:Name="TargetBox" SelectedIndex="0" SelectionChanged="TargetBox_SelectionChanged">
 					<ComboBoxItem Content="OpenGL" />
 					<ComboBoxItem Content="DirectX 11" />
 				</ComboBox>

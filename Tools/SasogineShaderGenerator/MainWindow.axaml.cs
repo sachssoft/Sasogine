@@ -26,23 +26,39 @@ public sealed partial class MainWindow : Window
             return;
 
         FxPathBox.Text = files[0].TryGetLocalPath();
-
-        if (string.IsNullOrWhiteSpace(OutputPathBox.Text) && !string.IsNullOrWhiteSpace(FxPathBox.Text))
-            OutputPathBox.Text = Path.ChangeExtension(FxPathBox.Text, ".mgfx");
+        UpdateOutputPath();
     }
 
-    private async void BrowseOutput_Click(object? sender, RoutedEventArgs e)
+    private void FxPathBox_TextChanged(object? sender, TextChangedEventArgs e)
     {
-        var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
-        {
-            Title = "Select output file",
-            SuggestedFileName = GetSuggestedOutputName(),
-            DefaultExtension = "mgfx",
-            FileTypeChoices = [new FilePickerFileType("MonoGame Effect Binary") { Patterns = ["*.mgfx"] }]
-        });
+        UpdateOutputPath();
+    }
 
-        if (file is not null)
-            OutputPathBox.Text = file.TryGetLocalPath();
+    private void TargetBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        UpdateOutputPath();
+    }
+
+    private void UpdateOutputPath()
+    {
+        if (OutputPathBox is null || FxPathBox is null || TargetBox is null)
+            return;
+
+        var input = FxPathBox.Text?.Trim();
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            OutputPathBox.Text = string.Empty;
+            return;
+        }
+
+        var directory = Path.GetDirectoryName(input);
+        var fileName = Path.GetFileNameWithoutExtension(input);
+        var suffix = TargetBox.SelectedIndex == 1 ? "dx" : "gl";
+        var outputName = $"{fileName}_{suffix}.mgfxo";
+
+        OutputPathBox.Text = string.IsNullOrWhiteSpace(directory)
+            ? outputName
+            : Path.Combine(directory, outputName);
     }
 
     private async void Compile_Click(object? sender, RoutedEventArgs e)
@@ -96,12 +112,6 @@ public sealed partial class MainWindow : Window
         {
             CompileButton.IsEnabled = true;
         }
-    }
-
-    private string GetSuggestedOutputName()
-    {
-        var input = FxPathBox.Text;
-        return string.IsNullOrWhiteSpace(input) ? "Shader.mgfx" : Path.GetFileNameWithoutExtension(input) + ".mgfx";
     }
 
     private void SetLog(string text) => LogBox.Text = text;
