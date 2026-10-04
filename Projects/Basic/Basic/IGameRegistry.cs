@@ -18,6 +18,33 @@ public interface IGameRegistry
     IReadOnlyList<IGameRegistryKey> GetKeys();
 
     /// <summary>
+    /// Gets the registry key associated with the specified definition.
+    /// </summary>
+    /// <param name="definition">
+    /// The definition used to locate the corresponding registry key.
+    /// </param>
+    /// <returns>The registry key associated with the definition.</returns>
+    IGameRegistryKey GetKey(IDefinition definition);
+
+    /// <summary>
+    /// Attempts to get the registry key associated with the specified definition.
+    /// </summary>
+    /// <param name="definition">
+    /// The definition used to locate the corresponding registry key.
+    /// </param>
+    /// <param name="key">
+    /// When this method returns <see langword="true"/>, contains the associated
+    /// registry key; otherwise, <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if a registry key was found;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    bool TryGetKey(
+        IDefinition definition,
+        [NotNullWhen(true)] out IGameRegistryKey? key);
+
+    /// <summary>
     /// Registers a definition factory and its corresponding engine object factory
     /// using the specified registry key.
     /// </summary>

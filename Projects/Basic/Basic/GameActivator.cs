@@ -41,6 +41,22 @@ public sealed class GameActivator : IGameActivator
     }
 
     /// <inheritdoc/>
+    public IGameRegistryKey GetKey(IDefinition definition)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+        return _registry.GetKey(definition);
+    }
+
+    /// <inheritdoc/>
+    public bool TryGetKey(
+        IDefinition definition,
+        [NotNullWhen(true)] out IGameRegistryKey? key)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+        return _registry.TryGetKey(definition, out key);
+    }
+
+    /// <inheritdoc/>
     public bool IsSupported(IGameRegistryKey key)
     {
         ArgumentNullException.ThrowIfNull(key);

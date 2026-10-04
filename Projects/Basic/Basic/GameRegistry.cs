@@ -66,6 +66,81 @@ public class GameRegistry<TKey, TDefinition, TObject> : IGameRegistry
     }
 
     /// <summary>
+    /// Gets the registry key associated with the specified definition.
+    /// </summary>
+    /// <param name="definition">
+    /// The definition used to locate the corresponding registry entry.
+    /// </param>
+    /// <returns>The registry key associated with the definition.</returns>
+    public TKey GetKey(TDefinition definition)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+
+        if (TryGetDefinitionEntry(definition.GetType(), out IGameRegistryEntry? entry))
+            return (TKey)entry.Key;
+
+        throw new KeyNotFoundException(
+            $"Definition type '{definition.GetType().FullName}' is not registered.");
+    }
+
+    /// <summary>
+    /// Attempts to get the registry key associated with the specified definition.
+    /// </summary>
+    /// <param name="definition">
+    /// The definition used to locate the corresponding registry entry.
+    /// </param>
+    /// <param name="key">
+    /// When this method returns <see langword="true"/>, contains the associated
+    /// registry key; otherwise, <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if a registry key was found;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool TryGetKey(
+        TDefinition definition,
+        [NotNullWhen(true)] out TKey? key)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+
+        if (TryGetDefinitionEntry(definition.GetType(), out IGameRegistryEntry? entry))
+        {
+            key = (TKey)entry.Key;
+            return true;
+        }
+
+        key = default;
+        return false;
+    }
+
+    IGameRegistryKey IGameRegistry.GetKey(IDefinition definition)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+
+        if (TryGetDefinitionEntry(definition.GetType(), out IGameRegistryEntry? entry))
+            return entry.Key;
+
+        throw new KeyNotFoundException(
+            $"Definition type '{definition.GetType().FullName}' is not registered.");
+    }
+
+    bool IGameRegistry.TryGetKey(
+        IDefinition definition,
+        [NotNullWhen(true)] out IGameRegistryKey? key)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+
+        if (TryGetDefinitionEntry(definition.GetType(), out IGameRegistryEntry? entry))
+        {
+            key = entry.Key;
+            return true;
+        }
+
+        key = null;
+        return false;
+    }
+
+    /// <summary>
     /// Gets a snapshot of all registered entries.
     /// </summary>
     protected IReadOnlyList<IGameRegistryEntry> GetEntries()

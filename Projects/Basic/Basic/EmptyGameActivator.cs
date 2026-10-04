@@ -15,42 +15,57 @@ internal sealed class EmptyGameActivator : IGameActivator
     /// </summary>
     public static EmptyGameActivator Instance { get; } = new();
 
-    internal EmptyGameActivator()
+    private EmptyGameActivator()
     {
     }
 
-    /// <inheritdoc/>
-    public IReadOnlyList<IGameRegistryKey> GetKeys()
+    IReadOnlyList<IGameRegistryKey> IGameActivator.GetKeys()
     {
         return Array.Empty<IGameRegistryKey>();
     }
 
-    /// <inheritdoc/>
-    public bool IsSupported(IGameRegistryKey key)
+    IGameRegistryKey IGameActivator.GetKey(IDefinition definition)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+
+        throw new NotSupportedException(
+            "The empty game activator does not support registry key lookup.");
+    }
+
+    bool IGameActivator.TryGetKey(
+        IDefinition definition,
+        [NotNullWhen(true)] out IGameRegistryKey? key)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+
+        key = null;
+        return false;
+    }
+
+    bool IGameActivator.IsSupported(IGameRegistryKey key)
     {
         ArgumentNullException.ThrowIfNull(key);
 
         return false;
     }
 
-    /// <inheritdoc/>
-    public bool IsDefinitionSupported(Type definitionType)
+    bool IGameActivator.IsDefinitionSupported(Type definitionType)
     {
         ArgumentNullException.ThrowIfNull(definitionType);
 
         return false;
     }
 
-    /// <inheritdoc/>
-    public bool IsObjectSupported(Type objectType)
+    bool IGameActivator.IsObjectSupported(Type objectType)
     {
         ArgumentNullException.ThrowIfNull(objectType);
 
         return false;
     }
 
-    /// <inheritdoc/>
-    public IEngineObject Create(IGameRegistryKey key, IDefinition definition)
+    IEngineObject IGameActivator.Create(
+        IGameRegistryKey key,
+        IDefinition definition)
     {
         ArgumentNullException.ThrowIfNull(key);
         ArgumentNullException.ThrowIfNull(definition);
@@ -59,8 +74,9 @@ internal sealed class EmptyGameActivator : IGameActivator
             "The empty game activator does not support engine object creation.");
     }
 
-    /// <inheritdoc/>
-    public IEngineObject Create(Type objectType, IDefinition definition)
+    IEngineObject IGameActivator.Create(
+        Type objectType,
+        IDefinition definition)
     {
         ArgumentNullException.ThrowIfNull(objectType);
         ArgumentNullException.ThrowIfNull(definition);
@@ -69,8 +85,8 @@ internal sealed class EmptyGameActivator : IGameActivator
             "The empty game activator does not support engine object creation.");
     }
 
-    /// <inheritdoc/>
-    public IEngineObject CreateFromDefinition(IDefinition definition)
+    IEngineObject IGameActivator.CreateFromDefinition(
+        IDefinition definition)
     {
         ArgumentNullException.ThrowIfNull(definition);
 
@@ -78,8 +94,8 @@ internal sealed class EmptyGameActivator : IGameActivator
             "The empty game activator does not support engine object creation.");
     }
 
-    /// <inheritdoc/>
-    public IDefinition CreateDefinition(IGameRegistryKey key)
+    IDefinition IGameActivator.CreateDefinition(
+        IGameRegistryKey key)
     {
         ArgumentNullException.ThrowIfNull(key);
 
@@ -87,8 +103,7 @@ internal sealed class EmptyGameActivator : IGameActivator
             "The empty game activator does not support definition creation.");
     }
 
-    /// <inheritdoc/>
-    public bool TryCreateDefinition(
+    bool IGameActivator.TryCreateDefinition(
         IGameRegistryKey key,
         [NotNullWhen(true)] out IDefinition? definition)
     {
@@ -98,8 +113,7 @@ internal sealed class EmptyGameActivator : IGameActivator
         return false;
     }
 
-    /// <inheritdoc/>
-    public bool TryCreate(
+    bool IGameActivator.TryCreate(
         IGameRegistryKey key,
         IDefinition definition,
         [NotNullWhen(true)] out IEngineObject? instance)
@@ -111,8 +125,7 @@ internal sealed class EmptyGameActivator : IGameActivator
         return false;
     }
 
-    /// <inheritdoc/>
-    public bool TryCreate(
+    bool IGameActivator.TryCreate(
         Type objectType,
         IDefinition definition,
         [NotNullWhen(true)] out IEngineObject? instance)
@@ -124,8 +137,7 @@ internal sealed class EmptyGameActivator : IGameActivator
         return false;
     }
 
-    /// <inheritdoc/>
-    public bool TryCreateFromDefinition(
+    bool IGameActivator.TryCreateFromDefinition(
         IDefinition definition,
         [NotNullWhen(true)] out IEngineObject? instance)
     {
