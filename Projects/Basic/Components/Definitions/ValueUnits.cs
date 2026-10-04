@@ -169,6 +169,114 @@ public static class ValueUnits
     public static readonly ValueUnit Percent =
         new(nameof(Percent), "%", ValueUnitGroups.Percentage, 0.01);
 
+
+    // Temperature
+
+    /// <summary>
+    /// Represents kelvin.
+    /// </summary>
+    public static readonly ValueUnit Kelvin =
+        new(nameof(Kelvin), "K", ValueUnitGroups.Temperature, 1.0);
+
+    /// <summary>
+    /// Represents degrees Celsius.
+    /// </summary>
+    public static readonly ValueUnit Celsius =
+        new(nameof(Celsius), "°C", ValueUnitGroups.Temperature, 1.0, 273.15);
+
+    /// <summary>
+    /// Represents degrees Fahrenheit.
+    /// </summary>
+    public static readonly ValueUnit Fahrenheit =
+        new(nameof(Fahrenheit), "°F", ValueUnitGroups.Temperature, 5.0 / 9.0, 255.3722222222222);
+
+
+    // Area
+
+    /// <summary>
+    /// Represents square millimeters.
+    /// </summary>
+    public static readonly ValueUnit SquareMillimeter =
+        new(nameof(SquareMillimeter), "mm²", ValueUnitGroups.Area, 0.000001);
+
+    /// <summary>
+    /// Represents square centimeters.
+    /// </summary>
+    public static readonly ValueUnit SquareCentimeter =
+        new(nameof(SquareCentimeter), "cm²", ValueUnitGroups.Area, 0.0001);
+
+    /// <summary>
+    /// Represents square meters.
+    /// </summary>
+    public static readonly ValueUnit SquareMeter =
+        new(nameof(SquareMeter), "m²", ValueUnitGroups.Area, 1.0);
+
+    /// <summary>
+    /// Represents hectares.
+    /// </summary>
+    public static readonly ValueUnit Hectare =
+        new(nameof(Hectare), "ha", ValueUnitGroups.Area, 10_000.0);
+
+    /// <summary>
+    /// Represents square kilometers.
+    /// </summary>
+    public static readonly ValueUnit SquareKilometer =
+        new(nameof(SquareKilometer), "km²", ValueUnitGroups.Area, 1_000_000.0);
+
+
+    // Volume
+
+    /// <summary>
+    /// Represents milliliters.
+    /// </summary>
+    public static readonly ValueUnit Milliliter =
+        new(nameof(Milliliter), "ml", ValueUnitGroups.Volume, 0.000001);
+
+    /// <summary>
+    /// Represents liters.
+    /// </summary>
+    public static readonly ValueUnit Liter =
+        new(nameof(Liter), "l", ValueUnitGroups.Volume, 0.001);
+
+    /// <summary>
+    /// Represents cubic centimeters.
+    /// </summary>
+    public static readonly ValueUnit CubicCentimeter =
+        new(nameof(CubicCentimeter), "cm³", ValueUnitGroups.Volume, 0.000001);
+
+    /// <summary>
+    /// Represents cubic meters.
+    /// </summary>
+    public static readonly ValueUnit CubicMeter =
+        new(nameof(CubicMeter), "m³", ValueUnitGroups.Volume, 1.0);
+
+
+    // Data Size
+
+    /// <summary>
+    /// Represents bytes.
+    /// </summary>
+    public static readonly ValueUnit Byte =
+        new(nameof(Byte), "B", ValueUnitGroups.DataSize, 1.0);
+
+    /// <summary>
+    /// Represents decimal kilobytes.
+    /// </summary>
+    public static readonly ValueUnit Kilobyte =
+        new(nameof(Kilobyte), "kB", ValueUnitGroups.DataSize, 1_000.0);
+
+    /// <summary>
+    /// Represents decimal megabytes.
+    /// </summary>
+    public static readonly ValueUnit Megabyte =
+        new(nameof(Megabyte), "MB", ValueUnitGroups.DataSize, 1_000_000.0);
+
+    /// <summary>
+    /// Represents decimal gigabytes.
+    /// </summary>
+    public static readonly ValueUnit Gigabyte =
+        new(nameof(Gigabyte), "GB", ValueUnitGroups.DataSize, 1_000_000_000.0);
+
     // Angular Speed
 
     /// <summary>

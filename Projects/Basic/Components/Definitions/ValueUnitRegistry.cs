@@ -44,6 +44,30 @@ public static class ValueUnitRegistry
 
         Register(ValueUnits.Ratio);
         Register(ValueUnits.Percent);
+
+        Register(ValueUnits.Kelvin);
+        Register(ValueUnits.Celsius);
+        Register(ValueUnits.Fahrenheit);
+
+        Register(ValueUnits.SquareMillimeter);
+        Register(ValueUnits.SquareCentimeter);
+        Register(ValueUnits.SquareMeter);
+        Register(ValueUnits.Hectare);
+        Register(ValueUnits.SquareKilometer);
+
+        Register(ValueUnits.Milliliter);
+        Register(ValueUnits.Liter);
+        Register(ValueUnits.CubicCentimeter);
+        Register(ValueUnits.CubicMeter);
+
+        Register(ValueUnits.Byte);
+        Register(ValueUnits.Kilobyte);
+        Register(ValueUnits.Megabyte);
+        Register(ValueUnits.Gigabyte);
+
+        Register(ValueUnits.RadianPerSecond);
+        Register(ValueUnits.DegreePerSecond);
+        Register(ValueUnits.RevolutionPerMinute);
     }
 
     /// <summary>

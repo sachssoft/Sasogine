@@ -14,16 +14,19 @@ public readonly struct ValueUnit
     /// <param name="symbol">The display symbol of the unit.</param>
     /// <param name="group">The group to which the unit belongs.</param>
     /// <param name="factor">The conversion factor relative to the base unit.</param>
+    /// <param name="offset">The offset applied after scaling to the base unit.</param>
     public ValueUnit(
         string name,
         string symbol,
         ValueUnitGroup group,
-        double factor)
+        double factor,
+        double offset = 0.0)
     {
         Name = name;
         Symbol = symbol;
         Group = group;
         Factor = factor;
+        Offset = offset;
     }
 
     /// <summary>
@@ -47,6 +50,11 @@ public readonly struct ValueUnit
     public double Factor { get; }
 
     /// <summary>
+    /// Gets the offset applied after scaling to the base unit.
+    /// </summary>
+    public double Offset { get; }
+
+    /// <summary>
     /// Converts a value from this unit to the specified unit.
     /// </summary>
     /// <param name="value">The value to convert.</param>
@@ -61,6 +69,7 @@ public readonly struct ValueUnit
             throw new InvalidOperationException(
                 $"Cannot convert '{Name}' to '{unit.Name}'.");
 
-        return value * Factor / unit.Factor;
+        var baseValue = value * Factor + Offset;
+        return (baseValue - unit.Offset) / unit.Factor;
     }
 }
