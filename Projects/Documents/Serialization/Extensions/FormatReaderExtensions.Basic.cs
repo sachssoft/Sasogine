@@ -1,5 +1,8 @@
 using Microsoft.Xna.Framework;
+using Sachssoft.Engine;
+using Sachssoft.Engine.Geometry;
 using Sachssoft.Engine.Graphics;
+using System.Collections.Generic;
 
 namespace Sachssoft.Documents.Serialization;
 
@@ -8,6 +11,44 @@ namespace Sachssoft.Documents.Serialization;
 /// </summary>
 public static partial class FormatReaderExtensions
 {
+    /// <summary>
+    /// Reads a <see cref="Path"/> from the specified property.
+    /// </summary>
+    /// <param name="reader">The reader used to deserialize the path.</param>
+    /// <param name="property">The name of the property to read.</param>
+    /// <param name="fallback">The value returned when the property cannot be read.</param>
+    /// <returns>The deserialized path, or the supplied fallback when no usable value is available.</returns>
+    public static Path ReadPath(this FormatReaderBase reader, string property, Path? fallback = null)
+    {
+        var childReader = reader.Read(property);
+
+        if (childReader == null || !childReader.Contains(property))
+            return fallback ?? Path.Empty;
+
+        var polygons = new List<Point2[]>();
+        var polygonReaders = childReader.ReadArray(property);
+
+        foreach (var polygonReader in polygonReaders)
+        {
+            if (!polygonReader.Contains("Polygon"))
+                continue;
+
+            var points = new List<Point2>();
+            var pointReaders = polygonReader.ReadArray("Polygon");
+
+            foreach (var pointReader in pointReaders)
+            {
+                if (!pointReader.Contains("Point"))
+                    continue;
+
+                points.Add(pointReader.ReadPoint2("Point", Point2.Zero));
+            }
+
+            polygons.Add(points.ToArray());
+        }
+
+        return new Path(polygons);
+    }
 
     /// <summary>
     /// Reads a Color value from the specified markup property.

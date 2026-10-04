@@ -2,6 +2,7 @@ using Sachssoft.Engine;
 using Sachssoft.Engine.Gameplay;
 using Sachssoft.Engine.Geometry;
 using System;
+using System.Collections.Generic;
 
 namespace Sachssoft.Documents.Serialization;
 
@@ -10,6 +11,38 @@ namespace Sachssoft.Documents.Serialization;
 /// </summary>
 public static partial class FormatWriterExtensions
 {
+
+    /// <summary>
+    /// Writes a <see cref="Path"/> to the specified property.
+    /// </summary>
+    /// <param name="writer">The writer used to serialize the path.</param>
+    /// <param name="property">The name of the property to write.</param>
+    /// <param name="value">The path to write, or <see langword="null"/>.</param>
+    public static void WritePath(this FormatWriterBase writer, string property, Path? value)
+    {
+        if (value == null)
+            return;
+
+        var polygonWriters = new List<FormatWriterBase>();
+
+        for (int i = 0; i < value.GetPolygonCount(); i++)
+        {
+            var pointWriters = new List<FormatWriterBase>();
+            var polygonWriter = writer.CreateWriter();
+
+            for (int j = 0; j < value.GetPointCount(i); j++)
+            {
+                var pointWriter = polygonWriter.CreateWriter();
+                pointWriter.WritePoint2("Point", value.GetPoint(i, j));
+                pointWriters.Add(pointWriter);
+            }
+
+            polygonWriter.WriteArray("Polygon", pointWriters.ToArray());
+            polygonWriters.Add(polygonWriter);
+        }
+
+        writer.WriteArray(property, polygonWriters.ToArray());
+    }
 
     /// <summary>
     /// Writes a Point2 value to the specified markup property.
