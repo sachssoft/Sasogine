@@ -20,13 +20,11 @@ public static partial class FormatReaderExtensions
     /// <returns>The deserialized path, or the supplied fallback when no usable value is available.</returns>
     public static Path ReadPath(this FormatReaderBase reader, string property, Path? fallback = null)
     {
-        var childReader = reader.Read(property);
-
-        if (childReader == null || !childReader.Contains(property))
+        if (!reader.Contains(property))
             return fallback ?? Path.Empty;
 
         var polygons = new List<Point2[]>();
-        var polygonReaders = childReader.ReadArray(property);
+        var polygonReaders = reader.ReadArray(property);
 
         foreach (var polygonReader in polygonReaders)
         {

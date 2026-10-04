@@ -20,6 +20,8 @@ All notable changes to this project will be documented in this file.
 </small>
 
 ## [0.12.0-alpha] - Planned
+* [Feature] Added color models for RGB, HSL, HSV, linear RGB, and OKLab.
+* [Feature] Added color conversion and manipulation extensions for MonoGame colors.
 * [Feature] Added `GetKey` and `TryGetKey` support for resolving registry keys from definitions.
 * [Feature] **Documents**: Added missing `Path` extensions for `FormatWriterBase` and `FormatReaderBase`.
 * [Improve] Migrate all definitions from the old attributes to the new definition attributes with strongly typed property metadata and value access.
