@@ -20,9 +20,12 @@ All notable changes to this project will be documented in this file.
 </small>
 
 ## [0.12.0-alpha] - Planned
+* [Feature] Added `GetKey` and `TryGetKey` support for resolving registry keys from definitions.
+* [Feature] **Documents**: Added missing `Path` extensions for `FormatWriterBase` and `FormatReaderBase`.
 * [Improve] Migrate all definitions from the old attributes to the new definition attributes with strongly typed property metadata and value access.
 * [Improve] Add missing units and unit groups.
 * [Improve] Add vector conversion methods to all inset types for shader usage.
+* [Improve] Improved and extended value unit support with additional units for temperature, area, volume, data size, and angular speed.
 
 ## [0.11.0-alpha] - 2026-09-30 (Major Development Milestone — Large API and Architecture Overhaul)
 * [Feature] Introduced asset support for integer-indexed `IndexedFrameSet`, strongly typed `IndexedFrameSet<TEnum>`, and keyed `KeyedFrameSet` frame sets.
