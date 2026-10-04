@@ -46,6 +46,62 @@ public abstract class PreconfiguredSerializationGameActivator<TKey, TDefinition,
         => _activator.GetKeys();
 
     /// <summary>
+    /// Gets the registry key associated with the specified definition.
+    /// </summary>
+    /// <param name="definition">
+    /// The definition used to locate the corresponding registry key.
+    /// </param>
+    /// <returns>The registry key associated with the definition.</returns>
+    public TKey GetKey(TDefinition definition)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+        return (TKey)_activator.GetKey(definition);
+    }
+
+    /// <summary>
+    /// Attempts to get the registry key associated with the specified definition.
+    /// </summary>
+    /// <param name="definition">
+    /// The definition used to locate the corresponding registry key.
+    /// </param>
+    /// <param name="key">
+    /// When this method returns <see langword="true"/>, contains the associated
+    /// registry key; otherwise, <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if a registry key was found;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool TryGetKey(
+        TDefinition definition,
+        [NotNullWhen(true)] out TKey? key)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+
+        if (_activator.TryGetKey(definition, out IGameRegistryKey? result) &&
+            result is TKey typedKey)
+        {
+            key = typedKey;
+            return true;
+        }
+
+        key = default;
+        return false;
+    }
+
+    IGameRegistryKey IGameActivator.GetKey(IDefinition definition)
+    {
+        return _activator.GetKey(definition);
+    }
+
+    bool IGameActivator.TryGetKey(
+        IDefinition definition,
+        [NotNullWhen(true)] out IGameRegistryKey? key)
+    {
+        return _activator.TryGetKey(definition, out key);
+    }
+
+    /// <summary>
     /// Determines whether the specified registry key is supported.
     /// </summary>
     /// <param name="key">The registry key to check.</param>
