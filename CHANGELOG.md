@@ -28,6 +28,9 @@ All notable changes to this project will be documented in this file.
 * [Improve] Add missing units and unit groups.
 * [Improve] Add vector conversion methods to all inset types for shader usage.
 * [Improve] Improved and extended value unit support with additional units for temperature, area, volume, data size, and angular speed.
+* [Improve] Extended sphere mesh generation with normals, tangents, bitangents, and texture coordinates.
+* [Improve] Extended `Camera2` with configurable near and far clipping planes.
+* [Bug] **Toolkit**: Fixed Selection Tool handles being displayed for disabled transformations.
 
 ## [0.11.0-alpha] - 2026-09-30 (Major Development Milestone — Large API and Architecture Overhaul)
 * [Feature] Introduced asset support for integer-indexed `IndexedFrameSet`, strongly typed `IndexedFrameSet<TEnum>`, and keyed `KeyedFrameSet` frame sets.
