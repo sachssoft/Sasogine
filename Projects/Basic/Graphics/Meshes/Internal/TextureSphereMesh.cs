@@ -88,16 +88,19 @@ internal sealed class TextureSphereMesh<TVertex> : Mesh<TVertex>
         {
             for (int x = 0; x < segments; x++)
             {
-                short current = checked((short)(y * (segments + 1) + x));
-                short next = checked((short)(current + segments + 1));
+                short current =
+                    checked((short)(y * (segments + 1) + x));
+
+                short next =
+                    checked((short)(current + segments + 1));
 
                 indices[index++] = current;
-                indices[index++] = next;
                 indices[index++] = checked((short)(current + 1));
+                indices[index++] = next;
 
                 indices[index++] = checked((short)(current + 1));
-                indices[index++] = next;
                 indices[index++] = checked((short)(next + 1));
+                indices[index++] = next;
             }
         }
 
