@@ -24,6 +24,7 @@ All notable changes to this project will be documented in this file.
 * [Feature] Added color conversion and manipulation extensions for MonoGame colors.
 * [Feature] Added `GetKey` and `TryGetKey` support for resolving registry keys from definitions.
 * [Feature] **Documents**: Added missing `Path` extensions for `FormatWriterBase` and `FormatReaderBase`.
+* [Change] Added aspect-ratio-preserving resizing to the Selection Tool.
 * [Improve] Migrate all definitions from the old attributes to the new definition attributes with strongly typed property metadata and value access.
 * [Improve] Add missing units and unit groups.
 * [Improve] Add vector conversion methods to all inset types for shader usage.

@@ -11,4 +11,9 @@ public interface ISelectionResizable2 : ISelectionTarget2, IReadOnlyTransformSiz
     /// Gets a value indicating whether resizing is allowed.
     /// </summary>
     bool AllowResize { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether the aspect ratio is preserved when resizing.
+    /// </summary>
+    bool PreserveAspectRatio { get; }
 }

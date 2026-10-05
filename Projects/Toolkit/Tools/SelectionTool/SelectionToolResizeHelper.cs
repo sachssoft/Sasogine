@@ -13,6 +13,7 @@ internal sealed class SelectionToolResizeHelper
     private readonly SelectionToolNode _topRightCornerNode;
     private readonly SelectionToolNode _bottomLeftCornerNode;
     private readonly SelectionToolNode _bottomRightCornerNode;
+
     private readonly SelectionToolNode _topEdgeNode;
     private readonly SelectionToolNode _leftEdgeNode;
     private readonly SelectionToolNode _rightEdgeNode;
@@ -36,6 +37,7 @@ internal sealed class SelectionToolResizeHelper
         _topRightCornerNode = CreateNode();
         _bottomLeftCornerNode = CreateNode();
         _bottomRightCornerNode = CreateNode();
+
         _topEdgeNode = CreateNode();
         _leftEdgeNode = CreateNode();
         _rightEdgeNode = CreateNode();
@@ -47,6 +49,7 @@ internal sealed class SelectionToolResizeHelper
             _topRightCornerNode,
             _bottomLeftCornerNode,
             _bottomRightCornerNode,
+
             _topEdgeNode,
             _leftEdgeNode,
             _rightEdgeNode,
@@ -82,42 +85,51 @@ internal sealed class SelectionToolResizeHelper
         float handleSize = context.HandleSize;
         float halfHandleSize = handleSize / 2f;
 
-        var nodeSize = new Size2(handleSize);
+        var nodeSize =
+            new Size2(handleSize);
 
         foreach (var node in _nodes)
             node.Size = nodeSize;
 
-        _topLeftCornerNode.Position = new Point2(
-            -halfHandleSize,
-            -halfHandleSize);
+        _topLeftCornerNode.Position =
+            new Point2(
+                -halfHandleSize,
+                -halfHandleSize);
 
-        _topRightCornerNode.Position = new Point2(
-            targetSize.Width - halfHandleSize,
-            -halfHandleSize);
+        _topRightCornerNode.Position =
+            new Point2(
+                targetSize.Width - halfHandleSize,
+                -halfHandleSize);
 
-        _bottomLeftCornerNode.Position = new Point2(
-            -halfHandleSize,
-            targetSize.Height - halfHandleSize);
+        _bottomLeftCornerNode.Position =
+            new Point2(
+                -halfHandleSize,
+                targetSize.Height - halfHandleSize);
 
-        _bottomRightCornerNode.Position = new Point2(
-            targetSize.Width - halfHandleSize,
-            targetSize.Height - halfHandleSize);
+        _bottomRightCornerNode.Position =
+            new Point2(
+                targetSize.Width - halfHandleSize,
+                targetSize.Height - halfHandleSize);
 
-        _topEdgeNode.Position = new Point2(
-            targetSize.Width / 2f - halfHandleSize,
-            -halfHandleSize);
+        _topEdgeNode.Position =
+            new Point2(
+                targetSize.Width / 2f - halfHandleSize,
+                -halfHandleSize);
 
-        _leftEdgeNode.Position = new Point2(
-            -halfHandleSize,
-            targetSize.Height / 2f - halfHandleSize);
+        _leftEdgeNode.Position =
+            new Point2(
+                -halfHandleSize,
+                targetSize.Height / 2f - halfHandleSize);
 
-        _rightEdgeNode.Position = new Point2(
-            targetSize.Width - halfHandleSize,
-            targetSize.Height / 2f - halfHandleSize);
+        _rightEdgeNode.Position =
+            new Point2(
+                targetSize.Width - halfHandleSize,
+                targetSize.Height / 2f - halfHandleSize);
 
-        _bottomEdgeNode.Position = new Point2(
-            targetSize.Width / 2f - halfHandleSize,
-            targetSize.Height - halfHandleSize);
+        _bottomEdgeNode.Position =
+            new Point2(
+                targetSize.Width / 2f - halfHandleSize,
+                targetSize.Height - halfHandleSize);
     }
 
     /// <summary>
@@ -136,7 +148,21 @@ internal sealed class SelectionToolResizeHelper
             return false;
 
         if (target != null)
-            return target is ISelectionResizable2 resizable && resizable.AllowResize;
+        {
+            if (target is not ISelectionResizable2 resizable ||
+                !resizable.AllowResize)
+            {
+                return false;
+            }
+
+            if (resizable.PreserveAspectRatio &&
+                IsEdgeNode(node))
+            {
+                return false;
+            }
+
+            return true;
+        }
 
         return definition is ISelectionResizable2Definition;
     }
@@ -154,8 +180,14 @@ internal sealed class SelectionToolResizeHelper
         ISelectionTarget2Definition? definition,
         Point2 cursorPosition)
     {
-        if (!IsNode(node) || !TryGetSize(target, definition, out var size))
+        if (!IsNode(node) ||
+            !TryGetSize(
+                target,
+                definition,
+                out var size))
+        {
             return;
+        }
 
         _dragNode = node;
         _dragStartSize = size;
@@ -191,26 +223,52 @@ internal sealed class SelectionToolResizeHelper
         oldSize = _appliedSize;
         newSize = _appliedSize;
 
-        if (!_isDragging || !ReferenceEquals(_dragNode, node))
+        if (!_isDragging ||
+            !ReferenceEquals(
+                _dragNode,
+                node))
+        {
             return false;
+        }
 
-        Vector2 dragOffset = cursorPosition - _dragStartCursorPosition;
+        Vector2 dragOffset =
+            cursorPosition -
+            _dragStartCursorPosition;
+
         float left = 0f;
         float top = 0f;
         float right = _dragStartSize.Width;
         float bottom = _dragStartSize.Height;
 
-        bool resizeLeft = ReferenceEquals(node, _topLeftCornerNode) || ReferenceEquals(node, _leftEdgeNode) || ReferenceEquals(node, _bottomLeftCornerNode);
-        bool resizeRight = ReferenceEquals(node, _topRightCornerNode) || ReferenceEquals(node, _rightEdgeNode) || ReferenceEquals(node, _bottomRightCornerNode);
-        bool resizeTop = ReferenceEquals(node, _topLeftCornerNode) || ReferenceEquals(node, _topEdgeNode) || ReferenceEquals(node, _topRightCornerNode);
-        bool resizeBottom = ReferenceEquals(node, _bottomLeftCornerNode) || ReferenceEquals(node, _bottomEdgeNode) || ReferenceEquals(node, _bottomRightCornerNode);
+        bool resizeLeft =
+            ReferenceEquals(node, _topLeftCornerNode) ||
+            ReferenceEquals(node, _leftEdgeNode) ||
+            ReferenceEquals(node, _bottomLeftCornerNode);
+
+        bool resizeRight =
+            ReferenceEquals(node, _topRightCornerNode) ||
+            ReferenceEquals(node, _rightEdgeNode) ||
+            ReferenceEquals(node, _bottomRightCornerNode);
+
+        bool resizeTop =
+            ReferenceEquals(node, _topLeftCornerNode) ||
+            ReferenceEquals(node, _topEdgeNode) ||
+            ReferenceEquals(node, _topRightCornerNode);
+
+        bool resizeBottom =
+            ReferenceEquals(node, _bottomLeftCornerNode) ||
+            ReferenceEquals(node, _bottomEdgeNode) ||
+            ReferenceEquals(node, _bottomRightCornerNode);
 
         if (resizeLeft)
             left += dragOffset.X;
+
         if (resizeRight)
             right += dragOffset.X;
+
         if (resizeTop)
             top += dragOffset.Y;
+
         if (resizeBottom)
             bottom += dragOffset.Y;
 
@@ -219,29 +277,115 @@ internal sealed class SelectionToolResizeHelper
             if (context.GridSnapStep.Width > 0f)
             {
                 if (resizeLeft)
-                    left = MathF.Round(left / context.GridSnapStep.Width, MidpointRounding.AwayFromZero) * context.GridSnapStep.Width;
+                {
+                    left =
+                        MathF.Round(
+                            left /
+                            context.GridSnapStep.Width,
+                            MidpointRounding.AwayFromZero) *
+                        context.GridSnapStep.Width;
+                }
+
                 if (resizeRight)
-                    right = MathF.Round(right / context.GridSnapStep.Width, MidpointRounding.AwayFromZero) * context.GridSnapStep.Width;
+                {
+                    right =
+                        MathF.Round(
+                            right /
+                            context.GridSnapStep.Width,
+                            MidpointRounding.AwayFromZero) *
+                        context.GridSnapStep.Width;
+                }
             }
 
             if (context.GridSnapStep.Height > 0f)
             {
                 if (resizeTop)
-                    top = MathF.Round(top / context.GridSnapStep.Height, MidpointRounding.AwayFromZero) * context.GridSnapStep.Height;
+                {
+                    top =
+                        MathF.Round(
+                            top /
+                            context.GridSnapStep.Height,
+                            MidpointRounding.AwayFromZero) *
+                        context.GridSnapStep.Height;
+                }
+
                 if (resizeBottom)
-                    bottom = MathF.Round(bottom / context.GridSnapStep.Height, MidpointRounding.AwayFromZero) * context.GridSnapStep.Height;
+                {
+                    bottom =
+                        MathF.Round(
+                            bottom /
+                            context.GridSnapStep.Height,
+                            MidpointRounding.AwayFromZero) *
+                        context.GridSnapStep.Height;
+                }
             }
+        }
+
+        if (PreserveAspectRatio(target) &&
+            _dragStartSize.Width > 0f &&
+            _dragStartSize.Height > 0f)
+        {
+            float width =
+                right - left;
+
+            float height =
+                bottom - top;
+
+            float scaleX =
+                width /
+                _dragStartSize.Width;
+
+            float scaleY =
+                height /
+                _dragStartSize.Height;
+
+            float scale =
+                MathF.Abs(scaleX - 1f) >=
+                MathF.Abs(scaleY - 1f)
+                    ? scaleX
+                    : scaleY;
+
+            width =
+                _dragStartSize.Width *
+                scale;
+
+            height =
+                _dragStartSize.Height *
+                scale;
+
+            if (resizeLeft)
+                left = right - width;
+            else
+                right = left + width;
+
+            if (resizeTop)
+                top = bottom - height;
+            else
+                bottom = top + height;
         }
 
         if (right < left)
             right = left;
+
         if (bottom < top)
             bottom = top;
 
-        Vector2 totalOriginOffset = new Vector2(left, top);
-        newSize = new Size2(right - left, bottom - top);
-        originOffset = totalOriginOffset - _appliedOriginOffset;
-        oldSize = _appliedSize;
+        Vector2 totalOriginOffset =
+            new Vector2(
+                left,
+                top);
+
+        newSize =
+            new Size2(
+                right - left,
+                bottom - top);
+
+        originOffset =
+            totalOriginOffset -
+            _appliedOriginOffset;
+
+        oldSize =
+            _appliedSize;
 
         if (originOffset == Vector2.Zero &&
             newSize.Width == _appliedSize.Width &&
@@ -250,9 +394,17 @@ internal sealed class SelectionToolResizeHelper
             return false;
         }
 
-        SetSize(target, definition, newSize);
-        _appliedOriginOffset = totalOriginOffset;
-        _appliedSize = newSize;
+        SetSize(
+            target,
+            definition,
+            newSize);
+
+        _appliedOriginOffset =
+            totalOriginOffset;
+
+        _appliedSize =
+            newSize;
+
         return true;
     }
 
@@ -263,6 +415,16 @@ internal sealed class SelectionToolResizeHelper
     {
         _dragNode = null;
         _isDragging = false;
+    }
+
+    private bool IsEdgeNode(
+        SelectionToolNode node)
+    {
+        return
+            ReferenceEquals(node, _topEdgeNode) ||
+            ReferenceEquals(node, _leftEdgeNode) ||
+            ReferenceEquals(node, _rightEdgeNode) ||
+            ReferenceEquals(node, _bottomEdgeNode);
     }
 
     private static bool TryGetSize(
@@ -276,7 +438,8 @@ internal sealed class SelectionToolResizeHelper
             return true;
         }
 
-        if (target is ISelectionResizable2 resizable && resizable.AllowResize)
+        if (target is ISelectionResizable2 resizable &&
+            resizable.AllowResize)
         {
             size = resizable.Size;
             return true;
@@ -297,21 +460,30 @@ internal sealed class SelectionToolResizeHelper
             return;
         }
 
-        if (target is ISelectionResizable2 resizable && resizable.AllowResize)
+        if (target is ISelectionResizable2 resizable &&
+            resizable.AllowResize)
         {
             if (target.Definition is not ISelectionResizable2Definition targetDefinition)
-                throw new InvalidOperationException($"The resizable selection target requires an '{nameof(ISelectionResizable2Definition)}' definition.");
+            {
+                throw new InvalidOperationException(
+                    $"The resizable selection target requires an '{nameof(ISelectionResizable2Definition)}' definition.");
+            }
 
             targetDefinition.Size = size;
         }
     }
 
-    private bool IsNode(SelectionToolNode node)
+    private bool IsNode(
+        SelectionToolNode node)
     {
         foreach (var resizeNode in _nodes)
         {
-            if (ReferenceEquals(node, resizeNode))
+            if (ReferenceEquals(
+                node,
+                resizeNode))
+            {
                 return true;
+            }
         }
 
         return false;
@@ -324,6 +496,15 @@ internal sealed class SelectionToolResizeHelper
             isVisible: true)
         {
             HitPadding = 2f
+        };
+    }
+
+    private static bool PreserveAspectRatio(
+        ISelectionTarget2? target)
+    {
+        return target is ISelectionResizable2
+        {
+            PreserveAspectRatio: true
         };
     }
 }
