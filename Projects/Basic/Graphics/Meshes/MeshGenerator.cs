@@ -508,6 +508,43 @@ public static partial class MeshGenerator
             rings);
     }
 
+    /// <summary>
+    /// Creates a textured UV sphere mesh with normals using
+    /// <see cref="VertexPositionNormalTexture"/> vertices.
+    /// </summary>
+    /// <param name="graphicsDevice">
+    /// The graphics device used to create the mesh resources.
+    /// </param>
+    /// <param name="radius">
+    /// The radius of the generated sphere.
+    /// </param>
+    /// <param name="segments">
+    /// The number of longitudinal segments around the sphere.
+    /// Must be at least <c>3</c>.
+    /// </param>
+    /// <param name="rings">
+    /// The number of latitudinal rings between the poles.
+    /// Must be at least <c>2</c>.
+    /// </param>
+    /// <returns>The generated sphere mesh.</returns>
+    public static IMesh CreateSphereWithNormals(
+        GraphicsDevice graphicsDevice,
+        float radius = 0.5f,
+        int segments = 32,
+        int rings = 16)
+    {
+        ArgumentNullException.ThrowIfNull(graphicsDevice);
+
+        return new TextureSphereMesh<VertexPositionNormalTexture>(
+            graphicsDevice,
+            static (in MeshVertexData data) => new VertexPositionNormalTexture(
+                data.Position,
+                data.Normal,
+                data.TextureCoordinate),
+            radius,
+            segments,
+            rings);
+    }
 
     /// <summary>
     /// Creates a skybox cube mesh with inward-facing faces using
