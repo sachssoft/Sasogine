@@ -81,6 +81,56 @@ public readonly struct PixelSize2 : IEquatable<PixelSize2>
     public int Height => _height;
 
     /// <summary>
+    /// Returns a size containing the minimum components of two sizes.
+    /// </summary>
+    /// <param name="a">The first size.</param>
+    /// <param name="b">The second size.</param>
+    /// <returns>The component-wise minimum size.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static PixelSize2 Min(PixelSize2 a, PixelSize2 b)
+        => new(
+            Math.Min(a.Width, b.Width),
+            Math.Min(a.Height, b.Height));
+
+    /// <summary>
+    /// Returns a size containing the maximum components of two sizes.
+    /// </summary>
+    /// <param name="a">The first size.</param>
+    /// <param name="b">The second size.</param>
+    /// <returns>The component-wise maximum size.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static PixelSize2 Max(PixelSize2 a, PixelSize2 b)
+        => new(
+            Math.Max(a.Width, b.Width),
+            Math.Max(a.Height, b.Height));
+
+    /// <summary>
+    /// Clamps the size between the specified minimum and maximum sizes.
+    /// </summary>
+    /// <param name="value">The size to clamp.</param>
+    /// <param name="min">The minimum size.</param>
+    /// <param name="max">The maximum size.</param>
+    /// <returns>The clamped size.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static PixelSize2 Clamp(
+        PixelSize2 value,
+        PixelSize2 min,
+        PixelSize2 max)
+        => new(
+            Math.Clamp(value.Width, min.Width, max.Width),
+            Math.Clamp(value.Height, min.Height, max.Height));
+
+    /// <summary>
+    /// Clamps this size between the specified minimum and maximum sizes.
+    /// </summary>
+    /// <param name="min">The minimum size.</param>
+    /// <param name="max">The maximum size.</param>
+    /// <returns>The clamped size.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public PixelSize2 Clamp(PixelSize2 min, PixelSize2 max)
+        => Clamp(this, min, max);
+
+    /// <summary>
     /// Converts this pixel size to a <see cref="PixelPoint2"/>.
     /// </summary>
     /// <returns>

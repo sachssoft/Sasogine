@@ -96,6 +96,59 @@ public readonly struct PixelSize3 : IEquatable<PixelSize3>
     public int Depth => _depth;
 
     /// <summary>
+    /// Returns a size containing the minimum components of two sizes.
+    /// </summary>
+    /// <param name="a">The first size.</param>
+    /// <param name="b">The second size.</param>
+    /// <returns>The component-wise minimum size.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static PixelSize3 Min(PixelSize3 a, PixelSize3 b)
+        => new(
+            Math.Min(a.Width, b.Width),
+            Math.Min(a.Height, b.Height),
+            Math.Min(a.Depth, b.Depth));
+
+    /// <summary>
+    /// Returns a size containing the maximum components of two sizes.
+    /// </summary>
+    /// <param name="a">The first size.</param>
+    /// <param name="b">The second size.</param>
+    /// <returns>The component-wise maximum size.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static PixelSize3 Max(PixelSize3 a, PixelSize3 b)
+        => new(
+            Math.Max(a.Width, b.Width),
+            Math.Max(a.Height, b.Height),
+            Math.Max(a.Depth, b.Depth));
+
+    /// <summary>
+    /// Clamps the size between the specified minimum and maximum sizes.
+    /// </summary>
+    /// <param name="value">The size to clamp.</param>
+    /// <param name="min">The minimum size.</param>
+    /// <param name="max">The maximum size.</param>
+    /// <returns>The clamped size.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static PixelSize3 Clamp(
+        PixelSize3 value,
+        PixelSize3 min,
+        PixelSize3 max)
+        => new(
+            Math.Clamp(value.Width, min.Width, max.Width),
+            Math.Clamp(value.Height, min.Height, max.Height),
+            Math.Clamp(value.Depth, min.Depth, max.Depth));
+
+    /// <summary>
+    /// Clamps this size between the specified minimum and maximum sizes.
+    /// </summary>
+    /// <param name="min">The minimum size.</param>
+    /// <param name="max">The maximum size.</param>
+    /// <returns>The clamped size.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public PixelSize3 Clamp(PixelSize3 min, PixelSize3 max)
+        => Clamp(this, min, max);
+
+    /// <summary>
     /// Converts this pixel size to a <see cref="Vector3"/>.
     /// </summary>
     /// <returns>

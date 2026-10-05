@@ -86,6 +86,43 @@ public readonly struct Size2 : IEquatable<Size2>
     public float Height => _height;
 
     /// <summary>
+    /// Returns a size containing the minimum components of two sizes.
+    /// </summary>
+    /// <param name="a">The first size.</param>
+    /// <param name="b">The second size.</param>
+    /// <returns>The component-wise minimum size.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Size2 Min(Size2 a, Size2 b)
+        => new(
+            MathF.Min(a.Width, b.Width),
+            MathF.Min(a.Height, b.Height));
+
+    /// <summary>
+    /// Returns a size containing the maximum components of two sizes.
+    /// </summary>
+    /// <param name="a">The first size.</param>
+    /// <param name="b">The second size.</param>
+    /// <returns>The component-wise maximum size.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Size2 Max(Size2 a, Size2 b)
+        => new(
+            MathF.Max(a.Width, b.Width),
+            MathF.Max(a.Height, b.Height));
+
+    /// <summary>
+    /// Clamps the size between the specified minimum and maximum sizes.
+    /// </summary>
+    /// <param name="value">The size to clamp.</param>
+    /// <param name="min">The minimum size.</param>
+    /// <param name="max">The maximum size.</param>
+    /// <returns>The clamped size.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Size2 Clamp(Size2 value, Size2 min, Size2 max)
+        => new(
+            Math.Clamp(value.Width, min.Width, max.Width),
+            Math.Clamp(value.Height, min.Height, max.Height));
+
+    /// <summary>
     /// Converts this size to a <see cref="Vector2"/>.
     /// </summary>
     /// <returns>

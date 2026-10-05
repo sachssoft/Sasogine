@@ -103,6 +103,56 @@ public readonly struct Size3 : IEquatable<Size3>
     public float Depth => _depth;
 
     /// <summary>
+    /// Returns a size containing the minimum components of two sizes.
+    /// </summary>
+    /// <param name="a">The first size.</param>
+    /// <param name="b">The second size.</param>
+    /// <returns>The component-wise minimum size.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Size3 Min(Size3 a, Size3 b)
+        => new(
+            MathF.Min(a.Width, b.Width),
+            MathF.Min(a.Height, b.Height),
+            MathF.Min(a.Depth, b.Depth));
+
+    /// <summary>
+    /// Returns a size containing the maximum components of two sizes.
+    /// </summary>
+    /// <param name="a">The first size.</param>
+    /// <param name="b">The second size.</param>
+    /// <returns>The component-wise maximum size.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Size3 Max(Size3 a, Size3 b)
+        => new(
+            MathF.Max(a.Width, b.Width),
+            MathF.Max(a.Height, b.Height),
+            MathF.Max(a.Depth, b.Depth));
+
+    /// <summary>
+    /// Clamps the size between the specified minimum and maximum sizes.
+    /// </summary>
+    /// <param name="value">The size to clamp.</param>
+    /// <param name="min">The minimum size.</param>
+    /// <param name="max">The maximum size.</param>
+    /// <returns>The clamped size.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Size3 Clamp(Size3 value, Size3 min, Size3 max)
+        => new(
+            Math.Clamp(value.Width, min.Width, max.Width),
+            Math.Clamp(value.Height, min.Height, max.Height),
+            Math.Clamp(value.Depth, min.Depth, max.Depth));
+
+    /// <summary>
+    /// Clamps this size between the specified minimum and maximum sizes.
+    /// </summary>
+    /// <param name="min">The minimum size.</param>
+    /// <param name="max">The maximum size.</param>
+    /// <returns>The clamped size.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Size3 Clamp(Size3 min, Size3 max)
+        => Clamp(this, min, max);
+
+    /// <summary>
     /// Converts this size to a <see cref="Vector3"/>.
     /// </summary>
     /// <returns>
