@@ -241,6 +241,12 @@ public class SelectionTool : ToolBase, INotifyTransformChanged
     /// </summary>
     public float HandleSize { get; set; } = 8f;
 
+    /// <summary>
+    /// Gets or sets the current view zoom used to keep interaction handles
+    /// visually consistent in screen space.
+    /// </summary>
+    public float Zoom { get; set; } = 1f;
+
     /// <inheritdoc/>
     protected override void ApplyContext(ToolContext context)
     {
@@ -1333,6 +1339,11 @@ public class SelectionTool : ToolBase, INotifyTransformChanged
     private SelectionToolLayerContext
         GetLayerContext()
     {
+        float zoom =
+            MathF.Max(
+                MathF.Abs(Zoom),
+                float.Epsilon);
+
         return new SelectionToolLayerContext(
             EnableGridSnap,
             GridSnapStep,
@@ -1340,7 +1351,7 @@ public class SelectionTool : ToolBase, INotifyTransformChanged
             AngleSnapStep,
             EnablePivotSnap,
             PivotSnapStep,
-            HandleSize);
+            HandleSize / zoom);
     }
 
     private void BeginAreaSelection()

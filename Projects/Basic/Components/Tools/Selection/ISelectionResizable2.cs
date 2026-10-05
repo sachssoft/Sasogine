@@ -13,6 +13,16 @@ public interface ISelectionResizable2 : ISelectionTarget2, IReadOnlyTransformSiz
     bool AllowResize { get; }
 
     /// <summary>
+    /// Gets the minimum allowed size.
+    /// </summary>
+    Size2 MinSize { get; }
+
+    /// <summary>
+    /// Gets the maximum allowed size.
+    /// </summary>
+    Size2 MaxSize { get; }
+
+    /// <summary>
     /// Gets a value indicating whether the aspect ratio is preserved when resizing.
     /// </summary>
     bool PreserveAspectRatio { get; }

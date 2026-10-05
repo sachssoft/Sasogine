@@ -85,51 +85,42 @@ internal sealed class SelectionToolResizeHelper
         float handleSize = context.HandleSize;
         float halfHandleSize = handleSize / 2f;
 
-        var nodeSize =
-            new Size2(handleSize);
+        var nodeSize = new Size2(handleSize);
 
         foreach (var node in _nodes)
             node.Size = nodeSize;
 
-        _topLeftCornerNode.Position =
-            new Point2(
-                -halfHandleSize,
-                -halfHandleSize);
+        _topLeftCornerNode.Position = new Point2(
+            -halfHandleSize,
+            -halfHandleSize);
 
-        _topRightCornerNode.Position =
-            new Point2(
-                targetSize.Width - halfHandleSize,
-                -halfHandleSize);
+        _topRightCornerNode.Position = new Point2(
+            targetSize.Width - halfHandleSize,
+            -halfHandleSize);
 
-        _bottomLeftCornerNode.Position =
-            new Point2(
-                -halfHandleSize,
-                targetSize.Height - halfHandleSize);
+        _bottomLeftCornerNode.Position = new Point2(
+            -halfHandleSize,
+            targetSize.Height - halfHandleSize);
 
-        _bottomRightCornerNode.Position =
-            new Point2(
-                targetSize.Width - halfHandleSize,
-                targetSize.Height - halfHandleSize);
+        _bottomRightCornerNode.Position = new Point2(
+            targetSize.Width - halfHandleSize,
+            targetSize.Height - halfHandleSize);
 
-        _topEdgeNode.Position =
-            new Point2(
-                targetSize.Width / 2f - halfHandleSize,
-                -halfHandleSize);
+        _topEdgeNode.Position = new Point2(
+            targetSize.Width / 2f - halfHandleSize,
+            -halfHandleSize);
 
-        _leftEdgeNode.Position =
-            new Point2(
-                -halfHandleSize,
-                targetSize.Height / 2f - halfHandleSize);
+        _leftEdgeNode.Position = new Point2(
+            -halfHandleSize,
+            targetSize.Height / 2f - halfHandleSize);
 
-        _rightEdgeNode.Position =
-            new Point2(
-                targetSize.Width - halfHandleSize,
-                targetSize.Height / 2f - halfHandleSize);
+        _rightEdgeNode.Position = new Point2(
+            targetSize.Width - halfHandleSize,
+            targetSize.Height / 2f - halfHandleSize);
 
-        _bottomEdgeNode.Position =
-            new Point2(
-                targetSize.Width / 2f - halfHandleSize,
-                targetSize.Height - halfHandleSize);
+        _bottomEdgeNode.Position = new Point2(
+            targetSize.Width / 2f - halfHandleSize,
+            targetSize.Height - halfHandleSize);
     }
 
     /// <summary>
@@ -224,9 +215,7 @@ internal sealed class SelectionToolResizeHelper
         newSize = _appliedSize;
 
         if (!_isDragging ||
-            !ReferenceEquals(
-                _dragNode,
-                node))
+            !ReferenceEquals(_dragNode, node))
         {
             return false;
         }
@@ -280,8 +269,7 @@ internal sealed class SelectionToolResizeHelper
                 {
                     left =
                         MathF.Round(
-                            left /
-                            context.GridSnapStep.Width,
+                            left / context.GridSnapStep.Width,
                             MidpointRounding.AwayFromZero) *
                         context.GridSnapStep.Width;
                 }
@@ -290,8 +278,7 @@ internal sealed class SelectionToolResizeHelper
                 {
                     right =
                         MathF.Round(
-                            right /
-                            context.GridSnapStep.Width,
+                            right / context.GridSnapStep.Width,
                             MidpointRounding.AwayFromZero) *
                         context.GridSnapStep.Width;
                 }
@@ -303,8 +290,7 @@ internal sealed class SelectionToolResizeHelper
                 {
                     top =
                         MathF.Round(
-                            top /
-                            context.GridSnapStep.Height,
+                            top / context.GridSnapStep.Height,
                             MidpointRounding.AwayFromZero) *
                         context.GridSnapStep.Height;
                 }
@@ -313,62 +299,103 @@ internal sealed class SelectionToolResizeHelper
                 {
                     bottom =
                         MathF.Round(
-                            bottom /
-                            context.GridSnapStep.Height,
+                            bottom / context.GridSnapStep.Height,
                             MidpointRounding.AwayFromZero) *
                         context.GridSnapStep.Height;
                 }
             }
         }
 
-        if (PreserveAspectRatio(target) &&
-            _dragStartSize.Width > 0f &&
-            _dragStartSize.Height > 0f)
+        if (target is ISelectionResizable2 resizable)
         {
-            float width =
-                right - left;
+            if (resizable.PreserveAspectRatio &&
+                _dragStartSize.Width > 0f &&
+                _dragStartSize.Height > 0f)
+            {
+                float width = right - left;
+                float height = bottom - top;
 
-            float height =
-                bottom - top;
+                float scaleX =
+                    width /
+                    _dragStartSize.Width;
 
-            float scaleX =
-                width /
-                _dragStartSize.Width;
+                float scaleY =
+                    height /
+                    _dragStartSize.Height;
 
-            float scaleY =
-                height /
-                _dragStartSize.Height;
+                float scale =
+                    MathF.Abs(scaleX - 1f) >=
+                    MathF.Abs(scaleY - 1f)
+                        ? scaleX
+                        : scaleY;
 
-            float scale =
-                MathF.Abs(scaleX - 1f) >=
-                MathF.Abs(scaleY - 1f)
-                    ? scaleX
-                    : scaleY;
+                float minScale =
+                    MathF.Max(
+                        resizable.MinSize.Width / _dragStartSize.Width,
+                        resizable.MinSize.Height / _dragStartSize.Height);
 
-            width =
-                _dragStartSize.Width *
-                scale;
+                float maxScale =
+                    MathF.Min(
+                        resizable.MaxSize.Width / _dragStartSize.Width,
+                        resizable.MaxSize.Height / _dragStartSize.Height);
 
-            height =
-                _dragStartSize.Height *
-                scale;
+                scale =
+                    Math.Clamp(
+                        scale,
+                        minScale,
+                        maxScale);
 
-            if (resizeLeft)
-                left = right - width;
+                width =
+                    _dragStartSize.Width *
+                    scale;
+
+                height =
+                    _dragStartSize.Height *
+                    scale;
+
+                if (resizeLeft)
+                    left = right - width;
+                else
+                    right = left + width;
+
+                if (resizeTop)
+                    top = bottom - height;
+                else
+                    bottom = top + height;
+            }
             else
-                right = left + width;
+            {
+                float width =
+                    Math.Clamp(
+                        right - left,
+                        resizable.MinSize.Width,
+                        resizable.MaxSize.Width);
 
-            if (resizeTop)
-                top = bottom - height;
-            else
-                bottom = top + height;
+                float height =
+                    Math.Clamp(
+                        bottom - top,
+                        resizable.MinSize.Height,
+                        resizable.MaxSize.Height);
+
+                if (resizeLeft)
+                    left = right - width;
+                else if (resizeRight)
+                    right = left + width;
+
+                if (resizeTop)
+                    top = bottom - height;
+                else if (resizeBottom)
+                    bottom = top + height;
+            }
         }
+        else
+        {
+            if (right < left)
+                right = left;
 
-        if (right < left)
-            right = left;
-
-        if (bottom < top)
-            bottom = top;
+            if (bottom < top)
+                bottom = top;
+        }
 
         Vector2 totalOriginOffset =
             new Vector2(
@@ -478,12 +505,8 @@ internal sealed class SelectionToolResizeHelper
     {
         foreach (var resizeNode in _nodes)
         {
-            if (ReferenceEquals(
-                node,
-                resizeNode))
-            {
+            if (ReferenceEquals(node, resizeNode))
                 return true;
-            }
         }
 
         return false;
@@ -496,15 +519,6 @@ internal sealed class SelectionToolResizeHelper
             isVisible: true)
         {
             HitPadding = 2f
-        };
-    }
-
-    private static bool PreserveAspectRatio(
-        ISelectionTarget2? target)
-    {
-        return target is ISelectionResizable2
-        {
-            PreserveAspectRatio: true
         };
     }
 }
