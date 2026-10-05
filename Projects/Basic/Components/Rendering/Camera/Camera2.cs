@@ -37,6 +37,9 @@ public class Camera2 : ComponentBase, ICamera2
     private float _rotationMinimum = float.MinValue;
     private float _rotationMaximum = float.MaxValue;
 
+    private float _nearPlane = -10f;
+    private float _farPlane = 10f;
+
     private Matrix _projection = Matrix.Identity;
     private Matrix _view = Matrix.Identity;
     private Matrix _world = Matrix.Identity;
@@ -230,6 +233,58 @@ public class Camera2 : ComponentBase, ICamera2
     }
 
     /// <summary>
+    /// Gets or sets the near clipping plane.
+    /// </summary>
+    public float NearPlane
+    {
+        get => _nearPlane;
+        set
+        {
+            if (!float.IsFinite(value))
+                throw new ArgumentOutOfRangeException(nameof(value));
+
+            if (value >= _farPlane)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(value),
+                    "The near clipping plane must be less than the far clipping plane.");
+            }
+
+            if (_nearPlane == value)
+                return;
+
+            _nearPlane = value;
+            UpdateMatrices();
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the far clipping plane.
+    /// </summary>
+    public float FarPlane
+    {
+        get => _farPlane;
+        set
+        {
+            if (!float.IsFinite(value))
+                throw new ArgumentOutOfRangeException(nameof(value));
+
+            if (value <= _nearPlane)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(value),
+                    "The far clipping plane must be greater than the near clipping plane.");
+            }
+
+            if (_farPlane == value)
+                return;
+
+            _farPlane = value;
+            UpdateMatrices();
+        }
+    }
+
+    /// <summary>
     /// Gets the projection matrix of the camera.
     /// </summary>
     public virtual Matrix Projection
@@ -312,8 +367,8 @@ public class Camera2 : ComponentBase, ICamera2
                 CurrentViewport.Width,
                 CurrentViewport.Height,
                 0,
-                -1,
-                1);
+                NearPlane,
+                FarPlane);
 
         var center = new Vector2(
             CurrentViewport.Width * 0.5f,
