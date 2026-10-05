@@ -899,6 +899,14 @@ public class SelectionTool : ToolBase, INotifyTransformChanged
                 if (!node.IsVisible)
                     continue;
 
+                if (!Layer.AllowHandle(
+                    node,
+                    entry.Target,
+                    entry.TargetDefinition))
+                {
+                    continue;
+                }
+
                 var position =
                     GetNodeWorldPosition(
                         node,
