@@ -31,17 +31,31 @@ public static partial class MeshGenerator
     /// <param name="flipMode">
     /// Specifies how the texture coordinates of the quad are flipped.
     /// </param>
+    /// <param name="horizontalSegments">
+    /// The number of additional segments along the horizontal axis.
+    /// </param>
+    /// <param name="verticalSegments">
+    /// The number of additional segments along the vertical axis.
+    /// </param>
     /// <returns>The generated quad mesh.</returns>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="graphicsDevice"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when <paramref name="horizontalSegments"/> or
+    /// <paramref name="verticalSegments"/> is negative.
     /// </exception>
     public static IMesh CreateQuad(
         GraphicsDevice graphicsDevice,
         float size = 1f,
         bool centerOrigin = false,
-        Texture2DFlipMode flipMode = Texture2DFlipMode.None)
+        Texture2DFlipMode flipMode = Texture2DFlipMode.None,
+        int horizontalSegments = 0,
+        int verticalSegments = 0)
     {
         ArgumentNullException.ThrowIfNull(graphicsDevice);
+        ArgumentOutOfRangeException.ThrowIfNegative(horizontalSegments);
+        ArgumentOutOfRangeException.ThrowIfNegative(verticalSegments);
 
         return new QuadMesh<VertexPositionColorTexture>(
             graphicsDevice,
@@ -51,7 +65,9 @@ public static partial class MeshGenerator
                 data.TextureCoordinate),
             size,
             centerOrigin,
-            flipMode);
+            flipMode,
+            horizontalSegments,
+            verticalSegments);
     }
 
     /// <summary>
@@ -78,28 +94,44 @@ public static partial class MeshGenerator
     /// <param name="flipMode">
     /// Specifies how the texture coordinates of the quad are flipped.
     /// </param>
+    /// <param name="horizontalSegments">
+    /// The number of additional segments along the horizontal axis.
+    /// </param>
+    /// <param name="verticalSegments">
+    /// The number of additional segments along the vertical axis.
+    /// </param>
     /// <returns>The generated quad mesh.</returns>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="graphicsDevice"/> or
     /// <paramref name="vertexFactory"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when <paramref name="horizontalSegments"/> or
+    /// <paramref name="verticalSegments"/> is negative.
     /// </exception>
     public static IMesh CreateQuad<TVertex>(
         GraphicsDevice graphicsDevice,
         MeshVertexFactory<TVertex> vertexFactory,
         float size = 1f,
         bool centerOrigin = false,
-        Texture2DFlipMode flipMode = Texture2DFlipMode.None)
+        Texture2DFlipMode flipMode = Texture2DFlipMode.None,
+        int horizontalSegments = 0,
+        int verticalSegments = 0)
         where TVertex : struct, IVertexType
     {
         ArgumentNullException.ThrowIfNull(graphicsDevice);
         ArgumentNullException.ThrowIfNull(vertexFactory);
+        ArgumentOutOfRangeException.ThrowIfNegative(horizontalSegments);
+        ArgumentOutOfRangeException.ThrowIfNegative(verticalSegments);
 
         return new QuadMesh<TVertex>(
             graphicsDevice,
             vertexFactory,
             size,
             centerOrigin,
-            flipMode);
+            flipMode,
+            horizontalSegments,
+            verticalSegments);
     }
 
     /// <summary>

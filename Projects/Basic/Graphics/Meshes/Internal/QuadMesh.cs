@@ -11,11 +11,13 @@ internal sealed class QuadMesh<TVertex> : Mesh<TVertex>
         MeshVertexFactory<TVertex> vertexFactory,
         float size = 1f,
         bool centerOrigin = false,
-        Texture2DFlipMode flipMode = Texture2DFlipMode.None)
+        Texture2DFlipMode flipMode = Texture2DFlipMode.None,
+        int horizontalSegments = 0,
+        int verticalSegments = 0)
         : base(
             graphicsDevice,
-            CreateVertices(size, centerOrigin, flipMode, vertexFactory),
-            CreateIndices())
+            CreateVertices(size, centerOrigin, flipMode, horizontalSegments, verticalSegments, vertexFactory),
+            CreateIndices(horizontalSegments, verticalSegments))
     {
     }
 
@@ -23,6 +25,8 @@ internal sealed class QuadMesh<TVertex> : Mesh<TVertex>
         float size,
         bool centerOrigin,
         Texture2DFlipMode flipMode,
+        int horizontalSegments,
+        int verticalSegments,
         MeshVertexFactory<TVertex> vertexFactory)
     {
         float offset = centerOrigin ? size * 0.5f : 0f;
@@ -39,28 +43,62 @@ internal sealed class QuadMesh<TVertex> : Mesh<TVertex>
         var tangent = Vector3.UnitX;
         var bitangent = Vector3.UnitY;
 
-        MeshVertexData[] data =
-        [
-            new(new Vector3(-offset, -offset, 0f), normal, tangent, bitangent,
-                Color.White, new Vector2(left, top)),
-            new(new Vector3(size - offset, -offset, 0f), normal, tangent, bitangent,
-                Color.White, new Vector2(right, top)),
-            new(new Vector3(size - offset, size - offset, 0f), normal, tangent, bitangent,
-                Color.White, new Vector2(right, bottom)),
-            new(new Vector3(-offset, size - offset, 0f), normal, tangent, bitangent,
-                Color.White, new Vector2(left, bottom))
-        ];
+        int columns = horizontalSegments + 2;
+        int rows = verticalSegments + 2;
+        var vertices = new TVertex[columns * rows];
 
-        var vertices = new TVertex[data.Length];
+        for (int xIndex = 0; xIndex < columns; xIndex++)
+        {
+            float xAmount = xIndex / (float)(columns - 1);
+            float x = size * xAmount - offset;
+            float u = MathHelper.Lerp(left, right, xAmount);
 
-        for (int i = 0; i < data.Length; i++)
-            vertices[i] = vertexFactory(data[i]);
+            for (int yIndex = 0; yIndex < rows; yIndex++)
+            {
+                float yAmount = yIndex / (float)(rows - 1);
+                float y = size * yAmount - offset;
+                float v = MathHelper.Lerp(top, bottom, yAmount);
+
+                vertices[xIndex * rows + yIndex] = vertexFactory(new MeshVertexData(
+                    new Vector3(x, y, 0f),
+                    normal,
+                    tangent,
+                    bitangent,
+                    Color.White,
+                    new Vector2(u, v)));
+            }
+        }
 
         return vertices;
     }
 
-    private static int[] CreateIndices()
+    private static int[] CreateIndices(int horizontalSegments, int verticalSegments)
     {
-        return [0, 1, 2, 0, 2, 3];
+        int columns = horizontalSegments + 2;
+        int rows = verticalSegments + 2;
+        int quadColumns = columns - 1;
+        int quadRows = rows - 1;
+        var indices = new int[quadColumns * quadRows * 6];
+        int index = 0;
+
+        for (int xIndex = 0; xIndex < quadColumns; xIndex++)
+        {
+            for (int yIndex = 0; yIndex < quadRows; yIndex++)
+            {
+                int topLeft = xIndex * rows + yIndex;
+                int topRight = (xIndex + 1) * rows + yIndex;
+                int bottomRight = topRight + 1;
+                int bottomLeft = topLeft + 1;
+
+                indices[index++] = topLeft;
+                indices[index++] = topRight;
+                indices[index++] = bottomRight;
+                indices[index++] = topLeft;
+                indices[index++] = bottomRight;
+                indices[index++] = bottomLeft;
+            }
+        }
+
+        return indices;
     }
 }
