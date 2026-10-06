@@ -16,6 +16,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\..\Shared\Sachssoft.Shared.Sasogine.Editor.Myra\Sachssoft.Shared.Sasogine.Editor.Myra.csproj" />
 		<ProjectReference Include="..\Basic\Sachssoft.Sasogine.csproj" />
 	</ItemGroup>
 
