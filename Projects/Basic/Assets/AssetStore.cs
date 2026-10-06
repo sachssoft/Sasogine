@@ -30,12 +30,23 @@ public class AssetStore : IReadOnlyAssetStore
         _gameApplication = application;
         _assets = [];
 
-        IEnumerable<IAsset>? integratedAssets = CreateIntegratedAssets();
+        IEnumerable<IAsset>? assets = CreateAssets();
 
-        if (integratedAssets is not null)
+        if (assets is not null)
         {
-            foreach (IAsset asset in integratedAssets)
+            foreach (IAsset asset in assets)
                 _assets.Add(asset);
+        }
+
+        IEnumerable<IAssetStoreSection>? sections = CreateSections();
+
+        if (sections is not null)
+        {
+            foreach (IAssetStoreSection section in sections)
+            {
+                foreach (IAsset asset in section.CreateAssets())
+                    _assets.Add(asset);
+            }
         }
     }
 
@@ -607,12 +618,23 @@ public class AssetStore : IReadOnlyAssetStore
     }
 
     /// <summary>
-    /// Creates the assets that are integrated into this asset store.
+    /// Creates the assets provided directly by this asset store.
     /// </summary>
     /// <returns>
-    /// The integrated assets.
+    /// The assets provided by this asset store.
     /// </returns>
-    protected virtual IEnumerable<IAsset> CreateIntegratedAssets()
+    protected virtual IEnumerable<IAsset> CreateAssets()
+    {
+        yield break;
+    }
+
+    /// <summary>
+    /// Creates the sections provided by this asset store.
+    /// </summary>
+    /// <returns>
+    /// The sections provided by this asset store.
+    /// </returns>
+    protected virtual IEnumerable<IAssetStoreSection> CreateSections()
     {
         yield break;
     }
@@ -678,7 +700,7 @@ public class AssetStore : IReadOnlyAssetStore
 
     /// <summary>
     /// Called immediately before an asset is unloaded.
-    /// </summary>
+    /// </summary>neue interfacer 
     /// <param name="asset">
     /// The asset being unloaded.
     /// </param>
