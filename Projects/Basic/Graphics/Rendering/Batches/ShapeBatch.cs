@@ -1,316 +1,1001 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Engine;
 using Sachssoft.Engine.Geometry;
+using Sachssoft.Engine.Graphics.Brushes;
 using Sachssoft.Engine.Graphics.Cameras;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Engine.Graphics.Rendering.Batches
+namespace Sachssoft.Engine.Graphics.Rendering.Batches;
+
+/// <summary>
+/// Batches and renders two-dimensional filled and stroked shape geometry.
+/// </summary>
+/// <remarks>
+/// Public geometry APIs use Sasogine point and bounds types, while the
+/// internal rendering implementation uses MonoGame vector and GPU types.
+/// </remarks>
+public sealed class ShapeBatch : IDisposable
 {
+    private const float Epsilon = 0.000001f;
+    private const float MiterLimit = 4f;
+    private const int InitialVertexCapacity = 256;
+    private const int InitialIndexCapacity = 512;
+    private const int RoundSegments = 12;
+
+    private readonly GraphicsDevice _graphicsDevice;
+
+    private readonly List<ShapeVertex> _vertices;
+    private readonly List<Brush> _vertexBrushes;
+    private readonly List<int> _indices;
+    private readonly List<BrushCommand> _brushCommands;
+    private readonly Texture2D _whiteTexture;
+
+    private ShapeVertex[] _vertexUpload;
+    private int[] _indexUpload;
+
+    private DynamicVertexBuffer? _vertexBuffer;
+    private IndexBuffer? _indexBuffer;
+
+    private IShader? _shader;
+    private ICamera? _camera;
+
+    private Brush _brush = new SolidColorBrush(Color.White);
+    private bool _deferBrushApplication;
+    private bool _begun;
+    private bool _disposed;
+
     /// <summary>
-    /// Batches and renders two-dimensional filled and stroked shape geometry.
+    /// Initializes a new instance of the <see cref="ShapeBatch"/> class.
     /// </summary>
-    /// <remarks>
-    /// Public geometry APIs use Sasogine point and bounds types, while the
-    /// internal rendering implementation uses MonoGame vector and GPU types.
-    /// </remarks>
-    public sealed class ShapeBatch : IDisposable
+    /// <param name="graphicsDevice">
+    /// The graphics device used to create and render GPU resources.
+    /// </param>
+    public ShapeBatch(GraphicsDevice graphicsDevice)
     {
-        private const float Epsilon = 0.000001f;
-        private const float MiterLimit = 4f;
-        private const int InitialVertexCapacity = 256;
-        private const int InitialIndexCapacity = 512;
-        private const int RoundSegments = 12;
+        _graphicsDevice =
+            graphicsDevice ??
+            throw new ArgumentNullException(nameof(graphicsDevice));
 
-        private readonly GraphicsDevice _graphicsDevice;
+        _vertices =
+            new List<ShapeVertex>(
+                InitialVertexCapacity);
 
-        private readonly List<VertexPositionTexture> _vertices;
-        private readonly List<int> _indices;
+        _vertexBrushes =
+            new List<Brush>(
+                InitialVertexCapacity);
 
-        private VertexPositionTexture[] _vertexUpload;
-        private int[] _indexUpload;
+        _indices =
+            new List<int>(
+                InitialIndexCapacity);
 
-        private DynamicVertexBuffer? _vertexBuffer;
-        private IndexBuffer? _indexBuffer;
+        _brushCommands =
+            new List<BrushCommand>();
 
-        private IShader? _shader;
-        private ICamera? _camera;
+        _whiteTexture =
+            new Texture2D(
+                _graphicsDevice,
+                1,
+                1);
 
-        private bool _begun;
-        private bool _disposed;
+        _whiteTexture.SetData(
+            new[] { Color.White });
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ShapeBatch"/> class.
-        /// </summary>
-        /// <param name="graphicsDevice">
-        /// The graphics device used to create and render GPU resources.
-        /// </param>
-        public ShapeBatch(GraphicsDevice graphicsDevice)
+        _vertexUpload =
+            new ShapeVertex[
+                InitialVertexCapacity];
+
+        _indexUpload =
+            new int[
+                InitialIndexCapacity];
+    }
+
+    // =========================================================================
+    // Begin / End
+    // =========================================================================
+
+    /// <summary>
+    /// Begins collecting shapes for rendering.
+    /// </summary>
+    /// <param name="shader">
+    /// The shader used to render the accumulated geometry.
+    /// </param>
+    /// <param name="camera">
+    /// The camera used to render the accumulated geometry.
+    /// </param>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the batch has already been started.
+    /// </exception>
+    public void Begin(
+        IShader shader,
+        ICamera camera)
+    {
+        CheckDisposed();
+
+        if (_begun)
+            throw new InvalidOperationException(
+                "ShapeBatch.Begin already called.");
+
+        _shader =
+            shader ??
+            throw new ArgumentNullException(nameof(shader));
+
+        _camera =
+            camera ??
+            throw new ArgumentNullException(nameof(camera));
+
+        _vertices.Clear();
+        _vertexBrushes.Clear();
+        _indices.Clear();
+        _brushCommands.Clear();
+
+        _begun = true;
+    }
+
+    /// <summary>
+    /// Ends the batch and renders all accumulated geometry.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the batch has not been started.
+    /// </exception>
+    public void End()
+    {
+        CheckDisposed();
+
+        if (!_begun)
+            throw new InvalidOperationException(
+                "ShapeBatch.Begin must be called first.");
+
+        try
         {
-            _graphicsDevice =
-                graphicsDevice ??
-                throw new ArgumentNullException(nameof(graphicsDevice));
-
-            _vertices =
-                new List<VertexPositionTexture>(
-                    InitialVertexCapacity);
-
-            _indices =
-                new List<int>(
-                    InitialIndexCapacity);
-
-            _vertexUpload =
-                new VertexPositionTexture[
-                    InitialVertexCapacity];
-
-            _indexUpload =
-                new int[
-                    InitialIndexCapacity];
+            Flush();
         }
-
-        // =========================================================================
-        // Begin / End
-        // =========================================================================
-
-        /// <summary>
-        /// Begins collecting shapes for rendering.
-        /// </summary>
-        /// <param name="shader">
-        /// The shader used to render the accumulated geometry.
-        /// </param>
-        /// <param name="camera">
-        /// The camera used to render the accumulated geometry.
-        /// </param>
-        /// <exception cref="InvalidOperationException">
-        /// Thrown when the batch has already been started.
-        /// </exception>
-        public void Begin(
-            IShader shader,
-            ICamera camera)
+        finally
         {
-            CheckDisposed();
-
-            if (_begun)
-                throw new InvalidOperationException(
-                    "ShapeBatch.Begin already called.");
-
-            _shader =
-                shader ??
-                throw new ArgumentNullException(nameof(shader));
-
-            _camera =
-                camera ??
-                throw new ArgumentNullException(nameof(camera));
-
             _vertices.Clear();
+            _vertexBrushes.Clear();
             _indices.Clear();
+            _brushCommands.Clear();
 
-            _begun = true;
+            _shader = null;
+            _camera = null;
+
+            _begun = false;
         }
+    }
 
-        /// <summary>
-        /// Ends the batch and renders all accumulated geometry.
-        /// </summary>
-        /// <exception cref="InvalidOperationException">
-        /// Thrown when the batch has not been started.
-        /// </exception>
-        public void End()
-        {
-            CheckDisposed();
+    // =========================================================================
+    // Fill Rectangle
+    // =========================================================================
 
-            if (!_begun)
-                throw new InvalidOperationException(
-                    "ShapeBatch.Begin must be called first.");
+    /// <summary>
+    /// Adds a filled rectangle to the batch.
+    /// </summary>
+    /// <param name="bounds">
+    /// The bounds of the shape.
+    /// </param>
+    public void AddFillRectangle(
+        Bounds2 bounds)
+    {
+        AddFillRectangle(
+            bounds,
+            Matrix.Identity);
+    }
 
-            try
-            {
-                Flush();
-            }
-            finally
-            {
-                _vertices.Clear();
-                _indices.Clear();
+    /// <summary>
+    /// Adds a filled rectangle to the batch.
+    /// </summary>
+    /// <param name="bounds">
+    /// The bounds of the shape.
+    /// </param>
+    /// <param name="transform">
+    /// The transformation applied to the geometry.
+    /// </param>
+    public void AddFillRectangle(
+        Bounds2 bounds,
+        Matrix transform)
+    {
+        CheckBegin();
 
-                _shader = null;
-                _camera = null;
+        int start =
+            _vertices.Count;
 
-                _begun = false;
-            }
-        }
-
-        // =========================================================================
-        // Fill Rectangle
-        // =========================================================================
-
-        /// <summary>
-        /// Adds a filled rectangle to the batch.
-        /// </summary>
-        /// <param name="bounds">
-        /// The bounds of the shape.
-        /// </param>
-        public void AddFillRectangle(
-            Bounds2 bounds)
-        {
-            AddFillRectangle(
-                bounds,
-                Matrix.Identity);
-        }
-
-        /// <summary>
-        /// Adds a filled rectangle to the batch.
-        /// </summary>
-        /// <param name="bounds">
-        /// The bounds of the shape.
-        /// </param>
-        /// <param name="transform">
-        /// The transformation applied to the geometry.
-        /// </param>
-        public void AddFillRectangle(
-            Bounds2 bounds,
-            Matrix transform)
-        {
-            CheckBegin();
-
-            int start =
-                _vertices.Count;
-
-            AddVertex(
-                Vector2.Transform(
-                    new Vector2(
-                        bounds.Left,
-                        bounds.Top),
-                    transform),
-                new Vector2(0f, 0f));
-
-            AddVertex(
-                Vector2.Transform(
-                    new Vector2(
-                        bounds.Right,
-                        bounds.Top),
-                    transform),
-                new Vector2(1f, 0f));
-
-            AddVertex(
-                Vector2.Transform(
-                    new Vector2(
-                        bounds.Right,
-                        bounds.Bottom),
-                    transform),
-                new Vector2(1f, 1f));
-
-            AddVertex(
-                Vector2.Transform(
-                    new Vector2(
-                        bounds.Left,
-                        bounds.Bottom),
-                    transform),
-                new Vector2(0f, 1f));
-
-            AddQuadIndices(start);
-        }
-
-        // =========================================================================
-        // Stroke Rectangle
-        // =========================================================================
-
-        /// <summary>
-        /// Adds the outline of a rectangle to the batch.
-        /// </summary>
-        /// <param name="bounds">
-        /// The bounds of the shape.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddStrokeRectangle(
-            Bounds2 bounds,
-            float thickness)
-        {
-            AddStrokeRectangle(
-                bounds,
-                thickness,
-                LineJoin.Miter,
-                Matrix.Identity);
-        }
-
-        /// <summary>
-        /// Adds the outline of a rectangle to the batch.
-        /// </summary>
-        /// <param name="bounds">
-        /// The bounds of the shape.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <param name="join">
-        /// The line join style used between connected segments.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddStrokeRectangle(
-            Bounds2 bounds,
-            float thickness,
-            LineJoin join)
-        {
-            AddStrokeRectangle(
-                bounds,
-                thickness,
-                join,
-                Matrix.Identity);
-        }
-
-        /// <summary>
-        /// Adds the outline of a rectangle to the batch.
-        /// </summary>
-        /// <param name="bounds">
-        /// The bounds of the shape.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <param name="join">
-        /// The line join style used between connected segments.
-        /// </param>
-        /// <param name="transform">
-        /// The transformation applied to the geometry.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddStrokeRectangle(
-            Bounds2 bounds,
-            float thickness,
-            LineJoin join,
-            Matrix transform)
-        {
-            CheckBegin();
-
-            if (thickness <= 0f)
-                return;
-
-            Point2[] points =
-            {
-                new Point2(
+        AddVertex(
+            Vector2.Transform(
+                new Vector2(
                     bounds.Left,
                     bounds.Top),
+                transform),
+            new Vector2(0f, 0f));
 
-                new Point2(
+        AddVertex(
+            Vector2.Transform(
+                new Vector2(
                     bounds.Right,
                     bounds.Top),
+                transform),
+            new Vector2(1f, 0f));
 
-                new Point2(
+        AddVertex(
+            Vector2.Transform(
+                new Vector2(
                     bounds.Right,
                     bounds.Bottom),
+                transform),
+            new Vector2(1f, 1f));
 
-                new Point2(
+        AddVertex(
+            Vector2.Transform(
+                new Vector2(
                     bounds.Left,
-                    bounds.Bottom)
-            };
+                    bounds.Bottom),
+                transform),
+            new Vector2(0f, 1f));
+
+        AddQuadIndices(start);
+    }
+
+    // =========================================================================
+    // Stroke Rectangle
+    // =========================================================================
+
+    /// <summary>
+    /// Adds the outline of a rectangle to the batch.
+    /// </summary>
+    /// <param name="bounds">
+    /// The bounds of the shape.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddStrokeRectangle(
+        Bounds2 bounds,
+        float thickness)
+    {
+        AddStrokeRectangle(
+            bounds,
+            thickness,
+            LineJoin.Miter,
+            Matrix.Identity);
+    }
+
+    /// <summary>
+    /// Adds the outline of a rectangle to the batch.
+    /// </summary>
+    /// <param name="bounds">
+    /// The bounds of the shape.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <param name="join">
+    /// The line join style used between connected segments.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddStrokeRectangle(
+        Bounds2 bounds,
+        float thickness,
+        LineJoin join)
+    {
+        AddStrokeRectangle(
+            bounds,
+            thickness,
+            join,
+            Matrix.Identity);
+    }
+
+    /// <summary>
+    /// Adds the outline of a rectangle to the batch.
+    /// </summary>
+    /// <param name="bounds">
+    /// The bounds of the shape.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <param name="join">
+    /// The line join style used between connected segments.
+    /// </param>
+    /// <param name="transform">
+    /// The transformation applied to the geometry.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddStrokeRectangle(
+        Bounds2 bounds,
+        float thickness,
+        LineJoin join,
+        Matrix transform)
+    {
+        CheckBegin();
+
+        if (thickness <= 0f)
+            return;
+
+        Point2[] points =
+        {
+            new Point2(
+                bounds.Left,
+                bounds.Top),
+
+            new Point2(
+                bounds.Right,
+                bounds.Top),
+
+            new Point2(
+                bounds.Right,
+                bounds.Bottom),
+
+            new Point2(
+                bounds.Left,
+                bounds.Bottom)
+        };
+
+        AddClosedStroke(
+            points,
+            thickness,
+            join,
+            transform);
+    }
+
+    // =========================================================================
+    // Open Line
+    // =========================================================================
+
+    /// <summary>
+    /// Adds a line or polyline to the batch.
+    /// </summary>
+    /// <param name="start">
+    /// The starting point of the line.
+    /// </param>
+    /// <param name="end">
+    /// The ending point of the line.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddLine(
+        Point2 start,
+        Point2 end,
+        float thickness)
+    {
+        AddLine(
+            start,
+            end,
+            thickness,
+            LineCap.Butt,
+            Matrix.Identity);
+    }
+
+    /// <summary>
+    /// Adds a line or polyline to the batch.
+    /// </summary>
+    /// <param name="start">
+    /// The starting point of the line.
+    /// </param>
+    /// <param name="end">
+    /// The ending point of the line.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <param name="cap">
+    /// The line cap style used at open line endpoints.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddLine(
+        Point2 start,
+        Point2 end,
+        float thickness,
+        LineCap cap)
+    {
+        AddLine(
+            start,
+            end,
+            thickness,
+            cap,
+            Matrix.Identity);
+    }
+
+    /// <summary>
+    /// Adds a line or polyline to the batch.
+    /// </summary>
+    /// <param name="start">
+    /// The starting point of the line.
+    /// </param>
+    /// <param name="end">
+    /// The ending point of the line.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <param name="cap">
+    /// The line cap style used at open line endpoints.
+    /// </param>
+    /// <param name="transform">
+    /// The transformation applied to the geometry.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddLine(
+        Point2 start,
+        Point2 end,
+        float thickness,
+        LineCap cap,
+        Matrix transform)
+    {
+        CheckBegin();
+
+        if (thickness <= 0f)
+            return;
+
+        Vector2 a =
+            Vector2.Transform(
+                new Vector2(start.X, start.Y),
+                transform);
+
+        Vector2 b =
+            Vector2.Transform(
+                new Vector2(end.X, end.Y),
+                transform);
+
+        AddLineSegment(
+            a,
+            b,
+            thickness,
+            cap);
+    }
+
+    // =========================================================================
+    // Open Polyline
+    // =========================================================================
+
+    /// <summary>
+    /// Adds a line or polyline to the batch.
+    /// </summary>
+    /// <param name="points">
+    /// The points that define the line or polygon.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddLine(
+        IReadOnlyList<Point2> points,
+        float thickness)
+    {
+        AddLine(
+            points,
+            thickness,
+            LineJoin.Miter,
+            LineCap.Butt,
+            Matrix.Identity);
+    }
+
+    /// <summary>
+    /// Adds a line or polyline to the batch.
+    /// </summary>
+    /// <param name="points">
+    /// The points that define the line or polygon.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <param name="join">
+    /// The line join style used between connected segments.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddLine(
+        IReadOnlyList<Point2> points,
+        float thickness,
+        LineJoin join)
+    {
+        AddLine(
+            points,
+            thickness,
+            join,
+            LineCap.Butt,
+            Matrix.Identity);
+    }
+
+    /// <summary>
+    /// Adds a line or polyline to the batch.
+    /// </summary>
+    /// <param name="points">
+    /// The points that define the line or polygon.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <param name="join">
+    /// The line join style used between connected segments.
+    /// </param>
+    /// <param name="cap">
+    /// The line cap style used at open line endpoints.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddLine(
+        IReadOnlyList<Point2> points,
+        float thickness,
+        LineJoin join,
+        LineCap cap)
+    {
+        AddLine(
+            points,
+            thickness,
+            join,
+            cap,
+            Matrix.Identity);
+    }
+
+    /// <summary>
+    /// Adds a line or polyline to the batch.
+    /// </summary>
+    /// <param name="points">
+    /// The points that define the line or polygon.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <param name="join">
+    /// The line join style used between connected segments.
+    /// </param>
+    /// <param name="cap">
+    /// The line cap style used at open line endpoints.
+    /// </param>
+    /// <param name="transform">
+    /// The transformation applied to the geometry.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddLine(
+        IReadOnlyList<Point2> points,
+        float thickness,
+        LineJoin join,
+        LineCap cap,
+        Matrix transform)
+    {
+        CheckBegin();
+
+        if (points is null)
+            throw new ArgumentNullException(nameof(points));
+
+        if (points.Count < 2 || thickness <= 0f)
+            return;
+
+        if (points.Count == 2)
+        {
+            AddLine(
+                points[0],
+                points[1],
+                thickness,
+                cap,
+                transform);
+
+            return;
+        }
+
+        AddOpenStroke(
+            ToVectors(points),
+            thickness,
+            join,
+            cap,
+            transform);
+    }
+
+    // =========================================================================
+    // Closed Polygon Stroke
+    // =========================================================================
+
+    /// <summary>
+    /// Adds the outline of a polygon to the batch.
+    /// </summary>
+    /// <param name="points">
+    /// The points that define the line or polygon.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddStrokePolygon(
+        IReadOnlyList<Point2> points,
+        float thickness)
+    {
+        AddStrokePolygon(
+            points,
+            thickness,
+            LineJoin.Miter,
+            Matrix.Identity);
+    }
+
+    /// <summary>
+    /// Adds the outline of a polygon to the batch.
+    /// </summary>
+    /// <param name="points">
+    /// The points that define the line or polygon.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <param name="join">
+    /// The line join style used between connected segments.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddStrokePolygon(
+        IReadOnlyList<Point2> points,
+        float thickness,
+        LineJoin join)
+    {
+        AddStrokePolygon(
+            points,
+            thickness,
+            join,
+            Matrix.Identity);
+    }
+
+    /// <summary>
+    /// Adds the outline of a polygon to the batch.
+    /// </summary>
+    /// <param name="points">
+    /// The points that define the line or polygon.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <param name="join">
+    /// The line join style used between connected segments.
+    /// </param>
+    /// <param name="transform">
+    /// The transformation applied to the geometry.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddStrokePolygon(
+        IReadOnlyList<Point2> points,
+        float thickness,
+        LineJoin join,
+        Matrix transform)
+    {
+        CheckBegin();
+
+        if (points is null)
+            throw new ArgumentNullException(nameof(points));
+
+        if (points.Count < 3 || thickness <= 0f)
+            return;
+
+        AddClosedStroke(
+            points,
+            thickness,
+            join,
+            transform);
+    }
+
+    // =========================================================================
+    // Fill Polygon
+    // =========================================================================
+
+    /// <summary>
+    /// Adds a filled polygon to the batch.
+    /// </summary>
+    /// <param name="polygon">
+    /// The polygon contours to render.
+    /// </param>
+    public void AddFillPolygon(
+        IReadOnlyList<IReadOnlyList<Point2>> polygon)
+    {
+        AddFillPolygon(
+            polygon,
+            Matrix.Identity);
+    }
+
+    /// <summary>
+    /// Adds a filled polygon to the batch.
+    /// </summary>
+    /// <param name="polygon">
+    /// The polygon contours to render.
+    /// </param>
+    /// <param name="transform">
+    /// The transformation applied to the geometry.
+    /// </param>
+    public void AddFillPolygon(
+        IReadOnlyList<IReadOnlyList<Point2>> polygon,
+        Matrix transform)
+    {
+        CheckBegin();
+
+        ArgumentNullException.ThrowIfNull(polygon);
+
+        if (polygon.Count == 0)
+            return;
+
+        var transformed = new List<IReadOnlyList<Vector2>>(polygon.Count);
+
+        for (int i = 0; i < polygon.Count; i++)
+        {
+            IReadOnlyList<Point2>? contour = polygon[i];
+
+            if (contour is null || contour.Count < 3)
+                continue;
+
+            var points = new Vector2[contour.Count];
+
+            for (int j = 0; j < contour.Count; j++)
+            {
+                points[j] = Vector2.Transform(
+                    contour[j],
+                    transform);
+            }
+
+            transformed.Add(points);
+        }
+
+        if (transformed.Count == 0)
+            return;
+
+        var result = PolygonOperations.Triangulate(
+            transformed,
+            new PolygonTriangulationOptions());
+
+        if (result.Vertices.Count == 0 ||
+            result.Indices.Count == 0)
+        {
+            return;
+        }
+
+        int offset = _vertices.Count;
+
+        for (int i = 0; i < result.Vertices.Count; i++)
+        {
+            AddVertex(
+                result.Vertices[i],
+                Vector2.Zero);
+        }
+
+        for (int i = 0; i < result.Indices.Count; i++)
+        {
+            _indices.Add(
+                offset + result.Indices[i]);
+        }
+    }
+
+    /// <summary>
+    /// Adds a filled polygon to the batch.
+    /// </summary>
+    /// <param name="path">
+    /// The path containing polygon geometry to render.
+    /// </param>
+    public void AddFillPolygon(
+        Path path)
+    {
+        AddFillPolygon(
+            path,
+            Matrix.Identity);
+    }
+
+    /// <summary>
+    /// Adds a filled polygon to the batch.
+    /// </summary>
+    /// <param name="path">
+    /// The path containing polygon geometry to render.
+    /// </param>
+    /// <param name="transform">
+    /// The transformation applied to the geometry.
+    /// </param>
+    public void AddFillPolygon(
+        Path path,
+        Matrix transform)
+    {
+        CheckBegin();
+
+        if (path is null)
+            throw new ArgumentNullException(nameof(path));
+
+        int polygonCount =
+            path.GetPolygonCount();
+
+        if (polygonCount == 0)
+            return;
+
+        var contours = new List<IReadOnlyList<Point2>>(polygonCount);
+
+        for (int i = 0;
+             i < polygonCount;
+             i++)
+        {
+            var points = path.GetPolygonPoints(i);
+
+            if (points.Length >= 3)
+                contours.Add(points);
+        }
+
+        if (contours.Count == 0)
+            return;
+
+        AddFillPolygonVectors(
+            contours,
+            transform);
+    }
+
+    private void AddFillPolygonVectors(
+        IReadOnlyList<IReadOnlyList<Point2>> polygon,
+        Matrix transform)
+    {
+        if (polygon.Count == 0)
+            return;
+
+        var transformed = new List<IReadOnlyList<Vector2>>(polygon.Count);
+
+        for (int i = 0; i < polygon.Count; i++)
+        {
+            IReadOnlyList<Point2>? contour = polygon[i];
+
+            if (contour is null || contour.Count < 3)
+                continue;
+
+            var points = new Vector2[contour.Count];
+
+            for (int j = 0; j < contour.Count; j++)
+            {
+                points[j] = Vector2.Transform(
+                    contour[j],
+                    transform);
+            }
+
+            transformed.Add(points);
+        }
+
+        if (transformed.Count == 0)
+            return;
+
+        var result = PolygonOperations.Triangulate(
+            transformed,
+            new PolygonTriangulationOptions());
+
+        if (result.Vertices.Count == 0 ||
+            result.Indices.Count == 0)
+        {
+            return;
+        }
+
+        int offset = _vertices.Count;
+
+        for (int i = 0; i < result.Vertices.Count; i++)
+        {
+            AddVertex(
+                result.Vertices[i],
+                Vector2.Zero);
+        }
+
+        for (int i = 0; i < result.Indices.Count; i++)
+        {
+            _indices.Add(
+                offset + result.Indices[i]);
+        }
+    }
+
+    // =========================================================================
+    // Stroke Path
+    // =========================================================================
+
+    /// <summary>
+    /// Adds the outline of a polygon to the batch.
+    /// </summary>
+    /// <param name="path">
+    /// The path containing polygon geometry to render.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddStrokePolygon(
+        Path path,
+        float thickness)
+    {
+        AddStrokePolygon(
+            path,
+            thickness,
+            LineJoin.Miter,
+            Matrix.Identity);
+    }
+
+    /// <summary>
+    /// Adds the outline of a polygon to the batch.
+    /// </summary>
+    /// <param name="path">
+    /// The path containing polygon geometry to render.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <param name="join">
+    /// The line join style used between connected segments.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddStrokePolygon(
+        Path path,
+        float thickness,
+        LineJoin join)
+    {
+        AddStrokePolygon(
+            path,
+            thickness,
+            join,
+            Matrix.Identity);
+    }
+
+    /// <summary>
+    /// Adds the outline of a polygon to the batch.
+    /// </summary>
+    /// <param name="path">
+    /// The path containing polygon geometry to render.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <param name="join">
+    /// The line join style used between connected segments.
+    /// </param>
+    /// <param name="transform">
+    /// The transformation applied to the geometry.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddStrokePolygon(
+        Path path,
+        float thickness,
+        LineJoin join,
+        Matrix transform)
+    {
+        CheckBegin();
+
+        if (path is null)
+            throw new ArgumentNullException(nameof(path));
+
+        if (thickness <= 0f)
+            return;
+
+        int polygonCount =
+            path.GetPolygonCount();
+
+        for (int i = 0;
+             i < polygonCount;
+             i++)
+        {
+            var points = path.GetPolygonPoints(i);
+
+            if (points.Length < 3)
+                continue;
 
             AddClosedStroke(
                 points,
@@ -318,2189 +1003,2142 @@ namespace Sachssoft.Engine.Graphics.Rendering.Batches
                 join,
                 transform);
         }
+    }
 
-        // =========================================================================
-        // Open Line
-        // =========================================================================
+    // =========================================================================
+    // Fill Ellipse
+    // =========================================================================
 
-        /// <summary>
-        /// Adds a line or polyline to the batch.
-        /// </summary>
-        /// <param name="start">
-        /// The starting point of the line.
-        /// </param>
-        /// <param name="end">
-        /// The ending point of the line.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddLine(
-            Point2 start,
-            Point2 end,
-            float thickness)
+    /// <summary>
+    /// Adds a filled ellipse to the batch.
+    /// </summary>
+    /// <param name="bounds">
+    /// The bounds of the shape.
+    /// </param>
+    /// <param name="segments">
+    /// The number of segments used to approximate the ellipse.
+    /// </param>
+    public void AddFillEllipse(
+        Bounds2 bounds,
+        int segments = 32)
+    {
+        AddFillEllipse(
+            bounds,
+            Matrix.Identity,
+            segments);
+    }
+
+    /// <summary>
+    /// Adds a filled ellipse to the batch.
+    /// </summary>
+    /// <param name="bounds">
+    /// The bounds of the shape.
+    /// </param>
+    /// <param name="transform">
+    /// The transformation applied to the geometry.
+    /// </param>
+    /// <param name="segments">
+    /// The number of segments used to approximate the ellipse.
+    /// </param>
+    public void AddFillEllipse(
+        Bounds2 bounds,
+        Matrix transform,
+        int segments = 32)
+    {
+        CheckBegin();
+
+        ValidateSegments(segments);
+
+        Point2 center =
+            new Point2(
+                (bounds.Left + bounds.Right) * 0.5f,
+                (bounds.Top + bounds.Bottom) * 0.5f);
+
+        Vector2 radius =
+            new Vector2(
+                (bounds.Right - bounds.Left) * 0.5f,
+                (bounds.Bottom - bounds.Top) * 0.5f);
+
+        AddFillEllipse(
+            center,
+            radius,
+            transform,
+            segments);
+    }
+
+    /// <summary>
+    /// Adds a filled ellipse to the batch.
+    /// </summary>
+    /// <param name="center">
+    /// The center point of the ellipse.
+    /// </param>
+    /// <param name="radius">
+    /// The horizontal and vertical radii of the ellipse.
+    /// </param>
+    /// <param name="segments">
+    /// The number of segments used to approximate the ellipse.
+    /// </param>
+    public void AddFillEllipse(
+        Point2 center,
+        Vector2 radius,
+        int segments = 32)
+    {
+        AddFillEllipse(
+            center,
+            radius,
+            Matrix.Identity,
+            segments);
+    }
+
+    /// <summary>
+    /// Adds a filled ellipse to the batch.
+    /// </summary>
+    /// <param name="center">
+    /// The center point of the ellipse.
+    /// </param>
+    /// <param name="radius">
+    /// The horizontal and vertical radii of the ellipse.
+    /// </param>
+    /// <param name="transform">
+    /// The transformation applied to the geometry.
+    /// </param>
+    /// <param name="segments">
+    /// The number of segments used to approximate the ellipse.
+    /// </param>
+    public void AddFillEllipse(
+        Point2 center,
+        Vector2 radius,
+        Matrix transform,
+        int segments = 32)
+    {
+        CheckBegin();
+
+        ValidateSegments(segments);
+
+        Vector2 centerVector =
+            new Vector2(
+                center.X,
+                center.Y);
+
+        Vector2 transformedCenter =
+            Vector2.Transform(
+                centerVector,
+                transform);
+
+        int centerIndex =
+            _vertices.Count;
+
+        AddVertex(
+            transformedCenter,
+            new Vector2(
+                0.5f,
+                0.5f));
+
+        int first =
+            _vertices.Count;
+
+        float step =
+            MathF.Tau / segments;
+
+        for (int i = 0;
+             i < segments;
+             i++)
         {
-            AddLine(
+            float angle =
+                step * i;
+
+            float cos =
+                MathF.Cos(angle);
+
+            float sin =
+                MathF.Sin(angle);
+
+            Vector2 point =
+                centerVector +
+                new Vector2(
+                    cos * radius.X,
+                    sin * radius.Y);
+
+            AddVertex(
+                Vector2.Transform(
+                    point,
+                    transform),
+                new Vector2(
+                    0.5f + cos * 0.5f,
+                    0.5f + sin * 0.5f));
+        }
+
+        for (int i = 0;
+             i < segments;
+             i++)
+        {
+            int current =
+                first + i;
+
+            int next =
+                first +
+                ((i + 1) % segments);
+
+            _indices.Add(centerIndex);
+            _indices.Add(current);
+            _indices.Add(next);
+        }
+    }
+
+    // =========================================================================
+    // Stroke Ellipse
+    // =========================================================================
+
+    /// <summary>
+    /// Adds the outline of an ellipse to the batch.
+    /// </summary>
+    /// <param name="bounds">
+    /// The bounds of the shape.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <param name="segments">
+    /// The number of segments used to approximate the ellipse.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddStrokeEllipse(
+        Bounds2 bounds,
+        float thickness,
+        int segments = 32)
+    {
+        AddStrokeEllipse(
+            bounds,
+            thickness,
+            LineJoin.Round,
+            Matrix.Identity,
+            segments);
+    }
+
+    /// <summary>
+    /// Adds the outline of an ellipse to the batch.
+    /// </summary>
+    /// <param name="bounds">
+    /// The bounds of the shape.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <param name="join">
+    /// The line join style used between connected segments.
+    /// </param>
+    /// <param name="segments">
+    /// The number of segments used to approximate the ellipse.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddStrokeEllipse(
+        Bounds2 bounds,
+        float thickness,
+        LineJoin join,
+        int segments = 32)
+    {
+        AddStrokeEllipse(
+            bounds,
+            thickness,
+            join,
+            Matrix.Identity,
+            segments);
+    }
+
+    /// <summary>
+    /// Adds the outline of an ellipse to the batch.
+    /// </summary>
+    /// <param name="bounds">
+    /// The bounds of the shape.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <param name="join">
+    /// The line join style used between connected segments.
+    /// </param>
+    /// <param name="transform">
+    /// The transformation applied to the geometry.
+    /// </param>
+    /// <param name="segments">
+    /// The number of segments used to approximate the ellipse.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddStrokeEllipse(
+        Bounds2 bounds,
+        float thickness,
+        LineJoin join,
+        Matrix transform,
+        int segments = 32)
+    {
+        CheckBegin();
+
+        if (thickness <= 0f)
+            return;
+
+        ValidateSegments(segments);
+
+        Point2 center =
+            new Point2(
+                (bounds.Left + bounds.Right) * 0.5f,
+                (bounds.Top + bounds.Bottom) * 0.5f);
+
+        Vector2 radius =
+            new Vector2(
+                (bounds.Right - bounds.Left) * 0.5f,
+                (bounds.Bottom - bounds.Top) * 0.5f);
+
+        AddStrokeEllipse(
+            center,
+            radius,
+            thickness,
+            join,
+            transform,
+            segments);
+    }
+
+    /// <summary>
+    /// Adds the outline of an ellipse to the batch.
+    /// </summary>
+    /// <param name="center">
+    /// The center point of the ellipse.
+    /// </param>
+    /// <param name="radius">
+    /// The horizontal and vertical radii of the ellipse.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <param name="segments">
+    /// The number of segments used to approximate the ellipse.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddStrokeEllipse(
+        Point2 center,
+        Vector2 radius,
+        float thickness,
+        int segments = 32)
+    {
+        AddStrokeEllipse(
+            center,
+            radius,
+            thickness,
+            LineJoin.Round,
+            Matrix.Identity,
+            segments);
+    }
+
+    /// <summary>
+    /// Adds the outline of an ellipse to the batch.
+    /// </summary>
+    /// <param name="center">
+    /// The center point of the ellipse.
+    /// </param>
+    /// <param name="radius">
+    /// The horizontal and vertical radii of the ellipse.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <param name="join">
+    /// The line join style used between connected segments.
+    /// </param>
+    /// <param name="segments">
+    /// The number of segments used to approximate the ellipse.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddStrokeEllipse(
+        Point2 center,
+        Vector2 radius,
+        float thickness,
+        LineJoin join,
+        int segments = 32)
+    {
+        AddStrokeEllipse(
+            center,
+            radius,
+            thickness,
+            join,
+            Matrix.Identity,
+            segments);
+    }
+
+    /// <summary>
+    /// Adds the outline of an ellipse to the batch.
+    /// </summary>
+    /// <param name="center">
+    /// The center point of the ellipse.
+    /// </param>
+    /// <param name="radius">
+    /// The horizontal and vertical radii of the ellipse.
+    /// </param>
+    /// <param name="thickness">
+    /// The stroke thickness.
+    /// </param>
+    /// <param name="join">
+    /// The line join style used between connected segments.
+    /// </param>
+    /// <param name="transform">
+    /// The transformation applied to the geometry.
+    /// </param>
+    /// <param name="segments">
+    /// The number of segments used to approximate the ellipse.
+    /// </param>
+    /// <remarks>
+    /// Non-positive thickness values do not add geometry.
+    /// </remarks>
+    public void AddStrokeEllipse(
+        Point2 center,
+        Vector2 radius,
+        float thickness,
+        LineJoin join,
+        Matrix transform,
+        int segments = 32)
+    {
+        CheckBegin();
+
+        if (thickness <= 0f)
+            return;
+
+        ValidateSegments(segments);
+
+        AddEllipseStroke(
+            new Vector2(center.X, center.Y),
+            radius,
+            thickness,
+            transform,
+            segments);
+    }
+
+    // =========================================================================
+    // Fast Line Segment
+    // =========================================================================
+
+    private void AddLineSegment(
+        Vector2 start,
+        Vector2 end,
+        float thickness,
+        LineCap cap)
+    {
+        Vector2 direction =
+            end - start;
+
+        float lengthSquared =
+            direction.LengthSquared();
+
+        if (lengthSquared <= Epsilon)
+            return;
+
+        direction /=
+            MathF.Sqrt(lengthSquared);
+
+        Vector2 normal =
+            new Vector2(
+                -direction.Y,
+                direction.X);
+
+        float halfThickness =
+            thickness * 0.5f;
+
+        int index =
+            _vertices.Count;
+
+        AddVertex(
+            start +
+            normal * halfThickness,
+            Vector2.Zero);
+
+        AddVertex(
+            end +
+            normal * halfThickness,
+            Vector2.Zero);
+
+        AddVertex(
+            end -
+            normal * halfThickness,
+            Vector2.Zero);
+
+        AddVertex(
+            start -
+            normal * halfThickness,
+            Vector2.Zero);
+
+        AddQuadIndices(index);
+
+        if (cap == LineCap.Square)
+        {
+            AddSquareStartCap(
+                start,
+                direction,
+                normal,
+                halfThickness);
+
+            AddSquareEndCap(
+                end,
+                direction,
+                normal,
+                halfThickness);
+        }
+        else if (cap == LineCap.Round)
+        {
+            AddRoundCap(
+                start,
+                -direction,
+                halfThickness);
+
+            AddRoundCap(
+                end,
+                direction,
+                halfThickness);
+        }
+    }
+
+    // =========================================================================
+    // Open Stroke
+    // =========================================================================
+
+    private void AddOpenStroke(
+        IReadOnlyList<Vector2> points,
+        float thickness,
+        LineJoin join,
+        LineCap cap,
+        Matrix transform)
+    {
+        int count =
+            points.Count;
+
+        Vector2[] transformed =
+            new Vector2[count];
+
+        for (int i = 0;
+             i < count;
+             i++)
+        {
+            transformed[i] =
+                Vector2.Transform(
+                    points[i],
+                    transform);
+        }
+
+        float halfThickness =
+            thickness * 0.5f;
+
+        // Segment bodies.
+        for (int i = 0;
+             i < count - 1;
+             i++)
+        {
+            Vector2 start =
+                transformed[i];
+
+            Vector2 end =
+                transformed[i + 1];
+
+            AddStrokeSegment(
                 start,
                 end,
-                thickness,
-                LineCap.Butt,
-                Matrix.Identity);
+                halfThickness);
         }
 
-        /// <summary>
-        /// Adds a line or polyline to the batch.
-        /// </summary>
-        /// <param name="start">
-        /// The starting point of the line.
-        /// </param>
-        /// <param name="end">
-        /// The ending point of the line.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <param name="cap">
-        /// The line cap style used at open line endpoints.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddLine(
-            Point2 start,
-            Point2 end,
-            float thickness,
-            LineCap cap)
+        // Joins.
+        for (int i = 1;
+             i < count - 1;
+             i++)
         {
-            AddLine(
+            AddJoin(
+                transformed[i - 1],
+                transformed[i],
+                transformed[i + 1],
+                halfThickness,
+                join);
+        }
+
+        int firstSegment =
+            FindFirstValidSegment(
+                transformed);
+
+        int lastSegment =
+            FindLastValidSegment(
+                transformed);
+
+        if (firstSegment < 0 ||
+            lastSegment < 0)
+        {
+            return;
+        }
+
+        Vector2 firstDirection =
+            NormalizeSafe(
+                transformed[firstSegment + 1] -
+                transformed[firstSegment]);
+
+        Vector2 lastDirection =
+            NormalizeSafe(
+                transformed[lastSegment + 1] -
+                transformed[lastSegment]);
+
+        AddStartCap(
+            transformed[firstSegment],
+            firstDirection,
+            halfThickness,
+            cap);
+
+        AddEndCap(
+            transformed[lastSegment + 1],
+            lastDirection,
+            halfThickness,
+            cap);
+    }
+
+    private void AddStrokeSegment(
+        Vector2 start,
+        Vector2 end,
+        float halfThickness)
+    {
+        Vector2 direction =
+            end - start;
+
+        float lengthSquared =
+            direction.LengthSquared();
+
+        if (lengthSquared <= Epsilon)
+            return;
+
+        direction /=
+            MathF.Sqrt(lengthSquared);
+
+        Vector2 normal =
+            new Vector2(
+                -direction.Y,
+                direction.X);
+
+        int index =
+            _vertices.Count;
+
+        AddVertex(
+            start +
+            normal * halfThickness,
+            Vector2.Zero);
+
+        AddVertex(
+            end +
+            normal * halfThickness,
+            Vector2.Zero);
+
+        AddVertex(
+            end -
+            normal * halfThickness,
+            Vector2.Zero);
+
+        AddVertex(
+            start -
+            normal * halfThickness,
+            Vector2.Zero);
+
+        AddQuadIndices(index);
+    }
+
+    // =========================================================================
+    // Closed Stroke
+    // =========================================================================
+
+    private void AddClosedStroke(
+        IReadOnlyList<Point2> points,
+        float thickness,
+        LineJoin join,
+        Matrix transform)
+    {
+        int count =
+            points.Count;
+
+        Vector2[] transformed =
+            new Vector2[count];
+
+        for (int i = 0;
+             i < count;
+             i++)
+        {
+            transformed[i] =
+                Vector2.Transform(
+                    points[i],
+                    transform);
+        }
+
+        float halfThickness =
+            thickness * 0.5f;
+
+        // Segment bodies.
+        for (int i = 0;
+             i < count;
+             i++)
+        {
+            Vector2 start =
+                transformed[i];
+
+            Vector2 end =
+                transformed[
+                    (i + 1) % count];
+
+            AddStrokeSegment(
                 start,
                 end,
-                thickness,
-                cap,
-                Matrix.Identity);
+                halfThickness);
         }
 
-        /// <summary>
-        /// Adds a line or polyline to the batch.
-        /// </summary>
-        /// <param name="start">
-        /// The starting point of the line.
-        /// </param>
-        /// <param name="end">
-        /// The ending point of the line.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <param name="cap">
-        /// The line cap style used at open line endpoints.
-        /// </param>
-        /// <param name="transform">
-        /// The transformation applied to the geometry.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddLine(
-            Point2 start,
-            Point2 end,
-            float thickness,
-            LineCap cap,
-            Matrix transform)
+        // Joins.
+        for (int i = 0;
+             i < count;
+             i++)
         {
-            CheckBegin();
-
-            if (thickness <= 0f)
-                return;
-
-            Vector2 a =
-                Vector2.Transform(
-                    new Vector2(start.X, start.Y),
-                    transform);
-
-            Vector2 b =
-                Vector2.Transform(
-                    new Vector2(end.X, end.Y),
-                    transform);
-
-            AddLineSegment(
-                a,
-                b,
-                thickness,
-                cap);
-        }
-
-        // =========================================================================
-        // Open Polyline
-        // =========================================================================
-
-        /// <summary>
-        /// Adds a line or polyline to the batch.
-        /// </summary>
-        /// <param name="points">
-        /// The points that define the line or polygon.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddLine(
-            IReadOnlyList<Point2> points,
-            float thickness)
-        {
-            AddLine(
-                points,
-                thickness,
-                LineJoin.Miter,
-                LineCap.Butt,
-                Matrix.Identity);
-        }
-
-        /// <summary>
-        /// Adds a line or polyline to the batch.
-        /// </summary>
-        /// <param name="points">
-        /// The points that define the line or polygon.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <param name="join">
-        /// The line join style used between connected segments.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddLine(
-            IReadOnlyList<Point2> points,
-            float thickness,
-            LineJoin join)
-        {
-            AddLine(
-                points,
-                thickness,
-                join,
-                LineCap.Butt,
-                Matrix.Identity);
-        }
-
-        /// <summary>
-        /// Adds a line or polyline to the batch.
-        /// </summary>
-        /// <param name="points">
-        /// The points that define the line or polygon.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <param name="join">
-        /// The line join style used between connected segments.
-        /// </param>
-        /// <param name="cap">
-        /// The line cap style used at open line endpoints.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddLine(
-            IReadOnlyList<Point2> points,
-            float thickness,
-            LineJoin join,
-            LineCap cap)
-        {
-            AddLine(
-                points,
-                thickness,
-                join,
-                cap,
-                Matrix.Identity);
-        }
-
-        /// <summary>
-        /// Adds a line or polyline to the batch.
-        /// </summary>
-        /// <param name="points">
-        /// The points that define the line or polygon.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <param name="join">
-        /// The line join style used between connected segments.
-        /// </param>
-        /// <param name="cap">
-        /// The line cap style used at open line endpoints.
-        /// </param>
-        /// <param name="transform">
-        /// The transformation applied to the geometry.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddLine(
-            IReadOnlyList<Point2> points,
-            float thickness,
-            LineJoin join,
-            LineCap cap,
-            Matrix transform)
-        {
-            CheckBegin();
-
-            if (points is null)
-                throw new ArgumentNullException(nameof(points));
-
-            if (points.Count < 2 || thickness <= 0f)
-                return;
-
-            if (points.Count == 2)
-            {
-                AddLine(
-                    points[0],
-                    points[1],
-                    thickness,
-                    cap,
-                    transform);
-
-                return;
-            }
-
-            AddOpenStroke(
-                ToVectors(points),
-                thickness,
-                join,
-                cap,
-                transform);
-        }
-
-        // =========================================================================
-        // Closed Polygon Stroke
-        // =========================================================================
-
-        /// <summary>
-        /// Adds the outline of a polygon to the batch.
-        /// </summary>
-        /// <param name="points">
-        /// The points that define the line or polygon.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddStrokePolygon(
-            IReadOnlyList<Point2> points,
-            float thickness)
-        {
-            AddStrokePolygon(
-                points,
-                thickness,
-                LineJoin.Miter,
-                Matrix.Identity);
-        }
-
-        /// <summary>
-        /// Adds the outline of a polygon to the batch.
-        /// </summary>
-        /// <param name="points">
-        /// The points that define the line or polygon.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <param name="join">
-        /// The line join style used between connected segments.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddStrokePolygon(
-            IReadOnlyList<Point2> points,
-            float thickness,
-            LineJoin join)
-        {
-            AddStrokePolygon(
-                points,
-                thickness,
-                join,
-                Matrix.Identity);
-        }
-
-        /// <summary>
-        /// Adds the outline of a polygon to the batch.
-        /// </summary>
-        /// <param name="points">
-        /// The points that define the line or polygon.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <param name="join">
-        /// The line join style used between connected segments.
-        /// </param>
-        /// <param name="transform">
-        /// The transformation applied to the geometry.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddStrokePolygon(
-            IReadOnlyList<Point2> points,
-            float thickness,
-            LineJoin join,
-            Matrix transform)
-        {
-            CheckBegin();
-
-            if (points is null)
-                throw new ArgumentNullException(nameof(points));
-
-            if (points.Count < 3 || thickness <= 0f)
-                return;
-
-            AddClosedStroke(
-                points,
-                thickness,
-                join,
-                transform);
-        }
-
-        // =========================================================================
-        // Fill Polygon
-        // =========================================================================
-
-        /// <summary>
-        /// Adds a filled polygon to the batch.
-        /// </summary>
-        /// <param name="polygon">
-        /// The polygon contours to render.
-        /// </param>
-        public void AddFillPolygon(
-            IReadOnlyList<IReadOnlyList<Point2>> polygon)
-        {
-            AddFillPolygon(
-                polygon,
-                Matrix.Identity);
-        }
-
-        /// <summary>
-        /// Adds a filled polygon to the batch.
-        /// </summary>
-        /// <param name="polygon">
-        /// The polygon contours to render.
-        /// </param>
-        /// <param name="transform">
-        /// The transformation applied to the geometry.
-        /// </param>
-        public void AddFillPolygon(
-            IReadOnlyList<IReadOnlyList<Point2>> polygon,
-            Matrix transform)
-        {
-            CheckBegin();
-
-            ArgumentNullException.ThrowIfNull(polygon);
-
-            if (polygon.Count == 0)
-                return;
-
-            var transformed = new List<IReadOnlyList<Vector2>>(polygon.Count);
-
-            for (int i = 0; i < polygon.Count; i++)
-            {
-                IReadOnlyList<Point2>? contour = polygon[i];
-
-                if (contour is null || contour.Count < 3)
-                    continue;
-
-                var points = new Vector2[contour.Count];
-
-                for (int j = 0; j < contour.Count; j++)
-                {
-                    points[j] = Vector2.Transform(
-                        contour[j],
-                        transform);
-                }
-
-                transformed.Add(points);
-            }
-
-            if (transformed.Count == 0)
-                return;
-
-            var result = PolygonOperations.Triangulate(
-                transformed,
-                new PolygonTriangulationOptions());
-
-            if (result.Vertices.Count == 0 ||
-                result.Indices.Count == 0)
-            {
-                return;
-            }
-
-            int offset = _vertices.Count;
-
-            for (int i = 0; i < result.Vertices.Count; i++)
-            {
-                AddVertex(
-                    result.Vertices[i],
-                    Vector2.Zero);
-            }
-
-            for (int i = 0; i < result.Indices.Count; i++)
-            {
-                _indices.Add(
-                    offset + result.Indices[i]);
-            }
-        }
-
-        /// <summary>
-        /// Adds a filled polygon to the batch.
-        /// </summary>
-        /// <param name="path">
-        /// The path containing polygon geometry to render.
-        /// </param>
-        public void AddFillPolygon(
-            Path path)
-        {
-            AddFillPolygon(
-                path,
-                Matrix.Identity);
-        }
-
-        /// <summary>
-        /// Adds a filled polygon to the batch.
-        /// </summary>
-        /// <param name="path">
-        /// The path containing polygon geometry to render.
-        /// </param>
-        /// <param name="transform">
-        /// The transformation applied to the geometry.
-        /// </param>
-        public void AddFillPolygon(
-            Path path,
-            Matrix transform)
-        {
-            CheckBegin();
-
-            if (path is null)
-                throw new ArgumentNullException(nameof(path));
-
-            int polygonCount =
-                path.GetPolygonCount();
-
-            if (polygonCount == 0)
-                return;
-
-            var contours = new List<IReadOnlyList<Point2>>(polygonCount);
-
-            for (int i = 0;
-                 i < polygonCount;
-                 i++)
-            {
-                var points = path.GetPolygonPoints(i);
-
-                if (points.Length >= 3)
-                    contours.Add(points);
-            }
-
-            if (contours.Count == 0)
-                return;
-
-            AddFillPolygonVectors(
-                contours,
-                transform);
-        }
-
-        private void AddFillPolygonVectors(
-            IReadOnlyList<IReadOnlyList<Point2>> polygon,
-            Matrix transform)
-        {
-            if (polygon.Count == 0)
-                return;
-
-            var transformed = new List<IReadOnlyList<Vector2>>(polygon.Count);
-
-            for (int i = 0; i < polygon.Count; i++)
-            {
-                IReadOnlyList<Point2>? contour = polygon[i];
-
-                if (contour is null || contour.Count < 3)
-                    continue;
-
-                var points = new Vector2[contour.Count];
-
-                for (int j = 0; j < contour.Count; j++)
-                {
-                    points[j] = Vector2.Transform(
-                        contour[j],
-                        transform);
-                }
-
-                transformed.Add(points);
-            }
-
-            if (transformed.Count == 0)
-                return;
-
-            var result = PolygonOperations.Triangulate(
-                transformed,
-                new PolygonTriangulationOptions());
-
-            if (result.Vertices.Count == 0 ||
-                result.Indices.Count == 0)
-            {
-                return;
-            }
-
-            int offset = _vertices.Count;
-
-            for (int i = 0; i < result.Vertices.Count; i++)
-            {
-                AddVertex(
-                    result.Vertices[i],
-                    Vector2.Zero);
-            }
-
-            for (int i = 0; i < result.Indices.Count; i++)
-            {
-                _indices.Add(
-                    offset + result.Indices[i]);
-            }
-        }
-
-        // =========================================================================
-        // Stroke Path
-        // =========================================================================
-
-        /// <summary>
-        /// Adds the outline of a polygon to the batch.
-        /// </summary>
-        /// <param name="path">
-        /// The path containing polygon geometry to render.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddStrokePolygon(
-            Path path,
-            float thickness)
-        {
-            AddStrokePolygon(
-                path,
-                thickness,
-                LineJoin.Miter,
-                Matrix.Identity);
-        }
-
-        /// <summary>
-        /// Adds the outline of a polygon to the batch.
-        /// </summary>
-        /// <param name="path">
-        /// The path containing polygon geometry to render.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <param name="join">
-        /// The line join style used between connected segments.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddStrokePolygon(
-            Path path,
-            float thickness,
-            LineJoin join)
-        {
-            AddStrokePolygon(
-                path,
-                thickness,
-                join,
-                Matrix.Identity);
-        }
-
-        /// <summary>
-        /// Adds the outline of a polygon to the batch.
-        /// </summary>
-        /// <param name="path">
-        /// The path containing polygon geometry to render.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <param name="join">
-        /// The line join style used between connected segments.
-        /// </param>
-        /// <param name="transform">
-        /// The transformation applied to the geometry.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddStrokePolygon(
-            Path path,
-            float thickness,
-            LineJoin join,
-            Matrix transform)
-        {
-            CheckBegin();
-
-            if (path is null)
-                throw new ArgumentNullException(nameof(path));
-
-            if (thickness <= 0f)
-                return;
-
-            int polygonCount =
-                path.GetPolygonCount();
-
-            for (int i = 0;
-                 i < polygonCount;
-                 i++)
-            {
-                var points = path.GetPolygonPoints(i);
-
-                if (points.Length < 3)
-                    continue;
-
-                AddClosedStroke(
-                    points,
-                    thickness,
-                    join,
-                    transform);
-            }
-        }
-
-        // =========================================================================
-        // Fill Ellipse
-        // =========================================================================
-
-        /// <summary>
-        /// Adds a filled ellipse to the batch.
-        /// </summary>
-        /// <param name="bounds">
-        /// The bounds of the shape.
-        /// </param>
-        /// <param name="segments">
-        /// The number of segments used to approximate the ellipse.
-        /// </param>
-        public void AddFillEllipse(
-            Bounds2 bounds,
-            int segments = 32)
-        {
-            AddFillEllipse(
-                bounds,
-                Matrix.Identity,
-                segments);
-        }
-
-        /// <summary>
-        /// Adds a filled ellipse to the batch.
-        /// </summary>
-        /// <param name="bounds">
-        /// The bounds of the shape.
-        /// </param>
-        /// <param name="transform">
-        /// The transformation applied to the geometry.
-        /// </param>
-        /// <param name="segments">
-        /// The number of segments used to approximate the ellipse.
-        /// </param>
-        public void AddFillEllipse(
-            Bounds2 bounds,
-            Matrix transform,
-            int segments = 32)
-        {
-            CheckBegin();
-
-            ValidateSegments(segments);
-
-            Point2 center =
-                new Point2(
-                    (bounds.Left + bounds.Right) * 0.5f,
-                    (bounds.Top + bounds.Bottom) * 0.5f);
-
-            Vector2 radius =
-                new Vector2(
-                    (bounds.Right - bounds.Left) * 0.5f,
-                    (bounds.Bottom - bounds.Top) * 0.5f);
-
-            AddFillEllipse(
-                center,
-                radius,
-                transform,
-                segments);
-        }
-
-        /// <summary>
-        /// Adds a filled ellipse to the batch.
-        /// </summary>
-        /// <param name="center">
-        /// The center point of the ellipse.
-        /// </param>
-        /// <param name="radius">
-        /// The horizontal and vertical radii of the ellipse.
-        /// </param>
-        /// <param name="segments">
-        /// The number of segments used to approximate the ellipse.
-        /// </param>
-        public void AddFillEllipse(
-            Point2 center,
-            Vector2 radius,
-            int segments = 32)
-        {
-            AddFillEllipse(
-                center,
-                radius,
-                Matrix.Identity,
-                segments);
-        }
-
-        /// <summary>
-        /// Adds a filled ellipse to the batch.
-        /// </summary>
-        /// <param name="center">
-        /// The center point of the ellipse.
-        /// </param>
-        /// <param name="radius">
-        /// The horizontal and vertical radii of the ellipse.
-        /// </param>
-        /// <param name="transform">
-        /// The transformation applied to the geometry.
-        /// </param>
-        /// <param name="segments">
-        /// The number of segments used to approximate the ellipse.
-        /// </param>
-        public void AddFillEllipse(
-            Point2 center,
-            Vector2 radius,
-            Matrix transform,
-            int segments = 32)
-        {
-            CheckBegin();
-
-            ValidateSegments(segments);
-
-            Vector2 centerVector =
-                new Vector2(
-                    center.X,
-                    center.Y);
-
-            Vector2 transformedCenter =
-                Vector2.Transform(
-                    centerVector,
-                    transform);
-
-            int centerIndex =
-                _vertices.Count;
-
-            AddVertex(
-                transformedCenter,
-                new Vector2(
-                    0.5f,
-                    0.5f));
-
-            int first =
-                _vertices.Count;
-
-            float step =
-                MathF.Tau / segments;
-
-            for (int i = 0;
-                 i < segments;
-                 i++)
-            {
-                float angle =
-                    step * i;
-
-                float cos =
-                    MathF.Cos(angle);
-
-                float sin =
-                    MathF.Sin(angle);
-
-                Vector2 point =
-                    centerVector +
-                    new Vector2(
-                        cos * radius.X,
-                        sin * radius.Y);
-
-                AddVertex(
-                    Vector2.Transform(
-                        point,
-                        transform),
-                    new Vector2(
-                        0.5f + cos * 0.5f,
-                        0.5f + sin * 0.5f));
-            }
-
-            for (int i = 0;
-                 i < segments;
-                 i++)
-            {
-                int current =
-                    first + i;
-
-                int next =
-                    first +
-                    ((i + 1) % segments);
-
-                _indices.Add(centerIndex);
-                _indices.Add(current);
-                _indices.Add(next);
-            }
-        }
-
-        // =========================================================================
-        // Stroke Ellipse
-        // =========================================================================
-
-        /// <summary>
-        /// Adds the outline of an ellipse to the batch.
-        /// </summary>
-        /// <param name="bounds">
-        /// The bounds of the shape.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <param name="segments">
-        /// The number of segments used to approximate the ellipse.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddStrokeEllipse(
-            Bounds2 bounds,
-            float thickness,
-            int segments = 32)
-        {
-            AddStrokeEllipse(
-                bounds,
-                thickness,
-                LineJoin.Round,
-                Matrix.Identity,
-                segments);
-        }
-
-        /// <summary>
-        /// Adds the outline of an ellipse to the batch.
-        /// </summary>
-        /// <param name="bounds">
-        /// The bounds of the shape.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <param name="join">
-        /// The line join style used between connected segments.
-        /// </param>
-        /// <param name="segments">
-        /// The number of segments used to approximate the ellipse.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddStrokeEllipse(
-            Bounds2 bounds,
-            float thickness,
-            LineJoin join,
-            int segments = 32)
-        {
-            AddStrokeEllipse(
-                bounds,
-                thickness,
-                join,
-                Matrix.Identity,
-                segments);
-        }
-
-        /// <summary>
-        /// Adds the outline of an ellipse to the batch.
-        /// </summary>
-        /// <param name="bounds">
-        /// The bounds of the shape.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <param name="join">
-        /// The line join style used between connected segments.
-        /// </param>
-        /// <param name="transform">
-        /// The transformation applied to the geometry.
-        /// </param>
-        /// <param name="segments">
-        /// The number of segments used to approximate the ellipse.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddStrokeEllipse(
-            Bounds2 bounds,
-            float thickness,
-            LineJoin join,
-            Matrix transform,
-            int segments = 32)
-        {
-            CheckBegin();
-
-            if (thickness <= 0f)
-                return;
-
-            ValidateSegments(segments);
-
-            Point2 center =
-                new Point2(
-                    (bounds.Left + bounds.Right) * 0.5f,
-                    (bounds.Top + bounds.Bottom) * 0.5f);
-
-            Vector2 radius =
-                new Vector2(
-                    (bounds.Right - bounds.Left) * 0.5f,
-                    (bounds.Bottom - bounds.Top) * 0.5f);
-
-            AddStrokeEllipse(
-                center,
-                radius,
-                thickness,
-                join,
-                transform,
-                segments);
-        }
-
-        /// <summary>
-        /// Adds the outline of an ellipse to the batch.
-        /// </summary>
-        /// <param name="center">
-        /// The center point of the ellipse.
-        /// </param>
-        /// <param name="radius">
-        /// The horizontal and vertical radii of the ellipse.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <param name="segments">
-        /// The number of segments used to approximate the ellipse.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddStrokeEllipse(
-            Point2 center,
-            Vector2 radius,
-            float thickness,
-            int segments = 32)
-        {
-            AddStrokeEllipse(
-                center,
-                radius,
-                thickness,
-                LineJoin.Round,
-                Matrix.Identity,
-                segments);
-        }
-
-        /// <summary>
-        /// Adds the outline of an ellipse to the batch.
-        /// </summary>
-        /// <param name="center">
-        /// The center point of the ellipse.
-        /// </param>
-        /// <param name="radius">
-        /// The horizontal and vertical radii of the ellipse.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <param name="join">
-        /// The line join style used between connected segments.
-        /// </param>
-        /// <param name="segments">
-        /// The number of segments used to approximate the ellipse.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddStrokeEllipse(
-            Point2 center,
-            Vector2 radius,
-            float thickness,
-            LineJoin join,
-            int segments = 32)
-        {
-            AddStrokeEllipse(
-                center,
-                radius,
-                thickness,
-                join,
-                Matrix.Identity,
-                segments);
-        }
-
-        /// <summary>
-        /// Adds the outline of an ellipse to the batch.
-        /// </summary>
-        /// <param name="center">
-        /// The center point of the ellipse.
-        /// </param>
-        /// <param name="radius">
-        /// The horizontal and vertical radii of the ellipse.
-        /// </param>
-        /// <param name="thickness">
-        /// The stroke thickness.
-        /// </param>
-        /// <param name="join">
-        /// The line join style used between connected segments.
-        /// </param>
-        /// <param name="transform">
-        /// The transformation applied to the geometry.
-        /// </param>
-        /// <param name="segments">
-        /// The number of segments used to approximate the ellipse.
-        /// </param>
-        /// <remarks>
-        /// Non-positive thickness values do not add geometry.
-        /// </remarks>
-        public void AddStrokeEllipse(
-            Point2 center,
-            Vector2 radius,
-            float thickness,
-            LineJoin join,
-            Matrix transform,
-            int segments = 32)
-        {
-            CheckBegin();
-
-            if (thickness <= 0f)
-                return;
-
-            ValidateSegments(segments);
-
-            AddEllipseStroke(
-                new Vector2(center.X, center.Y),
-                radius,
-                thickness,
-                transform,
-                segments);
-        }
-
-        // =========================================================================
-        // Fast Line Segment
-        // =========================================================================
-
-        private void AddLineSegment(
-            Vector2 start,
-            Vector2 end,
-            float thickness,
-            LineCap cap)
-        {
-            Vector2 direction =
-                end - start;
-
-            float lengthSquared =
-                direction.LengthSquared();
-
-            if (lengthSquared <= Epsilon)
-                return;
-
-            direction /=
-                MathF.Sqrt(lengthSquared);
-
-            Vector2 normal =
-                new Vector2(
-                    -direction.Y,
-                    direction.X);
-
-            float halfThickness =
-                thickness * 0.5f;
-
-            int index =
-                _vertices.Count;
-
-            AddVertex(
-                start +
-                normal * halfThickness,
-                Vector2.Zero);
-
-            AddVertex(
-                end +
-                normal * halfThickness,
-                Vector2.Zero);
-
-            AddVertex(
-                end -
-                normal * halfThickness,
-                Vector2.Zero);
-
-            AddVertex(
-                start -
-                normal * halfThickness,
-                Vector2.Zero);
-
-            AddQuadIndices(index);
-
-            if (cap == LineCap.Square)
-            {
-                AddSquareStartCap(
-                    start,
-                    direction,
-                    normal,
-                    halfThickness);
-
-                AddSquareEndCap(
-                    end,
-                    direction,
-                    normal,
-                    halfThickness);
-            }
-            else if (cap == LineCap.Round)
-            {
-                AddRoundCap(
-                    start,
-                    -direction,
-                    halfThickness);
-
-                AddRoundCap(
-                    end,
-                    direction,
-                    halfThickness);
-            }
-        }
-
-        // =========================================================================
-        // Open Stroke
-        // =========================================================================
-
-        private void AddOpenStroke(
-            IReadOnlyList<Vector2> points,
-            float thickness,
-            LineJoin join,
-            LineCap cap,
-            Matrix transform)
-        {
-            int count =
-                points.Count;
-
-            Vector2[] transformed =
-                new Vector2[count];
-
-            for (int i = 0;
-                 i < count;
-                 i++)
-            {
-                transformed[i] =
-                    Vector2.Transform(
-                        points[i],
-                        transform);
-            }
-
-            float halfThickness =
-                thickness * 0.5f;
-
-            // Segment bodies.
-            for (int i = 0;
-                 i < count - 1;
-                 i++)
-            {
-                Vector2 start =
-                    transformed[i];
-
-                Vector2 end =
-                    transformed[i + 1];
-
-                AddStrokeSegment(
-                    start,
-                    end,
-                    halfThickness);
-            }
-
-            // Joins.
-            for (int i = 1;
-                 i < count - 1;
-                 i++)
-            {
-                AddJoin(
-                    transformed[i - 1],
-                    transformed[i],
-                    transformed[i + 1],
-                    halfThickness,
-                    join);
-            }
-
-            int firstSegment =
-                FindFirstValidSegment(
-                    transformed);
-
-            int lastSegment =
-                FindLastValidSegment(
-                    transformed);
-
-            if (firstSegment < 0 ||
-                lastSegment < 0)
-            {
-                return;
-            }
-
-            Vector2 firstDirection =
-                NormalizeSafe(
-                    transformed[firstSegment + 1] -
-                    transformed[firstSegment]);
-
-            Vector2 lastDirection =
-                NormalizeSafe(
-                    transformed[lastSegment + 1] -
-                    transformed[lastSegment]);
-
-            AddStartCap(
-                transformed[firstSegment],
-                firstDirection,
+            Vector2 previous =
+                transformed[
+                    (i - 1 + count) % count];
+
+            Vector2 current =
+                transformed[i];
+
+            Vector2 next =
+                transformed[
+                    (i + 1) % count];
+
+            AddJoin(
+                previous,
+                current,
+                next,
                 halfThickness,
-                cap);
+                join);
+        }
+    }
 
-            AddEndCap(
-                transformed[lastSegment + 1],
-                lastDirection,
-                halfThickness,
-                cap);
+    // =========================================================================
+    // Join
+    // =========================================================================
+
+    private void AddJoin(
+        Vector2 previous,
+        Vector2 current,
+        Vector2 next,
+        float halfThickness,
+        LineJoin join)
+    {
+        Vector2 directionA =
+            NormalizeSafe(
+                current - previous);
+
+        Vector2 directionB =
+            NormalizeSafe(
+                next - current);
+
+        if (directionA.LengthSquared() <= Epsilon ||
+            directionB.LengthSquared() <= Epsilon)
+        {
+            return;
         }
 
-        private void AddStrokeSegment(
-            Vector2 start,
-            Vector2 end,
-            float halfThickness)
+        float cross =
+            directionA.X * directionB.Y -
+            directionA.Y * directionB.X;
+
+        if (MathF.Abs(cross) <= Epsilon)
+            return;
+
+        Vector2 normalA =
+            new Vector2(
+                -directionA.Y,
+                directionA.X);
+
+        Vector2 normalB =
+            new Vector2(
+                -directionB.Y,
+                directionB.X);
+
+        Vector2 outerNormalA =
+            cross > 0f
+                ? -normalA
+                : normalA;
+
+        Vector2 outerNormalB =
+            cross > 0f
+                ? -normalB
+                : normalB;
+
+        switch (join)
         {
-            Vector2 direction =
-                end - start;
-
-            float lengthSquared =
-                direction.LengthSquared();
-
-            if (lengthSquared <= Epsilon)
-                return;
-
-            direction /=
-                MathF.Sqrt(lengthSquared);
-
-            Vector2 normal =
-                new Vector2(
-                    -direction.Y,
-                    direction.X);
-
-            int index =
-                _vertices.Count;
-
-            AddVertex(
-                start +
-                normal * halfThickness,
-                Vector2.Zero);
-
-            AddVertex(
-                end +
-                normal * halfThickness,
-                Vector2.Zero);
-
-            AddVertex(
-                end -
-                normal * halfThickness,
-                Vector2.Zero);
-
-            AddVertex(
-                start -
-                normal * halfThickness,
-                Vector2.Zero);
-
-            AddQuadIndices(index);
-        }
-
-        // =========================================================================
-        // Closed Stroke
-        // =========================================================================
-
-        private void AddClosedStroke(
-            IReadOnlyList<Point2> points,
-            float thickness,
-            LineJoin join,
-            Matrix transform)
-        {
-            int count =
-                points.Count;
-
-            Vector2[] transformed =
-                new Vector2[count];
-
-            for (int i = 0;
-                 i < count;
-                 i++)
-            {
-                transformed[i] =
-                    Vector2.Transform(
-                        points[i],
-                        transform);
-            }
-
-            float halfThickness =
-                thickness * 0.5f;
-
-            // Segment bodies.
-            for (int i = 0;
-                 i < count;
-                 i++)
-            {
-                Vector2 start =
-                    transformed[i];
-
-                Vector2 end =
-                    transformed[
-                        (i + 1) % count];
-
-                AddStrokeSegment(
-                    start,
-                    end,
-                    halfThickness);
-            }
-
-            // Joins.
-            for (int i = 0;
-                 i < count;
-                 i++)
-            {
-                Vector2 previous =
-                    transformed[
-                        (i - 1 + count) % count];
-
-                Vector2 current =
-                    transformed[i];
-
-                Vector2 next =
-                    transformed[
-                        (i + 1) % count];
-
-                AddJoin(
-                    previous,
+            case LineJoin.Miter:
+                AddMiterJoin(
                     current,
-                    next,
-                    halfThickness,
-                    join);
-            }
-        }
-
-        // =========================================================================
-        // Join
-        // =========================================================================
-
-        private void AddJoin(
-            Vector2 previous,
-            Vector2 current,
-            Vector2 next,
-            float halfThickness,
-            LineJoin join)
-        {
-            Vector2 directionA =
-                NormalizeSafe(
-                    current - previous);
-
-            Vector2 directionB =
-                NormalizeSafe(
-                    next - current);
-
-            if (directionA.LengthSquared() <= Epsilon ||
-                directionB.LengthSquared() <= Epsilon)
-            {
-                return;
-            }
-
-            float cross =
-                directionA.X * directionB.Y -
-                directionA.Y * directionB.X;
-
-            if (MathF.Abs(cross) <= Epsilon)
-                return;
-
-            Vector2 normalA =
-                new Vector2(
-                    -directionA.Y,
-                    directionA.X);
-
-            Vector2 normalB =
-                new Vector2(
-                    -directionB.Y,
-                    directionB.X);
-
-            Vector2 outerNormalA =
-                cross > 0f
-                    ? -normalA
-                    : normalA;
-
-            Vector2 outerNormalB =
-                cross > 0f
-                    ? -normalB
-                    : normalB;
-
-            switch (join)
-            {
-                case LineJoin.Miter:
-                    AddMiterJoin(
-                        current,
-                        outerNormalA,
-                        outerNormalB,
-                        halfThickness);
-                    break;
-
-                case LineJoin.Bevel:
-                    AddBevelJoin(
-                        current,
-                        outerNormalA,
-                        outerNormalB,
-                        halfThickness);
-                    break;
-
-                case LineJoin.Round:
-                    AddRoundJoin(
-                        current,
-                        outerNormalA,
-                        outerNormalB,
-                        halfThickness);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(
-                        nameof(join));
-            }
-        }
-
-        // =========================================================================
-        // Miter Join
-        // =========================================================================
-
-        private void AddMiterJoin(
-            Vector2 position,
-            Vector2 normalA,
-            Vector2 normalB,
-            float halfThickness)
-        {
-            Vector2 miter =
-                normalA + normalB;
-
-            float lengthSquared =
-                miter.LengthSquared();
-
-            if (lengthSquared <= Epsilon)
-                return;
-
-            miter /=
-                MathF.Sqrt(lengthSquared);
-
-            float denominator =
-                Vector2.Dot(
-                    miter,
-                    normalB);
-
-            if (MathF.Abs(denominator) <= Epsilon)
-            {
-                AddBevelJoin(
-                    position,
-                    normalA,
-                    normalB,
+                    outerNormalA,
+                    outerNormalB,
                     halfThickness);
+                break;
 
-                return;
-            }
-
-            float miterLength =
-                halfThickness /
-                denominator;
-
-            if (MathF.Abs(miterLength) >
-                halfThickness * MiterLimit)
-            {
+            case LineJoin.Bevel:
                 AddBevelJoin(
-                    position,
-                    normalA,
-                    normalB,
+                    current,
+                    outerNormalA,
+                    outerNormalB,
                     halfThickness);
+                break;
 
-                return;
-            }
+            case LineJoin.Round:
+                AddRoundJoin(
+                    current,
+                    outerNormalA,
+                    outerNormalB,
+                    halfThickness);
+                break;
 
-            Vector2 a =
-                position +
-                normalA * halfThickness;
+            default:
+                throw new ArgumentOutOfRangeException(
+                    nameof(join));
+        }
+    }
 
-            Vector2 b =
-                position +
-                normalB * halfThickness;
+    // =========================================================================
+    // Miter Join
+    // =========================================================================
 
-            Vector2 miterPoint =
-                position +
-                miter * miterLength;
+    private void AddMiterJoin(
+        Vector2 position,
+        Vector2 normalA,
+        Vector2 normalB,
+        float halfThickness)
+    {
+        Vector2 miter =
+            normalA + normalB;
 
-            int ia =
-                AddStrokeVertex(a);
+        float lengthSquared =
+            miter.LengthSquared();
 
-            int im =
-                AddStrokeVertex(miterPoint);
+        if (lengthSquared <= Epsilon)
+            return;
 
-            int ib =
-                AddStrokeVertex(b);
+        miter /=
+            MathF.Sqrt(lengthSquared);
 
-            _indices.Add(ia);
-            _indices.Add(im);
-            _indices.Add(ib);
+        float denominator =
+            Vector2.Dot(
+                miter,
+                normalB);
+
+        if (MathF.Abs(denominator) <= Epsilon)
+        {
+            AddBevelJoin(
+                position,
+                normalA,
+                normalB,
+                halfThickness);
+
+            return;
         }
 
-        // =========================================================================
-        // Bevel Join
-        // =========================================================================
+        float miterLength =
+            halfThickness /
+            denominator;
 
-        private void AddBevelJoin(
-            Vector2 position,
-            Vector2 normalA,
-            Vector2 normalB,
-            float halfThickness)
+        if (MathF.Abs(miterLength) >
+            halfThickness * MiterLimit)
         {
-            Vector2 a =
+            AddBevelJoin(
+                position,
+                normalA,
+                normalB,
+                halfThickness);
+
+            return;
+        }
+
+        Vector2 a =
+            position +
+            normalA * halfThickness;
+
+        Vector2 b =
+            position +
+            normalB * halfThickness;
+
+        Vector2 miterPoint =
+            position +
+            miter * miterLength;
+
+        int ia =
+            AddStrokeVertex(a);
+
+        int im =
+            AddStrokeVertex(miterPoint);
+
+        int ib =
+            AddStrokeVertex(b);
+
+        _indices.Add(ia);
+        _indices.Add(im);
+        _indices.Add(ib);
+    }
+
+    // =========================================================================
+    // Bevel Join
+    // =========================================================================
+
+    private void AddBevelJoin(
+        Vector2 position,
+        Vector2 normalA,
+        Vector2 normalB,
+        float halfThickness)
+    {
+        Vector2 a =
+            position +
+            normalA * halfThickness;
+
+        Vector2 b =
+            position +
+            normalB * halfThickness;
+
+        int center =
+            AddStrokeVertex(position);
+
+        int ia =
+            AddStrokeVertex(a);
+
+        int ib =
+            AddStrokeVertex(b);
+
+        _indices.Add(center);
+        _indices.Add(ia);
+        _indices.Add(ib);
+    }
+
+    // =========================================================================
+    // Round Join
+    // =========================================================================
+
+    private void AddRoundJoin(
+        Vector2 position,
+        Vector2 normalA,
+        Vector2 normalB,
+        float halfThickness)
+    {
+        float startAngle =
+            MathF.Atan2(
+                normalA.Y,
+                normalA.X);
+
+        float endAngle =
+            MathF.Atan2(
+                normalB.Y,
+                normalB.X);
+
+        float delta =
+            endAngle - startAngle;
+
+        while (delta <= -MathF.PI)
+            delta += MathF.Tau;
+
+        while (delta > MathF.PI)
+            delta -= MathF.Tau;
+
+        int segments =
+            Math.Max(
+                1,
+                (int)(
+                    MathF.Abs(delta) /
+                    (MathF.PI / 8f)));
+
+        int center =
+            AddStrokeVertex(position);
+
+        int previous =
+            AddStrokeVertex(
                 position +
-                normalA * halfThickness;
+                new Vector2(
+                    MathF.Cos(startAngle),
+                    MathF.Sin(startAngle)) *
+                halfThickness);
 
-            Vector2 b =
+        for (int i = 1;
+             i <= segments;
+             i++)
+        {
+            float t =
+                i / (float)segments;
+
+            float angle =
+                startAngle +
+                delta * t;
+
+            Vector2 point =
                 position +
-                normalB * halfThickness;
+                new Vector2(
+                    MathF.Cos(angle),
+                    MathF.Sin(angle)) *
+                halfThickness;
 
-            int center =
-                AddStrokeVertex(position);
-
-            int ia =
-                AddStrokeVertex(a);
-
-            int ib =
-                AddStrokeVertex(b);
+            int current =
+                AddStrokeVertex(point);
 
             _indices.Add(center);
-            _indices.Add(ia);
-            _indices.Add(ib);
+            _indices.Add(previous);
+            _indices.Add(current);
+
+            previous = current;
         }
+    }
 
-        // =========================================================================
-        // Round Join
-        // =========================================================================
+    // =========================================================================
+    // Caps
+    // =========================================================================
 
-        private void AddRoundJoin(
-            Vector2 position,
-            Vector2 normalA,
-            Vector2 normalB,
-            float halfThickness)
+    private void AddStartCap(
+        Vector2 position,
+        Vector2 direction,
+        float halfThickness,
+        LineCap cap)
+    {
+        if (direction.LengthSquared() <= Epsilon)
+            return;
+
+        Vector2 normal =
+            new Vector2(
+                -direction.Y,
+                direction.X);
+
+        switch (cap)
         {
-            float startAngle =
-                MathF.Atan2(
-                    normalA.Y,
-                    normalA.X);
-
-            float endAngle =
-                MathF.Atan2(
-                    normalB.Y,
-                    normalB.X);
-
-            float delta =
-                endAngle - startAngle;
-
-            while (delta <= -MathF.PI)
-                delta += MathF.Tau;
-
-            while (delta > MathF.PI)
-                delta -= MathF.Tau;
-
-            int segments =
-                Math.Max(
-                    1,
-                    (int)(
-                        MathF.Abs(delta) /
-                        (MathF.PI / 8f)));
-
-            int center =
-                AddStrokeVertex(position);
-
-            int previous =
-                AddStrokeVertex(
-                    position +
-                    new Vector2(
-                        MathF.Cos(startAngle),
-                        MathF.Sin(startAngle)) *
-                    halfThickness);
-
-            for (int i = 1;
-                 i <= segments;
-                 i++)
-            {
-                float t =
-                    i / (float)segments;
-
-                float angle =
-                    startAngle +
-                    delta * t;
-
-                Vector2 point =
-                    position +
-                    new Vector2(
-                        MathF.Cos(angle),
-                        MathF.Sin(angle)) *
-                    halfThickness;
-
-                int current =
-                    AddStrokeVertex(point);
-
-                _indices.Add(center);
-                _indices.Add(previous);
-                _indices.Add(current);
-
-                previous = current;
-            }
-        }
-
-        // =========================================================================
-        // Caps
-        // =========================================================================
-
-        private void AddStartCap(
-            Vector2 position,
-            Vector2 direction,
-            float halfThickness,
-            LineCap cap)
-        {
-            if (direction.LengthSquared() <= Epsilon)
+            case LineCap.Butt:
                 return;
 
-            Vector2 normal =
-                new Vector2(
-                    -direction.Y,
-                    direction.X);
+            case LineCap.Square:
+                AddSquareStartCap(
+                    position,
+                    direction,
+                    normal,
+                    halfThickness);
+                break;
 
-            switch (cap)
-            {
-                case LineCap.Butt:
-                    return;
+            case LineCap.Round:
+                AddRoundCap(
+                    position,
+                    -direction,
+                    halfThickness);
+                break;
 
-                case LineCap.Square:
-                    AddSquareStartCap(
-                        position,
-                        direction,
-                        normal,
-                        halfThickness);
-                    break;
-
-                case LineCap.Round:
-                    AddRoundCap(
-                        position,
-                        -direction,
-                        halfThickness);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(
-                        nameof(cap));
-            }
+            default:
+                throw new ArgumentOutOfRangeException(
+                    nameof(cap));
         }
+    }
 
-        private void AddEndCap(
-            Vector2 position,
-            Vector2 direction,
-            float halfThickness,
-            LineCap cap)
+    private void AddEndCap(
+        Vector2 position,
+        Vector2 direction,
+        float halfThickness,
+        LineCap cap)
+    {
+        if (direction.LengthSquared() <= Epsilon)
+            return;
+
+        Vector2 normal =
+            new Vector2(
+                -direction.Y,
+                direction.X);
+
+        switch (cap)
         {
-            if (direction.LengthSquared() <= Epsilon)
+            case LineCap.Butt:
                 return;
 
-            Vector2 normal =
-                new Vector2(
-                    -direction.Y,
-                    direction.X);
-
-            switch (cap)
-            {
-                case LineCap.Butt:
-                    return;
-
-                case LineCap.Square:
-                    AddSquareEndCap(
-                        position,
-                        direction,
-                        normal,
-                        halfThickness);
-                    break;
-
-                case LineCap.Round:
-                    AddRoundCap(
-                        position,
-                        direction,
-                        halfThickness);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(
-                        nameof(cap));
-            }
-        }
-
-        private void AddSquareStartCap(
-            Vector2 position,
-            Vector2 direction,
-            Vector2 normal,
-            float halfThickness)
-        {
-            Vector2 extension =
-                -direction * halfThickness;
-
-            int index =
-                _vertices.Count;
-
-            AddVertex(
-                position +
-                normal * halfThickness +
-                extension,
-                Vector2.Zero);
-
-            AddVertex(
-                position +
-                normal * halfThickness,
-                Vector2.Zero);
-
-            AddVertex(
-                position -
-                normal * halfThickness,
-                Vector2.Zero);
-
-            AddVertex(
-                position -
-                normal * halfThickness +
-                extension,
-                Vector2.Zero);
-
-            AddQuadIndices(index);
-        }
-
-        private void AddSquareEndCap(
-            Vector2 position,
-            Vector2 direction,
-            Vector2 normal,
-            float halfThickness)
-        {
-            Vector2 extension =
-                direction * halfThickness;
-
-            int index =
-                _vertices.Count;
-
-            AddVertex(
-                position +
-                normal * halfThickness,
-                Vector2.Zero);
-
-            AddVertex(
-                position +
-                normal * halfThickness +
-                extension,
-                Vector2.Zero);
-
-            AddVertex(
-                position -
-                normal * halfThickness +
-                extension,
-                Vector2.Zero);
-
-            AddVertex(
-                position -
-                normal * halfThickness,
-                Vector2.Zero);
-
-            AddQuadIndices(index);
-        }
-
-        private void AddRoundCap(
-            Vector2 position,
-            Vector2 direction,
-            float radius)
-        {
-            float startAngle =
-                MathF.Atan2(
-                    direction.Y,
-                    direction.X) -
-                MathF.PI * 0.5f;
-
-            int center =
-                AddStrokeVertex(position);
-
-            int previous =
-                AddStrokeVertex(
-                    position +
-                    new Vector2(
-                        MathF.Cos(startAngle),
-                        MathF.Sin(startAngle)) *
-                    radius);
-
-            for (int i = 1;
-                 i <= RoundSegments;
-                 i++)
-            {
-                float angle =
-                    startAngle +
-                    MathF.PI *
-                    i / RoundSegments;
-
-                Vector2 point =
-                    position +
-                    new Vector2(
-                        MathF.Cos(angle),
-                        MathF.Sin(angle)) *
-                    radius;
-
-                int current =
-                    AddStrokeVertex(point);
-
-                _indices.Add(center);
-                _indices.Add(previous);
-                _indices.Add(current);
-
-                previous = current;
-            }
-        }
-
-        // =========================================================================
-        // Fast Ellipse Stroke
-        // =========================================================================
-
-        private void AddEllipseStroke(
-            Vector2 center,
-            Vector2 radius,
-            float thickness,
-            Matrix transform,
-            int segments)
-        {
-            float halfThickness =
-                thickness * 0.5f;
-
-            Vector2 innerRadius =
-                new Vector2(
-                    MathF.Max(
-                        0f,
-                        MathF.Abs(radius.X) -
-                        halfThickness),
-
-                    MathF.Max(
-                        0f,
-                        MathF.Abs(radius.Y) -
-                        halfThickness));
-
-            Vector2 outerRadius =
-                new Vector2(
-                    MathF.Abs(radius.X) +
-                    halfThickness,
-
-                    MathF.Abs(radius.Y) +
+            case LineCap.Square:
+                AddSquareEndCap(
+                    position,
+                    direction,
+                    normal,
                     halfThickness);
+                break;
 
-            int start =
-                _vertices.Count;
+            case LineCap.Round:
+                AddRoundCap(
+                    position,
+                    direction,
+                    halfThickness);
+                break;
 
-            float step =
-                MathF.Tau / segments;
+            default:
+                throw new ArgumentOutOfRangeException(
+                    nameof(cap));
+        }
+    }
 
-            for (int i = 0;
-                 i < segments;
-                 i++)
+    private void AddSquareStartCap(
+        Vector2 position,
+        Vector2 direction,
+        Vector2 normal,
+        float halfThickness)
+    {
+        Vector2 extension =
+            -direction * halfThickness;
+
+        int index =
+            _vertices.Count;
+
+        AddVertex(
+            position +
+            normal * halfThickness +
+            extension,
+            Vector2.Zero);
+
+        AddVertex(
+            position +
+            normal * halfThickness,
+            Vector2.Zero);
+
+        AddVertex(
+            position -
+            normal * halfThickness,
+            Vector2.Zero);
+
+        AddVertex(
+            position -
+            normal * halfThickness +
+            extension,
+            Vector2.Zero);
+
+        AddQuadIndices(index);
+    }
+
+    private void AddSquareEndCap(
+        Vector2 position,
+        Vector2 direction,
+        Vector2 normal,
+        float halfThickness)
+    {
+        Vector2 extension =
+            direction * halfThickness;
+
+        int index =
+            _vertices.Count;
+
+        AddVertex(
+            position +
+            normal * halfThickness,
+            Vector2.Zero);
+
+        AddVertex(
+            position +
+            normal * halfThickness +
+            extension,
+            Vector2.Zero);
+
+        AddVertex(
+            position -
+            normal * halfThickness +
+            extension,
+            Vector2.Zero);
+
+        AddVertex(
+            position -
+            normal * halfThickness,
+            Vector2.Zero);
+
+        AddQuadIndices(index);
+    }
+
+    private void AddRoundCap(
+        Vector2 position,
+        Vector2 direction,
+        float radius)
+    {
+        float startAngle =
+            MathF.Atan2(
+                direction.Y,
+                direction.X) -
+            MathF.PI * 0.5f;
+
+        int center =
+            AddStrokeVertex(position);
+
+        int previous =
+            AddStrokeVertex(
+                position +
+                new Vector2(
+                    MathF.Cos(startAngle),
+                    MathF.Sin(startAngle)) *
+                radius);
+
+        for (int i = 1;
+             i <= RoundSegments;
+             i++)
+        {
+            float angle =
+                startAngle +
+                MathF.PI *
+                i / RoundSegments;
+
+            Vector2 point =
+                position +
+                new Vector2(
+                    MathF.Cos(angle),
+                    MathF.Sin(angle)) *
+                radius;
+
+            int current =
+                AddStrokeVertex(point);
+
+            _indices.Add(center);
+            _indices.Add(previous);
+            _indices.Add(current);
+
+            previous = current;
+        }
+    }
+
+    // =========================================================================
+    // Fast Ellipse Stroke
+    // =========================================================================
+
+    private void AddEllipseStroke(
+        Vector2 center,
+        Vector2 radius,
+        float thickness,
+        Matrix transform,
+        int segments)
+    {
+        float halfThickness =
+            thickness * 0.5f;
+
+        Vector2 innerRadius =
+            new Vector2(
+                MathF.Max(
+                    0f,
+                    MathF.Abs(radius.X) -
+                    halfThickness),
+
+                MathF.Max(
+                    0f,
+                    MathF.Abs(radius.Y) -
+                    halfThickness));
+
+        Vector2 outerRadius =
+            new Vector2(
+                MathF.Abs(radius.X) +
+                halfThickness,
+
+                MathF.Abs(radius.Y) +
+                halfThickness);
+
+        int start =
+            _vertices.Count;
+
+        float step =
+            MathF.Tau / segments;
+
+        for (int i = 0;
+             i < segments;
+             i++)
+        {
+            float angle =
+                step * i;
+
+            float cos =
+                MathF.Cos(angle);
+
+            float sin =
+                MathF.Sin(angle);
+
+            Vector2 outer =
+                center +
+                new Vector2(
+                    cos * outerRadius.X,
+                    sin * outerRadius.Y);
+
+            Vector2 inner =
+                center +
+                new Vector2(
+                    cos * innerRadius.X,
+                    sin * innerRadius.Y);
+
+            AddVertex(
+                Vector2.Transform(
+                    outer,
+                    transform),
+                Vector2.Zero);
+
+            AddVertex(
+                Vector2.Transform(
+                    inner,
+                    transform),
+                Vector2.Zero);
+        }
+
+        for (int i = 0;
+             i < segments;
+             i++)
+        {
+            int current =
+                start + i * 2;
+
+            int next =
+                start +
+                ((i + 1) % segments) * 2;
+
+            _indices.Add(current);
+            _indices.Add(next);
+            _indices.Add(current + 1);
+
+            _indices.Add(next);
+            _indices.Add(next + 1);
+            _indices.Add(current + 1);
+        }
+    }
+
+    // =========================================================================
+    // Helpers
+    // =========================================================================
+
+    private static int FindFirstValidSegment(
+        IReadOnlyList<Vector2> points)
+    {
+        for (int i = 0;
+             i < points.Count - 1;
+             i++)
+        {
+            if ((points[i + 1] - points[i])
+                .LengthSquared() > Epsilon)
             {
-                float angle =
-                    step * i;
-
-                float cos =
-                    MathF.Cos(angle);
-
-                float sin =
-                    MathF.Sin(angle);
-
-                Vector2 outer =
-                    center +
-                    new Vector2(
-                        cos * outerRadius.X,
-                        sin * outerRadius.Y);
-
-                Vector2 inner =
-                    center +
-                    new Vector2(
-                        cos * innerRadius.X,
-                        sin * innerRadius.Y);
-
-                AddVertex(
-                    Vector2.Transform(
-                        outer,
-                        transform),
-                    Vector2.Zero);
-
-                AddVertex(
-                    Vector2.Transform(
-                        inner,
-                        transform),
-                    Vector2.Zero);
-            }
-
-            for (int i = 0;
-                 i < segments;
-                 i++)
-            {
-                int current =
-                    start + i * 2;
-
-                int next =
-                    start +
-                    ((i + 1) % segments) * 2;
-
-                _indices.Add(current);
-                _indices.Add(next);
-                _indices.Add(current + 1);
-
-                _indices.Add(next);
-                _indices.Add(next + 1);
-                _indices.Add(current + 1);
+                return i;
             }
         }
 
-        // =========================================================================
-        // Helpers
-        // =========================================================================
+        return -1;
+    }
 
-        private static int FindFirstValidSegment(
-            IReadOnlyList<Vector2> points)
+    private static int FindLastValidSegment(
+        IReadOnlyList<Vector2> points)
+    {
+        for (int i = points.Count - 2;
+             i >= 0;
+             i--)
         {
-            for (int i = 0;
-                 i < points.Count - 1;
-                 i++)
+            if ((points[i + 1] - points[i])
+                .LengthSquared() > Epsilon)
             {
-                if ((points[i + 1] - points[i])
-                    .LengthSquared() > Epsilon)
-                {
-                    return i;
-                }
+                return i;
             }
-
-            return -1;
         }
 
-        private static int FindLastValidSegment(
-            IReadOnlyList<Vector2> points)
-        {
-            for (int i = points.Count - 2;
-                 i >= 0;
-                 i--)
-            {
-                if ((points[i + 1] - points[i])
-                    .LengthSquared() > Epsilon)
-                {
-                    return i;
-                }
-            }
+        return -1;
+    }
 
-            return -1;
+    private static IReadOnlyList<Vector2> ToVectors(
+        IReadOnlyList<Point2> points)
+    {
+        var result =
+            new Vector2[points.Count];
+
+        for (int i = 0; i < points.Count; i++)
+        {
+            result[i] =
+                new Vector2(
+                    points[i].X,
+                    points[i].Y);
         }
 
-        private static IReadOnlyList<Vector2> ToVectors(
-            IReadOnlyList<Point2> points)
-        {
-            var result =
-                new Vector2[points.Count];
+        return result;
+    }
 
-            for (int i = 0; i < points.Count; i++)
-            {
-                result[i] =
+    private static IReadOnlyList<Point2> TransformPoints(
+        IReadOnlyList<Point2> points,
+        Matrix transform)
+    {
+        var result = new Point2[points.Count];
+
+        for (int i = 0; i < points.Count; i++)
+        {
+            result[i] =
+                Vector2.Transform(
                     new Vector2(
                         points[i].X,
-                        points[i].Y);
-            }
-
-            return result;
+                        points[i].Y),
+                    transform).ToPoint2();
         }
 
-        private static IReadOnlyList<Point2> TransformPoints(
-            IReadOnlyList<Point2> points,
-            Matrix transform)
+        return result;
+    }
+
+    private static IReadOnlyList<Vector2> TransformPoints(
+        IReadOnlyList<Vector2> points,
+        Matrix transform)
+    {
+        var result =
+            new Vector2[points.Count];
+
+        for (int i = 0;
+             i < points.Count;
+             i++)
         {
-            var result = new Point2[points.Count];
-
-            for (int i = 0; i < points.Count; i++)
-            {
-                result[i] =
-                    Vector2.Transform(
-                        new Vector2(
-                            points[i].X,
-                            points[i].Y),
-                        transform).ToPoint2();
-            }
-
-            return result;
+            result[i] =
+                Vector2.Transform(
+                    points[i],
+                    transform);
         }
 
-        private static IReadOnlyList<Vector2> TransformPoints(
-            IReadOnlyList<Vector2> points,
-            Matrix transform)
+        return result;
+    }
+
+    private static Vector2 NormalizeSafe(
+        Vector2 value)
+    {
+        float lengthSquared =
+            value.LengthSquared();
+
+        if (lengthSquared <= Epsilon)
+            return Vector2.Zero;
+
+        return value /
+               MathF.Sqrt(lengthSquared);
+    }
+
+    private static void ValidateSegments(
+        int segments)
+    {
+        if (segments < 3)
         {
-            var result =
-                new Vector2[points.Count];
-
-            for (int i = 0;
-                 i < points.Count;
-                 i++)
-            {
-                result[i] =
-                    Vector2.Transform(
-                        points[i],
-                        transform);
-            }
-
-            return result;
+            throw new ArgumentOutOfRangeException(
+                nameof(segments),
+                "Ellipse must contain at least 3 segments.");
         }
+    }
 
-        private static Vector2 NormalizeSafe(
-            Vector2 value)
+    // =========================================================================
+    // Brush / Pen overloads
+    // =========================================================================
+
+    /// <summary>
+    /// Adds a filled rectangle using the specified brush.
+    /// </summary>
+    /// <param name="bounds">The rectangle bounds.</param>
+    /// <param name="brush">The brush used to fill the rectangle.</param>
+    /// <param name="transform">The transformation applied to the geometry.</param>
+    public void AddFillRectangle(
+        Bounds2 bounds,
+        Brush brush,
+        Matrix transform) =>
+        WithBrush(
+            brush,
+            transform,
+            () => AddFillRectangle(bounds, transform));
+
+    /// <summary>
+    /// Adds a filled rectangle using the specified brush.
+    /// </summary>
+    /// <param name="bounds">The rectangle bounds.</param>
+    /// <param name="brush">The brush used to fill the rectangle.</param>
+    public void AddFillRectangle(
+        Bounds2 bounds,
+        Brush brush) =>
+        AddFillRectangle(
+            bounds,
+            brush,
+            Matrix.Identity);
+
+    /// <summary>
+    /// Adds a filled polygon using the specified brush.
+    /// </summary>
+    /// <param name="polygon">The polygon contours to render.</param>
+    /// <param name="brush">The brush used to fill the polygon.</param>
+    /// <param name="transform">The transformation applied to the geometry.</param>
+    public void AddFillPolygon(
+        IReadOnlyList<IReadOnlyList<Point2>> polygon,
+        Brush brush,
+        Matrix transform) =>
+        WithBrush(
+            brush,
+            transform,
+            () => AddFillPolygon(polygon, transform));
+
+    /// <summary>
+    /// Adds a filled polygon using the specified brush.
+    /// </summary>
+    /// <param name="polygon">The polygon contours to render.</param>
+    /// <param name="brush">The brush used to fill the polygon.</param>
+    public void AddFillPolygon(
+        IReadOnlyList<IReadOnlyList<Point2>> polygon,
+        Brush brush) =>
+        AddFillPolygon(
+            polygon,
+            brush,
+            Matrix.Identity);
+
+    /// <summary>
+    /// Adds filled path geometry using the specified brush.
+    /// </summary>
+    /// <param name="path">The path containing polygon geometry to render.</param>
+    /// <param name="brush">The brush used to fill the path.</param>
+    /// <param name="transform">The transformation applied to the geometry.</param>
+    public void AddFillPolygon(
+        Path path,
+        Brush brush,
+        Matrix transform) =>
+        WithBrush(
+            brush,
+            transform,
+            () => AddFillPolygon(path, transform));
+
+    /// <summary>
+    /// Adds filled path geometry using the specified brush.
+    /// </summary>
+    /// <param name="path">The path containing polygon geometry to render.</param>
+    /// <param name="brush">The brush used to fill the path.</param>
+    public void AddFillPolygon(
+        Path path,
+        Brush brush) =>
+        AddFillPolygon(
+            path,
+            brush,
+            Matrix.Identity);
+
+    /// <summary>
+    /// Adds a filled ellipse using the specified brush.
+    /// </summary>
+    /// <param name="bounds">The ellipse bounds.</param>
+    /// <param name="brush">The brush used to fill the ellipse.</param>
+    /// <param name="transform">The transformation applied to the geometry.</param>
+    /// <param name="segments">The number of segments used to approximate the ellipse.</param>
+    public void AddFillEllipse(
+        Bounds2 bounds,
+        Brush brush,
+        Matrix transform,
+        int segments = 32) =>
+        WithBrush(
+            brush,
+            transform,
+            () => AddFillEllipse(
+                bounds,
+                transform,
+                segments));
+
+    /// <summary>
+    /// Adds a filled ellipse using the specified brush.
+    /// </summary>
+    /// <param name="bounds">The ellipse bounds.</param>
+    /// <param name="brush">The brush used to fill the ellipse.</param>
+    /// <param name="segments">The number of segments used to approximate the ellipse.</param>
+    public void AddFillEllipse(
+        Bounds2 bounds,
+        Brush brush,
+        int segments = 32) =>
+        AddFillEllipse(
+            bounds,
+            brush,
+            Matrix.Identity,
+            segments);
+
+    /// <summary>
+    /// Adds a filled ellipse using the specified brush.
+    /// </summary>
+    /// <param name="center">The ellipse center.</param>
+    /// <param name="radius">The horizontal and vertical radii.</param>
+    /// <param name="brush">The brush used to fill the ellipse.</param>
+    /// <param name="transform">The transformation applied to the geometry.</param>
+    /// <param name="segments">The number of segments used to approximate the ellipse.</param>
+    public void AddFillEllipse(
+        Point2 center,
+        Vector2 radius,
+        Brush brush,
+        Matrix transform,
+        int segments = 32) =>
+        WithBrush(
+            brush,
+            transform,
+            () => AddFillEllipse(
+                center,
+                radius,
+                transform,
+                segments));
+
+    /// <summary>
+    /// Adds a filled ellipse using the specified brush.
+    /// </summary>
+    /// <param name="center">The ellipse center.</param>
+    /// <param name="radius">The horizontal and vertical radii.</param>
+    /// <param name="brush">The brush used to fill the ellipse.</param>
+    /// <param name="segments">The number of segments used to approximate the ellipse.</param>
+    public void AddFillEllipse(
+        Point2 center,
+        Vector2 radius,
+        Brush brush,
+        int segments = 32) =>
+        AddFillEllipse(
+            center,
+            radius,
+            brush,
+            Matrix.Identity,
+            segments);
+
+    /// <summary>
+    /// Adds a stroked rectangle using the specified pen.
+    /// </summary>
+    /// <param name="bounds">The rectangle bounds.</param>
+    /// <param name="pen">The pen used to render the stroke.</param>
+    /// <param name="transform">The transformation applied to the geometry.</param>
+    public void AddStrokeRectangle(
+        Bounds2 bounds,
+        Pen pen,
+        Matrix transform)
+    {
+        ArgumentNullException.ThrowIfNull(pen);
+
+        WithBrush(
+            pen.Brush,
+            transform,
+            () => AddStrokeRectangle(
+                bounds,
+                pen.Thickness,
+                pen.Join,
+                transform));
+    }
+
+    /// <summary>
+    /// Adds a stroked rectangle using the specified pen.
+    /// </summary>
+    /// <param name="bounds">The rectangle bounds.</param>
+    /// <param name="pen">The pen used to render the stroke.</param>
+    public void AddStrokeRectangle(
+        Bounds2 bounds,
+        Pen pen) =>
+        AddStrokeRectangle(
+            bounds,
+            pen,
+            Matrix.Identity);
+
+    /// <summary>
+    /// Adds a line segment using the specified pen.
+    /// </summary>
+    /// <param name="start">The line start point.</param>
+    /// <param name="end">The line end point.</param>
+    /// <param name="pen">The pen used to render the line.</param>
+    /// <param name="transform">The transformation applied to the geometry.</param>
+    public void AddLine(
+        Point2 start,
+        Point2 end,
+        Pen pen,
+        Matrix transform)
+    {
+        ArgumentNullException.ThrowIfNull(pen);
+
+        WithBrush(
+            pen.Brush,
+            transform,
+            () => AddLine(
+                start,
+                end,
+                pen.Thickness,
+                pen.Cap,
+                transform));
+    }
+
+    /// <summary>
+    /// Adds a line segment using the specified pen.
+    /// </summary>
+    /// <param name="start">The line start point.</param>
+    /// <param name="end">The line end point.</param>
+    /// <param name="pen">The pen used to render the line.</param>
+    public void AddLine(
+        Point2 start,
+        Point2 end,
+        Pen pen) =>
+        AddLine(
+            start,
+            end,
+            pen,
+            Matrix.Identity);
+
+    /// <summary>
+    /// Adds an open polyline using the specified pen.
+    /// </summary>
+    /// <param name="points">The points that define the line.</param>
+    /// <param name="pen">The pen used to render the line.</param>
+    /// <param name="transform">The transformation applied to the geometry.</param>
+    public void AddLine(
+        IReadOnlyList<Point2> points,
+        Pen pen,
+        Matrix transform)
+    {
+        ArgumentNullException.ThrowIfNull(pen);
+
+        WithBrush(
+            pen.Brush,
+            transform,
+            () => AddLine(
+                points,
+                pen.Thickness,
+                pen.Join,
+                pen.Cap,
+                transform));
+    }
+
+    /// <summary>
+    /// Adds an open polyline using the specified pen.
+    /// </summary>
+    /// <param name="points">The points that define the line.</param>
+    /// <param name="pen">The pen used to render the line.</param>
+    public void AddLine(
+        IReadOnlyList<Point2> points,
+        Pen pen) =>
+        AddLine(
+            points,
+            pen,
+            Matrix.Identity);
+
+    /// <summary>
+    /// Adds a closed polygon stroke using the specified pen.
+    /// </summary>
+    /// <param name="points">The polygon points.</param>
+    /// <param name="pen">The pen used to render the stroke.</param>
+    /// <param name="transform">The transformation applied to the geometry.</param>
+    public void AddStrokePolygon(
+        IReadOnlyList<Point2> points,
+        Pen pen,
+        Matrix transform)
+    {
+        ArgumentNullException.ThrowIfNull(pen);
+
+        WithBrush(
+            pen.Brush,
+            transform,
+            () => AddStrokePolygon(
+                points,
+                pen.Thickness,
+                pen.Join,
+                transform));
+    }
+
+    /// <summary>
+    /// Adds a closed polygon stroke using the specified pen.
+    /// </summary>
+    /// <param name="points">The polygon points.</param>
+    /// <param name="pen">The pen used to render the stroke.</param>
+    public void AddStrokePolygon(
+        IReadOnlyList<Point2> points,
+        Pen pen) =>
+        AddStrokePolygon(
+            points,
+            pen,
+            Matrix.Identity);
+
+    /// <summary>
+    /// Adds a path stroke using the specified pen.
+    /// </summary>
+    /// <param name="path">The path containing polygon geometry to stroke.</param>
+    /// <param name="pen">The pen used to render the stroke.</param>
+    /// <param name="transform">The transformation applied to the geometry.</param>
+    public void AddStrokePolygon(
+        Path path,
+        Pen pen,
+        Matrix transform)
+    {
+        ArgumentNullException.ThrowIfNull(pen);
+
+        WithBrush(
+            pen.Brush,
+            transform,
+            () => AddStrokePolygon(
+                path,
+                pen.Thickness,
+                pen.Join,
+                transform));
+    }
+
+    /// <summary>
+    /// Adds a path stroke using the specified pen.
+    /// </summary>
+    /// <param name="path">The path containing polygon geometry to stroke.</param>
+    /// <param name="pen">The pen used to render the stroke.</param>
+    public void AddStrokePolygon(
+        Path path,
+        Pen pen) =>
+        AddStrokePolygon(
+            path,
+            pen,
+            Matrix.Identity);
+
+    /// <summary>
+    /// Adds an ellipse stroke using the specified pen.
+    /// </summary>
+    /// <param name="bounds">The ellipse bounds.</param>
+    /// <param name="pen">The pen used to render the stroke.</param>
+    /// <param name="transform">The transformation applied to the geometry.</param>
+    /// <param name="segments">The number of segments used to approximate the ellipse.</param>
+    public void AddStrokeEllipse(
+        Bounds2 bounds,
+        Pen pen,
+        Matrix transform,
+        int segments = 32)
+    {
+        ArgumentNullException.ThrowIfNull(pen);
+
+        WithBrush(
+            pen.Brush,
+            transform,
+            () => AddStrokeEllipse(
+                bounds,
+                pen.Thickness,
+                pen.Join,
+                transform,
+                segments));
+    }
+
+    /// <summary>
+    /// Adds an ellipse stroke using the specified pen.
+    /// </summary>
+    /// <param name="bounds">The ellipse bounds.</param>
+    /// <param name="pen">The pen used to render the stroke.</param>
+    /// <param name="segments">The number of segments used to approximate the ellipse.</param>
+    public void AddStrokeEllipse(
+        Bounds2 bounds,
+        Pen pen,
+        int segments = 32) =>
+        AddStrokeEllipse(
+            bounds,
+            pen,
+            Matrix.Identity,
+            segments);
+
+    /// <summary>
+    /// Adds an ellipse stroke using the specified pen.
+    /// </summary>
+    /// <param name="center">The ellipse center.</param>
+    /// <param name="radius">The horizontal and vertical radii.</param>
+    /// <param name="pen">The pen used to render the stroke.</param>
+    /// <param name="transform">The transformation applied to the geometry.</param>
+    /// <param name="segments">The number of segments used to approximate the ellipse.</param>
+    public void AddStrokeEllipse(
+        Point2 center,
+        Vector2 radius,
+        Pen pen,
+        Matrix transform,
+        int segments = 32)
+    {
+        ArgumentNullException.ThrowIfNull(pen);
+
+        WithBrush(
+            pen.Brush,
+            transform,
+            () => AddStrokeEllipse(
+                center,
+                radius,
+                pen.Thickness,
+                pen.Join,
+                transform,
+                segments));
+    }
+
+    /// <summary>
+    /// Adds an ellipse stroke using the specified pen.
+    /// </summary>
+    /// <param name="center">The ellipse center.</param>
+    /// <param name="radius">The horizontal and vertical radii.</param>
+    /// <param name="pen">The pen used to render the stroke.</param>
+    /// <param name="segments">The number of segments used to approximate the ellipse.</param>
+    public void AddStrokeEllipse(
+        Point2 center,
+        Vector2 radius,
+        Pen pen,
+        int segments = 32) =>
+        AddStrokeEllipse(
+            center,
+            radius,
+            pen,
+            Matrix.Identity,
+            segments);
+
+    private void WithBrush(
+        Brush brush,
+        Matrix transform,
+        Action action)
+    {
+        ArgumentNullException.ThrowIfNull(brush);
+        ArgumentNullException.ThrowIfNull(action);
+
+        Brush previousBrush = _brush;
+        bool previousDeferBrushApplication =
+            _deferBrushApplication;
+
+        int vertexStart =
+            _vertices.Count;
+
+        _brush = brush;
+        _deferBrushApplication = true;
+
+        try
         {
-            float lengthSquared =
-                value.LengthSquared();
+            action();
 
-            if (lengthSquared <= Epsilon)
-                return Vector2.Zero;
-
-            return value /
-                   MathF.Sqrt(lengthSquared);
+            ApplyBrush(
+                brush,
+                transform,
+                vertexStart,
+                _vertices.Count - vertexStart);
         }
-
-        private static void ValidateSegments(
-            int segments)
+        finally
         {
-            if (segments < 3)
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(segments),
-                    "Ellipse must contain at least 3 segments.");
-            }
+            _brush = previousBrush;
+            _deferBrushApplication =
+                previousDeferBrushApplication;
         }
+    }
 
-        // =========================================================================
-        // Vertex / Index
-        // =========================================================================
+    private void ApplyBrush(
+        Brush brush,
+        Matrix transform,
+        int vertexStart,
+        int vertexCount)
+    {
+        if (vertexCount <= 0)
+            return;
 
-        private int AddStrokeVertex(
-            Vector2 position)
+        Matrix inverseTransform =
+            Matrix.Invert(transform);
+
+        bool useInverseTransform =
+            IsFinite(inverseTransform);
+
+        Vector2 boundsMin = new(
+            float.MaxValue,
+            float.MaxValue);
+
+        Vector2 boundsMax = new(
+            float.MinValue,
+            float.MinValue);
+
+        for (int i = vertexStart;
+             i < vertexStart + vertexCount;
+             i++)
         {
-            int index =
-                _vertices.Count;
+            Vector2 position = new(
+                _vertices[i].Position.X,
+                _vertices[i].Position.Y);
 
-            AddVertex(
-                position,
-                Vector2.Zero);
-
-            return index;
-        }
-
-        private void AddVertex(
-            Vector2 position,
-            Vector2 textureCoordinate)
-        {
-            _vertices.Add(
-                new VertexPositionTexture(
-                    new Vector3(
+            Vector2 localPosition =
+                useInverseTransform
+                    ? Vector2.Transform(
                         position,
-                        0f),
-                    textureCoordinate));
+                        inverseTransform)
+                    : position;
+
+            boundsMin =
+                Vector2.Min(boundsMin, localPosition);
+
+            boundsMax =
+                Vector2.Max(boundsMax, localPosition);
         }
 
-        private void AddQuadIndices(
-            int start)
-        {
-            _indices.Add(start);
-            _indices.Add(start + 1);
-            _indices.Add(start + 3);
+        float width =
+            boundsMax.X - boundsMin.X;
 
-            _indices.Add(start + 1);
-            _indices.Add(start + 2);
-            _indices.Add(start + 3);
+        float height =
+            boundsMax.Y - boundsMin.Y;
+
+        for (int i = vertexStart;
+             i < vertexStart + vertexCount;
+             i++)
+        {
+            ShapeVertex vertex =
+                _vertices[i];
+
+            Vector2 position = new(
+                vertex.Position.X,
+                vertex.Position.Y);
+
+            Vector2 localPosition =
+                useInverseTransform
+                    ? Vector2.Transform(
+                        position,
+                        inverseTransform)
+                    : position;
+
+            Vector2 textureCoordinate = new(
+                MathF.Abs(width) <= Epsilon
+                    ? 0.5f
+                    : (localPosition.X - boundsMin.X) / width,
+                MathF.Abs(height) <= Epsilon
+                    ? 0.5f
+                    : (localPosition.Y - boundsMin.Y) / height);
+
+            var context = new BrushVertexContext(
+                position,
+                localPosition,
+                textureCoordinate,
+                boundsMin,
+                boundsMax);
+
+            brush.Apply(
+                ref vertex,
+                in context);
+
+            _vertices[i] = vertex;
+        }
+    }
+
+    private static bool IsFinite(Matrix matrix) =>
+        float.IsFinite(matrix.M11) &&
+        float.IsFinite(matrix.M12) &&
+        float.IsFinite(matrix.M13) &&
+        float.IsFinite(matrix.M14) &&
+        float.IsFinite(matrix.M21) &&
+        float.IsFinite(matrix.M22) &&
+        float.IsFinite(matrix.M23) &&
+        float.IsFinite(matrix.M24) &&
+        float.IsFinite(matrix.M31) &&
+        float.IsFinite(matrix.M32) &&
+        float.IsFinite(matrix.M33) &&
+        float.IsFinite(matrix.M34) &&
+        float.IsFinite(matrix.M41) &&
+        float.IsFinite(matrix.M42) &&
+        float.IsFinite(matrix.M43) &&
+        float.IsFinite(matrix.M44);
+
+    // =========================================================================
+    // Vertex / Index
+    // =========================================================================
+
+    private int AddStrokeVertex(
+        Vector2 position)
+    {
+        int index =
+            _vertices.Count;
+
+        AddVertex(
+            position,
+            Vector2.Zero);
+
+        return index;
+    }
+
+    private void AddVertex(
+        Vector2 position,
+        Vector2 textureCoordinate)
+    {
+        var vertex = new ShapeVertex(
+            new Vector3(position, 0f),
+            Color.White,
+            textureCoordinate);
+
+        if (!_deferBrushApplication)
+        {
+            var context = new BrushVertexContext(
+                position,
+                position,
+                textureCoordinate,
+                Vector2.Zero,
+                Vector2.One);
+
+            _brush.Apply(
+                ref vertex,
+                in context);
         }
 
-        // =========================================================================
-        // Flush
-        // =========================================================================
+        _vertices.Add(vertex);
+        _vertexBrushes.Add(_brush);
+    }
 
-        private void Flush()
+    private void AddQuadIndices(
+        int start)
+    {
+        _indices.Add(start);
+        _indices.Add(start + 1);
+        _indices.Add(start + 3);
+
+        _indices.Add(start + 1);
+        _indices.Add(start + 2);
+        _indices.Add(start + 3);
+    }
+
+    // =========================================================================
+    // Flush
+    // =========================================================================
+
+    private void Flush()
+    {
+        int vertexCount =
+            _vertices.Count;
+
+        int indexCount =
+            _indices.Count;
+
+        if (vertexCount == 0 ||
+            indexCount == 0)
         {
-            int vertexCount =
-                _vertices.Count;
+            return;
+        }
 
-            int indexCount =
-                _indices.Count;
+        if (_shader is null ||
+            _camera is null)
+        {
+            throw new InvalidOperationException(
+                "ShapeBatch is not initialized.");
+        }
 
-            if (vertexCount == 0 ||
-                indexCount == 0)
-            {
-                return;
-            }
+        EnsureUploadArrays(
+            vertexCount,
+            indexCount);
 
-            if (_shader is null ||
-                _camera is null)
-            {
-                throw new InvalidOperationException(
-                    "ShapeBatch is not initialized.");
-            }
+        _vertices.CopyTo(
+            0,
+            _vertexUpload,
+            0,
+            vertexCount);
 
-            EnsureUploadArrays(
-                vertexCount,
-                indexCount);
+        _indices.CopyTo(
+            0,
+            _indexUpload,
+            0,
+            indexCount);
 
-            _vertices.CopyTo(
-                0,
-                _vertexUpload,
-                0,
-                vertexCount);
+        EnsureBuffers(
+            vertexCount,
+            indexCount);
 
-            _indices.CopyTo(
-                0,
-                _indexUpload,
-                0,
-                indexCount);
+        _vertexBuffer!.SetData(
+            _vertexUpload,
+            0,
+            vertexCount);
 
-            EnsureBuffers(
-                vertexCount,
-                indexCount);
+        _indexBuffer!.SetData(
+            _indexUpload,
+            0,
+            indexCount);
 
-            _vertexBuffer!.SetData(
-                _vertexUpload,
-                0,
-                vertexCount);
+        _graphicsDevice.SetVertexBuffer(
+            _vertexBuffer);
 
-            _indexBuffer!.SetData(
-                _indexUpload,
-                0,
-                indexCount);
+        _graphicsDevice.Indices =
+            _indexBuffer;
 
-            _graphicsDevice.SetVertexBuffer(
-                _vertexBuffer);
+        if (_shader is IShaderTransform transform)
+        {
+            transform.Camera =
+                _camera;
 
-            _graphicsDevice.Indices =
-                _indexBuffer;
+            transform.Transform =
+                Matrix.Identity;
+        }
 
-            if (_shader is IShaderTransform transform)
-            {
-                transform.Camera =
-                    _camera;
+        BuildBrushCommands();
 
-                transform.Transform =
-                    Matrix.Identity;
-            }
+        for (int i = 0; i < _brushCommands.Count; i++)
+        {
+            BrushCommand command =
+                _brushCommands[i];
 
+            command.Brush.ConfigureShader(_shader);
             _shader.Apply();
 
             foreach (EffectPass pass in
@@ -2510,157 +3148,207 @@ namespace Sachssoft.Engine.Graphics.Rendering.Batches
             {
                 pass.Apply();
 
+                _graphicsDevice.Textures[0] =
+                    _whiteTexture;
+
+                _graphicsDevice.SamplerStates[0] =
+                    SamplerState.LinearClamp;
+
+                command.Brush.ApplyDeviceState(
+                    _graphicsDevice);
+
                 _graphicsDevice.DrawIndexedPrimitives(
                     PrimitiveType.TriangleList,
                     0,
-                    0,
-                    indexCount / 3);
+                    command.StartIndex,
+                    command.IndexCount / 3);
             }
         }
+    }
 
-        // =========================================================================
-        // Upload Arrays
-        // =========================================================================
+    private void BuildBrushCommands()
+    {
+        _brushCommands.Clear();
 
-        private void EnsureUploadArrays(
-            int vertexCount,
-            int indexCount)
+        for (int startIndex = 0;
+             startIndex < _indices.Count;
+             startIndex += 3)
         {
-            if (_vertexUpload.Length < vertexCount)
+            Brush brush =
+                _vertexBrushes[_indices[startIndex]];
+
+            int commandIndex =
+                _brushCommands.Count - 1;
+
+            if (commandIndex >= 0 &&
+                _brushCommands[commandIndex].Brush
+                    .CanBatchWith(brush))
             {
-                _vertexUpload =
-                    new VertexPositionTexture[
-                        GrowCapacity(
-                            _vertexUpload.Length,
-                            vertexCount)];
+                BrushCommand command =
+                    _brushCommands[commandIndex];
+
+                _brushCommands[commandIndex] =
+                    new BrushCommand(
+                        command.Brush,
+                        command.StartIndex,
+                        command.IndexCount + 3);
+
+                continue;
             }
 
-            if (_indexUpload.Length < indexCount)
-            {
-                _indexUpload =
-                    new int[
-                        GrowCapacity(
-                            _indexUpload.Length,
-                            indexCount)];
-            }
+            _brushCommands.Add(
+                new BrushCommand(
+                    brush,
+                    startIndex,
+                    3));
+        }
+    }
+
+    // =========================================================================
+    // Upload Arrays
+    // =========================================================================
+
+    private void EnsureUploadArrays(
+        int vertexCount,
+        int indexCount)
+    {
+        if (_vertexUpload.Length < vertexCount)
+        {
+            _vertexUpload =
+                new ShapeVertex[
+                    GrowCapacity(
+                        _vertexUpload.Length,
+                        vertexCount)];
         }
 
-        private static int GrowCapacity(
-            int current,
-            int required)
+        if (_indexUpload.Length < indexCount)
         {
-            int capacity =
-                current <= 0
-                    ? 256
-                    : current;
+            _indexUpload =
+                new int[
+                    GrowCapacity(
+                        _indexUpload.Length,
+                        indexCount)];
+        }
+    }
 
-            while (capacity < required)
-            {
-                int next =
-                    capacity * 2;
+    private static int GrowCapacity(
+        int current,
+        int required)
+    {
+        int capacity =
+            current <= 0
+                ? 256
+                : current;
 
-                if (next <= capacity)
-                    return required;
+        while (capacity < required)
+        {
+            int next =
+                capacity * 2;
 
-                capacity = next;
-            }
+            if (next <= capacity)
+                return required;
 
-            return capacity;
+            capacity = next;
         }
 
-        // =========================================================================
-        // Buffers
-        // =========================================================================
+        return capacity;
+    }
 
-        private void EnsureBuffers(
-            int vertexCount,
-            int indexCount)
+    // =========================================================================
+    // Buffers
+    // =========================================================================
+
+    private void EnsureBuffers(
+        int vertexCount,
+        int indexCount)
+    {
+        if (_vertexBuffer is null ||
+            _vertexBuffer.VertexCount < vertexCount)
         {
-            if (_vertexBuffer is null ||
-                _vertexBuffer.VertexCount < vertexCount)
-            {
-                _vertexBuffer?.Dispose();
-
-                _vertexBuffer =
-                    new DynamicVertexBuffer(
-                        _graphicsDevice,
-                        VertexPositionTexture.VertexDeclaration,
-                        GrowCapacity(
-                            _vertexBuffer?.VertexCount ??
-                            InitialVertexCapacity,
-                            vertexCount),
-                        BufferUsage.WriteOnly);
-            }
-
-            if (_indexBuffer is null ||
-                _indexBuffer.IndexCount < indexCount)
-            {
-                _indexBuffer?.Dispose();
-
-                _indexBuffer =
-                    new IndexBuffer(
-                        _graphicsDevice,
-                        IndexElementSize.ThirtyTwoBits,
-                        GrowCapacity(
-                            _indexBuffer?.IndexCount ??
-                            InitialIndexCapacity,
-                            indexCount),
-                        BufferUsage.WriteOnly);
-            }
-        }
-
-        // =========================================================================
-        // State
-        // =========================================================================
-
-        private void CheckBegin()
-        {
-            CheckDisposed();
-
-            if (!_begun)
-            {
-                throw new InvalidOperationException(
-                    "ShapeBatch.Begin must be called first.");
-            }
-        }
-
-        private void CheckDisposed()
-        {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(
-                    nameof(ShapeBatch));
-            }
-        }
-
-        // =========================================================================
-        // Dispose
-        // =========================================================================
-
-        /// <summary>
-        /// Releases graphics resources used by this batch.
-        /// </summary>
-        /// <remarks>
-        /// Calling this method more than once is safe.
-        /// </remarks>
-        public void Dispose()
-        {
-            if (_disposed)
-                return;
-
             _vertexBuffer?.Dispose();
+
+            _vertexBuffer =
+                new DynamicVertexBuffer(
+                    _graphicsDevice,
+                    ShapeVertex.VertexDeclaration,
+                    GrowCapacity(
+                        _vertexBuffer?.VertexCount ??
+                        InitialVertexCapacity,
+                        vertexCount),
+                    BufferUsage.WriteOnly);
+        }
+
+        if (_indexBuffer is null ||
+            _indexBuffer.IndexCount < indexCount)
+        {
             _indexBuffer?.Dispose();
 
-            _vertexBuffer = null;
-            _indexBuffer = null;
-
-            _vertices.Clear();
-            _indices.Clear();
-
-            _shader = null;
-            _camera = null;
-
-            _disposed = true;
+            _indexBuffer =
+                new IndexBuffer(
+                    _graphicsDevice,
+                    IndexElementSize.ThirtyTwoBits,
+                    GrowCapacity(
+                        _indexBuffer?.IndexCount ??
+                        InitialIndexCapacity,
+                        indexCount),
+                    BufferUsage.WriteOnly);
         }
+    }
+
+    // =========================================================================
+    // State
+    // =========================================================================
+
+    private void CheckBegin()
+    {
+        CheckDisposed();
+
+        if (!_begun)
+        {
+            throw new InvalidOperationException(
+                "ShapeBatch.Begin must be called first.");
+        }
+    }
+
+    private void CheckDisposed()
+    {
+        if (_disposed)
+        {
+            throw new ObjectDisposedException(
+                nameof(ShapeBatch));
+        }
+    }
+
+    // =========================================================================
+    // Dispose
+    // =========================================================================
+
+    /// <summary>
+    /// Releases graphics resources used by this batch.
+    /// </summary>
+    /// <remarks>
+    /// Calling this method more than once is safe.
+    /// </remarks>
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _vertexBuffer?.Dispose();
+        _indexBuffer?.Dispose();
+        _whiteTexture.Dispose();
+
+        _vertexBuffer = null;
+        _indexBuffer = null;
+
+        _vertices.Clear();
+        _vertexBrushes.Clear();
+        _indices.Clear();
+        _brushCommands.Clear();
+
+        _shader = null;
+        _camera = null;
+
+        _disposed = true;
     }
 }
