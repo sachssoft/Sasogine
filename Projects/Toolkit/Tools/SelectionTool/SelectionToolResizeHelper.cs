@@ -306,106 +306,102 @@ internal sealed class SelectionToolResizeHelper
             }
         }
 
-        if (target is ISelectionResizable2 resizable)
+        ISelectionResizable2? resizable =
+            target as ISelectionResizable2;
+
+        if (resizable?.PreserveAspectRatio == true &&
+            _dragStartSize.Width > 0f &&
+            _dragStartSize.Height > 0f)
         {
-            if (resizable.PreserveAspectRatio &&
-                _dragStartSize.Width > 0f &&
-                _dragStartSize.Height > 0f)
-            {
-                float width = right - left;
-                float height = bottom - top;
+            float width = right - left;
+            float height = bottom - top;
 
-                float scaleX =
-                    width /
-                    _dragStartSize.Width;
+            float scaleX =
+                width /
+                _dragStartSize.Width;
 
-                float scaleY =
-                    height /
-                    _dragStartSize.Height;
+            float scaleY =
+                height /
+                _dragStartSize.Height;
 
-                float scale =
-                    MathF.Abs(scaleX - 1f) >=
-                    MathF.Abs(scaleY - 1f)
-                        ? scaleX
-                        : scaleY;
+            float scale =
+                MathF.Abs(scaleX - 1f) >=
+                MathF.Abs(scaleY - 1f)
+                    ? scaleX
+                    : scaleY;
 
-                float minScale =
-                    MathF.Max(
-                        resizable.MinSize.Width / _dragStartSize.Width,
-                        resizable.MinSize.Height / _dragStartSize.Height);
+            scale =
+                float.Clamp(
+                    scale,
+                    0f,
+                    float.MaxValue);
 
-                float maxScale =
-                    MathF.Min(
-                        resizable.MaxSize.Width / _dragStartSize.Width,
-                        resizable.MaxSize.Height / _dragStartSize.Height);
+            width =
+                _dragStartSize.Width *
+                scale;
 
-                scale =
-                    Math.Clamp(
-                        scale,
-                        minScale,
-                        maxScale);
+            height =
+                _dragStartSize.Height *
+                scale;
 
-                width =
-                    _dragStartSize.Width *
-                    scale;
-
-                height =
-                    _dragStartSize.Height *
-                    scale;
-
-                if (resizeLeft)
-                    left = right - width;
-                else
-                    right = left + width;
-
-                if (resizeTop)
-                    top = bottom - height;
-                else
-                    bottom = top + height;
-            }
+            if (resizeLeft)
+                left = right - width;
             else
-            {
-                float width =
-                    Math.Clamp(
-                        right - left,
-                        resizable.MinSize.Width,
-                        resizable.MaxSize.Width);
+                right = left + width;
 
-                float height =
-                    Math.Clamp(
-                        bottom - top,
-                        resizable.MinSize.Height,
-                        resizable.MaxSize.Height);
-
-                if (resizeLeft)
-                    left = right - width;
-                else if (resizeRight)
-                    right = left + width;
-
-                if (resizeTop)
-                    top = bottom - height;
-                else if (resizeBottom)
-                    bottom = top + height;
-            }
+            if (resizeTop)
+                top = bottom - height;
+            else
+                bottom = top + height;
         }
-        else
-        {
-            if (right < left)
-                right = left;
 
-            if (bottom < top)
-                bottom = top;
-        }
+        float coercedWidth =
+            float.Clamp(
+                right - left,
+                0f,
+                float.MaxValue);
+
+        float coercedHeight =
+            float.Clamp(
+                bottom - top,
+                0f,
+                float.MaxValue);
+
+        Size2 coercedSize =
+            new Size2(
+                coercedWidth,
+                coercedHeight);
+
+        if (resizable != null)
+            coercedSize = resizable.CoerceSize(coercedSize);
+
+        coercedSize =
+            new Size2(
+                float.Clamp(
+                    coercedSize.Width,
+                    0f,
+                    float.MaxValue),
+                float.Clamp(
+                    coercedSize.Height,
+                    0f,
+                    float.MaxValue));
+
+        if (resizeLeft)
+            left = right - coercedSize.Width;
+        else if (resizeRight)
+            right = left + coercedSize.Width;
+
+        if (resizeTop)
+            top = bottom - coercedSize.Height;
+        else if (resizeBottom)
+            bottom = top + coercedSize.Height;
 
         Vector2 totalOriginOffset =
             new Vector2(
                 left,
                 top);
 
-        newSize =
-            new Size2(
-                right - left,
-                bottom - top);
+        newSize = coercedSize;
 
         originOffset =
             totalOriginOffset -

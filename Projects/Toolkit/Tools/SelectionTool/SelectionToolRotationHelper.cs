@@ -214,6 +214,9 @@ internal sealed class SelectionToolRotationHelper
                 MidpointRounding.AwayFromZero) * context.AngleSnapStep;
         }
 
+        if (target is ISelectionRotatable2 rotatable)
+            rotation = rotatable.CoerceRotation(rotation);
+
         SetRotation(target, definition, rotation);
     }
 
@@ -256,6 +259,9 @@ internal sealed class SelectionToolRotationHelper
             }
         }
 
+        if (target is ISelectionRotatable2 rotatable)
+            newPivot = rotatable.CoerceRotationPivot(newPivot);
+
         Point2 oldPivotPosition = new Point2(
             _dragStartSize.Width * _dragStartPivot.X,
             _dragStartSize.Height * _dragStartPivot.Y);
@@ -272,8 +278,13 @@ internal sealed class SelectionToolRotationHelper
             pivotDelta.X * sin + pivotDelta.Y * cos);
 
         Vector2 positionOffset = pivotDelta - rotatedPivotDelta;
+        Point2 newPosition = _dragStartPosition + positionOffset;
+
+        if (target is ISelectionMovable2 movable)
+            newPosition = movable.CoercePosition(newPosition);
+
         SetPivot(target, definition, newPivot);
-        SetPosition(target, definition, _dragStartPosition + positionOffset);
+        SetPosition(target, definition, newPosition);
     }
 
     private static bool TryGetTransform(

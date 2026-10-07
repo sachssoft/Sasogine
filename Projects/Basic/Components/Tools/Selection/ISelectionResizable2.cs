@@ -8,22 +8,19 @@ namespace Sachssoft.Engine.Components.Tools;
 public interface ISelectionResizable2 : ISelectionTarget2, IReadOnlyTransformSize2
 {
     /// <summary>
-    /// Gets a value indicating whether resizing is allowed.
+    /// Gets a value indicating whether resizing through the Selection Tool is allowed.
     /// </summary>
     bool AllowResize { get; }
 
     /// <summary>
-    /// Gets the minimum allowed size.
-    /// </summary>
-    Size2 MinSize { get; }
-
-    /// <summary>
-    /// Gets the maximum allowed size.
-    /// </summary>
-    Size2 MaxSize { get; }
-
-    /// <summary>
-    /// Gets a value indicating whether the aspect ratio is preserved when resizing.
+    /// Gets a value indicating whether the aspect ratio is preserved while resizing.
     /// </summary>
     bool PreserveAspectRatio { get; }
+
+    /// <summary>
+    /// Coerces the specified size to a valid size for the selection target.
+    /// </summary>
+    /// <param name="baseValue">The size calculated by the Selection Tool.</param>
+    /// <returns>The coerced size.</returns>
+    Size2 CoerceSize(Size2 baseValue);
 }

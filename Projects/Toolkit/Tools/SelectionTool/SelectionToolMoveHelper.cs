@@ -132,6 +132,9 @@ internal sealed class SelectionToolMoveHelper
             }
         }
 
+        if (target is ISelectionMovable2 movable)
+            newPosition = movable.CoercePosition(newPosition);
+
         Vector2 movement = newPosition - _appliedPosition;
         if (movement == Vector2.Zero)
             return;
@@ -153,7 +156,7 @@ internal sealed class SelectionToolMoveHelper
                 if (otherTarget.Definition is not ISelectionMovable2Definition otherDefinition)
                     throw new InvalidOperationException($"The movable selection target requires an '{nameof(ISelectionMovable2Definition)}' definition.");
 
-                otherDefinition.Position += movement;
+                otherDefinition.Position = otherMovable.CoercePosition(otherDefinition.Position + movement);
                 updatedDefinitions.Add(otherDefinition);
             }
         }

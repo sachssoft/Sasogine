@@ -166,7 +166,7 @@ public sealed class SelectionToolMoveResizeLayer : SelectionToolLayer
             if (target.Definition is not ISelectionMovable2Definition movableDefinition)
                 throw new InvalidOperationException($"The movable selection target requires an '{nameof(ISelectionMovable2Definition)}' definition.");
 
-            movableDefinition.Position += offset;
+            movableDefinition.Position = movable.CoercePosition(movableDefinition.Position + offset);
         }
     }
 }

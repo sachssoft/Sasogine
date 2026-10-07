@@ -28,11 +28,13 @@ All notable changes to this project will be documented in this file.
 * [Feature] Extended segment options for quad mesh generation.
 * [Change] Renamed `AssetStore.CreateIntegratedAssets()` to `AssetStore.CreateAssets()`.
 * [Change] Added aspect-ratio-preserving resizing to the Selection Tool.
+* [Change] Added coercion support for selection transformations to improve control over target-specific transform behavior.
+* [Improve] **Toolkit**: Added transform coercion support to the Selection Tool for movement, resizing, rotation, and rotation pivots.
 * [Improve] Added a preparation hook to `AssetStore` that runs before assets and sections are created.
-* [Improve] Migrate all definitions from the old attributes to the new definition attributes with strongly typed property metadata and value access.
-* [Improve] Add missing units and unit groups.
-* [Improve] Add vector conversion methods to all inset types for shader usage.
-* [Improve] Improved and extended value unit support with additional units for temperature, area, volume, data size, and angular speed.
+* [Improve] Migrated all definitions from the old attributes to the new definition attributes with strongly typed property metadata and value access.
+* [Improve] Added missing units and unit groups.
+* [Improve] Added vector conversion methods to all inset types for shader usage.
+* [Improve] Extended value unit support with additional units for temperature, area, volume, data size, and angular speed.
 * [Improve] Extended sphere mesh generation with normals, tangents, bitangents, and texture coordinates.
 * [Improve] Extended `Camera2` with configurable near and far clipping planes.
 * [Improve] Added `Min`, `Max`, and `Clamp` operations to `Size2`, `Size3`, `PixelSize2`, and `PixelSize3`.
