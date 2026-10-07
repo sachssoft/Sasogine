@@ -30,6 +30,8 @@ public class AssetStore : IReadOnlyAssetStore
         _gameApplication = application;
         _assets = [];
 
+        OnPreparing();
+
         IEnumerable<IAsset>? assets = CreateAssets();
 
         if (assets is not null)
@@ -656,6 +658,13 @@ public class AssetStore : IReadOnlyAssetStore
                 $"'{typeof(IAsset).FullName}'.",
                 nameof(assetType));
         }
+    }
+
+    /// <summary>
+    /// Called before assets and asset store sections are created.
+    /// </summary>
+    protected virtual void OnPreparing()
+    {
     }
 
     /// <summary>

@@ -28,6 +28,7 @@ All notable changes to this project will be documented in this file.
 * [Feature] Extended segment options for quad mesh generation.
 * [Change] Renamed `AssetStore.CreateIntegratedAssets()` to `AssetStore.CreateAssets()`.
 * [Change] Added aspect-ratio-preserving resizing to the Selection Tool.
+* [Improve] Added a preparation hook to `AssetStore` that runs before assets and sections are created.
 * [Improve] Migrate all definitions from the old attributes to the new definition attributes with strongly typed property metadata and value access.
 * [Improve] Add missing units and unit groups.
 * [Improve] Add vector conversion methods to all inset types for shader usage.
