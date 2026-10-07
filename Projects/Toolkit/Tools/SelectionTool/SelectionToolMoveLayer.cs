@@ -56,6 +56,18 @@ public sealed class SelectionToolMoveLayer : SelectionToolLayer
     }
 
     /// <inheritdoc/>
+    protected internal override void CompleteNodeInteraction()
+    {
+        _move.CompleteInteraction();
+    }
+
+    /// <inheritdoc/>
+    protected internal override void CancelNodeInteraction()
+    {
+        _move.CancelInteraction();
+    }
+
+    /// <inheritdoc/>
     protected internal override void EndNodeInteraction()
     {
         _move.EndInteraction();

@@ -12,6 +12,7 @@ internal sealed class SelectionToolMoveHelper
     private Point2 _dragStartPosition;
     private Point2 _dragStartCursorPosition;
     private Point2 _appliedPosition;
+    private readonly HashSet<ISelectionMovable2> _interactionTargets = new();
     private bool _isDragging;
 
     /// <summary>
@@ -88,7 +89,14 @@ internal sealed class SelectionToolMoveHelper
         _dragStartPosition = position;
         _dragStartCursorPosition = cursorPosition;
         _appliedPosition = position;
+        _interactionTargets.Clear();
         _isDragging = true;
+
+        if (target is ISelectionMovable2 movable && movable.AllowMove)
+        {
+            _interactionTargets.Add(movable);
+            movable.OnMove(SelectionTransformState.Started);
+        }
     }
 
     /// <summary>
@@ -142,6 +150,9 @@ internal sealed class SelectionToolMoveHelper
         SetPosition(target, definition, newPosition);
         _appliedPosition = newPosition;
 
+        if (target is ISelectionMovable2 primaryMovable && _interactionTargets.Contains(primaryMovable))
+            primaryMovable.OnMove(SelectionTransformState.Changed);
+
         var updatedDefinitions = new HashSet<ISelectionTarget2Definition>();
         if (definition != null)
             updatedDefinitions.Add(definition);
@@ -156,8 +167,17 @@ internal sealed class SelectionToolMoveHelper
                 if (otherTarget.Definition is not ISelectionMovable2Definition otherDefinition)
                     throw new InvalidOperationException($"The movable selection target requires an '{nameof(ISelectionMovable2Definition)}' definition.");
 
-                otherDefinition.Position = otherMovable.CoercePosition(otherDefinition.Position + movement);
+                Point2 oldPosition = otherDefinition.Position;
+                Point2 newOtherPosition = otherMovable.CoercePosition(oldPosition + movement);
+
+                if (_interactionTargets.Add(otherMovable))
+                    otherMovable.OnMove(SelectionTransformState.Started);
+
+                otherDefinition.Position = newOtherPosition;
                 updatedDefinitions.Add(otherDefinition);
+
+                if (newOtherPosition != oldPosition)
+                    otherMovable.OnMove(SelectionTransformState.Changed);
             }
         }
 
@@ -175,10 +195,35 @@ internal sealed class SelectionToolMoveHelper
     }
 
     /// <summary>
-    /// Ends the current move interaction.
+    /// Completes the current move interaction.
+    /// </summary>
+    public void CompleteInteraction()
+    {
+        if (!_isDragging)
+            return;
+
+        foreach (var target in _interactionTargets)
+            target.OnMove(SelectionTransformState.Completed);
+    }
+
+    /// <summary>
+    /// Cancels the current move interaction.
+    /// </summary>
+    public void CancelInteraction()
+    {
+        if (!_isDragging)
+            return;
+
+        foreach (var target in _interactionTargets)
+            target.OnMove(SelectionTransformState.Cancelled);
+    }
+
+    /// <summary>
+    /// Ends the current move interaction and clears its state.
     /// </summary>
     public void EndInteraction()
     {
+        _interactionTargets.Clear();
         _isDragging = false;
     }
 

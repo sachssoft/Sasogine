@@ -109,6 +109,22 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
     }
 
     /// <inheritdoc/>
+    protected internal override void CompleteNodeInteraction()
+    {
+        _move.CompleteInteraction();
+        _resize.CompleteInteraction();
+        _rotation.CompleteInteraction();
+    }
+
+    /// <inheritdoc/>
+    protected internal override void CancelNodeInteraction()
+    {
+        _move.CancelInteraction();
+        _resize.CancelInteraction();
+        _rotation.CancelInteraction();
+    }
+
+    /// <inheritdoc/>
     protected internal override void EndNodeInteraction()
     {
         _move.EndInteraction();
@@ -179,6 +195,9 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
                 positionOffset,
                 target,
                 definition);
+
+            if (target is ISelectionResizable2 resizable)
+                resizable.OnResize(SelectionTransformState.Changed);
 
             return;
         }

@@ -26,6 +26,7 @@ internal sealed class SelectionToolResizeHelper
     private Size2 _appliedSize;
     private Point2 _dragStartCursorPosition;
     private Vector2 _appliedOriginOffset;
+    private ISelectionResizable2? _interactionTarget;
     private bool _isDragging;
 
     /// <summary>
@@ -185,7 +186,9 @@ internal sealed class SelectionToolResizeHelper
         _appliedSize = size;
         _dragStartCursorPosition = cursorPosition;
         _appliedOriginOffset = Vector2.Zero;
+        _interactionTarget = target as ISelectionResizable2;
         _isDragging = true;
+        _interactionTarget?.OnResize(SelectionTransformState.Started);
     }
 
     /// <summary>
@@ -432,11 +435,30 @@ internal sealed class SelectionToolResizeHelper
     }
 
     /// <summary>
-    /// Ends the current resize interaction.
+    /// Completes the current resize interaction.
+    /// </summary>
+    public void CompleteInteraction()
+    {
+        if (_isDragging)
+            _interactionTarget?.OnResize(SelectionTransformState.Completed);
+    }
+
+    /// <summary>
+    /// Cancels the current resize interaction.
+    /// </summary>
+    public void CancelInteraction()
+    {
+        if (_isDragging)
+            _interactionTarget?.OnResize(SelectionTransformState.Cancelled);
+    }
+
+    /// <summary>
+    /// Ends the current resize interaction and clears its state.
     /// </summary>
     public void EndInteraction()
     {
         _dragNode = null;
+        _interactionTarget = null;
         _isDragging = false;
     }
 

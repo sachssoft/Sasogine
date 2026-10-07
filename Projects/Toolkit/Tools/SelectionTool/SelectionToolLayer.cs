@@ -81,6 +81,21 @@ public abstract class SelectionToolLayer
     }
 
     /// <summary>
+    /// Completes the current node interaction and notifies the active operation
+    /// that the user interaction has finished successfully.
+    /// </summary>
+    protected internal virtual void CompleteNodeInteraction()
+    {
+    }
+
+    /// <summary>
+    /// Cancels the current node interaction and notifies the active operation.
+    /// </summary>
+    protected internal virtual void CancelNodeInteraction()
+    {
+    }
+
+    /// <summary>
     /// Ends the current node interaction and clears any layer-specific drag state.
     /// </summary>
     protected internal virtual void EndNodeInteraction()

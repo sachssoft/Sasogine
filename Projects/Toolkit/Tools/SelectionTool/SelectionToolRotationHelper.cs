@@ -23,6 +23,8 @@ internal sealed class SelectionToolRotationHelper
     private Point2 _dragStartPivot;
     private float _dragPreviousCursorAngle;
     private float _dragAccumulatedAngle;
+    private ISelectionRotatable2? _interactionTarget;
+    private bool _isPivotInteraction;
     private bool _isDragging;
 
     /// <summary>
@@ -147,10 +149,15 @@ internal sealed class SelectionToolRotationHelper
         }
 
         _dragNode = node;
+        _interactionTarget = target as ISelectionRotatable2;
+        _isPivotInteraction = ReferenceEquals(node, _pivotNode);
         _isDragging = true;
 
-        if (ReferenceEquals(node, _pivotNode))
+        if (_isPivotInteraction)
+        {
+            _interactionTarget?.OnRotationPivot(SelectionTransformState.Started);
             return;
+        }
 
         Point2 pivotWorldPosition = GetPivotWorldPosition(_dragStartPosition, _dragStartSize, _dragStartPivot);
         Vector2 pivotToCursor = cursorPosition - pivotWorldPosition;
@@ -159,11 +166,13 @@ internal sealed class SelectionToolRotationHelper
         {
             _isDragging = false;
             _dragNode = null;
+            _interactionTarget = null;
             return;
         }
 
         _dragPreviousCursorAngle = MathF.Atan2(pivotToCursor.Y, pivotToCursor.X);
         _dragAccumulatedAngle = 0f;
+        _interactionTarget?.OnRotation(SelectionTransformState.Started);
     }
 
     /// <summary>
@@ -218,14 +227,45 @@ internal sealed class SelectionToolRotationHelper
             rotation = rotatable.CoerceRotation(rotation);
 
         SetRotation(target, definition, rotation);
+        _interactionTarget?.OnRotation(SelectionTransformState.Changed);
     }
 
     /// <summary>
-    /// Ends the current rotation or pivot interaction.
+    /// Completes the current rotation or rotation-pivot interaction.
+    /// </summary>
+    public void CompleteInteraction()
+    {
+        if (!_isDragging || _interactionTarget == null)
+            return;
+
+        if (_isPivotInteraction)
+            _interactionTarget.OnRotationPivot(SelectionTransformState.Completed);
+        else
+            _interactionTarget.OnRotation(SelectionTransformState.Completed);
+    }
+
+    /// <summary>
+    /// Cancels the current rotation or rotation-pivot interaction.
+    /// </summary>
+    public void CancelInteraction()
+    {
+        if (!_isDragging || _interactionTarget == null)
+            return;
+
+        if (_isPivotInteraction)
+            _interactionTarget.OnRotationPivot(SelectionTransformState.Cancelled);
+        else
+            _interactionTarget.OnRotation(SelectionTransformState.Cancelled);
+    }
+
+    /// <summary>
+    /// Ends the current rotation or pivot interaction and clears its state.
     /// </summary>
     public void EndInteraction()
     {
         _dragNode = null;
+        _interactionTarget = null;
+        _isPivotInteraction = false;
         _isDragging = false;
     }
 
@@ -285,6 +325,7 @@ internal sealed class SelectionToolRotationHelper
 
         SetPivot(target, definition, newPivot);
         SetPosition(target, definition, newPosition);
+        _interactionTarget?.OnRotationPivot(SelectionTransformState.Changed);
     }
 
     private static bool TryGetTransform(
