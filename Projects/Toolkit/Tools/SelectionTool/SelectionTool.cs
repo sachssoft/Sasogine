@@ -471,6 +471,7 @@ public class SelectionTool : ToolBase, INotifyTransformChanged
 
         if (IsTransforming)
         {
+            Layer?.CompleteNodeInteraction();
             Layer?.EndNodeInteraction();
             CompleteTransform();
         }
@@ -485,7 +486,10 @@ public class SelectionTool : ToolBase, INotifyTransformChanged
         _isAreaSelecting = false;
 
         if (IsTransforming)
+        {
+            Layer?.CancelNodeInteraction();
             Layer?.EndNodeInteraction();
+        }
 
         IsTransforming = false;
 
