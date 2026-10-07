@@ -18,4 +18,10 @@ public interface ISelectionSkewable2 : ISelectionTarget2, IReadOnlyTransformSkew
     /// <param name="baseValue">The skew calculated by the Selection Tool.</param>
     /// <returns>The coerced skew.</returns>
     Vector2 CoerceSkew(Vector2 baseValue);
+
+    /// <summary>
+    /// Called when the state of a skew operation changes.
+    /// </summary>
+    /// <param name="state">The current state of the skew operation.</param>
+    void OnSkew(SelectionTransformState state);
 }

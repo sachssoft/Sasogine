@@ -28,4 +28,16 @@ public interface ISelectionRotatable2 :
     /// <param name="baseValue">The rotation pivot calculated by the Selection Tool.</param>
     /// <returns>The coerced rotation pivot.</returns>
     Point2 CoerceRotationPivot(Point2 baseValue);
+
+    /// <summary>
+    /// Called when the state of a rotation operation changes.
+    /// </summary>
+    /// <param name="state">The current state of the rotation operation.</param>
+    void OnRotation(SelectionTransformState state);
+
+    /// <summary>
+    /// Called when the state of a rotation pivot move operation changes.
+    /// </summary>
+    /// <param name="state">The current state of the rotation pivot operation.</param>
+    void OnRotationPivot(SelectionTransformState state);
 }

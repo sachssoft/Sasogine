@@ -19,4 +19,10 @@ public interface ISelectionScalable2 : ISelectionTarget2, IReadOnlyTransformScal
     /// <param name="baseValue">The scale calculated by the Selection Tool.</param>
     /// <returns>The coerced scale.</returns>
     Vector2 CoerceScale(Vector2 baseValue);
+
+    /// <summary>
+    /// Called when the state of a scale operation changes.
+    /// </summary>
+    /// <param name="state">The current state of the scale operation.</param>
+    void OnScale(SelectionTransformState state);
 }

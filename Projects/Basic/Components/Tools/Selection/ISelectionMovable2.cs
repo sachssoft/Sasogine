@@ -18,4 +18,10 @@ public interface ISelectionMovable2 : ISelectionTarget2, IReadOnlyTransformPosit
     /// <param name="baseValue">The position calculated by the Selection Tool.</param>
     /// <returns>The coerced position.</returns>
     Point2 CoercePosition(Point2 baseValue);
+
+    /// <summary>
+    /// Called when the state of a move operation changes.
+    /// </summary>
+    /// <param name="state">The current state of the move operation.</param>
+    void OnMove(SelectionTransformState state);
 }

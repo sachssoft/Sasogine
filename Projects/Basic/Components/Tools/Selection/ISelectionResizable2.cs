@@ -23,4 +23,10 @@ public interface ISelectionResizable2 : ISelectionTarget2, IReadOnlyTransformSiz
     /// <param name="baseValue">The size calculated by the Selection Tool.</param>
     /// <returns>The coerced size.</returns>
     Size2 CoerceSize(Size2 baseValue);
+
+    /// <summary>
+    /// Called when the state of a resize operation changes.
+    /// </summary>
+    /// <param name="state">The current state of the resize operation.</param>
+    void OnResize(SelectionTransformState state);
 }
