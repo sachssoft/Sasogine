@@ -26,18 +26,27 @@ All notable changes to this project will be documented in this file.
 * [Feature] **Documents**: Added missing `Path` extensions for `FormatWriterBase` and `FormatReaderBase`.
 * [Feature] Added asset store sections for organizing related assets.
 * [Feature] Extended segment options for quad mesh generation.
+* [Feature] Added `Brush` and `Pen` abstractions for fill and stroke rendering.
+* [Feature] Added terrain snapping for course facilities with configurable snap pivot and rotation behavior.
+* [Feature] Added terrain snap enter and leave handling.
+* [Change] Reworked `ShapeBatch` for brush- and pen-based rendering.
 * [Change] Renamed `AssetStore.CreateIntegratedAssets()` to `AssetStore.CreateAssets()`.
 * [Change] Added aspect-ratio-preserving resizing to the Selection Tool.
-* [Change] Added coercion support for selection transformations to improve control over target-specific transform behavior.
-* [Improve] **Toolkit**: Added transform coercion support to the Selection Tool for movement, resizing, rotation, and rotation pivots.
-* [Improve] Added a preparation hook to `AssetStore` that runs before assets and sections are created.
-* [Improve] Migrated all definitions from the old attributes to the new definition attributes with strongly typed property metadata and value access.
+* [Change] Added coercion support for selection transformations.
+* [Change] Reworked Selection Tool callbacks to use the unified `SelectionTransformState` lifecycle.
+* [Improve] **Toolkit**: Extended Selection Tool coercion for movement, resizing, rotation, and rotation pivots.
+* [Improve] **Toolkit**: Added started, changed, completed, and cancelled transform states.
+* [Improve] Added a preparation hook to `AssetStore`.
+* [Improve] Migrated definitions to the new strongly typed definition attributes.
 * [Improve] Added missing units and unit groups.
-* [Improve] Added vector conversion methods to all inset types for shader usage.
-* [Improve] Extended value unit support with additional units for temperature, area, volume, data size, and angular speed.
-* [Improve] Extended sphere mesh generation with normals, tangents, bitangents, and texture coordinates.
+* [Improve] Extended value units for temperature, area, volume, data size, and angular speed.
+* [Improve] Added vector conversions to all inset types.
+* [Improve] Extended sphere meshes with normals, tangents, bitangents, and texture coordinates.
 * [Improve] Extended `Camera2` with configurable near and far clipping planes.
-* [Improve] Added `Min`, `Max`, and `Clamp` operations to `Size2`, `Size3`, `PixelSize2`, and `PixelSize3`.
+* [Improve] Added `Min`, `Max`, and `Clamp` to size types.
+* [Improve] Added polygon winding-aware terrain alignment.
+* [Improve] Snapped facilities now follow terrain movement and rotation.
+* [Improve] Added terrain tracking for snapped facilities.
 * [Bug] **Toolkit**: Fixed Selection Tool handles being displayed for disabled transformations.
 
 ## [0.11.0-alpha] - 2026-09-30 (Major Development Milestone — Large API and Architecture Overhaul)
