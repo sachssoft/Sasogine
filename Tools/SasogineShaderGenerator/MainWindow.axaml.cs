@@ -53,7 +53,7 @@ public sealed partial class MainWindow : Window
 
         var directory = Path.GetDirectoryName(input);
         var fileName = Path.GetFileNameWithoutExtension(input);
-        var suffix = TargetBox.SelectedIndex == 1 ? "dx" : "gl";
+        var suffix = GetTarget().Suffix;
         var outputName = $"{fileName}_{suffix}.mgfxo";
 
         OutputPathBox.Text = string.IsNullOrWhiteSpace(directory)
@@ -85,7 +85,7 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        var target = TargetBox.SelectedIndex == 1 ? "DirectX_11" : "OpenGL";
+        var target = GetTarget().Profile;
         var outputDirectory = Path.GetDirectoryName(output);
         if (!string.IsNullOrWhiteSpace(outputDirectory))
             Directory.CreateDirectory(outputDirectory);
@@ -113,6 +113,14 @@ public sealed partial class MainWindow : Window
             CompileButton.IsEnabled = true;
         }
     }
+
+    private (string Profile, string Suffix) GetTarget() => TargetBox.SelectedIndex switch
+    {
+        1 => ("DirectX_11", "dx"),
+        2 => ("DirectX_12", "dx12"),
+        3 => ("Vulkan", "vk"),
+        _ => ("OpenGL", "gl")
+    };
 
     private void SetLog(string text) => LogBox.Text = text;
 }

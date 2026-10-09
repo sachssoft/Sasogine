@@ -20,4 +20,8 @@
 		<ProjectReference Include="..\Documents\Sachssoft.Sasogine.Documents.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Update="MonoGame.Framework.Native" Version="3.8.6" />
+	</ItemGroup>
+
 </Project>

@@ -25,6 +25,8 @@
 				<ComboBox x:Name="TargetBox" SelectedIndex="0" SelectionChanged="TargetBox_SelectionChanged">
 					<ComboBoxItem Content="OpenGL" />
 					<ComboBoxItem Content="DirectX 11" />
+					<ComboBoxItem Content="DirectX 12" />
+					<ComboBoxItem Content="Vulkan" />
 				</ComboBox>
 			</StackPanel>
 			<StackPanel Grid.Column="1" Margin="8,0,0,0">

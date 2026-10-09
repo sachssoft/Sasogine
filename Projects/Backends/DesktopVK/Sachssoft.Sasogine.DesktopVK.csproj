@@ -21,13 +21,17 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MonoGame.Runtime.Windows.Vulkan" Version="$(MonoGameVersion)" />
-		<PackageReference Include="MonoGame.Runtime.Linux.Vulkan" Version="$(MonoGameVersion)" />
-		<PackageReference Include="MonoGame.Runtime.Mac.Vulkan" Version="$(MonoGameVersion)" />
+		<PackageReference Include="MonoGame.Runtime.Windows.Vulkan" Version="3.8.6" />
+		<PackageReference Include="MonoGame.Runtime.Linux.Vulkan" Version="3.8.6" />
+		<PackageReference Include="MonoGame.Runtime.Mac.Vulkan" Version="3.8.6" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Basic\Sachssoft.Sasogine.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Update="MonoGame.Framework.Native" Version="3.8.6" />
 	</ItemGroup>
 
 </Project>

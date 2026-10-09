@@ -33,13 +33,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference
-			Include="MonoGame.Runtime.Windows.DX12"
-			Version="$(MonoGameVersion)" />
+		<PackageReference Include="MonoGame.Runtime.Windows.DX12" Version="3.8.6" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Basic\Sachssoft.Sasogine.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Update="MonoGame.Framework.Native" Version="3.8.6" />
 	</ItemGroup>
 
 </Project>

@@ -19,4 +19,9 @@
 	  <None Include="..\..\CHANGELOG.md" Link="CHANGELOG.md" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Update="FontStashSharp.MonoGame" Version="1.6.1" />
+	  <PackageReference Update="MonoGame.Framework.Native" Version="3.8.6" />
+	</ItemGroup>
+
 </Project>
