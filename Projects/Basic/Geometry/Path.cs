@@ -562,79 +562,6 @@ public sealed class Path :
     }
 
     /// <summary>
-    /// Determines whether the specified point lies inside a polygon.
-    /// </summary>
-    /// <param name="point">The point to test.</param>
-    /// <param name="polygonIndex">The polygon index.</param>
-    /// <param name="transform">
-    /// The transformation applied to the polygon before testing.
-    /// </param>
-    /// <returns>
-    /// <see langword="true"/> if the point lies inside the polygon;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    public bool IsPointInPolygon(
-        Point2 point,
-        int polygonIndex,
-        Matrix transform)
-    {
-        ValidateIndex(polygonIndex, _polygons.Length, nameof(polygonIndex));
-
-        if (!IsFinite(point))
-            return false;
-
-        Vector2[] polygon = _polygons[polygonIndex];
-
-        Box2 bounds =
-            TransformBounds(
-                _polygonBounds[polygonIndex],
-                transform);
-
-        if (!IsFinite(bounds))
-            return false;
-
-        if (point.X < bounds.MinX ||
-            point.X > bounds.MaxX ||
-            point.Y < bounds.MinY ||
-            point.Y > bounds.MaxY)
-        {
-            return false;
-        }
-
-        Vector2 position =
-            new Vector2(
-                point.X,
-                point.Y);
-
-        float angleSum = 0f;
-
-        for (int i = 0; i < polygon.Length; i++)
-        {
-            Vector2 a =
-                Vector2.Transform(
-                    polygon[i],
-                    transform);
-
-            Vector2 b =
-                Vector2.Transform(
-                    polygon[(i + 1) % polygon.Length],
-                    transform);
-
-            if (!IsFinite(a) || !IsFinite(b))
-                return false;
-
-            Vector2 pa = a - position;
-            Vector2 pb = b - position;
-
-            angleSum += MathF.Atan2(
-                pa.X * pb.Y - pa.Y * pb.X,
-                Vector2.Dot(pa, pb));
-        }
-
-        return MathF.Abs(angleSum) > 0.0001f;
-    }
-
-    /// <summary>
     /// Creates a copy of the path translated so that its left and top bounds are zero.
     /// </summary>
     /// <returns>
@@ -799,6 +726,149 @@ public sealed class Path :
             Array.Reverse(polygons[i]);
 
         return new Path(polygons, true);
+    }
+
+    /// <summary>
+    /// Determines whether the specified point lies inside the path.
+    /// </summary>
+    /// <remarks>
+    /// Multiple polygon contours are evaluated using the even-odd rule,
+    /// allowing the path to contain holes and nested contours.
+    /// </remarks>
+    /// <param name="point">The point to test.</param>
+    /// <returns>
+    /// <see langword="true"/> if the point lies inside the path;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool Contains(Point2 point)
+    {
+        return Contains(point, Matrix.Identity);
+    }
+
+    /// <summary>
+    /// Determines whether the specified point lies inside the transformed path.
+    /// </summary>
+    /// <remarks>
+    /// Multiple polygon contours are evaluated using the even-odd rule,
+    /// allowing the path to contain holes and nested contours.
+    /// </remarks>
+    /// <param name="point">The point to test.</param>
+    /// <param name="transform">
+    /// The transformation applied to the path before testing.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if the point lies inside the path;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool Contains(
+        Point2 point,
+        Matrix transform)
+    {
+        if (!IsFinite(point) || IsEmpty)
+            return false;
+
+        Box2 bounds = TransformBounds(
+            _bounds,
+            transform);
+
+        if (!IsFinite(bounds))
+            return false;
+
+        if (point.X < bounds.MinX ||
+            point.X > bounds.MaxX ||
+            point.Y < bounds.MinY ||
+            point.Y > bounds.MaxY)
+        {
+            return false;
+        }
+
+        bool inside = false;
+
+        for (int i = 0; i < _polygons.Length; i++)
+        {
+            if (Contains(
+                point,
+                i,
+                transform))
+            {
+                inside = !inside;
+            }
+        }
+
+        return inside;
+    }
+
+    /// <summary>
+    /// Determines whether the specified point lies inside the specified polygon contour.
+    /// </summary>
+    /// <param name="point">The point to test.</param>
+    /// <param name="polygonIndex">The index of the polygon contour to test.</param>
+    /// <param name="transform">
+    /// The transformation applied to the polygon contour before testing.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if the point lies inside the specified polygon contour;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool Contains(
+        Point2 point,
+        int polygonIndex,
+        Matrix transform)
+    {
+        ValidateIndex(polygonIndex, _polygons.Length, nameof(polygonIndex));
+
+        if (!IsFinite(point))
+            return false;
+
+        Vector2[] polygon = _polygons[polygonIndex];
+
+        Box2 bounds =
+            TransformBounds(
+                _polygonBounds[polygonIndex],
+                transform);
+
+        if (!IsFinite(bounds))
+            return false;
+
+        if (point.X < bounds.MinX ||
+            point.X > bounds.MaxX ||
+            point.Y < bounds.MinY ||
+            point.Y > bounds.MaxY)
+        {
+            return false;
+        }
+
+        Vector2 position =
+            new Vector2(
+                point.X,
+                point.Y);
+
+        float angleSum = 0f;
+
+        for (int i = 0; i < polygon.Length; i++)
+        {
+            Vector2 a =
+                Vector2.Transform(
+                    polygon[i],
+                    transform);
+
+            Vector2 b =
+                Vector2.Transform(
+                    polygon[(i + 1) % polygon.Length],
+                    transform);
+
+            if (!IsFinite(a) || !IsFinite(b))
+                return false;
+
+            Vector2 pa = a - position;
+            Vector2 pb = b - position;
+
+            angleSum += MathF.Atan2(
+                pa.X * pb.Y - pa.Y * pb.X,
+                Vector2.Dot(pa, pb));
+        }
+
+        return MathF.Abs(angleSum) > 0.0001f;
     }
 
     /// <summary>
