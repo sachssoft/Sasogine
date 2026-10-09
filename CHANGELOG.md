@@ -50,7 +50,7 @@ All notable changes to this project will be documented in this file.
 * [Improve] Snapped facilities now follow terrain movement and rotation.
 * [Improve] Added terrain tracking for snapped facilities.
 * [Bug] **Toolkit**: Fixed Selection Tool handles being displayed for disabled transformations.
-* [Bug] Fixed bright outlines around certain textures caused by incorrect alpha blending.
+* [Bug] Fixed incorrect alpha blending in `RenderScope` that caused bright outlines around certain textures.
 
 ## [0.11.0-alpha] - 2026-09-30 (Major Development Milestone — Large API and Architecture Overhaul)
 * [Feature] Introduced asset support for integer-indexed `IndexedFrameSet`, strongly typed `IndexedFrameSet<TEnum>`, and keyed `KeyedFrameSet` frame sets.
