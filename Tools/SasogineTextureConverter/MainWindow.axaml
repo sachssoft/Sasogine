@@ -1,0 +1,68 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Sachssoft.TextureConverter.MainWindow"
+        Title="Sachssoft Texture Converter"
+        Width="840" Height="600"
+        MinWidth="690" MinHeight="525">
+  <Grid Margin="20" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,*,Auto">
+    <TextBlock Grid.Row="0" Text="MonoGame Texture Converter"
+               FontSize="24" FontWeight="SemiBold" Margin="0,0,0,18" />
+
+    <Grid Grid.Row="1" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" Margin="0,0,0,12">
+      <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="Input image" Margin="0,0,0,5" />
+      <TextBox x:Name="InputPathBox" Grid.Row="1" Grid.Column="0"
+               Watermark="PNG, JPG, BMP, GIF, WebP or TGA" TextChanged="InputPathBox_TextChanged" />
+      <Button Grid.Row="1" Grid.Column="1" Content="Browse…" Margin="8,0,0,0" Click="BrowseInput_Click" />
+    </Grid>
+
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" Margin="0,0,0,12">
+      <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="Output file" Margin="0,0,0,5" />
+      <TextBox x:Name="OutputPathBox" Grid.Row="1" Grid.Column="0"
+               Watermark="Output path (generated automatically or entered manually)" />
+      <Button Grid.Row="1" Grid.Column="1" Content="Browse…" Margin="8,0,0,0" Click="BrowseOutput_Click" />
+    </Grid>
+
+    <Grid Grid.Row="3" ColumnDefinitions="*,*" Margin="0,0,0,14">
+      <StackPanel Grid.Column="0" Margin="0,0,8,0">
+        <TextBlock Text="MonoGame SurfaceFormat" Margin="0,0,0,5" />
+        <ComboBox x:Name="PixelFormatBox" SelectedIndex="0" SelectionChanged="Format_SelectionChanged">
+          <ComboBoxItem Content="Color (RGBA 32-bit)" />
+          <ComboBoxItem Content="Bgra32 (32-bit)" />
+          <ComboBoxItem Content="Bgr565 (RGB 16-bit)" />
+          <ComboBoxItem Content="Bgra5551 (RGBA 16-bit)" />
+          <ComboBoxItem Content="Bgra4444 (RGBA 16-bit)" />
+          <ComboBoxItem Content="Alpha8 (8-bit alpha)" />
+        </ComboBox>
+      </StackPanel>
+      <StackPanel Grid.Column="1" Margin="8,0,0,0">
+        <TextBlock Text="Output format" Margin="0,0,0,5" />
+        <ComboBox x:Name="FileFormatBox" SelectedIndex="0" SelectionChanged="Format_SelectionChanged">
+          <ComboBoxItem Content="PNG (.png)" />
+          <ComboBoxItem Content="JPEG (.jpg)" />
+          <ComboBoxItem Content="WebP (.webp)" />
+          <ComboBoxItem Content="BMP (.bmp)" />
+          <ComboBoxItem Content="TGA (.tga)" />
+          <ComboBoxItem Content="MonoGame raw (.raw + .json)" />
+        </ComboBox>
+      </StackPanel>
+    </Grid>
+
+    <CheckBox x:Name="ReplaceCheckBox" Grid.Row="4" Content="Replace existing / original file"
+              IsChecked="False" Checked="ReplaceCheckBox_Changed" Unchecked="ReplaceCheckBox_Changed"
+              Margin="0,0,0,14" />
+
+    <TextBlock Grid.Row="5" Margin="0,0,0,14" TextWrapping="Wrap" Opacity="0.75"
+               Text="PNG / JPG / WebP / BMP / TGA: converted image appearance (reduced color precision when applicable). Raw: actual MonoGame packed pixel data plus JSON dimensions and SurfaceFormat. JPG / BMP remove transparency." />
+
+    <Grid Grid.Row="6" RowDefinitions="Auto,*">
+      <TextBlock Grid.Row="0" Text="Conversion output" Margin="0,0,0,5" />
+      <TextBox x:Name="LogBox" Grid.Row="1" IsReadOnly="True"
+               AcceptsReturn="True" TextWrapping="Wrap"
+               ScrollViewer.VerticalScrollBarVisibility="Auto" FontFamily="Consolas" />
+    </Grid>
+
+    <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+      <Button x:Name="ConvertButton" Content="Convert" MinWidth="115" Click="Convert_Click" />
+    </StackPanel>
+  </Grid>
+</Window>
