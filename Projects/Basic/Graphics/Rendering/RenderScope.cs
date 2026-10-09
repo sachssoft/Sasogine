@@ -5,13 +5,18 @@ using System.Collections.Generic;
 namespace Sachssoft.Engine.Graphics.Rendering
 {
     /// <summary>
-    /// Temporärer Rendering-Scope: wendet RenderStates an und stellt alte States wieder her.
-    /// Unterstützt optional Scissor-Rectangle.
-    /// Optimiert für 2D/Parallax-Szenen.
+    /// Temporarily applies rendering states to a graphics device and restores
+    /// the previous states when disposed.
     /// </summary>
+    /// <remarks>
+    /// Supports blending, depth handling, rasterization, texture sampling,
+    /// and optional scissor clipping.
+    /// </remarks>
     public sealed class RenderScope : IDisposable
     {
-        private bool _disposed;
+        private static readonly Dictionary<RenderOptions, RasterizerState> _rasterizerCache = new();
+        private static readonly Dictionary<DepthMode, DepthStencilState> _depthCache = new();
+
         private readonly GraphicsDevice _graphicsDevice;
 
         private readonly RasterizerState _customRasterizer;
@@ -24,35 +29,37 @@ namespace Sachssoft.Engine.Graphics.Rendering
         private readonly SamplerState _prevSampler;
         private readonly BlendState _prevBlend;
 
-        private static readonly Dictionary<RenderOptions, RasterizerState> _rasterizerCache = new();
-        private static readonly Dictionary<DepthMode, DepthStencilState> _depthCache = new();
+        private bool _disposed;
 
         /// <summary>
-        /// Erstellt einen RenderScope für GameBaseContext.
+        /// Initializes a rendering scope using the specified game context.
         /// </summary>
+        /// <param name="context">The game context containing the graphics device.</param>
+        /// <param name="options">The rendering options to apply, or the default options.</param>
         public RenderScope(GameContext context, RenderOptions? options = null)
             : this(context.GraphicsDevice, options)
         {
         }
 
         /// <summary>
-        /// Erstellt einen RenderScope für ein GraphicsDevice.
+        /// Initializes a rendering scope using the specified graphics device.
         /// </summary>
+        /// <param name="graphicsDevice">The graphics device to configure.</param>
+        /// <param name="options">The rendering options to apply, or the default options.</param>
         public RenderScope(GraphicsDevice graphicsDevice, RenderOptions? options = null)
         {
             _graphicsDevice = graphicsDevice ?? throw new ArgumentNullException(nameof(graphicsDevice));
             options ??= RenderOptions.Default;
 
-            // Alte States speichern
+            // Save previous states
             _prevRasterizer = _graphicsDevice.RasterizerState;
             _prevDepthStencil = _graphicsDevice.DepthStencilState;
             _prevSampler = _graphicsDevice.SamplerStates[0];
             _prevBlend = _graphicsDevice.BlendState;
 
-            // RasterizerState vorbereiten (mit Scissor optional)
+            // Rasterizer
             if (options.ScissorRectangle.HasValue)
             {
-                // Neues RasterizerState erzeugen, basierend auf den Optionen
                 _customRasterizer = new RasterizerState
                 {
                     CullMode = options.CullMode,
@@ -60,7 +67,6 @@ namespace Sachssoft.Engine.Graphics.Rendering
                     ScissorTestEnable = true
                 };
 
-                // Scissor-Rectangle setzen
                 _graphicsDevice.ScissorRectangle = options.ScissorRectangle.Value;
             }
             else
@@ -68,47 +74,47 @@ namespace Sachssoft.Engine.Graphics.Rendering
                 _customRasterizer = GetRasterizer(options);
             }
 
-            // RasterizerState anwenden
             _graphicsDevice.RasterizerState = _customRasterizer;
 
-            // DepthStencil
+            // Depth stencil
             _customDepthStencil = GetDepthStencil(options.Depth);
             _graphicsDevice.DepthStencilState = _customDepthStencil;
 
-            // Sampler
+            // Texture sampling
             _customSampler = options.SamplerState;
             _graphicsDevice.SamplerStates[0] = _customSampler;
 
-            // Blend
-            _customBlend = options.AlphaBlend
-                ? new BlendState
-                {
-                    ColorSourceBlend = Blend.One,
-                    ColorDestinationBlend = Blend.InverseSourceAlpha,
-                    AlphaSourceBlend = Blend.One,
-                    AlphaDestinationBlend = Blend.InverseSourceAlpha
-                }
-                : BlendState.Opaque;
+            // Alpha blending
+            _customBlend = !options.AlphaBlend
+                ? BlendState.Opaque
+                : options.PremultipliedAlpha
+                    ? BlendState.AlphaBlend
+                    : BlendState.NonPremultiplied;
+
             _graphicsDevice.BlendState = _customBlend;
         }
 
         private static RasterizerState GetRasterizer(RenderOptions options)
         {
-            if (!_rasterizerCache.TryGetValue(options, out var state))
+            if (!_rasterizerCache.TryGetValue(options, out var state)
+                || state.IsDisposed)
             {
                 state = new RasterizerState
                 {
                     CullMode = options.CullMode,
                     FillMode = options.FillMode
                 };
+
                 _rasterizerCache[options] = state;
             }
+
             return state;
         }
 
         private static DepthStencilState GetDepthStencil(DepthMode mode)
         {
-            if (!_depthCache.TryGetValue(mode, out var state))
+            if (!_depthCache.TryGetValue(mode, out var state)
+                || state.IsDisposed)
             {
                 state = mode switch
                 {
@@ -131,17 +137,21 @@ namespace Sachssoft.Engine.Graphics.Rendering
                     },
                     _ => DepthStencilState.None
                 };
+
                 _depthCache[mode] = state;
             }
+
             return state;
         }
 
         /// <summary>
-        /// Setzt die alten GraphicsDevice States zurück.
+        /// Restores the rendering states that were active before the scope was created.
         /// </summary>
         public void Dispose()
         {
-            if (_disposed) return;
+            if (_disposed)
+                return;
+
             _disposed = true;
 
             _graphicsDevice.RasterizerState = _prevRasterizer;
