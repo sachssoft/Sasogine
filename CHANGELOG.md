@@ -29,6 +29,7 @@ All notable changes to this project will be documented in this file.
 * [Feature] Added `Brush` and `Pen` abstractions for fill and stroke rendering.
 * [Feature] Added terrain snapping for course facilities with configurable snap pivot and rotation behavior.
 * [Feature] Added terrain snap enter and leave handling.
+* [Change] Renamed `Path.IsPointInPolygon` to `Path.Contains` for a more consistent containment API.
 * [Change] Reworked `ShapeBatch` for brush- and pen-based rendering.
 * [Change] Renamed `AssetStore.CreateIntegratedAssets()` to `AssetStore.CreateAssets()`.
 * [Change] Added aspect-ratio-preserving resizing to the Selection Tool.
@@ -36,6 +37,7 @@ All notable changes to this project will be documented in this file.
 * [Change] Reworked Selection Tool callbacks to use the unified `SelectionTransformState` lifecycle.
 * [Improve] **Toolkit**: Extended Selection Tool coercion for movement, resizing, rotation, and rotation pivots.
 * [Improve] **Toolkit**: Added started, changed, completed, and cancelled transform states.
+* [Improve] Added missing `Path.Contains` overloads for point containment and hit testing, including support for transformed paths, polygon contours, holes, and nested contours.
 * [Improve] Added a preparation hook to `AssetStore`.
 * [Improve] Migrated definitions to the new strongly typed definition attributes.
 * [Improve] Added missing units and unit groups.
@@ -48,6 +50,7 @@ All notable changes to this project will be documented in this file.
 * [Improve] Snapped facilities now follow terrain movement and rotation.
 * [Improve] Added terrain tracking for snapped facilities.
 * [Bug] **Toolkit**: Fixed Selection Tool handles being displayed for disabled transformations.
+* [Bug] Fixed bright outlines around certain textures caused by incorrect alpha blending.
 
 ## [0.11.0-alpha] - 2026-09-30 (Major Development Milestone — Large API and Architecture Overhaul)
 * [Feature] Introduced asset support for integer-indexed `IndexedFrameSet`, strongly typed `IndexedFrameSet<TEnum>`, and keyed `KeyedFrameSet` frame sets.
