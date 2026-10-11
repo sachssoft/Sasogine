@@ -1,0 +1,34 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Sachssoft.ImageResizer.MainWindow" Title="Sachssoft Image Resizer"
+        Width="740" Height="580" MinWidth="580" MinHeight="490">
+  <Grid Margin="20" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,*,Auto" RowSpacing="12">
+    <TextBlock Grid.Row="0" Text="Image Batch Resizer" FontSize="24" FontWeight="SemiBold" />
+    <Grid Grid.Row="1" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+      <TextBlock Grid.ColumnSpan="2" Text="Source folder" Margin="0,0,0,5" />
+      <TextBox x:Name="InputPathBox" Grid.Row="1" Watermark="Folder containing PNG and JPEG files" />
+      <Button Grid.Row="1" Grid.Column="1" Margin="8,0,0,0" Content="Browse…" Click="BrowseInput_Click" />
+    </Grid>
+    <TextBlock Grid.Row="2" Text="Output folder: automatically created beside source folder (unique name)" Opacity="0.75" TextWrapping="Wrap" />
+    <Grid Grid.Row="3" ColumnDefinitions="*,*,*" ColumnSpacing="12">
+      <StackPanel Grid.Column="0" Spacing="5">
+        <TextBlock Text="Resize by" />
+        <ComboBox x:Name="DimensionBox" SelectedIndex="0"><ComboBoxItem Content="Width"/><ComboBoxItem Content="Height"/></ComboBox>
+      </StackPanel>
+      <StackPanel Grid.Column="1" Spacing="5">
+        <TextBlock Text="Target pixels" />
+        <TextBox x:Name="SizeBox" Text="512" />
+      </StackPanel>
+      <StackPanel Grid.Column="2" Spacing="5">
+        <TextBlock Text="Filename suffix" />
+        <TextBox x:Name="SuffixBox" Text="_1x" />
+      </StackPanel>
+    </Grid>
+    <StackPanel Grid.Row="4" Spacing="8">
+      <CheckBox x:Name="TrimBox" Content="Trim transparent PNG edges before resizing" />
+      <CheckBox x:Name="RecursiveBox" Content="Include subfolders (preserve directory structure)" />
+    </StackPanel>
+    <TextBlock Grid.Row="5" Text="Aspect ratio and image formats are preserved. PNG transparency is retained. Originals are never modified." Opacity="0.75" TextWrapping="Wrap" />
+    <TextBox Grid.Row="6" x:Name="LogBox" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto" FontFamily="Consolas" />
+    <Button Grid.Row="7" x:Name="ConvertButton" HorizontalAlignment="Right" MinWidth="130" Content="Process images" Click="Convert_Click" />
+  </Grid>
+</Window>
