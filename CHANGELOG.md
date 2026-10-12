@@ -35,6 +35,7 @@ All notable changes to this project will be documented in this file.
 * [Change] Added aspect-ratio-preserving resizing to the Selection Tool.
 * [Change] Added coercion support for selection transformations.
 * [Change] Reworked Selection Tool callbacks to use the unified `SelectionTransformState` lifecycle.
+* [Change] Removed GameApplicationBase and AssetStore constructors from EmbeddedResourceSource to reduce coupling.
 * [Improve] **Toolkit**: Extended Selection Tool coercion for movement, resizing, rotation, and rotation pivots.
 * [Improve] **Toolkit**: Added started, changed, completed, and cancelled transform states.
 * [Improve] Added missing `Path.Contains` overloads for point containment and hit testing, including support for transformed paths, polygon contours, holes, and nested contours.
@@ -46,6 +47,7 @@ All notable changes to this project will be documented in this file.
 * [Improve] Extended sphere meshes with normals, tangents, bitangents, and texture coordinates.
 * [Improve] Extended `Camera2` with configurable near and far clipping planes.
 * [Improve] Added `Min`, `Max`, and `Clamp` to size types.
+* [Improve] Added missing `KeyedFrameSetAsset` constructors accepting a texture asset reference and resource source.
 * [Improve] Added polygon winding-aware terrain alignment.
 * [Improve] Snapped facilities now follow terrain movement and rotation.
 * [Improve] Added terrain tracking for snapped facilities.
