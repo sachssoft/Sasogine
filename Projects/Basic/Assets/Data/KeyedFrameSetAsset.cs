@@ -59,6 +59,47 @@ public class KeyedFrameSetAsset
     }
 
     /// <summary>
+    /// Initializes a new keyed frame set asset using the specified resource
+    /// source and texture asset reference.
+    /// </summary>
+    /// <param name="id">The optional asset identifier.</param>
+    /// <param name="loaderSource">The resource source used to load the frame set.</param>
+    /// <param name="textureAsset">The reference to the texture asset.</param>
+    public KeyedFrameSetAsset(
+        string? id,
+        ResourceSourceBase? loaderSource,
+        Reference<Texture2DAsset> textureAsset)
+        : base(new KeyedFrameSetAssetDefinition
+        {
+            Id = id,
+            Texture = textureAsset
+        })
+    {
+        ArgumentNullException.ThrowIfNull(textureAsset);
+
+        LoaderSource = loaderSource;
+    }
+
+    /// <summary>
+    /// Initializes a new keyed frame set asset using the specified definition,
+    /// resource source, and texture asset reference.
+    /// </summary>
+    /// <param name="definition">The asset definition.</param>
+    /// <param name="loaderSource">The resource source used to load the frame set.</param>
+    /// <param name="textureAsset">The reference to the texture asset.</param>
+    public KeyedFrameSetAsset(
+        KeyedFrameSetAssetDefinition definition,
+        ResourceSourceBase? loaderSource,
+        Reference<Texture2DAsset> textureAsset)
+        : base(definition)
+    {
+        ArgumentNullException.ThrowIfNull(textureAsset);
+
+        Definition.Texture = textureAsset;
+        LoaderSource = loaderSource;
+    }
+
+    /// <summary>
     /// Builds the runtime keyed frame set.
     /// </summary>
     /// <param name="stream">The resource stream.</param>
