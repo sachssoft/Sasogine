@@ -56,49 +56,6 @@ public sealed class EmbeddedResourceSource : ResourceSourceBase, IFileSource
     }
 
     /// <summary>
-    /// Initializes a new instance of the
-    /// <see cref="EmbeddedResourceSource"/> class with the specified file path
-    /// and game application.
-    /// </summary>
-    /// <param name="filePath">
-    /// The path used to locate the embedded resource.
-    /// </param>
-    /// <param name="application">
-    /// The game application whose assembly contains the embedded resource.
-    /// </param>
-    public EmbeddedResourceSource(
-        string? filePath,
-        GameApplicationBase application)
-    {
-        ArgumentNullException.ThrowIfNull(application);
-
-        FilePath = filePath;
-        Assembly = application.Assembly;
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the
-    /// <see cref="EmbeddedResourceSource"/> class with the specified file path
-    /// and asset store.
-    /// </summary>
-    /// <param name="filePath">
-    /// The path used to locate the embedded resource.
-    /// </param>
-    /// <param name="assetStore">
-    /// The asset store whose application context provides the assembly
-    /// containing the embedded resource.
-    /// </param>
-    public EmbeddedResourceSource(
-        string? filePath,
-        AssetStore assetStore)
-    {
-        ArgumentNullException.ThrowIfNull(assetStore);
-
-        FilePath = filePath;
-        Assembly = assetStore.GameApplication.Assembly;
-    }
-
-    /// <summary>
     /// Gets or sets the assembly containing the embedded resource.
     /// </summary>
     public Assembly Assembly
