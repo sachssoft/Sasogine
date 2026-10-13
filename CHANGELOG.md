@@ -29,6 +29,9 @@ All notable changes to this project will be documented in this file.
 * [Feature] Added `Brush` and `Pen` abstractions for fill and stroke rendering.
 * [Feature] Added terrain snapping for course facilities with configurable snap pivot and rotation behavior.
 * [Feature] Added terrain snap enter and leave handling.
+* [Feature] Added the `Fallback` category for properties that provide fallback values when primary values or skin resources are unavailable.
+* [Feature] Added texture region support to cursor rendering.
+* [Feature] Introduced the `IShaderTextureRegion` interface for shaders supporting texture regions.
 * [Change] Renamed `Path.IsPointInPolygon` to `Path.Contains` for a more consistent containment API.
 * [Change] Reworked `ShapeBatch` for brush- and pen-based rendering.
 * [Change] Renamed `AssetStore.CreateIntegratedAssets()` to `AssetStore.CreateAssets()`.
