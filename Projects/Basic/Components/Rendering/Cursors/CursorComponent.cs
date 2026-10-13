@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Engine.Graphics.Rendering;
 using Sachssoft.Engine.Scenes;
 using System;
 
@@ -52,4 +53,21 @@ public abstract class CursorComponent : ResourceComponentBase, IDrawableComponen
     /// Gets or sets the texture used to render the cursor.
     /// </summary>
     public Texture2D? Texture { get; set; }
+
+    /// <summary>
+    /// Gets or sets the texture region used to render the cursor.
+    /// If null, the entire texture is used.
+    /// </summary>
+    public PixelBounds2? TextureRegion { get; set; }
+
+    /// <summary>
+    /// Gets or sets the positional offset applied to the cursor relative to its current position.
+    /// </summary>
+    public Vector2 Offset { get; set; }
+
+    /// <summary>
+    /// Gets or sets the shader used to render the cursor.
+    /// If null, the default shader is used.
+    /// </summary>
+    public IShader? Shader { get; set; }
 }

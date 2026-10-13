@@ -138,11 +138,17 @@ public class WorldCursor3 : CursorComponent
             return;
         }
 
-        var shader = context.DefaultMaterial.Shader;
+        var shader = Shader ?? context.DefaultMaterial.Shader;
 
         shader.Texture = Texture;
         shader.Color = DiffuseColor;
         shader.Opacity = Opacity;
+
+        if (shader is IShaderTextureRegion shaderTextureRegion)
+        {
+            shaderTextureRegion.TextureRegion = TextureRegion;
+        }
+
         shader.Apply();
 
         MeshRenderer.Draw(

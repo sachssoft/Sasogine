@@ -31,11 +31,6 @@ public class ScreenCursor : CursorComponent
     public float Layer { get; set; }
 
     /// <summary>
-    /// Gets or sets the source region of the cursor texture.
-    /// </summary>
-    public ISourceRegion? TextureRegion { get; set; }
-
-    /// <summary>
     /// Gets the current runtime state of the cursor.
     /// </summary>
     public ScreenCursorState State => _state;
@@ -72,13 +67,9 @@ public class ScreenCursor : CursorComponent
             new Vector2(
                 _state.Position.X + _state.Offset.X,
                 _state.Position.Y + _state.Offset.Y),
-            sourceRectangle: TextureRegion != null ?
-                new Rectangle(
-                    TextureRegion.SourceBounds.X,
-                    TextureRegion.SourceBounds.Y,
-                    TextureRegion.SourceBounds.Width,
-                    TextureRegion.SourceBounds.Height) :
-                null,
+            sourceRectangle: TextureRegion is { } region
+                ? new Rectangle(region.X, region.Y, region.Width, region.Height)
+                : null,
             color: DiffuseColor * Opacity,
             rotation: 0f,
             origin: Vector2.Zero,
