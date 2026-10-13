@@ -173,4 +173,10 @@ public static class Categories
     /// manipulation, and editable state.
     /// </summary>
     public const string Edit = "Edit";
+
+    /// <summary>
+    /// Contains fallback values used when primary properties, skin resources,
+    /// or other configuration values are null or unavailable.
+    /// </summary>
+    public const string Fallback = "Fallback";
 }
