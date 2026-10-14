@@ -10,6 +10,7 @@ namespace Sachssoft.Engine.Components.Rendering;
 public class ObliqueCamera2 : Camera2
 {
     private Vector2 _depthProjection = new(0f, -1f);
+    private float _depthScale = 1f;
 
     /// <summary>
     /// Gets or sets the projection offset applied for each unit
@@ -20,15 +21,26 @@ public class ObliqueCamera2 : Camera2
         get => _depthProjection;
         set
         {
-            if (!float.IsFinite(value.X) ||
-                !float.IsFinite(value.Y))
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(value),
-                    "Depth projection components must be finite.");
-            }
+            if (!float.IsFinite(value.X) || !float.IsFinite(value.Y))
+                throw new ArgumentOutOfRangeException(nameof(value), "Depth projection components must be finite.");
 
             _depthProjection = value;
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the scale applied to local Z depth after
+    /// oblique projection.
+    /// </summary>
+    public float DepthScale
+    {
+        get => _depthScale;
+        set
+        {
+            if (!float.IsFinite(value))
+                throw new ArgumentOutOfRangeException(nameof(value), "Depth scale must be finite.");
+
+            _depthScale = value;
         }
     }
 
@@ -38,26 +50,13 @@ public class ObliqueCamera2 : Camera2
     /// </summary>
     public Matrix CreateDepthTransform(Matrix transform)
     {
-        if (!transform.Decompose(
-            out Vector3 scale,
-            out Quaternion rotation,
-            out Vector3 translation))
-        {
-            throw new InvalidOperationException(
-                "The transformation could not be decomposed.");
-        }
+        if (!transform.Decompose(out Vector3 scale, out Quaternion rotation, out Vector3 translation))
+            throw new InvalidOperationException("The transformation could not be decomposed.");
 
-        return
-            Matrix.CreateScale(
-                scale.X,
-                scale.Y,
-                1f)
-            *
-            Matrix.CreateFromQuaternion(rotation)
-            *
-            CreateDepthProjectionMatrix()
-            *
-            Matrix.CreateTranslation(translation);
+        return Matrix.CreateScale(scale.X, scale.Y, 1f) *
+               Matrix.CreateFromQuaternion(rotation) *
+               CreateDepthProjectionMatrix() *
+               Matrix.CreateTranslation(translation);
     }
 
     /// <summary>
@@ -69,7 +68,7 @@ public class ObliqueCamera2 : Camera2
 
         matrix.M31 = -DepthProjection.X;
         matrix.M32 = -DepthProjection.Y;
-        matrix.M33 = 0f;
+        matrix.M33 = DepthScale;
 
         return matrix;
     }
@@ -77,6 +76,10 @@ public class ObliqueCamera2 : Camera2
     /// <inheritdoc/>
     protected override Camera2 CreateClone()
     {
-        return new ObliqueCamera2();
+        return new ObliqueCamera2
+        {
+            DepthProjection = DepthProjection,
+            DepthScale = DepthScale
+        };
     }
 }
