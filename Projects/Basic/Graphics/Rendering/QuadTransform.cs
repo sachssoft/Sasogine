@@ -90,6 +90,81 @@ public readonly struct QuadTransform
     }
 
     /// <summary>
+    /// Creates a translation transformation.
+    /// </summary>
+    /// <param name="position">The translation position.</param>
+    /// <returns>A translation transformation.</returns>
+    public static QuadTransform CreateTranslation(Point2 position)
+    {
+        return new QuadTransform
+        {
+            Position = position
+        };
+    }
+
+    /// <summary>
+    /// Creates a uniform scaling transformation.
+    /// </summary>
+    /// <param name="scale">The uniform scale factor.</param>
+    /// <returns>A scaling transformation.</returns>
+    public static QuadTransform CreateScale(float scale)
+    {
+        return CreateScale(new Vector2(scale));
+    }
+
+    /// <summary>
+    /// Creates a non-uniform scaling transformation.
+    /// </summary>
+    /// <param name="scale">The scale factors for both axes.</param>
+    /// <returns>A scaling transformation.</returns>
+    public static QuadTransform CreateScale(Vector2 scale)
+    {
+        return new QuadTransform
+        {
+            Scale = scale
+        };
+    }
+
+    /// <summary>
+    /// Creates a rotation transformation.
+    /// </summary>
+    /// <param name="rotation">The rotation angle in radians.</param>
+    /// <returns>A rotation transformation.</returns>
+    public static QuadTransform CreateRotation(float rotation)
+    {
+        return new QuadTransform
+        {
+            Rotation = rotation
+        };
+    }
+
+    /// <summary>
+    /// Creates a skew transformation.
+    /// </summary>
+    /// <param name="skew">The skew factors for both axes.</param>
+    /// <returns>A skew transformation.</returns>
+    public static QuadTransform CreateSkew(Vector2 skew)
+    {
+        return new QuadTransform
+        {
+            Skew = skew
+        };
+    }
+
+    /// <summary>
+    /// Creates a transformation with a specified origin.
+    /// </summary>
+    /// <param name="origin">The local transformation origin.</param>
+    /// <returns>A transformation with the specified origin.</returns>
+    public static QuadTransform CreateOrigin(Vector2 origin)
+    {
+        return new QuadTransform
+        {
+            Origin = origin
+        };
+    }
+
+    /// <summary>
     /// Gets an identity transformation.
     /// </summary>
     public static readonly QuadTransform Identity = new();
