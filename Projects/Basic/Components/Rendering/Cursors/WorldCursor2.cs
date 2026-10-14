@@ -6,6 +6,7 @@ using Sachssoft.Engine.Graphics.Meshes;
 using Sachssoft.Engine.Graphics.Rendering;
 using Sachssoft.Engine.Input;
 using Sachssoft.Engine.Scenes;
+using System;
 
 namespace Sachssoft.Engine.Components.Rendering;
 
@@ -112,13 +113,27 @@ public class WorldCursor2 : CursorComponent
 
         shader.Apply();
 
-        var textureScale = Texture != null
-            ? new Vector3(Texture.Bounds.Width, Texture.Bounds.Height, 1f)
-            : Vector3.One;
+        var size = TextureRegion is { } region
+            ? new Vector2(region.Width, region.Height)
+            : Texture != null
+                ? new Vector2(Texture.Width, Texture.Height)
+                : Vector2.One;
+
+        var ratio = size / MathF.Max(size.X, size.Y);
+        var textureScale = new Vector3(ratio, 1f);
+
+        var zoom = context.ViewCamera is ICamera2 camera2
+            ? camera2.Zoom
+            : 1f;
+
+        var inverseZoom = MathF.Abs(zoom) > 0.0001f
+            ? 1f / zoom
+            : 1f;
 
         var transform =
             Matrix.CreateScale(textureScale) *
             Transform.ToMatrix() *
+            Matrix.CreateScale(inverseZoom) *
             Matrix.CreateTranslation(
                 _state.Position.X + _state.Offset.X,
                 _state.Position.Y + _state.Offset.Y,
