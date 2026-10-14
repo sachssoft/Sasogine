@@ -42,6 +42,7 @@ All notable changes to this project will be documented in this file.
 * [Change] Removed GameApplicationBase and AssetStore constructors from EmbeddedResourceSource to reduce coupling.
 * [Improve] **Toolkit**: Extended Selection Tool coercion for movement, resizing, rotation, and rotation pivots.
 * [Improve] **Toolkit**: Added started, changed, completed, and cancelled transform states.
+* [Improve] Added DepthScale to ObliqueCamera2 to control preservation of local Z depth for depth testing.
 * [Improve] Added missing `Path.Contains` overloads for point containment and hit testing, including support for transformed paths, polygon contours, holes, and nested contours.
 * [Improve] Added a preparation hook to `AssetStore`.
 * [Improve] Migrated definitions to the new strongly typed definition attributes.
@@ -57,6 +58,7 @@ All notable changes to this project will be documented in this file.
 * [Improve] Added terrain tracking for snapped facilities.
 * [Bug] **Toolkit**: Fixed Selection Tool handles being displayed for disabled transformations.
 * [Bug] Fixed incorrect alpha blending in `RenderScope` that caused bright outlines around certain textures.
+* [Bug] Fixed incorrect depth rendering and object occlusion by enabling Depth24 depth buffering.
 
 ## [0.11.0-alpha] - 2026-09-30 (Major Development Milestone — Large API and Architecture Overhaul)
 * [Feature] Introduced asset support for integer-indexed `IndexedFrameSet`, strongly typed `IndexedFrameSet<TEnum>`, and keyed `KeyedFrameSet` frame sets.
