@@ -5,7 +5,7 @@
         Width="820" Height="560"
         MinWidth="680" MinHeight="480"
         Icon="/Assets/icon.png">
-	<Grid Margin="20" RowDefinitions="Auto,Auto,Auto,Auto,*,Auto" ColumnDefinitions="*">
+	<Grid Margin="20" RowDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto" ColumnDefinitions="*">
 		<TextBlock Grid.Row="0" Text="MonoGame Shader Generator" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,18" />
 
 		<Grid Grid.Row="1" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" Margin="0,0,0,12">
@@ -30,12 +30,22 @@
 				</ComboBox>
 			</StackPanel>
 			<StackPanel Grid.Column="1" Margin="8,0,0,0">
-				<TextBlock Text="mgfxc" Margin="0,0,0,5" />
-				<TextBox x:Name="CompilerPathBox" Text="mgfxc" Watermark="mgfxc executable/path" />
+				<TextBlock Text="Shader Compiler" Margin="0,0,0,5" />
+				<TextBox x:Name="CompilerPathBox"
+						 Text="mgfxc"
+						 Watermark="Executable name or path to mgfxc.exe"
+						 ToolTip.Tip="MonoGame Effect Compiler (MGFXC). Usually, no changes are required." />
 			</StackPanel>
+
+
 		</Grid>
 
-		<Grid Grid.Row="4" RowDefinitions="Auto,*">
+		<CheckBox x:Name="TargetSubfolderBox" Grid.Row="4"
+                  Content="Save compiled shaders in target subfolders (gl, dx, dx12, vk)"
+                  IsChecked="False" Checked="TargetSubfolderBox_Changed" Unchecked="TargetSubfolderBox_Changed"
+                  Margin="0,0,0,12" />
+
+		<Grid Grid.Row="5" RowDefinitions="Auto,*">
 			<TextBlock Grid.Row="0" Text="Compiler output" Margin="0,0,0,5" />
 			<TextBox x:Name="LogBox"
 					 Grid.Row="1"
@@ -46,7 +56,7 @@
 					 FontFamily="Consolas" />
 		</Grid>
 
-		<StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+		<StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
 			<Button x:Name="CompileButton" Content="Compile" MinWidth="110" Click="Compile_Click" />
 		</StackPanel>
 	</Grid>
