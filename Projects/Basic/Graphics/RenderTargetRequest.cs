@@ -27,11 +27,15 @@ public static class RenderTargetRequest
     private static RenderTarget2D? _renderTarget;
 
     private static PixelSize2 _renderSize;
-    private static float _resolutionScale;
+    private static float _resolutionScale = 1f;
+
     private static int _lastW;
     private static int _lastH;
     private static int _lastQuality;
     private static int _lastAntiAliasing;
+
+    private static SurfaceFormat _lastFormat;
+    private static DepthFormat _lastDepthFormat;
 
     private static bool _isActive;
 
@@ -71,14 +75,14 @@ public static class RenderTargetRequest
     /// </param>
     /// <remarks>
     /// This method does not activate the render target or otherwise change the
-    /// current render target of the graphics device.
+    /// current graphics device render state.
     /// </remarks>
     public static void Ensure(
         int width,
         int height,
         int quality = 100,
         SurfaceFormat preferredFormat = SurfaceFormat.Color,
-        DepthFormat preferredDepthFormat = DepthFormat.None,
+        DepthFormat preferredDepthFormat = DepthFormat.Depth24,
         int antiAliasing = 0)
     {
         if (_graphicsDevice == null)
@@ -90,25 +94,17 @@ public static class RenderTargetRequest
 
         if (width <= 0 || height <= 0)
         {
-            _renderSize = PixelSize2.Zero;
-            _resolutionScale = 1f;
+            DisposeRenderTarget();
             return;
         }
 
-        if (_renderTarget != null &&
-            width == _lastW &&
-            height == _lastH &&
-            quality == _lastQuality &&
-            antiAliasing == _lastAntiAliasing)
-        {
-            _renderSize = PixelSize2.Zero;
-            _resolutionScale = 1f;
-            return;
-        }
+        quality = int.Clamp(quality, 1, 100);
 
-        // Quality 1-100% corresponds to 25-100% of the resolution.
-        float q = int.Clamp(quality, 1, 100) / 100f;
-        float scale = 0.25f + (q * q) * 0.75f;
+        float q = quality / 100f;
+        float scale = 0.25f + q * q * 0.75f;
+
+        int renderWidth = int.Clamp((int)(width * scale), 1, width);
+        int renderHeight = int.Clamp((int)(height * scale), 1, height);
 
         int msaa = antiAliasing switch
         {
@@ -119,26 +115,41 @@ public static class RenderTargetRequest
             _ => 8
         };
 
+        if (_renderTarget != null &&
+            !_renderTarget.IsDisposed &&
+            width == _lastW &&
+            height == _lastH &&
+            quality == _lastQuality &&
+            preferredFormat == _lastFormat &&
+            preferredDepthFormat == _lastDepthFormat &&
+            antiAliasing == _lastAntiAliasing)
+        {
+            _renderSize = new PixelSize2(_renderTarget.Width, _renderTarget.Height);
+            _resolutionScale = scale;
+            return;
+        }
+
         _renderTarget?.Dispose();
 
         _renderTarget = new RenderTarget2D(
             _graphicsDevice,
-            width: int.Clamp((int)(width * scale), 1, width),
-            height: int.Clamp((int)(height * scale), 1, height),
+            width: renderWidth,
+            height: renderHeight,
             mipMap: false,
             preferredFormat: preferredFormat,
             preferredDepthFormat: preferredDepthFormat,
             preferredMultiSampleCount: msaa,
             usage: RenderTargetUsage.PlatformContents);
 
-        _renderSize = new PixelSize2(_renderTarget.Bounds.Size);
+        _renderSize = new PixelSize2(_renderTarget.Width, _renderTarget.Height);
+        _resolutionScale = scale;
 
         _lastW = width;
         _lastH = height;
         _lastQuality = quality;
+        _lastFormat = preferredFormat;
+        _lastDepthFormat = preferredDepthFormat;
         _lastAntiAliasing = antiAliasing;
-
-        _resolutionScale = scale;
     }
 
     /// <summary>
@@ -153,28 +164,30 @@ public static class RenderTargetRequest
     /// <exception cref="InvalidOperationException">
     /// A render target pass is already active.
     /// </exception>
-    /// <remarks>
-    /// If a render target has already been created, it is activated and cleared
-    /// with a transparent color. If no render target exists yet, the graphics
-    /// device is registered without changing its current render target.
-    /// </remarks>
     public static void Begin(GraphicsDevice graphicsDevice)
     {
         if (_isActive)
-        {
-            throw new InvalidOperationException(
-                "Begin cannot be called twice without End.");
-        }
+            throw new InvalidOperationException("Begin cannot be called twice without End.");
 
-        if (graphicsDevice == null)
-            throw new ArgumentNullException(nameof(graphicsDevice));
+        _graphicsDevice = graphicsDevice ?? throw new ArgumentNullException(nameof(graphicsDevice));
 
-        _graphicsDevice = graphicsDevice;
-
-        if (_renderTarget != null)
+        if (_renderTarget != null && !_renderTarget.IsDisposed)
         {
             _graphicsDevice.SetRenderTarget(_renderTarget);
-            _graphicsDevice.Clear(Color.Transparent);
+
+            var clearOptions = ClearOptions.Target;
+
+            if (_renderTarget.DepthStencilFormat != DepthFormat.None)
+                clearOptions |= ClearOptions.DepthBuffer;
+
+            if (_renderTarget.DepthStencilFormat == DepthFormat.Depth24Stencil8)
+                clearOptions |= ClearOptions.Stencil;
+
+            _graphicsDevice.Clear(
+                clearOptions,
+                Color.Transparent,
+                depth: 1f,
+                stencil: 0);
         }
 
         _isActive = true;
@@ -193,26 +206,37 @@ public static class RenderTargetRequest
             throw new InvalidOperationException("End called without Begin.");
 
         if (_graphicsDevice == null)
-        {
-            throw new InvalidOperationException(
-                "GraphicsDevice is missing.");
-        }
+            throw new InvalidOperationException("GraphicsDevice is missing.");
 
         _graphicsDevice.SetRenderTarget(null);
-
         _isActive = false;
     }
 
     /// <summary>
-    /// Releases the current render target and resets its render size and
-    /// resolution scale.
+    /// Releases the current render target and resets its state.
     /// </summary>
     public static void Flush()
+    {
+        if (_isActive)
+            throw new InvalidOperationException("Flush cannot be called while a render target pass is active.");
+
+        DisposeRenderTarget();
+    }
+
+    private static void DisposeRenderTarget()
     {
         _renderTarget?.Dispose();
         _renderTarget = null;
 
         _renderSize = PixelSize2.Zero;
         _resolutionScale = 1f;
+
+        _lastW = 0;
+        _lastH = 0;
+        _lastQuality = 0;
+        _lastAntiAliasing = 0;
+
+        _lastFormat = default;
+        _lastDepthFormat = default;
     }
 }

@@ -51,13 +51,11 @@ namespace Sachssoft.Engine.Graphics.Rendering
             _graphicsDevice = graphicsDevice ?? throw new ArgumentNullException(nameof(graphicsDevice));
             options ??= RenderOptions.Default;
 
-            // Save previous states
             _prevRasterizer = _graphicsDevice.RasterizerState;
             _prevDepthStencil = _graphicsDevice.DepthStencilState;
             _prevSampler = _graphicsDevice.SamplerStates[0];
             _prevBlend = _graphicsDevice.BlendState;
 
-            // Rasterizer
             if (options.ScissorRectangle.HasValue)
             {
                 _customRasterizer = new RasterizerState
@@ -76,15 +74,12 @@ namespace Sachssoft.Engine.Graphics.Rendering
 
             _graphicsDevice.RasterizerState = _customRasterizer;
 
-            // Depth stencil
             _customDepthStencil = GetDepthStencil(options.Depth);
             _graphicsDevice.DepthStencilState = _customDepthStencil;
 
-            // Texture sampling
             _customSampler = options.SamplerState;
             _graphicsDevice.SamplerStates[0] = _customSampler;
 
-            // Alpha blending
             _customBlend = !options.AlphaBlend
                 ? BlendState.Opaque
                 : options.PremultipliedAlpha
@@ -96,8 +91,7 @@ namespace Sachssoft.Engine.Graphics.Rendering
 
         private static RasterizerState GetRasterizer(RenderOptions options)
         {
-            if (!_rasterizerCache.TryGetValue(options, out var state)
-                || state.IsDisposed)
+            if (!_rasterizerCache.TryGetValue(options, out var state) || state.IsDisposed)
             {
                 state = new RasterizerState
                 {
@@ -113,28 +107,30 @@ namespace Sachssoft.Engine.Graphics.Rendering
 
         private static DepthStencilState GetDepthStencil(DepthMode mode)
         {
-            if (!_depthCache.TryGetValue(mode, out var state)
-                || state.IsDisposed)
+            if (!_depthCache.TryGetValue(mode, out var state) || state.IsDisposed)
             {
                 state = mode switch
                 {
                     DepthMode.Disabled => DepthStencilState.None,
+
                     DepthMode.Opaque => DepthStencilState.Default,
+
                     DepthMode.Transparent => new DepthStencilState
                     {
-                        DepthBufferEnable = false,
-                        DepthBufferWriteEnable = false
+                        DepthBufferEnable = true,
+                        DepthBufferWriteEnable = false,
+                        DepthBufferFunction = CompareFunction.LessEqual
                     },
-                    DepthMode.Overlay => new DepthStencilState
-                    {
-                        DepthBufferEnable = false,
-                        DepthBufferWriteEnable = false
-                    },
+
+                    DepthMode.Overlay => DepthStencilState.None,
+
                     DepthMode.DepthOnly => new DepthStencilState
                     {
                         DepthBufferEnable = true,
-                        DepthBufferWriteEnable = true
+                        DepthBufferWriteEnable = true,
+                        DepthBufferFunction = CompareFunction.LessEqual
                     },
+
                     _ => DepthStencilState.None
                 };
 
