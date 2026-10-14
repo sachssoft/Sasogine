@@ -1,32 +1,60 @@
-﻿$ErrorActionPreference = "Stop"
+[CmdletBinding()]
+param()
 
-$Project = Join-Path $PSScriptRoot "SasogineShaderGenerator.csproj"
-$Output = Join-Path $PSScriptRoot "publish\win-x64"
+$ErrorActionPreference = 'Stop'
 
-Write-Host "Sachssoft Shader Generator"
-Write-Host "Publishing Native AOT for Windows x64..."
-Write-Host ""
+$ProjectFile = Join-Path $PSScriptRoot 'Sachssoft.ShaderGenerator.csproj'
+$OutputDir = Join-Path $PSScriptRoot 'publish\win-x64'
 
-if (Test-Path $Output)
-{
-    Write-Host "Cleaning previous publish..."
-    Remove-Item $Output -Recurse -Force
+Write-Host ''
+Write-Host 'Publishing Windows x64 Native AOT...'
+Write-Host "Project: $ProjectFile"
+Write-Host "Output : $OutputDir"
+Write-Host ''
+
+if (-not (Test-Path -LiteralPath $ProjectFile)) {
+    Write-Error "Project file not found: $ProjectFile"
+    exit 1
 }
 
-dotnet publish $Project `
-    -c Release `
-    -r win-x64 `
-    -o $Output
-
-if ($LASTEXITCODE -ne 0)
-{
-    Write-Host ""
-    Write-Host "Publish failed."
-    exit $LASTEXITCODE
+try {
+    Get-Command dotnet -ErrorAction Stop | Out-Null
+}
+catch {
+    Write-Error 'dotnet was not found in PATH. Install the .NET SDK or fix PATH.'
+    exit 1
 }
 
-Write-Host ""
-Write-Host "Publish successful:"
-Write-Host $Output
+if (Test-Path -LiteralPath $OutputDir) {
+    Write-Host 'Cleaning previous publish output...'
+    Remove-Item -LiteralPath $OutputDir -Recurse -Force
+}
 
-Invoke-Item $Output
+$PublishArgs = @(
+    'publish'
+    $ProjectFile
+    '-c'
+    'Release'
+    '-r'
+    'win-x64'
+    '--self-contained'
+    'true'
+    '-p:PublishAot=true'
+    '-o'
+    $OutputDir
+)
+
+& dotnet @PublishArgs
+$ExitCode = $LASTEXITCODE
+
+if ($ExitCode -ne 0) {
+    Write-Host ''
+    Write-Error "Publish failed with exit code $ExitCode."
+    exit $ExitCode
+}
+
+Write-Host ''
+Write-Host 'Publish completed successfully.'
+Write-Host "Output: $OutputDir"
+
+exit 0

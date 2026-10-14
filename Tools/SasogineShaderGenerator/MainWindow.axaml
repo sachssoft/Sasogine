@@ -4,7 +4,7 @@
         Title="Sasogine Shader Generator"
         Width="820" Height="560"
         MinWidth="680" MinHeight="480"
-        Icon="avares://Sachssoft.ShaderGenerator/Assets/icon.ico">
+        Icon="/Assets/icon.png">
 	<Grid Margin="20" RowDefinitions="Auto,Auto,Auto,Auto,*,Auto" ColumnDefinitions="*">
 		<TextBlock Grid.Row="0" Text="MonoGame Shader Generator" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,18" />
 

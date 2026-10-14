@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="SachssoftImageResizer/Sachssoft.ImageResizer.csproj" />
+  <Project Path="SasogineShaderGenerator/Sachssoft.ShaderGenerator.csproj" />
+  <Project Path="SasogineTextureConverter/SasogineTextureConverter.csproj" />
+</Solution>
