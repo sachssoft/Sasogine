@@ -33,6 +33,7 @@ All notable changes to this project will be documented in this file.
 * [Feature] Added texture region support to cursor rendering.
 * [Feature] Added static factory methods to `QuadTransform`.
 * [Feature] Introduced the `IShaderTextureRegion` interface for shaders supporting texture regions.
+* [Feature] `FrameCounterGraph` for real-time frame rate monitoring, performance diagnostics, and FPS history visualization.
 * [Change] Renamed `Path.IsPointInPolygon` to `Path.Contains` for a more consistent containment API.
 * [Change] Reworked `ShapeBatch` for brush- and pen-based rendering.
 * [Change] Renamed `AssetStore.CreateIntegratedAssets()` to `AssetStore.CreateAssets()`.
@@ -47,6 +48,7 @@ All notable changes to this project will be documented in this file.
 * [Improve] Added a preparation hook to `AssetStore`.
 * [Improve] Migrated definitions to the new strongly typed definition attributes.
 * [Improve] Added missing units and unit groups.
+* [Improve] Added `ToSize()` methods to `Box2`, `Box3`, `PixelBox2`, and `PixelBox3` for converting bounding boxes to their corresponding size structures.
 * [Improve] Extended value units for temperature, area, volume, data size, and angular speed.
 * [Improve] Added vector conversions to all inset types.
 * [Improve] Extended sphere meshes with normals, tangents, bitangents, and texture coordinates.
@@ -55,6 +57,7 @@ All notable changes to this project will be documented in this file.
 * [Improve] Added missing `KeyedFrameSetAsset` constructors accepting a texture asset reference and resource source.
 * [Improve] Added polygon winding-aware terrain alignment.
 * [Improve] Snapped facilities now follow terrain movement and rotation.
+* [Improve] Extended `SwitchState` with a new `Cycling` state for time-controlled operation.
 * [Improve] Added terrain tracking for snapped facilities.
 * [Bug] **Toolkit**: Fixed Selection Tool handles being displayed for disabled transformations.
 * [Bug] Fixed incorrect alpha blending in `RenderScope` that caused bright outlines around certain textures.
