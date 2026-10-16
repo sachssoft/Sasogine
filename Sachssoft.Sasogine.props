@@ -33,6 +33,17 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<!-- NuGet Icon -->
+		<PackageIcon>sasogine-icon.png</PackageIcon>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="$(MSBuildThisFileDirectory)Assets\logo\sasogine-icon.png"
+			  Pack="true"
+			  PackagePath="\" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="$(MSBuildThisFileDirectory)Build\Sachssoft.Sasogine.Analyzers\Sachssoft.Sasogine.Analyzers.csproj"
 						  OutputItemType="Analyzer"
