@@ -1,18 +1,24 @@
 ﻿namespace Sachssoft.Engine
 {
     /// <summary>
-    /// Represents a binary switch state.
+    /// Defines the available operating states of an object.
     /// </summary>
     public enum SwitchState
     {
         /// <summary>
-        /// The switch is disabled or inactive.
+        /// The object is disabled or inactive.
         /// </summary>
         Off = 0,
 
         /// <summary>
-        /// The switch is enabled or active.
+        /// The object is continuously enabled or active.
         /// </summary>
-        On = 1
+        On = 1,
+
+        /// <summary>
+        /// The object operates according to a timed cycle,
+        /// including active, inactive, and transition phases.
+        /// </summary>
+        Cycling = 2
     }
 }
