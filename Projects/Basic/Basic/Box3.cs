@@ -133,6 +133,18 @@ public readonly struct Box3 : IEquatable<Box3>
     public Point3 Max => new Point3(_maxX, _maxY, _maxZ);
 
     /// <summary>
+    /// Converts this <see cref="Box3"/> to a <see cref="Size3"/>
+    /// representing the three-dimensional dimensions of the box.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="Size3"/> containing the width, height, and depth
+    /// calculated from the minimum and maximum coordinates.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Size3 ToSize()
+        => new Size3(_maxX - _minX, _maxY - _minY, _maxZ - _minZ);
+
+    /// <summary>
     /// Converts this <see cref="Box3"/> to a <see cref="Bounds3"/>.
     /// </summary>
     /// <returns>

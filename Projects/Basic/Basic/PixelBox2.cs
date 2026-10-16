@@ -94,6 +94,18 @@ public readonly struct PixelBox2 : IEquatable<PixelBox2>
     public PixelPoint2 Max => new(_maxX, _maxY);
 
     /// <summary>
+    /// Converts this <see cref="PixelBox2"/> to a <see cref="PixelSize2"/>
+    /// representing the dimensions of the box in pixels.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="PixelSize2"/> containing the width and height
+    /// calculated from the minimum and maximum coordinates.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public PixelSize2 ToSize()
+        => new PixelSize2(_maxX - _minX, _maxY - _minY);
+
+    /// <summary>
     /// Converts this pixel box to pixel bounds.
     /// </summary>
     /// <returns>

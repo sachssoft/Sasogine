@@ -128,6 +128,18 @@ public readonly struct PixelBox3 : IEquatable<PixelBox3>
     public PixelPoint3 Max => new(_maxX, _maxY, _maxZ);
 
     /// <summary>
+    /// Converts this <see cref="PixelBox3"/> to a <see cref="PixelSize3"/>
+    /// representing the three-dimensional dimensions of the box in pixels.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="PixelSize3"/> containing the width, height, and depth
+    /// calculated from the minimum and maximum coordinates.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public PixelSize3 ToSize()
+        => new PixelSize3(_maxX - _minX, _maxY - _minY, _maxZ - _minZ);
+
+    /// <summary>
     /// Converts this pixel box to pixel bounds.
     /// </summary>
     /// <returns>

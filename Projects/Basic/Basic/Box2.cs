@@ -103,6 +103,16 @@ public readonly struct Box2 : IEquatable<Box2>
     public Point2 Max => new Point2(_maxX, _maxY);
 
     /// <summary>
+    /// Converts this <see cref="Box2"/> to a <see cref="Size2"/>.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="Size2"/> containing the width and height of the box.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Size2 ToSize()
+        => new Size2(_maxX - _minX, _maxY - _minY);
+
+    /// <summary>
     /// Converts this <see cref="Box2"/> to a <see cref="Bounds2"/>.
     /// </summary>
     /// <returns>
