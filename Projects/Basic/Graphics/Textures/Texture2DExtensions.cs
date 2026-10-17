@@ -84,52 +84,56 @@ public static class Texture2DExtensions
         return copy;
     }
 
+
     /// <summary>
-    /// Creates a texture containing the specified rectangular region
+    /// Creates a texture containing the specified pixel bounds
     /// of the source texture.
     /// </summary>
     /// <param name="texture">The source texture to crop.</param>
-    /// <param name="sourceRect">The rectangular region to extract.</param>
+    /// <param name="sourceBounds">The pixel bounds to extract.</param>
     /// <param name="graphicsDevice">
     /// The graphics device used to create the resulting texture.
     /// </param>
     /// <returns>
-    /// A new texture containing the portion of the source texture that
-    /// intersects <paramref name="sourceRect"/>.
+    /// A new texture containing the portion of the source texture
+    /// that intersects <paramref name="sourceBounds"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="texture"/> or <paramref name="graphicsDevice"/>
-    /// is <see langword="null"/>.
+    /// Thrown when <paramref name="texture"/> or
+    /// <paramref name="graphicsDevice"/> is null.
     /// </exception>
     /// <exception cref="ArgumentException">
-    /// Thrown when <paramref name="sourceRect"/> has a non-positive size
-    /// or does not intersect the source texture.
+    /// Thrown when the bounds have a non-positive size or do not
+    /// intersect the source texture.
     /// </exception>
     public static Texture2D Crop(
         this Texture2D texture,
-        Rectangle sourceRect,
+        PixelBounds2 sourceBounds,
         GraphicsDevice graphicsDevice)
     {
         ArgumentNullException.ThrowIfNull(texture);
         ArgumentNullException.ThrowIfNull(graphicsDevice);
 
-        if (sourceRect.Width <= 0 || sourceRect.Height <= 0)
-            throw new ArgumentException("Crop rectangle must have positive size.");
+        if (sourceBounds.Width <= 0 || sourceBounds.Height <= 0)
+            throw new ArgumentException("Crop bounds must have positive dimensions.", nameof(sourceBounds));
 
-        var bounds = new Rectangle(0, 0, texture.Width, texture.Height);
+        int left = Math.Max(0, sourceBounds.Left);
+        int top = Math.Max(0, sourceBounds.Top);
+        int right = Math.Min(texture.Width, sourceBounds.Right);
+        int bottom = Math.Min(texture.Height, sourceBounds.Bottom);
 
-        if (!bounds.Intersects(sourceRect))
-            throw new ArgumentException("Crop rectangle is outside texture bounds.");
+        if (right <= left || bottom <= top)
+            throw new ArgumentException("Crop bounds are outside texture bounds.", nameof(sourceBounds));
 
-        sourceRect = Rectangle.Intersect(bounds, sourceRect);
+        var clippedBounds = new PixelBounds2(left, top, right - left, bottom - top);
 
-        var data = new Color[sourceRect.Width * sourceRect.Height];
-        texture.GetData(0, sourceRect, data, 0, data.Length);
+        var data = new Color[clippedBounds.Width * clippedBounds.Height];
+        texture.GetData(0, clippedBounds, data, 0, data.Length);
 
         var result = new Texture2D(
             graphicsDevice,
-            sourceRect.Width,
-            sourceRect.Height,
+            clippedBounds.Width,
+            clippedBounds.Height,
             false,
             texture.Format);
 
@@ -139,56 +143,54 @@ public static class Texture2DExtensions
     }
 
     /// <summary>
-    /// Creates a texture containing the specified rectangular region
-    /// of the source texture.
+    /// Creates a texture containing the specified pixel bounds
+    /// of the source texture using its graphics device.
     /// </summary>
     /// <param name="texture">The source texture to crop.</param>
-    /// <param name="sourceRect">The rectangular region to extract.</param>
+    /// <param name="sourceBounds">The pixel bounds to extract.</param>
     /// <returns>
-    /// A new texture containing the portion of the source texture that
-    /// intersects <paramref name="sourceRect"/>.
+    /// A new texture containing the portion of the source texture
+    /// that intersects <paramref name="sourceBounds"/>.
     /// </returns>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="texture"/> is <see langword="null"/>.
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    /// Thrown when <paramref name="sourceRect"/> has a non-positive size
-    /// or does not intersect the source texture.
-    /// </exception>
-    public static Texture2D Crop(this Texture2D texture, Rectangle sourceRect)
-        => Crop(texture, sourceRect, texture.GraphicsDevice);
+    public static Texture2D Crop(this Texture2D texture, PixelBounds2 sourceBounds)
+        => Crop(texture, sourceBounds, texture.GraphicsDevice);
 
     /// <summary>
     /// Extracts a single cell from a grid-based texture or sprite sheet.
     /// </summary>
     /// <param name="texture">The source texture containing the cells.</param>
-    /// <param name="cell">The zero-based column and row identifying the cell to extract.</param>
-    /// <param name="cellSize">The size of each cell in pixels.</param>
+    /// <param name="cell">The zero-based grid coordinate of the cell to extract.</param>
+    /// <param name="cellSize">The dimensions of each cell in pixels.</param>
     /// <param name="graphicsDevice">The graphics device used to create the resulting texture.</param>
-    /// <returns>A new texture containing the selected cell.</returns>
+    /// <returns>
+    /// A new texture containing the selected cell.
+    /// </returns>
     public static Texture2D TileCrop(
         this Texture2D texture,
-        Point cell,
+        Coordinate2 cell,
         PixelSize2 cellSize,
         GraphicsDevice graphicsDevice)
     {
-        var rect = new Rectangle(
-            cell.X * cellSize.Width,
-            cell.Y * cellSize.Height,
+        var bounds = new PixelBounds2(
+            checked(cell.X * cellSize.Width),
+            checked(cell.Y * cellSize.Height),
             cellSize.Width,
             cellSize.Height);
 
-        return Crop(texture, rect, graphicsDevice);
+        return Crop(texture, bounds, graphicsDevice);
     }
 
     /// <summary>
-    /// Extracts a single cell from a grid-based texture or sprite sheet.
+    /// Extracts a single cell from a grid-based texture or sprite sheet
+    /// using the source texture's graphics device.
     /// </summary>
     /// <param name="texture">The source texture containing the cells.</param>
-    /// <param name="cell">The zero-based column and row identifying the cell to extract.</param>
-    /// <param name="cellSize">The size of each cell in pixels.</param>
-    /// <returns>A new texture containing the selected cell.</returns>
-    public static Texture2D TileCrop(this Texture2D texture, Point cell, PixelSize2 cellSize)
+    /// <param name="cell">The zero-based grid coordinate of the cell to extract.</param>
+    /// <param name="cellSize">The dimensions of each cell in pixels.</param>
+    /// <returns>
+    /// A new texture containing the selected cell.
+    /// </returns>
+    public static Texture2D TileCrop(this Texture2D texture, Coordinate2 cell, PixelSize2 cellSize)
         => TileCrop(texture, cell, cellSize, texture.GraphicsDevice);
 
     /// <summary>
