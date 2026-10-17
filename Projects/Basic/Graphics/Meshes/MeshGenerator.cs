@@ -11,7 +11,7 @@ namespace Sachssoft.Engine.Graphics.Meshes;
 /// <summary>
 /// Provides methods for creating standard GPU meshes.
 /// </summary>
-public static partial class MeshGenerator
+public static class MeshGenerator
 {
     /// <summary>
     /// Creates a two-dimensional quad on the XY plane using
