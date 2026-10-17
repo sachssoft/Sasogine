@@ -39,6 +39,7 @@ All notable changes to this project will be documented in this file.
 * [Change] Renamed `AssetStore.CreateIntegratedAssets()` to `AssetStore.CreateAssets()`.
 * [Change] Added aspect-ratio-preserving resizing to the Selection Tool.
 * [Change] Added coercion support for selection transformations.
+* [Change] Replaced MonoGame `Rectangle` and `Point` with Sasogine's `PixelBounds2` and `Coordinate2` in texture cropping APIs.
 * [Change] Reworked Selection Tool callbacks to use the unified `SelectionTransformState` lifecycle.
 * [Change] Removed GameApplicationBase and AssetStore constructors from EmbeddedResourceSource to reduce coupling.
 * [Improve] **Toolkit**: Extended Selection Tool coercion for movement, resizing, rotation, and rotation pivots.

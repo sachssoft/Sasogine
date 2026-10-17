@@ -8,6 +8,21 @@ Es stellt wiederverwendbare Engine-Infrastruktur für Assets, Ressourcen, Render
 >
 > Version `0.11.0-alpha` führt eine größere Architekturüberarbeitung ein. Der Engine-Kern ist nicht mehr direkt an DesktopGL gebunden; Plattformintegrationen und Rendering-Backends werden als getrennte Projekte verwaltet.
 
+## Features
+
+- **Engine-Grundlagen:** Anwendungslebenszyklus, Dienste, typisierte Definitionen, Factories und Objektreferenzen.
+- **Szenen und Spielobjekte:** Szenenverwaltung, Viewports, Entities, Komponenten und Grundlagen für Tilemaps.
+- **Assets und Ressourcen:** Verwaltetes Laden und Neuladen von Texturen, Schriften, Audio und Frame-Sets aus Dateien, Speicher, eingebetteten Ressourcen oder entfernten Quellen.
+- **Sprites und Tiles:** Texturatlanten, XML-/JSON-Frame-Import und Frame-Zugriff über Namen, Indizes oder Enums.
+- **Rendering:** Gebündelte Ausgabe von Sprites, Tiles, Text und Formen; Brushes, Pens, Farbverläufe, Texturen, Meshes und Model-Rendering.
+- **Kameras und Animation:** 2D-Kameras, isometrische und verwandte Projektionen, Parallax-Ebenen sowie Positions- und Rotationsanimationen.
+- **Geometrie und Farben:** Pfade, Kurven und Polygonoperationen wie Clipping, Offsets und Triangulierung; Farbkonvertierung zwischen RGB, HSL, HSV, linearem RGB und OKLab.
+- **Eingabe und Audio:** Tastatur, Maus, Touch und Gamepad, Shortcuts und Vibration; WAV-Wiedergabe sowie MP3-/OGG-Streaming.
+- **Lokalisierung:** Sprachwechsel, Ersatzsprachen, lokalisierte Werte und Pluralformen.
+- **Dokumente:** Serialisierungsregistries und Reader-/Writer-Erweiterungen für Engine-Typen sowie JSON-Dokumentformatierung.
+- **Editor-Werkzeuge:** Objekte einfügen, Kameranavigation, Auswahl mit Griffen zum Verschieben, Skalieren und Drehen sowie Bearbeitung von Vektorpfaden.
+- **Entwicklungshelfer:** Zeitgesteuerte Aktionen, asynchrones Laden und Fortschrittsanzeige, Easing-Kurven, Zufallsfunktionen, Frame-Statistiken und Benchmarks.
+
 ## Dokumentation
 
 - **Englische Dokumentation:** Siehe [README.md](README.md)

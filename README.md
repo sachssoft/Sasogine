@@ -8,6 +8,21 @@ It provides reusable engine infrastructure for assets, resources, rendering, inp
 >
 > Version `0.11.0-alpha` introduces a major architectural refactoring. The core engine is no longer tied directly to DesktopGL; platform integrations and rendering backends are maintained as separate projects.
 
+## Features
+
+- **Engine foundation:** Application lifecycle, services, typed definitions, factories and object references.
+- **Scenes and game objects:** Scene management, viewports, entities, components and tile map foundations.
+- **Assets and resources:** Managed loading and reloading of textures, fonts, audio and frame sets from files, memory, embedded resources or remote sources.
+- **Sprites and tiles:** Texture atlases, XML/JSON frame imports and frame access through names, indices or enums.
+- **Rendering:** Batched sprites, tiles, text and shapes; brushes, pens, gradients, textures, meshes and model rendering.
+- **Cameras and animation:** 2D cameras, isometric and related projections, parallax layers, position and rotation animations.
+- **Geometry and colors:** Paths, curves and polygon operations, including clipping, offsets and triangulation; color conversion across RGB, HSL, HSV, linear RGB and OKLab.
+- **Input and audio:** Keyboard, mouse, touch and gamepad interactions, shortcuts and vibration; WAV playback and MP3/OGG streaming.
+- **Localization:** Language switching, fallback languages, localized values and plural forms.
+- **Documents:** Serialization registries and reader/writer extensions for engine types, with JSON document formatting.
+- **Editor tools:** Object insertion, camera navigation, selection with move/resize/rotate handles, and vector path editing.
+- **Development helpers:** Scheduling, asynchronous loading and progress tracking, easing curves, randomization, frame statistics and benchmarks.
+
 ## Documentation
 
 - **English Documentation:** See [README.md](README.md)
