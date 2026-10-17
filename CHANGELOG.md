@@ -31,6 +31,7 @@ All notable changes to this project will be documented in this file.
 * [Feature] Added terrain snap enter and leave handling.
 * [Feature] Added the `Fallback` category for properties that provide fallback values when primary values or skin resources are unavailable.
 * [Feature] Added texture region support to cursor rendering.
+* [Feature] Added support for optional mesh layers, allowing additional geometry to be rendered independently while preserving the original mesh and existing APIs.
 * [Feature] Added static factory methods to `QuadTransform`.
 * [Feature] Introduced the `IShaderTextureRegion` interface for shaders supporting texture regions.
 * [Feature] `FrameCounterGraph` for real-time frame rate monitoring, performance diagnostics, and FPS history visualization.

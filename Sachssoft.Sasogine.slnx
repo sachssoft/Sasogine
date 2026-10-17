@@ -41,6 +41,10 @@
 		<Project Path="Projects/Backends/WindowsDX/Sachssoft.Sasogine.WindowsDX.csproj" />
 		<Project Path="Projects/Backends/WindowsDX12/Sachssoft.Sasogine.WindowsDX12.csproj" />
 	</Folder>
+	<Folder Name="/Docs/Conecpts/">
+		<File Path="Docs/backend_concepts.md" />
+		<File Path="Docs/random_concepts.md" />
+	</Folder>
 	<Folder Name="/Docs/GitHub/">
 		<File Path=".github/ISSUE_TEMPLATE/bug_report.yml" />
 		<File Path=".github/ISSUE_TEMPLATE/config.yml" />
