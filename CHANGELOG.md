@@ -41,6 +41,7 @@ All notable changes to this project will be documented in this file.
 * [Change] Added aspect-ratio-preserving resizing to the Selection Tool.
 * [Change] Added coercion support for selection transformations.
 * [Change] Replaced MonoGame `Rectangle` and `Point` with Sasogine's `PixelBounds2` and `Coordinate2` in texture cropping APIs.
+* [Change] Renamed RandomUtil to Randomizer.
 * [Change] Reworked Selection Tool callbacks to use the unified `SelectionTransformState` lifecycle.
 * [Change] Removed GameApplicationBase and AssetStore constructors from EmbeddedResourceSource to reduce coupling.
 * [Change] Refactored the randomization system with new generators, curve-based distributions, expressions, stateful patterns, and Value, Perlin, Worley, and Fractal noise in 1D, 2D, and 3D.
