@@ -43,6 +43,7 @@ All notable changes to this project will be documented in this file.
 * [Change] Replaced MonoGame `Rectangle` and `Point` with Sasogine's `PixelBounds2` and `Coordinate2` in texture cropping APIs.
 * [Change] Reworked Selection Tool callbacks to use the unified `SelectionTransformState` lifecycle.
 * [Change] Removed GameApplicationBase and AssetStore constructors from EmbeddedResourceSource to reduce coupling.
+* [Change] Refactored the randomization system with new generators, curve-based distributions, expressions, stateful patterns, and Value, Perlin, Worley, and Fractal noise in 1D, 2D, and 3D.
 * [Improve] **Toolkit**: Extended Selection Tool coercion for movement, resizing, rotation, and rotation pivots.
 * [Improve] **Toolkit**: Added started, changed, completed, and cancelled transform states.
 * [Improve] Added DepthScale to ObliqueCamera2 to control preservation of local Z depth for depth testing.
