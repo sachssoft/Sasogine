@@ -1,9 +1,8 @@
-using Sachssoft.Engine.Gameplay.Randomization.Generators;
 using Sachssoft.Engine.Gameplay.Randomization.Internal;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Engine.Gameplay.Randomization.Patterns;
+namespace Sachssoft.Engine.Gameplay.Randomization;
 
 /// <summary>Selects the next state using the current state's weighted transitions.</summary>
 /// <typeparam name="T">The non-null state type.</typeparam>

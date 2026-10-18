@@ -1,9 +1,8 @@
-using Sachssoft.Engine.Gameplay.Randomization.Generators;
 using Sachssoft.Engine.Gameplay.Randomization.Internal;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Engine.Gameplay.Randomization.Patterns;
+namespace Sachssoft.Engine.Gameplay.Randomization;
 
 /// <summary>Penalizes recently selected values and enforces a consecutive-repeat limit.</summary>
 /// <typeparam name="T">The non-null, unique value type.</typeparam>

@@ -1,9 +1,8 @@
-using Sachssoft.Engine.Gameplay.Randomization.Generators;
 using Sachssoft.Engine.Gameplay.Randomization.Internal;
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Engine.Gameplay.Randomization.Patterns;
+namespace Sachssoft.Engine.Gameplay.Randomization;
 
 /// <summary>Computes relative weights from base weights, retained history and caller rules.</summary>
 /// <typeparam name="T">The non-null, unique value type.</typeparam>

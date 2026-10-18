@@ -2,7 +2,7 @@ using Sachssoft.Engine.Gameplay.Curves;
 using Sachssoft.Engine.Gameplay.Randomization.Internal;
 using System;
 
-namespace Sachssoft.Engine.Gameplay.Randomization.Generators;
+namespace Sachssoft.Engine.Gameplay.Randomization;
 
 /// <summary>Shapes scalar random values using an existing gameplay curve.</summary>
 /// <remarks>
@@ -29,16 +29,12 @@ public sealed class CurveRandomGenerator : IRandomGenerator
 
     /// <summary>Gets the underlying random stream.</summary>
     public IRandomGenerator Random { get; }
-
     /// <summary>Gets the curve applied to scalar draws.</summary>
     public CurveBase Curve { get; }
-
     /// <summary>Gets whether finite curve overshoot is clamped; otherwise it is rejected.</summary>
     public bool ClampOutput { get; }
-
     /// <inheritdoc />
     public ulong Seed => Random.Seed;
-
     /// <summary>Forwards an unshaped raw value from the underlying stream.</summary>
     public ulong NextUInt64() => Random.NextUInt64();
 

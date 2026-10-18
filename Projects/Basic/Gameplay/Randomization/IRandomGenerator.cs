@@ -1,4 +1,4 @@
-namespace Sachssoft.Engine.Gameplay.Randomization.Generators;
+namespace Sachssoft.Engine.Gameplay.Randomization;
 
 /// <summary>
 /// Provides a reproducible stream of pseudo-random values.

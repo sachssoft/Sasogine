@@ -1,7 +1,7 @@
 using Sachssoft.Engine.Gameplay.Randomization.Internal;
 using System;
 
-namespace Sachssoft.Engine.Gameplay.Randomization.Generators;
+namespace Sachssoft.Engine.Gameplay.Randomization;
 
 /// <summary>
 /// Generates deterministic pseudo-random values using SplitMix64.

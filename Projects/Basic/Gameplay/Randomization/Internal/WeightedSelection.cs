@@ -1,4 +1,4 @@
-using Sachssoft.Engine.Gameplay.Randomization.Generators;
+using Sachssoft.Engine.Gameplay.Randomization;
 using System;
 using System.Collections.Generic;
 

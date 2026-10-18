@@ -1,6 +1,6 @@
 using System;
 
-namespace Sachssoft.Engine.Gameplay.Randomization.Patterns;
+namespace Sachssoft.Engine.Gameplay.Randomization;
 
 /// <summary>Configures a base weight, miss increment and cap for an adaptive selection.</summary>
 /// <typeparam name="T">The value type.</typeparam>

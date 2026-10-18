@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Sachssoft.Engine.Gameplay.Randomization.Patterns;
+namespace Sachssoft.Engine.Gameplay.Randomization;
 
 /// <summary>Provides read-only access to the bounded history of a selection model.</summary>
 /// <typeparam name="T">The selected value type.</typeparam>

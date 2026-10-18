@@ -1,6 +1,5 @@
-using Sachssoft.Engine.Gameplay.Randomization.Generators;
 
-namespace Sachssoft.Engine.Gameplay.Randomization.Patterns;
+namespace Sachssoft.Engine.Gameplay.Randomization;
 
 /// <summary>Produces values using a stateful selection model.</summary>
 /// <typeparam name="T">The selected value type.</typeparam>
