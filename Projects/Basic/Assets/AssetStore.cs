@@ -503,7 +503,29 @@ public class AssetStore : IReadOnlyAssetStore
         ArgumentNullException.ThrowIfNull(asset);
 
         OnLoadingAsset(asset);
-        asset.Load();
+
+        try
+        {
+            asset.Load();
+        }
+        catch (Exception exception)
+        {
+            System.Diagnostics.Trace.TraceError(
+                $"Failed to load asset '{asset.Id}' " +
+                $"({asset.GetType().FullName}):\n{exception}");
+
+            throw;
+        }
+
+        if (asset.HasError)
+        {
+            System.Diagnostics.Trace.TraceError(
+                $"Asset '{asset.Id}' failed to load.\n" +
+                $"{asset.Exception}");
+
+            return;
+        }
+
         OnAssetLoaded(asset);
     }
 

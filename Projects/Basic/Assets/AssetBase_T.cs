@@ -365,6 +365,8 @@ public abstract class AssetBase<T, TDefinition> :
             _instance = null;
         }
 
+        ReportException(exception);
+
         Error?.Invoke(this, new AssetErrorEventArgs(exception));
     }
 
@@ -502,5 +504,17 @@ public abstract class AssetBase<T, TDefinition> :
 
         OnUnloaded();
         OnInstanceChanged();
+    }
+
+    private void ReportException(Exception exception)
+    {
+        string message =
+            $"Asset error\n" +
+            $"Id: {Id}\n" +
+            $"Type: {GetType().FullName}\n" +
+            $"Source: {LoaderSource?.GetType().FullName ?? "None"}\n" +
+            $"Exception:\n{exception}";
+
+        System.Diagnostics.Trace.TraceError(message);
     }
 }

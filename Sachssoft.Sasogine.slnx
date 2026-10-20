@@ -27,6 +27,7 @@
 		<Project Path="Projects/Basic/Sachssoft.Sasogine.csproj" />
 		<Project Path="Projects/Documents/Sachssoft.Sasogine.Documents.csproj" />
 		<Project Path="Projects/Toolkit/Sachssoft.Sasogine.Toolkit.csproj" />
+		<Project Path="Projects/UI/Sachssoft.Sasogine.Controls.csproj" />
 	</Folder>
 
 	<Folder Name="/Projects/Platforms/">

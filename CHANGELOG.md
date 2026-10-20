@@ -66,6 +66,7 @@ All notable changes to this project will be documented in this file.
 * [Bug] **Toolkit**: Fixed Selection Tool handles being displayed for disabled transformations.
 * [Bug] Fixed incorrect alpha blending in `RenderScope` that caused bright outlines around certain textures.
 * [Bug] Fixed incorrect depth rendering and object occlusion by enabling Depth24 depth buffering.
+* [Bug] Fixed a race condition in asynchronous initialization by ensuring objects are initialized before dependent components can access them.
 
 ## [0.11.0-alpha] - 2026-09-30 (Major Development Milestone — Large API and Architecture Overhaul)
 * [Feature] Introduced asset support for integer-indexed `IndexedFrameSet`, strongly typed `IndexedFrameSet<TEnum>`, and keyed `KeyedFrameSet` frame sets.
