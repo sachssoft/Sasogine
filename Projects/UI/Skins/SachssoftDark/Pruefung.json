@@ -1,0 +1,20 @@
+{
+  "skin": "SachssoftDark",
+  "atlasSize": [
+    1024,
+    512
+  ],
+  "regions": 139,
+  "styles": 31,
+  "usedHeight": 376,
+  "trimmed": false,
+  "rotated": false,
+  "extrusion": 2,
+  "gap": 2,
+  "alphaMode": "Premultiplied",
+  "checks": "bounds, duplicates, overlaps, XML references, slices, inheritance, premultiplied pixels",
+  "actualSasogineXmlImporter": "PASS: 139 frames, original dimensions, untrimmed, unrotated",
+  "preview": "Composed from actual atlas regions and visually checked",
+  "skinRegions": 147,
+  "joystick": "Thumb and track references checked; procedural large guide; real DesktopGL preview"
+}

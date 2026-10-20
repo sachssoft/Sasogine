@@ -1,0 +1,13 @@
+{
+  "skin": "SachssoftFuturistic",
+  "atlasSize": [
+    1024,
+    512
+  ],
+  "frames": 139,
+  "regions": 147,
+  "styles": 70,
+  "alphaMode": "Premultiplied",
+  "rotation": false,
+  "trim": false
+}

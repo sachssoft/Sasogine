@@ -1,0 +1,14 @@
+global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.IO;
+global using System.Windows.Input;
+global using Microsoft.Xna.Framework;
+global using Microsoft.Xna.Framework.Graphics;
+global using Sachssoft.Engine.Gameplay.Curves;
+global using Sachssoft.Engine.Controls;
+global using Sachssoft.Engine.Controls.Styling;
+global using Sachssoft.Engine.Controls.Layouts;
+global using Sachssoft.Engine.Controls.Input;
+global using Sachssoft.Engine.Controls.Drawing;
+global using Sachssoft.Engine.Controls.Binding;

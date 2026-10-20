@@ -1,0 +1,2 @@
+Buttons,SpriteBatch_frame_ms,FrameBatch_frame_ms,Myra_frame_ms,FrameBatch_less_time_percent,SpriteBatch_draw_calls,FrameBatch_draw_calls,Myra_draw_calls,Median_winner
+100,11.695835,3.797050,10.804070,67.535,200.000,20.000,200.000,Sasogine FrameBatch

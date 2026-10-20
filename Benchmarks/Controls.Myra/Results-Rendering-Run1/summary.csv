@@ -1,0 +1,4 @@
+Buttons,Sasogine_ms,Sasogine_min_ms,Sasogine_max_ms,Myra_ms,Myra_min_ms,Myra_max_ms,Median_winner,Difference_ms,Less_time_percent,Ranges_overlap
+100,1.159957,0.971595,1.576355,1.063565,1.009115,1.310530,Myra,0.096392,8.310,True
+1000,12.994145,9.362465,15.293135,12.929785,10.194440,14.584700,Myra,0.064360,0.495,True
+5000,56.447535,51.843285,117.332775,58.067820,51.102600,70.011405,Sasogine,1.620285,2.790,True

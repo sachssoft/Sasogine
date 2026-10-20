@@ -1,0 +1,816 @@
+<?xml version='1.0' encoding='utf-8'?>
+<UiSkin name="SachssoftFuturistic" version="1" atlas="sachssoft_futuristic.atlas.xml" alphaMode="Premultiplied" scale="1" sampler="LinearClamp" useMipmaps="false">
+  <Palette>
+    <Color name="canvas" value="#050D17" />
+    <Color name="surface" value="#0B1827" />
+    <Color name="raised" value="#10263B" />
+    <Color name="input" value="#06111E" />
+    <Color name="border" value="#24516F" />
+    <Color name="hover" value="#123E56" />
+    <Color name="pressed" value="#082337" />
+    <Color name="accent" value="#42E9FF" />
+    <Color name="accentDark" value="#0F6073" />
+    <Color name="selected" value="#124559" />
+    <Color name="text" value="#D7F7FF" />
+    <Color name="muted" value="#79A8B9" />
+    <Color name="disabled" value="#4E6A7F" />
+    <Color name="error" value="#FF6487" />
+    <Color name="warning" value="#FFD068" />
+    <Color name="success" value="#61FACB" />
+  </Palette>
+  <Metrics controlHeight="32" smallControlHeight="24" scrollbarThickness="20" iconSize="20" itemHeight="30" menuItemHeight="30" titlebarHeight="36" cornerRadius="5" spacing="8" padding="12,7,12,7" />
+  <Regions>
+    <Region key="button_checked" frame="button_checked" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="button_checked_disabled" frame="button_checked_disabled" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="button_checked_hover" frame="button_checked_hover" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="button_checked_pressed" frame="button_checked_pressed" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="button_disabled" frame="button_disabled" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="button_hover" frame="button_hover" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="button_normal" frame="button_normal" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="button_pressed" frame="button_pressed" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="checkbox_checked_disabled" frame="checkbox_checked_disabled" mode="Fixed" slice="0,0,0,0" />
+    <Region key="checkbox_checked_hover" frame="checkbox_checked_hover" mode="Fixed" slice="0,0,0,0" />
+    <Region key="checkbox_checked_normal" frame="checkbox_checked_normal" mode="Fixed" slice="0,0,0,0" />
+    <Region key="checkbox_checked_pressed" frame="checkbox_checked_pressed" mode="Fixed" slice="0,0,0,0" />
+    <Region key="checkbox_mixed_disabled" frame="checkbox_mixed_disabled" mode="Fixed" slice="0,0,0,0" />
+    <Region key="checkbox_mixed_hover" frame="checkbox_mixed_hover" mode="Fixed" slice="0,0,0,0" />
+    <Region key="checkbox_mixed_normal" frame="checkbox_mixed_normal" mode="Fixed" slice="0,0,0,0" />
+    <Region key="checkbox_mixed_pressed" frame="checkbox_mixed_pressed" mode="Fixed" slice="0,0,0,0" />
+    <Region key="checkbox_unchecked_disabled" frame="checkbox_unchecked_disabled" mode="Fixed" slice="0,0,0,0" />
+    <Region key="checkbox_unchecked_hover" frame="checkbox_unchecked_hover" mode="Fixed" slice="0,0,0,0" />
+    <Region key="checkbox_unchecked_normal" frame="checkbox_unchecked_normal" mode="Fixed" slice="0,0,0,0" />
+    <Region key="checkbox_unchecked_pressed" frame="checkbox_unchecked_pressed" mode="Fixed" slice="0,0,0,0" />
+    <Region key="color_alpha_ramp" frame="color_alpha_ramp" mode="Stretch" slice="0,0,0,0" />
+    <Region key="color_checker" frame="color_checker" mode="Tile" slice="0,0,0,0" />
+    <Region key="color_hue_cursor_horizontal" frame="color_hue_cursor_horizontal" mode="Fixed" slice="0,0,0,0" />
+    <Region key="color_hue_cursor_vertical" frame="color_hue_cursor_vertical" mode="Fixed" slice="0,0,0,0" />
+    <Region key="color_hue_horizontal" frame="color_hue_horizontal" mode="Stretch" slice="0,0,0,0" />
+    <Region key="color_hue_vertical" frame="color_hue_vertical" mode="Stretch" slice="0,0,0,0" />
+    <Region key="color_preview_frame" frame="color_preview_frame" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="color_saturation_overlay" frame="color_saturation_overlay" mode="Stretch" slice="0,0,0,0" />
+    <Region key="color_sv_cursor" frame="color_sv_cursor" mode="Fixed" slice="0,0,0,0" />
+    <Region key="color_value_overlay" frame="color_value_overlay" mode="Stretch" slice="0,0,0,0" />
+    <Region key="dialog" frame="dialog" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="focus_ring" frame="focus_ring" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="icon_check" frame="icon_check" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_close" frame="icon_close" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_down" frame="icon_down" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_drive" frame="icon_drive" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_eyedropper" frame="icon_eyedropper" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_file" frame="icon_file" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_folder" frame="icon_folder" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_folder_open" frame="icon_folder_open" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_grid" frame="icon_grid" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_image" frame="icon_image" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_left" frame="icon_left" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_list" frame="icon_list" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_maximize" frame="icon_maximize" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_minus" frame="icon_minus" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_more" frame="icon_more" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_new_folder" frame="icon_new_folder" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_plus" frame="icon_plus" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_refresh" frame="icon_refresh" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_resize" frame="icon_resize" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_restore" frame="icon_restore" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_right" frame="icon_right" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_search" frame="icon_search" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_sort_ascending" frame="icon_sort_ascending" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_sort_descending" frame="icon_sort_descending" mode="Fixed" slice="0,0,0,0" />
+    <Region key="icon_up" frame="icon_up" mode="Fixed" slice="0,0,0,0" />
+    <Region key="invalid_ring" frame="invalid_ring" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="item_disabled" frame="item_disabled" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="item_hover" frame="item_hover" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="item_normal" frame="item_normal" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="item_pressed" frame="item_pressed" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="item_selected" frame="item_selected" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="item_selected_hover" frame="item_selected_hover" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="item_selected_inactive" frame="item_selected_inactive" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="menubar" frame="menubar" mode="NineSlice" slice="2,2,2,2" />
+    <Region key="message_error" frame="message_error" mode="Fixed" slice="0,0,0,0" />
+    <Region key="message_information" frame="message_information" mode="Fixed" slice="0,0,0,0" />
+    <Region key="message_question" frame="message_question" mode="Fixed" slice="0,0,0,0" />
+    <Region key="message_warning" frame="message_warning" mode="Fixed" slice="0,0,0,0" />
+    <Region key="modal_overlay" frame="modal_overlay" mode="Stretch" slice="0,0,0,0" />
+    <Region key="panel" frame="panel" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="panel_inset" frame="panel_inset" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="panel_raised" frame="panel_raised" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="popup" frame="popup" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="progress_fill" frame="progress_fill" mode="NineSlice" slice="8,4,8,4" />
+    <Region key="progress_track" frame="progress_track" mode="NineSlice" slice="8,4,8,4" />
+    <Region key="radio_checked_disabled" frame="radio_checked_disabled" mode="Fixed" slice="0,0,0,0" />
+    <Region key="radio_checked_hover" frame="radio_checked_hover" mode="Fixed" slice="0,0,0,0" />
+    <Region key="radio_checked_normal" frame="radio_checked_normal" mode="Fixed" slice="0,0,0,0" />
+    <Region key="radio_checked_pressed" frame="radio_checked_pressed" mode="Fixed" slice="0,0,0,0" />
+    <Region key="radio_unchecked_disabled" frame="radio_unchecked_disabled" mode="Fixed" slice="0,0,0,0" />
+    <Region key="radio_unchecked_hover" frame="radio_unchecked_hover" mode="Fixed" slice="0,0,0,0" />
+    <Region key="radio_unchecked_normal" frame="radio_unchecked_normal" mode="Fixed" slice="0,0,0,0" />
+    <Region key="radio_unchecked_pressed" frame="radio_unchecked_pressed" mode="Fixed" slice="0,0,0,0" />
+    <Region key="scrollbar_arrow_disabled" frame="scrollbar_arrow_disabled" mode="NineSlice" slice="6,6,6,6" />
+    <Region key="scrollbar_arrow_hover" frame="scrollbar_arrow_hover" mode="NineSlice" slice="6,6,6,6" />
+    <Region key="scrollbar_arrow_normal" frame="scrollbar_arrow_normal" mode="NineSlice" slice="6,6,6,6" />
+    <Region key="scrollbar_arrow_pressed" frame="scrollbar_arrow_pressed" mode="NineSlice" slice="6,6,6,6" />
+    <Region key="scrollbar_horizontal_thumb_disabled" frame="scrollbar_horizontal_thumb_disabled" mode="NineSlice" slice="8,4,8,4" />
+    <Region key="scrollbar_horizontal_thumb_hover" frame="scrollbar_horizontal_thumb_hover" mode="NineSlice" slice="8,4,8,4" />
+    <Region key="scrollbar_horizontal_thumb_normal" frame="scrollbar_horizontal_thumb_normal" mode="NineSlice" slice="8,4,8,4" />
+    <Region key="scrollbar_horizontal_thumb_pressed" frame="scrollbar_horizontal_thumb_pressed" mode="NineSlice" slice="8,4,8,4" />
+    <Region key="scrollbar_horizontal_track" frame="scrollbar_horizontal_track" mode="NineSlice" slice="8,4,8,4" />
+    <Region key="scrollbar_vertical_thumb_disabled" frame="scrollbar_vertical_thumb_disabled" mode="NineSlice" slice="4,8,4,8" />
+    <Region key="scrollbar_vertical_thumb_hover" frame="scrollbar_vertical_thumb_hover" mode="NineSlice" slice="4,8,4,8" />
+    <Region key="scrollbar_vertical_thumb_normal" frame="scrollbar_vertical_thumb_normal" mode="NineSlice" slice="4,8,4,8" />
+    <Region key="scrollbar_vertical_thumb_pressed" frame="scrollbar_vertical_thumb_pressed" mode="NineSlice" slice="4,8,4,8" />
+    <Region key="scrollbar_vertical_track" frame="scrollbar_vertical_track" mode="NineSlice" slice="4,8,4,8" />
+    <Region key="scrollviewer_corner" frame="scrollviewer_corner" mode="NineSlice" slice="2,2,2,2" />
+    <Region key="separator_horizontal" frame="separator_horizontal" mode="Stretch" slice="0,0,0,0" />
+    <Region key="separator_vertical" frame="separator_vertical" mode="Stretch" slice="0,0,0,0" />
+    <Region key="shadow" frame="shadow" mode="NineSlice" slice="16,16,16,16" />
+    <Region key="slider_horizontal_fill" frame="slider_horizontal_fill" mode="NineSlice" slice="8,2,8,2" />
+    <Region key="slider_horizontal_fill_disabled" frame="slider_horizontal_fill_disabled" mode="NineSlice" slice="8,2,8,2" />
+    <Region key="slider_horizontal_track" frame="slider_horizontal_track" mode="NineSlice" slice="8,2,8,2" />
+    <Region key="slider_thumb_disabled" frame="slider_thumb_disabled" mode="Fixed" slice="0,0,0,0" />
+    <Region key="slider_thumb_focus" frame="slider_thumb_focus" mode="Fixed" slice="0,0,0,0" />
+    <Region key="slider_thumb_hover" frame="slider_thumb_hover" mode="Fixed" slice="0,0,0,0" />
+    <Region key="slider_thumb_normal" frame="slider_thumb_normal" mode="Fixed" slice="0,0,0,0" />
+    <Region key="slider_thumb_pressed" frame="slider_thumb_pressed" mode="Fixed" slice="0,0,0,0" />
+    <Region key="slider_tick_horizontal" frame="slider_tick_horizontal" mode="Fixed" slice="0,0,0,0" />
+    <Region key="slider_tick_vertical" frame="slider_tick_vertical" mode="Fixed" slice="0,0,0,0" />
+    <Region key="slider_vertical_fill" frame="slider_vertical_fill" mode="NineSlice" slice="2,8,2,8" />
+    <Region key="slider_vertical_fill_disabled" frame="slider_vertical_fill_disabled" mode="NineSlice" slice="2,8,2,8" />
+    <Region key="slider_vertical_track" frame="slider_vertical_track" mode="NineSlice" slice="2,8,2,8" />
+    <Region key="text_caret" frame="text_caret" mode="Stretch" slice="0,0,0,0" />
+    <Region key="text_selection" frame="text_selection" mode="Stretch" slice="0,0,0,0" />
+    <Region key="textbox_disabled" frame="textbox_disabled" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="textbox_focused" frame="textbox_focused" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="textbox_hover" frame="textbox_hover" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="textbox_invalid" frame="textbox_invalid" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="textbox_normal" frame="textbox_normal" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="textbox_readonly" frame="textbox_readonly" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="tile_disabled" frame="tile_disabled" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="tile_hover" frame="tile_hover" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="tile_normal" frame="tile_normal" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="tile_selected" frame="tile_selected" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="titlebar" frame="titlebar" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="titlebar_inactive" frame="titlebar_inactive" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="tooltip" frame="tooltip" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="transparent" frame="transparent" mode="Stretch" slice="0,0,0,0" />
+    <Region key="white" frame="white" mode="Stretch" slice="0,0,0,0" />
+    <Region key="window" frame="window" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="window_close_disabled" frame="window_close_disabled" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="window_close_hover" frame="window_close_hover" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="window_close_normal" frame="window_close_normal" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="window_close_pressed" frame="window_close_pressed" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="window_inactive" frame="window_inactive" mode="NineSlice" slice="8,8,8,8" />
+    <Region key="joystick_base_normal" frame="radio_unchecked_normal" mode="Stretch" slice="0,0,0,0" />
+    <Region key="joystick_base_hover" frame="radio_unchecked_hover" mode="Stretch" slice="0,0,0,0" />
+    <Region key="joystick_base_pressed" frame="radio_unchecked_pressed" mode="Stretch" slice="0,0,0,0" />
+    <Region key="joystick_base_disabled" frame="radio_unchecked_disabled" mode="Stretch" slice="0,0,0,0" />
+    <Region key="joystick_thumb_normal" frame="radio_checked_normal" mode="Stretch" slice="0,0,0,0" />
+    <Region key="joystick_thumb_hover" frame="radio_checked_hover" mode="Stretch" slice="0,0,0,0" />
+    <Region key="joystick_thumb_pressed" frame="radio_checked_pressed" mode="Stretch" slice="0,0,0,0" />
+    <Region key="joystick_thumb_disabled" frame="radio_checked_disabled" mode="Stretch" slice="0,0,0,0" />
+  </Regions>
+  <Styles>
+    <Style key="Control">
+      <Value property="TextColor" value="text" />
+      <Value property="DisabledTextColor" value="disabled" />
+      <Value property="Padding" value="0,0,0,0" />
+      <Part name="Focus" layer="Overlay">
+        <State name="Focused" region="focus_ring" />
+      </Part>
+      <Value property="BorderColor" value="border" />
+      <Value property="FocusColor" value="accent" />
+      <Value property="HoverBackground" value="hover" />
+      <Value property="PressedBackground" value="accentDark" />
+      <Value property="DisabledBackground" value="raised" />
+    </Style>
+    <Style key="Panel" basedOn="Control">
+      <Part name="Background">
+        <State name="Normal" region="panel" />
+      </Part>
+    </Style>
+    <Style key="Label" basedOn="Control">
+      <Value property="Padding" value="0,0,0,0" />
+    </Style>
+    <Style key="Button" basedOn="Control">
+      <Value property="Padding" value="12,7,12,7" />
+      <Value property="MinWidth" value="72" />
+      <Value property="MinHeight" value="32" />
+      <Part name="Background">
+        <State name="Normal" region="button_normal" />
+        <State name="Hover" region="button_hover" />
+        <State name="Pressed" region="button_pressed" />
+        <State name="Disabled" region="button_disabled" />
+      </Part>
+      <Value property="Background" value="raised" />
+      <Value property="HoverBackground" value="hover" />
+      <Value property="PressedBackground" value="accentDark" />
+      <Value property="DisabledBackground" value="raised" />
+      <Value property="FocusColor" value="accent" />
+    </Style>
+    <Style key="ToggleButton" basedOn="Button">
+      <Part name="Background">
+        <State name="Unchecked.Normal" region="button_normal" />
+        <State name="Unchecked.Hover" region="button_hover" />
+        <State name="Unchecked.Pressed" region="button_pressed" />
+        <State name="Unchecked.Disabled" region="button_disabled" />
+        <State name="Checked.Normal" region="button_checked" />
+        <State name="Checked.Hover" region="button_checked_hover" />
+        <State name="Checked.Pressed" region="button_checked_pressed" />
+        <State name="Checked.Disabled" region="button_checked_disabled" />
+      </Part>
+    </Style>
+    <Style key="SelectorButton" basedOn="Button">
+      <Part name="Background">
+        <State name="Unchecked.Normal" region="button_normal" />
+        <State name="Unchecked.Hover" region="button_hover" />
+        <State name="Unchecked.Pressed" region="button_pressed" />
+        <State name="Unchecked.Disabled" region="button_disabled" />
+        <State name="Checked.Normal" region="button_checked" />
+        <State name="Checked.Hover" region="button_checked_hover" />
+        <State name="Checked.Pressed" region="button_checked_pressed" />
+        <State name="Checked.Disabled" region="button_checked_disabled" />
+      </Part>
+    </Style>
+    <Style key="CheckBox" basedOn="Control">
+      <Value property="GlyphSize" value="24,24" />
+      <Value property="Padding" value="0,0,0,0" />
+      <Value property="TextSpacing" value="8" />
+      <Part name="Glyph">
+        <State name="Unchecked.Normal" region="checkbox_unchecked_normal" />
+        <State name="Unchecked.Hover" region="checkbox_unchecked_hover" />
+        <State name="Unchecked.Pressed" region="checkbox_unchecked_pressed" />
+        <State name="Unchecked.Disabled" region="checkbox_unchecked_disabled" />
+        <State name="Checked.Normal" region="checkbox_checked_normal" />
+        <State name="Checked.Hover" region="checkbox_checked_hover" />
+        <State name="Checked.Pressed" region="checkbox_checked_pressed" />
+        <State name="Checked.Disabled" region="checkbox_checked_disabled" />
+        <State name="Mixed.Normal" region="checkbox_mixed_normal" />
+        <State name="Mixed.Hover" region="checkbox_mixed_hover" />
+        <State name="Mixed.Pressed" region="checkbox_mixed_pressed" />
+        <State name="Mixed.Disabled" region="checkbox_mixed_disabled" />
+      </Part>
+    </Style>
+    <Style key="RadioButton" basedOn="Control">
+      <Value property="GlyphSize" value="24,24" />
+      <Value property="Padding" value="0,0,0,0" />
+      <Value property="TextSpacing" value="8" />
+      <Part name="Glyph">
+        <State name="Unchecked.Normal" region="radio_unchecked_normal" />
+        <State name="Unchecked.Hover" region="radio_unchecked_hover" />
+        <State name="Unchecked.Pressed" region="radio_unchecked_pressed" />
+        <State name="Unchecked.Disabled" region="radio_unchecked_disabled" />
+        <State name="Checked.Normal" region="radio_checked_normal" />
+        <State name="Checked.Hover" region="radio_checked_hover" />
+        <State name="Checked.Pressed" region="radio_checked_pressed" />
+        <State name="Checked.Disabled" region="radio_checked_disabled" />
+      </Part>
+    </Style>
+    <Style key="TextBox" basedOn="Control">
+      <Value property="MinHeight" value="32" />
+      <Value property="Padding" value="10,6,10,6" />
+      <Part name="Background">
+        <State name="Normal" region="textbox_normal" />
+        <State name="Hover" region="textbox_hover" />
+        <State name="Focused" region="textbox_focused" />
+        <State name="Disabled" region="textbox_disabled" />
+        <State name="ReadOnly" region="textbox_readonly" />
+        <State name="Invalid" region="textbox_invalid" />
+      </Part>
+      <Part name="Selection">
+        <State name="Normal" region="text_selection" />
+      </Part>
+      <Part name="Caret">
+        <State name="Normal" region="text_caret" />
+      </Part>
+      <Part name="Focus" layer="Overlay">
+        <State name="Focused" region="focus_ring" />
+        <State name="Invalid" region="invalid_ring" />
+        <State name="Focused.Invalid" region="invalid_ring" />
+      </Part>
+      <Value property="Background" value="input" />
+      <Value property="BorderColor" value="border" />
+      <Value property="TextColor" value="text" />
+    </Style>
+    <Style key="Slider.Horizontal" basedOn="Control">
+      <Value property="ThumbSize" value="24,24" />
+      <Value property="TrackThickness" value="8" />
+      <Part name="Track">
+        <State name="Normal" region="slider_horizontal_track" />
+      </Part>
+      <Part name="Fill">
+        <State name="Normal" region="slider_horizontal_fill" />
+        <State name="Disabled" region="slider_horizontal_fill_disabled" />
+      </Part>
+      <Part name="Thumb">
+        <State name="Normal" region="slider_thumb_normal" />
+        <State name="Hover" region="slider_thumb_hover" />
+        <State name="Pressed" region="slider_thumb_pressed" />
+        <State name="Disabled" region="slider_thumb_disabled" />
+      </Part>
+      <Part name="ThumbFocus" layer="Overlay">
+        <State name="Focused" region="slider_thumb_focus" />
+      </Part>
+      <Part name="Tick">
+        <State name="Normal" region="slider_tick_horizontal" />
+      </Part>
+    </Style>
+    <Style key="Slider.Vertical" basedOn="Control">
+      <Value property="ThumbSize" value="24,24" />
+      <Value property="TrackThickness" value="8" />
+      <Part name="Track">
+        <State name="Normal" region="slider_vertical_track" />
+      </Part>
+      <Part name="Fill">
+        <State name="Normal" region="slider_vertical_fill" />
+        <State name="Disabled" region="slider_vertical_fill_disabled" />
+      </Part>
+      <Part name="Thumb">
+        <State name="Normal" region="slider_thumb_normal" />
+        <State name="Hover" region="slider_thumb_hover" />
+        <State name="Pressed" region="slider_thumb_pressed" />
+        <State name="Disabled" region="slider_thumb_disabled" />
+      </Part>
+      <Part name="ThumbFocus" layer="Overlay">
+        <State name="Focused" region="slider_thumb_focus" />
+      </Part>
+      <Part name="Tick">
+        <State name="Normal" region="slider_tick_vertical" />
+      </Part>
+    </Style>
+    <Style key="Slider" basedOn="Slider.Horizontal" />
+    <Style key="ScrollBar.Horizontal" basedOn="Control">
+      <Value property="Thickness" value="20" />
+      <Value property="ButtonExtent" value="20" />
+      <Value property="MinimumThumbExtent" value="24" />
+      <Part name="Track">
+        <State name="Normal" region="scrollbar_horizontal_track" />
+      </Part>
+      <Part name="Thumb">
+        <State name="Normal" region="scrollbar_horizontal_thumb_normal" />
+        <State name="Hover" region="scrollbar_horizontal_thumb_hover" />
+        <State name="Pressed" region="scrollbar_horizontal_thumb_pressed" />
+        <State name="Disabled" region="scrollbar_horizontal_thumb_disabled" />
+      </Part>
+      <Part name="DecreaseButton">
+        <State name="Normal" region="scrollbar_arrow_normal" />
+        <State name="Hover" region="scrollbar_arrow_hover" />
+        <State name="Pressed" region="scrollbar_arrow_pressed" />
+        <State name="Disabled" region="scrollbar_arrow_disabled" />
+      </Part>
+      <Part name="IncreaseButton">
+        <State name="Normal" region="scrollbar_arrow_normal" />
+        <State name="Hover" region="scrollbar_arrow_hover" />
+        <State name="Pressed" region="scrollbar_arrow_pressed" />
+        <State name="Disabled" region="scrollbar_arrow_disabled" />
+      </Part>
+      <Part name="DecreaseGlyph" tint="text" disabledTint="disabled">
+        <State name="Normal" region="icon_left" />
+      </Part>
+      <Part name="IncreaseGlyph" tint="text" disabledTint="disabled">
+        <State name="Normal" region="icon_right" />
+      </Part>
+    </Style>
+    <Style key="ScrollBar.Vertical" basedOn="Control">
+      <Value property="Thickness" value="20" />
+      <Value property="ButtonExtent" value="20" />
+      <Value property="MinimumThumbExtent" value="24" />
+      <Part name="Track">
+        <State name="Normal" region="scrollbar_vertical_track" />
+      </Part>
+      <Part name="Thumb">
+        <State name="Normal" region="scrollbar_vertical_thumb_normal" />
+        <State name="Hover" region="scrollbar_vertical_thumb_hover" />
+        <State name="Pressed" region="scrollbar_vertical_thumb_pressed" />
+        <State name="Disabled" region="scrollbar_vertical_thumb_disabled" />
+      </Part>
+      <Part name="DecreaseButton">
+        <State name="Normal" region="scrollbar_arrow_normal" />
+        <State name="Hover" region="scrollbar_arrow_hover" />
+        <State name="Pressed" region="scrollbar_arrow_pressed" />
+        <State name="Disabled" region="scrollbar_arrow_disabled" />
+      </Part>
+      <Part name="IncreaseButton">
+        <State name="Normal" region="scrollbar_arrow_normal" />
+        <State name="Hover" region="scrollbar_arrow_hover" />
+        <State name="Pressed" region="scrollbar_arrow_pressed" />
+        <State name="Disabled" region="scrollbar_arrow_disabled" />
+      </Part>
+      <Part name="DecreaseGlyph" tint="text" disabledTint="disabled">
+        <State name="Normal" region="icon_up" />
+      </Part>
+      <Part name="IncreaseGlyph" tint="text" disabledTint="disabled">
+        <State name="Normal" region="icon_down" />
+      </Part>
+    </Style>
+    <Style key="ScrollBar" basedOn="ScrollBar.Vertical" />
+    <Style key="ScrollViewer" basedOn="Panel">
+      <Value property="HorizontalScrollBarStyle" value="ScrollBar.Horizontal" />
+      <Value property="VerticalScrollBarStyle" value="ScrollBar.Vertical" />
+      <Part name="Background">
+        <State name="Normal" region="panel_inset" />
+      </Part>
+      <Part name="Corner">
+        <State name="Normal" region="scrollviewer_corner" />
+      </Part>
+    </Style>
+    <Style key="ListBox" basedOn="Control">
+      <Value property="ItemHeight" value="30" />
+      <Value property="ScrollBarStyle" value="ScrollBar.Vertical" />
+      <Part name="Background">
+        <State name="Normal" region="panel_inset" />
+      </Part>
+      <Part name="Item">
+        <State name="Normal" region="item_normal" />
+        <State name="Hover" region="item_hover" />
+        <State name="Pressed" region="item_pressed" />
+        <State name="Selected" region="item_selected" />
+        <State name="Selected.Hover" region="item_selected_hover" />
+        <State name="Selected.Inactive" region="item_selected_inactive" />
+        <State name="Disabled" region="item_disabled" />
+      </Part>
+      <Value property="Background" value="input" />
+    </Style>
+    <Style key="ComboBox" basedOn="TextBox">
+      <Value property="DropDownStyle" value="ListBox" />
+      <Value property="DropDownButtonWidth" value="28" />
+      <Part name="DropDownGlyph" tint="muted" disabledTint="disabled">
+        <State name="Normal" region="icon_down" />
+      </Part>
+      <Part name="Popup">
+        <State name="Normal" region="popup" />
+      </Part>
+      <Part name="PopupShadow" layer="Behind" margin="8,8,8,8">
+        <State name="Normal" region="shadow" />
+      </Part>
+    </Style>
+    <Style key="WrapPanel" basedOn="Panel">
+      <Value property="Spacing" value="8" />
+      <Part name="Background">
+        <State name="Normal" region="transparent" />
+      </Part>
+    </Style>
+    <Style key="TiledPanel" basedOn="Panel">
+      <Value property="TileSpacing" value="8" />
+      <Part name="Tile">
+        <State name="Normal" region="tile_normal" />
+        <State name="Hover" region="tile_hover" />
+        <State name="Selected" region="tile_selected" />
+        <State name="Disabled" region="tile_disabled" />
+      </Part>
+    </Style>
+    <Style key="MenuBar" basedOn="Control">
+      <Value property="Height" value="36" />
+      <Part name="Background">
+        <State name="Normal" region="menubar" />
+      </Part>
+      <Part name="Item">
+        <State name="Normal" region="item_normal" />
+        <State name="Hover" region="item_hover" />
+        <State name="Pressed" region="item_pressed" />
+        <State name="Disabled" region="item_disabled" />
+      </Part>
+    </Style>
+    <Style key="ContextMenu" basedOn="Control">
+      <Value property="ItemHeight" value="30" />
+      <Value property="Padding" value="6,6,6,6" />
+      <Part name="Background">
+        <State name="Normal" region="popup" />
+      </Part>
+      <Part name="Shadow" layer="Behind" margin="8,8,8,8">
+        <State name="Normal" region="shadow" />
+      </Part>
+      <Part name="Item">
+        <State name="Normal" region="item_normal" />
+        <State name="Hover" region="item_hover" />
+        <State name="Pressed" region="item_pressed" />
+        <State name="Disabled" region="item_disabled" />
+      </Part>
+      <Part name="Separator">
+        <State name="Normal" region="separator_horizontal" />
+      </Part>
+      <Part name="SubmenuGlyph" tint="muted">
+        <State name="Normal" region="icon_right" />
+      </Part>
+      <Part name="CheckGlyph" tint="accent">
+        <State name="Normal" region="icon_check" />
+      </Part>
+    </Style>
+    <Style key="Window" basedOn="Control">
+      <Value property="TitlebarHeight" value="36" />
+      <Value property="ContentPadding" value="16,16,16,16" />
+      <Part name="Background">
+        <State name="Normal" region="window" />
+        <State name="Inactive" region="window_inactive" />
+      </Part>
+      <Part name="Titlebar">
+        <State name="Normal" region="titlebar" />
+        <State name="Inactive" region="titlebar_inactive" />
+      </Part>
+      <Part name="Shadow" layer="Behind" margin="8,8,8,8">
+        <State name="Normal" region="shadow" />
+      </Part>
+      <Part name="CloseButton">
+        <State name="Normal" region="window_close_normal" />
+        <State name="Hover" region="window_close_hover" />
+        <State name="Pressed" region="window_close_pressed" />
+        <State name="Disabled" region="window_close_disabled" />
+      </Part>
+      <Part name="CloseGlyph" tint="text" disabledTint="disabled">
+        <State name="Normal" region="icon_close" />
+      </Part>
+      <Part name="MinimizeGlyph" tint="muted">
+        <State name="Normal" region="icon_minus" />
+      </Part>
+      <Part name="MaximizeGlyph" tint="muted">
+        <State name="Normal" region="icon_maximize" />
+      </Part>
+      <Part name="RestoreGlyph" tint="muted">
+        <State name="Normal" region="icon_restore" />
+      </Part>
+      <Part name="ResizeGrip" tint="muted">
+        <State name="Normal" region="icon_resize" />
+      </Part>
+    </Style>
+    <Style key="Dialog" basedOn="Window">
+      <Part name="ModalOverlay" layer="Behind">
+        <State name="Normal" region="modal_overlay" />
+      </Part>
+    </Style>
+    <Style key="OpenFileDialog" basedOn="Dialog">
+      <Value property="FileListStyle" value="ListBox" />
+      <Value property="PathStyle" value="TextBox" />
+      <Value property="ConfirmButtonStyle" value="Button" />
+      <Value property="CancelButtonStyle" value="Button" />
+      <Part name="FolderGlyph">
+        <State name="Normal" region="icon_folder" />
+      </Part>
+      <Part name="OpenFolderGlyph">
+        <State name="Normal" region="icon_folder_open" />
+      </Part>
+      <Part name="FileGlyph">
+        <State name="Normal" region="icon_file" />
+      </Part>
+      <Part name="ParentGlyph">
+        <State name="Normal" region="icon_up" />
+      </Part>
+      <Part name="BackGlyph">
+        <State name="Normal" region="icon_left" />
+      </Part>
+      <Part name="ForwardGlyph">
+        <State name="Normal" region="icon_right" />
+      </Part>
+      <Part name="RefreshGlyph">
+        <State name="Normal" region="icon_refresh" />
+      </Part>
+      <Part name="NewFolderGlyph">
+        <State name="Normal" region="icon_new_folder" />
+      </Part>
+      <Part name="SearchGlyph">
+        <State name="Normal" region="icon_search" />
+      </Part>
+      <Part name="GridViewGlyph">
+        <State name="Normal" region="icon_grid" />
+      </Part>
+      <Part name="ListViewGlyph">
+        <State name="Normal" region="icon_list" />
+      </Part>
+      <Part name="DriveGlyph">
+        <State name="Normal" region="icon_drive" />
+      </Part>
+      <Part name="ImageGlyph">
+        <State name="Normal" region="icon_image" />
+      </Part>
+    </Style>
+    <Style key="FolderSelectorDialog" basedOn="Dialog">
+      <Value property="FileListStyle" value="ListBox" />
+      <Value property="PathStyle" value="TextBox" />
+      <Value property="ConfirmButtonStyle" value="Button" />
+      <Value property="CancelButtonStyle" value="Button" />
+      <Part name="FolderGlyph">
+        <State name="Normal" region="icon_folder" />
+      </Part>
+      <Part name="OpenFolderGlyph">
+        <State name="Normal" region="icon_folder_open" />
+      </Part>
+      <Part name="FileGlyph">
+        <State name="Normal" region="icon_file" />
+      </Part>
+      <Part name="ParentGlyph">
+        <State name="Normal" region="icon_up" />
+      </Part>
+      <Part name="BackGlyph">
+        <State name="Normal" region="icon_left" />
+      </Part>
+      <Part name="ForwardGlyph">
+        <State name="Normal" region="icon_right" />
+      </Part>
+      <Part name="RefreshGlyph">
+        <State name="Normal" region="icon_refresh" />
+      </Part>
+      <Part name="NewFolderGlyph">
+        <State name="Normal" region="icon_new_folder" />
+      </Part>
+      <Part name="SearchGlyph">
+        <State name="Normal" region="icon_search" />
+      </Part>
+      <Part name="GridViewGlyph">
+        <State name="Normal" region="icon_grid" />
+      </Part>
+      <Part name="ListViewGlyph">
+        <State name="Normal" region="icon_list" />
+      </Part>
+      <Part name="DriveGlyph">
+        <State name="Normal" region="icon_drive" />
+      </Part>
+      <Part name="ImageGlyph">
+        <State name="Normal" region="icon_image" />
+      </Part>
+    </Style>
+    <Style key="ColorPickerDialog" basedOn="Dialog">
+      <Value property="ChannelInputStyle" value="TextBox" />
+      <Value property="ConfirmButtonStyle" value="Button" />
+      <Part name="HueHorizontal">
+        <State name="Normal" region="color_hue_horizontal" />
+      </Part>
+      <Part name="HueVertical">
+        <State name="Normal" region="color_hue_vertical" />
+      </Part>
+      <Part name="SaturationOverlay">
+        <State name="Normal" region="color_saturation_overlay" />
+      </Part>
+      <Part name="ValueOverlay">
+        <State name="Normal" region="color_value_overlay" />
+      </Part>
+      <Part name="AlphaRamp">
+        <State name="Normal" region="color_alpha_ramp" />
+      </Part>
+      <Part name="Checker">
+        <State name="Normal" region="color_checker" />
+      </Part>
+      <Part name="ColorFrame">
+        <State name="Normal" region="color_preview_frame" />
+      </Part>
+      <Part name="SaturationValueCursor">
+        <State name="Normal" region="color_sv_cursor" />
+      </Part>
+      <Part name="HueCursorHorizontal">
+        <State name="Normal" region="color_hue_cursor_horizontal" />
+      </Part>
+      <Part name="HueCursorVertical">
+        <State name="Normal" region="color_hue_cursor_vertical" />
+      </Part>
+      <Part name="EyedropperGlyph">
+        <State name="Normal" region="icon_eyedropper" />
+      </Part>
+      <Composition part="SaturationValue" layers="white:tint(CurrentHue),SaturationOverlay,ValueOverlay" />
+      <Composition part="Alpha" layers="Checker,AlphaRamp:tint(CurrentColorRgb)" />
+    </Style>
+    <Style key="MessageBox" basedOn="Dialog">
+      <Value property="ButtonStyle" value="Button" />
+      <Part name="MessageGlyph">
+        <State name="Information" region="message_information" />
+        <State name="Warning" region="message_warning" />
+        <State name="Error" region="message_error" />
+        <State name="Question" region="message_question" />
+      </Part>
+    </Style>
+    <Style key="ToolTip" basedOn="Control">
+      <Part name="Background">
+        <State name="Normal" region="tooltip" />
+      </Part>
+      <Value property="Background" value="surface" />
+      <Value property="BorderColor" value="accent" />
+    </Style>
+    <Style key="ProgressBar" basedOn="Control">
+      <Part name="Track">
+        <State name="Normal" region="progress_track" />
+      </Part>
+      <Part name="Fill">
+        <State name="Normal" region="progress_fill" />
+      </Part>
+    </Style>
+    <Style key="VirtualJoystick" basedOn="Control">
+      <Part name="Thumb">
+        <State name="Normal" region="joystick_thumb_normal" />
+        <State name="Hover" region="joystick_thumb_hover" />
+        <State name="Pressed" region="joystick_thumb_pressed" />
+        <State name="Disabled" region="joystick_thumb_disabled" />
+      </Part>
+      <Part name="TrackHorizontal">
+        <State name="Normal" region="slider_horizontal_track" />
+      </Part>
+      <Part name="TrackVertical">
+        <State name="Normal" region="slider_vertical_track" />
+      </Part>
+      <Value property="BorderColor" value="border" />
+      <Value property="PressedBackground" value="accentDark" />
+      <Value property="TextColor" value="muted" />
+      <Value property="DisabledBackground" value="raised" />
+    </Style>
+    <Style key="DropDownButton" basedOn="Button" />
+    <Style key="SplitButton" basedOn="Control" />
+    <Style key="GroupBox" basedOn="Control">
+      <Value property="Background" value="surface" />
+      <Value property="BorderColor" value="border" />
+      <Value property="BorderThickness" value="1" />
+      <Value property="HeaderHeight" value="32" />
+    </Style>
+    <Style key="Expander" basedOn="GroupBox" />
+    <Style key="ValueTextBox" basedOn="Control" />
+    <Style key="RepeatButton" basedOn="Button" />
+    <Style key="ValueTextBox.Arrow" basedOn="RepeatButton">
+      <Value property="MinWidth" value="0" />
+      <Value property="MinHeight" value="0" />
+      <Value property="Padding" value="0" />
+    </Style>
+    <Style key="ValueTextBox.Editor" basedOn="TextBox">
+      <Value property="Padding" value="8,4" />
+    </Style>
+    <Style key="ValueTextBox.Range" basedOn="ValueBar" />
+    <Style key="ValueBar" basedOn="TextBox">
+      <Value property="Padding" value="0" />
+      <Part name="Thumb">
+        <State name="Normal" region="scrollbar_horizontal_thumb_normal" />
+        <State name="Hover" region="scrollbar_horizontal_thumb_hover" />
+        <State name="Pressed" region="scrollbar_horizontal_thumb_pressed" />
+        <State name="Disabled" region="scrollbar_horizontal_thumb_disabled" />
+      </Part>
+      <Value property="Background" value="input" />
+      <Value property="BorderColor" value="border" />
+      <Value property="HoverBackground" value="hover" />
+      <Value property="PressedBackground" value="accentDark" />
+      <Value property="TextColor" value="text" />
+    </Style>
+    <Style key="Chart" basedOn="Control">
+      <Value property="Background" value="input" />
+      <Value property="BorderColor" value="border" />
+      <Value property="Padding" value="8" />
+    </Style>
+    <Style key="ScriptTextBox" basedOn="TextBox">
+      <Value property="KeywordColor" value="#6BB1FF" />
+      <Value property="StringColor" value="#D7A470" />
+      <Value property="CommentColor" value="#73A268" />
+      <Value property="NumberColor" value="#B5CEA8" />
+    </Style>
+    <Style key="StackPanel" basedOn="Panel" />
+    <Style key="CurveControl" basedOn="Control">
+      <Value property="Background" value="raised" />
+      <Value property="BorderColor" value="border" />
+      <Value property="TextColor" value="muted" />
+    </Style>
+    <Style key="TreeView" basedOn="ListBox" />
+    <Style key="Calendar" basedOn="Control">
+      <Value property="Background" value="surface" />
+      <Value property="BorderColor" value="border" />
+    </Style>
+    <Style key="Calendar.DayText" basedOn="TextBlock" />
+    <Style key="Calendar.OutsideDayText" basedOn="Calendar.DayText">
+      <Value property="TextColor" value="muted" />
+    </Style>
+    <Style key="Calendar.Day" basedOn="Button" />
+    <Style key="Calendar.SelectedDay" basedOn="Calendar.Day">
+      <Value property="Background" value="raised" />
+      <Value property="BorderColor" value="accent" />
+    </Style>
+    <Style key="Calendar.OutsideDay" basedOn="Calendar.Day">
+      <Value property="TextColor" value="muted" />
+    </Style>
+    <Style key="Calendar.Today" basedOn="Calendar.Day">
+      <Value property="BorderColor" value="accent" />
+    </Style>
+    <Style key="DatePicker" basedOn="Control">
+      <Value property="Background" value="input" />
+      <Value property="BorderColor" value="border" />
+    </Style>
+    <Style key="DatePicker.Editor" basedOn="TextBox" />
+    <Style key="NumericSpinner" basedOn="Control">
+      <Value property="Background" value="input" />
+      <Value property="BorderColor" value="border" />
+    </Style>
+    <Style key="NumericSpinner.Editor" basedOn="TextBox" />
+    <Style key="NumericSpinner.Arrow" basedOn="RepeatButton" />
+    <Style key="Spinner" basedOn="Control">
+      <Value property="TextColor" value="accent" />
+    </Style>
+    <Style key="PasswordBox" basedOn="TextBox" />
+    <Style key="Grid" basedOn="Control">
+      <Value property="Background" value="canvas" />
+    </Style>
+    <Style key="TabControl" basedOn="Panel" />
+    <Style key="TabItem" basedOn="ContentControl">
+      <Value property="Background" value="canvas" />
+    </Style>
+    <Style key="TabControl.Header" basedOn="ToggleButton" />
+    <Style key="DataTable" basedOn="ListBox">
+      <Value property="BorderColor" value="border" />
+    </Style>
+    <Style key="ContentControl" basedOn="Control" />
+    <Style key="Image" basedOn="Control" />
+    <Style key="RotationControl" basedOn="Control">
+      <Value property="Background" value="canvas" />
+      <Value property="BorderColor" value="border" />
+      <Value property="TextColor" value="accent" />
+    </Style>
+    <Style key="TextBlock" basedOn="Label" />
+    <Style key="ColorPlane" basedOn="Control" />
+  </Styles>
+</UiSkin>

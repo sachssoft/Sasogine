@@ -1,0 +1,4 @@
+Buttons,Sasogine_frame_ms,Myra_frame_ms,Median_winner,Less_time_percent,Sasogine_UI_ms,Myra_UI_ms,Sasogine_draw_calls,Myra_draw_calls,Sasogine_min_ms,Sasogine_max_ms,Myra_min_ms,Myra_max_ms,Ranges_overlap
+100,0.946010,0.891522,Myra,5.760,0.848449,0.814327,200.000,200.000,0.823627,1.244147,0.821482,1.138635,True
+1000,11.993567,11.498233,Myra,4.130,11.811738,11.330090,2000.000,2000.000,11.498370,12.307705,11.302577,12.043562,True
+5000,65.737554,63.851783,Myra,2.869,65.478858,63.627808,10000.000,10000.000,55.292012,89.166940,54.677435,85.739273,True

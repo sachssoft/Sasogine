@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\Sachssoft.Sasogine.UI.props" />
+  <PropertyGroup>
+    <PackageId>Sachssoft.Sasogine.Controls</PackageId>
+    <AssemblyName>Sachssoft.Sasogine.Controls</AssemblyName>
+    <Title>Sasogine Controls</Title>
+    <RootNamespace>Sachssoft.Engine.Controls</RootNamespace>
+    <IsAotCompatible>true</IsAotCompatible>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DefaultItemExcludes>$(DefaultItemExcludes);Validation\**;Examples\**</DefaultItemExcludes>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- The UI library must not select a concrete application backend. -->
+    <PackageReference Remove="Sachssoft.Sasogine.DesktopGL" />
+    <PackageReference Update="MonoGame.Framework.Native" Version="3.8.6" />
+    <PackageReference Include="FontStashSharp.MonoGame" Version="1.6.1" />
+    <ProjectReference Include="..\Basic\Sachssoft.Sasogine.csproj" />
+    <Compile Remove="Validation\**\*.cs" />
+    <Compile Remove="Examples\**\*.cs" />
+    <None Update="Skins\SachssoftDark\*.png;Skins\SachssoftDark\*.xml" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
