@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
 </small>
 
 ## [0.12.0-alpha] - Planned
+* [Feature] Introduced definition-inspector system.
 * [Feature] Added color models for RGB, HSL, HSV, linear RGB, and OKLab.
 * [Feature] Added color conversion and manipulation extensions for MonoGame colors.
 * [Feature] Added `GetKey` and `TryGetKey` support for resolving registry keys from definitions.

@@ -1,9 +1,12 @@
 using System.ComponentModel;
+using Sachssoft.Engine.Components.Definitions.Inspectors;
 
 namespace Sachssoft.Engine.Controls.Inspection;
 /// <summary>Builds grouped property editors from typed delegates, with notification-driven refresh or optional polling.</summary>
-public sealed class InspectorView : ContentControl
+public sealed class InspectorView : ContentControl, IInspectorView
 {
+    private readonly Dictionary<string, InspectorGroup> _namedGroups = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Control> _namedEditors = new(StringComparer.Ordinal);
     private readonly List<IInspectorBinding> _bindings = new();
     private readonly Dictionary<Control, InspectorPropertyMenu> _propertyMenus = new();
     private readonly InspectorEditorRegistry? _editors;
@@ -59,10 +62,66 @@ public sealed class InspectorView : ContentControl
 
     /// <summary>Adds the registered editor for an explicitly bound value without discovering its members.</summary>
     public Control Add<T>(string title, Func<T> read, Action<T> write, INotifyPropertyChanged? source = null, string? propertyName = null) => Editors.Add(this, title, read, write, source, propertyName);
+    /// <summary>Adds a named property through the UI-independent inspector contract.</summary>
+    /// <remarks>A missing setter disables editing and mutating property-menu actions while retaining live display and copy support.</remarks>
+    public Control Add<TValue>(string name, string title, Func<TValue> read, Action<TValue>? write = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentNullException.ThrowIfNull(title);
+        ArgumentNullException.ThrowIfNull(read);
+        if (_namedEditors.ContainsKey(name))
+            throw new ArgumentException("A field with this name already exists in this inspector group.", nameof(name));
+
+        Control editor = Add(title, read, write ?? (static _ => { }), propertyName: name);
+        if (write is null)
+        {
+            editor.IsEnabled = false;
+            if (editor is TextBox text) text.IsReadOnly = true;
+            GetPropertyMenu(editor).SetReadOnly();
+        }
+        _namedEditors.Add(name, editor);
+        return editor;
+    }
+
+    void IInspectorView.Add<TValue>(string name, string title, Func<TValue> read, Action<TValue>? write) =>
+        Add(name, title, read, write);
+
+    /// <summary>Gets the editor of a named field in this group.</summary>
+    public Control GetFieldEditor(string name)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        return _namedEditors[name];
+    }
+
+    /// <summary>Gets or creates a group by its stable name, updating its display title when reused.</summary>
+    public InspectorView Group(string name, string title)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentNullException.ThrowIfNull(title);
+        if (!_namedGroups.TryGetValue(name, out InspectorGroup? group))
+        {
+            group = new InspectorGroup(title, Editors);
+            _namedGroups.Add(name, group);
+            Add(group);
+        }
+        else if (group.HeaderContent is TextBlock heading)
+            heading.Text = title;
+        return group.Fields;
+    }
+
+    IInspectorView IInspectorView.Group(string name, string title) => Group(name, title);
+
     /// <inheritdoc/>
     public override void Add(Control child) => _fields.Add(child);
     /// <inheritdoc/>
-    public override void Remove(Control child) => _fields.Remove(child);
+    public override void Remove(Control child)
+    {
+        _fields.Remove(child);
+        string? name = null;
+        foreach (var entry in _namedGroups)
+            if (ReferenceEquals(entry.Value, child)) { name = entry.Key; break; }
+        if (name is not null) _namedGroups.Remove(name);
+    }
     /// <summary>Removes fields and groups and releases their source subscriptions.</summary>
     public override void Clear()
     {
@@ -74,6 +133,8 @@ public sealed class InspectorView : ContentControl
 
         _bindings.Clear();
         _propertyMenus.Clear();
+        _namedGroups.Clear();
+        _namedEditors.Clear();
         _fields.Clear();
     }
 

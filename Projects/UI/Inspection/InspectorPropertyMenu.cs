@@ -19,6 +19,7 @@ public sealed class InspectorPropertyMenu : Button
         BorderThickness = 1
     };
     private readonly MenuItem _reset = new() { Text = "Reset" }, _copy = new() { Text = "Copy value" }, _paste = new() { Text = "Paste value" };
+    private bool _readOnly;
     private Action? _resetAction;
     private static readonly PropertyChangedEventArgs ResetActionArgs = new(nameof(ResetAction));
     internal InspectorPropertyMenu(InspectorView inspector, Control editor, IInspectorPropertyActions? actions)
@@ -38,11 +39,11 @@ public sealed class InspectorPropertyMenu : Button
     /// <summary>Gets or sets an explicit reset override, for example removing a control's local style assignment.</summary>
     public Action? ResetAction { get => _resetAction; set => SetNotify(ref _resetAction, value, ResetActionArgs); }
     /// <summary>Gets whether a reset action is available for the current attached field.</summary>
-    public bool CanReset => IsCurrent && (_actions is not null || ResetAction is not null);
+    public bool CanReset => !_readOnly && IsCurrent && (_actions is not null || ResetAction is not null);
     /// <summary>Gets whether this field has typed copy support.</summary>
     public bool CanCopy => IsCurrent && _actions is not null;
     /// <summary>Gets whether the clipboard contains the exact property type.</summary>
-    public bool CanPaste => IsCurrent && Workspace is Workspace owner && (_actions?.CanPaste(owner.Registry.InspectorClipboard) ?? false);
+    public bool CanPaste => !_readOnly && IsCurrent && Workspace is Workspace owner && (_actions?.CanPaste(owner.Registry.InspectorClipboard) ?? false);
     private bool IsCurrent => Workspace is not null && _inspector.OwnsMenu(_editor, this);
     /// <summary>Restores the configured default or invokes the explicit style-reset callback.</summary>
     public void ResetValue()
@@ -91,6 +92,8 @@ public sealed class InspectorPropertyMenu : Button
             row.SetCell(this, column: 2);
         }
     }
+
+    internal void SetReadOnly() => _readOnly = true;
 
     internal void SetDefault<T>(T value)
     {

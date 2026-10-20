@@ -824,6 +824,7 @@ internal static class Program
                 Check(rejected,"Texture traversal must be rejected");
                 foreach(var skin in skins)skin.Dispose();root.Dispose();
             });
+            Run("UI-independent inspector view contract", () => _checks += InspectorViewContractTests.Run());
             if (args.Length == 2 && args[0] == "--font")
                 Run("Real engine font metrics", () =>
                 {
