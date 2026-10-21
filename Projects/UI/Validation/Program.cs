@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -1474,6 +1474,7 @@ internal static class Program
                 root.Dispose();
             });
             Run("UI-independent inspector view contract", () => _checks += InspectorViewContractTests.Run());
+            Run("Responsive inspector property rows", () => _checks += InspectorFieldLayoutTests.Run());
             if (args.Length == 2 && args[0] == "--font")
                 Run("Real engine font metrics", () =>
                 {

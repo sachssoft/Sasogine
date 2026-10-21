@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using Sachssoft.Engine.Components.Definitions.Inspectors;
 
 namespace Sachssoft.Engine.Controls.Inspection;
@@ -175,25 +175,8 @@ public sealed class InspectorView : ContentControl, IInspectorView
     public void AddField(string title, Control editor) => AddFieldCore(title, editor, null);
     private void AddFieldCore(string title, Control editor, IInspectorPropertyActions? actions)
     {
-        var row = new Grid
-        {
-            Spacing = 10
-        };
-        row.Columns.Add(new GridColumn { Width = new GridLength(112) });
-        row.Columns.Add(new GridColumn { Width = GridLength.Proportion() });
-        row.Columns.Add(new GridColumn { Width = new GridLength(26) });
-        var gridChild1 = new TextBlock
-        {
-            Text = title,
-            VerticalAlignment = ControlAlignment.Center
-        };
-        row.Children.Add(gridChild1);
-        row.Cells.Put(gridChild1, column: 0);
-        row.Children.Add(editor);
-        row.Cells.Put(editor, column: 1);
         var menu = new InspectorPropertyMenu(this, editor, actions);
-        row.Children.Add(menu);
-        row.Cells.Put(menu, column: 2);
+        var row = new InspectorFieldRow(title, editor, menu);
         menu.SetMenuVisible(ShowPropertyMenus);
         _propertyMenus.Add(editor, menu);
         Add(row);
