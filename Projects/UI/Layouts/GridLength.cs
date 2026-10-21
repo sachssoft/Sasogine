@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 
 namespace Sachssoft.Engine.Controls.Layouts;
-/// <summary>A finite grid length or a proportional star weight.</summary>
+/// <summary>A fixed logical length, automatic content size or proportional weight.</summary>
 public readonly record struct GridLength
 {
     /// <summary>Creates a validated length.</summary>
@@ -10,7 +10,7 @@ public readonly record struct GridLength
     {
         if (!float.IsFinite(value) || value < 0)
             throw new ArgumentOutOfRangeException(nameof(value));
-        if (unit is not (GridUnitType.Auto or GridUnitType.Pixel or GridUnitType.Star))
+        if (unit is not (GridUnitType.Auto or GridUnitType.Pixel or GridUnitType.Proportion))
             throw new ArgumentOutOfRangeException(nameof(unit));
         Value = value;
         Unit = unit;
@@ -24,7 +24,7 @@ public readonly record struct GridLength
     public static GridLength Auto => new(0, GridUnitType.Auto);
 
     /// <summary>Creates proportional sizing.</summary>
-    public static GridLength Star(float weight = 1) => new(weight, GridUnitType.Star);
+    public static GridLength Proportion(float weight = 1) => new(weight, GridUnitType.Proportion);
     /// <summary>Parses Auto, pixels, * or a weighted expression such as 2*.</summary>
     public static GridLength Parse(string text)
     {
@@ -32,14 +32,14 @@ public readonly record struct GridLength
         text = text.Trim();
         if (text == "Auto")
             return Auto;
-        bool star = text.EndsWith('*');
-        string number = star ? text[..^1] : text;
-        float value = star && number.Length == 0 ? 1 : float.Parse(number, NumberStyles.Float, CultureInfo.InvariantCulture);
-        return new GridLength(value, star ? GridUnitType.Star : GridUnitType.Pixel);
+        bool proportional = text.EndsWith('*');
+        string number = proportional ? text[..^1] : text;
+        float value = proportional && number.Length == 0 ? 1 : float.Parse(number, NumberStyles.Float, CultureInfo.InvariantCulture);
+        return new GridLength(value, proportional ? GridUnitType.Proportion : GridUnitType.Pixel);
     }
 
     /// <inheritdoc/>
-    public override string ToString() => Unit == GridUnitType.Auto ? "Auto" : Value.ToString("R", CultureInfo.InvariantCulture) + (Unit == GridUnitType.Star ? "*" : "");
+    public override string ToString() => Unit == GridUnitType.Auto ? "Auto" : Value.ToString("R", CultureInfo.InvariantCulture) + (Unit == GridUnitType.Proportion ? "*" : "");
     /// <summary>Converts a logical pixel value to a grid length.</summary>
     public static implicit operator GridLength(float pixels) => new(pixels);
 }

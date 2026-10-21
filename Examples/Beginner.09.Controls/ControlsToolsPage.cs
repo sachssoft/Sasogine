@@ -26,9 +26,9 @@ public sealed class ControlsToolsPage : Grid
     {
         Padding = new Insets2(20);
         Spacing = 14;
-        Tracks.Add(new ColumnTrack { Width = GridLength.Star() });
-        Tracks.Add(new ColumnTrack { Width = GridLength.Star() });
-        Rows.Add(new RowTrack { Height = GridLength.Star() });
+        Columns.Add(new GridColumn { Width = GridLength.Proportion() });
+        Columns.Add(new GridColumn { Width = GridLength.Proportion() });
+        Rows.Add(new GridRow { Height = GridLength.Proportion() });
         var left = new StackPanel
         {
             Spacing = 10
@@ -37,11 +37,13 @@ public sealed class ControlsToolsPage : Grid
         {
             Spacing = 10
         };
-        right.Rows.Add(new RowTrack { Height = GridLength.Auto });
-        right.Rows.Add(new RowTrack { Height = GridLength.Star() });
-        right.Rows.Add(new RowTrack { Height = GridLength.Auto });
-        Add(left);
-        Add(right, column: 1);
+        right.Rows.Add(new GridRow { Height = GridLength.Auto });
+        right.Rows.Add(new GridRow { Height = GridLength.Proportion() });
+        right.Rows.Add(new GridRow { Height = GridLength.Auto });
+        Children.Add(left);
+        Cells.Put(left);
+        Children.Add(right);
+        Cells.Put(right, column: 1);
         left.Add(new TextBlock { Text = "LIVE / frame time (ms), 0–50", Height = 24 });
         var line = new Chart
         {
@@ -101,14 +103,16 @@ public sealed class ControlsToolsPage : Grid
 
         )
             languages.Items.Add(new SelectorItem(name));
-        right.Add(languages);
+        right.Children.Add(languages);
+        right.Cells.Put(languages);
         var code = new ScriptTextBox
         {
             Language = ScriptLanguage.Lua,
             Text = "-- Lua example\nlocal speed = 1.25\nfunction update(dt)\n    return speed * dt\nend",
             Padding = new Insets2(12)
         };
-        right.Add(code, row: 1);
+        right.Children.Add(code);
+        right.Cells.Put(code, row: 1);
         languages.SelectionChanged += (_, _) =>
         {
             if (languages.SelectedIndex == 3)
@@ -133,7 +137,13 @@ public sealed class ControlsToolsPage : Grid
             };
         };
         languages.SelectedIndex = 0;
-        right.Add(new TextBlock { Text = "Editable syntax colors / Ctrl+Z, Ctrl+Y, selection, clipboard", Height = 32 }, row: 2);
+        var gridChild1 = new TextBlock
+        {
+            Text = "Editable syntax colors / Ctrl+Z, Ctrl+Y, selection, clipboard",
+            Height = 32
+        };
+        right.Children.Add(gridChild1);
+        right.Cells.Put(gridChild1, row: 2);
     }
 
     /// <inheritdoc/>

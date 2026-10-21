@@ -213,6 +213,7 @@ internal static class InspectorChecks
         _checks += InspectorValueChecks.Run(layout);
         _checks += AssetControlsChecks.Run(layout);
         _checks += InspectorPropertyMenuChecks.Run(layout);
+        _checks += InspectorDpiChecks.Run(layout);
         Console.WriteLine($"PASS: {_checks} inspector checks; registered value catalog, exact numeric input, grouping, cache and binding lifetime.");
     }
 }

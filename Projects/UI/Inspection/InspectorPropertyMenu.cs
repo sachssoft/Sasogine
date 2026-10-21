@@ -1,7 +1,6 @@
 using System.ComponentModel;
 
 namespace Sachssoft.Engine.Controls.Inspection;
-
 /// <summary>Opens the trailing property menu without polling values or allocating during unchanged updates.</summary>
 public sealed class InspectorPropertyMenu : Button
 {
@@ -18,18 +17,33 @@ public sealed class InspectorPropertyMenu : Button
         BorderColor = new Color(65, 71, 83),
         BorderThickness = 1
     };
-    private readonly MenuItem _reset = new() { Text = "Reset" }, _copy = new() { Text = "Copy value" }, _paste = new() { Text = "Paste value" };
+    private readonly MenuItem _reset = new()
+    {
+        Text = "Reset"
+    }, _copy = new()
+    {
+        Text = "Copy value"
+    }, _paste = new()
+    {
+        Text = "Paste value"
+    };
     private bool _readOnly;
     private Action? _resetAction;
     private static readonly PropertyChangedEventArgs ResetActionArgs = new(nameof(ResetAction));
     internal InspectorPropertyMenu(InspectorView inspector, Control editor, IInspectorPropertyActions? actions)
     {
-        _inspector = inspector; _editor = editor; _actions = actions;
-
+        _inspector = inspector;
+        _editor = editor;
+        _actions = actions;
         ToolTip = "Property actions";
-        _reset.Action = ResetValue; _copy.Action = CopyValue; _paste.Action = PasteValue;
-        _menu.Items.Add(_reset); _menu.Items.Add(_copy); _menu.Items.Add(_paste);
+        _reset.Action = ResetValue;
+        _copy.Action = CopyValue;
+        _paste.Action = PasteValue;
+        _menu.Items.Add(_reset);
+        _menu.Items.Add(_copy);
+        _menu.Items.Add(_paste);
     }
+
     /// <inheritdoc/>
     protected override string DefaultStyleName => "Inspector.PropertyMenu";
     /// <inheritdoc/>
@@ -45,25 +59,45 @@ public sealed class InspectorPropertyMenu : Button
     /// <summary>Gets whether the clipboard contains the exact property type.</summary>
     public bool CanPaste => !_readOnly && IsCurrent && Workspace is Workspace owner && (_actions?.CanPaste(owner.Registry.InspectorClipboard) ?? false);
     private bool IsCurrent => Workspace is not null && _inspector.OwnsMenu(_editor, this);
+
     /// <summary>Restores the configured default or invokes the explicit style-reset callback.</summary>
     public void ResetValue()
     {
-        if (!CanReset) return;
-        if (ResetAction is Action reset) reset(); else _actions!.Reset();
+        if (!CanReset)
+            return;
+        if (ResetAction is Action reset)
+            reset();
+        else
+            _actions!.Reset();
     }
+
     /// <summary>Copies the complete typed value to the registry-local property clipboard.</summary>
-    public void CopyValue() { if (CanCopy) _actions!.Copy(Workspace!.Registry.InspectorClipboard); }
+    public void CopyValue()
+    {
+        if (CanCopy)
+            _actions!.Copy(Workspace!.Registry.InspectorClipboard);
+    }
+
     /// <summary>Pastes a matching typed value; incompatible values leave the model unchanged.</summary>
-    public void PasteValue() { if (CanPaste) _actions!.Paste(Workspace!.Registry.InspectorClipboard); }
+    public void PasteValue()
+    {
+        if (CanPaste)
+            _actions!.Paste(Workspace!.Registry.InspectorClipboard);
+    }
+
     /// <inheritdoc/>
     protected override void OnClick()
     {
         RaiseClicked();
-        if (!IsCurrent || !IsVisible || _menu.Workspace is not null) return;
+        if (!IsCurrent || !IsVisible || _menu.Workspace is not null)
+            return;
         // Availability is evaluated only when opening or executing the menu.
-        _reset.IsEnabled = CanReset; _copy.IsEnabled = CanCopy; _paste.IsEnabled = CanPaste;
+        _reset.IsEnabled = CanReset;
+        _copy.IsEnabled = CanCopy;
+        _paste.IsEnabled = CanPaste;
         _menu.Show(Workspace!, new Vector2(Bounds.Right, Bounds.Bottom), this);
     }
+
     /// <inheritdoc/>
     protected override void OnDraw(ControlDrawContext context)
     {
@@ -74,27 +108,37 @@ public sealed class InspectorPropertyMenu : Button
         for (int i = 0; i < 3; i++)
             context.FillRectangle(new Bounds2(x, y + i * 6, 3, 3), color);
     }
+
     /// <inheritdoc/>
-    protected override void OnDetached() { if (_menu.Workspace is Workspace owner) owner.ClosePopup(_menu); base.OnDetached(); }
+    protected override void OnDetached()
+    {
+        if (_menu.Workspace is Workspace owner)
+            owner.ClosePopup(_menu);
+        base.OnDetached();
+    }
+
     internal void SetMenuVisible(bool visible)
     {
-        if (!visible && _menu.Workspace is Workspace owner) owner.ClosePopup(_menu);
+        if (!visible && _menu.Workspace is Workspace owner)
+            owner.ClosePopup(_menu);
         IsVisible = visible;
-        if (Parent is not Grid row) return;
-        if (!visible && row.Tracks.Count == 3)
+        if (Parent is not Grid row)
+            return;
+        if (!visible && row.Columns.Count == 3)
         {
-            row.SetCell(this, column: 1);
-            row.Tracks.RemoveAt(2);
+            row.Cells.Release(this);
+            row.Cells.Put(this, column: 1);
+            row.Columns.RemoveAt(2);
         }
-        else if (visible && row.Tracks.Count == 2)
+        else if (visible && row.Columns.Count == 2)
         {
-            row.Tracks.Add(new ColumnTrack { Width = new GridLength(26) });
-            row.SetCell(this, column: 2);
+            row.Columns.Add(new GridColumn { Width = new GridLength(26) });
+            row.Cells.Release(this);
+            row.Cells.Put(this, column: 2);
         }
     }
 
     internal void SetReadOnly() => _readOnly = true;
-
     internal void SetDefault<T>(T value)
     {
         if (_actions is not InspectorPropertyActions<T> typed)

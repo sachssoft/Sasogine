@@ -23,26 +23,41 @@ public sealed class InspectorView : ContentControl, IInspectorView
         get => _showPropertyMenus;
         set
         {
-            if (_localShowPropertyMenus == value) return;
+            if (_localShowPropertyMenus == value)
+                return;
             _localShowPropertyMenus = value;
             RefreshPropertyMenuVisibility();
         }
     }
+
     private void RefreshPropertyMenuVisibility()
     {
         bool inherited = true;
         for (Control? parent = Parent; parent is not null; parent = parent.Parent)
-            if (parent is InspectorView inspector) { inherited = inspector.ShowPropertyMenus; break; }
+            if (parent is InspectorView inspector)
+            {
+                inherited = inspector.ShowPropertyMenus;
+                break;
+            }
+
         bool visible = _localShowPropertyMenus ?? inherited;
         if (SetNotify(ref _showPropertyMenus, visible, ShowPropertyMenusArgs))
-            foreach (InspectorPropertyMenu menu in _propertyMenus.Values) menu.SetMenuVisible(visible);
+            foreach (InspectorPropertyMenu menu in _propertyMenus.Values)
+                menu.SetMenuVisible(visible);
         RefreshNestedVisibility(_fields);
     }
+
     private static void RefreshNestedVisibility(Control control)
     {
-        if (control is InspectorView inspector) { inspector.RefreshPropertyMenuVisibility(); return; }
+        if (control is InspectorView inspector)
+        {
+            inspector.RefreshPropertyMenuVisibility();
+            return;
+        }
+
         if (control is ContainerControl container)
-            foreach (Control child in container.Children) RefreshNestedVisibility(child);
+            foreach (Control child in container.Children)
+                RefreshNestedVisibility(child);
     }
 
     /// <summary>Creates an inspector. Place it in a ScrollViewer when its content may exceed the available height.</summary>
@@ -71,21 +86,22 @@ public sealed class InspectorView : ContentControl, IInspectorView
         ArgumentNullException.ThrowIfNull(read);
         if (_namedEditors.ContainsKey(name))
             throw new ArgumentException("A field with this name already exists in this inspector group.", nameof(name));
-
-        Control editor = Add(title, read, write ?? (static _ => { }), propertyName: name);
+        Control editor = Add(title, read, write ?? (static _ =>
+        {
+        }), propertyName: name);
         if (write is null)
         {
             editor.IsEnabled = false;
-            if (editor is TextBox text) text.IsReadOnly = true;
+            if (editor is TextBox text)
+                text.IsReadOnly = true;
             GetPropertyMenu(editor).SetReadOnly();
         }
+
         _namedEditors.Add(name, editor);
         return editor;
     }
 
-    void IInspectorView.Add<TValue>(string name, string title, Func<TValue> read, Action<TValue>? write) =>
-        Add(name, title, read, write);
-
+    void IInspectorView.Add<TValue>(string name, string title, Func<TValue> read, Action<TValue>? write) => Add(name, title, read, write);
     /// <summary>Gets the editor of a named field in this group.</summary>
     public Control GetFieldEditor(string name)
     {
@@ -110,7 +126,6 @@ public sealed class InspectorView : ContentControl, IInspectorView
     }
 
     IInspectorView IInspectorView.Group(string name, string title) => Group(name, title);
-
     /// <inheritdoc/>
     public override void Add(Control child) => _fields.Add(child);
     /// <inheritdoc/>
@@ -119,9 +134,16 @@ public sealed class InspectorView : ContentControl, IInspectorView
         _fields.Remove(child);
         string? name = null;
         foreach (var entry in _namedGroups)
-            if (ReferenceEquals(entry.Value, child)) { name = entry.Key; break; }
-        if (name is not null) _namedGroups.Remove(name);
+            if (ReferenceEquals(entry.Value, child))
+            {
+                name = entry.Key;
+                break;
+            }
+
+        if (name is not null)
+            _namedGroups.Remove(name);
     }
+
     /// <summary>Removes fields and groups and releases their source subscriptions.</summary>
     public override void Clear()
     {
@@ -151,41 +173,43 @@ public sealed class InspectorView : ContentControl, IInspectorView
 
     /// <summary>Adds a label and an arbitrary existing editor.</summary>
     public void AddField(string title, Control editor) => AddFieldCore(title, editor, null);
-
     private void AddFieldCore(string title, Control editor, IInspectorPropertyActions? actions)
     {
         var row = new Grid
         {
             Spacing = 10
         };
-        row.Tracks.Add(new ColumnTrack { Width = new GridLength(112) });
-        row.Tracks.Add(new ColumnTrack { Width = GridLength.Star() });
-        row.Tracks.Add(new ColumnTrack { Width = new GridLength(26) });
-        row.Add(new TextBlock { Text = title, VerticalAlignment = ControlAlignment.Center }, column: 0);
-        row.Add(editor, column: 1);
+        row.Columns.Add(new GridColumn { Width = new GridLength(112) });
+        row.Columns.Add(new GridColumn { Width = GridLength.Proportion() });
+        row.Columns.Add(new GridColumn { Width = new GridLength(26) });
+        var gridChild1 = new TextBlock
+        {
+            Text = title,
+            VerticalAlignment = ControlAlignment.Center
+        };
+        row.Children.Add(gridChild1);
+        row.Cells.Put(gridChild1, column: 0);
+        row.Children.Add(editor);
+        row.Cells.Put(editor, column: 1);
         var menu = new InspectorPropertyMenu(this, editor, actions);
-        row.Add(menu, column: 2);
+        row.Children.Add(menu);
+        row.Cells.Put(menu, column: 2);
         menu.SetMenuVisible(ShowPropertyMenus);
         _propertyMenus.Add(editor, menu);
         Add(row);
     }
 
-    private void AddBoundField<T>(string title, Control editor, InspectorValueBinding<T> binding, Func<T> read, Func<T, T>? snapshot = null) =>
-        AddFieldCore(title, editor, new InspectorPropertyActions<T>(read, binding.SetValue, snapshot));
-
+    private void AddBoundField<T>(string title, Control editor, InspectorValueBinding<T> binding, Func<T> read, Func<T, T>? snapshot = null) => AddFieldCore(title, editor, new InspectorPropertyActions<T>(read, binding.SetValue, snapshot));
     /// <summary>Gets the trailing menu for a field created by this inspector.</summary>
     public InspectorPropertyMenu GetPropertyMenu(Control editor)
     {
         ArgumentNullException.ThrowIfNull(editor);
-        return _propertyMenus.TryGetValue(editor, out InspectorPropertyMenu? menu) ? menu
-            : throw new ArgumentException("The editor does not belong to this inspector.", nameof(editor));
+        return _propertyMenus.TryGetValue(editor, out InspectorPropertyMenu? menu) ? menu : throw new ArgumentException("The editor does not belong to this inspector.", nameof(editor));
     }
+
     /// <summary>Sets an explicit reset value. Otherwise Reset restores the snapshot captured when the field was created.</summary>
     public void SetDefault<T>(Control editor, T value) => GetPropertyMenu(editor).SetDefault(value);
-
-    internal bool OwnsMenu(Control editor, InspectorPropertyMenu menu) =>
-        _propertyMenus.TryGetValue(editor, out InspectorPropertyMenu? current) && ReferenceEquals(current, menu);
-
+    internal bool OwnsMenu(Control editor, InspectorPropertyMenu menu) => _propertyMenus.TryGetValue(editor, out InspectorPropertyMenu? current) && ReferenceEquals(current, menu);
     private InspectorValueBinding<T> Bind<T>(Func<T> read, Action<T> write, Action<T> display, INotifyPropertyChanged? source, string? name, IEqualityComparer<T>? comparer = null)
     {
         var binding = new InspectorValueBinding<T>(read, write, display, source, name, comparer);
@@ -382,12 +406,14 @@ public sealed class InspectorView : ContentControl, IInspectorView
     }
 
     /// <summary>Adds a type-filtered reference field using the shared asset picker.</summary>
-    public ReferencePicker<T> AddReference<T>(string title, Func<Reference<T>?> read, Action<Reference<T>?> write,
-        IReadOnlyList<AssetItem> assets, INotifyPropertyChanged? source = null, string? propertyName = null)
+    public ReferencePicker<T> AddReference<T>(string title, Func<Reference<T>?> read, Action<Reference<T>?> write, IReadOnlyList<AssetItem> assets, INotifyPropertyChanged? source = null, string? propertyName = null)
         where T : class, IEngineReferenceable
     {
         ArgumentNullException.ThrowIfNull(assets);
-        var editor = new ReferencePicker<T> { Source = assets };
+        var editor = new ReferencePicker<T>
+        {
+            Source = assets
+        };
         var binding = Bind(read, write, value => editor.Value = value, source, propertyName);
         editor.ReferenceChanged += (_, _) => binding.SetValue(editor.Value);
         AddBoundField(title, editor, binding, read, static value => value is null ? null : new Reference<T>(value.Id));

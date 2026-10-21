@@ -13,24 +13,50 @@ public sealed class ControlsDataPage : Grid
         Padding = new Insets2(20);
         Spacing = 12;
         Background = new Color(17, 24, 35);
-        Rows.Add(new RowTrack { Height = GridLength.Auto });
-        Rows.Add(new RowTrack { Height = GridLength.Auto });
-        Rows.Add(new RowTrack { Height = GridLength.Star() });
-        Rows.Add(new RowTrack { Height = GridLength.Auto });
-        Rows.Add(new RowTrack { Height = GridLength.Auto });
-        Add(new Label() { Text = "GRID / DATA TABLE / ICommand", TextColor = new Color(65, 199, 223), Height = 28 });
+        Rows.Add(new GridRow { Height = GridLength.Auto });
+        Rows.Add(new GridRow { Height = GridLength.Auto });
+        Rows.Add(new GridRow { Height = GridLength.Proportion() });
+        Rows.Add(new GridRow { Height = GridLength.Auto });
+        Rows.Add(new GridRow { Height = GridLength.Auto });
+        var gridChild1 = new Label()
+        {
+            Text = "GRID / DATA TABLE / ICommand",
+            TextColor = new Color(65, 199, 223),
+            Height = 28
+        };
+        Children.Add(gridChild1);
+        Cells.Put(gridChild1);
         var form = new Grid()
         {
             Spacing = 10,
             Background = Color.Transparent
         };
-        form.Tracks.Add(new ColumnTrack { Width = GridLength.Auto });
-        form.Tracks.Add(new ColumnTrack { Width = GridLength.Star(2) });
-        form.Tracks.Add(new ColumnTrack { Width = GridLength.Star() });
-        form.Add(new Label() { Text = "Project", VerticalAlignment = ControlAlignment.Center });
-        form.Add(new TextBox() { Height = 36, Text = "Sasogine libraries" }, column: 1);
-        form.Add(new Label() { Text = "Auto | 2* | *", VerticalAlignment = ControlAlignment.Center }, column: 2);
-        Add(form, row: 1);
+        form.Columns.Add(new GridColumn { Width = GridLength.Auto });
+        form.Columns.Add(new GridColumn { Width = GridLength.Proportion(2) });
+        form.Columns.Add(new GridColumn { Width = GridLength.Proportion() });
+        var gridChild2 = new Label()
+        {
+            Text = "Project",
+            VerticalAlignment = ControlAlignment.Center
+        };
+        form.Children.Add(gridChild2);
+        form.Cells.Put(gridChild2);
+        var gridChild3 = new TextBox()
+        {
+            Height = 36,
+            Text = "Sasogine libraries"
+        };
+        form.Children.Add(gridChild3);
+        form.Cells.Put(gridChild3, column: 1);
+        var gridChild4 = new Label()
+        {
+            Text = "Auto | 2* | *",
+            VerticalAlignment = ControlAlignment.Center
+        };
+        form.Children.Add(gridChild4);
+        form.Cells.Put(gridChild4, column: 2);
+        Children.Add(form);
+        Cells.Put(form, row: 1);
         var table = new DataTable()
         {
             ItemHeight = 34,
@@ -54,7 +80,8 @@ public sealed class ControlsDataPage : Grid
         for (int i = 0; i < 36; i++)
             table.Items.Add(new ControlsDemoRow(names[i % names.Length], "0.12.0-alpha", 1200 + i * 137, "Example data"));
         table.SelectedIndex = 1;
-        Add(table, row: 2);
+        Children.Add(table);
+        Cells.Put(table, row: 2);
         var status = new Label()
         {
             Text = "Ctrl/Shift selects full rows; Ctrl+A selects all. Headers sort; F2 edits a cell.",
@@ -95,8 +122,10 @@ public sealed class ControlsDataPage : Grid
             };
             _ = picker.ShowAsync(root);
         }) });
-        Add(actions, row: 3);
-        Add(status, row: 4);
+        Children.Add(actions);
+        Cells.Put(actions, row: 3);
+        Children.Add(status);
+        Cells.Put(status, row: 4);
         Table = table;
     }
 

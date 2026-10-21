@@ -77,6 +77,10 @@ public sealed class ControlDrawContext : GameContext, IDisposable
     public IControlFont DefaultFont { get; }
     /// <summary>Gets the logical viewport size.</summary>
     public Size2 LogicalSize => new(_viewport.Width / _scale, _viewport.Height / _scale);
+    /// <summary>Gets the physical viewport used for drawing.</summary>
+    public Rectangle Viewport => _viewport;
+    /// <summary>Gets physical pixels per logical UI unit.</summary>
+    public float Scale => _scale;
 
     /// <summary>Gets the compatibility batch, flushing native work first. Prefer FrameBatch for new custom drawing.</summary>
     public SpriteBatch SpriteBatch

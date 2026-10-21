@@ -45,15 +45,23 @@ public sealed class TypedMultiValueEditor<T, TNumber> : Grid where T : struct wh
 
         bool headings = groups.Any(static name => name.Length > 0);
         if (headings)
-            Tracks.Add(new ColumnTrack { Width = GridLength.Auto });
+            Columns.Add(new GridColumn { Width = GridLength.Auto });
         int columns = counts.Max();
         for (int i = 0; i < columns; i++)
-            Tracks.Add(new ColumnTrack { Width = GridLength.Star() });
+            Columns.Add(new GridColumn { Width = GridLength.Proportion() });
         for (int row = 0; row < groups.Count; row++)
         {
-            Rows.Add(new RowTrack { Height = GridLength.Auto });
+            Rows.Add(new GridRow { Height = GridLength.Auto });
             if (headings)
-                Add(new TextBlock { Text = groups[row], VerticalAlignment = ControlAlignment.Center }, row, 0);
+            {
+                var gridChild1 = new TextBlock
+                {
+                    Text = groups[row],
+                    VerticalAlignment = ControlAlignment.Center
+                };
+                Children.Add(gridChild1);
+                Cells.Put(gridChild1, row, 0);
+            }
         }
 
         var offsets = new int[groups.Count];
@@ -66,9 +74,15 @@ public sealed class TypedMultiValueEditor<T, TNumber> : Grid where T : struct wh
             {
                 StyleId = "Inspector.Component"
             };
-            cell.Tracks.Add(new ColumnTrack { Width = GridLength.Auto });
-            cell.Tracks.Add(new ColumnTrack { Width = GridLength.Star() });
-            cell.Add(new TextBlock { Text = component.Name, VerticalAlignment = ControlAlignment.Center }, column: 0);
+            cell.Columns.Add(new GridColumn { Width = GridLength.Auto });
+            cell.Columns.Add(new GridColumn { Width = GridLength.Proportion() });
+            var gridChild2 = new TextBlock
+            {
+                Text = component.Name,
+                VerticalAlignment = ControlAlignment.Center
+            };
+            cell.Children.Add(gridChild2);
+            cell.Cells.Put(gridChild2, column: 0);
             var editor = InspectorNumber.Create(component.Read(value));
             _editors[i] = editor;
             editor.ValueChanged += (_, _) =>
@@ -76,8 +90,10 @@ public sealed class TypedMultiValueEditor<T, TNumber> : Grid where T : struct wh
                 if (!_updating)
                     Value = component.WithValue(ReadCurrent is null ? _value : ReadCurrent(), editor.Value);
             };
-            cell.Add(editor, column: 1);
-            Add(cell, row, column);
+            cell.Children.Add(editor);
+            cell.Cells.Put(editor, column: 1);
+            Children.Add(cell);
+            Cells.Put(cell, row, column);
         }
     }
 

@@ -75,10 +75,10 @@ internal sealed class EditorView
             Spacing = 10,
             Background = new Color(17, 24, 35)
         };
-        page.Rows.Add(new RowTrack { Height = GridLength.Auto });
-        page.Rows.Add(new RowTrack { Height = GridLength.Auto });
-        page.Rows.Add(new RowTrack { Height = GridLength.Star() });
-        page.Rows.Add(new RowTrack { Height = GridLength.Auto });
+        page.Rows.Add(new GridRow { Height = GridLength.Auto });
+        page.Rows.Add(new GridRow { Height = GridLength.Auto });
+        page.Rows.Add(new GridRow { Height = GridLength.Proportion() });
+        page.Rows.Add(new GridRow { Height = GridLength.Auto });
         Workspace = new Workspace(page);
         var registry = Workspace.Registry;
         _path = path;
@@ -90,7 +90,8 @@ internal sealed class EditorView
             ToolTip = "Drag to move. Escape cancels; arrows move the selected object."
         };
         var menu = new MenuBar();
-        page.Add(menu);
+        page.Children.Add(menu);
+        page.Cells.Put(menu);
         var file = new MenuItem
         {
             Text = "&File"
@@ -113,7 +114,8 @@ internal sealed class EditorView
             Spacing = 8,
             Height = 36
         };
-        page.Add(toolbar, row: 1);
+        page.Children.Add(toolbar);
+        page.Cells.Put(toolbar, row: 1);
         void Tool(string text, Action action, Func<bool>? allowed = null) => toolbar.Add(new Button() { Content = new TextBlock { Text = text }, Height = 36, Command = new Command(_ => action(), _ => !Document.IsEditing && (allowed?.Invoke() ?? true)) });
         Tool("+ Rectangle", () => Document.Add(), () => Document.Objects.Count < 256);
         Tool("Duplicate", () => Document.Add(true), () => Document.Selected is not null && Document.Objects.Count < 256);
@@ -147,30 +149,54 @@ internal sealed class EditorView
         {
             Spacing = 12
         };
-        page.Add(body, row: 2);
-        body.Tracks.Add(new ColumnTrack { Width = 220 });
-        body.Tracks.Add(new ColumnTrack { Width = GridLength.Star() });
-        body.Tracks.Add(new ColumnTrack { Width = 268 });
+        page.Children.Add(body);
+        page.Cells.Put(body, row: 2);
+        body.Columns.Add(new GridColumn { Width = 220 });
+        body.Columns.Add(new GridColumn { Width = GridLength.Proportion() });
+        body.Columns.Add(new GridColumn { Width = 268 });
         var left = new Grid()
         {
             StyleId = "Editor.Card"
         };
-        body.Add(left);
-        left.Rows.Add(new RowTrack { Height = GridLength.Auto });
-        left.Rows.Add(new RowTrack { Height = GridLength.Star() });
-        left.Add(new Label() { StyleId = "Editor.Heading", Text = "SCENE OBJECTS" });
-        left.Add(_tree, row: 1);
+        body.Children.Add(left);
+        body.Cells.Put(left);
+        left.Rows.Add(new GridRow { Height = GridLength.Auto });
+        left.Rows.Add(new GridRow { Height = GridLength.Proportion() });
+        var gridChild1 = new Label()
+        {
+            StyleId = "Editor.Heading",
+            Text = "SCENE OBJECTS"
+        };
+        left.Children.Add(gridChild1);
+        left.Cells.Put(gridChild1);
+        left.Children.Add(_tree);
+        left.Cells.Put(_tree, row: 1);
         var center = new Grid()
         {
             Spacing = 8
         };
-        body.Add(center, column: 1);
-        center.Rows.Add(new RowTrack { Height = GridLength.Auto });
-        center.Rows.Add(new RowTrack { Height = GridLength.Star() });
-        center.Rows.Add(new RowTrack { Height = GridLength.Auto });
-        center.Add(new Label() { StyleId = "Editor.Heading", Text = "2D CANVAS  /  960 x 540" });
-        center.Add(Canvas, row: 1);
-        center.Add(new Label() { WrapText = true, Height = 48, Text = "Click selects. Drag moves. Escape cancels.\nArrow keys move; Shift uses 20 px steps." }, row: 2);
+        body.Children.Add(center);
+        body.Cells.Put(center, column: 1);
+        center.Rows.Add(new GridRow { Height = GridLength.Auto });
+        center.Rows.Add(new GridRow { Height = GridLength.Proportion() });
+        center.Rows.Add(new GridRow { Height = GridLength.Auto });
+        var gridChild2 = new Label()
+        {
+            StyleId = "Editor.Heading",
+            Text = "2D CANVAS  /  960 x 540"
+        };
+        center.Children.Add(gridChild2);
+        center.Cells.Put(gridChild2);
+        center.Children.Add(Canvas);
+        center.Cells.Put(Canvas, row: 1);
+        var gridChild3 = new Label()
+        {
+            WrapText = true,
+            Height = 48,
+            Text = "Click selects. Drag moves. Escape cancels.\nArrow keys move; Shift uses 20 px steps."
+        };
+        center.Children.Add(gridChild3);
+        center.Cells.Put(gridChild3, row: 2);
         var inspector = new StackPanel()
         {
             Spacing = 8,
@@ -179,7 +205,13 @@ internal sealed class EditorView
             BorderColor = new Color(56, 71, 92),
             BorderThickness = 1
         };
-        body.Add(new ScrollViewer() { Content = inspector, HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden }, column: 2);
+        var gridChild4 = new ScrollViewer()
+        {
+            Content = inspector,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden
+        };
+        body.Children.Add(gridChild4);
+        body.Cells.Put(gridChild4, column: 2);
         inspector.Add(new Label() { StyleId = "Editor.Heading", Text = "PROPERTIES" });
         inspector.Add(new Label() { Text = "Name" });
         inspector.Add(_name);
@@ -189,13 +221,15 @@ internal sealed class EditorView
             Height = 110,
             Spacing = 8
         };
-        rotationRow.Tracks.Add(new ColumnTrack { Width = GridLength.Star() });
-        rotationRow.Tracks.Add(new ColumnTrack { Width = 110 });
+        rotationRow.Columns.Add(new GridColumn { Width = GridLength.Proportion() });
+        rotationRow.Columns.Add(new GridColumn { Width = 110 });
         _angle.VerticalAlignment = ControlAlignment.Center;
         _rotation.Width = 110;
         _rotation.Height = 110;
-        rotationRow.Add(_angle);
-        rotationRow.Add(_rotation, column: 1);
+        rotationRow.Children.Add(_angle);
+        rotationRow.Cells.Put(_angle);
+        rotationRow.Children.Add(_rotation);
+        rotationRow.Cells.Put(_rotation, column: 1);
         inspector.Add(rotationRow);
         _rotation.EditStarted += (_, _) => Document.BeginDrag();
         _rotation.AngleChanged += (_, _) =>
@@ -234,7 +268,8 @@ internal sealed class EditorView
         inspector.Add(new Label() { StyleId = "Editor.Heading", Text = "DOCUMENT FILE" });
         inspector.Add(_file);
         inspector.Add(new Label() { Text = "Open / Save: JSON version 2.\nMaximum 256 rectangles.", WrapText = true });
-        page.Add(_status, row: 3);
+        page.Children.Add(_status);
+        page.Cells.Put(_status, row: 3);
         _tree.SelectionChanged += (_, _) =>
         {
             if (!_sync)

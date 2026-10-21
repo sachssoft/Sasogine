@@ -14,12 +14,12 @@
 		-->
 		<CheckEolWorkloads>false</CheckEolWorkloads>
 
-		<MonoGameVersion>3.8.5.1</MonoGameVersion>
+		<MonoGameVersion>3.8.6</MonoGameVersion>
 		<UseMonoGameNative Condition="'$(UseMonoGameNative)' == ''">true</UseMonoGameNative>
 		<MonoGameNativeTransitive Condition="'$(MonoGameNativeTransitive)' == ''">false</MonoGameNativeTransitive>
 
 		<!-- NuGet Metadata -->
-		<VersionPrefix>0.11.0</VersionPrefix>
+		<VersionPrefix>0.12.0</VersionPrefix>
 		<VersionSuffix>alpha</VersionSuffix>
 
 		<Authors>Tobias Sachs</Authors>

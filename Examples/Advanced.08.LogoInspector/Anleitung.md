@@ -57,3 +57,13 @@ Eigene Defaults: `inspector.SetDefault(editor, Vector3.Zero)`. Zum Entfernen ein
 `inspector.ShowPropertyMenus = false` blendet die Menü-Tasten aus, schließt offene Property-Menüs und entfernt die komplette Menü-Spalte samt Abstand. Verschachtelte Gruppen erben die Einstellung, sofern sie nicht ausdrücklich eine eigene Vorgabe erhalten. Neue Felder übernehmen die aktuelle Sichtbarkeit. Die Checkbox **Property menus** im Beispiel schaltet die Tasten zur Laufzeit in allen Reitern um.
 
 Inspector-Menütasten und ihre Popups werden schlicht mit soliden Flächen gezeichnet, ohne Atlas-Hintergründe. Andere Menüs verwenden weiterhin ihren normalen Skin. Mit `MenuBar.UseSkin = false` kann auch ein eigenes Menü solide dargestellt werden.
+
+## Fenstergröße und DPI
+
+Beim Vergrößern oder Verkleinern des Fensters wird das Layout automatisch neu aufgeteilt. Die UI wird dabei nicht auf eine feste Entwurfsauflösung gestreckt. `Workspace.Dpi` bleibt unabhängig von der Fenstergröße: **96 = 100 %**, **144 = 150 %**, **192 = 200 %**.
+
+```csharp
+workspace.Dpi = 144;
+```
+
+Das Beispiel verwendet denselben DPI-Wert für Maus/Touch, Layout und Zeichnung. `DPI 150 Prozent starten.cmd` startet es direkt mit 150 %. Alternativ `Logo Inspector starten.cmd --dpi 144` verwenden. `--verify-resize --snapshot bild.png` prüft echte Fenstergrößenänderungen sowie den DPI-Wechsel. Eine unveränderte Fenstergröße/DPI verwendet den vorhandenen Layout-Cache weiter.

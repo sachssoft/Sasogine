@@ -9,6 +9,7 @@ namespace Sachssoft.Engine.Controls.Examples;
 internal sealed class LogoInspectorApplication : GameApplicationBase
 {
     private readonly ExampleOptions _options;
+    private InspectorResizeChecks? _resizeChecks;
     private readonly ControlInputSampler _input = new();
     private FontFaceControlFont? _font;
     private ControlSkin? _skin;
@@ -42,6 +43,8 @@ internal sealed class LogoInspectorApplication : GameApplicationBase
         Window.AllowUserResizing = true;
         _view = new LogoInspectorView();
         _workspace = _view.Workspace;
+        _workspace.Dpi = _options.Dpi;
+        if (_options.VerifyResize) _resizeChecks = new InspectorResizeChecks(_options.Dpi);
         base.Initialize();
         Window.TextInput += OnTextInput;
     }
@@ -79,18 +82,19 @@ internal sealed class LogoInspectorApplication : GameApplicationBase
     protected override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
+        _resizeChecks?.BeforeUpdate(this, _workspace!);
         Rectangle viewport = GraphicsDevice.Viewport.Bounds;
         _frameReady = viewport.Width > 0 && viewport.Height > 0;
         if (!_frameReady || _draw is null || _layout is null || _view is null)
             return;
-        // Poll devices once. Both layout/input and draw use the same logical scale.
-        float scale = MathF.Min(viewport.Width / 1360f, viewport.Height / 900f);
-        _draw.SetViewport(viewport, scale);
+        // Sample devices once; Workspace owns the DPI transform and physical viewport size.
+        EnsureRenderTarget();
+        float scale = _workspace!.DpiScale;
         bool snapshot = _options.SnapshotPath is not null;
         MouseState mouse = snapshot ? default : Mouse.GetState();
         KeyboardState keyboard = snapshot ? default : Keyboard.GetState();
         TouchCollection touches = snapshot ? default : TouchPanel.GetState();
-        _workspace!.Update(_input.SampleReusable(mouse, keyboard, touches, viewport, scale, gameTime.ElapsedGameTime, snapshot || IsActive), _layout);
+        _workspace!.Update(_input, mouse, keyboard, touches, viewport, gameTime.ElapsedGameTime, _layout, snapshot || IsActive);
         _view.Update();
         if (_pickSource is not null)
         {
@@ -123,7 +127,8 @@ internal sealed class LogoInspectorApplication : GameApplicationBase
         _present.Draw(_renderTarget, GraphicsDevice.Viewport.Bounds, Color.White);
         _present.End();
         _workspace.DrawColorPickingOverlay(_draw);
-        if (_renderTarget is null || _snapshotFrames < 3 || _options.SnapshotPath is not string path)
+        _resizeChecks?.AfterDraw(_view, _draw);
+        if (_renderTarget is null || _snapshotFrames < 3 || _resizeChecks is { IsComplete: false } || _options.SnapshotPath is not string path)
             return;
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         using (var stream = File.Create(path))
@@ -140,7 +145,7 @@ internal sealed class LogoInspectorApplication : GameApplicationBase
         _renderTarget?.Dispose();
         _renderTarget = new RenderTarget2D(GraphicsDevice, viewport.Width, viewport.Height, false, SurfaceFormat.Color,
             DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
-        _pickSource = new RenderTargetColorSource(_renderTarget, new Bounds2(0, 0, 1360, 900));
+        _pickSource = new RenderTargetColorSource(_renderTarget, _view!.Canvas.Bounds);
         _workspace.ColorPickSource = _pickSource;
     }
 

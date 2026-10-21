@@ -24,6 +24,15 @@ public sealed class ControlInputFrame
         Events = new ReadOnlyCollection<ControlInputEvent>(items);
     }
 
+    /// <summary>Gets the physical viewport when created by ControlInputSampler; null denotes an explicitly logical frame.</summary>
+    public Microsoft.Xna.Framework.Rectangle? PhysicalViewport { get; private set; }
+    /// <summary>Gets the sampler's pixels-per-logical-unit transform, retained for deterministic coordinate conversion.</summary>
+    public float SourceScale { get; private set; } = 1;
+    internal ControlInputFrame SetViewport(Microsoft.Xna.Framework.Rectangle viewport, float scale)
+    {
+        PhysicalViewport = viewport; SourceScale = scale; return this;
+    }
+
     /// <summary>Gets the logical viewport size.</summary>
     public Size2 Size { get; private set; }
     /// <summary>Gets the caller-supplied elapsed time.</summary>

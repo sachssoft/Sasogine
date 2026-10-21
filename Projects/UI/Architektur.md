@@ -61,12 +61,13 @@ Platzierung gehört ausschließlich dem Grid:
 
 ```csharp
 var grid = new Grid();
-grid.Rows.Add(new RowTrack { Height = GridLength.Auto });
-grid.Tracks.Add(new ColumnTrack { Width = GridLength.Star() });
-grid.Add(_button, row: 0, column: 0);
+grid.Rows.Add(new GridRow { Height = GridLength.Auto });
+grid.Columns.Add(new GridColumn { Width = GridLength.Proportion() });
+grid.Children.Add(_button);
+grid.Cells.Put(_button, row: 0, column: 0);
 ```
 
-Es gibt keine angehängten Zeilen-/Spaltenfelder an Controls. `SetCell` ändert eine bestehende Zuordnung. Tracks und verwendete Datensammlungen benachrichtigen ihre Besitzer bei Änderungen.
+Es gibt keine angehängten Zeilen-/Spaltenfelder an Controls. `Children` verwaltet die Controls, `Cells` ausschließlich deren Platzierung. Eine Instanz darf nur einmal eingetragen werden; ein zweites `Put` wirft eine Exception. Zum Umplatzieren zuerst `Cells.Release(control)`, dann `Cells.Put(control, ...)` aufrufen. Zeilen, Spalten und Zuordnungen benachrichtigen das Grid bei Änderungen; unveränderte Layouts bleiben gecacht. Weitere Beispiele stehen in [Grid.md](Grid.md).
 
 ## MVVM ohne Reflection
 

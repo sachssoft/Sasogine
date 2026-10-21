@@ -18,9 +18,15 @@ internal sealed class LogoInspectorView : IDisposable
     internal TextBox TitleEditor { get; }
     internal TabControl InspectorTabs { get; } = new();
     internal InspectorValueGallery ValueGallery { get; } = new();
-
     internal InspectorAssetGallery AssetGallery { get; }
-    internal CheckBox MenuVisibility { get; } = new() { IsChecked = true, Content = new TextBlock { Text = "Property menus" } };
+    internal CheckBox MenuVisibility { get; } = new()
+    {
+        IsChecked = true,
+        Content = new TextBlock
+        {
+            Text = "Property menus"
+        }
+    };
 
     private int _accentNumber = 2;
     internal LogoInspectorView()
@@ -35,18 +41,20 @@ internal sealed class LogoInspectorView : IDisposable
             Spacing = 14,
             Padding = new Insets2(18)
         };
-        page.Rows.Add(new RowTrack { Height = new GridLength(52) });
-        page.Rows.Add(new RowTrack { Height = GridLength.Star() });
-        page.Tracks.Add(new ColumnTrack { Width = GridLength.Star() });
-        page.Tracks.Add(new ColumnTrack { Width = new GridLength(520) });
+        page.Rows.Add(new GridRow { Height = new GridLength(52) });
+        page.Rows.Add(new GridRow { Height = GridLength.Proportion() });
+        page.Columns.Add(new GridColumn { Width = GridLength.Proportion() });
+        page.Columns.Add(new GridColumn { Width = new GridLength(520) });
         var heading = new StackPanel
         {
             Spacing = 2
         };
         heading.Add(new TextBlock { Text = "SASOGINE   /   ENTITY INSPECTOR" });
         heading.Add(new TextBlock { Text = "Live definition editing · expandable groups · tracked collections", TextColor = new Color(139, 157, 184) });
-        page.Add(heading, 0, 0, columnSpan: 2);
-        page.Add(Canvas, 1, 0);
+        page.Children.Add(heading);
+        page.Cells.Put(heading, 0, 0, columnSpan: 2);
+        page.Children.Add(Canvas);
+        page.Cells.Put(Canvas, 1, 0);
         var inspector = new InspectorView();
         var showMenus = MenuVisibility;
         showMenus.PropertyChanged += (_, args) =>
@@ -95,7 +103,8 @@ internal sealed class LogoInspectorView : IDisposable
         InspectorTabs.Items.Add(new TabItem { Header = "Value types", Content = ValueGallery, Padding = Insets2.Zero });
         InspectorTabs.Items.Add(new TabItem { Header = "Assets", Content = AssetGallery, Padding = Insets2.Zero });
         InspectorTabs.SelectedIndex = 0;
-        page.Add(InspectorTabs, 1, 1);
+        page.Children.Add(InspectorTabs);
+        page.Cells.Put(InspectorTabs, 1, 1);
         Workspace = new Workspace(page);
         Workspace.Styles.Register("Logo.Canvas", new Style { BasedOn = "Control", Background = new Color(12, 18, 29), TextColor = new Color(237, 243, 255) });
     }

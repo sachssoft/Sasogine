@@ -21,12 +21,19 @@ public sealed class ControlsCurvePage : Grid
     {
         Padding = new Insets2(20);
         Spacing = 12;
-        Rows.Add(new RowTrack { Height = GridLength.Auto });
-        Rows.Add(new RowTrack { Height = GridLength.Auto });
-        Rows.Add(new RowTrack { Height = GridLength.Star() });
-        Rows.Add(new RowTrack { Height = GridLength.Auto });
-        Rows.Add(new RowTrack { Height = GridLength.Auto });
-        Add(new Label() { Text = "CURVE CONTROL / EDITOR + CURVEBASE PREVIEW", Height = 28, StyleId = "Gallery.Heading" });
+        Rows.Add(new GridRow { Height = GridLength.Auto });
+        Rows.Add(new GridRow { Height = GridLength.Auto });
+        Rows.Add(new GridRow { Height = GridLength.Proportion() });
+        Rows.Add(new GridRow { Height = GridLength.Auto });
+        Rows.Add(new GridRow { Height = GridLength.Auto });
+        var gridChild1 = new Label()
+        {
+            Text = "CURVE CONTROL / EDITOR + CURVEBASE PREVIEW",
+            Height = 28,
+            StyleId = "Gallery.Heading"
+        };
+        Children.Add(gridChild1);
+        Cells.Put(gridChild1);
         var model = new EditableCurve(new[] { new CurvePoint(0, 0), new CurvePoint(.25f, .08f), new CurvePoint(.6f, .8f), new CurvePoint(1, 1) });
         Editor = new CurveControl()
         {
@@ -38,7 +45,8 @@ public sealed class ControlsCurvePage : Grid
         {
             Spacing = 8
         };
-        Add(toolbar, row: 1);
+        Children.Add(toolbar);
+        Cells.Put(toolbar, row: 1);
         Button Action(string text, Action execute, Func<bool>? allowed = null)
         {
             var button = new Button()
@@ -99,21 +107,24 @@ public sealed class ControlsCurvePage : Grid
         {
             Spacing = 14
         };
-        content.Tracks.Add(new ColumnTrack { Width = GridLength.Star(2.2f) });
-        content.Tracks.Add(new ColumnTrack { Width = GridLength.Star() });
-        content.Add(Editor);
-        Add(content, row: 2);
+        content.Columns.Add(new GridColumn { Width = GridLength.Proportion(2.2f) });
+        content.Columns.Add(new GridColumn { Width = GridLength.Proportion() });
+        content.Children.Add(Editor);
+        content.Cells.Put(Editor);
+        Children.Add(content);
+        Cells.Put(content, row: 2);
         var side = new Grid()
         {
             Padding = new Insets2(12),
             Spacing = 10,
             BorderThickness = 1
         };
-        side.Rows.Add(new RowTrack { Height = GridLength.Auto });
-        side.Rows.Add(new RowTrack { Height = GridLength.Star() });
-        side.Rows.Add(new RowTrack { Height = GridLength.Auto });
-        side.Rows.Add(new RowTrack { Height = GridLength.Auto });
-        content.Add(side, column: 1);
+        side.Rows.Add(new GridRow { Height = GridLength.Auto });
+        side.Rows.Add(new GridRow { Height = GridLength.Proportion() });
+        side.Rows.Add(new GridRow { Height = GridLength.Auto });
+        side.Rows.Add(new GridRow { Height = GridLength.Auto });
+        content.Children.Add(side);
+        content.Cells.Put(side, column: 1);
         var presets = new ComboBox()
         {
             Height = 36
@@ -131,7 +142,8 @@ public sealed class ControlsCurvePage : Grid
         )
             presets.Items.Add(new SelectorItem(name));
         presets.SelectedIndex = 2;
-        side.Add(presets);
+        side.Children.Add(presets);
+        side.Cells.Put(presets);
         Preview = new CurveControl()
         {
             Curve = new SineInOutCurve(),
@@ -140,7 +152,8 @@ public sealed class ControlsCurvePage : Grid
             Padding = new Insets2(4),
             PointRadius = 3
         };
-        side.Add(Preview, row: 1);
+        side.Children.Add(Preview);
+        side.Cells.Put(Preview, row: 1);
         presets.SelectionChanged += (_, _) =>
         {
             Preview.Curve = presets.SelectedIndex switch
@@ -162,13 +175,21 @@ public sealed class ControlsCurvePage : Grid
             DeadZone = 0,
             ToolTip = "The joystick evaluates the exact same EditableCurve through CurveBase."
         };
-        side.Add(Joystick, row: 2);
-        side.Add(new Label() { Text = "Drag the joystick: its response uses the edited curve on the left.", WrapText = true }, row: 3);
+        side.Children.Add(Joystick);
+        side.Cells.Put(Joystick, row: 2);
+        var gridChild2 = new Label()
+        {
+            Text = "Drag the joystick: its response uses the edited curve on the left.",
+            WrapText = true
+        };
+        side.Children.Add(gridChild2);
+        side.Cells.Put(gridChild2, row: 3);
         var pointRow = new WrapPanel()
         {
             Spacing = 10
         };
-        Add(pointRow, row: 3);
+        Children.Add(pointRow);
+        Cells.Put(pointRow, row: 3);
         pointRow.Add(new Label() { Text = "Selected point", Height = 36, VerticalAlignment = ControlAlignment.Center });
         var xInput = new NumericSpinner()
         {
@@ -198,7 +219,8 @@ public sealed class ControlsCurvePage : Grid
             Text = "Drag handles, edit X/Y, or compare engine curves on the right. Home resets the view; F fits it.",
             WrapText = true
         };
-        Add(status, row: 4);
+        Children.Add(status);
+        Cells.Put(status, row: 4);
         void Sync()
         {
             _syncing = true;

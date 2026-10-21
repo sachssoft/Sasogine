@@ -1,6 +1,6 @@
 namespace Sachssoft.Engine.Controls.Layouts;
 /// <summary>Grid row configuration.</summary>
-public sealed class RowTrack : GridTrack
+public sealed class GridRow : GridDimension
 {
     /// <summary>Gets or sets the row length.</summary>
     public GridLength Height { get => Length; set => Length = value; }

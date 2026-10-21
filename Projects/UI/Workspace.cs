@@ -1,5 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Input.Touch;
+using System.ComponentModel;
 using Sachssoft.Engine.Input;
 using System;
 using System.Collections.Generic;
@@ -9,8 +11,35 @@ using System.Threading.Tasks;
 
 namespace Sachssoft.Engine.Controls;
 /// <summary>Owns one deterministic control tree, input routing, focus and frame boundaries.</summary>
-public sealed class Workspace : IDisposable
+public sealed class Workspace : Element, IDisposable
 {
+    private float _dpi = 96f;
+    private float _frameDpi = 96f;
+    private Rectangle? _frameViewport;
+    private static readonly PropertyChangedEventArgs DpiArgs = new(nameof(Dpi));
+    private static readonly PropertyChangedEventArgs DpiScaleArgs = new(nameof(DpiScale));
+    /// <summary>Gets or sets pixel density in dots per inch; 96 means 100 percent. Changes apply on the next input frame.</summary>
+    public float Dpi
+    {
+        get => _dpi;
+        set
+        {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+            if (!float.IsFinite(value) || value <= 0 || value / 96f <= 0)
+                throw new ArgumentOutOfRangeException(nameof(value), "DPI must be finite and positive.");
+            if (_drawing) throw new InvalidOperationException("Drawing cannot change workspace DPI.");
+            if (SetNotify(ref _dpi, value, DpiArgs)) NotifyPropertyChanged(DpiScaleArgs);
+        }
+    }
+    /// <summary>Gets the requested physical pixels per logical UI unit.</summary>
+    public float DpiScale => _dpi / 96f;
+    /// <inheritdoc/>
+    protected override void OnPropertyChanged(PropertyChangedEventArgs notification)
+    {
+        if (notification.PropertyName == nameof(Dpi)) _layoutDirty = true;
+        base.OnPropertyChanged(notification);
+    }
+
     /// <summary>Gets or sets the application's optional viewport color source.</summary>
     public IColorPickSource? ColorPickSource { get; set; }
     /// <summary>Gets the input-isolated color-picking session.</summary>
@@ -83,17 +112,44 @@ public sealed class Workspace : IDisposable
         ProcessFrame(context.Input, context.Layout);
     }
 
+    /// <summary>Samples caller-provided mouse and keyboard states using this workspace's DPI and a physical viewport.</summary>
+    public void Update(ControlInputSampler sampler, MouseState mouse, KeyboardState keyboard, Rectangle viewport,
+        TimeSpan elapsed, ControlLayoutContext layout, bool active = true) =>
+        Update(sampler, mouse, keyboard, default, viewport, elapsed, layout, active);
+
+    /// <summary>Samples mouse/touch/keyboard once, derives logical layout size and synchronizes subsequent drawing automatically.</summary>
+    public void Update(ControlInputSampler sampler, MouseState mouse, KeyboardState keyboard, TouchCollection touches,
+        Rectangle viewport, TimeSpan elapsed, ControlLayoutContext layout, bool active = true)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        ArgumentNullException.ThrowIfNull(sampler);
+        ArgumentNullException.ThrowIfNull(layout);
+        if (_busy) throw new InvalidOperationException("UI processing cannot be reentered.");
+        float dpi = Dpi;
+        ControlInputFrame frame = sampler.SampleReusable(mouse, keyboard, touches, viewport, dpi / 96f, elapsed, active);
+        ProcessFrameCore(frame, layout, viewport, dpi);
+    }
+
     /// <summary>Updates one frame using the supplied layout context.</summary>
     public void Update(ControlInputFrame frame, ControlLayoutContext layout) => ProcessFrame(frame, layout);
     /// <summary>Processes ordered input, updates controls once, commits mutations, and finalizes layout.</summary>
-    public void ProcessFrame(ControlInputFrame frame, ControlLayoutContext layout)
+    public void ProcessFrame(ControlInputFrame frame, ControlLayoutContext layout) => ProcessFrameCore(frame, layout, frame?.PhysicalViewport, Dpi);
+
+    private void ProcessFrameCore(ControlInputFrame frame, ControlLayoutContext layout, Rectangle? viewport, float frameDpi)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentNullException.ThrowIfNull(frame);
         ArgumentNullException.ThrowIfNull(layout);
         if (_busy)
             throw new InvalidOperationException("UI processing cannot be reentered.");
+        Size2 logicalSize = viewport is Rectangle physical
+            ? new Size2(physical.Width / (frameDpi / 96f), physical.Height / (frameDpi / 96f)) : frame.Size;
+        Control.ValidateSize(logicalSize, false);
+        float inputScale = frame.PhysicalViewport.HasValue ? frame.SourceScale / (frameDpi / 96f) : 1;
+        if (!float.IsFinite(inputScale) || inputScale <= 0) throw new ArgumentOutOfRangeException(nameof(frameDpi));
         _hasFrame = false;
+        _frameViewport = viewport;
+        _frameDpi = frameDpi;
         _busy = true;
         try
         {
@@ -105,13 +161,13 @@ public sealed class Workspace : IDisposable
                 RebuildControls();
             foreach (Control control in EnumerateControls())
                 control.BeginFrame();
-            if (!_previousSize.Equals(frame.Size))
+            if (!_previousSize.Equals(logicalSize))
             {
                 _layoutDirty = true;
-                _previousSize = frame.Size;
+                _previousSize = logicalSize;
             }
 
-            Size = frame.Size;
+            Size = logicalSize;
             if (!ReferenceEquals(_layout?.DefaultFont, layout.DefaultFont))
                 _layoutDirty = true;
             _layout = layout;
@@ -120,6 +176,9 @@ public sealed class Workspace : IDisposable
             for (int eventIndex = 0; eventIndex < frame.Events.Count; eventIndex++)
             {
                 ControlInputEvent input = frame.Events[eventIndex];
+                if (inputScale != 1 && input.Type is (ControlInputEventType.PointerMove or ControlInputEventType.PointerDown
+                    or ControlInputEventType.PointerUp or ControlInputEventType.PointerWheel or ControlInputEventType.PointerCancel))
+                    input = input with { Position = input.Position * inputScale };
                 Dispatch(input);
                 UpdateBindings();
                 Layout();
@@ -152,6 +211,7 @@ public sealed class Workspace : IDisposable
         ArgumentNullException.ThrowIfNull(context);
         if (_busy || !_hasFrame)
             throw new InvalidOperationException("Process a UI frame before drawing; drawing cannot be reentered.");
+        SynchronizeDrawing(context);
         if (!Size.Equals(context.LogicalSize) || !ReferenceEquals(_layout?.DefaultFont, context.DefaultFont))
             throw new InvalidOperationException("Drawing must use the processed viewport size and default font.");
         _busy = true;
@@ -181,11 +241,17 @@ public sealed class Workspace : IDisposable
         }
     }
 
+    private void SynchronizeDrawing(ControlDrawContext context)
+    {
+        if (_frameViewport is Rectangle viewport) context.SetViewport(viewport, _frameDpi / 96f);
+    }
+
     /// <summary>Draws only the pipette overlay after presenting a clean sampled render target.</summary>
     public void DrawColorPickingOverlay(ControlDrawContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
         ObjectDisposedException.ThrowIf(_disposed, this);
+        if (!_busy && _hasFrame) SynchronizeDrawing(context);
         if (_busy || !_hasFrame || !Size.Equals(context.LogicalSize) || !ReferenceEquals(_layout?.DefaultFont, context.DefaultFont))
             throw new InvalidOperationException("Process a matching UI frame before drawing the picking overlay.");
         _busy = true; _drawing = true;

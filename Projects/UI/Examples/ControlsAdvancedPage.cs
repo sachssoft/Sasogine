@@ -20,23 +20,32 @@ public sealed class ControlsAdvancedPage : Grid
         Padding = new Insets2(20);
         Spacing = 14;
         Background = new Color(17, 24, 35);
-        Rows.Add(new RowTrack { Height = GridLength.Auto });
-        Rows.Add(new RowTrack { Height = GridLength.Star() });
-        Rows.Add(new RowTrack { Height = GridLength.Auto });
-        Add(new Label() { Text = "TREE / REPEAT / NUMBERS / DATES / TOOLTIPS", Height = 28, TextColor = new Color(65, 199, 223) });
+        Rows.Add(new GridRow { Height = GridLength.Auto });
+        Rows.Add(new GridRow { Height = GridLength.Proportion() });
+        Rows.Add(new GridRow { Height = GridLength.Auto });
+        var gridChild1 = new Label()
+        {
+            Text = "TREE / REPEAT / NUMBERS / DATES / TOOLTIPS",
+            Height = 28,
+            TextColor = new Color(65, 199, 223)
+        };
+        Children.Add(gridChild1);
+        Cells.Put(gridChild1);
         var columns = new Grid()
         {
             Spacing = 14
         };
         for (int i = 0; i < 3; i++)
-            columns.Tracks.Add(new ColumnTrack { Width = GridLength.Star() });
-        Add(columns, row: 1);
+            columns.Columns.Add(new GridColumn { Width = GridLength.Proportion() });
+        Children.Add(columns);
+        Cells.Put(columns, row: 1);
         var status = new Label()
         {
             Text = "Hover a control for help. Tree arrows expand; hold spinner arrows to repeat.",
             WrapText = true
         };
-        Add(status, row: 2);
+        Children.Add(status);
+        Cells.Put(status, row: 2);
         var treeCard = new Grid()
         {
             Padding = new Insets2(14),
@@ -45,10 +54,18 @@ public sealed class ControlsAdvancedPage : Grid
             BorderColor = new Color(56, 71, 92),
             BorderThickness = 1
         };
-        treeCard.Rows.Add(new RowTrack { Height = GridLength.Auto });
-        treeCard.Rows.Add(new RowTrack { Height = GridLength.Star() });
-        columns.Add(treeCard);
-        treeCard.Add(new Label() { Text = "TreeView", Height = 28, TextColor = new Color(65, 199, 223) });
+        treeCard.Rows.Add(new GridRow { Height = GridLength.Auto });
+        treeCard.Rows.Add(new GridRow { Height = GridLength.Proportion() });
+        columns.Children.Add(treeCard);
+        columns.Cells.Put(treeCard);
+        var gridChild2 = new Label()
+        {
+            Text = "TreeView",
+            Height = 28,
+            TextColor = new Color(65, 199, 223)
+        };
+        treeCard.Children.Add(gridChild2);
+        treeCard.Cells.Put(gridChild2);
         Tree = new TreeView()
         {
             ToolTip = "Left/Right collapses or expands. Up/Down selects a visible item."
@@ -81,7 +98,8 @@ public sealed class ControlsAdvancedPage : Grid
         }
 
         Tree.Items.Add(project);
-        treeCard.Add(Tree, row: 1);
+        treeCard.Children.Add(Tree);
+        treeCard.Cells.Put(Tree, row: 1);
         Tree.SelectionChanged += (_, _) => status.Text = "Selected: " + Tree.SelectedItem?.Text;
         var inputCard = new StackPanel()
         {
@@ -97,7 +115,8 @@ public sealed class ControlsAdvancedPage : Grid
             HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden,
             ToolTip = "This ScrollViewer has the same ToolTip support as every control."
         };
-        columns.Add(scroll, column: 1);
+        columns.Children.Add(scroll);
+        columns.Cells.Put(scroll, column: 1);
         inputCard.Add(new Label() { Text = "Input & repeat", Height = 28, TextColor = new Color(65, 199, 223) });
         inputCard.Add(new Label() { Text = "Decimal number / 0.25 steps" });
         Number = new NumericSpinner()
@@ -174,11 +193,19 @@ public sealed class ControlsAdvancedPage : Grid
             BorderColor = new Color(56, 71, 92),
             BorderThickness = 1
         };
-        calendarCard.Rows.Add(new RowTrack { Height = GridLength.Auto });
-        calendarCard.Rows.Add(new RowTrack { Height = GridLength.Auto });
-        calendarCard.Rows.Add(new RowTrack { Height = GridLength.Star() });
-        columns.Add(calendarCard, column: 2);
-        calendarCard.Add(new Label() { Text = "Calendar", Height = 28, TextColor = new Color(65, 199, 223) });
+        calendarCard.Rows.Add(new GridRow { Height = GridLength.Auto });
+        calendarCard.Rows.Add(new GridRow { Height = GridLength.Auto });
+        calendarCard.Rows.Add(new GridRow { Height = GridLength.Proportion() });
+        columns.Children.Add(calendarCard);
+        columns.Cells.Put(calendarCard, column: 2);
+        var gridChild3 = new Label()
+        {
+            Text = "Calendar",
+            Height = 28,
+            TextColor = new Color(65, 199, 223)
+        };
+        calendarCard.Children.Add(gridChild3);
+        calendarCard.Cells.Put(gridChild3);
         Calendar = new Calendar()
         {
             Height = 290,
@@ -187,8 +214,15 @@ public sealed class ControlsAdvancedPage : Grid
             Today = new DateOnly(2024, 2, 20),
             ToolTip = "The sample uses an explicit date, so it replays deterministically."
         };
-        calendarCard.Add(Calendar, row: 1);
-        calendarCard.Add(new Label() { Text = "Leap years, bounded date selection and culture-aware month/weekday names.\n\nToday is supplied by the host; no hidden system clock.", WrapText = true }, row: 2);
+        calendarCard.Children.Add(Calendar);
+        calendarCard.Cells.Put(Calendar, row: 1);
+        var gridChild4 = new Label()
+        {
+            Text = "Leap years, bounded date selection and culture-aware month/weekday names.\n\nToday is supplied by the host; no hidden system clock.",
+            WrapText = true
+        };
+        calendarCard.Children.Add(gridChild4);
+        calendarCard.Cells.Put(gridChild4, row: 2);
         Calendar.SelectionChanged += (_, _) => status.Text = "Calendar: " + Calendar.SelectedDate;
         Date.SelectionChanged += (_, _) => status.Text = "DatePicker: " + Date.SelectedDate;
     }

@@ -89,7 +89,7 @@ public sealed class ControlInputSampler
         _mouse = mouse;
         _keyboard = keyboard;
         _text.Clear();
-        return result;
+        return result.SetViewport(viewport, scale);
     }
 
     private void SampleTouches(TouchCollection touches, Rectangle viewport, float scale, List<ControlInputEvent> events)

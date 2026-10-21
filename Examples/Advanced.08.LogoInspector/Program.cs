@@ -14,7 +14,7 @@ internal static class Program
 
             if (args.Contains("--help", StringComparer.Ordinal))
             {
-                Console.WriteLine("Sasogine Logo Inspector: --skin dark|light|modern|futuristic|medieval --font file.ttf --snapshot image.png --values Bounds3 --assets --verify --self-test");
+                Console.WriteLine("Sasogine Logo Inspector: --skin dark|light|modern|futuristic|medieval --font file.ttf --snapshot image.png --values Bounds3 --assets --dpi 144 --verify-resize --verify --self-test");
                 return 0;
             }
 

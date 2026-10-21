@@ -3,65 +3,61 @@ using System;
 using System.Collections.Generic;
 
 namespace Sachssoft.Engine.Controls.Layouts;
-/// <summary>Two-dimensional Auto/pixel/star layout with limits, margins and row/column spans.</summary>
+/// <summary>Two-dimensional automatic, fixed and proportional layout with limits, margins and row/column spans.</summary>
 public class Grid : ContainerControl
 {
     private readonly GridAxisLayout _rows = new(), _columns = new();
     /// <summary>Creates a grid.</summary>
-    public Grid() : base()
+    public Grid()
     {
+        Cells = new CellCollection(this);
     }
 
-    /// <summary>Gets row propertiess.</summary>
-    public IList<RowTrack> Rows => ConfigRowDefinitions;
-    /// <summary>Gets column propertiess.</summary>
-    public IList<ColumnTrack> Tracks => ConfigColumnDefinitions;
-    /// <summary>Gets or sets the gap between tracks.</summary>
-    public float Spacing { get => ConfigSpacing; set => ConfigSpacing = value; }
+    /// <summary>Gets the rows. An empty collection provides one proportional row.</summary>
+    public IList<GridRow> Rows => _rowsCollection ??= new(this, RowsChangedArgs);
+    /// <summary>Gets the columns. An empty collection provides one proportional column.</summary>
+    public IList<GridColumn> Columns => _columnsCollection ??= new(this, ColumnsChangedArgs);
+    /// <summary>Gets placement metadata, separate from child ownership.</summary>
+    public CellCollection Cells { get; }
+
+    /// <summary>Gets or sets the gap between adjacent rows and columns.</summary>
+    public float Spacing
+    {
+        get => _styleSpacing.Value;
+        set
+        {
+            if (_styleSpacing.SetLocal(value))
+                NotifyPropertyChanged(SpacingChangedArgs);
+        }
+    }
+
     /// <inheritdoc/>
     protected override string DefaultStyleName => "Grid";
-
-    private readonly Dictionary<Control, GridCell> _cells = new();
-    /// <summary>Adds a child with placement owned exclusively by this grid.</summary>
-    public void Add(Control child, int row = 0, int column = 0, int rowSpan = 1, int columnSpan = 1)
-    {
-        SetCell(child, row, column, rowSpan, columnSpan);
-        base.Add(child);
-    }
-
-    /// <summary>Changes this grid's placement for one child.</summary>
-    public void SetCell(Control child, int row = 0, int column = 0, int rowSpan = 1, int columnSpan = 1)
-    {
-        if (row < 0 || column < 0 || rowSpan < 1 || columnSpan < 1)
-            throw new ArgumentOutOfRangeException(nameof(row));
-        _cells[child] = new(row, column, rowSpan, columnSpan);
-        InvalidateMeasure();
-    }
 
     /// <inheritdoc/>
     public override void Remove(Control child)
     {
         base.Remove(child);
-        _cells.Remove(child);
+        Cells.Release(child);
     }
 
     /// <inheritdoc/>
     public override void Clear()
     {
         base.Clear();
-        _cells.Clear();
+        Cells.Clear();
     }
 
     /// <summary>Gets the last arranged row height.</summary>
     public float GetRowHeight(int row) => _rows.Sizes[row];
     /// <summary>Gets the last arranged column width.</summary>
     public float GetColumnWidth(int column) => _columns.Sizes[column];
-    private (int Row, int Column, int Rows, int Columns) Cell(Control child)
+    private GridCell GetCell(Control child)
     {
-        GridCell d = _cells.TryGetValue(child, out var cell) ? cell : new(0, 0, 1, 1);
-        if (d.Row >= _rows.Count || d.Column >= _columns.Count)
-            throw new InvalidOperationException("Grid cell is outside its tracks.");
-        return (d.Row, d.Column, Math.Min(d.RowSpan, _rows.Count - d.Row), Math.Min(d.ColumnSpan, _columns.Count - d.Column));
+        GridCell cell = Cells.TryGetValue(child, out var placement) ? placement : new(0, 0, 1, 1);
+        if (cell.Row >= _rows.Count || cell.Column >= _columns.Count || cell.RowSpan > _rows.Count - cell.Row || cell.ColumnSpan > _columns.Count - cell.Column)
+            throw new InvalidOperationException("Grid cell is outside its rows or columns.");
+        return cell;
     }
 
     /// <inheritdoc/>
@@ -71,24 +67,24 @@ public class Grid : ContainerControl
         if (!float.IsFinite(gap) || gap < 0)
             throw new InvalidOperationException("Invalid grid spacing.");
         _rows.Configure(Rows);
-        _columns.Configure(Tracks);
+        _columns.Configure(Columns);
         for (int pass = 0; pass < 3; pass++)
         {
-            _columns.ResolveStars(available.Width, gap);
-            _rows.ResolveStars(available.Height, gap);
+            _columns.ResolveProportions(available.Width, gap);
+            _rows.ResolveProportions(available.Height, gap);
             foreach (Control child in Children)
             {
-                var c = Cell(child);
-                float w = !float.IsFinite(available.Width) || _columns.HasAuto(c.Column, c.Columns) ? float.PositiveInfinity : _columns.Span(c.Column, c.Columns, gap);
-                float h = !float.IsFinite(available.Height) || _rows.HasAuto(c.Row, c.Rows) ? float.PositiveInfinity : _rows.Span(c.Row, c.Rows, gap);
-                child.Measure(context, new Size2(w, h));
-                _columns.Grow(c.Column, c.Columns, child.DesiredSize.Width, gap, !float.IsFinite(available.Width));
-                _rows.Grow(c.Row, c.Rows, child.DesiredSize.Height, gap, !float.IsFinite(available.Height));
+                GridCell cell = GetCell(child);
+                float width = !float.IsFinite(available.Width) || _columns.HasAuto(cell.Column, cell.ColumnSpan) ? float.PositiveInfinity : _columns.Span(cell.Column, cell.ColumnSpan, gap);
+                float height = !float.IsFinite(available.Height) || _rows.HasAuto(cell.Row, cell.RowSpan) ? float.PositiveInfinity : _rows.Span(cell.Row, cell.RowSpan, gap);
+                child.Measure(context, new Size2(width, height));
+                _columns.Grow(cell.Column, cell.ColumnSpan, child.DesiredSize.Width, gap, !float.IsFinite(available.Width));
+                _rows.Grow(cell.Row, cell.RowSpan, child.DesiredSize.Height, gap, !float.IsFinite(available.Height));
             }
         }
 
-        _columns.ResolveStars(available.Width, gap);
-        _rows.ResolveStars(available.Height, gap);
+        _columns.ResolveProportions(available.Width, gap);
+        _rows.ResolveProportions(available.Height, gap);
         return new Size2(_columns.Total(gap), _rows.Total(gap));
     }
 
@@ -96,12 +92,12 @@ public class Grid : ContainerControl
     protected override void ArrangeOverride(Bounds2 bounds)
     {
         float gap = Spacing;
-        _columns.ResolveStars(bounds.Width, gap);
-        _rows.ResolveStars(bounds.Height, gap);
+        _columns.ResolveProportions(bounds.Width, gap);
+        _rows.ResolveProportions(bounds.Height, gap);
         foreach (Control child in Children)
         {
-            var c = Cell(child);
-            child.Arrange(new Bounds2(bounds.X + _columns.Offset(c.Column, gap), bounds.Y + _rows.Offset(c.Row, gap), _columns.Span(c.Column, c.Columns, gap), _rows.Span(c.Row, c.Rows, gap)), true);
+            GridCell cell = GetCell(child);
+            child.Arrange(new Bounds2(bounds.X + _columns.Offset(cell.Column, gap), bounds.Y + _rows.Offset(cell.Row, gap), _columns.Span(cell.Column, cell.ColumnSpan, gap), _rows.Span(cell.Row, cell.RowSpan, gap)), true);
         }
     }
 
@@ -109,7 +105,7 @@ public class Grid : ContainerControl
     protected override void OnDraw(ControlDrawContext context)
     {
         base.OnDraw(context);
-        if (!ConfigShowGridLines)
+        if (!ShowGridLines)
             return;
         float gap = Spacing;
         for (int r = 1; r < _rows.Count; r++)
@@ -120,29 +116,14 @@ public class Grid : ContainerControl
 
     private StyleProperty<float> _styleSpacing = new(0f);
     private static readonly System.ComponentModel.PropertyChangedEventArgs SpacingChangedArgs = new(nameof(Spacing));
-    internal float ConfigSpacing
-    {
-        get => _styleSpacing.Value;
-        set
-        {
-            if (_styleSpacing.SetLocal(value))
-                NotifyPropertyChanged(SpacingChangedArgs);
-        }
-    }
-
-    private ElementCollection<ColumnTrack>? _ownedColumnDefinitions;
-    private static readonly System.ComponentModel.PropertyChangedEventArgs ColumnDefinitionsCollectionArgs = new("Tracks");
-    internal IList<ColumnTrack> ConfigColumnDefinitions => _ownedColumnDefinitions ??= new(this, ColumnDefinitionsCollectionArgs);
-
-    private bool _storedShowGridLines = false;
-    private static readonly System.ComponentModel.PropertyChangedEventArgs ShowGridLinesStorageArgs = new("ShowGridLines");
-    internal bool ConfigShowGridLines { get => _storedShowGridLines; set => SetNotify(ref _storedShowGridLines, value, ShowGridLinesStorageArgs); }
-    /// <summary>Gets or sets the value for ShowGridLines.</summary>
-    public bool ShowGridLines { get => ConfigShowGridLines; set => ConfigShowGridLines = value; }
-
-    private ElementCollection<RowTrack>? _ownedRowDefinitions;
-    private static readonly System.ComponentModel.PropertyChangedEventArgs RowDefinitionsCollectionArgs = new("Rows");
-    internal IList<RowTrack> ConfigRowDefinitions => _ownedRowDefinitions ??= new(this, RowDefinitionsCollectionArgs);
+    private ElementCollection<GridRow>? _rowsCollection;
+    private ElementCollection<GridColumn>? _columnsCollection;
+    private static readonly System.ComponentModel.PropertyChangedEventArgs RowsChangedArgs = new(nameof(Rows));
+    private static readonly System.ComponentModel.PropertyChangedEventArgs ColumnsChangedArgs = new(nameof(Columns));
+    private static readonly System.ComponentModel.PropertyChangedEventArgs ShowGridLinesChangedArgs = new(nameof(ShowGridLines));
+    private bool _showGridLines;
+    /// <summary>Gets or sets whether row and column boundaries are drawn.</summary>
+    public bool ShowGridLines { get => _showGridLines; set => SetNotify(ref _showGridLines, value, ShowGridLinesChangedArgs); }
 
     /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
     public override void ApplyStyle(Style style)

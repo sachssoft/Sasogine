@@ -7,5 +7,5 @@ public enum GridUnitType
     /// <summary>Uses logical pixels.</summary>
     Pixel,
     /// <summary>Distributes available space by weight.</summary>
-    Star
+    Proportion
 }

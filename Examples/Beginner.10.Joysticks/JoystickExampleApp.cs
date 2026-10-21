@@ -62,14 +62,12 @@ internal sealed class JoystickExampleApp : GameApplicationBase
         _frameReady = viewport.Width > 0 && viewport.Height > 0;
         if (!_frameReady || _draw is null || _layout is null || _workspace is null)
             return;
-        // Poll devices once. Both layout/input and draw use the same logical scale.
-        float scale = MathF.Min(viewport.Width / 1160f, viewport.Height / 760f);
-        _draw.SetViewport(viewport, scale);
+        // Sample devices once; Workspace owns the DPI transform and physical viewport size.
         bool snapshot = _options.SnapshotPath is not null;
         MouseState mouse = snapshot ? default : Mouse.GetState();
         KeyboardState keyboard = snapshot ? default : Keyboard.GetState();
         TouchCollection touches = snapshot ? default : TouchPanel.GetState();
-        _workspace.Update(_input.SampleReusable(mouse, keyboard, touches, viewport, scale, gameTime.ElapsedGameTime, snapshot || IsActive), _layout);
+        _workspace!.Update(_input, mouse, keyboard, touches, viewport, gameTime.ElapsedGameTime, _layout, snapshot || IsActive);
     }
 
     private void OnTextInput(object? sender, TextInputEventArgs args)

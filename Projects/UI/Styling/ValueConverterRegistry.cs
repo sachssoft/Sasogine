@@ -19,8 +19,7 @@ public sealed class ValueConverterRegistry
         {
             "Tiles" => AssetViewMode.Tiles,
             "List" => AssetViewMode.List,
-            _ => throw new FormatException("Unknown AssetViewMode.")
-        }, static v => v == AssetViewMode.Tiles ? "Tiles" : "List");
+            _ => throw new FormatException("Unknown AssetViewMode.")}, static v => v == AssetViewMode.Tiles ? "Tiles" : "List");
         Register<ChartKind>("ChartKind", static s => s switch
         {
             "Line" => ChartKind.Line,

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Sachssoft.Engine.Controls;
@@ -8,15 +7,15 @@ namespace Sachssoft.Engine.Controls;
 public abstract class ContainerControl : Control
 {
     private readonly List<Control> _children = new();
-    private readonly ReadOnlyCollection<Control> _view;
+    private readonly ControlCollection _view;
     /// <summary>Initializes an empty container.</summary>
     protected ContainerControl() : base()
     {
-        _view = _children.AsReadOnly();
+        _view = new ControlCollection(this, _children);
     }
 
     /// <summary>Gets children in insertion order.</summary>
-    public IReadOnlyList<Control> Children => _view;
+    public ControlCollection Children => _view;
 
     private Control[] _ordered = Array.Empty<Control>();
     private bool _orderDirty = true;

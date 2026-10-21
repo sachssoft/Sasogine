@@ -21,27 +21,42 @@ public sealed class ControlsJoystickPage : Grid
         Spacing = 12;
         Background = new Color(17, 24, 35);
         _stickView = _sticks.AsReadOnly();
-        Rows.Add(new RowTrack { Height = GridLength.Auto });
-        Rows.Add(new RowTrack { Height = GridLength.Auto });
-        Rows.Add(new RowTrack { Height = GridLength.Star() });
-        Rows.Add(new RowTrack { Height = GridLength.Auto });
-        Add(new Label() { Text = "VIRTUAL JOYSTICKS / MOUSE + MULTITOUCH", TextColor = new Color(65, 199, 223), Height = 28 });
-        Add(new Label() { Text = "Drag a knob. Each contact has its own capture; floating controls start at the touch position.", WrapText = true }, row: 1);
+        Rows.Add(new GridRow { Height = GridLength.Auto });
+        Rows.Add(new GridRow { Height = GridLength.Auto });
+        Rows.Add(new GridRow { Height = GridLength.Proportion() });
+        Rows.Add(new GridRow { Height = GridLength.Auto });
+        var gridChild1 = new Label()
+        {
+            Text = "VIRTUAL JOYSTICKS / MOUSE + MULTITOUCH",
+            TextColor = new Color(65, 199, 223),
+            Height = 28
+        };
+        Children.Add(gridChild1);
+        Cells.Put(gridChild1);
+        var gridChild2 = new Label()
+        {
+            Text = "Drag a knob. Each contact has its own capture; floating controls start at the touch position.",
+            WrapText = true
+        };
+        Children.Add(gridChild2);
+        Cells.Put(gridChild2, row: 1);
         var cards = new Grid()
         {
             Spacing = 14
         };
         for (int i = 0; i < 3; i++)
-            cards.Tracks.Add(new ColumnTrack { Width = GridLength.Star() });
+            cards.Columns.Add(new GridColumn { Width = GridLength.Proportion() });
         for (int i = 0; i < 2; i++)
-            cards.Rows.Add(new RowTrack { Height = GridLength.Star() });
-        Add(cards, row: 2);
+            cards.Rows.Add(new GridRow { Height = GridLength.Proportion() });
+        Children.Add(cards);
+        Cells.Put(cards, row: 2);
         var status = new Label()
         {
             Text = "Ready. Positive Y points down; InvertY adapts it for game coordinates.",
             WrapText = true
         };
-        Add(status, row: 3);
+        Children.Add(status);
+        Cells.Put(status, row: 3);
         AddStick("Free / fixed", JoystickMovementMode.Free, JoystickPlacementMode.Fixed, false, false);
         AddStick("Free / floating", JoystickMovementMode.Free, JoystickPlacementMode.Floating, false, false);
         AddStick("Vertical / up-down", JoystickMovementMode.Vertical, JoystickPlacementMode.Fixed, false, false);
@@ -59,10 +74,17 @@ public sealed class ControlsJoystickPage : Grid
                 BorderColor = new Color(43, 57, 76),
                 BorderThickness = 1
             };
-            card.Rows.Add(new RowTrack { Height = GridLength.Auto });
-            card.Rows.Add(new RowTrack { Height = GridLength.Star() });
-            card.Rows.Add(new RowTrack { Height = GridLength.Auto });
-            card.Add(new Label() { Text = title, TextColor = new Color(65, 199, 223), Height = 24 });
+            card.Rows.Add(new GridRow { Height = GridLength.Auto });
+            card.Rows.Add(new GridRow { Height = GridLength.Proportion() });
+            card.Rows.Add(new GridRow { Height = GridLength.Auto });
+            var gridChild3 = new Label()
+            {
+                Text = title,
+                TextColor = new Color(65, 199, 223),
+                Height = 24
+            };
+            card.Children.Add(gridChild3);
+            card.Cells.Put(gridChild3);
             var stick = new VirtualJoystick()
             {
                 MovementMode = mode,
@@ -82,9 +104,12 @@ public sealed class ControlsJoystickPage : Grid
             stick.Started += (_, _) => status.Text = $"{title}: started ({stick.ActivePointer?.Kind}, ID {stick.ActivePointer?.Id})";
             stick.Completed += (_, _) => status.Text = title + ": completed";
             stick.Cancelled += (_, _) => status.Text = title + ": cancelled / reset";
-            card.Add(stick, row: 1);
-            card.Add(value, row: 2);
-            cards.Add(card, row: index / 3, column: index % 3);
+            card.Children.Add(stick);
+            card.Cells.Put(stick, row: 1);
+            card.Children.Add(value);
+            card.Cells.Put(value, row: 2);
+            cards.Children.Add(card);
+            cards.Cells.Put(card, row: index / 3, column: index % 3);
             _sticks.Add(stick);
         }
     }

@@ -59,10 +59,7 @@ public sealed class UIRegistry
         styles.Register("Panel", new Style { BasedOn = "Control" });
         styles.Register("StackPanel", new Style { BasedOn = "Panel" });
         styles.Register("Inspector.MultiValue", new Style { BasedOn = "Grid", Spacing = 4, Background = Color.Transparent, BorderThickness = 0 });
-        styles.Register("Inspector.PropertyMenu", new Style { BasedOn = "Control", IsFocusable = true, Width = 26, Height = 30, Padding = Insets2.Zero,
-            Background = new Color(32, 35, 42), HoverBackground = new Color(53, 59, 70), PressedBackground = new Color(23, 26, 32),
-            DisabledBackground = new Color(28, 30, 35), TextColor = new Color(230, 233, 239), DisabledTextColor = new Color(115, 121, 132),
-            BorderThickness = 0, VerticalAlignment = ControlAlignment.Start });
+        styles.Register("Inspector.PropertyMenu", new Style { BasedOn = "Control", IsFocusable = true, Width = 26, Height = 30, Padding = Insets2.Zero, Background = new Color(32, 35, 42), HoverBackground = new Color(53, 59, 70), PressedBackground = new Color(23, 26, 32), DisabledBackground = new Color(28, 30, 35), TextColor = new Color(230, 233, 239), DisabledTextColor = new Color(115, 121, 132), BorderThickness = 0, VerticalAlignment = ControlAlignment.Start });
         styles.Register("Inspector.Component", new Style { BasedOn = "Grid", Spacing = 2, Background = Color.Transparent, BorderThickness = 0 });
         styles.Register("Label", new Style { BasedOn = "Control" });
         styles.Register("Button", new Style { BasedOn = "ContentControl", IsFocusable = true, Padding = new Insets2(12, 7), Background = new Color(48, 52, 64), ContentHorizontalAlignment = ControlAlignment.Center, HoverBackground = new Color(64, 72, 92), PressedBackground = new Color(36, 84, 132), DisabledBackground = new Color(32, 34, 40), FocusColor = new Color(100, 180, 255) });

@@ -56,5 +56,7 @@
 		<File Path=".github/ISSUE_TEMPLATE/refactor.yml" />
 	</Folder>
 
-	<Folder Name="/Examples/" />
+	<Folder Name="/Examples/">
+		<Project Path="Examples/Beginner.09.Controls/09.ControlsGL.csproj" />
+	</Folder>
 </Solution>

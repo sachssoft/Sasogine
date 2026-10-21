@@ -26,14 +26,20 @@ public sealed class MultiValueEditor<T> : Grid where T : struct
             ValueComponent<T> component = _components[index];
             if (component.Read is null || component.WithValue is null)
                 throw new ArgumentException("Default component descriptions are not valid.", nameof(components));
-            Tracks.Add(new ColumnTrack { Width = GridLength.Star() });
+            Columns.Add(new GridColumn { Width = GridLength.Proportion() });
             var cell = new Grid
             {
                 StyleId = "Inspector.Component"
             };
-            cell.Tracks.Add(new ColumnTrack { Width = new GridLength(14) });
-            cell.Tracks.Add(new ColumnTrack { Width = GridLength.Star() });
-            cell.Add(new TextBlock { Text = component.Name, VerticalAlignment = ControlAlignment.Center }, column: 0);
+            cell.Columns.Add(new GridColumn { Width = new GridLength(14) });
+            cell.Columns.Add(new GridColumn { Width = GridLength.Proportion() });
+            var gridChild1 = new TextBlock
+            {
+                Text = component.Name,
+                VerticalAlignment = ControlAlignment.Center
+            };
+            cell.Children.Add(gridChild1);
+            cell.Cells.Put(gridChild1, column: 0);
             var editor = new ValueTextBox
             {
                 Minimum = component.Minimum,
@@ -53,8 +59,10 @@ public sealed class MultiValueEditor<T> : Grid where T : struct
                     Value = component.WithValue(current, editor.Value);
                 }
             };
-            cell.Add(editor, column: 1);
-            Add(cell, column: index);
+            cell.Children.Add(editor);
+            cell.Cells.Put(editor, column: 1);
+            Children.Add(cell);
+            Cells.Put(cell, column: index);
         }
 
         _value = value;

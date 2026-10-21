@@ -11,7 +11,7 @@ internal sealed class GridAxisLayout
     internal int Count => Sizes.Length;
 
     internal void Configure<T>(IList<T> definitions)
-        where T : GridTrack
+        where T : GridDimension
     {
         int count = Math.Max(1, definitions.Count);
         if (Sizes.Length != count)
@@ -25,13 +25,13 @@ internal sealed class GridAxisLayout
 
         for (int i = 0; i < count; i++)
         {
-            GridTrack? d = definitions.Count == 0 ? null : definitions[i];
+            GridDimension? d = definitions.Count == 0 ? null : definitions[i];
             float min = d?.Minimum ?? 0, max = d?.Maximum ?? float.PositiveInfinity;
             if (!float.IsFinite(min) || min < 0 || float.IsNaN(max) || max < min)
-                throw new InvalidOperationException("Invalid grid track limits.");
+                throw new InvalidOperationException("Invalid grid row or column limits.");
             _minimum[i] = min;
             _maximum[i] = max;
-            _lengths[i] = d?.Length ?? GridLength.Star();
+            _lengths[i] = d?.Length ?? GridLength.Proportion();
             Sizes[i] = _lengths[i].Unit == GridUnitType.Pixel ? Math.Clamp(_lengths[i].Value, min, max) : min;
         }
     }
@@ -68,14 +68,14 @@ internal sealed class GridAxisLayout
         return false;
     }
 
-    internal void ResolveStars(float available, float gap)
+    internal void ResolveProportions(float available, float gap)
     {
         if (!float.IsFinite(available))
             return;
         double remaining = Math.Max(0, available - gap * Math.Max(0, Count - 1));
         for (int i = 0; i < Count; i++)
         {
-            _fixed[i] = _lengths[i].Unit != GridUnitType.Star;
+            _fixed[i] = _lengths[i].Unit != GridUnitType.Proportion;
             if (_fixed[i])
                 remaining -= Sizes[i];
         }
@@ -119,13 +119,13 @@ internal sealed class GridAxisLayout
         {
             int growable = 0;
             for (int i = start; i < start + span; i++)
-                if ((_lengths[i].Unit == GridUnitType.Auto || unbounded && _lengths[i].Unit == GridUnitType.Star) && Sizes[i] < _maximum[i])
+                if ((_lengths[i].Unit == GridUnitType.Auto || unbounded && _lengths[i].Unit == GridUnitType.Proportion) && Sizes[i] < _maximum[i])
                     growable++;
             if (growable == 0)
                 return;
             double share = extra / growable;
             for (int i = start; i < start + span; i++)
-                if ((_lengths[i].Unit == GridUnitType.Auto || unbounded && _lengths[i].Unit == GridUnitType.Star) && Sizes[i] < _maximum[i])
+                if ((_lengths[i].Unit == GridUnitType.Auto || unbounded && _lengths[i].Unit == GridUnitType.Proportion) && Sizes[i] < _maximum[i])
                 {
                     float added = (float)Math.Min(share, _maximum[i] - Sizes[i]);
                     Sizes[i] += added;
