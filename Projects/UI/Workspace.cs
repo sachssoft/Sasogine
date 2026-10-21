@@ -83,9 +83,10 @@ public sealed class Workspace : Element, IDisposable
     public Workspace(Control content, UIRegistry? registry = null)
     {
         Content = content ?? throw new ArgumentNullException(nameof(content));
-        if (content.Parent is not null || content.Workspace is not null)
+        if (content.Parent is not null || content.RootOwner is not null || content.Workspace is not null)
             throw new InvalidOperationException("Content already has an owner.");
         Registry = registry ?? content.FactoryRegistry ?? new UIRegistry();
+        ReserveRoot(content);
         ContainerControl.Attach(content, this);
         _input = new ControlInputContext(this);
         RebuildControls();
@@ -324,8 +325,35 @@ public sealed class Workspace : Element, IDisposable
                 ReleasePointer(owner, pointer);
     }
 
+    internal bool IsTraversing => _busy && !_committing;
+    private readonly HashSet<Control> _rootReservations = new(ReferenceEqualityComparer.Instance);
+
+    private void ReserveRoot(Control control)
+    {
+        VerifyTreeMutation();
+        control.Workspace?.VerifyTreeMutation();
+        if (control.Parent is not null || control.RootOwner is not null)
+            throw new InvalidOperationException("The control already has an owner.");
+        _rootReservations.Add(control);
+        control.RootOwner = this;
+    }
+
+    private void ReleaseRoot(Control control)
+    {
+        _rootReservations.Remove(control);
+        if (ReferenceEquals(control.RootOwner, this)) control.RootOwner = null;
+    }
+
+    internal void VerifyTreeMutation()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        if (_drawing)
+            throw new InvalidOperationException("The control tree cannot change while drawing.");
+    }
+
     internal void Mutate(Action action)
     {
+        VerifyTreeMutation();
         if (_busy && !_committing)
             _pending.Add(action);
         else
@@ -354,12 +382,14 @@ public sealed class Workspace : Element, IDisposable
     {
         control.Prepare();
         if (control is ContainerControl container)
-            foreach (Control child in container.Children)
-                PrepareTree(child);
+            foreach (Control child in container.OrderedChildren)
+                if (ReferenceEquals(child.CommittedParent, container) && ReferenceEquals(child.Parent, container))
+                    PrepareTree(child);
     }
 
     private void Layout()
     {
+        Commit();
         Registry.Styles.PollChanges();
         if (_styleRevision != Registry.Styles.Revision)
         {
@@ -651,6 +681,9 @@ public sealed class Workspace : Element, IDisposable
     public void ShowPopup(Control popup, Bounds2 placement, Control? owner = null, Action? closed = null)
     {
         ArgumentNullException.ThrowIfNull(popup);
+        if (owner is not null && owner.Workspace != this)
+            throw new InvalidOperationException("Popup owner belongs to another workspace.");
+        ReserveRoot(popup);
         Mutate(() => AddOverlay(popup, placement, false, true, owner, closed));
     }
 
@@ -658,6 +691,7 @@ public sealed class Workspace : Element, IDisposable
     public void ShowWindow(Window window)
     {
         ArgumentNullException.ThrowIfNull(window);
+        ReserveRoot(window);
         Mutate(() => AddOverlay(window, Bounds2.Zero, false, false, null, null));
     }
 
@@ -665,9 +699,10 @@ public sealed class Workspace : Element, IDisposable
     public Task<DialogResult> ShowDialog(Dialog dialog)
     {
         ArgumentNullException.ThrowIfNull(dialog);
-        if (dialog.Workspace is not null || dialog.Parent is not null)
-            throw new InvalidOperationException("Dialog already has an owner.");
-        Task<DialogResult> task = dialog.Prepare(this);
+        ReserveRoot(dialog);
+        Task<DialogResult> task;
+        try { task = dialog.Prepare(this); }
+        catch { ReleaseRoot(dialog); throw; }
         Mutate(() =>
         {
             AddOverlay(dialog, Bounds2.Zero, true, false, null, null);
@@ -686,19 +721,31 @@ public sealed class Workspace : Element, IDisposable
 
     private void AddOverlay(Control control, Bounds2 placement, bool modal, bool popup, Control? owner, Action? closed)
     {
-        if (control.Workspace is not null || control.Parent is not null)
-            throw new InvalidOperationException("Overlay already has an owner.");
+        if (!ReferenceEquals(control.RootOwner, this) || control.Parent is not null)
+            throw new InvalidOperationException("Overlay reservation is no longer valid.");
         if (owner is not null && owner.Workspace != this)
-            throw new InvalidOperationException("Popup owner belongs to another root.");
+        {
+            ReleaseRoot(control);
+            if (control is Dialog rejected) rejected.NotifyClosed();
+            throw new InvalidOperationException("Popup owner belongs to another workspace.");
+        }
+        control.CommittedParent?.DetachCommittedChild(control);
         Control? old = FocusedControl;
         ReleasePointers(static _ => true);
         _overlays.Add(new ControlOverlay(control, placement, modal, popup, owner, old, closed));
-        ContainerControl.Attach(control, this);
-        PrepareTree(control);
-        Focus(null);
-        Control? focus = Walk(control).FirstOrDefault(c => c.IsAvailable() && c.IsFocusable);
-        if (focus is not null)
-            Focus(focus);
+        try
+        {
+            ContainerControl.Attach(control, this);
+            PrepareTree(control);
+            Focus(null);
+            Control? focus = Walk(control).FirstOrDefault(c => c.IsAvailable() && c.IsFocusable);
+            if (focus is not null) Focus(focus);
+        }
+        catch
+        {
+            CloseOverlay(control);
+            throw;
+        }
     }
 
     /// <summary>Performs close popup using the current control state.</summary>
@@ -712,6 +759,7 @@ public sealed class Workspace : Element, IDisposable
             CloseOverlay(child.Control);
         _overlays.Remove(entry);
         ContainerControl.Attach(control, null);
+        ReleaseRoot(control);
         if (FocusedControl is Control focus && Within(focus, control))
             Focus(null);
         ReleasePointers(c => Within(c, control));
@@ -902,6 +950,12 @@ public sealed class Workspace : Element, IDisposable
                 binding.Dispose();
         Bindings.Clear();
         ContainerControl.Attach(Content, null);
+        foreach (Control reserved in _rootReservations.ToArray())
+        {
+            ContainerControl.Attach(reserved, null);
+            ReleaseRoot(reserved);
+            if (reserved is Dialog pendingDialog) pendingDialog.NotifyClosed();
+        }
         _controls.Clear();
         _pending.Clear();
         while (_posted.TryDequeue(out _))

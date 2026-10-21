@@ -21,6 +21,7 @@ public class ContentControl : ContainerControl
     public override void Add(Control child)
     {
         ArgumentNullException.ThrowIfNull(child);
+        ValidateChild(child);
         Content = child;
     }
 
@@ -43,7 +44,8 @@ public class ContentControl : ContainerControl
         Control? next = ConfigContent;
         if (_content.WasEnsured && ReferenceEquals(_content.NewValue, next))
             return;
-        ReplaceOwnedChild(_content.WasEnsured ? _content.NewValue : null, next);
+        if (next is not null)
+            PresentOwnedChild(next, true);
         _content.EnsureChange(next);
     }
 
@@ -93,7 +95,7 @@ public class ContentControl : ContainerControl
 
     private Control? _storedContent = null;
     private static readonly System.ComponentModel.PropertyChangedEventArgs ContentStorageArgs = new("Content");
-    internal Control? ConfigContent { get => _storedContent; set => SetNotify(ref _storedContent, value, ContentStorageArgs); }
+    internal Control? ConfigContent { get => _storedContent; set => SetOwnedControl(ref _storedContent, value, ContentStorageArgs); }
 
     /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
     public override void ApplyStyle(Style style)

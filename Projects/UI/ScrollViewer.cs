@@ -48,7 +48,8 @@ public sealed class ScrollViewer : ContainerControl
         base.Prepare();
         if (ReferenceEquals(_content, ConfigContent))
             return;
-        ReplaceOwnedChild(_content, ConfigContent);
+        if (ConfigContent is Control child)
+            PresentOwnedChild(child, true);
         _content = ConfigContent;
     }
 
@@ -251,7 +252,26 @@ public sealed class ScrollViewer : ContainerControl
             NotifyPropertyChanged(VerticalScrollBarVisibilityChangedArgs);
     }
 
-    internal Control? ConfigContent { get; set; }
+    private Control? _storedContent;
+    private static readonly System.ComponentModel.PropertyChangedEventArgs ContentChangedArgs = new(nameof(Content));
+    internal Control? ConfigContent { get => _storedContent; set => SetOwnedControl(ref _storedContent, value, ContentChangedArgs); }
+
+    /// <inheritdoc/>
+    public override void Add(Control child)
+    {
+        ValidateChild(child);
+        Content = child;
+    }
+
+    /// <inheritdoc/>
+    public override void Remove(Control child)
+    {
+        ArgumentNullException.ThrowIfNull(child);
+        if (ReferenceEquals(Content, child)) Content = null;
+    }
+
+    /// <inheritdoc/>
+    public override void Clear() => Content = null;
 
     /// <summary>Commits final style values and notifies once per effective property change.</summary>
     protected override void CommitStyledValues()

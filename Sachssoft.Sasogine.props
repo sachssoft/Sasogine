@@ -35,11 +35,11 @@
 
 	<PropertyGroup>
 		<!-- NuGet Icon -->
-		<PackageIcon>sasogine-icon.png</PackageIcon>
+		<PackageIcon>sasogine-logo.png</PackageIcon>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="$(MSBuildThisFileDirectory)Assets\logo\sasogine-icon.png"
+		<None Include="$(MSBuildThisFileDirectory)Assets\logo\sasogine-logo.png"
 			  Pack="true"
 			  PackagePath="\" />
 	</ItemGroup>

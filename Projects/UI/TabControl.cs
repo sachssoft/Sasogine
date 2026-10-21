@@ -32,6 +32,31 @@ public class TabControl : ContainerControl
         base.Add(_headerView);
     }
 
+    internal void ReleaseTab(TabItem item)
+    {
+        _headers.Remove(item.HeaderButton);
+        base.Remove(item);
+    }
+
+    /// <inheritdoc/>
+    public override void Add(Control child)
+    {
+        ArgumentNullException.ThrowIfNull(child);
+        if (child is not TabItem item)
+            throw new ArgumentException("TabControl children must be TabItem pages.", nameof(child));
+        Items.Add(item);
+    }
+
+    /// <inheritdoc/>
+    public override void Remove(Control child)
+    {
+        ArgumentNullException.ThrowIfNull(child);
+        if (child is TabItem item) Items.Remove(item);
+    }
+
+    /// <inheritdoc/>
+    public override void Clear() => Items.Clear();
+
     /// <summary>Gets the retained pages.</summary>
     public IList<TabItem> Items => ConfigItems;
 
@@ -79,46 +104,18 @@ public class TabControl : ContainerControl
 
         if (rebuild)
         {
-            for (int i = 0; i < Items.Count; i++)
-            {
-                TabItem item = Items[i] ?? throw new InvalidOperationException("Null tab item.");
-                if (item.TabOwner is not null && item.TabOwner != this)
-                    throw new InvalidOperationException("Tab page belongs to another tab control.");
-                if (item.Parent is not null && item != _active || item.Workspace is not null && item != _active)
-                    throw new InvalidOperationException("Tab page already belongs to another tree.");
-                for (int n = 0; n < i; n++)
-                    if (ReferenceEquals(Items[n], item))
-                        throw new InvalidOperationException("A tab page cannot occur twice.");
-                for (Control? ancestor = this; ancestor is not null; ancestor = ancestor.Parent)
-                    if (ReferenceEquals(ancestor, item))
-                        throw new InvalidOperationException("Cyclic tab content.");
-            }
-
-            foreach (var old in _known)
-                if (!Items.Contains(old))
-                    old.TabOwner = null;
             foreach (var button in _buttons)
-            {
-                button.Content = null;
-                button.Prepare();
                 _headers.ReplaceOwnedChild(button, null);
-            }
 
             _known.Clear();
             _buttons.Clear();
             _captions.Clear();
             for (int i = 0; i < Items.Count; i++)
             {
-                int index = i;
                 var item = Items[i];
-                item.TabOwner = this;
                 _known.Add(item);
-                _captions.Add(new TextBlock());
-                var header = new ToggleButton()
-                {
-                    StyleId = "TabControl.Header"
-                };
-                header.Clicked += (_, _) => SelectedIndex = index;
+                _captions.Add(item.HeaderCaption);
+                var header = item.HeaderButton;
                 _buttons.Add(header);
                 _headers.ReplaceOwnedChild(null, header);
             }
@@ -149,11 +146,8 @@ public class TabControl : ContainerControl
         ConfigSelectedIndex = selected;
         TabItem? next = selected >= 0 ? Items[selected] : null;
         bool changed = !ReferenceEquals(next, _active);
-        if (changed)
-        {
-            ReplaceOwnedChild(_active, next);
-            _active = next;
-        }
+        ReplaceOwnedChild(_active, next, retainOwnership: true);
+        _active = next;
 
         for (int i = 0; i < _buttons.Count; i++)
         {
@@ -275,9 +269,8 @@ public class TabControl : ContainerControl
     /// <summary>Gets or sets HeaderHeight; a local assignment overrides the style.</summary>
     public float HeaderHeight { get => ConfigHeaderHeight; set => ConfigHeaderHeight = value; }
 
-    private ElementCollection<TabItem>? _ownedItems;
-    private static readonly System.ComponentModel.PropertyChangedEventArgs ItemsCollectionArgs = new("Items");
-    internal IList<TabItem> ConfigItems => _ownedItems ??= new(this, ItemsCollectionArgs);
+    private TabItemCollection? _ownedItems;
+    internal IList<TabItem> ConfigItems => _ownedItems ??= new(this);
 
     /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
     public override void ApplyStyle(Style style)

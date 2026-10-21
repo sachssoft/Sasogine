@@ -107,8 +107,13 @@ public abstract class Control : Element
     public Color BorderColor { get => ConfigBorderColor; set => ConfigBorderColor = value; }
     /// <summary>Gets the effective BorderThickness value or sets a local override.</summary>
     public float BorderThickness { get => ConfigBorderThickness; set => ConfigBorderThickness = value; }
-    /// <summary>Gets the parent, if attached to a container.</summary>
+    /// <summary>Gets the owning container, including reservations awaiting a layout boundary.</summary>
     public ContainerControl? Parent { get; internal set; }
+
+    internal ContainerControl? CommittedParent { get; set; }
+    internal uint OwnershipRevision { get; set; }
+    internal uint CommittedOwnershipRevision { get; set; }
+    internal Workspace? RootOwner { get; set; }
 
     private Workspace? _workspace;
     /// <summary>Gets the workspace that currently owns this control.</summary>

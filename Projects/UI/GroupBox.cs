@@ -2,12 +2,12 @@ namespace Sachssoft.Engine.Controls;
 /// <summary>A bordered content group with an arbitrary control header.</summary>
 public class GroupBox : ContainerControl
 {
-    private Control? _header, _content, _ownedHeader, _ownedContent;
+    private Control? _header, _content;
     private static readonly System.ComponentModel.PropertyChangedEventArgs HeaderArgs = new(nameof(Header)), ContentArgs = new(nameof(Content));
     /// <summary>Gets or sets the header, including images or composed controls.</summary>
-    public Control? Header { get => _header; set => SetNotify(ref _header, value, HeaderArgs); }
+    public Control? Header { get => _header; set => SetOwnedControl(ref _header, value, HeaderArgs); }
     /// <summary>Gets or sets the group content.</summary>
-    public Control? Content { get => _content; set => SetNotify(ref _content, value, ContentArgs); }
+    public Control? Content { get => _content; set => SetOwnedControl(ref _content, value, ContentArgs, ShowsContent); }
     /// <inheritdoc/>
     protected override string DefaultStyleName => "GroupBox";
     /// <summary>Gets whether the content participates in the control tree.</summary>
@@ -18,18 +18,22 @@ public class GroupBox : ContainerControl
     internal override void Prepare()
     {
         base.Prepare();
-        ReplaceOwnedChild(_ownedHeader, _header);
-        _ownedHeader = _header;
-        Control? next = ShowsContent ? _content : null;
-        ReplaceOwnedChild(_ownedContent, next);
-        _ownedContent = next;
+        if (_header is not null)
+            PresentOwnedChild(_header, true);
+        if (_content is not null)
+            PresentOwnedChild(_content, ShowsContent);
     }
 
     /// <inheritdoc/>
-    public override void Add(Control child) => Content = child;
+    public override void Add(Control child)
+    {
+        ValidateChild(child);
+        Content = child;
+    }
     /// <inheritdoc/>
     public override void Remove(Control child)
     {
+        System.ArgumentNullException.ThrowIfNull(child);
         if (ReferenceEquals(Content, child))
             Content = null;
         else if (ReferenceEquals(Header, child))

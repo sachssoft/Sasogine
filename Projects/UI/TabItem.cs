@@ -5,9 +5,18 @@ public class TabItem : ContentControl
     internal TabControl? TabOwner { get; set; }
 
     /// <summary>Creates a tab page.</summary>
-    public TabItem() : base()
+    public TabItem()
     {
+        HeaderButton.Content = HeaderCaption;
+        HeaderButton.Clicked += (_, _) =>
+        {
+            if (TabOwner is TabControl owner)
+                owner.SelectedIndex = owner.Items.IndexOf(this);
+        };
     }
+
+    internal ToggleButton HeaderButton { get; } = new() { StyleId = "TabControl.Header" };
+    internal TextBlock HeaderCaption { get; } = new();
 
     /// <summary>Gets or sets header text.</summary>
     public string Header { get => ConfigHeader; set => ConfigHeader = value; }
@@ -22,7 +31,18 @@ public class TabItem : ContentControl
 
     private Control? _storedHeaderContent = null;
     private static readonly System.ComponentModel.PropertyChangedEventArgs HeaderContentStorageArgs = new("HeaderContent");
-    internal Control? ConfigHeaderContent { get => _storedHeaderContent; set => SetNotify(ref _storedHeaderContent, value, HeaderContentStorageArgs); }
+    internal Control? ConfigHeaderContent
+    {
+        get => _storedHeaderContent;
+        set
+        {
+            if (ReferenceEquals(_storedHeaderContent, value)) return;
+            // A stable header presenter owns the custom content even before a tab is shown.
+            HeaderButton.Content = value ?? HeaderCaption;
+            _storedHeaderContent = value;
+            NotifyPropertyChanged(HeaderContentStorageArgs);
+        }
+    }
     /// <summary>Gets or sets the value for HeaderContent.</summary>
     public Control? HeaderContent { get => ConfigHeaderContent; set => ConfigHeaderContent = value; }
 
