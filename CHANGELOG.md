@@ -19,7 +19,10 @@ All notable changes to this project will be documented in this file.
 
 </small>
 
-## [0.12.0-alpha] - Planned
+## [0.13.0-alpha] - Planned
+* [Feature] Introducted new UI System Sasogine Controls
+
+## [0.12.0-alpha] - 2026-10-21
 * [Feature] Introduced definition-inspector system.
 * [Feature] Added color models for RGB, HSL, HSV, linear RGB, and OKLab.
 * [Feature] Added color conversion and manipulation extensions for MonoGame colors.
