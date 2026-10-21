@@ -38,7 +38,7 @@ public class Grid : ContainerControl
     public override void Remove(Control child)
     {
         base.Remove(child);
-        Cells.Release(child);
+        Cells.Remove(child);
     }
 
     /// <inheritdoc/>

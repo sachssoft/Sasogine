@@ -27,16 +27,21 @@ public sealed class Workspace : Element, IDisposable
             ObjectDisposedException.ThrowIf(_disposed, this);
             if (!float.IsFinite(value) || value <= 0 || value / 96f <= 0)
                 throw new ArgumentOutOfRangeException(nameof(value), "DPI must be finite and positive.");
-            if (_drawing) throw new InvalidOperationException("Drawing cannot change workspace DPI.");
-            if (SetNotify(ref _dpi, value, DpiArgs)) NotifyPropertyChanged(DpiScaleArgs);
+            if (_drawing)
+                throw new InvalidOperationException("Drawing cannot change workspace DPI.");
+            if (SetNotify(ref _dpi, value, DpiArgs))
+                NotifyPropertyChanged(DpiScaleArgs);
         }
     }
+
     /// <summary>Gets the requested physical pixels per logical UI unit.</summary>
     public float DpiScale => _dpi / 96f;
+
     /// <inheritdoc/>
     protected override void OnPropertyChanged(PropertyChangedEventArgs notification)
     {
-        if (notification.PropertyName == nameof(Dpi)) _layoutDirty = true;
+        if (notification.PropertyName == nameof(Dpi))
+            _layoutDirty = true;
         base.OnPropertyChanged(notification);
     }
 
@@ -46,7 +51,6 @@ public sealed class Workspace : Element, IDisposable
     public ColorPickSession ColorPicking { get; } = new();
     /// <summary>Gets the workspace-local asset drag gesture.</summary>
     public AssetDragSession AssetDragging { get; } = new();
-
     /// <summary>Gets explicit bindings processed before layout and after input.</summary>
     public IList<IFrameBinding> Bindings { get; } = new List<IFrameBinding>();
 
@@ -83,7 +87,7 @@ public sealed class Workspace : Element, IDisposable
     public Workspace(Control content, UIRegistry? registry = null)
     {
         Content = content ?? throw new ArgumentNullException(nameof(content));
-        if (content.Parent is not null || content.RootOwner is not null || content.Workspace is not null)
+        if (content.Parent is not null || content.RootOwner is not null || content.Workspace is not null || content.CommittedParent is not null)
             throw new InvalidOperationException("Content already has an owner.");
         Registry = registry ?? content.FactoryRegistry ?? new UIRegistry();
         ReserveRoot(content);
@@ -114,18 +118,15 @@ public sealed class Workspace : Element, IDisposable
     }
 
     /// <summary>Samples caller-provided mouse and keyboard states using this workspace's DPI and a physical viewport.</summary>
-    public void Update(ControlInputSampler sampler, MouseState mouse, KeyboardState keyboard, Rectangle viewport,
-        TimeSpan elapsed, ControlLayoutContext layout, bool active = true) =>
-        Update(sampler, mouse, keyboard, default, viewport, elapsed, layout, active);
-
+    public void Update(ControlInputSampler sampler, MouseState mouse, KeyboardState keyboard, Rectangle viewport, TimeSpan elapsed, ControlLayoutContext layout, bool active = true) => Update(sampler, mouse, keyboard, default, viewport, elapsed, layout, active);
     /// <summary>Samples mouse/touch/keyboard once, derives logical layout size and synchronizes subsequent drawing automatically.</summary>
-    public void Update(ControlInputSampler sampler, MouseState mouse, KeyboardState keyboard, TouchCollection touches,
-        Rectangle viewport, TimeSpan elapsed, ControlLayoutContext layout, bool active = true)
+    public void Update(ControlInputSampler sampler, MouseState mouse, KeyboardState keyboard, TouchCollection touches, Rectangle viewport, TimeSpan elapsed, ControlLayoutContext layout, bool active = true)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentNullException.ThrowIfNull(sampler);
         ArgumentNullException.ThrowIfNull(layout);
-        if (_busy) throw new InvalidOperationException("UI processing cannot be reentered.");
+        if (_busy)
+            throw new InvalidOperationException("UI processing cannot be reentered.");
         float dpi = Dpi;
         ControlInputFrame frame = sampler.SampleReusable(mouse, keyboard, touches, viewport, dpi / 96f, elapsed, active);
         ProcessFrameCore(frame, layout, viewport, dpi);
@@ -135,7 +136,6 @@ public sealed class Workspace : Element, IDisposable
     public void Update(ControlInputFrame frame, ControlLayoutContext layout) => ProcessFrame(frame, layout);
     /// <summary>Processes ordered input, updates controls once, commits mutations, and finalizes layout.</summary>
     public void ProcessFrame(ControlInputFrame frame, ControlLayoutContext layout) => ProcessFrameCore(frame, layout, frame?.PhysicalViewport, Dpi);
-
     private void ProcessFrameCore(ControlInputFrame frame, ControlLayoutContext layout, Rectangle? viewport, float frameDpi)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
@@ -143,11 +143,11 @@ public sealed class Workspace : Element, IDisposable
         ArgumentNullException.ThrowIfNull(layout);
         if (_busy)
             throw new InvalidOperationException("UI processing cannot be reentered.");
-        Size2 logicalSize = viewport is Rectangle physical
-            ? new Size2(physical.Width / (frameDpi / 96f), physical.Height / (frameDpi / 96f)) : frame.Size;
+        Size2 logicalSize = viewport is Rectangle physical ? new Size2(physical.Width / (frameDpi / 96f), physical.Height / (frameDpi / 96f)) : frame.Size;
         Control.ValidateSize(logicalSize, false);
         float inputScale = frame.PhysicalViewport.HasValue ? frame.SourceScale / (frameDpi / 96f) : 1;
-        if (!float.IsFinite(inputScale) || inputScale <= 0) throw new ArgumentOutOfRangeException(nameof(frameDpi));
+        if (!float.IsFinite(inputScale) || inputScale <= 0)
+            throw new ArgumentOutOfRangeException(nameof(frameDpi));
         _hasFrame = false;
         _frameViewport = viewport;
         _frameDpi = frameDpi;
@@ -177,9 +177,11 @@ public sealed class Workspace : Element, IDisposable
             for (int eventIndex = 0; eventIndex < frame.Events.Count; eventIndex++)
             {
                 ControlInputEvent input = frame.Events[eventIndex];
-                if (inputScale != 1 && input.Type is (ControlInputEventType.PointerMove or ControlInputEventType.PointerDown
-                    or ControlInputEventType.PointerUp or ControlInputEventType.PointerWheel or ControlInputEventType.PointerCancel))
-                    input = input with { Position = input.Position * inputScale };
+                if (inputScale != 1 && input.Type is (ControlInputEventType.PointerMove or ControlInputEventType.PointerDown or ControlInputEventType.PointerUp or ControlInputEventType.PointerWheel or ControlInputEventType.PointerCancel))
+                    input = input with
+                    {
+                        Position = input.Position * inputScale
+                    };
                 Dispatch(input);
                 UpdateBindings();
                 Layout();
@@ -225,7 +227,8 @@ public sealed class Workspace : Element, IDisposable
             {
                 DrawTree(Content, new Bounds2(0, 0, Size.Width, Size.Height), 1f, context);
                 DrawOverlays(context);
-                if (includePickingOverlay) ColorPicking.Draw(context, Size);
+                if (includePickingOverlay)
+                    ColorPicking.Draw(context, Size);
                 AssetDragging.Draw(context, Size);
                 if (_visibleToolTip is ToolTip tip)
                     DrawTree(tip, new Bounds2(0, 0, Size.Width, Size.Height), 1, context);
@@ -244,7 +247,8 @@ public sealed class Workspace : Element, IDisposable
 
     private void SynchronizeDrawing(ControlDrawContext context)
     {
-        if (_frameViewport is Rectangle viewport) context.SetViewport(viewport, _frameDpi / 96f);
+        if (_frameViewport is Rectangle viewport)
+            context.SetViewport(viewport, _frameDpi / 96f);
     }
 
     /// <summary>Draws only the pipette overlay after presenting a clean sampled render target.</summary>
@@ -252,17 +256,30 @@ public sealed class Workspace : Element, IDisposable
     {
         ArgumentNullException.ThrowIfNull(context);
         ObjectDisposedException.ThrowIf(_disposed, this);
-        if (!_busy && _hasFrame) SynchronizeDrawing(context);
+        if (!_busy && _hasFrame)
+            SynchronizeDrawing(context);
         if (_busy || !_hasFrame || !Size.Equals(context.LogicalSize) || !ReferenceEquals(_layout?.DefaultFont, context.DefaultFont))
             throw new InvalidOperationException("Process a matching UI frame before drawing the picking overlay.");
-        _busy = true; _drawing = true;
+        _busy = true;
+        _drawing = true;
         try
         {
-            context.Bind(Registry); context.Begin();
-            try { ColorPicking.Draw(context, Size); }
-            finally { context.End(); }
+            context.Bind(Registry);
+            context.Begin();
+            try
+            {
+                ColorPicking.Draw(context, Size);
+            }
+            finally
+            {
+                context.End();
+            }
         }
-        finally { _drawing = false; _busy = false; }
+        finally
+        {
+            _drawing = false;
+            _busy = false;
+        }
     }
 
     internal bool DropAsset(AssetItem asset, Vector2 position)
@@ -271,9 +288,14 @@ public sealed class Workspace : Element, IDisposable
         while (hit is not null)
         {
             if (hit is ReferencePicker picker && picker.IsAvailable() && picker.CanSelectAsset(asset))
-            { picker.SelectAsset(asset); return true; }
+            {
+                picker.SelectAsset(asset);
+                return true;
+            }
+
             hit = hit.Parent;
         }
+
         return false;
     }
 
@@ -326,14 +348,16 @@ public sealed class Workspace : Element, IDisposable
     }
 
     internal bool IsTraversing => _busy && !_committing;
-    private readonly HashSet<Control> _rootReservations = new(ReferenceEqualityComparer.Instance);
 
+    private readonly HashSet<Control> _rootReservations = new(ReferenceEqualityComparer.Instance);
     private void ReserveRoot(Control control)
     {
         VerifyTreeMutation();
         control.Workspace?.VerifyTreeMutation();
         if (control.Parent is not null || control.RootOwner is not null)
             throw new InvalidOperationException("The control already has an owner.");
+        if (control.CommittedParent is not null && control.Workspace?.IsTraversing == true && control.Workspace != this)
+            throw new InvalidOperationException("Wait for the previous workspace to commit this control's removal.");
         _rootReservations.Add(control);
         control.RootOwner = this;
     }
@@ -341,7 +365,8 @@ public sealed class Workspace : Element, IDisposable
     private void ReleaseRoot(Control control)
     {
         _rootReservations.Remove(control);
-        if (ReferenceEquals(control.RootOwner, this)) control.RootOwner = null;
+        if (ReferenceEquals(control.RootOwner, this))
+            control.RootOwner = null;
     }
 
     internal void VerifyTreeMutation()
@@ -446,7 +471,8 @@ public sealed class Workspace : Element, IDisposable
 
     private void Dispatch(ControlInputEvent input)
     {
-        if (ColorPicking.Handle(input) || AssetDragging.Handle(this, input)) return;
+        if (ColorPicking.Handle(input) || AssetDragging.Handle(this, input))
+            return;
         _input.Pointer = input.Pointer;
         if (input.Type != ControlInputEventType.PointerMove || input.PointerKind != ControlPointerKind.Mouse)
         {
@@ -701,8 +727,16 @@ public sealed class Workspace : Element, IDisposable
         ArgumentNullException.ThrowIfNull(dialog);
         ReserveRoot(dialog);
         Task<DialogResult> task;
-        try { task = dialog.Prepare(this); }
-        catch { ReleaseRoot(dialog); throw; }
+        try
+        {
+            task = dialog.Prepare(this);
+        }
+        catch
+        {
+            ReleaseRoot(dialog);
+            throw;
+        }
+
         Mutate(() =>
         {
             AddOverlay(dialog, Bounds2.Zero, true, false, null, null);
@@ -726,9 +760,11 @@ public sealed class Workspace : Element, IDisposable
         if (owner is not null && owner.Workspace != this)
         {
             ReleaseRoot(control);
-            if (control is Dialog rejected) rejected.NotifyClosed();
+            if (control is Dialog rejected)
+                rejected.NotifyClosed();
             throw new InvalidOperationException("Popup owner belongs to another workspace.");
         }
+
         control.CommittedParent?.DetachCommittedChild(control);
         Control? old = FocusedControl;
         ReleasePointers(static _ => true);
@@ -739,7 +775,8 @@ public sealed class Workspace : Element, IDisposable
             PrepareTree(control);
             Focus(null);
             Control? focus = Walk(control).FirstOrDefault(c => c.IsAvailable() && c.IsFocusable);
-            if (focus is not null) Focus(focus);
+            if (focus is not null)
+                Focus(focus);
         }
         catch
         {
@@ -833,7 +870,8 @@ public sealed class Workspace : Element, IDisposable
         var bounds = new Bounds2(0, 0, Size.Width, Size.Height);
         foreach (ControlOverlay entry in _overlays)
         {
-            if (ColorPicking.IsActive && ReferenceEquals(entry.Control, ColorPicking.Owner)) continue;
+            if (ColorPicking.IsActive && ReferenceEquals(entry.Control, ColorPicking.Owner))
+                continue;
             context.SetControl(bounds, bounds, 1);
             if (entry.Modal && !context.DrawSkinRegion("modal_overlay", bounds))
                 context.FillRectangle(bounds, new Color(0, 0, 0, 160));
@@ -857,9 +895,8 @@ public sealed class Workspace : Element, IDisposable
     {
         if (_visibleToolTip is not ToolTip tip)
             return;
-        tip.Content = null;
-        tip.Prepare();
         ContainerControl.Attach(tip, null);
+        ReleaseRoot(tip);
         _visibleToolTip = null;
     }
 
@@ -899,14 +936,15 @@ public sealed class Workspace : Element, IDisposable
 
         if (_visibleToolTip is null)
         {
-            var tip = new ToolTip()
+            ToolTip tip = content is not null ? owner.ToolTipPresenter : new ToolTip
             {
-                Content = content ?? new Label()
+                Content = new Label
                 {
                     Text = text,
                     WrapText = true
                 }
             };
+            ReserveRoot(tip);
             ContainerControl.Attach(tip, this);
             _visibleToolTip = tip;
         }
@@ -954,8 +992,10 @@ public sealed class Workspace : Element, IDisposable
         {
             ContainerControl.Attach(reserved, null);
             ReleaseRoot(reserved);
-            if (reserved is Dialog pendingDialog) pendingDialog.NotifyClosed();
+            if (reserved is Dialog pendingDialog)
+                pendingDialog.NotifyClosed();
         }
+
         _controls.Clear();
         _pending.Clear();
         while (_posted.TryDequeue(out _))

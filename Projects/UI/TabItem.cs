@@ -15,9 +15,11 @@ public class TabItem : ContentControl
         };
     }
 
-    internal ToggleButton HeaderButton { get; } = new() { StyleId = "TabControl.Header" };
+    internal ToggleButton HeaderButton { get; } = new()
+    {
+        StyleId = "TabControl.Header"
+    };
     internal TextBlock HeaderCaption { get; } = new();
-
     /// <summary>Gets or sets header text.</summary>
     public string Header { get => ConfigHeader; set => ConfigHeader = value; }
     /// <summary>Gets whether this page is currently selected.</summary>
@@ -36,13 +38,18 @@ public class TabItem : ContentControl
         get => _storedHeaderContent;
         set
         {
-            if (ReferenceEquals(_storedHeaderContent, value)) return;
+            if (ReferenceEquals(_storedHeaderContent, value))
+                return;
+            for (Control? ancestor = this; ancestor is not null; ancestor = ancestor.Parent)
+                if (ReferenceEquals(ancestor, value))
+                    throw new System.InvalidOperationException("Tab header content cannot contain its page or an ancestor.");
             // A stable header presenter owns the custom content even before a tab is shown.
             HeaderButton.Content = value ?? HeaderCaption;
             _storedHeaderContent = value;
             NotifyPropertyChanged(HeaderContentStorageArgs);
         }
     }
+
     /// <summary>Gets or sets the value for HeaderContent.</summary>
     public Control? HeaderContent { get => ConfigHeaderContent; set => ConfigHeaderContent = value; }
 

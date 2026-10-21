@@ -126,14 +126,12 @@ public sealed class InspectorPropertyMenu : Button
             return;
         if (!visible && row.Columns.Count == 3)
         {
-            row.Cells.Release(this);
             row.Cells.Put(this, column: 1);
             row.Columns.RemoveAt(2);
         }
         else if (visible && row.Columns.Count == 2)
         {
             row.Columns.Add(new GridColumn { Width = new GridLength(26) });
-            row.Cells.Release(this);
             row.Cells.Put(this, column: 2);
         }
     }

@@ -71,7 +71,7 @@ public abstract class Control : Element
     protected ValueConverterRegistry Converters => (Workspace?.Registry ?? FactoryRegistry ?? DetachedRegistry).Converters;
     /// <summary>Gets or sets tooltip text on any control, including scroll viewers.</summary>
     public string ToolTip { get => ConfigToolTip; set => ConfigToolTip = value; }
-    /// <summary>Gets or sets arbitrary unowned tooltip content.</summary>
+    /// <summary>Gets or sets tooltip content reserved by a stable tooltip presenter.</summary>
     public Control? ToolTipContent { get => ConfigToolTipContent; set => ConfigToolTipContent = value; }
 
     internal virtual void Prepare() => EnsureStyle();
@@ -109,11 +109,20 @@ public abstract class Control : Element
     public float BorderThickness { get => ConfigBorderThickness; set => ConfigBorderThickness = value; }
     /// <summary>Gets the owning container, including reservations awaiting a layout boundary.</summary>
     public ContainerControl? Parent { get; internal set; }
-
     internal ContainerControl? CommittedParent { get; set; }
     internal uint OwnershipRevision { get; set; }
     internal uint CommittedOwnershipRevision { get; set; }
     internal Workspace? RootOwner { get; set; }
+
+    internal void VerifyTreeMutation()
+    {
+        for (Control? node = this; node is not null; node = node.Parent)
+            if ((node.Workspace ?? node.RootOwner)is Workspace root)
+            {
+                root.VerifyTreeMutation();
+                return;
+            }
+    }
 
     private Workspace? _workspace;
     /// <summary>Gets the workspace that currently owns this control.</summary>
@@ -713,9 +722,30 @@ public abstract class Control : Element
         get => _styleToolTipContent.Value;
         set
         {
-            if (_styleToolTipContent.SetLocal(value))
-                NotifyPropertyChanged(ToolTipContentChangedArgs);
+            StyleProperty<Control?> candidate = _styleToolTipContent;
+            bool changed = candidate.SetLocal(value);
+            CommitToolTipContent(candidate, changed);
         }
+    }
+
+    private ToolTip? _toolTipPresenter;
+    internal ToolTip ToolTipPresenter => _toolTipPresenter ??= new ToolTip();
+
+    private void CommitToolTipContent(StyleProperty<Control?> candidate, bool changed)
+    {
+        if (changed)
+        {
+            VerifyTreeMutation();
+            for (Control? ancestor = this; ancestor is not null; ancestor = ancestor.Parent)
+                if (ReferenceEquals(ancestor, candidate.Value))
+                    throw new InvalidOperationException("Tooltip content cannot contain its owner or an ancestor.");
+            if (candidate.Value is not null || _toolTipPresenter is not null)
+                ToolTipPresenter.Content = candidate.Value;
+        }
+
+        _styleToolTipContent = candidate;
+        if (changed)
+            NotifyPropertyChanged(ToolTipContentChangedArgs);
     }
 
     private StyleProperty<float> _styleToolTipDelay = new(0.5f);
@@ -876,9 +906,13 @@ public abstract class Control : Element
                         NotifyPropertyChanged(ToolTipChangedArgs);
                     break;
                 case "ToolTipContent":
-                    if (_styleToolTipContent.Apply(Converters.Convert<Control?>("Control", entry.Value)))
-                        NotifyPropertyChanged(ToolTipContentChangedArgs);
+                {
+                    StyleProperty<Control?> candidate = _styleToolTipContent;
+                    bool changed = candidate.Apply(Converters.Convert<Control?>("Control", entry.Value));
+                    CommitToolTipContent(candidate, changed);
                     break;
+                }
+
                 case "ToolTipDelay":
                     if (_styleToolTipDelay.Apply(Converters.Convert<float>("Single", entry.Value)))
                         NotifyPropertyChanged(ToolTipDelayChangedArgs);
@@ -1074,9 +1108,13 @@ public abstract class Control : Element
                     NotifyPropertyChanged(ToolTipChangedArgs);
                 return;
             case "ToolTipContent":
-                if (_styleToolTipContent.ClearLocal())
-                    NotifyPropertyChanged(ToolTipContentChangedArgs);
+            {
+                StyleProperty<Control?> candidate = _styleToolTipContent;
+                bool changed = candidate.ClearLocal();
+                CommitToolTipContent(candidate, changed);
                 return;
+            }
+
             case "ToolTipDelay":
                 if (_styleToolTipDelay.ClearLocal())
                     NotifyPropertyChanged(ToolTipDelayChangedArgs);
@@ -1218,8 +1256,9 @@ public abstract class Control : Element
             NotifyPropertyChanged(DisabledTextColorChangedArgs);
         if (_styleToolTip.CommitStyle())
             NotifyPropertyChanged(ToolTipChangedArgs);
-        if (_styleToolTipContent.CommitStyle())
-            NotifyPropertyChanged(ToolTipContentChangedArgs);
+        StyleProperty<Control?> tooltipCandidate = _styleToolTipContent;
+        bool tooltipChanged = tooltipCandidate.CommitStyle();
+        CommitToolTipContent(tooltipCandidate, tooltipChanged);
         if (_styleToolTipDelay.CommitStyle())
             NotifyPropertyChanged(ToolTipDelayChangedArgs);
         if (_styleToolTipDuration.CommitStyle())

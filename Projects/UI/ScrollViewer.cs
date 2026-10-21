@@ -267,12 +267,12 @@ public sealed class ScrollViewer : ContainerControl
     public override void Remove(Control child)
     {
         ArgumentNullException.ThrowIfNull(child);
-        if (ReferenceEquals(Content, child)) Content = null;
+        if (ReferenceEquals(Content, child))
+            Content = null;
     }
 
     /// <inheritdoc/>
     public override void Clear() => Content = null;
-
     /// <summary>Commits final style values and notifies once per effective property change.</summary>
     protected override void CommitStyledValues()
     {

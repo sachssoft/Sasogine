@@ -30,6 +30,7 @@ public class GroupBox : ContainerControl
         ValidateChild(child);
         Content = child;
     }
+
     /// <inheritdoc/>
     public override void Remove(Control child)
     {

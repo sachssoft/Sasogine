@@ -10,7 +10,7 @@ public class ContentControl : ContainerControl
     {
     }
 
-    /// <summary>Gets or sets arbitrary content. Changes commit at a layout boundary.</summary>
+    /// <summary>Gets or sets content, reserving ownership immediately and committing traversal changes at a safe boundary.</summary>
     public Control? Content { get => ConfigContent; set => ConfigContent = value; }
     /// <summary>Gets or sets horizontal content alignment.</summary>
     public ControlAlignment ContentHorizontalAlignment { get => ConfigContentHorizontalAlignment; set => ConfigContentHorizontalAlignment = value; }

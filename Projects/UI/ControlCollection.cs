@@ -25,7 +25,14 @@ public sealed class ControlCollection : IReadOnlyList<Control>
     /// <summary>Removes all children.</summary>
     public void Clear() => _owner.Clear();
     /// <summary>Tests whether this container owns the specified child.</summary>
-    public bool Contains(Control control) => _items.Contains(control);
+    public bool Contains(Control control)
+    {
+        for (int i = 0; i < _items.Count; i++)
+            if (ReferenceEquals(_items[i], control))
+                return true;
+        return false;
+    }
+
     /// <summary>Returns an allocation-free enumerator over committed children.</summary>
     public List<Control>.Enumerator GetEnumerator() => _items.GetEnumerator();
     IEnumerator<Control> IEnumerable<Control>.GetEnumerator() => GetEnumerator();

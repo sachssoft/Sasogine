@@ -51,12 +51,12 @@ public class TabControl : ContainerControl
     public override void Remove(Control child)
     {
         ArgumentNullException.ThrowIfNull(child);
-        if (child is TabItem item) Items.Remove(item);
+        if (child is TabItem item)
+            Items.Remove(item);
     }
 
     /// <inheritdoc/>
     public override void Clear() => Items.Clear();
-
     /// <summary>Gets the retained pages.</summary>
     public IList<TabItem> Items => ConfigItems;
 
@@ -106,7 +106,6 @@ public class TabControl : ContainerControl
         {
             foreach (var button in _buttons)
                 _headers.ReplaceOwnedChild(button, null);
-
             _known.Clear();
             _buttons.Clear();
             _captions.Clear();
@@ -148,7 +147,6 @@ public class TabControl : ContainerControl
         bool changed = !ReferenceEquals(next, _active);
         ReplaceOwnedChild(_active, next, retainOwnership: true);
         _active = next;
-
         for (int i = 0; i < _buttons.Count; i++)
         {
             var header = _buttons[i];

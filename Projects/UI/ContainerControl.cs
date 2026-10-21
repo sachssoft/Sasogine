@@ -15,7 +15,7 @@ public abstract class ContainerControl : Control
         _view = new ControlCollection(this, _children);
     }
 
-    /// <summary>Gets children in insertion order.</summary>
+    /// <summary>Gets committed children in insertion order. Ownership reservations take effect immediately.</summary>
     public ControlCollection Children => _view;
 
     private Control[] _ordered = Array.Empty<Control>();
@@ -81,8 +81,7 @@ public abstract class ContainerControl : Control
     }
 
     /// <summary>Atomically replaces an owned property, validating before changing its previous value.</summary>
-    protected bool SetOwnedControl(ref Control? field, Control? value,
-        System.ComponentModel.PropertyChangedEventArgs notification, bool present = true)
+    protected bool SetOwnedControl(ref Control? field, Control? value, System.ComponentModel.PropertyChangedEventArgs notification, bool present = true)
     {
         if (ReferenceEquals(field, value))
             return false;
@@ -119,7 +118,7 @@ public abstract class ContainerControl : Control
         VerifyTreeMutation();
         if (!ReferenceEquals(child.Parent, this))
             return;
-        _ownedChildren.Remove(child);
+        RemoveReference(_ownedChildren, child);
         child.Parent = null;
         child.OwnershipRevision = unchecked(child.OwnershipRevision + 1);
     }
@@ -143,6 +142,7 @@ public abstract class ContainerControl : Control
                 PresentOwnedChild(next, true);
             return;
         }
+
         uint nextRevision = next?.OwnershipRevision ?? 0;
         if (next is not null && !retainOwnership)
             nextRevision = ReserveChild(next);
@@ -153,6 +153,7 @@ public abstract class ContainerControl : Control
                 ReleaseChild(previous);
             CommitRemove(previous, previousRevision);
         }
+
         if (next is not null)
             CommitAdd(next, nextRevision);
     }
@@ -176,7 +177,7 @@ public abstract class ContainerControl : Control
     {
         if (!ReferenceEquals(child.CommittedParent, this) || child.CommittedOwnershipRevision != revision)
             return; // Never detach a control committed by a newer owner or assignment.
-        _children.Remove(child);
+        RemoveReference(_children, child);
         child.CommittedParent = null;
         _orderDirty = true;
         InvalidateMeasure();
@@ -184,6 +185,15 @@ public abstract class ContainerControl : Control
     }
 
     internal void DetachCommittedChild(Control child) => CommitRemove(child, child.CommittedOwnershipRevision);
+    private static void RemoveReference(List<Control> items, Control child)
+    {
+        for (int i = 0; i < items.Count; i++)
+            if (ReferenceEquals(items[i], child))
+            {
+                items.RemoveAt(i);
+                return;
+            }
+    }
 
     private void Mutate(Action action, Workspace? boundary = null)
     {
@@ -192,15 +202,13 @@ public abstract class ContainerControl : Control
         Workspace? root = Workspace;
         if (boundary?.IsTraversing == true && root?.IsTraversing != true)
             root = boundary;
-        if (root is not null) root.Mutate(action);
-        else action();
+        if (root is not null)
+            root.Mutate(action);
+        else
+            action();
     }
 
-    internal void VerifyTreeMutation()
-    {
-        Workspace?.VerifyTreeMutation();
-    }
-
+    /// <summary>Rejects an owned control, an ancestor cycle or a tree mutation during drawing.</summary>
     protected void ValidateChild(Control child)
     {
         ArgumentNullException.ThrowIfNull(child);
@@ -223,9 +231,10 @@ public abstract class ContainerControl : Control
             control.CancelInteraction();
         }
 
-        if (control is ContainerControl container)
-            foreach (Control child in container._children)
-                Attach(child, root);
+        if (control is ContainerControl container && ReferenceEquals(control.Workspace, root))
+            foreach (Control child in container.OrderedChildren)
+                if (ReferenceEquals(child.CommittedParent, container) && ReferenceEquals(control.Workspace, root))
+                    Attach(child, root);
     }
 
     internal override bool IsStyleLocal(string property)

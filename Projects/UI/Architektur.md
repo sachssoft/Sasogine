@@ -67,7 +67,21 @@ grid.Children.Add(_button);
 grid.Cells.Put(_button, row: 0, column: 0);
 ```
 
-Es gibt keine angehängten Zeilen-/Spaltenfelder an Controls. `Children` verwaltet die Controls, `Cells` ausschließlich deren Platzierung. Eine Instanz darf nur einmal eingetragen werden; ein zweites `Put` wirft eine Exception. Zum Umplatzieren zuerst `Cells.Release(control)`, dann `Cells.Put(control, ...)` aufrufen. Zeilen, Spalten und Zuordnungen benachrichtigen das Grid bei Änderungen; unveränderte Layouts bleiben gecacht. Weitere Beispiele stehen in [Grid.md](Grid.md).
+Es gibt keine angehängten Zeilen-/Spaltenfelder an Controls. `Children` verwaltet die Controls, `Cells` ausschließlich deren Platzierung. `Cells.Put(control, ...)` legt eine Zuordnung an oder verschiebt eine bestehende. Gleiche Werte lösen keine Cache-Invalidierung aus. `Cells.Remove(control)` entfernt nur die Zuordnung; `Children.Remove(control)` entfernt auch das Control. Weitere Beispiele stehen in [Grid.md](Grid.md).
+
+## Control Tree und Besitz
+
+Ein Control hat genau einen `Parent`. `Children.Add`, `Content` und vergleichbare Hosts reservieren diesen Besitzer sofort, auch vor dem ersten Update. Doppelte Besitzer und Zyklen werfen `InvalidOperationException`, ohne den bisherigen Inhalt zu verändern. Ein identisches `Content` erneut zuzuweisen ist erlaubt; ein doppeltes `Children.Add` nicht. Null ist bei optionalem `Content` erlaubt und gibt den Besitz frei, bei `Children.Add` nicht.
+
+Während eines Updates bleiben die für die Traversierung verwendeten Children bis zur sicheren Layout-/Frame-Grenze stabil. `Parent` zeigt bereits den reservierten Besitzer. Ausgeblendete Tab-Seiten und eingeklappter Inhalt behalten ihren Besitzer; nur ihre aktive Traversierung und Workspace-Verbindung werden ausgesetzt. Tooltips verwenden einen stabilen Presenter, Popups und Dialoge werden bereits beim Anfordern reserviert. Beim Zeichnen sind Baumänderungen verboten.
+
+```csharp
+first.Content = image;
+second.Content = image; // InvalidOperationException: bereits reserviert.
+
+first.Content = null;
+second.Content = image; // Erlaubter Besitzerwechsel.
+```
 
 ## MVVM ohne Reflection
 

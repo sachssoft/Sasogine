@@ -68,6 +68,7 @@ internal sealed class LogoInspectorApplication : GameApplicationBase
         {
             InspectorChecks.Verify(_view!, _layout);
             AssetGraphicsChecks.Verify(GraphicsDevice);
+            ControlTreeGraphicsChecks.Verify(_draw, _layout);
         }
         if (_options.ValueType is string valueType)
         {

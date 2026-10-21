@@ -3,18 +3,14 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 
 namespace Sachssoft.Engine.Controls;
-
 /// <summary>Reserves every tab page immediately, including pages outside the active traversal.</summary>
 public sealed class TabItemCollection : Collection<TabItem>
 {
     private static readonly PropertyChangedEventArgs ItemsChangedArgs = new(nameof(TabControl.Items));
     private readonly TabControl _owner;
-
     internal TabItemCollection(TabControl owner) => _owner = owner;
-
     private void ItemChanged(object? sender, PropertyChangedEventArgs args) => Changed();
     private void Changed() => _owner.CollectionChanged(ItemsChangedArgs);
-
     private void Reserve(TabItem item)
     {
         ArgumentNullException.ThrowIfNull(item);
@@ -41,7 +37,8 @@ public sealed class TabItemCollection : Collection<TabItem>
     /// <inheritdoc/>
     protected override void SetItem(int index, TabItem item)
     {
-        if (ReferenceEquals(this[index], item)) return;
+        if (ReferenceEquals(this[index], item))
+            return;
         Reserve(item);
         TabItem previous = this[index];
         base.SetItem(index, item);
@@ -63,7 +60,8 @@ public sealed class TabItemCollection : Collection<TabItem>
     protected override void ClearItems()
     {
         _owner.VerifyTreeMutation();
-        foreach (TabItem item in this) Release(item);
+        foreach (TabItem item in this)
+            Release(item);
         base.ClearItems();
         Changed();
     }

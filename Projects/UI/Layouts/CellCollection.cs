@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 namespace Sachssoft.Engine.Controls.Layouts;
 /// <summary>Stores explicit grid placements by control identity without changing child ownership.</summary>
-/// <remarks>Unassigned children use the first cell. Release a placement before putting the same control again.</remarks>
+/// <remarks>Unassigned children use the first cell. Put creates or updates a placement without changing ownership.</remarks>
 public sealed class CellCollection : IReadOnlyCollection<KeyValuePair<Control, GridCell>>
 {
     private static readonly PropertyChangedEventArgs CellsChangedArgs = new(nameof(Grid.Cells));
@@ -17,28 +17,29 @@ public sealed class CellCollection : IReadOnlyCollection<KeyValuePair<Control, G
 
     /// <summary>Gets the explicit placement for a control.</summary>
     public GridCell this[Control control] => _items[control];
-    /// <summary>Registers a placement. The control may be added to Children before or after this call.</summary>
-    /// <exception cref = "ArgumentException">The same control instance already has a placement.</exception>
+    /// <summary>Registers or updates a placement. The control may be added to Children before or after this call.</summary>
     /// <exception cref = "InvalidOperationException">The control belongs to another container or would create a cycle.</exception>
     public void Put(Control control, int row = 0, int column = 0, int rowSpan = 1, int columnSpan = 1)
     {
         ArgumentNullException.ThrowIfNull(control);
-        if (_items.ContainsKey(control))
-            throw new ArgumentException("This control already has a cell. Release it before putting it again.", nameof(control));
         var cell = new GridCell(row, column, rowSpan, columnSpan);
-        if (control.Parent is not null && !ReferenceEquals(control.Parent, _owner) || control.Parent is null && control.Workspace is not null)
+        if (control.RootOwner is not null || control.Parent is not null && !ReferenceEquals(control.Parent, _owner) || control.Parent is null && control.Workspace is not null)
             throw new InvalidOperationException("The control belongs to another owner.");
         for (Control? ancestor = _owner; ancestor is not null; ancestor = ancestor.Parent)
             if (ReferenceEquals(ancestor, control))
                 throw new InvalidOperationException("A grid cell cannot refer to its owner or an ancestor.");
-        _items.Add(control, cell);
+        if (_items.TryGetValue(control, out GridCell previous) && previous == cell)
+            return;
+        _owner.VerifyTreeMutation();
+        _items[control] = cell;
         Changed();
     }
 
     /// <summary>Removes a placement, leaving the control in Children. Returns whether a placement existed.</summary>
-    public bool Release(Control control)
+    public bool Remove(Control control)
     {
         ArgumentNullException.ThrowIfNull(control);
+        _owner.VerifyTreeMutation();
         if (!_items.Remove(control))
             return false;
         Changed();
@@ -48,6 +49,7 @@ public sealed class CellCollection : IReadOnlyCollection<KeyValuePair<Control, G
     /// <summary>Removes all explicit placements without removing children.</summary>
     public void Clear()
     {
+        _owner.VerifyTreeMutation();
         if (_items.Count == 0)
             return;
         _items.Clear();

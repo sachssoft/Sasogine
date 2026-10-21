@@ -152,6 +152,7 @@ internal static class Program
                 Click(root);
                 Check(calls == 1 && !button.IsEnabled);
             });
+            Run("Immediate control ownership, atomic transfers and deferred traversal", () => ControlTreeChecks.Run(Check, Layout));
             Run("Grid-owned placement, observable rows and columns, and invalidation", () =>
             {
                 var grid = new Grid();
@@ -168,7 +169,7 @@ internal static class Program
                 grid.Rows[0].Height = 80;
                 Frame(root);
                 Check(child.Bounds.Y == 80);
-                grid.Cells.Release(child);
+                grid.Cells.Remove(child);
                 grid.Cells.Put(child, row: 0, column: 0);
                 Frame(root);
                 Check(child.Bounds.X == 0 && child.Bounds.Y == 0);
@@ -212,31 +213,13 @@ internal static class Program
                     if (e.PropertyName == nameof(Grid.Cells))
                         notifications++;
                 };
-                bool duplicate = false;
-                try
-                {
-                    grid.Cells.Put(child, row: 0, column: 0);
-                }
-                catch (ArgumentException)
-                {
-                    duplicate = true;
-                }
-
-                Check(duplicate && grid.Cells.Count == 1 && grid.Children.Count == 1);
-                Check(grid.Cells[child] == new GridCell(1, 1) && notifications == 0);
-                duplicate = false;
-                try
-                {
-                    grid.Cells.Put(child, row: 1, column: 1);
-                }
-                catch (ArgumentException)
-                {
-                    duplicate = true;
-                }
-
-                Check(duplicate, "Same instance in the same cell must also throw");
-                Check(grid.Cells.Release(child) && !grid.Cells.Release(child));
-                Check(child.Parent == grid && grid.Children.Contains(child) && notifications == 1);
+                grid.Cells.Put(child, row: 0, column: 0);
+                Check(grid.Cells.Count == 1 && grid.Children.Count == 1);
+                Check(grid.Cells[child] == new GridCell(0, 0) && notifications == 1);
+                grid.Cells.Put(child, row: 0, column: 0);
+                Check(notifications == 1, "Identical Put must not invalidate layout");
+                Check(grid.Cells.Remove(child) && !grid.Cells.Remove(child));
+                Check(child.Parent == grid && grid.Children.Contains(child) && notifications == 2);
                 var root = new Workspace(grid);
                 Frame(root);
                 Check(child.Bounds.X == 0 && child.Bounds.Y == 0, "Released children use the first cell");
@@ -244,7 +227,7 @@ internal static class Program
                 Frame(root);
                 Check(child.Bounds.Y == 100 && child.Bounds.Width == 400);
                 grid.Columns[0].Width = 140;
-                grid.Cells.Release(child);
+                grid.Cells.Remove(child);
                 grid.Cells.Put(child, column: 1);
                 Frame(root);
                 Check(child.Bounds.X == 140, "Column changes must invalidate layout");
@@ -291,7 +274,7 @@ internal static class Program
                 }
 
                 Check(invalid && grid.Cells.Count == 1);
-                grid.Cells.Release(other);
+                grid.Cells.Remove(other);
                 grid.Cells.Put(other, column: 1, columnSpan: 2);
                 invalid = false;
                 try
@@ -304,7 +287,7 @@ internal static class Program
                 }
 
                 Check(invalid, "Spans outside the grid must not silently shrink");
-                grid.Cells.Release(other);
+                grid.Cells.Remove(other);
                 grid.Cells.Put(other);
                 Frame(root);
                 var frame = new ControlInputFrame(Size, TimeSpan.Zero);
@@ -348,24 +331,16 @@ internal static class Program
                 deferred.Children.Add(action);
                 deferred.Cells.Put(action);
                 var deferredRoot = new Workspace(deferred);
-                bool caught = false;
                 var pending = new Button();
                 action.Clicked += (_, _) =>
                 {
                     deferred.Children.Add(pending);
                     deferred.Cells.Put(pending);
-                    try
-                    {
-                        deferred.Cells.Put(pending);
-                    }
-                    catch (ArgumentException)
-                    {
-                        caught = true;
-                    }
+                    deferred.Cells.Put(pending);
                 };
                 Frame(deferredRoot);
                 Click(deferredRoot);
-                Check(caught && pending.Parent == deferred && deferred.Cells.Count == 2, "Duplicate Put must fail immediately during traversal");
+                Check(pending.Parent == deferred && deferred.Cells.Count == 2, "Repeated Put must be safe during traversal");
             });
             Run("Persistent layout and text caches with targeted invalidation", () =>
             {
