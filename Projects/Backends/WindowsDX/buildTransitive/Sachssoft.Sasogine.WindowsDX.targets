@@ -1,0 +1,9 @@
+<Project>
+  <!-- ResolveTargetingPackAssets replaces the preferred-package list; select the backend afterwards. -->
+  <Target Name="SasogineSelectWindowsDXFramework"
+          BeforeTargets="_HandlePackageFileConflicts;_HandlePackageFileConflictsForPublish">
+    <PropertyGroup>
+      <PackageConflictPreferredPackages>MonoGame.Framework.WindowsDX;$(PackageConflictPreferredPackages)</PackageConflictPreferredPackages>
+    </PropertyGroup>
+  </Target>
+</Project>

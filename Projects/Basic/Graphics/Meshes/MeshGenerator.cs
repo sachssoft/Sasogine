@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Engine.Geometry;
 using Sachssoft.Engine.Geometry.Internal;
@@ -186,6 +186,44 @@ public static class MeshGenerator
             triangulatorBackend);
     }
 
+    /// <summary>Creates the original typed polygon mesh without retaining its triangulation result.</summary>
+    public static IMesh CreatePolygon<TVertex>(GraphicsDevice graphicsDevice,
+        IReadOnlyList<IReadOnlyList<Vector2>> paths, MeshVertexFactory<TVertex> vertexFactory,
+        float size = 1f, bool centerOrigin = false, IPolygonTriangulator? triangulatorBackend = null)
+        where TVertex : struct, IVertexType
+        => CreatePolygon(graphicsDevice, paths, vertexFactory, size, centerOrigin, triangulatorBackend, null);
+
+    /// <summary>Creates a polygon mesh and exposes its unchanged triangulation once to the caller.</summary>
+    /// <param name="graphicsDevice">The graphics device.</param>
+    /// <param name="paths">The original polygon contours.</param>
+    /// <param name="size">The generated position scale.</param>
+    /// <param name="centerOrigin">Whether to center the polygon bounds.</param>
+    /// <param name="triangulatorBackend">The optional triangulator.</param>
+    /// <param name="geometryCapture">Optionally receives the triangulation result once during mesh creation.</param>
+    public static IMesh CreatePolygon(
+        GraphicsDevice graphicsDevice,
+        IReadOnlyList<IReadOnlyList<Vector2>> paths,
+        float size,
+        bool centerOrigin,
+        IPolygonTriangulator? triangulatorBackend,
+        Action<PolygonTriangulationResult>? geometryCapture)
+    {
+        ArgumentNullException.ThrowIfNull(graphicsDevice);
+        ArgumentNullException.ThrowIfNull(paths);
+
+        return CreatePolygon(
+            graphicsDevice,
+            paths,
+            static (in MeshVertexData data) => new VertexPositionColorTexture(
+                data.Position,
+                data.Color,
+                data.TextureCoordinate),
+            size,
+            centerOrigin,
+            triangulatorBackend,
+            geometryCapture);
+    }
+
     /// <summary>
     /// Creates a planar polygon mesh by triangulating the specified
     /// collection of polygon paths.
@@ -224,13 +262,15 @@ public static class MeshGenerator
     /// <paramref name="paths"/>, or <paramref name="vertexFactory"/>
     /// is <see langword="null"/>.
     /// </exception>
+    /// <param name="geometryCapture">Optionally receives the triangulation result once during mesh creation.</param>
     public static IMesh CreatePolygon<TVertex>(
         GraphicsDevice graphicsDevice,
         IReadOnlyList<IReadOnlyList<Vector2>> paths,
         MeshVertexFactory<TVertex> vertexFactory,
-        float size = 1f,
-        bool centerOrigin = false,
-        IPolygonTriangulator? triangulatorBackend = null)
+        float size,
+        bool centerOrigin,
+        IPolygonTriangulator? triangulatorBackend,
+        Action<PolygonTriangulationResult>? geometryCapture)
         where TVertex : struct, IVertexType
     {
         ArgumentNullException.ThrowIfNull(graphicsDevice);
@@ -242,6 +282,8 @@ public static class MeshGenerator
         var result = triangulatorBackend.Triangulate(
             paths,
             new PolygonTriangulationOptions());
+
+        geometryCapture?.Invoke(result);
 
         return new PolygonMesh<TVertex>(
             graphicsDevice,

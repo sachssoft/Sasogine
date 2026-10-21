@@ -12,6 +12,18 @@ namespace Sachssoft.Engine.Controls.Drawing;
 /// </remarks>
 public sealed class ControlDrawContext : GameContext, IDisposable
 {
+    private readonly SamplerState[] _sceneSamplers = new SamplerState[8];
+    private readonly Texture?[] _sceneTextures = new Texture?[8];
+    private RenderTargetBinding[] _sceneTargets = Array.Empty<RenderTargetBinding>();
+    private RenderTargetBinding[] _sceneCurrentTargets = Array.Empty<RenderTargetBinding>();
+    private readonly RasterizerState _sceneRasterizer = new() { CullMode = CullMode.None, ScissorTestEnable = true };
+    private bool _drawingScene;
+    private SpriteBatch? _sceneCompositeBatch;
+    private readonly BlendState _sceneCompositeBlend = new()
+    {
+        ColorSourceBlend = Blend.InverseDestinationAlpha, ColorDestinationBlend = Blend.One,
+        AlphaSourceBlend = Blend.One, AlphaDestinationBlend = Blend.Zero
+    };
     private SpriteBatch? _batch;
     private readonly ControlFrameBatch? _frameBatch;
     private readonly Texture2D _white;
@@ -47,6 +59,7 @@ public sealed class ControlDrawContext : GameContext, IDisposable
             _batch = new SpriteBatch(GraphicsDevice);
         _white = new Texture2D(GraphicsDevice, 1, 1);
         _white.SetData(new[] { Color.White });
+        if (_frameBatch is not null) _frameBatch.OpaqueWhiteTexture = _white;
         _rasterizer = new RasterizerState
         {
             CullMode = CullMode.None,
@@ -391,6 +404,91 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         }
     }
 
+    /// <summary>Flushes preceding UI work, invokes a direct scene and restores the UI graphics state.</summary>
+    /// <remarks>The callback receives physical bounds and clipping. Scene shaders own their vertex bindings;
+    /// this method restores render targets, viewport, blend/depth/rasterizer state and texture/sampler slots 0–7.
+    /// Call SetFrameTime before drawing a scene viewport.
+    /// Callback clears must preserve pixels outside Clip. This operation is not reentrant.</remarks>
+    public void DrawScene(Bounds2 localBounds, Action<SceneViewportDrawContext> render)
+        => DrawScene(localBounds, render, null);
+
+    /// <summary>Draws a direct scene, optionally reproducing image compositing over a uniform opaque backdrop.</summary>
+    /// <remarks>Composite RGB is scene RGB plus backdrop RGB times inverse destination alpha.
+    /// This preserves the previous premultiplied Image result without reading an off-screen scene texture.</remarks>
+    public void DrawScene(Bounds2 localBounds, Action<SceneViewportDrawContext> render, Color? compositeBackground)
+    {
+        EnsureDrawing();
+        ArgumentNullException.ThrowIfNull(render);
+        if (_drawingScene) throw new InvalidOperationException("Direct scene rendering cannot be reentered.");
+        Rectangle clip = ToPixelClip(_currentClip, _viewport, _scale);
+        int left = (int)Math.Floor(_viewport.X + (_currentBounds.X + localBounds.X) * _scale);
+        int top = (int)Math.Floor(_viewport.Y + (_currentBounds.Y + localBounds.Y) * _scale);
+        int right = (int)Math.Ceiling(_viewport.X + (_currentBounds.X + localBounds.Right) * _scale);
+        int bottom = (int)Math.Ceiling(_viewport.Y + (_currentBounds.Y + localBounds.Bottom) * _scale);
+        Rectangle bounds = new(left, top, right - left, bottom - top);
+        clip = Rectangle.Intersect(clip, bounds);
+        if (bounds.Width <= 0 || bounds.Height <= 0 || clip.Width <= 0 || clip.Height <= 0) return;
+        EndLegacy();
+        _frameBatch?.Flush();
+        var device = GraphicsDevice;
+        var viewport = device.Viewport; var scissor = device.ScissorRectangle;
+        var blend = device.BlendState; var depth = device.DepthStencilState; var rasterizer = device.RasterizerState;
+        var usage = device.PresentationParameters.RenderTargetUsage;
+        int count = device.RenderTargetCount;
+        if (_sceneTargets.Length != count) _sceneTargets = new RenderTargetBinding[count];
+        if (count > 0) device.GetRenderTargets(_sceneTargets);
+        for (int slot = 0; slot < 8; slot++)
+        { _sceneTextures[slot] = device.Textures[slot]; _sceneSamplers[slot] = device.SamplerStates[slot]; }
+        _drawingScene = true;
+        try
+        {
+            // Nested scene passes must retain UI pixels already written to the backbuffer.
+            if (count == 0) device.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents;
+            device.Viewport = new Viewport(bounds);
+            device.ScissorRectangle = clip;
+            device.RasterizerState = _sceneRasterizer;
+            render(new SceneViewportDrawContext(device, bounds, clip, _opacity, GameTime));
+            if (compositeBackground is { } background)
+            {
+                if (background.A != 255) throw new ArgumentException("The composite backdrop must be opaque.", nameof(compositeBackground));
+                device.Viewport = new Viewport(bounds);
+                device.ScissorRectangle = clip;
+                _sceneCompositeBatch ??= new SpriteBatch(device);
+                _sceneCompositeBatch.Begin(SpriteSortMode.Immediate, _sceneCompositeBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, _sceneRasterizer);
+                try { _sceneCompositeBatch.Draw(_white, new Rectangle(0, 0, bounds.Width, bounds.Height), background); }
+                finally { _sceneCompositeBatch.End(); }
+            }
+        }
+        finally
+        {
+            try
+            {
+                int current = device.RenderTargetCount;
+                bool changed = current != count;
+                if (!changed && current > 0)
+                {
+                    if (_sceneCurrentTargets.Length != current) _sceneCurrentTargets = new RenderTargetBinding[current];
+                    device.GetRenderTargets(_sceneCurrentTargets);
+                    for (int i = 0; i < current; i++)
+                        if (!ReferenceEquals(_sceneCurrentTargets[i].RenderTarget, _sceneTargets[i].RenderTarget) ||
+                            _sceneCurrentTargets[i].ArraySlice != _sceneTargets[i].ArraySlice) { changed = true; break; }
+                }
+                if (changed) device.SetRenderTargets(_sceneTargets);
+                device.PresentationParameters.RenderTargetUsage = usage;
+                device.Viewport = viewport; device.ScissorRectangle = scissor;
+                device.BlendState = blend; device.DepthStencilState = depth; device.RasterizerState = rasterizer;
+                for (int slot = 0; slot < 8; slot++)
+                { device.Textures[slot] = _sceneTextures[slot]; device.SamplerStates[slot] = _sceneSamplers[slot]; }
+            }
+            finally
+            {
+                _drawingScene = false;
+                Array.Clear(_sceneTextures); Array.Clear(_sceneTargets); Array.Clear(_sceneCurrentTargets);
+            }
+        }
+    }
+
     internal static Rectangle ToPixelClip(Bounds2 clip, Rectangle viewport, float scale)
     {
         int left = (int)Math.Clamp(Math.Floor(viewport.X + (double)clip.Left * scale), viewport.Left, (long)viewport.X + viewport.Width);
@@ -445,6 +543,9 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         _frameBatch?.Dispose();
         _white.Dispose();
         _rasterizer.Dispose();
+        _sceneRasterizer.Dispose();
+        _sceneCompositeBatch?.Dispose();
+        _sceneCompositeBlend.Dispose();
         _disposed = true;
     }
 }

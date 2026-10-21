@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -39,6 +39,48 @@ internal static class Program
     {
         try
         {
+            Run("Scroll visibility remains stable across unbounded measurement and finite arrangement", () =>
+            {
+                var list = new ListBox();
+                for (int i = 0; i < 40; i++) list.Items.Add(new SelectorItem("Item " + i));
+                var root = new Workspace(list);
+                Frame(root);
+                int changes = 0;
+                list.ScrollBar.PropertyChanged += (_, e) => { if (e.PropertyName == "IsVisible") changes++; };
+                for (int i = 0; i < 20; i++)
+                {
+                    list.Measure(Layout, new Size2(400, float.PositiveInfinity));
+                    list.Arrange(new Bounds2(0, 0, 400, 100), true);
+                    Check(list.ScrollBar.IsVisible && list.ScrollBar.Maximum > 0);
+                }
+                Check(changes == 0, "Measurement must not toggle the arranged scrollbar");
+                list.Measure(Layout, new Size2(400, 2000));
+                list.Arrange(new Bounds2(0, 0, 400, 2000), true);
+                Check(!list.ScrollBar.IsVisible && list.ScrollBar.Maximum == 0, "Growing the viewport hides the bar");
+                list.Measure(Layout, new Size2(400, 100));
+                list.Arrange(new Bounds2(0, 0, 400, 100), true);
+                Check(list.ScrollBar.IsVisible, "Shrinking the viewport restores the bar");
+                list.Items.Clear();
+                Frame(root);
+                Check(!list.ScrollBar.IsVisible && list.ScrollBar.Maximum == 0, "Removing items resets scrolling");
+                var viewer = new ScrollViewer { Content = new TextBlock { Width = 800, Height = 800 } };
+                root = new Workspace(viewer);
+                Frame(root);
+                changes = 0;
+                viewer.HorizontalScrollBar.PropertyChanged += (_, e) => { if (e.PropertyName == "IsVisible") changes++; };
+                viewer.VerticalScrollBar.PropertyChanged += (_, e) => { if (e.PropertyName == "IsVisible") changes++; };
+                for (int i = 0; i < 20; i++)
+                {
+                    viewer.Measure(Layout, new Size2(float.PositiveInfinity, float.PositiveInfinity));
+                    viewer.Arrange(new Bounds2(0, 0, 400, 300), true);
+                    Check(viewer.HorizontalScrollBar.IsVisible && viewer.VerticalScrollBar.IsVisible);
+                }
+                Check(changes == 0, "Unbounded measurement must preserve arranged viewer visibility");
+                viewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
+                viewer.VerticalScrollBarVisibility = ScrollBarVisibility.Always;
+                Frame(root);
+                Check(!viewer.HorizontalScrollBar.IsVisible && viewer.VerticalScrollBar.IsVisible);
+            });
             Run("StyleProperty explicit default, cached fallback and reset", () =>
             {
                 var p = new StyleProperty<int>(0);
@@ -341,6 +383,44 @@ internal static class Program
                 Frame(deferredRoot);
                 Click(deferredRoot);
                 Check(pending.Parent == deferred && deferred.Cells.Count == 2, "Repeated Put must be safe during traversal");
+            });
+            Run("Equal-size live text preserves parent layout and processes changes during Update", () =>
+            {
+                var font = new CountingFont();
+                var layout = new ControlLayoutContext(font);
+                var frame = new ControlInputFrame(Size, TimeSpan.Zero);
+                var panel = new TextLayoutProbePanel();
+                var text = new TextBlock { Text = "FPS: 40.0", Padding = Insets2.Zero };
+                panel.Add(text);
+                using var root = new Workspace(panel);
+                root.Update(frame, layout);
+                int measured = panel.Measurements, arranged = panel.Arrangements, metrics = font.Measurements;
+                Bounds2 bounds = text.Bounds;
+                int notifications = 0;
+                text.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(TextBlock.Text)) notifications++; };
+                text.Text = "FPS: 60.0";
+                Check(font.Measurements == metrics, "Property assignment must defer text preparation until Update");
+                root.Update(frame, layout);
+                Check(font.Measurements == metrics + 1 && notifications == 1);
+                Check(panel.Measurements == measured && panel.Arrangements == arranged && text.Bounds.Equals(bounds), "Equal metrics must preserve parent layout");
+                text.Text = "FPS: 120.0";
+                root.Update(frame, layout);
+                Check(panel.Measurements > measured && text.DesiredSize.Width == 80, "Changed width must propagate to the parent");
+                measured = panel.Measurements;
+                text.Text = "line one\nline two";
+                root.Update(frame, layout);
+                Check(panel.Measurements > measured && text.DesiredSize.Height == 32, "Changed height must propagate");
+                text.Text = "different";
+                font.Scale = 2;
+                text.InvalidateLayout();
+                root.Update(frame, layout);
+                Check(text.DesiredSize.Width == 144 && text.DesiredSize.Height == 32, "External font invalidation must win over a pending text refresh");
+                measured = panel.Measurements;
+                text.Text = "123456789";
+                text.WrapText = true;
+                text.Width = 40;
+                root.Update(frame, layout);
+                Check(panel.Measurements > measured && text.DesiredSize.Height > 32, "Wrapping must retain full layout invalidation");
             });
             Run("Persistent layout and text caches with targeted invalidation", () =>
             {
@@ -1473,6 +1553,7 @@ internal static class Program
                     skin.Dispose();
                 root.Dispose();
             });
+            Run("Scene viewport layout and deferred color picking", () => _checks += SceneViewportTests.Run());
             Run("UI-independent inspector view contract", () => _checks += InspectorViewContractTests.Run());
             Run("Responsive inspector property rows", () => _checks += InspectorFieldLayoutTests.Run());
             if (args.Length == 2 && args[0] == "--font")

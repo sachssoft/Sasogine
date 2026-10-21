@@ -1,6 +1,7 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Sachssoft.Engine.Graphics.Rendering
 {
@@ -14,7 +15,7 @@ namespace Sachssoft.Engine.Graphics.Rendering
     /// </remarks>
     public sealed class RenderScope : IDisposable
     {
-        private static readonly Dictionary<RenderOptions, RasterizerState> _rasterizerCache = new();
+        private static readonly ConditionalWeakTable<GraphicsDevice, Dictionary<(CullMode CullMode, FillMode FillMode, bool Scissor), RasterizerState>> _rasterizerCache = new();
         private static readonly Dictionary<DepthMode, DepthStencilState> _depthCache = new();
 
         private readonly GraphicsDevice _graphicsDevice;
@@ -56,21 +57,9 @@ namespace Sachssoft.Engine.Graphics.Rendering
             _prevSampler = _graphicsDevice.SamplerStates[0];
             _prevBlend = _graphicsDevice.BlendState;
 
+            _customRasterizer = GetRasterizer(_graphicsDevice, options);
             if (options.ScissorRectangle.HasValue)
-            {
-                _customRasterizer = new RasterizerState
-                {
-                    CullMode = options.CullMode,
-                    FillMode = options.FillMode,
-                    ScissorTestEnable = true
-                };
-
                 _graphicsDevice.ScissorRectangle = options.ScissorRectangle.Value;
-            }
-            else
-            {
-                _customRasterizer = GetRasterizer(options);
-            }
 
             _graphicsDevice.RasterizerState = _customRasterizer;
 
@@ -89,17 +78,20 @@ namespace Sachssoft.Engine.Graphics.Rendering
             _graphicsDevice.BlendState = _customBlend;
         }
 
-        private static RasterizerState GetRasterizer(RenderOptions options)
+        private static RasterizerState GetRasterizer(GraphicsDevice device, RenderOptions options)
         {
-            if (!_rasterizerCache.TryGetValue(options, out var state) || state.IsDisposed)
+            var cache = _rasterizerCache.GetValue(device, static _ => new());
+            var key = (options.CullMode, options.FillMode, options.ScissorRectangle.HasValue);
+            if (!cache.TryGetValue(key, out var state) || state.IsDisposed)
             {
                 state = new RasterizerState
                 {
                     CullMode = options.CullMode,
-                    FillMode = options.FillMode
+                    FillMode = options.FillMode,
+                    ScissorTestEnable = options.ScissorRectangle.HasValue
                 };
 
-                _rasterizerCache[options] = state;
+                cache[key] = state;
             }
 
             return state;

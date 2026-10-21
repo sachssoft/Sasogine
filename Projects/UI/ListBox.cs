@@ -169,15 +169,18 @@ public class ListBox : ContainerControl
         EnsureVisible(index);
     }
 
+    private ControlLayoutContext? _layout;
+
     /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
+        _layout = context;
         if (!float.IsFinite(ItemExtent) || ItemExtent <= 0 || !float.IsFinite(ItemSpacing) || ItemSpacing < 0)
             throw new InvalidOperationException("Invalid item geometry.");
         _font = ConfigFont ?? context.DefaultFont;
         float width = MeasureItems(_font);
         _showBar = ContentHeight(GetColumnCount(available.Width)) > available.Height;
-        ScrollBar.IsVisible = _showBar;
+        // Visibility belongs to the final viewport, not an unbounded measurement.
         ScrollBar.Measure(context, available);
         return new Size2(MathF.Min(available.Width, width + (_showBar ? ConfigScrollBarThickness : 0)), MathF.Min(available.Height, MathF.Max(ItemExtent, MathF.Min(8, Items.Count) * ItemExtent)));
     }
@@ -191,6 +194,8 @@ public class ListBox : ContainerControl
         _viewport = new Bounds2(contentBounds.X, contentBounds.Y, MathF.Max(0, contentBounds.Width - t), contentBounds.Height);
         _columns = GetColumnCount(_viewport.Width);
         ScrollBar.IsVisible = _showBar;
+        if (_layout is not null)
+            ScrollBar.Measure(_layout, new Size2(contentBounds.Width, contentBounds.Height));
         ScrollBar.Maximum = MathF.Max(0, ContentHeight(_columns) - _viewport.Height);
         ScrollBar.ViewportSize = _viewport.Height;
         ScrollBar.SmallChange = ItemExtent + ItemSpacing;

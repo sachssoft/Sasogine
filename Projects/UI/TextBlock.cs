@@ -27,6 +27,49 @@ public class TextBlock : Control
     private float _wrapWidth;
     private bool _metricsValid, _measuredWrap;
 
+    private bool _pendingTextMetrics;
+
+    /// <inheritdoc/>
+    protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs notification)
+    {
+        // Exact built-in types keep custom subclass measurement contracts unchanged.
+        if (notification.PropertyName == nameof(Text) && Text is not null && _metricsValid &&
+            !WrapText && !_measuredWrap && Workspace is not null &&
+            (GetType() == typeof(TextBlock) || GetType() == typeof(Label)))
+        {
+            _pendingTextMetrics = true;
+            Workspace.InvalidateLayout();
+            return;
+        }
+        base.OnPropertyChanged(notification);
+    }
+
+    internal override void Prepare()
+    {
+        base.Prepare();
+        if (!_pendingTextMetrics) return;
+        _pendingTextMetrics = false;
+        if (!_metricsValid || WrapText || _measuredFont is null)
+        {
+            InvalidateMeasure();
+            return;
+        }
+        try
+        {
+            Size2 size = _measuredFont.Measure(Text);
+            ValidateSize(size, false);
+            bool unchanged = size.Width == _textSize.Width && size.Height == _textSize.Height;
+            _displayText = _measuredText = Text;
+            _textSize = size;
+            if (!unchanged) InvalidateMeasure();
+        }
+        catch
+        {
+            InvalidateMeasure();
+            throw;
+        }
+    }
+
     /// <summary>Invalidates layout and cached text metrics after an external font resource changes.</summary>
     public override void InvalidateLayout()
     {

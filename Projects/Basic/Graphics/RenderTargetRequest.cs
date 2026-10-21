@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Engine;
 using System;
@@ -11,13 +11,13 @@ namespace Sachssoft.Engine.Graphics;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The render target is created lazily by <see cref="Ensure"/> once a
+/// The render target is created lazily by <see cref="Ensure(int, int, int, SurfaceFormat, DepthFormat, int)"/> once a
 /// <see cref="GraphicsDevice"/> has been provided through <see cref="Begin"/>.
 /// </para>
 /// <para>
 /// <see cref="Begin"/> activates the render target before rendering components,
 /// while <see cref="End"/> restores rendering to the back buffer.
-/// <see cref="Ensure"/> only creates or resizes the render target and does not
+/// <see cref="Ensure(int, int, int, SurfaceFormat, DepthFormat, int)"/> only creates or resizes the render target and does not
 /// change the current graphics device render state.
 /// </para>
 /// </remarks>
@@ -54,6 +54,21 @@ public static class RenderTargetRequest
     /// Gets the resolution scale applied to the requested render size.
     /// </summary>
     public static float ResolutionScale => _resolutionScale;
+
+    /// <summary>Ensures an off-screen target using an explicitly supplied device, before the first Begin.</summary>
+    /// <param name="graphicsDevice">The graphics device owning the target.</param>
+    /// <param name="width">The requested displayed width.</param>
+    /// <param name="height">The requested displayed height.</param>
+    /// <param name="quality">The existing render-quality percentage.</param>
+    /// <param name="antiAliasing">The existing multisample setting.</param>
+    public static void Ensure(GraphicsDevice graphicsDevice, int width, int height, int quality = 100, int antiAliasing = 0)
+    {
+        ArgumentNullException.ThrowIfNull(graphicsDevice);
+        if (_isActive) throw new InvalidOperationException("Cannot resize an active render target.");
+        if (!ReferenceEquals(_graphicsDevice, graphicsDevice)) DisposeRenderTarget();
+        _graphicsDevice = graphicsDevice;
+        Ensure(width, height, quality: quality, antiAliasing: antiAliasing);
+    }
 
     /// <summary>
     /// Ensures that a render target exists with the requested dimensions,

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using MonoGame.Framework.Utilities;
 using FontStashSharp;
 using FontStashSharp.Interfaces;
 using Microsoft.Xna.Framework;
@@ -19,7 +21,17 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
     private readonly ControlBatchGroup[] _groups;
     private readonly DynamicVertexBuffer _vertexBuffer;
     private readonly DynamicIndexBuffer _indexBuffer;
-    private readonly BasicEffect _effect;
+    private readonly BasicEffect? _effect;
+    private readonly ControlTextureEffect? _textureEffect;
+    private readonly ControlTextureVertex[]? _textureVertices;
+    private readonly RenderTargetBinding[] _targetBinding = new RenderTargetBinding[1];
+    internal Texture2D? OpaqueWhiteTexture { get; set; }
+    /// <summary>Gets full-target opaque fills replaced by equivalent target-only clears.</summary>
+    public int OpaqueClearCount { get; private set; }
+    private readonly Texture2D?[] _slots = new Texture2D?[8];
+    private readonly List<ControlTextureRun> _runs = new(4);
+    private readonly SamplerState[] _savedSamplers = new SamplerState[7];
+    private readonly Texture?[] _savedTextures = new Texture?[7];
     private readonly RasterizerState _rasterizer;
     private int _vertexCount, _indexCount, _itemCount, _groupCount;
     private Vector2 _offset;
@@ -29,6 +41,13 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
     private bool _active, _disposed;
     /// <summary>Creates reusable CPU/GPU buffers. Capacity is a vertex count between 32 and 65,532.</summary>
     public ControlFrameBatch(GraphicsDevice graphicsDevice, int capacity = 16384)
+        : this(graphicsDevice, capacity, true) { }
+
+    /// <summary>Creates a batch with an optional compatible OpenGL texture-slot path.</summary>
+    /// <param name="graphicsDevice">The graphics device.</param>
+    /// <param name="capacity">The reusable vertex capacity.</param>
+    /// <param name="useTextureSlots">Whether OpenGL may merge contiguous texture groups.</param>
+    public ControlFrameBatch(GraphicsDevice graphicsDevice, int capacity, bool useTextureSlots)
     {
         GraphicsDevice = graphicsDevice ?? throw new ArgumentNullException(nameof(graphicsDevice));
         if (capacity < 32 || capacity > 65532)
@@ -38,9 +57,16 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
         _orderedIndices = new short[_indices.Length];
         _items = new ControlBatchItem[capacity / 3];
         _groups = new ControlBatchGroup[_items.Length];
-        _vertexBuffer = new DynamicVertexBuffer(graphicsDevice, VertexPositionColorTexture.VertexDeclaration, capacity, BufferUsage.WriteOnly);
+        if (useTextureSlots && PlatformInfo.GraphicsBackend == GraphicsBackend.OpenGL)
+        {
+            _textureEffect = new ControlTextureEffect(graphicsDevice);
+            _textureVertices = new ControlTextureVertex[capacity];
+        }
+        _vertexBuffer = new DynamicVertexBuffer(graphicsDevice,
+            _textureEffect is null ? VertexPositionColorTexture.VertexDeclaration : ControlTextureVertex.Declaration,
+            capacity, BufferUsage.WriteOnly);
         _indexBuffer = new DynamicIndexBuffer(graphicsDevice, IndexElementSize.SixteenBits, _indices.Length, BufferUsage.WriteOnly);
-        _effect = new BasicEffect(graphicsDevice)
+        if (_textureEffect is null) _effect = new BasicEffect(graphicsDevice)
         {
             TextureEnabled = true,
             VertexColorEnabled = true,
@@ -74,9 +100,13 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
             projection.M41 -= .5f * projection.M11;
             projection.M42 -= .5f * projection.M22;
         }
-        _effect.Projection = projection;
-        _effect.View = _effect.World = Matrix.Identity;
-        DrawCalls = QuadCount = FlushCount = 0;
+        if (_textureEffect is not null) _textureEffect.SetProjection(projection);
+        else if (_effect is { } basic)
+        {
+            basic.Projection = projection;
+            basic.View = basic.World = Matrix.Identity;
+        }
+        DrawCalls = QuadCount = FlushCount = OpaqueClearCount = 0;
         _active = true;
     }
 
@@ -142,6 +172,11 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
         var bounds = new Bounds2(x, y, right - x, bottom - y);
         if (bounds.Width <= 0 || bounds.Height <= 0 || !ControlBatchGeometry.Overlaps(bounds, _clip))
             return;
+        if (TryClearOpaqueTarget(texture, a, b, c, d))
+        {
+            QuadCount++;
+            return;
+        }
         Reserve(14, 30, 2);
         int vertexStart = _vertexCount, indexStart = _indexCount;
         if (x >= _clip.Left && right <= _clip.Right && y >= _clip.Top && bottom <= _clip.Bottom)
@@ -184,6 +219,54 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
         g.Last = item;
         g.Bounds = ControlBatchGeometry.Union(g.Bounds, bounds);
         QuadCount++;
+    }
+
+    private bool TryClearOpaqueTarget(Texture2D texture, VertexPositionColorTexture a,
+        VertexPositionColorTexture b, VertexPositionColorTexture c, VertexPositionColorTexture d)
+    {
+        if (_textureEffect is null || _halfPixel || QuadCount != 0 || FlushCount != 0 ||
+            !ReferenceEquals(texture, OpaqueWhiteTexture) || a.Color.A != 255 ||
+            a.Color != b.Color || a.Color != c.Color || a.Color != d.Color ||
+            a.Position.Z != 0 || b.Position.Z != 0 || c.Position.Z != 0 || d.Position.Z != 0)
+            return false;
+        var viewport = GraphicsDevice.Viewport;
+        if (viewport.X != 0 || viewport.Y != 0) return false;
+        int width, height;
+        if (GraphicsDevice.RenderTargetCount == 0)
+        {
+            width = GraphicsDevice.PresentationParameters.BackBufferWidth;
+            height = GraphicsDevice.PresentationParameters.BackBufferHeight;
+        }
+        else if (GraphicsDevice.RenderTargetCount == 1)
+        {
+            GraphicsDevice.GetRenderTargets(_targetBinding);
+            var target = _targetBinding[0].RenderTarget as RenderTarget2D;
+            _targetBinding[0] = default;
+            if (target is null) return false;
+            width = target.Width; height = target.Height;
+        }
+        else return false;
+        if (viewport.Width != width || viewport.Height != height ||
+            _clip.X != 0 || _clip.Y != 0 || _clip.Width != width || _clip.Height != height ||
+            a.Position.X != 0 || a.Position.Y != 0 || b.Position.X != width || b.Position.Y != 0 ||
+            c.Position.X != 0 || c.Position.Y != height || d.Position.X != width || d.Position.Y != height)
+            return false;
+        // A known white pixel and opaque constant color cover every sample; depth/stencil stay intact.
+        var rasterizer = GraphicsDevice.RasterizerState;
+        var blend = GraphicsDevice.BlendState;
+        try
+        {
+            GraphicsDevice.RasterizerState = _rasterizer;
+            GraphicsDevice.BlendState = BlendState.Opaque;
+            GraphicsDevice.Clear(ClearOptions.Target, a.Color, 1, 0);
+        }
+        finally
+        {
+            GraphicsDevice.RasterizerState = rasterizer;
+            GraphicsDevice.BlendState = blend;
+        }
+        OpaqueClearCount++;
+        return true;
     }
 
     private VertexPositionColorTexture Transform(VertexPositionColorTexture value)
@@ -260,7 +343,12 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
             group.IndexCount = index - group.StartIndex;
         }
 
-        _vertexBuffer.SetData(_vertices, 0, _vertexCount, SetDataOptions.Discard);
+        if (_textureEffect is not null)
+        {
+            BuildTextureRuns(index);
+            _vertexBuffer.SetData(_textureVertices!, 0, _vertexCount, SetDataOptions.Discard);
+        }
+        else _vertexBuffer.SetData(_vertices, 0, _vertexCount, SetDataOptions.Discard);
         _indexBuffer.SetData(_orderedIndices, 0, index, SetDataOptions.Discard);
         GraphicsDevice.SetVertexBuffer(_vertexBuffer);
         GraphicsDevice.Indices = _indexBuffer;
@@ -268,18 +356,85 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
         GraphicsDevice.DepthStencilState = DepthStencilState.None;
         GraphicsDevice.RasterizerState = _rasterizer;
         GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
-        for (int i = 0; i < _groupCount; i++)
+        if (_textureEffect is not null) DrawTextureRuns();
+        else
         {
-            ref var g = ref _groups[i];
-            _effect.Texture = g.Texture;
-            _effect.CurrentTechnique.Passes[0].Apply();
-            GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, g.StartIndex, g.IndexCount / 3);
-            DrawCalls++;
+            for (int i = 0; i < _groupCount; i++)
+            {
+                ref var g = ref _groups[i];
+                _effect!.Texture = g.Texture;
+                _effect.CurrentTechnique.Passes[0].Apply();
+                GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, g.StartIndex, g.IndexCount / 3);
+                DrawCalls++;
+            }
         }
 
         FlushCount++;
         Array.Clear(_groups, 0, _groupCount);
         _vertexCount = _indexCount = _itemCount = _groupCount = 0;
+    }
+
+    private void BuildTextureRuns(int indexCount)
+    {
+        _runs.Clear();
+        Array.Clear(_slots);
+        for (int i = 0; i < _vertexCount; i++)
+        {
+            ref var source = ref _vertices[i];
+            _textureVertices![i] = new ControlTextureVertex { Position = source.Position,
+                Color = source.Color, TextureCoordinate = source.TextureCoordinate };
+        }
+        int used = 0, startIndex = 0;
+        for (int i = 0; i < _groupCount; i++)
+        {
+            ref var group = ref _groups[i];
+            int slot = 0;
+            while (slot < used && !ReferenceEquals(_slots[slot], group.Texture)) slot++;
+            if (slot == 8)
+            {
+                AddTextureRun(startIndex, group.StartIndex - startIndex);
+                Array.Clear(_slots);
+                used = slot = 0;
+                startIndex = group.StartIndex;
+            }
+            if (slot == used) { _slots[used++] = group.Texture; }
+            int endIndex = group.StartIndex + group.IndexCount;
+            for (int n = group.StartIndex; n < endIndex; n++)
+                _textureVertices![(ushort)_orderedIndices[n]].TextureSlot = slot;
+        }
+        AddTextureRun(startIndex, indexCount - startIndex);
+        Array.Clear(_slots);
+    }
+
+    private void AddTextureRun(int start, int count) => _runs.Add(new ControlTextureRun(start, count,
+        _slots[0], _slots[1], _slots[2], _slots[3], _slots[4], _slots[5], _slots[6], _slots[7]));
+
+    private void DrawTextureRuns()
+    {
+        for (int i = 1; i < 8; i++)
+        {
+            _savedSamplers[i - 1] = GraphicsDevice.SamplerStates[i];
+            _savedTextures[i - 1] = GraphicsDevice.Textures[i];
+        }
+        try
+        {
+            foreach (var run in _runs)
+            {
+                _textureEffect!.Apply(run);
+                GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, run.StartIndex, run.IndexCount / 3);
+                DrawCalls++;
+            }
+        }
+        finally
+        {
+            for (int i = 1; i < 8; i++)
+            {
+                GraphicsDevice.SamplerStates[i] = _savedSamplers[i - 1];
+                GraphicsDevice.Textures[i] = _savedTextures[i - 1];
+            }
+            Array.Clear(_savedTextures);
+            _runs.Clear();
+        }
     }
 
     internal void End()
@@ -314,7 +469,8 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
             throw new InvalidOperationException("Cannot dispose an active frame batch.");
         _vertexBuffer.Dispose();
         _indexBuffer.Dispose();
-        _effect.Dispose();
+        _effect?.Dispose();
+        _textureEffect?.Dispose();
         _rasterizer.Dispose();
         _disposed = true;
     }

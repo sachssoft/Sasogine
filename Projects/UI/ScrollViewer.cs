@@ -73,8 +73,7 @@ public sealed class ScrollViewer : ContainerControl
                 _vertical = _extent.Height > MathF.Max(0, available.Height - (_horizontal ? thickness : 0));
         }
 
-        HorizontalScrollBar.IsVisible = _horizontal;
-        VerticalScrollBar.IsVisible = _vertical;
+        // Measurement can be unbounded; publish visibility only for the arranged viewport.
         HorizontalScrollBar.Measure(context, available);
         VerticalScrollBar.Measure(context, available);
         return new Size2(MathF.Min(available.Width, _extent.Width + (_vertical ? thickness : 0)), MathF.Min(available.Height, _extent.Height + (_horizontal ? thickness : 0)));
@@ -102,6 +101,11 @@ public sealed class ScrollViewer : ContainerControl
 
         HorizontalScrollBar.IsVisible = _horizontal;
         VerticalScrollBar.IsVisible = _vertical;
+        if (_layout is not null)
+        {
+            HorizontalScrollBar.Measure(_layout, new Size2(contentBounds.Width, contentBounds.Height));
+            VerticalScrollBar.Measure(_layout, new Size2(contentBounds.Width, contentBounds.Height));
+        }
         _viewport = new Bounds2(contentBounds.X, contentBounds.Y, MathF.Max(0, contentBounds.Width - (_vertical ? t : 0)), MathF.Max(0, contentBounds.Height - (_horizontal ? t : 0)));
         HorizontalScrollBar.Maximum = MathF.Max(0, _extent.Width - _viewport.Width);
         HorizontalScrollBar.ViewportSize = _viewport.Width;

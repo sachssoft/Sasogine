@@ -150,6 +150,69 @@ internal sealed class RenderValidationApplication : GameApplicationBase
             themedTabs.SelectedIndex=2;
             Compare(themedRoot,"skin-"+theme.ToLowerInvariant()+"-advanced",1,new Rectangle(0,0,1160,760));
         }
+        using(var root=new Workspace(new Grid { Background=new Color(30,60,80) }))
+        {
+            Compare(root,"opaque-full-target",1,new Rectangle(0,0,1160,760));
+            Compare(root,"opaque-partial-viewport",1,new Rectangle(13,17,1120,720));
+        }
+        var slotTextures=new Texture2D[12];
+        try
+        {
+            for(int i=0;i<slotTextures.Length;i++)
+            {
+                var texture=slotTextures[i]=new Texture2D(GraphicsDevice,32,32,true,SurfaceFormat.Color);
+                for(int level=0;level<texture.LevelCount;level++)
+                {
+                    int edge=Math.Max(1,32>>level);
+                    var data=new Color[edge*edge];
+                    for(int n=0;n<data.Length;n++)data[n]=new Color(20+i*17,30+level*24,210-i*11,180+(n%3)*20);
+                    texture.SetData(level,null,data,0,data.Length);
+                }
+            }
+            using var root=new Workspace(new RendererTextureSlotControl(slotTextures));
+            Compare(root,"texture-slot-rollover",1,new Rectangle(0,0,1160,760));
+            Compare(root,"texture-slot-rollover-dpi",1.25f,new Rectangle(13,17,1120,720));
+            root.Update(new ControlInputFrame(new Size2(1160,760),TimeSpan.Zero),new ControlLayoutContext(_font!));
+            var expectedSamplers=new SamplerState[7];
+            for(int slot=1;slot<8;slot++)
+            {
+                GraphicsDevice.Textures[slot]=slotTextures[slot];
+                GraphicsDevice.SamplerStates[slot]=SamplerState.PointWrap;
+                expectedSamplers[slot-1]=GraphicsDevice.SamplerStates[slot];
+            }
+            using(var native=new ControlDrawContext(this,_font!,new Rectangle(0,0,1160,760))) Render(root,native,null);
+            for(int slot=1;slot<8;slot++)
+                if(!ReferenceEquals(GraphicsDevice.Textures[slot],slotTextures[slot]) ||
+                    !ReferenceEquals(GraphicsDevice.SamplerStates[slot],expectedSamplers[slot-1]))
+                    throw new InvalidOperationException("Texture-slot rendering changed caller sampler or texture state.");
+            Console.WriteLine("PASS: twelve textures, mipmaps, slot rollover, transparency and caller texture/sampler restoration.");
+        }
+        finally
+        {
+            for(int slot=1;slot<8;slot++)GraphicsDevice.Textures[slot]=null;
+            foreach(var texture in slotTextures)texture?.Dispose();
+        }
+        var changingText = new TextBlock { Text = "FPS: 40.0", Width = 360, Height = 60,
+            TextHorizontalAlignment = ControlAlignment.End, TextVerticalAlignment = ControlAlignment.Center };
+        using (var changingRoot = new Workspace(changingText))
+        using (var expectedRoot = new Workspace(new TextBlock { Text = "FPS: 60.0", Width = 360, Height = 60,
+            TextHorizontalAlignment = ControlAlignment.End, TextVerticalAlignment = ControlAlignment.Center }))
+        using (var context = new ControlDrawContext(this, _font!, new Rectangle(0, 0, 1160, 760)))
+        {
+            var frame = new ControlInputFrame(new Size2(1160, 760), TimeSpan.Zero);
+            var layout = new ControlLayoutContext(_font!);
+            changingRoot.Update(frame, layout);
+            Color[] before = Render(changingRoot, context, null);
+            changingText.Text = "FPS: 60.0";
+            changingRoot.Update(frame, layout);
+            Color[] after = Render(changingRoot, context, null);
+            expectedRoot.Update(frame, layout);
+            Color[] expected = Render(expectedRoot, context, null);
+            if (before.AsSpan().SequenceEqual(after) || !after.AsSpan().SequenceEqual(expected))
+                throw new InvalidOperationException("Live equal-size text must render the updated glyphs at the same position.");
+            Console.WriteLine("PASS: live text refresh matches a freshly laid-out control pixel for pixel.");
+        }
+        SceneViewportRenderTests.Run(this, _font!);
         AllocationProbe();
         var numeric=new ValueTextBox {Minimum=0,Maximum=100,Step=1,Value=50,Width=360,Height=40,Margin=new Insets2(20),HorizontalAlignment=ControlAlignment.Start,VerticalAlignment=ControlAlignment.Start};
         using(var root=new Workspace(numeric))

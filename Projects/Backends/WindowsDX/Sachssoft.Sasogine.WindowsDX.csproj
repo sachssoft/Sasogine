@@ -28,4 +28,10 @@
 		<ProjectReference Include="..\..\Basic\Sachssoft.Sasogine.csproj" />
 	</ItemGroup>
 
+	<Import Project="buildTransitive\Sachssoft.Sasogine.WindowsDX.targets" />
+
+	<ItemGroup>
+		<None Update="buildTransitive\Sachssoft.Sasogine.WindowsDX.targets" Pack="true" PackagePath="buildTransitive\Sachssoft.Sasogine.WindowsDX.targets" />
+	</ItemGroup>
+
 </Project>

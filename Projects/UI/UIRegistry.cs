@@ -16,6 +16,7 @@ public sealed class UIRegistry
         Register("StackPanel", static () => new StackPanel());
         Register("Label", static () => new Label());
         Register("TextBlock", static () => new TextBlock());
+        Register("SceneViewport", static () => new SceneViewport());
         Register("Button", static () => new Button());
         Register("InspectorView", static () => new Inspection.InspectorView());
         RegisterControls();

@@ -44,4 +44,10 @@
 	  <PackageReference Update="MonoGame.Framework.Native" Version="3.8.6" />
 	</ItemGroup>
 
+	<Import Project="buildTransitive\Sachssoft.Sasogine.WindowsDX12.targets" />
+
+	<ItemGroup>
+		<None Update="buildTransitive\Sachssoft.Sasogine.WindowsDX12.targets" Pack="true" PackagePath="buildTransitive\Sachssoft.Sasogine.WindowsDX12.targets" />
+	</ItemGroup>
+
 </Project>

@@ -9,7 +9,7 @@ public sealed class ColorPickSession
     private Action<Color>? _preview, _accept;
     private Action? _cancel;
     private Color _original;
-    private bool _pending, _hasSample;
+    private bool _pending, _hasSample, _acceptPending;
     private string _label = string.Empty;
     /// <summary>Gets whether a color-picking gesture currently intercepts workspace input.</summary>
     public bool IsActive => Owner is not null;
@@ -32,7 +32,7 @@ public sealed class ColorPickSession
         Owner = owner; _source = source; _original = original; SelectedColor = original;
         _preview = preview; _accept = accept; _cancel = cancel;
         Position = owner.Workspace.PointerPosition;
-        _pending = true; _hasSample = false; _label = "Pick a pixel · Click: accept · Escape: cancel";
+        _pending = true; _hasSample = _acceptPending = false; _label = "Pick a pixel · Click: accept · Escape: cancel";
     }
     /// <summary>Cancels the active gesture and invokes its rollback callback exactly once.</summary>
     public void Cancel()
@@ -44,11 +44,16 @@ public sealed class ColorPickSession
     private void Reset()
     {
         Owner = null; _source = null; _preview = null; _accept = null; _cancel = null;
-        _pending = false; _hasSample = false;
+        _pending = false; _hasSample = _acceptPending = false;
     }
     private bool Sample()
     {
         _pending = false;
+        if (_source is DeferredColorPickSource { Source: null })
+        {
+            _pending = true; _hasSample = false;
+            return false;
+        }
         if (_source is null || !_source.TryPick(Position, out Color color)) { _hasSample = false; return false; }
         if (PreserveAlpha) color.A = _original.A;
         bool changed = !_hasSample || color != SelectedColor;
@@ -60,7 +65,11 @@ public sealed class ColorPickSession
     internal void Update(Workspace workspace)
     {
         if (IsActive && Owner?.Workspace != workspace) Cancel();
-        if (_pending) Sample();
+        if (_pending && Sample() && _acceptPending)
+        {
+            Action<Color>? callback = _accept; Color color = SelectedColor;
+            Reset(); callback?.Invoke(color);
+        }
     }
     internal bool Handle(ControlInputEvent input)
     {
@@ -74,10 +83,14 @@ public sealed class ColorPickSession
             if (input.Type == ControlInputEventType.PointerDown)
             {
                 if (input.Button == MouseButton.Right) Cancel();
-                else if (input.Button == MouseButton.Left && Sample())
+                else if (input.Button == MouseButton.Left)
                 {
-                    Action<Color>? callback = _accept; Color color = SelectedColor;
-                    Reset(); callback?.Invoke(color);
+                    if (Sample())
+                    {
+                        Action<Color>? callback = _accept; Color color = SelectedColor;
+                        Reset(); callback?.Invoke(color);
+                    }
+                    else _acceptPending = _source is DeferredColorPickSource { Source: null };
                 }
             }
         }
@@ -93,7 +106,8 @@ public sealed class ColorPickSession
         float x = Math.Clamp(Position.X + 18, 0, MathF.Max(0, size.Width - 380));
         float y = Math.Clamp(Position.Y + 18, 0, MathF.Max(0, size.Height - 120));
         context.FillRectangle(new Bounds2(x, y, 380, 116), new Color(18, 23, 31));
-        if (_hasSample && _source is RenderTargetColorSource source)
+        IColorPickSource? previewSource = _source is DeferredColorPickSource deferred ? deferred.Source : _source;
+        if (_hasSample && previewSource is RenderTargetColorSource source)
         {
             ReadOnlySpan<Color> pixels = source.MagnifierPixels;
             for (int row = 0; row < 9; row++)
