@@ -11,7 +11,7 @@ public class Expander : GroupBox
     }
 
     /// <summary>Gets or sets the content inside the toggle header.</summary>
-    public Control? HeaderContent
+    public object? HeaderContent
     {
         get => _toggle.Content;
         set
@@ -63,7 +63,8 @@ public class Expander : GroupBox
     internal override bool IsStyleLocal(string property) => property switch
     {
         "IsExpanded" => _IsExpanded.HasLocalValue,
-        _ => base.IsStyleLocal(property)};
+        _ => base.IsStyleLocal(property)
+    };
     /// <inheritdoc/>
     public override void ResetStyleProperty(string property)
     {

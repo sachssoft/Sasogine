@@ -165,7 +165,8 @@ public class ToolBox : ContainerControl
         "Columns" => _columns.HasLocalValue,
         "Rows" => _rows.HasLocalValue,
         "Spacing" => _spacing.HasLocalValue,
-        _ => base.IsStyleLocal(property)};
+        _ => base.IsStyleLocal(property)
+    };
     /// <inheritdoc/>
     public override void ResetStyleProperty(string property)
     {

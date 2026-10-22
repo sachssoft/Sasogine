@@ -1,7 +1,7 @@
 using System;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Measures and arranges one child; content can be an image, label or composed layout.</summary>
+/// <summary>Presents a control directly or displays an object's text representation.</summary>
 public class ContentControl : ContainerControl
 {
     private ChangeTracker<Control?> _content;
@@ -10,8 +10,39 @@ public class ContentControl : ContainerControl
     {
     }
 
-    /// <summary>Gets or sets content, reserving ownership immediately and committing traversal changes at a safe boundary.</summary>
-    public Control? Content { get => ConfigContent; set => ConfigContent = value; }
+    private object? _storedContent;
+    private Control? _contentPresenter;
+    private TextBlock? _textPresenter;
+    private static readonly System.ComponentModel.PropertyChangedEventArgs ContentStorageArgs = new(nameof(Content));
+    private static readonly System.ComponentModel.PropertyChangedEventArgs ContentPresenterChangedArgs = new(nameof(ContentPresenter));
+
+    /// <summary>Gets or sets the source content. Controls are presented directly; other values are converted to text when assigned.</summary>
+    /// <remarks>Reassign an object to refresh its text representation. Null removes the presenter.</remarks>
+    public object? Content
+    {
+        get => _storedContent;
+        set
+        {
+            VerifyTreeMutation();
+            // Convert before changing state: a failing ToString must preserve the existing content.
+            string? text = value is null or Control ? null : value as string ?? value.ToString() ?? string.Empty;
+            TextBlock? textPresenter = text is null ? null : _textPresenter ?? new TextBlock { Text = text };
+            Control? next = value as Control ?? textPresenter;
+            if (!ReferenceEquals(next, _contentPresenter) && next is not null)
+                ValidateChild(next);
+            bool changed = !ReferenceEquals(_storedContent, value);
+            _storedContent = value;
+            _textPresenter = textPresenter;
+            SetOwnedControl(ref _contentPresenter, next, ContentPresenterChangedArgs);
+            if (textPresenter is not null)
+                textPresenter.Text = text!;
+            if (changed)
+                NotifyPropertyChanged(ContentStorageArgs);
+        }
+    }
+
+    /// <summary>Gets the actual child presenting the content, or null when content is null.</summary>
+    public Control? ContentPresenter => _contentPresenter;
     /// <summary>Gets or sets horizontal content alignment.</summary>
     public ControlAlignment ContentHorizontalAlignment { get => ConfigContentHorizontalAlignment; set => ConfigContentHorizontalAlignment = value; }
     /// <summary>Gets or sets vertical content alignment.</summary>
@@ -29,7 +60,7 @@ public class ContentControl : ContainerControl
     public override void Remove(Control child)
     {
         ArgumentNullException.ThrowIfNull(child);
-        if (ReferenceEquals(Content, child))
+        if (ReferenceEquals(ContentPresenter, child))
             Content = null;
     }
 
@@ -41,7 +72,7 @@ public class ContentControl : ContainerControl
     internal override void Prepare()
     {
         base.Prepare();
-        Control? next = ConfigContent;
+        Control? next = ContentPresenter;
         if (_content.WasEnsured && ReferenceEquals(_content.NewValue, next))
             return;
         if (next is not null)
@@ -52,7 +83,7 @@ public class ContentControl : ContainerControl
     /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
-        if (Content is not Control child)
+        if (ContentPresenter is not Control child)
             return Size2.Zero;
         child.Measure(context, available);
         return child.DesiredSize;
@@ -61,7 +92,7 @@ public class ContentControl : ContainerControl
     /// <inheritdoc/>
     protected override void ArrangeOverride(Bounds2 bounds)
     {
-        if (Content is not Control child)
+        if (ContentPresenter is not Control child)
             return;
         float w = ContentHorizontalAlignment == ControlAlignment.Stretch ? bounds.Width : MathF.Min(bounds.Width, child.DesiredSize.Width);
         float h = ContentVerticalAlignment == ControlAlignment.Stretch ? bounds.Height : MathF.Min(bounds.Height, child.DesiredSize.Height);
@@ -92,10 +123,6 @@ public class ContentControl : ContainerControl
                 NotifyPropertyChanged(ContentVerticalAlignmentChangedArgs);
         }
     }
-
-    private Control? _storedContent = null;
-    private static readonly System.ComponentModel.PropertyChangedEventArgs ContentStorageArgs = new("Content");
-    internal Control? ConfigContent { get => _storedContent; set => SetOwnedControl(ref _storedContent, value, ContentStorageArgs); }
 
     /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
     public override void ApplyStyle(Style style)

@@ -14,6 +14,7 @@ public class SplitButton : ContainerControl
     {
         base.Add(_primary);
         base.Add(_arrow);
+        _primary.PropertyChanged += OnPrimaryPropertyChanged;
     }
 
     /// <inheritdoc/>
@@ -24,16 +25,20 @@ public class SplitButton : ContainerControl
     public DropDownButton DropDown => _arrow;
 
     /// <summary>Gets or sets arbitrary primary content.</summary>
-    public Control? Content
+    public object? Content
     {
         get => _primary.Content;
-        set
-        {
-            if (ReferenceEquals(_primary.Content, value))
-                return;
-            _primary.Content = value;
-            NotifyPropertyChanged(ContentArgs);
-        }
+        set => _primary.Content = value;
+    }
+
+    /// <summary>Gets the child presenting the primary content.</summary>
+    public Control? ContentPresenter => _primary.ContentPresenter;
+
+    private static readonly System.ComponentModel.PropertyChangedEventArgs PresenterArgs = new(nameof(ContentPresenter));
+    private void OnPrimaryPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs notification)
+    {
+        if (notification.PropertyName == nameof(Content)) NotifyPropertyChanged(ContentArgs);
+        else if (notification.PropertyName == nameof(ContentPresenter)) NotifyPropertyChanged(PresenterArgs);
     }
 
     /// <summary>Gets or sets the primary command.</summary>

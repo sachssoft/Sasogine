@@ -21,4 +21,16 @@ public class StatusBar : StackPanel
             throw new ArgumentException("StatusBar children must be StatusStrip hosts.", nameof(child));
         base.Add(child);
     }
+
+    /// <summary>Adds a status strip, reserving its ownership immediately.</summary>
+    public void Add(StatusStrip statusStrip) => base.Add(statusStrip);
+
+    /// <summary>
+    /// ???
+    /// </summary>
+    public void Add(StatusStrip statusStrip, GridLength length)
+    {
+        statusStrip.Length = length; // Bequemer Code
+        base.Add(statusStrip);
+    }
 }

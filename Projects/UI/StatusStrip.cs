@@ -4,4 +4,9 @@ public class StatusStrip : ContentControl
 {
     /// <inheritdoc/>
     protected override string DefaultStyleName => "StatusStrip";
+
+    /// <summary>
+    /// ???
+    /// </summary>
+    public GridLength Length { get; set; } // Nicht implementiert
 }

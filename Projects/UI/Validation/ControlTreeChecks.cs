@@ -110,7 +110,7 @@ internal static class ControlTreeChecks
         check(pageA.Parent == tabs && pageB.Parent == tabs, "All tab pages reserve their parent before the first frame");
         Reject<InvalidOperationException>(() => tabs.Items.Add(pageA), check, "Duplicate tab pages throw immediately");
         Reject<InvalidOperationException>(() => new TabControl().Items.Add(pageB), check, "Inactive tab pages cannot be shared");
-        Reject<InvalidOperationException>(() => panel.Children.Add(pageB.Content!), check, "Inactive page content remains owned");
+        Reject<InvalidOperationException>(() => panel.Children.Add(pageB.ContentPresenter!), check, "Inactive page content remains owned");
         Reject<InvalidOperationException>(() => first.Content = pageA.HeaderContent, check, "Custom tab headers reserve their content immediately");
         using var tabRoot = new Workspace(tabs);
         tabRoot.Update(frame, layout);

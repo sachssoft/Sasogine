@@ -29,13 +29,13 @@ public class CheckBox : ToggleButton
         if (!HasGlyph)
             return text;
         Size2 glyph = ConfigGlyphSize;
-        return new Size2(glyph.Width + (Content is not null ? ConfigTextSpacing + text.Width : 0), MathF.Max(glyph.Height, text.Height));
+        return new Size2(glyph.Width + (ContentPresenter is not null ? ConfigTextSpacing + text.Width : 0), MathF.Max(glyph.Height, text.Height));
     }
 
     /// <inheritdoc/>
     protected override void ArrangeOverride(Bounds2 bounds)
     {
-        float offset = HasGlyph ? ConfigGlyphSize.Width + (Content is not null ? ConfigTextSpacing : 0) : 0;
+        float offset = HasGlyph ? ConfigGlyphSize.Width + (ContentPresenter is not null ? ConfigTextSpacing : 0) : 0;
         base.ArrangeOverride(new Bounds2(bounds.X + offset, bounds.Y, MathF.Max(0, bounds.Width - offset), bounds.Height));
     }
 

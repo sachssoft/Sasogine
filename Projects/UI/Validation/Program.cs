@@ -217,6 +217,7 @@ internal static class Program
                 Check(calls == 1 && !button.IsEnabled);
             });
             Run("Immediate control ownership, atomic transfers and deferred traversal", () => ControlTreeChecks.Run(Check, Layout));
+            Run("Object content, stable text presenters and atomic ownership", () => ContentControlChecks.Run(Check, Layout));
             Run("Tool groups, uniform button palettes, status content and cached wrapping", () => BarControlChecks.Run(Check, Layout));
             Run("Grid-owned placement, observable rows and columns, and invalidation", () =>
             {

@@ -23,6 +23,11 @@ public readonly record struct GridLength
     /// <summary>Gets content sizing.</summary>
     public static GridLength Auto => new(0, GridUnitType.Auto);
 
+    /// <summary>
+    /// ???
+    /// </summary>
+    public static GridLength Full => Proportion();
+
     /// <summary>Creates proportional sizing.</summary>
     public static GridLength Proportion(float weight = 1) => new(weight, GridUnitType.Proportion);
     /// <summary>Parses Auto, pixels, * or a weighted expression such as 2*.</summary>
