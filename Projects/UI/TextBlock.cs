@@ -26,34 +26,33 @@ public class TextBlock : Control
     private Vector2 _textPosition;
     private float _wrapWidth;
     private bool _metricsValid, _measuredWrap;
-
     private bool _pendingTextMetrics;
-
     /// <inheritdoc/>
     protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs notification)
     {
         // Exact built-in types keep custom subclass measurement contracts unchanged.
-        if (notification.PropertyName == nameof(Text) && Text is not null && _metricsValid &&
-            !WrapText && !_measuredWrap && Workspace is not null &&
-            (GetType() == typeof(TextBlock) || GetType() == typeof(Label)))
+        if (notification.PropertyName == nameof(Text) && Text is not null && _metricsValid && !WrapText && !_measuredWrap && Workspace is not null && (GetType() == typeof(TextBlock) || GetType() == typeof(Label)))
         {
             _pendingTextMetrics = true;
             Workspace.InvalidateLayout();
             return;
         }
+
         base.OnPropertyChanged(notification);
     }
 
     internal override void Prepare()
     {
         base.Prepare();
-        if (!_pendingTextMetrics) return;
+        if (!_pendingTextMetrics)
+            return;
         _pendingTextMetrics = false;
         if (!_metricsValid || WrapText || _measuredFont is null)
         {
             InvalidateMeasure();
             return;
         }
+
         try
         {
             Size2 size = _measuredFont.Measure(Text);
@@ -61,13 +60,21 @@ public class TextBlock : Control
             bool unchanged = size.Width == _textSize.Width && size.Height == _textSize.Height;
             _displayText = _measuredText = Text;
             _textSize = size;
-            if (!unchanged) InvalidateMeasure();
+            if (!unchanged)
+                InvalidateMeasure();
         }
         catch
         {
             InvalidateMeasure();
             throw;
         }
+    }
+
+    /// <inheritdoc/>
+    protected override void OnFontChanged()
+    {
+        _metricsValid = false;
+        base.OnFontChanged();
     }
 
     /// <summary>Invalidates layout and cached text metrics after an external font resource changes.</summary>
@@ -86,9 +93,8 @@ public class TextBlock : Control
         ArgumentNullException.ThrowIfNull(Text);
         if (!IsAlignment(TextHorizontalAlignment) || !IsAlignment(TextVerticalAlignment))
             throw new InvalidOperationException("Invalid text alignment.");
-        var font = Font ?? context.DefaultFont;
-        if (!_metricsValid || !ReferenceEquals(_measuredFont, font) || _measuredText != Text ||
-            _measuredWrap != WrapText || WrapText && _wrapWidth != available.Width)
+        var font = GetFont(context);
+        if (!_metricsValid || !ReferenceEquals(_measuredFont, font) || _measuredText != Text || _measuredWrap != WrapText || WrapText && _wrapWidth != available.Width)
         {
             _metricsValid = false;
             string display = WrapText ? ControlTextLayout.Wrap(font, Text, available.Width) : Text;
@@ -102,6 +108,7 @@ public class TextBlock : Control
             _wrapWidth = available.Width;
             _metricsValid = true;
         }
+
         return _textSize;
     }
 
@@ -122,9 +129,7 @@ public class TextBlock : Control
     protected override void ArrangeOverride(Bounds2 contentBounds)
     {
         base.ArrangeOverride(contentBounds);
-        _textPosition = new Vector2(
-            Padding.Left + Offset(contentBounds.Width - _textSize.Width, TextHorizontalAlignment),
-            Padding.Top + Offset(contentBounds.Height - _textSize.Height, TextVerticalAlignment));
+        _textPosition = new Vector2(Padding.Left + Offset(contentBounds.Width - _textSize.Width, TextHorizontalAlignment), Padding.Top + Offset(contentBounds.Height - _textSize.Height, TextVerticalAlignment));
     }
 
     private static float Offset(float spare, ControlAlignment alignment) => alignment switch

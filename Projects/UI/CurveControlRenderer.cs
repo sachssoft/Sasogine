@@ -16,7 +16,7 @@ internal static class CurveControlRenderer
         var d = control;
         var minimum = d.ConfigCurveViewMinimum;
         var maximum = d.ConfigCurveViewMaximum;
-        var font = d.ConfigFont ?? context.DefaultFont;
+        var font = d.GetFont(context);
         double xStep = NiceStep(((double)maximum.X - minimum.X) / 6), yStep = NiceStep(((double)maximum.Y - minimum.Y) / 5);
         using (context.PushClipScope(local))
         {

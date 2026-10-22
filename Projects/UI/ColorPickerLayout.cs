@@ -57,7 +57,7 @@ internal sealed class ColorPickerLayout : ContainerControl
     protected override void OnDraw(ControlDrawContext context)
     {
         for (int i = 0; i < 4; i++)
-            context.DrawText(context.DefaultFont, _owner.ChannelLabels[i], new Vector2(_channels[i].Bounds.X - Bounds.X - 42, _channels[i].Bounds.Y - Bounds.Y + 5), new Color(150, 168, 191));
+            context.DrawText(GetFont(context), _owner.ChannelLabels[i], new Vector2(_channels[i].Bounds.X - Bounds.X - 42, _channels[i].Bounds.Y - Bounds.Y + 5), new Color(150, 168, 191));
     }
 
     internal override bool IsStyleLocal(string property)

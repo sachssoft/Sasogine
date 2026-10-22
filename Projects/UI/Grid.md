@@ -7,10 +7,10 @@ Ohne eigene Zeilen oder Spalten gibt es jeweils eine proportionale Zeile beziehu
 
 ```csharp
 var grid = new Grid { Spacing = 8 };
-grid.Rows.Add(new GridRow { Height = GridLength.Auto });
-grid.Rows.Add(new GridRow { Height = GridLength.Proportion() });
-grid.Columns.Add(new GridColumn { Width = 160 });
-grid.Columns.Add(new GridColumn { Width = GridLength.Proportion(2) });
+grid.Rows.Add(new GridRow(GridLength.Auto));
+grid.Rows.Add(new GridRow()); // proportional, Gewicht 1
+grid.Columns.Add(new GridColumn(160));
+grid.Columns.Add(new GridColumn(2, GridUnitType.Proportion));
 
 var button = new Button();
 grid.Children.Add(button);
@@ -19,6 +19,9 @@ grid.Cells.Put(button, row: 1, column: 1);
 // Put verschiebt dieselbe Instanz; es entsteht kein zweiter Eintrag.
 grid.Cells.Put(button, row: 0, column: 0, columnSpan: 2);
 ```
+
+Beide Typen akzeptieren `GridLength`, eine feste Pixelzahl oder `(value, unit)`.
+Eigenschaften lassen sich weiterhin ergänzen, etwa `new GridRow(40) { MinHeight = 24 }`.
 
 - `Children` verwaltet die Controls; `Cells` verwaltet ausschließlich deren Position.
 - `Put` fügt keine Children hinzu. Die Zuordnung kann vor oder nach `Children.Add` erfolgen.

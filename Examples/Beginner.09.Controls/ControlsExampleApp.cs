@@ -53,6 +53,9 @@ internal sealed class ControlsExampleApp : GameApplicationBase
     {
         base.LoadContent();
         var face = new FontFace(File.ReadAllBytes(_options.FontPath), Path.GetFileNameWithoutExtension(_options.FontPath));
+        ExampleFontFamily.Register(_workspace!.Fonts, _options.FontPath, face);
+        _workspace.Content.FontName = ExampleFontFamily.Name;
+        _workspace.Content.FontSize = 20;
         _font = new FontFaceControlFont(face, 20);
         _layout = new ControlLayoutContext(_font);
         _draw = new ControlDrawContext(this, _font, GraphicsDevice.Viewport.Bounds);

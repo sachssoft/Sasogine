@@ -21,84 +21,140 @@ public sealed class ColorPickSession
     public Color SelectedColor { get; private set; }
     /// <summary>Gets or sets whether samples retain the original property's alpha channel.</summary>
     public bool PreserveAlpha { get; set; } = true;
+
     /// <summary>Starts a gesture. A preview callback may update the model; cancellation must restore it.</summary>
     public void Begin(Control owner, IColorPickSource source, Color original, Action<Color> preview, Action<Color> accept, Action cancel)
     {
-        ArgumentNullException.ThrowIfNull(owner); ArgumentNullException.ThrowIfNull(source);
-        ArgumentNullException.ThrowIfNull(preview); ArgumentNullException.ThrowIfNull(accept); ArgumentNullException.ThrowIfNull(cancel);
-        if (IsActive) throw new InvalidOperationException("A color pick is already active.");
-        if (owner.Workspace is null) throw new InvalidOperationException("Attach the owner before picking a color.");
+        ArgumentNullException.ThrowIfNull(owner);
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(preview);
+        ArgumentNullException.ThrowIfNull(accept);
+        ArgumentNullException.ThrowIfNull(cancel);
+        if (IsActive)
+            throw new InvalidOperationException("A color pick is already active.");
+        if (owner.Workspace is null)
+            throw new InvalidOperationException("Attach the owner before picking a color.");
         owner.Workspace.AssetDragging.Cancel();
-        Owner = owner; _source = source; _original = original; SelectedColor = original;
-        _preview = preview; _accept = accept; _cancel = cancel;
+        Owner = owner;
+        _source = source;
+        _original = original;
+        SelectedColor = original;
+        _preview = preview;
+        _accept = accept;
+        _cancel = cancel;
         Position = owner.Workspace.PointerPosition;
-        _pending = true; _hasSample = _acceptPending = false; _label = "Pick a pixel · Click: accept · Escape: cancel";
+        _pending = true;
+        _hasSample = _acceptPending = false;
+        _label = "Pick a pixel · Click: accept · Escape: cancel";
     }
+
     /// <summary>Cancels the active gesture and invokes its rollback callback exactly once.</summary>
     public void Cancel()
     {
-        if (!IsActive) return;
+        if (!IsActive)
+            return;
         Action? callback = _cancel;
-        Reset(); callback?.Invoke();
+        Reset();
+        callback?.Invoke();
     }
+
     private void Reset()
     {
-        Owner = null; _source = null; _preview = null; _accept = null; _cancel = null;
-        _pending = false; _hasSample = _acceptPending = false;
+        Owner = null;
+        _source = null;
+        _preview = null;
+        _accept = null;
+        _cancel = null;
+        _pending = false;
+        _hasSample = _acceptPending = false;
     }
+
     private bool Sample()
     {
         _pending = false;
         if (_source is DeferredColorPickSource { Source: null })
         {
-            _pending = true; _hasSample = false;
+            _pending = true;
+            _hasSample = false;
             return false;
         }
-        if (_source is null || !_source.TryPick(Position, out Color color)) { _hasSample = false; return false; }
-        if (PreserveAlpha) color.A = _original.A;
+
+        if (_source is null || !_source.TryPick(Position, out Color color))
+        {
+            _hasSample = false;
+            return false;
+        }
+
+        if (PreserveAlpha)
+            color.A = _original.A;
         bool changed = !_hasSample || color != SelectedColor;
-        SelectedColor = color; _hasSample = true;
+        SelectedColor = color;
+        _hasSample = true;
         _label = $"#{color.R:X2}{color.G:X2}{color.B:X2}{color.A:X2} · Click: accept · Escape: cancel";
-        if (changed) _preview?.Invoke(color);
+        if (changed)
+            _preview?.Invoke(color);
         return true;
     }
+
     internal void Update(Workspace workspace)
     {
-        if (IsActive && Owner?.Workspace != workspace) Cancel();
+        if (IsActive && Owner?.Workspace != workspace)
+            Cancel();
         if (_pending && Sample() && _acceptPending)
         {
-            Action<Color>? callback = _accept; Color color = SelectedColor;
-            Reset(); callback?.Invoke(color);
+            Action<Color>? callback = _accept;
+            Color color = SelectedColor;
+            Reset();
+            callback?.Invoke(color);
         }
     }
+
     internal bool Handle(ControlInputEvent input)
     {
-        if (!IsActive) return false;
-        if (input.Type == ControlInputEventType.Deactivate) { Cancel(); return false; }
+        if (!IsActive)
+            return false;
+        if (input.Type == ControlInputEventType.Deactivate)
+        {
+            Cancel();
+            return false;
+        }
+
         if (input.Type == ControlInputEventType.PointerCancel || input.Type == ControlInputEventType.KeyDown && input.Key == Keys.Escape)
-        { Cancel(); return true; }
+        {
+            Cancel();
+            return true;
+        }
+
         if (input.Type is ControlInputEventType.PointerMove or ControlInputEventType.PointerDown)
         {
-            Position = input.Position; _pending = true;
+            Position = input.Position;
+            _pending = true;
             if (input.Type == ControlInputEventType.PointerDown)
             {
-                if (input.Button == MouseButton.Right) Cancel();
+                if (input.Button == MouseButton.Right)
+                    Cancel();
                 else if (input.Button == MouseButton.Left)
                 {
                     if (Sample())
                     {
-                        Action<Color>? callback = _accept; Color color = SelectedColor;
-                        Reset(); callback?.Invoke(color);
+                        Action<Color>? callback = _accept;
+                        Color color = SelectedColor;
+                        Reset();
+                        callback?.Invoke(color);
                     }
-                    else _acceptPending = _source is DeferredColorPickSource { Source: null };
+                    else
+                        _acceptPending = _source is DeferredColorPickSource { Source: null };
                 }
             }
         }
+
         return true;
     }
+
     internal void Draw(ControlDrawContext context, Size2 size)
     {
-        if (!IsActive) return;
+        if (!IsActive)
+            return;
         var bounds = new Bounds2(0, 0, size.Width, size.Height);
         context.SetControl(bounds, bounds, 1);
         context.DrawLine(Position - new Vector2(10, 0), Position + new Vector2(10, 0), Color.White);
@@ -116,7 +172,8 @@ public sealed class ColorPickSession
             context.DrawLine(new Vector2(x + 36, y + 36), new Vector2(x + 44, y + 36), Color.White);
             context.DrawLine(new Vector2(x + 36, y + 44), new Vector2(x + 44, y + 44), Color.White);
         }
+
         context.FillRectangle(new Bounds2(x + 88, y + 8, 52, 52), Color.FromNonPremultiplied(SelectedColor.ToVector4()));
-        context.DrawText(context.DefaultFont, _label, new Vector2(x + 5, y + 84), Color.White);
+        context.DrawText(Owner?.GetFont(context) ?? context.DefaultFont, _label, new Vector2(x + 5, y + 84), Color.White);
     }
 }

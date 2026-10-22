@@ -64,8 +64,15 @@ public class ScriptTextBox : TextBox
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
         var size = base.MeasureOverride(context, available);
-        Cache(Font ?? context.DefaultFont);
+        Cache(GetFont(context));
         return size;
+    }
+
+    /// <inheritdoc/>
+    protected override void OnFontChanged()
+    {
+        _cachedFont = null;
+        base.OnFontChanged();
     }
 
     private void Cache(IControlFont font)

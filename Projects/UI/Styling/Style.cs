@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Sachssoft.Engine.Graphics.Text;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,6 +8,15 @@ namespace Sachssoft.Engine.Controls.Styling;
 /// <summary>A named style containing string property names and string values.</summary>
 public sealed class Style
 {
+    /// <summary>Gets or sets the requested family; null inherits from the parent.</summary>
+    public string? FontName { get => _values.TryGetValue("FontName", out var value) ? ShorthandConverters.Convert<string?>("NullableFontName", value) : null; set => this["FontName"] = ShorthandConverters.Format("NullableFontName", value); }
+    /// <summary>Gets or sets the logical font size; null inherits from the parent.</summary>
+    public int? FontSize { get => _values.TryGetValue("FontSize", out var value) ? ShorthandConverters.Convert<int?>("NullableFontSize", value) : null; set => this["FontSize"] = ShorthandConverters.Format("NullableFontSize", value); }
+    /// <summary>Gets or sets the requested weight; null inherits from the parent.</summary>
+    public FontWeight? FontWeight { get => _values.TryGetValue("FontWeight", out var value) ? ShorthandConverters.Convert<FontWeight?>("NullableFontWeight", value) : null; set => this["FontWeight"] = ShorthandConverters.Format("NullableFontWeight", value); }
+    /// <summary>Gets or sets the requested face style; null inherits from the parent.</summary>
+    public FontStyle? FontStyle { get => _values.TryGetValue("FontStyle", out var value) ? ShorthandConverters.Convert<FontStyle?>("NullableFontStyle", value) : null; set => this["FontStyle"] = ShorthandConverters.Format("NullableFontStyle", value); }
+
     private readonly Dictionary<string, string> _values = new(StringComparer.Ordinal);
     private readonly ReadOnlyDictionary<string, string> _view;
     private string? _basedOn;

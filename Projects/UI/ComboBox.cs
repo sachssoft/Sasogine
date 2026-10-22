@@ -92,7 +92,7 @@ public sealed class ComboBox : Control
     /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
-        _font = ConfigFont ?? context.DefaultFont;
+        _font = GetFont(context);
         return new Size2(160, MathF.Max(20, _font.Measure("Mg").Height));
     }
 
@@ -151,7 +151,7 @@ public sealed class ComboBox : Control
         }
 
         context.DrawSkinPart(this, "DropDownGlyph", new Bounds2(Bounds.Width - 27, (Bounds.Height - 20) / 2, 20, 20));
-        var font = _font ?? context.DefaultFont;
+        var font = GetFont(context);
         string text = SelectedItem?.Text ?? ConfigPlaceholder;
         using (context.PushClipScope(new Bounds2(Padding.Left, Padding.Top, MathF.Max(0, Bounds.Width - Padding.Horizontal - 28), MathF.Max(0, Bounds.Height - Padding.Vertical))))
             context.DrawText(font, text, new Vector2(Padding.Left, (Bounds.Height - font.Measure(text).Height) / 2), IsAvailable() ? ConfigTextColor : ConfigDisabledTextColor);

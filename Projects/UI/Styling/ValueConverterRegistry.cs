@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Sachssoft.Engine.Graphics.Text;
 using Sachssoft.Engine.Gameplay.Curves;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,23 @@ namespace Sachssoft.Engine.Controls.Styling;
 /// <summary>Explicit named converters. Generic delegate registration is AOT-safe and requires no reflection.</summary>
 public sealed class ValueConverterRegistry
 {
+    private static bool InheritFont(string value) => Null(value) || value == "inherit";
+    private static int ReadFontSize(string value)
+    {
+        int size = int.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture);
+        return size > 0 ? size : throw new FormatException("FontSize must be positive.");
+    }
+
+    private static FontWeight ReadFontWeight(string value) => value switch
+    {
+        "Normal" or "Regular" or "400" => FontWeight.Normal,
+        "Bold" or "700" => FontWeight.Bold,
+        _ => throw new FormatException("Unknown font weight.")};
+    private static FontStyle ReadFontStyle(string value) => value switch
+    {
+        "Normal" or "Regular" => FontStyle.Normal,
+        "Italic" => FontStyle.Italic,
+        _ => throw new FormatException("Unknown font style.")};
     private int _revision;
     internal int Revision => _revision;
 
@@ -15,6 +33,20 @@ public sealed class ValueConverterRegistry
     /// <summary>Creates the built-in explicit converters.</summary>
     public ValueConverterRegistry()
     {
+        Register<string?>("NullableFontName", static s => InheritFont(s) ? null : string.IsNullOrWhiteSpace(s) ? throw new FormatException("FontName must not be blank.") : s.Trim(), static s => s ?? "null");
+        Register<int?>("NullableFontSize", static s => InheritFont(s) ? null : ReadFontSize(s), static v => v?.ToString(CultureInfo.InvariantCulture) ?? "null");
+        Register<FontWeight>("FontWeight", ReadFontWeight, static v => v switch
+        {
+            FontWeight.Normal => "Normal",
+            FontWeight.Bold => "Bold",
+            _ => throw new FormatException("Unknown font weight.")});
+        Register<FontStyle>("FontStyle", ReadFontStyle, static v => v switch
+        {
+            FontStyle.Normal => "Normal",
+            FontStyle.Italic => "Italic",
+            _ => throw new FormatException("Unknown font style.")});
+        Register<FontWeight?>("NullableFontWeight", static s => InheritFont(s) ? null : ReadFontWeight(s), static v => v is null ? "null" : v == FontWeight.Bold ? "Bold" : "Normal");
+        Register<FontStyle?>("NullableFontStyle", static s => InheritFont(s) ? null : ReadFontStyle(s), static v => v is null ? "null" : v == FontStyle.Italic ? "Italic" : "Normal");
         Register<AssetViewMode>("AssetViewMode", static s => s switch
         {
             "Tiles" => AssetViewMode.Tiles,

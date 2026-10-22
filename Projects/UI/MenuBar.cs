@@ -43,7 +43,7 @@ public class MenuBar : Control
     /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
-        _font = ConfigFont ?? context.DefaultFont;
+        _font = GetFont(context);
         float width = 0, height = 0;
         foreach (var item in Items)
         {
@@ -96,13 +96,20 @@ public class MenuBar : Control
             return;
         CloseSubmenu();
         MenuItem item = Items[index];
-        var popup = new ContextMenu { UseSkin = UseSkin };
+        var popup = new ContextMenu
+        {
+            UseSkin = UseSkin
+        };
         if (!UseSkin)
         {
-            popup.Background = Background; popup.HoverBackground = HoverBackground;
-            popup.TextColor = TextColor; popup.DisabledTextColor = DisabledTextColor;
-            popup.BorderColor = BorderColor; popup.BorderThickness = BorderThickness;
+            popup.Background = Background;
+            popup.HoverBackground = HoverBackground;
+            popup.TextColor = TextColor;
+            popup.DisabledTextColor = DisabledTextColor;
+            popup.BorderColor = BorderColor;
+            popup.BorderThickness = BorderThickness;
         }
+
         foreach (MenuItem child in item.Items)
             popup.Items.Add(child);
         Bounds2 local = ItemBounds(index);
@@ -249,8 +256,11 @@ public class MenuBar : Control
     /// <inheritdoc/>
     protected override void OnDraw(ControlDrawContext context)
     {
-        if (UseSkin) base.OnDraw(context); else context.FillRectangle(LocalBounds, Background);
-        var font = _font ?? context.DefaultFont;
+        if (UseSkin)
+            base.OnDraw(context);
+        else
+            context.FillRectangle(LocalBounds, Background);
+        var font = GetFont(context);
         using (context.PushClipScope(new Bounds2(Padding.Left, Padding.Top, ContentBounds.Width, ContentBounds.Height)))
             for (int i = 0; i < Items.Count; i++)
             {
@@ -259,17 +269,23 @@ public class MenuBar : Control
                 if (item.IsSeparator)
                 {
                     var line = new Bounds2(b.X + 4, b.Y + 4, MathF.Max(0, b.Width - 8), 1);
-                    if (UseSkin) context.DrawSkinPart(this, "Separator", line); else context.FillRectangle(line, BorderColor);
+                    if (UseSkin)
+                        context.DrawSkinPart(this, "Separator", line);
+                    else
+                        context.FillRectangle(line, BorderColor);
                     continue;
                 }
 
-                if (UseSkin) context.DrawSkinPart(this, "Item", b, !item.CanInvoke ? "Disabled" : i == _active ? "Hover" : "Normal");
-                else if (item.CanInvoke && i == _active) context.FillRectangle(b, HoverBackground);
+                if (UseSkin)
+                    context.DrawSkinPart(this, "Item", b, !item.CanInvoke ? "Disabled" : i == _active ? "Hover" : "Normal");
+                else if (item.CanInvoke && i == _active)
+                    context.FillRectangle(b, HoverBackground);
                 Color color = item.CanInvoke ? ConfigTextColor : ConfigDisabledTextColor;
                 float textX = b.X + (Vertical ? 32 : 14);
                 if (Vertical && item.IsChecked)
                 {
-                    if (UseSkin) context.DrawSkinPart(this, "CheckGlyph", new Bounds2(b.X + 4, b.Y + (b.Height - 20) / 2, 20, 20));
+                    if (UseSkin)
+                        context.DrawSkinPart(this, "CheckGlyph", new Bounds2(b.X + 4, b.Y + (b.Height - 20) / 2, 20, 20));
                     else
                     {
                         var at = new Vector2(b.X + 8, b.Y + b.Height / 2);
@@ -282,7 +298,8 @@ public class MenuBar : Control
                 context.DrawText(font, item.Caption, new Vector2(textX, b.Y + (b.Height - font.Measure(item.Caption).Height) / 2), color);
                 if (Vertical && item.Items.Count > 0)
                 {
-                    if (UseSkin) context.DrawSkinPart(this, "SubmenuGlyph", new Bounds2(b.Right - 24, b.Y + (b.Height - 20) / 2, 20, 20));
+                    if (UseSkin)
+                        context.DrawSkinPart(this, "SubmenuGlyph", new Bounds2(b.Right - 24, b.Y + (b.Height - 20) / 2, 20, 20));
                     else
                     {
                         var at = new Vector2(b.Right - 14, b.Y + b.Height / 2);

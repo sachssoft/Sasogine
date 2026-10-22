@@ -138,7 +138,7 @@ public class ValueBar : RangeControl
             _text = Value.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
         }
 
-        _textSize = (Font ?? context.DefaultFont).Measure(_text);
+        _textSize = (GetFont(context)).Measure(_text);
         return new Size2(MathF.Max(90, _textSize.Width + 20), MathF.Max(28, _textSize.Height + 8));
     }
 
@@ -162,7 +162,7 @@ public class ValueBar : RangeControl
         thumb = new Bounds2(thumb.X - Bounds.X, thumb.Y - Bounds.Y, thumb.Width, thumb.Height);
         if (!context.DrawSkinPart(this, "Thumb", thumb, state))
             context.FillRectangle(thumb, IsAvailable() ? PressedBackground : DisabledBackground);
-        context.DrawText(Font ?? context.DefaultFont, _text, _textPosition, IsAvailable() ? TextColor : DisabledTextColor);
+        context.DrawText(GetFont(context), _text, _textPosition, IsAvailable() ? TextColor : DisabledTextColor);
     }
 
     private StyleProperty<float> _DragThreshold = new(4);

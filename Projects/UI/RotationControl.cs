@@ -287,7 +287,7 @@ public sealed class RotationControl : Control
         if (!c.DrawSkinPart(this, "Indicator", new Bounds2(handle.X - 5, handle.Y - 5, 10, 10), state))
             c.FillRectangle(new Bounds2(handle.X - 3, handle.Y - 3, 6, 6), ink);
         string text = AngleDegrees.ToString("0.#", CultureInfo.InvariantCulture) + "°";
-        var font = ConfigFont ?? c.DefaultFont;
+        var font = GetFont(c);
         var size = font.Measure(text);
         if (size.Width <= _radius * 1.35f && size.Height <= _radius * .8f)
             c.DrawText(font, text, center - new Vector2(size.Width, size.Height) / 2, ink);

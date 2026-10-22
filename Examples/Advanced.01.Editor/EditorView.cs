@@ -108,21 +108,26 @@ internal sealed class EditorView
         edit.Items.Add(new MenuItem { Text = "Undo document", ShortcutText = "Ctrl+Z", ShortcutKey = Keys.Z, ShortcutControl = true, Command = new Command(_ => Document.Undo(), _ => Document.CanUndo) });
         edit.Items.Add(new MenuItem { Text = "Redo document", ShortcutText = "Ctrl+Y", ShortcutKey = Keys.Y, ShortcutControl = true, Command = new Command(_ => Document.Redo(), _ => Document.CanRedo) });
         menu.Items.Add(new MenuItem { Text = "&Help", Action = () => _ = MessageBox.Show(Workspace, "Select in the tree or canvas. Drag rectangles; edit values on the right. Hold Shift with arrow keys for 20 px steps. A complete drag is one undo step. Save writes the JSON path shown in the inspector. Text fields keep their own undo history.", "Simple 2D editor") });
-        var toolbar = new StackPanel()
+        var toolbar = new ToolBar
         {
-            Orientation = StackOrientation.Horizontal,
             Spacing = 8,
-            Height = 36
+            LineSpacing = 6
         };
+        var documentTools = new ToolStrip();
+        var historyTools = new ToolStrip();
+        var viewTools = new ToolStrip();
+        toolbar.Children.Add(documentTools);
+        toolbar.Children.Add(historyTools);
+        toolbar.Children.Add(viewTools);
         page.Children.Add(toolbar);
         page.Cells.Put(toolbar, row: 1);
-        void Tool(string text, Action action, Func<bool>? allowed = null) => toolbar.Add(new Button() { Content = new TextBlock { Text = text }, Height = 36, Command = new Command(_ => action(), _ => !Document.IsEditing && (allowed?.Invoke() ?? true)) });
-        Tool("+ Rectangle", () => Document.Add(), () => Document.Objects.Count < 256);
-        Tool("Duplicate", () => Document.Add(true), () => Document.Selected is not null && Document.Objects.Count < 256);
-        Tool("Delete", Document.Delete, () => Document.Selected is not null);
-        Tool("Undo", Document.Undo, () => Document.CanUndo);
-        Tool("Redo", Document.Redo, () => Document.CanRedo);
-        Tool("Save", Save);
+        void Tool(ToolStrip strip, string text, Action action, Func<bool>? allowed = null) => strip.Children.Add(new Button() { Content = new TextBlock { Text = text }, Height = 36, Command = new Command(_ => action(), _ => !Document.IsEditing && (allowed?.Invoke() ?? true)) });
+        Tool(documentTools, "+ Rectangle", () => Document.Add(), () => Document.Objects.Count < 256);
+        Tool(documentTools, "Duplicate", () => Document.Add(true), () => Document.Selected is not null && Document.Objects.Count < 256);
+        Tool(documentTools, "Delete", Document.Delete, () => Document.Selected is not null);
+        Tool(historyTools, "Undo", Document.Undo, () => Document.CanUndo);
+        Tool(historyTools, "Redo", Document.Redo, () => Document.CanRedo);
+        Tool(documentTools, "Save", Save);
         var grid = new ToggleButton()
         {
             Content = new TextBlock
@@ -132,7 +137,7 @@ internal sealed class EditorView
             IsChecked = true,
             Width = 72
         };
-        toolbar.Add(grid);
+        viewTools.Children.Add(grid);
         grid.CheckedChanged += (_, _) => Canvas.ShowGrid = grid.IsChecked;
         var snap = new ToggleButton()
         {
@@ -143,7 +148,7 @@ internal sealed class EditorView
             IsChecked = true,
             Width = 115
         };
-        toolbar.Add(snap);
+        viewTools.Children.Add(snap);
         snap.CheckedChanged += (_, _) => Canvas.Snap = snap.IsChecked;
         var body = new Grid()
         {
@@ -268,8 +273,10 @@ internal sealed class EditorView
         inspector.Add(new Label() { StyleId = "Editor.Heading", Text = "DOCUMENT FILE" });
         inspector.Add(_file);
         inspector.Add(new Label() { Text = "Open / Save: JSON version 2.\nMaximum 256 rectangles.", WrapText = true });
-        page.Children.Add(_status);
-        page.Cells.Put(_status, row: 3);
+        var statusbar = new StatusBar();
+        statusbar.Children.Add(new StatusStrip { Content = _status });
+        page.Children.Add(statusbar);
+        page.Cells.Put(statusbar, row: 3);
         _tree.SelectionChanged += (_, _) =>
         {
             if (!_sync)

@@ -10,6 +10,7 @@ public sealed class FontFaceControlFont : IControlBatchFont, IDisposable
 {
     private readonly FontSystem _system;
     private readonly SpriteFontBase _font;
+    private readonly bool _ownsSystem;
     private bool _disposed;
     /// <summary>Creates an independent font cache. The caller retains ownership of the FontFace.</summary>
     public FontFaceControlFont(FontFace face, int size)
@@ -20,6 +21,7 @@ public sealed class FontFaceControlFont : IControlBatchFont, IDisposable
         Face = face;
         Size = size;
         _system = new FontSystem();
+        _ownsSystem = true;
         try
         {
             _system.AddFont(face.Data.ToArray());
@@ -30,6 +32,14 @@ public sealed class FontFaceControlFont : IControlBatchFont, IDisposable
             _system.Dispose();
             throw;
         }
+    }
+
+    internal FontFaceControlFont(FontFace face, int size, FontSystem system)
+    {
+        Face = face;
+        Size = size;
+        _system = system;
+        _font = system.GetFont(size);
     }
 
     /// <summary>Gets the source face.</summary>
@@ -63,7 +73,8 @@ public sealed class FontFaceControlFont : IControlBatchFont, IDisposable
     {
         if (_disposed)
             return;
-        _system.Dispose();
+        if (_ownsSystem)
+            _system.Dispose();
         _disposed = true;
     }
 }

@@ -50,7 +50,7 @@ public class CheckBox : ToggleButton
             context.FillRectangle(box, IsChecked == true ? PressedBackground : Background);
             context.StrokeRectangle(box, TextColor, 1);
             if (IsChecked.HasValue && IsChecked.Value)
-                context.DrawText(Font ?? context.DefaultFont, "✓", new Vector2(box.X + 3, box.Y), TextColor);
+                context.DrawText(GetFont(context), "✓", new Vector2(box.X + 3, box.Y), TextColor);
             else if (!IsChecked.HasValue)
                 context.FillRectangle(new Bounds2(box.X + 5, box.Y + glyph.Height / 2, glyph.Width - 10, 2), TextColor);
         }

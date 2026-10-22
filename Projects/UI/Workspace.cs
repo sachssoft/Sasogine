@@ -1,3 +1,4 @@
+using Sachssoft.Engine.Graphics.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
@@ -96,6 +97,37 @@ public sealed class Workspace : Element, IDisposable
         RebuildControls();
     }
 
+    private ControlFontCache? _fontCache;
+    private bool _fontsDirty;
+    private int _fontRegistryCount = -1;
+    internal int FontRevision { get; private set; }
+    internal IControlFont? LayoutFont => _layout?.DefaultFont;
+    /// <summary>Gets the borrowed Sasogine font registry used by this workspace.</summary>
+    public FontRegistry Fonts => Registry.Fonts;
+
+    /// <summary>Invalidates font adapters after replacing families or changing externally managed font resources.</summary>
+    /// <remarks>Adding or removing a family is detected automatically by count. Same-count replacement requires this method.</remarks>
+    public void InvalidateFonts()
+    {
+        VerifyTreeMutation();
+        _fontsDirty = true;
+        _layoutDirty = true;
+        _fontRegistryCount = Fonts.Count;
+    }
+
+    internal IControlFont ResolveFont(ControlFontRequest request, IControlFont fallback) => (_fontCache ??= new ControlFontCache(Fonts, Registry.FontFactory)).Resolve(request, fallback);
+    internal Control? FontParent(Control control)
+    {
+        if (ReferenceEquals(control, Content))
+            return null;
+        if (ReferenceEquals(control, _visibleToolTip))
+            return _tipOwner ?? Content;
+        foreach (ControlOverlay overlay in _overlays)
+            if (ReferenceEquals(overlay.Control, control))
+                return overlay.Owner ?? Content;
+        return null;
+    }
+
     /// <summary>Gets the explicit UI factory and style registry shared by this tree.</summary>
     public UIRegistry Registry { get; }
     /// <summary>Gets the root control.</summary>
@@ -172,6 +204,8 @@ public sealed class Workspace : Element, IDisposable
             if (!ReferenceEquals(_layout?.DefaultFont, layout.DefaultFont))
                 _layoutDirty = true;
             _layout = layout;
+            if (_fontRegistryCount != Fonts.Count)
+                InvalidateFonts();
             Layout();
             ValidateInteraction();
             for (int eventIndex = 0; eventIndex < frame.Events.Count; eventIndex++)
@@ -415,6 +449,17 @@ public sealed class Workspace : Element, IDisposable
     private void Layout()
     {
         Commit();
+        if (_fontsDirty)
+        {
+            _fontCache?.Clear();
+            unchecked
+            {
+                FontRevision++;
+            }
+
+            _fontsDirty = false;
+        }
+
         Registry.Styles.PollChanges();
         if (_styleRevision != Registry.Styles.Revision)
         {
@@ -996,6 +1041,7 @@ public sealed class Workspace : Element, IDisposable
                 pendingDialog.NotifyClosed();
         }
 
+        _fontCache?.Dispose();
         _controls.Clear();
         _pending.Clear();
         while (_posted.TryDequeue(out _))

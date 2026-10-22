@@ -38,6 +38,8 @@ internal sealed class ControlsExampleView
         tabs.Items.Add(new TabItem() { Header = "Tree, input & dates", Content = new ControlsAdvancedPage(), Padding = Insets2.Zero });
         tabs.Items.Add(new TabItem() { Header = "Curve editor", Content = new ControlsCurvePage(), Padding = Insets2.Zero });
         tabs.Items.Add(new TabItem() { Header = "Tools & scripts", Content = new ControlsToolsPage(), Padding = Insets2.Zero });
+        tabs.Items.Add(new TabItem() { Header = "Bars & toolbox", Content = new ControlsBarsPage(), Padding = Insets2.Zero });
+        tabs.Items.Add(new TabItem() { Header = "Fonts", Content = new ControlsFontsPage(), Padding = Insets2.Zero });
         var menu = new MenuBar();
         var file = new MenuItem
         {

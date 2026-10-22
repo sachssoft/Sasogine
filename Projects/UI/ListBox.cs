@@ -27,6 +27,7 @@ public class ListBox : ContainerControl
     protected virtual float ItemSpacing => 0;
     /// <summary>Gets the effective item height.</summary>
     protected virtual float ItemExtent => ItemHeight;
+
     /// <summary>Computes the number of columns for an available width.</summary>
     protected virtual int GetColumnCount(float width) => 1;
     /// <summary>Computes an item's width inside the viewport.</summary>
@@ -40,8 +41,10 @@ public class ListBox : ContainerControl
             ArgumentNullException.ThrowIfNull(item);
             width = MathF.Max(width, font.Measure(item.Text).Width + 32);
         }
+
         return width;
     }
+
     private float ContentHeight(int columns) => Items.Count == 0 ? 0 : ((Items.Count - 1) / columns + 1) * (ItemExtent + ItemSpacing) - ItemSpacing;
     /// <summary>Gets the visible item interval, including partially visible rows.</summary>
     protected void GetVisibleRange(out int first, out int last)
@@ -49,6 +52,7 @@ public class ListBox : ContainerControl
         first = Math.Max(0, (int)(ScrollBar.Value / (ItemExtent + ItemSpacing))) * _columns;
         last = Math.Min(Items.Count, first + ((int)(_viewport.Height / (ItemExtent + ItemSpacing)) + 2) * _columns);
     }
+
     /// <summary>Gets an item's bounds in workspace coordinates.</summary>
     public Bounds2 GetItemBounds(int index)
     {
@@ -57,6 +61,7 @@ public class ListBox : ContainerControl
         float width = GetItemWidth(_viewport.Width);
         return new Bounds2(_viewport.X + index % _columns * (width + ItemSpacing), _viewport.Y + index / _columns * (ItemExtent + ItemSpacing) - ScrollBar.Value, width, ItemExtent);
     }
+
     /// <summary>Initializes a new list box instance.</summary>
     public ListBox() : base()
     {
@@ -170,14 +175,13 @@ public class ListBox : ContainerControl
     }
 
     private ControlLayoutContext? _layout;
-
     /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
         _layout = context;
         if (!float.IsFinite(ItemExtent) || ItemExtent <= 0 || !float.IsFinite(ItemSpacing) || ItemSpacing < 0)
             throw new InvalidOperationException("Invalid item geometry.");
-        _font = ConfigFont ?? context.DefaultFont;
+        _font = GetFont(context);
         float width = MeasureItems(_font);
         _showBar = ContentHeight(GetColumnCount(available.Width)) > available.Height;
         // Visibility belongs to the final viewport, not an unbounded measurement.
@@ -232,12 +236,12 @@ public class ListBox : ContainerControl
     /// <inheritdoc/>
     protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs notification)
     {
-        if (notification.PropertyName is "Items" or nameof(MultiSelect) or nameof(SelectedIndex)) _selectionDirty = true;
+        if (notification.PropertyName is "Items" or nameof(MultiSelect) or nameof(SelectedIndex))
+            _selectionDirty = true;
         base.OnPropertyChanged(notification);
     }
 
     private bool IsInvalidSelection(int index) => index >= Items.Count || !Items[index].IsEnabled;
-
     private int IndexAt(Vector2 point)
     {
         if (!Contains(_viewport, point.X, point.Y))
@@ -247,6 +251,7 @@ public class ListBox : ContainerControl
         int index = row * _columns + column;
         return column < _columns && index >= 0 && index < Items.Count && Contains(GetItemBounds(index), point.X, point.Y) ? index : -1;
     }
+
     /// <inheritdoc/>
     protected override void OnInput(ControlInputContext context, ControlInputEventArgs args)
     {
@@ -385,6 +390,7 @@ public class ListBox : ContainerControl
             context.DrawSkinRegion(icon, new Bounds2(x, row.Y + (row.Height - 20) / 2, 20, 20));
             x += 28;
         }
+
         Size2 text = font.Measure(item.Text);
         context.DrawText(font, item.Text, new Vector2(x, row.Y + (row.Height - text.Height) / 2), item.IsEnabled && IsAvailable() ? ConfigTextColor : ConfigDisabledTextColor);
     }

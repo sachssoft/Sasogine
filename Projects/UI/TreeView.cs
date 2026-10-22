@@ -149,7 +149,7 @@ public class TreeView : ContainerControl
     /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
-        _font = ConfigFont ?? context.DefaultFont;
+        _font = GetFont(context);
         _extent = 0;
         foreach (var row in _rows)
             _extent = MathF.Max(_extent, row.Depth * Indent + 28 + (row.Item.Icon is null ? 0 : 24) + _font.Measure(row.Item.Text).Width);
@@ -302,7 +302,7 @@ public class TreeView : ContainerControl
     protected override void OnDraw(ControlDrawContext context)
     {
         base.OnDraw(context);
-        var font = _font ?? context.DefaultFont;
+        var font = GetFont(context);
         var clip = new Bounds2(_viewport.X - Bounds.X, _viewport.Y - Bounds.Y, _viewport.Width, _viewport.Height);
         using (context.PushClipScope(clip))
         {

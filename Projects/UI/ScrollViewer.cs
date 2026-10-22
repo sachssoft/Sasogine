@@ -106,6 +106,7 @@ public sealed class ScrollViewer : ContainerControl
             HorizontalScrollBar.Measure(_layout, new Size2(contentBounds.Width, contentBounds.Height));
             VerticalScrollBar.Measure(_layout, new Size2(contentBounds.Width, contentBounds.Height));
         }
+
         _viewport = new Bounds2(contentBounds.X, contentBounds.Y, MathF.Max(0, contentBounds.Width - (_vertical ? t : 0)), MathF.Max(0, contentBounds.Height - (_horizontal ? t : 0)));
         HorizontalScrollBar.Maximum = MathF.Max(0, _extent.Width - _viewport.Width);
         HorizontalScrollBar.ViewportSize = _viewport.Width;

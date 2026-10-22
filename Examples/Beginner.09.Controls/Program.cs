@@ -6,7 +6,7 @@ internal static class Program
     {
         if (args.Contains("--help", StringComparer.Ordinal))
         {
-            Console.WriteLine("Sasogine Controls example\n  --font <file.ttf>   Use your own font.\n  --snapshot <file.png>   Render one frame, save it, then exit.\n  --page controls|layout|advanced|curve|tools   Select a gallery page.\n  --skin dark|light|modern|futuristic|medieval   Select a skin.");
+            Console.WriteLine("Sasogine Controls example\n  --font <file.ttf>   Use your own font.\n  --snapshot <file.png>   Render one frame, save it, then exit.\n  --page controls|layout|advanced|curve|tools|bars|fonts   Select a gallery page.\n  --skin dark|light|modern|futuristic|medieval   Select a skin.");
             return 0;
         }
 

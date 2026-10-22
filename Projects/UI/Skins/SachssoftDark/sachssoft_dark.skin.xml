@@ -726,5 +726,32 @@
       <Value property="CommentColor" value="#73A268" />
       <Value property="NumberColor" value="#B5CEA8" />
     </Style>
+    <Style key="ToolBar" basedOn="WrapPanel">
+      <Value property="Padding" value="6" />
+      <Value property="Spacing" value="6" />
+      <Value property="LineSpacing" value="6" />
+    </Style>
+    <Style key="ToolStrip" basedOn="WrapPanel">
+      <Value property="Padding" value="4" />
+      <Value property="Spacing" value="4" />
+      <Value property="LineSpacing" value="4" />
+      <Value property="BorderThickness" value="1" />
+    </Style>
+    <Style key="ToolBox" basedOn="Panel">
+      <Value property="Padding" value="6" />
+      <Value property="Spacing" value="4" />
+    </Style>
+    <Style key="StackPanel" basedOn="Panel" />
+    <Style key="StatusBar" basedOn="StackPanel">
+      <Value property="Padding" value="4" />
+      <Value property="Spacing" value="8" />
+      <Value property="Orientation" value="Horizontal" />
+    </Style>
+    <Style key="ContentControl" basedOn="Control" />
+    <Style key="StatusStrip" basedOn="ContentControl">
+      <Value property="Padding" value="6,2" />
+      <Value property="ContentHorizontalAlignment" value="Start" />
+      <Value property="ContentVerticalAlignment" value="Center" />
+    </Style>
   </Styles>
 </UiSkin>

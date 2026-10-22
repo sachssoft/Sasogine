@@ -1,3 +1,4 @@
+using Sachssoft.Engine.Graphics.Text;
 using Microsoft.Xna.Framework;
 using System;
 
@@ -74,7 +75,24 @@ public abstract class Control : Element
     /// <summary>Gets or sets tooltip content reserved by a stable tooltip presenter.</summary>
     public Control? ToolTipContent { get => ConfigToolTipContent; set => ConfigToolTipContent = value; }
 
-    internal virtual void Prepare() => EnsureStyle();
+    internal virtual void Prepare()
+    {
+        EnsureStyle();
+        // Derived preparation must never reuse metrics from a retired workspace font cache.
+        if (Workspace?.LayoutFont is IControlFont fallback)
+        {
+            try
+            {
+                EnsureFont(fallback);
+            }
+            catch
+            {
+                InvalidateMeasure();
+                throw;
+            }
+        }
+    }
+
     /// <summary>Gets the effective IsVisible value or sets a local override.</summary>
     public bool IsVisible { get => ConfigIsVisible; set => ConfigIsVisible = value; }
     /// <summary>Gets the effective IsEnabled value or sets a local override.</summary>
@@ -195,9 +213,20 @@ public abstract class Control : Element
 
     internal void Measure(ControlLayoutContext context, Size2 available)
     {
-        if (!_measureDirty && _lastAvailable.Width == available.Width && _lastAvailable.Height == available.Height && ReferenceEquals(_measureFont, context.DefaultFont))
+        try
+        {
+            EnsureFont(context.DefaultFont);
+        }
+        catch
+        {
+            InvalidateMeasure();
+            throw;
+        }
+
+        if (!_measureDirty && _measureFontRevision == _fontResolutionRevision && _lastAvailable.Width == available.Width && _lastAvailable.Height == available.Height && ReferenceEquals(_measureFont, context.DefaultFont))
             return;
         _measureDirty = false;
+        _measureFontRevision = _fontResolutionRevision;
         _arrangeDirty = true;
         _lastAvailable = available;
         _measureFont = context.DefaultFont;
@@ -574,6 +603,132 @@ public abstract class Control : Element
         }
     }
 
+    private ControlFontRequest _fontRequest;
+    private IControlFont? _resolvedFont, _resolvedFallback;
+    private Workspace? _resolvedFontWorkspace;
+    private int _resolvedRegistryRevision = -1, _fontResolutionRevision, _measureFontRevision = -1;
+    private bool _fontReady;
+    /// <summary>Gets the font resolved by the last measurement. Null means no measurement has completed.</summary>
+    public IControlFont? EffectiveFont => _resolvedFont;
+
+    /// <summary>Gets the matching font for measuring text, resolving it only when its request changes.</summary>
+    protected internal IControlFont GetFont(ControlLayoutContext context)
+    {
+        EnsureFont(context.DefaultFont);
+        return _resolvedFont!;
+    }
+
+    /// <summary>Gets the last measured font for drawing without performing registry or cache lookups.</summary>
+    protected internal IControlFont GetFont(ControlDrawContext context) => _resolvedFont ?? Font ?? context.DefaultFont;
+    /// <summary>Invalidates derived text metrics when the resolved font request or font resources change.</summary>
+    protected virtual void OnFontChanged()
+    {
+    }
+
+    private void EnsureFont(IControlFont fallback)
+    {
+        Control? parent = Parent ?? Workspace?.FontParent(this);
+        ControlFontRequest inherited = default;
+        if (parent is not null)
+        {
+            parent.EnsureFont(fallback);
+            inherited = parent._fontRequest;
+        }
+
+        // An explicit renderer adapter starts a new font scope; descriptor properties can refine it.
+        if (Font is not null)
+            inherited = default;
+        var request = new ControlFontRequest(_styleFontName.Value ?? inherited.Name, _styleFontSize.Value ?? inherited.Size, _styleFontWeight.Value ?? inherited.Weight, _styleFontStyle.Value ?? inherited.Style, Font ?? inherited.Source);
+        int revision = Workspace?.FontRevision ?? 0;
+        if (_fontReady && _fontRequest == request && ReferenceEquals(_resolvedFallback, fallback) && ReferenceEquals(_resolvedFontWorkspace, Workspace) && _resolvedRegistryRevision == revision)
+            return;
+        IControlFont font;
+        if (!request.HasDescriptor)
+            font = request.Source ?? fallback;
+        else if (Workspace is Workspace workspace)
+            font = workspace.ResolveFont(request, fallback);
+        else
+            throw new InvalidOperationException("Attach a control to a Workspace before resolving named font properties.");
+        // Commit only after successful resolution, so failed requests never become reusable cache entries.
+        _resolvedFont = font;
+        _fontRequest = request;
+        _resolvedFallback = fallback;
+        _resolvedFontWorkspace = Workspace;
+        _resolvedRegistryRevision = revision;
+        _fontReady = false;
+        unchecked
+        {
+            _fontResolutionRevision++;
+        }
+
+        OnFontChanged();
+        _fontReady = true;
+    }
+
+    private StyleProperty<string?> _styleFontName = new(null);
+    private static readonly System.ComponentModel.PropertyChangedEventArgs FontNameChangedArgs = new(nameof(FontName));
+    /// <summary>Gets or sets the requested family name; null inherits from the parent.</summary>
+    public string? FontName
+    {
+        get => _styleFontName.Value;
+        set
+        {
+            VerifyTreeMutation();
+            if (value is not null && string.IsNullOrWhiteSpace(value))
+                throw new ArgumentOutOfRangeException(nameof(value));
+            if (_styleFontName.SetLocal(value))
+                NotifyPropertyChanged(FontNameChangedArgs);
+        }
+    }
+
+    private StyleProperty<int?> _styleFontSize = new(null);
+    private static readonly System.ComponentModel.PropertyChangedEventArgs FontSizeChangedArgs = new(nameof(FontSize));
+    /// <summary>Gets or sets the logical font size; null inherits from the parent or default font.</summary>
+    public int? FontSize
+    {
+        get => _styleFontSize.Value;
+        set
+        {
+            VerifyTreeMutation();
+            if (value.HasValue && value.Value <= 0)
+                throw new ArgumentOutOfRangeException(nameof(value));
+            if (_styleFontSize.SetLocal(value))
+                NotifyPropertyChanged(FontSizeChangedArgs);
+        }
+    }
+
+    private StyleProperty<FontWeight?> _styleFontWeight = new(null);
+    private static readonly System.ComponentModel.PropertyChangedEventArgs FontWeightChangedArgs = new(nameof(FontWeight));
+    /// <summary>Gets or sets the requested engine weight; null inherits from the parent.</summary>
+    public FontWeight? FontWeight
+    {
+        get => _styleFontWeight.Value;
+        set
+        {
+            VerifyTreeMutation();
+            if (value.HasValue && value.Value is not (Sachssoft.Engine.Graphics.Text.FontWeight.Normal or Sachssoft.Engine.Graphics.Text.FontWeight.Bold))
+                throw new ArgumentOutOfRangeException(nameof(value));
+            if (_styleFontWeight.SetLocal(value))
+                NotifyPropertyChanged(FontWeightChangedArgs);
+        }
+    }
+
+    private StyleProperty<FontStyle?> _styleFontStyle = new(null);
+    private static readonly System.ComponentModel.PropertyChangedEventArgs FontStyleChangedArgs = new(nameof(FontStyle));
+    /// <summary>Gets or sets the requested engine style; null inherits from the parent.</summary>
+    public FontStyle? FontStyle
+    {
+        get => _styleFontStyle.Value;
+        set
+        {
+            VerifyTreeMutation();
+            if (value.HasValue && value.Value is not (Sachssoft.Engine.Graphics.Text.FontStyle.Normal or Sachssoft.Engine.Graphics.Text.FontStyle.Italic))
+                throw new ArgumentOutOfRangeException(nameof(value));
+            if (_styleFontStyle.SetLocal(value))
+                NotifyPropertyChanged(FontStyleChangedArgs);
+        }
+    }
+
     private StyleProperty<IControlFont?> _styleFont = new(null);
     private static readonly System.ComponentModel.PropertyChangedEventArgs FontChangedArgs = new(nameof(Font));
     internal IControlFont? ConfigFont
@@ -865,6 +1020,22 @@ public abstract class Control : Element
                     if (_styleBorderThickness.Apply(Converters.Convert<float>("Single", entry.Value)))
                         NotifyPropertyChanged(BorderThicknessChangedArgs);
                     break;
+                case "FontName":
+                    if (_styleFontName.Apply(Converters.Convert<string?>("NullableFontName", entry.Value)))
+                        NotifyPropertyChanged(FontNameChangedArgs);
+                    break;
+                case "FontSize":
+                    if (_styleFontSize.Apply(Converters.Convert<int?>("NullableFontSize", entry.Value)))
+                        NotifyPropertyChanged(FontSizeChangedArgs);
+                    break;
+                case "FontWeight":
+                    if (_styleFontWeight.Apply(Converters.Convert<FontWeight?>("NullableFontWeight", entry.Value)))
+                        NotifyPropertyChanged(FontWeightChangedArgs);
+                    break;
+                case "FontStyle":
+                    if (_styleFontStyle.Apply(Converters.Convert<FontStyle?>("NullableFontStyle", entry.Value)))
+                        NotifyPropertyChanged(FontStyleChangedArgs);
+                    break;
                 case "Font":
                     if (_styleFont.Apply(Converters.Convert<IControlFont?>("Font", entry.Value)))
                         NotifyPropertyChanged(FontChangedArgs);
@@ -965,6 +1136,14 @@ public abstract class Control : Element
                 return _styleBorderColor.HasLocalValue;
             case "BorderThickness":
                 return _styleBorderThickness.HasLocalValue;
+            case "FontName":
+                return _styleFontName.HasLocalValue;
+            case "FontSize":
+                return _styleFontSize.HasLocalValue;
+            case "FontWeight":
+                return _styleFontWeight.HasLocalValue;
+            case "FontStyle":
+                return _styleFontStyle.HasLocalValue;
             case "Font":
                 return _styleFont.HasLocalValue;
             case "TextColor":
@@ -1067,6 +1246,22 @@ public abstract class Control : Element
                 if (_styleBorderThickness.ClearLocal())
                     NotifyPropertyChanged(BorderThicknessChangedArgs);
                 return;
+            case "FontName":
+                if (_styleFontName.ClearLocal())
+                    NotifyPropertyChanged(FontNameChangedArgs);
+                return;
+            case "FontSize":
+                if (_styleFontSize.ClearLocal())
+                    NotifyPropertyChanged(FontSizeChangedArgs);
+                return;
+            case "FontWeight":
+                if (_styleFontWeight.ClearLocal())
+                    NotifyPropertyChanged(FontWeightChangedArgs);
+                return;
+            case "FontStyle":
+                if (_styleFontStyle.ClearLocal())
+                    NotifyPropertyChanged(FontStyleChangedArgs);
+                return;
             case "Font":
                 if (_styleFont.ClearLocal())
                     NotifyPropertyChanged(FontChangedArgs);
@@ -1167,6 +1362,14 @@ public abstract class Control : Element
             NotifyPropertyChanged(BorderColorChangedArgs);
         if (_styleBorderThickness.BeginStyle(0f))
             NotifyPropertyChanged(BorderThicknessChangedArgs);
+        if (_styleFontName.BeginStyle(null))
+            NotifyPropertyChanged(FontNameChangedArgs);
+        if (_styleFontSize.BeginStyle(null))
+            NotifyPropertyChanged(FontSizeChangedArgs);
+        if (_styleFontWeight.BeginStyle(null))
+            NotifyPropertyChanged(FontWeightChangedArgs);
+        if (_styleFontStyle.BeginStyle(null))
+            NotifyPropertyChanged(FontStyleChangedArgs);
         if (_styleFont.BeginStyle(null))
             NotifyPropertyChanged(FontChangedArgs);
         if (_styleTextColor.BeginStyle(Color.White))
@@ -1236,6 +1439,14 @@ public abstract class Control : Element
             NotifyPropertyChanged(BorderColorChangedArgs);
         if (_styleBorderThickness.CommitStyle())
             NotifyPropertyChanged(BorderThicknessChangedArgs);
+        if (_styleFontName.CommitStyle())
+            NotifyPropertyChanged(FontNameChangedArgs);
+        if (_styleFontSize.CommitStyle())
+            NotifyPropertyChanged(FontSizeChangedArgs);
+        if (_styleFontWeight.CommitStyle())
+            NotifyPropertyChanged(FontWeightChangedArgs);
+        if (_styleFontStyle.CommitStyle())
+            NotifyPropertyChanged(FontStyleChangedArgs);
         if (_styleFont.CommitStyle())
             NotifyPropertyChanged(FontChangedArgs);
         if (_styleTextColor.CommitStyle())

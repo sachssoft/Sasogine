@@ -297,7 +297,7 @@ public class TextBox : Control
         ArgumentNullException.ThrowIfNull(Text);
         if (MaxLength < 0)
             throw new InvalidOperationException("Invalid MaxLength.");
-        _font = Font ?? context.DefaultFont;
+        _font = GetFont(context);
         if (_lineText != Text)
         {
             _displayLines = Text.Split('\n');
@@ -512,7 +512,7 @@ public class TextBox : Control
         var clip = new Bounds2(Padding.Left, Padding.Top, ContentBounds.Width, ContentBounds.Height);
         using (context.PushClipScope(clip))
         {
-            var font = Font ?? context.DefaultFont;
+            var font = GetFont(context);
             if (Text.Length == 0 && Placeholder.Length > 0)
                 context.DrawText(font, Placeholder, new Vector2(Padding.Left, Padding.Top), ConfigDisabledTextColor);
             string[] lines = _displayLines;

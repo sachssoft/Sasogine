@@ -1,3 +1,4 @@
+using Sachssoft.Engine.Graphics.Text;
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
@@ -9,8 +10,12 @@ public sealed class UIRegistry
 {
     private readonly Dictionary<string, Func<Control>> _factories = new(StringComparer.Ordinal);
     /// <summary>Creates the standard styles and all built-in control factories.</summary>
-    public UIRegistry()
+    /// <param name = "fonts">The borrowed engine registry, or null to create a registry.</param>
+    /// <param name = "fontFactory">An optional adapter factory. Each workspace owns and disposes the returned adapters; never return caller-owned fonts.</param>
+    public UIRegistry(FontRegistry? fonts = null, Func<FontFace, int, IControlFont>? fontFactory = null)
     {
+        Fonts = fonts ?? new FontRegistry();
+        FontFactory = fontFactory;
         Styles = CreateStandardStyles();
         Register("Panel", static () => new Panel());
         Register("StackPanel", static () => new StackPanel());
@@ -22,6 +27,9 @@ public sealed class UIRegistry
         RegisterControls();
     }
 
+    /// <summary>Gets the existing engine registry borrowed by this UI. Register families before updating.</summary>
+    public FontRegistry Fonts { get; }
+    internal Func<FontFace, int, IControlFont>? FontFactory { get; }
     /// <summary>Gets the styles owned by this root.</summary>
     public StyleRegistry Styles { get; }
     /// <summary>Gets explicit style converters.</summary>
@@ -82,6 +90,11 @@ public sealed class UIRegistry
         Register("DropDownButton", static () => new DropDownButton());
         Register("SplitButton", static () => new SplitButton());
         Register("GroupBox", static () => new GroupBox());
+        Register("ToolBar", static () => new ToolBar());
+        Register("ToolStrip", static () => new ToolStrip());
+        Register("ToolBox", static () => new ToolBox());
+        Register("StatusBar", static () => new StatusBar());
+        Register("StatusStrip", static () => new StatusStrip());
         Register("Expander", static () => new Expander());
         Register("ValueBar", static () => new ValueBar());
         Register("ValueTextBox", static () => new ValueTextBox());
@@ -134,6 +147,11 @@ public sealed class UIRegistry
     {
         styles.Register("DropDownButton", new Style { BasedOn = "Button" });
         styles.Register("SplitButton", new Style { BasedOn = "Control" });
+        styles.Register("ToolBar", new Style("ToolBar", "WrapPanel") { ["Padding"] = "6", ["Spacing"] = "6", ["LineSpacing"] = "6" });
+        styles.Register("ToolStrip", new Style("ToolStrip", "WrapPanel") { ["Padding"] = "4", ["Spacing"] = "4", ["LineSpacing"] = "4", ["BorderThickness"] = "1" });
+        styles.Register("ToolBox", new Style("ToolBox", "Panel") { ["Padding"] = "6", ["Spacing"] = "4" });
+        styles.Register("StatusBar", new Style("StatusBar", "StackPanel") { ["Padding"] = "4", ["Spacing"] = "8", ["Orientation"] = "Horizontal" });
+        styles.Register("StatusStrip", new Style("StatusStrip", "ContentControl") { ["Padding"] = "6,2", ["ContentHorizontalAlignment"] = "Start", ["ContentVerticalAlignment"] = "Center" });
         styles.Register("GroupBox", new Style { BasedOn = "Control", Background = new Color(28, 35, 48), BorderColor = new Color(56, 71, 92), BorderThickness = 1 });
         styles.Register("Expander", new Style { BasedOn = "GroupBox" });
         styles.Register("ValueTextBox", new Style { BasedOn = "Control" });

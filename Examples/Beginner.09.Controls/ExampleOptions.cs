@@ -40,7 +40,9 @@ internal sealed class ExampleOptions
                     "advanced" => 2,
                     "curve" => 3,
                     "tools" => 4,
-                    _ => throw new ArgumentException("Page must be controls, layout, advanced, curve or tools.")};
+                    "bars" => 5,
+                    "fonts" => 6,
+                    _ => throw new ArgumentException("Page must be controls, layout, advanced, curve, tools, bars or fonts.")};
         }
 
         return new ExampleOptions(ExampleFont.Resolve(font), snapshot, page, skin);

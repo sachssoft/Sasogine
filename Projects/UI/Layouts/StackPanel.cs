@@ -3,11 +3,19 @@ using System;
 
 namespace Sachssoft.Engine.Controls.Layouts;
 /// <summary>Stacks controls in insertion order. ZIndex changes painting, not layout.</summary>
-public sealed class StackPanel : ContainerControl
+public class StackPanel : ContainerControl
 {
+    private readonly StackOrientation _defaultOrientation;
     /// <summary>Initializes a stack panel.</summary>
-    public StackPanel() : base()
+    public StackPanel() : this(StackOrientation.Vertical)
     {
+    }
+
+    /// <summary>Creates a stack with a style-resettable orientation fallback.</summary>
+    protected StackPanel(StackOrientation defaultOrientation)
+    {
+        _defaultOrientation = defaultOrientation;
+        _styleOrientation = new(defaultOrientation);
     }
 
     /// <inheritdoc/>
@@ -138,7 +146,7 @@ public sealed class StackPanel : ContainerControl
     protected override void ResetStyledValues()
     {
         base.ResetStyledValues();
-        if (_styleOrientation.BeginStyle(StackOrientation.Vertical))
+        if (_styleOrientation.BeginStyle(_defaultOrientation))
             NotifyPropertyChanged(OrientationChangedArgs);
         if (_styleSpacing.BeginStyle(0f))
             NotifyPropertyChanged(SpacingChangedArgs);

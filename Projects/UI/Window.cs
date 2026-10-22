@@ -118,7 +118,7 @@ public class Window : ContentControl
         base.OnDraw(context);
         if (!context.DrawSkinPart(this, "Titlebar", new Bounds2(0, 0, Bounds.Width, TitlebarHeight)))
             context.FillRectangle(new Bounds2(0, 0, Bounds.Width, TitlebarHeight), new Color(36, 46, 62));
-        var font = ConfigFont ?? context.DefaultFont;
+        var font = GetFont(context);
         using (context.PushClipScope(new Bounds2(10, 0, MathF.Max(0, Bounds.Width - 48), TitlebarHeight)))
             context.DrawText(font, Title, new Vector2(12, (TitlebarHeight - font.Measure(Title).Height) / 2), ConfigTextColor);
         if (CanClose)

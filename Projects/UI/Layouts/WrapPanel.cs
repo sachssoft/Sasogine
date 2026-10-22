@@ -2,7 +2,7 @@ using System;
 
 namespace Sachssoft.Engine.Controls.Layouts;
 /// <summary>Wraps children into successive rows or columns in stable insertion order.</summary>
-public sealed class WrapPanel : ContainerControl
+public class WrapPanel : ContainerControl
 {
     /// <summary>Initializes a new wrap panel instance.</summary>
     public WrapPanel() : base()
@@ -29,7 +29,11 @@ public sealed class WrapPanel : ContainerControl
         foreach (Control child in Children)
         {
             if (!child.IsVisible)
+            {
+                if (bounds.HasValue)
+                    child.Arrange(Bounds2.Zero);
                 continue;
+            }
             float childMain = horizontal ? child.DesiredSize.Width : child.DesiredSize.Height, childCross = horizontal ? child.DesiredSize.Height : child.DesiredSize.Width;
             if (occupied && main + Spacing + childMain > limit)
             {

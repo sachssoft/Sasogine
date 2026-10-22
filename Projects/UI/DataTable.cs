@@ -318,7 +318,7 @@ public class DataTable : ContainerControl
     /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
-        _font = ConfigFont ?? context.DefaultFont;
+        _font = GetFont(context);
         ReconcileRows();
         NotifySelection();
         _columns.Clear();
@@ -710,7 +710,7 @@ public class DataTable : ContainerControl
     protected override void OnDraw(ControlDrawContext context)
     {
         base.OnDraw(context);
-        IControlFont font = _font ?? context.DefaultFont;
+        IControlFont font = GetFont(context);
         float rowHeight = RowHeight;
         Bounds2 Local(Bounds2 b) => new(b.X - Bounds.X, b.Y - Bounds.Y, b.Width, b.Height);
         if (_header.Height > 0)
