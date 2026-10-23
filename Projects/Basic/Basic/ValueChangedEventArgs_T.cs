@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sachssoft.Sasogine;
+namespace Sachssoft.Engine;
 
 /// <summary>
 /// Provides event data for a value that has changed.
