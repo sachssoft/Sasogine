@@ -695,6 +695,7 @@
       <Value property="HeaderHeight" value="32" />
     </Style>
     <Style key="Expander" basedOn="GroupBox" />
+    <Style key="Header" basedOn="GroupBox" />
     <Style key="ValueTextBox" basedOn="Control" />
     <Style key="RepeatButton" basedOn="Button" />
     <Style key="ValueTextBox.Arrow" basedOn="RepeatButton">

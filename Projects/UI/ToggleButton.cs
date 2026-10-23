@@ -1,27 +1,82 @@
+
 using Microsoft.Xna.Framework;
 using System;
+using System.ComponentModel;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>A push button that retains its checked state.</summary>
+
+/// <summary>
+/// Represents a button that maintains a persistent checked state
+/// and toggles that state when activated.
+/// </summary>
+/// <remarks>
+/// <para>
+/// Unlike a standard push button, a toggle button retains its checked
+/// state until it is changed by user interaction or programmatically.
+/// </para>
+/// <para>
+/// Activation changes the checked state before raising
+/// <see cref="ButtonBase.Clicked"/> and executing the associated command.
+/// </para>
+/// <para>
+/// The underlying state supports nullable Boolean values, allowing
+/// derived controls to represent checked, unchecked, and mixed states.
+/// </para>
+/// </remarks>
 public class ToggleButton : ButtonBase
 {
-    /// <summary>Initializes a new toggle button instance.</summary>
-    public ToggleButton() : base()
+    private StyleProperty<bool?> _styleIsChecked = new(false);
+
+    private static readonly PropertyChangedEventArgs IsCheckedChangedArgs = new(nameof(IsChecked));
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ToggleButton"/> class.
+    /// </summary>
+    public ToggleButton()
     {
     }
 
+    /// <summary>
+    /// Gets or sets whether the button is checked.
+    /// </summary>
+    /// <remarks>
+    /// Setting this property updates the checked state and raises
+    /// <see cref="CheckedChanged"/> when the state changes.
+    /// An internal mixed state is exposed as <see langword="false"/>.
+    /// </remarks>
+    public bool IsChecked
+    {
+        get => ConfigIsChecked == true;
+        set => SetChecked(value);
+    }
+
+    /// <summary>
+    /// Occurs when the checked state changes through <see cref="SetChecked"/>.
+    /// </summary>
+    /// <remarks>
+    /// This event is raised after <see cref="OnCheckedChanged"/>
+    /// and before the Clicked event during normal activation.
+    /// </remarks>
+    public event EventHandler? CheckedChanged;
+
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ToggleButton";
-    /// <summary>Gets or sets is checked.</summary>
-    public bool IsChecked { get => ConfigIsChecked == true; set => SetChecked(value); }
 
-    /// <summary>Occurs when checked changed.</summary>
-    public event EventHandler? CheckedChanged;
-    /// <summary>Performs set checked using the current control state.</summary>
+    /// <summary>
+    /// Updates the checked state and notifies listeners when it changes.
+    /// </summary>
+    /// <param name="value">
+    /// The new checked state, or <see langword="null"/> for a mixed state.
+    /// </param>
+    /// <remarks>
+    /// Invokes <see cref="OnCheckedChanged"/> and raises
+    /// <see cref="CheckedChanged"/> only when the value changes.
+    /// </remarks>
     protected void SetChecked(bool? value)
     {
         bool? previous = ConfigIsChecked;
         ConfigIsChecked = value;
+
         if (previous != value)
         {
             OnCheckedChanged();
@@ -29,24 +84,51 @@ public class ToggleButton : ButtonBase
         }
     }
 
-    /// <summary>Performs on checked changed using the current control state.</summary>
+    /// <summary>
+    /// Called after the checked state has changed.
+    /// </summary>
+    /// <remarks>
+    /// Derived controls can override this method to implement
+    /// additional behavior when the checked state changes.
+    /// </remarks>
     protected virtual void OnCheckedChanged()
     {
     }
 
-    /// <summary>Performs change checked state using the current control state.</summary>
-    protected virtual void ChangeCheckedState() => IsChecked = !IsChecked;
+    /// <summary>
+    /// Changes the checked state in response to button activation.
+    /// </summary>
+    /// <remarks>
+    /// The default implementation alternates between checked
+    /// and unchecked. Derived controls can override this method
+    /// to implement custom state transitions.
+    /// </remarks>
+    protected virtual void ChangeCheckedState()
+    {
+        IsChecked = !IsChecked;
+    }
+
     /// <inheritdoc/>
     protected override void OnClick()
     {
         if (!CanExecute)
             return;
+
         ChangeCheckedState();
         base.OnClick();
     }
 
-    /// <summary>Gets selection state.</summary>
-    protected string SelectionState => (ConfigIsChecked is null ? "Mixed" : IsChecked ? "Checked" : "Unchecked") + "." + (!IsAvailable() ? "Disabled" : IsHeld ? "Pressed" : IsPointerOver ? "Hover" : "Normal");
+    /// <summary>
+    /// Gets the visual state identifier combining the selection
+    /// state with the current interaction state.
+    /// </summary>
+    /// <remarks>
+    /// Selection states are Checked, Unchecked, and Mixed.
+    /// Interaction states are Normal, Hover, Pressed, and Disabled.
+    /// </remarks>
+    protected string SelectionState =>
+        (ConfigIsChecked is null ? "Mixed" : IsChecked ? "Checked" : "Unchecked") + "." +
+        (!IsAvailable() ? "Disabled" : IsHeld ? "Pressed" : IsPointerOver ? "Hover" : "Normal");
 
     /// <inheritdoc/>
     protected override void OnDraw(ControlDrawContext context)
@@ -55,8 +137,6 @@ public class ToggleButton : ButtonBase
             context.FillRectangle(LocalBounds, IsChecked ? PressedBackground : Background);
     }
 
-    private StyleProperty<bool?> _styleIsChecked = new(false);
-    private static readonly System.ComponentModel.PropertyChangedEventArgs IsCheckedChangedArgs = new(nameof(IsChecked));
     internal bool? ConfigIsChecked
     {
         get => _styleIsChecked.Value;
@@ -67,10 +147,15 @@ public class ToggleButton : ButtonBase
         }
     }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies the control's explicit style values without replacing
+    /// locally assigned property values.
+    /// </summary>
+    /// <param name="style">The style containing the values to apply.</param>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
+
         foreach (var entry in style.Values)
         {
             switch (entry.Key)
@@ -83,18 +168,20 @@ public class ToggleButton : ButtonBase
         }
     }
 
+    /// <inheritdoc/>
     internal override bool IsStyleLocal(string property)
     {
-        switch (property)
+        return property switch
         {
-            case "IsChecked":
-                return _styleIsChecked.HasLocalValue;
-            default:
-                return base.IsStyleLocal(property);
-        }
+            "IsChecked" => _styleIsChecked.HasLocalValue,
+            _ => base.IsStyleLocal(property)
+        };
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local property override and restores its current style value.
+    /// </summary>
+    /// <param name="property">The name of the property to reset.</param>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -103,6 +190,7 @@ public class ToggleButton : ButtonBase
                 if (_styleIsChecked.ClearLocal())
                     NotifyPropertyChanged(IsCheckedChangedArgs);
                 return;
+
             default:
                 base.ResetStyleProperty(property);
                 return;
@@ -113,14 +201,16 @@ public class ToggleButton : ButtonBase
     protected override void ResetStyledValues()
     {
         base.ResetStyledValues();
+
         if (_styleIsChecked.BeginStyle(false))
             NotifyPropertyChanged(IsCheckedChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <inheritdoc/>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();
+
         if (_styleIsChecked.CommitStyle())
             NotifyPropertyChanged(IsCheckedChangedArgs);
     }

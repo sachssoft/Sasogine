@@ -355,7 +355,7 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
         GraphicsDevice.BlendState = BlendState.AlphaBlend;
         GraphicsDevice.DepthStencilState = DepthStencilState.None;
         GraphicsDevice.RasterizerState = _rasterizer;
-        GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
+        GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
         if (_textureEffect is not null) DrawTextureRuns();
         else
         {

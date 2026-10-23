@@ -96,6 +96,7 @@ public sealed class UIRegistry
         Register("StatusBar", static () => new StatusBar());
         Register("StatusStrip", static () => new StatusStrip());
         Register("Expander", static () => new Expander());
+        Register(nameof(Header), static () => new Header());
         Register("ValueBar", static () => new ValueBar());
         Register("ValueTextBox", static () => new ValueTextBox());
         Register("Chart", static () => new Chart());
@@ -154,6 +155,7 @@ public sealed class UIRegistry
         styles.Register("StatusStrip", new Style("StatusStrip", "ContentControl") { ["Padding"] = "6,2", ["ContentHorizontalAlignment"] = "Start", ["ContentVerticalAlignment"] = "Center" });
         styles.Register("GroupBox", new Style { BasedOn = "Control", Background = new Color(28, 35, 48), BorderColor = new Color(56, 71, 92), BorderThickness = 1 });
         styles.Register("Expander", new Style { BasedOn = "GroupBox" });
+        styles.Register(nameof(Header), new Style { BasedOn = "GroupBox" });
         styles.Register("ValueTextBox", new Style { BasedOn = "Control" });
         styles.Register("ValueBar", new Style { BasedOn = "Control", IsFocusable = true, Padding = Insets2.Zero, MinHeight = 32, Background = new Color(20, 28, 40), BorderColor = new Color(56, 71, 92), HoverBackground = new Color(32, 68, 83), PressedBackground = new Color(65, 130, 153), BorderThickness = 1 });
         styles.Register("ValueTextBox.Range", new Style { BasedOn = "ValueBar" });

@@ -20,7 +20,10 @@ All notable changes to this project will be documented in this file.
 </small>
 
 ## [0.13.0-alpha] - Planned
-* [Feature] Introducted new UI System Sasogine Controls
+* [Feature] **Controls**: Introducted new UI System Sasogine Controls
+* [Feature] Added generic `ValueChangingEventArgs<T>` and `ValueChangedEventArgs<T>` for value change notifications with cancellation support.
+* [Feature] Added support for registering cleanup actions in `DisposeManager`.
+* [Improve] Improved `DisposeManager` with thread-safe registration, duplicate resource detection, and aggregated disposal exceptions.
 
 ## [0.12.0-alpha] - 2026-10-21
 * [Feature] Introduced definition-inspector system.
