@@ -165,6 +165,26 @@ public class Grid : ContainerControl
         }
     }
 
+    /// <summary>
+    /// Places a control in the grid at the specified column and row,
+    /// optionally spanning multiple columns and rows.
+    /// </summary>
+    /// <param name="control">The control to place in the grid.</param>
+    /// <param name="column">The zero-based column index.</param>
+    /// <param name="row">The zero-based row index.</param>
+    /// <param name="columnSpan">The number of columns occupied by the control.</param>
+    /// <param name="rowSpan">The number of rows occupied by the control.</param>
+    public void Place(
+        Control control,
+        int column = 0,
+        int row = 0,
+        int columnSpan = 1,
+        int rowSpan = 1)
+    {
+        Cells.Put(control, row: row, column: column, rowSpan: rowSpan);
+        Children.Add(control);
+    }
+
     internal override bool IsStyleLocal(string property)
     {
         switch (property)

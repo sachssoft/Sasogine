@@ -23,10 +23,12 @@ All notable changes to this project will be documented in this file.
 * [Feature] **Controls**: Introducted new UI System Sasogine Controls
 * [Feature] Added generic `ValueChangingEventArgs<T>` and `ValueChangedEventArgs<T>` for value change notifications with cancellation support.
 * [Feature] Added support for registering cleanup actions in `DisposeManager`.
+* [Feature] Added scene transition system with timed and asynchronous transitions, including update and rendering support.
 * [Feature] Added a lightweight request-response system for decoupled component communication with callback-based responses.
 * [Improve] Improved `DisposeManager` with thread-safe registration, duplicate resource detection, and aggregated disposal exceptions.
 * [Improve] Enhanced `HistoryService` with undo/redo history access, change notifications, save-point tracking, and unsaved modification detection.
 * [Bug] Fixed history trimming to preserve the correct undo order.
+* [Bug] Fixed persistent scenes being loaded multiple times when reactivated.
 
 ## [0.12.0-alpha] - 2026-10-21
 * [Feature] Introduced definition-inspector system.

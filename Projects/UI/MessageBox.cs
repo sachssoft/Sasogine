@@ -116,19 +116,28 @@ public sealed class MessageBox : Dialog
     }
 
     /// <summary>
-    /// Displays a message box and invokes a callback when it closes.
+    /// Displays a message box and optionally invokes a callback when it closes.
     /// </summary>
+    /// <param name="root">The workspace in which to display the message box.</param>
+    /// <param name="message">The message to display.</param>
+    /// <param name="completed">An optional callback invoked when the dialog closes.</param>
+    /// <param name="title">The title displayed in the dialog header.</param>
+    /// <param name="buttons">The combination of response buttons to display.</param>
+    /// <param name="icon">The semantic icon displayed alongside the message.</param>
     public static void Show(
         Workspace root,
         string message,
-        Action<DialogResult> completed,
+        Action<DialogResult>? completed = null,
         string title = "",
         MessageBoxButtons buttons = MessageBoxButtons.OK,
         MessageBoxIcon icon = MessageBoxIcon.Information)
     {
-        ArgumentNullException.ThrowIfNull(completed);
+        var dialog = Create(message, title, buttons, icon);
 
-        Create(message, title, buttons, icon).Show(root, completed);
+        if (completed is not null)
+            dialog.Show(root, completed);
+        else
+            _ = dialog.ShowAsync(root);
     }
 
     /// <summary>
