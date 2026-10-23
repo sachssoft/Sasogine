@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Sachssoft.Engine.Scenes
 {
@@ -36,6 +37,16 @@ namespace Sachssoft.Engine.Scenes
         /// The scene that should become active.
         /// </param>
         void ChangeScene(IScene newScene);
+
+
+        /// <summary>
+        /// Changes the active scene after the specified transition completes.
+        /// The scene switch takes place on the next scene-manager update frame.
+        /// </summary>
+        /// <param name="newScene">The scene to activate.</param>
+        /// <param name="transition">The transition to update and draw while waiting.</param>
+        /// <returns>A task that completes when the scene has been switched.</returns>
+        Task ChangeSceneAsync(IScene newScene, ITransition transition);
 
 
         /// <summary>

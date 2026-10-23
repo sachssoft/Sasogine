@@ -2,6 +2,7 @@
 using Sachssoft.Engine.Graphics.Cameras;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Sachssoft.Engine.Scenes
 {
@@ -22,6 +23,10 @@ namespace Sachssoft.Engine.Scenes
 
         private bool _isLoaded;
         private IScene _currentScene;
+
+        private IScene? _pendingScene;
+        private ITransition? _transition;
+        private TaskCompletionSource? _transitionCompletion;
 
 
         /// <summary>
@@ -131,19 +136,18 @@ namespace Sachssoft.Engine.Scenes
             }
 
 
+            bool alreadyLoaded = _persistentScenes.Contains(scene);
+
             scene.Enter(CreateEventArgs());
 
-
-            if (scene.IsPersistent &&
-                !_persistentScenes.Contains(scene))
+            if (!alreadyLoaded)
             {
-                _persistentScenes.Add(scene);
+                scene.Load();
+
+                if (scene.IsPersistent)
+                    _persistentScenes.Add(scene);
             }
-
-
-            scene.Load();
         }
-
 
         /// <summary>
         /// Creates all cameras required by the specified scene.
@@ -229,6 +233,27 @@ namespace Sachssoft.Engine.Scenes
 
 
 
+        /// <inheritdoc/>
+        public Task ChangeSceneAsync(IScene newScene, ITransition transition)
+        {
+            EnsureLoaded();
+            ArgumentNullException.ThrowIfNull(newScene);
+            ArgumentNullException.ThrowIfNull(transition);
+
+            if (ReferenceEquals(_currentScene, newScene))
+                throw new SceneException(newScene, "Cannot switch to same scene.");
+
+            if (_transition != null)
+                throw new InvalidOperationException("A scene transition is already active.");
+
+            _pendingScene = newScene;
+            _transition = transition;
+            _transitionCompletion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            return _transitionCompletion.Task;
+        }
+
+
+
         /// <summary>
         /// Leaves the current scene and returns to the main scene.
         /// </summary>
@@ -297,6 +322,8 @@ namespace Sachssoft.Engine.Scenes
 
             _currentScene.Update(
                 _sceneUpdateContext);
+
+            UpdateTransition(gameTime);
         }
 
 
@@ -326,9 +353,65 @@ namespace Sachssoft.Engine.Scenes
 
                 _currentScene.Draw(
                     _sceneDrawContexts[i]);
+
+                _transition?.Draw(_sceneDrawContexts[i]);
             }
         }
 
+
+
+        /// <summary>
+        /// Advances an active scene transition and switches scenes after successful completion.
+        /// </summary>
+        /// <param name="gameTime">Timing information for the current frame.</param>
+        private void UpdateTransition(GameTime gameTime)
+        {
+            if (_transition == null)
+                return;
+
+            var activeTransition = _transition;
+            var completion = _transitionCompletion!;
+
+            try
+            {
+                activeTransition.Update(gameTime);
+
+                if (!activeTransition.Completion.IsCompleted)
+                    return;
+
+                var pendingScene = _pendingScene!;
+                _transition = null;
+                _pendingScene = null;
+                _transitionCompletion = null;
+
+                if (activeTransition.Completion.IsCanceled)
+                {
+                    completion.TrySetCanceled();
+                    return;
+                }
+
+                if (activeTransition.Completion.IsFaulted)
+                {
+                    completion.TrySetException(activeTransition.Completion.Exception!.InnerExceptions);
+                    return;
+                }
+
+                SwitchScene(pendingScene, false);
+                completion.TrySetResult();
+            }
+            catch (Exception exception)
+            {
+                completion.TrySetException(exception);
+                if (ReferenceEquals(_transition, activeTransition))
+                {
+                    _transition = null;
+                    _pendingScene = null;
+                    _transitionCompletion = null;
+                }
+
+                throw;
+            }
+        }
 
 
         /// <summary>
