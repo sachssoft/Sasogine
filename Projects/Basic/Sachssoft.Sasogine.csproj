@@ -16,6 +16,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Include="..\..\AGENTS.md" Link="AGENTS.md" />
 	  <None Include="..\..\CHANGELOG.md" Link="CHANGELOG.md" />
 	</ItemGroup>
 
