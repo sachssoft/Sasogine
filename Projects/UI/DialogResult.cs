@@ -1,17 +1,31 @@
 namespace Sachssoft.Engine.Controls;
-/// <summary>Describes a completed modal dialog.</summary>
+/// <summary>
+/// Describes a completed modal dialog.
+/// </summary>
 public enum DialogResult
 {
-    /// <summary>None.</summary>
+    /// <summary>
+    /// None.
+    /// </summary>
     None,
-    /// <summary>OK.</summary>
+    /// <summary>
+    /// OK.
+    /// </summary>
     OK,
-    /// <summary>Cancel.</summary>
+    /// <summary>
+    /// Cancel.
+    /// </summary>
     Cancel,
-    /// <summary>Yes.</summary>
+    /// <summary>
+    /// Yes.
+    /// </summary>
     Yes,
-    /// <summary>No.</summary>
+    /// <summary>
+    /// No.
+    /// </summary>
     No,
-    /// <summary>Apply.</summary>
+    /// <summary>
+    /// Apply.
+    /// </summary>
     Apply,
 }

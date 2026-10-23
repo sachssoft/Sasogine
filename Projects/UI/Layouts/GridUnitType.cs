@@ -1,11 +1,19 @@
 namespace Sachssoft.Engine.Controls.Layouts;
-/// <summary>Explicit grid sizing modes.</summary>
+/// <summary>
+/// Explicit grid sizing modes.
+/// </summary>
 public enum GridUnitType
 {
-    /// <summary>Measures content.</summary>
+    /// <summary>
+    /// Measures content.
+    /// </summary>
     Auto,
-    /// <summary>Uses logical pixels.</summary>
+    /// <summary>
+    /// Uses logical pixels.
+    /// </summary>
     Pixel,
-    /// <summary>Distributes available space by weight.</summary>
+    /// <summary>
+    /// Distributes available space by weight.
+    /// </summary>
     Proportion
 }

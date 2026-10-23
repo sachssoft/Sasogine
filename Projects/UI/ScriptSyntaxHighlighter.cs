@@ -1,5 +1,7 @@
 namespace Sachssoft.Engine.Controls;
-/// <summary>Represents script syntax highlighter.</summary>
+/// <summary>
+/// Represents script syntax highlighter.
+/// </summary>
 public sealed class ScriptSyntaxHighlighter : ISyntaxHighlighter
 {
     private static readonly ScriptSyntaxHighlighter PlainText = new(ScriptLanguage.PlainText);
@@ -7,10 +9,14 @@ public sealed class ScriptSyntaxHighlighter : ISyntaxHighlighter
     private static readonly ScriptSyntaxHighlighter Python = new(ScriptLanguage.Python);
     private static readonly ScriptSyntaxHighlighter CSharp = new(ScriptLanguage.CSharp);
     private ScriptSyntaxHighlighter(ScriptLanguage language) => Language = language;
-    /// <summary>Gets the immutable built-in language.</summary>
+    /// <summary>
+    /// Gets the immutable built-in language.
+    /// </summary>
     public ScriptLanguage Language { get; }
 
-    /// <summary>Gets a shared stateless highlighter; no registration or reflection is required.</summary>
+    /// <summary>
+    /// Gets a shared stateless highlighter; no registration or reflection is required.
+    /// </summary>
     public static ScriptSyntaxHighlighter ForLanguage(ScriptLanguage language) => language switch
     {
         ScriptLanguage.PlainText => PlainText,

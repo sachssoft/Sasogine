@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Globalization;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Font-independent graph geometry and clipped polylines using the ordered control draw context.</summary>
+/// <summary>
+/// Font-independent graph geometry and clipped polylines using the ordered control draw context.
+/// </summary>
 internal static class CurveControlRenderer
 {
     internal static void Draw(CurveControl control, ControlDrawContext context, IReadOnlyList<CurveSample> samples)

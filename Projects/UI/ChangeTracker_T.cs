@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Tracks algorithm state such as selection transitions; never stores style or local overrides.</summary>
+/// <summary>
+/// Tracks algorithm state such as selection transitions; never stores style or local overrides.
+/// </summary>
 /// <typeparam name = "T">The tracked state type.</typeparam>
 internal struct ChangeTracker<T>
 {

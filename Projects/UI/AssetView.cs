@@ -1,11 +1,15 @@
 using System.ComponentModel;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>A selectable asset list with visible-only cached previews and shared TiledPanel geometry.</summary>
+/// <summary>
+/// A selectable asset list with visible-only cached previews and shared TiledPanel geometry.
+/// </summary>
 public sealed class AssetView : ListBox
 {
     private static readonly PropertyChangedEventArgs SelectedAssetArgs = new(nameof(SelectedAsset));
-    /// <summary>Creates a selectable asset view with shared list interaction.</summary>
+    /// <summary>
+    /// Creates a selectable asset view with shared list interaction.
+    /// </summary>
     public AssetView() => SelectionChanged += (_, _) => NotifyPropertyChanged(SelectedAssetArgs);
 
     private IReadOnlyList<AssetItem> _source = Array.Empty<AssetItem>();
@@ -16,27 +20,37 @@ public sealed class AssetView : ListBox
     private static readonly PropertyChangedEventArgs FilterArgs = new(nameof(Filter));
     /// <inheritdoc/>
     protected override string DefaultStyleName => "AssetView";
-    /// <summary>Gets or sets the metadata snapshot. Call Refresh after changing an existing source collection.</summary>
+    /// <summary>
+    /// Gets or sets the metadata snapshot. Call Refresh after changing an existing source collection.
+    /// </summary>
     public IReadOnlyList<AssetItem> Source
     {
         get => _source;
         set { ArgumentNullException.ThrowIfNull(value); if (SetNotify(ref _source, value, SourceArgs)) Refresh(); }
     }
-    /// <summary>Gets or sets a case-insensitive name, identifier or kind filter.</summary>
+    /// <summary>
+    /// Gets or sets a case-insensitive name, identifier or kind filter.
+    /// </summary>
     public string FilterText
     {
         get => _filterText;
         set { ArgumentNullException.ThrowIfNull(value); if (SetNotify(ref _filterText, value, FilterTextArgs)) Refresh(); }
     }
-    /// <summary>Gets or sets an optional application or reference-type predicate.</summary>
+    /// <summary>
+    /// Gets or sets an optional application or reference-type predicate.
+    /// </summary>
     public Predicate<AssetItem>? Filter
     {
         get => _filter;
         set { if (SetNotify(ref _filter, value, FilterArgs)) Refresh(); }
     }
-    /// <summary>Gets the primary selected asset.</summary>
+    /// <summary>
+    /// Gets the primary selected asset.
+    /// </summary>
     public AssetItem? SelectedAsset => SelectedItem?.Value as AssetItem;
-    /// <summary>Rebuilds the filtered metadata list, preserving the primary selection by identifier.</summary>
+    /// <summary>
+    /// Rebuilds the filtered metadata list, preserving the primary selection by identifier.
+    /// </summary>
     public void Refresh()
     {
         string? selected = SelectedAsset?.Id;
@@ -126,15 +140,21 @@ public sealed class AssetView : ListBox
     }
     private StyleProperty<Size2> _tileSize = new(new Size2(132, 132));
     private static readonly PropertyChangedEventArgs TileSizeArgs = new(nameof(TileSize));
-    /// <summary>Gets or sets the TileSize; a local assignment overrides the central style.</summary>
+    /// <summary>
+    /// Gets or sets the TileSize; a local assignment overrides the central style.
+    /// </summary>
     public Size2 TileSize { get => _tileSize.Value; set { if (_tileSize.SetLocal(value)) NotifyPropertyChanged(TileSizeArgs); } }
     private StyleProperty<float> _spacing = new(8f);
     private static readonly PropertyChangedEventArgs SpacingArgs = new(nameof(Spacing));
-    /// <summary>Gets or sets the Spacing; a local assignment overrides the central style.</summary>
+    /// <summary>
+    /// Gets or sets the Spacing; a local assignment overrides the central style.
+    /// </summary>
     public float Spacing { get => _spacing.Value; set { if (_spacing.SetLocal(value)) NotifyPropertyChanged(SpacingArgs); } }
     private StyleProperty<AssetViewMode> _viewMode = new(AssetViewMode.Tiles);
     private static readonly PropertyChangedEventArgs ViewModeArgs = new(nameof(ViewMode));
-    /// <summary>Gets or sets the ViewMode; a local assignment overrides the central style.</summary>
+    /// <summary>
+    /// Gets or sets the ViewMode; a local assignment overrides the central style.
+    /// </summary>
     public AssetViewMode ViewMode { get => _viewMode.Value; set { if (_viewMode.SetLocal(value)) NotifyPropertyChanged(ViewModeArgs); } }
     /// <inheritdoc/>
     public override void ApplyStyle(Style style)

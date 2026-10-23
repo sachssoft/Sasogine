@@ -1,5 +1,7 @@
 namespace Sachssoft.Engine.Controls;
-/// <summary>A classified UTF-16 source range with an optional application-defined color.</summary>
+/// <summary>
+/// A classified UTF-16 source range with an optional application-defined color.
+/// </summary>
 /// <param name = "Start">Zero-based index into the complete source.</param>
 /// <param name = "Length">Number of UTF-16 code units in the range.</param>
 /// <param name = "Kind">The editor palette category.</param>

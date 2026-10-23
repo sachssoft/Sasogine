@@ -1,7 +1,9 @@
 using System.ComponentModel;
 
 namespace Sachssoft.Engine.Controls.Inspection;
-/// <summary>Opens the trailing property menu without polling values or allocating during unchanged updates.</summary>
+/// <summary>
+/// Opens the trailing property menu without polling values or allocating during unchanged updates.
+/// </summary>
 public sealed class InspectorPropertyMenu : Button
 {
     private readonly InspectorView _inspector;
@@ -48,19 +50,35 @@ public sealed class InspectorPropertyMenu : Button
     protected override string DefaultStyleName => "Inspector.PropertyMenu";
     /// <inheritdoc/>
     protected override bool UseSkinFocus => false;
-    /// <summary>Gets the menu. Applications may append type-specific commands.</summary>
+    /// <summary>
+    /// Gets the menu. Applications may append type-specific commands.
+    /// </summary>
     public ContextMenu Menu => _menu;
-    /// <summary>Gets or sets an explicit reset override, for example removing a control's local style assignment.</summary>
-    public Action? ResetAction { get => _resetAction; set => SetNotify(ref _resetAction, value, ResetActionArgs); }
-    /// <summary>Gets whether a reset action is available for the current attached field.</summary>
+    /// <summary>
+    /// Gets or sets an explicit reset override, for example removing a control's local style assignment.
+    /// </summary>
+    public  Action? ResetAction
+    {
+        get => _resetAction;
+        set => SetNotify(ref _resetAction, value, ResetActionArgs);
+    }
+    /// <summary>
+    /// Gets whether a reset action is available for the current attached field.
+    /// </summary>
     public bool CanReset => !_readOnly && IsCurrent && (_actions is not null || ResetAction is not null);
-    /// <summary>Gets whether this field has typed copy support.</summary>
+    /// <summary>
+    /// Gets whether this field has typed copy support.
+    /// </summary>
     public bool CanCopy => IsCurrent && _actions is not null;
-    /// <summary>Gets whether the clipboard contains the exact property type.</summary>
+    /// <summary>
+    /// Gets whether the clipboard contains the exact property type.
+    /// </summary>
     public bool CanPaste => !_readOnly && IsCurrent && Workspace is Workspace owner && (_actions?.CanPaste(owner.Registry.InspectorClipboard) ?? false);
     private bool IsCurrent => Workspace is not null && _inspector.OwnsMenu(_editor, this);
 
-    /// <summary>Restores the configured default or invokes the explicit style-reset callback.</summary>
+    /// <summary>
+    /// Restores the configured default or invokes the explicit style-reset callback.
+    /// </summary>
     public void ResetValue()
     {
         if (!CanReset)
@@ -71,14 +89,18 @@ public sealed class InspectorPropertyMenu : Button
             _actions!.Reset();
     }
 
-    /// <summary>Copies the complete typed value to the registry-local property clipboard.</summary>
+    /// <summary>
+    /// Copies the complete typed value to the registry-local property clipboard.
+    /// </summary>
     public void CopyValue()
     {
         if (CanCopy)
             _actions!.Copy(Workspace!.Registry.InspectorClipboard);
     }
 
-    /// <summary>Pastes a matching typed value; incompatible values leave the model unchanged.</summary>
+    /// <summary>
+    /// Pastes a matching typed value; incompatible values leave the model unchanged.
+    /// </summary>
     public void PasteValue()
     {
         if (CanPaste)

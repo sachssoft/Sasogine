@@ -1,8 +1,12 @@
 namespace Sachssoft.Engine.Controls;
-/// <summary>Noninteractive hover content drawn above the root without stealing focus or capture.</summary>
+/// <summary>
+/// Noninteractive hover content drawn above the root without stealing focus or capture.
+/// </summary>
 public class ToolTip : ContentControl
 {
-    /// <summary>Creates a tooltip host.</summary>
+    /// <summary>
+    /// Creates a tooltip host.
+    /// </summary>
     public ToolTip() : base()
     {
     }
@@ -19,7 +23,9 @@ public class ToolTip : ContentControl
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)

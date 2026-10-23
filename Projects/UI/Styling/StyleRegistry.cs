@@ -2,18 +2,26 @@ using System;
 using System.Collections.Generic;
 
 namespace Sachssoft.Engine.Controls.Styling;
-/// <summary>Stores explicitly registered style IDs and polls style versions outside control value reads.</summary>
+/// <summary>
+/// Stores explicitly registered style IDs and polls style versions outside control value reads.
+/// </summary>
 public sealed class StyleRegistry
 {
     private readonly Dictionary<string, StyleRegistryEntry> _styles = new(StringComparer.Ordinal);
     private int _revision;
     internal int Revision => _revision;
-    /// <summary>Gets the number of named styles.</summary>
+    /// <summary>
+    /// Gets the number of named styles.
+    /// </summary>
     public int Count => _styles.Count;
-    /// <summary>Gets style IDs.</summary>
+    /// <summary>
+    /// Gets style IDs.
+    /// </summary>
     public IEnumerable<string> Keys => _styles.Keys;
 
-    /// <summary>Gets a registered style.</summary>
+    /// <summary>
+    /// Gets a registered style.
+    /// </summary>
     public Style this[string id] => _styles[id].Style;
     internal void RemoveSkinStyle(string id)
     {
@@ -24,7 +32,9 @@ public sealed class StyleRegistry
             }
     }
 
-    /// <summary>Registers a new named style.</summary>
+    /// <summary>
+    /// Registers a new named style.
+    /// </summary>
     public void Register(string id, Style style)
     {
         ValidateIdentity(id, style);
@@ -35,9 +45,13 @@ public sealed class StyleRegistry
         }
     }
 
-    /// <summary>Registers a style using its ID.</summary>
+    /// <summary>
+    /// Registers a style using its ID.
+    /// </summary>
     public void Register(Style style) => Register(style.Id, style);
-    /// <summary>Registers or replaces a style.</summary>
+    /// <summary>
+    /// Registers or replaces a style.
+    /// </summary>
     public void Set(string id, Style style)
     {
         ValidateIdentity(id, style);
@@ -57,7 +71,9 @@ public sealed class StyleRegistry
         style.Id = id;
     }
 
-    /// <summary>Gets a style without discovery.</summary>
+    /// <summary>
+    /// Gets a style without discovery.
+    /// </summary>
     public bool TryGet(string id, out Style? style)
     {
         bool found = _styles.TryGetValue(id, out var entry);
@@ -78,7 +94,9 @@ public sealed class StyleRegistry
             }
     }
 
-    /// <summary>Validates every base ID and rejects cycles.</summary>
+    /// <summary>
+    /// Validates every base ID and rejects cycles.
+    /// </summary>
     public void Validate(string id)
     {
         string? current = id;

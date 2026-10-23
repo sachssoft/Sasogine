@@ -7,7 +7,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>A clipped, keyboard-accessible selectable list with an independent scrollbar.</summary>
+/// <summary>
+/// A clipped, keyboard-accessible selectable list with an independent scrollbar.
+/// </summary>
 public class ListBox : ContainerControl
 {
     private readonly SortedSet<int> _selected = new();
@@ -19,20 +21,34 @@ public class ListBox : ContainerControl
     private Bounds2 _viewport;
     private bool _showBar, _ensureSelection;
     private int _columns = 1;
-    /// <summary>Gets the arranged item viewport in workspace coordinates.</summary>
+    /// <summary>
+    /// Gets the arranged item viewport in workspace coordinates.
+    /// </summary>
     protected Bounds2 ItemViewport => _viewport;
-    /// <summary>Gets the arranged number of item columns.</summary>
+    /// <summary>
+    /// Gets the arranged number of item columns.
+    /// </summary>
     protected int ItemColumns => _columns;
-    /// <summary>Gets the spacing between rows and columns.</summary>
+    /// <summary>
+    /// Gets the spacing between rows and columns.
+    /// </summary>
     protected virtual float ItemSpacing => 0;
-    /// <summary>Gets the effective item height.</summary>
+    /// <summary>
+    /// Gets the effective item height.
+    /// </summary>
     protected virtual float ItemExtent => ItemHeight;
 
-    /// <summary>Computes the number of columns for an available width.</summary>
+    /// <summary>
+    /// Computes the number of columns for an available width.
+    /// </summary>
     protected virtual int GetColumnCount(float width) => 1;
-    /// <summary>Computes an item's width inside the viewport.</summary>
+    /// <summary>
+    /// Computes an item's width inside the viewport.
+    /// </summary>
     protected virtual float GetItemWidth(float width) => width;
-    /// <summary>Measures the preferred list width without creating item controls.</summary>
+    /// <summary>
+    /// Measures the preferred list width without creating item controls.
+    /// </summary>
     protected virtual float MeasureItems(IControlFont font)
     {
         float width = 120;
@@ -46,14 +62,18 @@ public class ListBox : ContainerControl
     }
 
     private float ContentHeight(int columns) => Items.Count == 0 ? 0 : ((Items.Count - 1) / columns + 1) * (ItemExtent + ItemSpacing) - ItemSpacing;
-    /// <summary>Gets the visible item interval, including partially visible rows.</summary>
+    /// <summary>
+    /// Gets the visible item interval, including partially visible rows.
+    /// </summary>
     protected void GetVisibleRange(out int first, out int last)
     {
         first = Math.Max(0, (int)(ScrollBar.Value / (ItemExtent + ItemSpacing))) * _columns;
         last = Math.Min(Items.Count, first + ((int)(_viewport.Height / (ItemExtent + ItemSpacing)) + 2) * _columns);
     }
 
-    /// <summary>Gets an item's bounds in workspace coordinates.</summary>
+    /// <summary>
+    /// Gets an item's bounds in workspace coordinates.
+    /// </summary>
     public Bounds2 GetItemBounds(int index)
     {
         if (index < 0 || index >= Items.Count)
@@ -62,7 +82,9 @@ public class ListBox : ContainerControl
         return new Bounds2(_viewport.X + index % _columns * (width + ItemSpacing), _viewport.Y + index / _columns * (ItemExtent + ItemSpacing) - ScrollBar.Value, width, ItemExtent);
     }
 
-    /// <summary>Initializes a new list box instance.</summary>
+    /// <summary>
+    /// Initializes a new list box instance.
+    /// </summary>
     public ListBox() : base()
     {
         _invalidSelection = IsInvalidSelection;
@@ -75,16 +97,26 @@ public class ListBox : ContainerControl
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ListBox";
-    /// <summary>Gets items.</summary>
+    /// <summary>
+    /// Gets items.
+    /// </summary>
     public IList<SelectorItem> Items => ConfigItems;
-    /// <summary>Gets scroll bar.</summary>
+    /// <summary>
+    /// Gets scroll bar.
+    /// </summary>
     public ScrollBar ScrollBar { get; }
-    /// <summary>Gets or sets item height.</summary>
+    /// <summary>
+    /// Gets or sets item height.
+    /// </summary>
     public float ItemHeight { get => ConfigItemHeight; set => ConfigItemHeight = value; }
-    /// <summary>Gets or sets multi select.</summary>
+    /// <summary>
+    /// Gets or sets multi select.
+    /// </summary>
     public bool MultiSelect { get => ConfigMultiSelect; set => ConfigMultiSelect = value; }
 
-    /// <summary>Gets or sets selected index.</summary>
+    /// <summary>
+    /// Gets or sets selected index.
+    /// </summary>
     public int SelectedIndex
     {
         get
@@ -110,19 +142,31 @@ public class ListBox : ContainerControl
         }
     }
 
-    /// <summary>Gets selected item.</summary>
+    /// <summary>
+    /// Gets selected item.
+    /// </summary>
     public SelectorItem? SelectedItem => SelectedIndex < 0 ? null : Items[SelectedIndex];
-    /// <summary>Gets selected indices.</summary>
+    /// <summary>
+    /// Gets selected indices.
+    /// </summary>
     public IReadOnlyList<int> SelectedIndices => new ReadOnlyCollection<int>(_selected.ToList());
 
-    /// <summary>Occurs when selection changed.</summary>
+    /// <summary>
+    /// Occurs when selection changed.
+    /// </summary>
     public event EventHandler? SelectionChanged;
-    /// <summary>Occurs when item activated.</summary>
+    /// <summary>
+    /// Occurs when item activated.
+    /// </summary>
     public event EventHandler? ItemActivated;
-    /// <summary>Identifies keyboard activation during the ItemActivated callback.</summary>
+    /// <summary>
+    /// Identifies keyboard activation during the ItemActivated callback.
+    /// </summary>
     public bool IsKeyboardActivation { get; private set; }
 
-    /// <summary>Occurs when item double clicked.</summary>
+    /// <summary>
+    /// Occurs when item double clicked.
+    /// </summary>
     public event EventHandler? ItemDoubleClicked;
     private void Notify()
     {
@@ -380,7 +424,9 @@ public class ListBox : ContainerControl
         }
     }
 
-    /// <summary>Draws one visible item inside its supplied local bounds.</summary>
+    /// <summary>
+    /// Draws one visible item inside its supplied local bounds.
+    /// </summary>
     protected virtual void DrawItem(ControlDrawContext context, int index, Bounds2 row, IControlFont font)
     {
         SelectorItem item = Items[index];
@@ -407,8 +453,14 @@ public class ListBox : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets ScrollBarThickness; a local assignment overrides the style.</summary>
-    public float ScrollBarThickness { get => ConfigScrollBarThickness; set => ConfigScrollBarThickness = value; }
+    /// <summary>
+    /// Gets or sets ScrollBarThickness; a local assignment overrides the style.
+    /// </summary>
+    public  float ScrollBarThickness
+    {
+        get => ConfigScrollBarThickness;
+        set => ConfigScrollBarThickness = value;
+    }
 
     private StyleProperty<float> _styleItemHeight = new(30f);
     private static readonly System.ComponentModel.PropertyChangedEventArgs ItemHeightChangedArgs = new(nameof(ItemHeight));
@@ -450,7 +502,9 @@ public class ListBox : ContainerControl
     private static readonly System.ComponentModel.PropertyChangedEventArgs ItemsCollectionArgs = new("Items");
     internal IList<SelectorItem> ConfigItems => _ownedItems ??= new(this, ItemsCollectionArgs);
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -495,7 +549,9 @@ public class ListBox : ContainerControl
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -536,7 +592,9 @@ public class ListBox : ContainerControl
             NotifyPropertyChanged(SelectedIndexChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

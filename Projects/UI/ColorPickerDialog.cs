@@ -7,7 +7,9 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Color-plane, RGBA/hex and Sasogine RGB, normalized RGB, HSL, HSV, linear RGB and OKLab editing.</summary>
+/// <summary>
+/// Color-plane, RGBA/hex and Sasogine RGB, normalized RGB, HSL, HSV, linear RGB and OKLab editing.
+/// </summary>
 public sealed class ColorPickerDialog : Dialog
 {
     private readonly ColorPlane _plane = new();
@@ -48,7 +50,9 @@ public sealed class ColorPickerDialog : Dialog
     private ChangeTracker<Color> _color;
     private ChangeTracker<ColorPickerModel> _model;
     private bool _syncing;
-    /// <summary>Creates the color editor.</summary>
+    /// <summary>
+    /// Creates the color editor.
+    /// </summary>
     public ColorPickerDialog() : base()
     {
         _channelView = Array.AsReadOnly(_channels);
@@ -92,7 +96,9 @@ public sealed class ColorPickerDialog : Dialog
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ColorPickerDialog";
 
-    /// <summary>Gets or sets the selected color. Components use the engine's straight RGBA representation.</summary>
+    /// <summary>
+    /// Gets or sets the selected color. Components use the engine's straight RGBA representation.
+    /// </summary>
     public Color SelectedColor
     {
         get
@@ -107,7 +113,9 @@ public sealed class ColorPickerDialog : Dialog
         }
     }
 
-    /// <summary>Gets or sets the active numeric color representation.</summary>
+    /// <summary>
+    /// Gets or sets the active numeric color representation.
+    /// </summary>
     public ColorPickerModel ColorModel
     {
         get => ConfigColorModel;
@@ -118,11 +126,17 @@ public sealed class ColorPickerDialog : Dialog
         }
     }
 
-    /// <summary>Gets the render-target pipette button; enabled when a source is available.</summary>
+    /// <summary>
+    /// Gets the render-target pipette button; enabled when a source is available.
+    /// </summary>
     public Button PickButton { get; } = new() { Content = new TextBlock { Text = "Pick pixel" }, ToolTip = "Pick a render-target pixel; Escape cancels" };
-    /// <summary>Gets or sets an optional source overriding the workspace source.</summary>
+    /// <summary>
+    /// Gets or sets an optional source overriding the workspace source.
+    /// </summary>
     public IColorPickSource? PickSource { get; set; }
-    /// <summary>Starts an input-isolated viewport pick with rollback on Escape.</summary>
+    /// <summary>
+    /// Starts an input-isolated viewport pick with rollback on Escape.
+    /// </summary>
     public void BeginColorPick()
     {
         Workspace? owner = Workspace;
@@ -145,18 +159,30 @@ public sealed class ColorPickerDialog : Dialog
         base.OnDetached();
     }
 
-    /// <summary>Gets the active model selector.</summary>
+    /// <summary>
+    /// Gets the active model selector.
+    /// </summary>
     public ComboBox ModelSelector => _models;
-    /// <summary>Gets the four editors for the selected model.</summary>
+    /// <summary>
+    /// Gets the four editors for the selected model.
+    /// </summary>
     public IReadOnlyList<TextBox> ChannelInputs => _channelView;
-    /// <summary>Gets model-specific channel labels.</summary>
+    /// <summary>
+    /// Gets model-specific channel labels.
+    /// </summary>
     public IReadOnlyList<string> ChannelLabels => _labelView;
-    /// <summary>Gets the RGBA hexadecimal editor.</summary>
+    /// <summary>
+    /// Gets the RGBA hexadecimal editor.
+    /// </summary>
     public TextBox HexInput => _hex;
-    /// <summary>Gets the interactive HSV plane.</summary>
+    /// <summary>
+    /// Gets the interactive HSV plane.
+    /// </summary>
     public ColorPlane ColorEditor => _plane;
 
-    /// <summary>Occurs once when the color changes.</summary>
+    /// <summary>
+    /// Occurs once when the color changes.
+    /// </summary>
     public event EventHandler? ColorChanged;
     internal override void Prepare()
     {
@@ -362,7 +388,9 @@ public sealed class ColorPickerDialog : Dialog
         }
     }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -395,7 +423,9 @@ public sealed class ColorPickerDialog : Dialog
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -424,7 +454,9 @@ public sealed class ColorPickerDialog : Dialog
             NotifyPropertyChanged(ColorModelChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

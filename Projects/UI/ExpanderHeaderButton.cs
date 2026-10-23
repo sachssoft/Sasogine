@@ -1,5 +1,7 @@
 namespace Sachssoft.Engine.Controls;
-/// <summary>Draws an expansion indicator beside arbitrary header content.</summary>
+/// <summary>
+/// Draws an expansion indicator beside arbitrary header content.
+/// </summary>
 internal sealed class ExpanderHeaderButton : ToggleButton
 {
     internal ExpanderHeaderButton()

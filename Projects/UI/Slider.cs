@@ -4,11 +4,15 @@ using Sachssoft.Engine.Input;
 using System;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>A draggable horizontal or vertical scalar slider.</summary>
+/// <summary>
+/// A draggable horizontal or vertical scalar slider.
+/// </summary>
 public sealed class Slider : RangeControl
 {
     private bool _dragging;
-    /// <summary>Initializes a new slider instance.</summary>
+    /// <summary>
+    /// Initializes a new slider instance.
+    /// </summary>
     public Slider() : base()
     {
     }
@@ -17,7 +21,9 @@ public sealed class Slider : RangeControl
     protected override string DefaultStyleName => "Slider";
     private float ThumbExtent => Orientation == ControlOrientation.Horizontal ? ConfigThumbSize.Width : ConfigThumbSize.Height;
 
-    /// <summary>Gets thumb bounds.</summary>
+    /// <summary>
+    /// Gets thumb bounds.
+    /// </summary>
     public Bounds2 ThumbBounds
     {
         get
@@ -111,7 +117,9 @@ public sealed class Slider : RangeControl
         }
     }
 
-    /// <summary>Gets or sets TrackThickness; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets TrackThickness; a local assignment overrides the style.
+    /// </summary>
     public float TrackThickness { get => ConfigTrackThickness; set => ConfigTrackThickness = value; }
 
     private StyleProperty<Size2> _styleThumbSize = new(new Size2(24));
@@ -126,10 +134,14 @@ public sealed class Slider : RangeControl
         }
     }
 
-    /// <summary>Gets or sets ThumbSize; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets ThumbSize; a local assignment overrides the style.
+    /// </summary>
     public Size2 ThumbSize { get => ConfigThumbSize; set => ConfigThumbSize = value; }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -162,7 +174,9 @@ public sealed class Slider : RangeControl
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -191,7 +205,9 @@ public sealed class Slider : RangeControl
             NotifyPropertyChanged(ThumbSizeChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

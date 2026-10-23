@@ -1,18 +1,26 @@
 namespace Sachssoft.Engine.Controls;
-/// <summary>A fixed-range or automatically scaled line, step or bar chart for live measurements.</summary>
+/// <summary>
+/// A fixed-range or automatically scaled line, step or bar chart for live measurements.
+/// </summary>
 public class Chart : Control
 {
-    /// <summary>Creates a chart with an observable series collection.</summary>
+    /// <summary>
+    /// Creates a chart with an observable series collection.
+    /// </summary>
     public Chart()
     {
         Series = new(this, SeriesArgs);
     }
 
     private static readonly System.ComponentModel.PropertyChangedEventArgs SeriesArgs = new(nameof(Series));
-    /// <summary>Gets the chart series; each has a bounded allocation-free sample buffer.</summary>
+    /// <summary>
+    /// Gets the chart series; each has a bounded allocation-free sample buffer.
+    /// </summary>
     public ElementCollection<ChartSeries> Series { get; }
 
-    /// <summary>Gets or sets the geometry mode.</summary>
+    /// <summary>
+    /// Gets or sets the geometry mode.
+    /// </summary>
     public ChartKind Kind
     {
         get => _Kind.Value;
@@ -159,7 +167,9 @@ public class Chart : Control
 
     private StyleProperty<bool> _AutoScale = new(true);
     private static readonly System.ComponentModel.PropertyChangedEventArgs AutoScaleArgs = new(nameof(AutoScale));
-    /// <summary>Gets the effective AutoScale value or assigns a local override.</summary>
+    /// <summary>
+    /// Gets the effective AutoScale value or assigns a local override.
+    /// </summary>
     public bool AutoScale
     {
         get => _AutoScale.Value;
@@ -172,7 +182,9 @@ public class Chart : Control
 
     private StyleProperty<float> _Minimum = new(0);
     private static readonly System.ComponentModel.PropertyChangedEventArgs MinimumArgs = new(nameof(Minimum));
-    /// <summary>Gets the effective Minimum value or assigns a local override.</summary>
+    /// <summary>
+    /// Gets the effective Minimum value or assigns a local override.
+    /// </summary>
     public float Minimum
     {
         get => _Minimum.Value;
@@ -185,7 +197,9 @@ public class Chart : Control
 
     private StyleProperty<float> _Maximum = new(100);
     private static readonly System.ComponentModel.PropertyChangedEventArgs MaximumArgs = new(nameof(Maximum));
-    /// <summary>Gets the effective Maximum value or assigns a local override.</summary>
+    /// <summary>
+    /// Gets the effective Maximum value or assigns a local override.
+    /// </summary>
     public float Maximum
     {
         get => _Maximum.Value;
@@ -198,7 +212,9 @@ public class Chart : Control
 
     private StyleProperty<float> _LineThickness = new(2);
     private static readonly System.ComponentModel.PropertyChangedEventArgs LineThicknessArgs = new(nameof(LineThickness));
-    /// <summary>Gets the effective LineThickness value or assigns a local override.</summary>
+    /// <summary>
+    /// Gets the effective LineThickness value or assigns a local override.
+    /// </summary>
     public float LineThickness
     {
         get => _LineThickness.Value;

@@ -4,17 +4,23 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Editable CurveBase with fixed endpoint times, ordered points and cached shape-preserving slopes.</summary>
+/// <summary>
+/// Editable CurveBase with fixed endpoint times, ordered points and cached shape-preserving slopes.
+/// </summary>
 public sealed class EditableCurve : CurveBase, System.ComponentModel.INotifyPropertyChanged
 {
-    /// <summary>Minimum distance between normalized point times.</summary>
+    /// <summary>
+    /// Minimum distance between normalized point times.
+    /// </summary>
     public const float MinimumSpacing = 0.0001f;
     private readonly List<CurvePoint> _points = new();
     private readonly ReadOnlyCollection<CurvePoint> _view;
     private double[] _slopes = Array.Empty<double>();
     private int _revision, _slopeRevision = -1;
     private CurveInterpolation _interpolation = CurveInterpolation.Monotone;
-    /// <summary>Creates a straight 0-to-1 curve.</summary>
+    /// <summary>
+    /// Creates a straight 0-to-1 curve.
+    /// </summary>
     public EditableCurve()
     {
         _points.Add(new(0, 0));
@@ -22,14 +28,22 @@ public sealed class EditableCurve : CurveBase, System.ComponentModel.INotifyProp
         _view = _points.AsReadOnly();
     }
 
-    /// <summary>Creates a validated copy of ordered points.</summary>
+    /// <summary>
+    /// Creates a validated copy of ordered points.
+    /// </summary>
     public EditableCurve(IEnumerable<CurvePoint> points) : this() => ReplacePoints(points);
-    /// <summary>Gets points without exposing mutable list storage.</summary>
+    /// <summary>
+    /// Gets points without exposing mutable list storage.
+    /// </summary>
     public IReadOnlyList<CurvePoint> Points => _view;
-    /// <summary>Gets the revision changed by edits and interpolation changes.</summary>
+    /// <summary>
+    /// Gets the revision changed by edits and interpolation changes.
+    /// </summary>
     public int Revision => _revision;
 
-    /// <summary>Gets or sets interpolation.</summary>
+    /// <summary>
+    /// Gets or sets interpolation.
+    /// </summary>
     public CurveInterpolation Interpolation
     {
         get => _interpolation;
@@ -45,7 +59,9 @@ public sealed class EditableCurve : CurveBase, System.ComponentModel.INotifyProp
     }
 
     private static readonly System.ComponentModel.PropertyChangedEventArgs RevisionArgs = new(nameof(Revision));
-    /// <summary>Occurs after points or interpolation change the source revision.</summary>
+    /// <summary>
+    /// Occurs after points or interpolation change the source revision.
+    /// </summary>
     public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
     private void Changed()
     {
@@ -64,7 +80,9 @@ public sealed class EditableCurve : CurveBase, System.ComponentModel.INotifyProp
             throw new ArgumentOutOfRangeException(nameof(point));
     }
 
-    /// <summary>Replaces points atomically after validating all input.</summary>
+    /// <summary>
+    /// Replaces points atomically after validating all input.
+    /// </summary>
     public void ReplacePoints(IEnumerable<CurvePoint> points)
     {
         ArgumentNullException.ThrowIfNull(points);
@@ -94,7 +112,9 @@ public sealed class EditableCurve : CurveBase, System.ComponentModel.INotifyProp
         Changed();
     }
 
-    /// <summary>Adds an interior point and returns its sorted index.</summary>
+    /// <summary>
+    /// Adds an interior point and returns its sorted index.
+    /// </summary>
     public int AddPoint(CurvePoint point)
     {
         ValidatePoint(point);
@@ -108,7 +128,9 @@ public sealed class EditableCurve : CurveBase, System.ComponentModel.INotifyProp
         return index;
     }
 
-    /// <summary>Changes a point without permitting reordering or moving endpoint times.</summary>
+    /// <summary>
+    /// Changes a point without permitting reordering or moving endpoint times.
+    /// </summary>
     public void SetPoint(int index, CurvePoint point)
     {
         if (index < 0 || index >= _points.Count)
@@ -122,7 +144,9 @@ public sealed class EditableCurve : CurveBase, System.ComponentModel.INotifyProp
         Changed();
     }
 
-    /// <summary>Removes an interior point, retaining both endpoints.</summary>
+    /// <summary>
+    /// Removes an interior point, retaining both endpoints.
+    /// </summary>
     public void RemovePoint(int index)
     {
         if (index <= 0 || index >= _points.Count - 1)

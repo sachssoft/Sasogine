@@ -4,27 +4,43 @@ using Sachssoft.Engine.Input;
 using System;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Common finite range configuration and clamped, live value state.</summary>
+/// <summary>
+/// Common finite range configuration and clamped, live value state.
+/// </summary>
 public abstract class RangeControl : Control
 {
     private float _notifiedValue;
-    /// <summary>Initializes a new range control instance.</summary>
+    /// <summary>
+    /// Initializes a new range control instance.
+    /// </summary>
     protected RangeControl() : base()
     {
     }
 
-    /// <summary>Gets or sets minimum.</summary>
+    /// <summary>
+    /// Gets or sets minimum.
+    /// </summary>
     public float Minimum { get => ConfigMinimum; set => ConfigMinimum = value; }
-    /// <summary>Gets or sets maximum.</summary>
+    /// <summary>
+    /// Gets or sets maximum.
+    /// </summary>
     public float Maximum { get => ConfigMaximum; set => ConfigMaximum = value; }
-    /// <summary>Gets or sets small change.</summary>
+    /// <summary>
+    /// Gets or sets small change.
+    /// </summary>
     public float SmallChange { get => ConfigSmallChange; set => ConfigSmallChange = value; }
-    /// <summary>Gets or sets large change.</summary>
+    /// <summary>
+    /// Gets or sets large change.
+    /// </summary>
     public float LargeChange { get => ConfigLargeChange; set => ConfigLargeChange = value; }
-    /// <summary>Gets or sets orientation.</summary>
+    /// <summary>
+    /// Gets or sets orientation.
+    /// </summary>
     public ControlOrientation Orientation { get => ConfigAxis; set => ConfigAxis = value; }
 
-    /// <summary>Gets or sets value.</summary>
+    /// <summary>
+    /// Gets or sets value.
+    /// </summary>
     public float Value
     {
         get
@@ -46,9 +62,13 @@ public abstract class RangeControl : Control
         }
     }
 
-    /// <summary>Occurs when value changed.</summary>
+    /// <summary>
+    /// Occurs when value changed.
+    /// </summary>
     public event EventHandler? ValueChanged;
-    /// <summary>Performs validate range using the current control state.</summary>
+    /// <summary>
+    /// Performs validate range using the current control state.
+    /// </summary>
     protected void ValidateRange()
     {
         float step = ConfigStep;
@@ -107,10 +127,14 @@ public abstract class RangeControl : Control
         }
     }
 
-    /// <summary>Gets fraction.</summary>
+    /// <summary>
+    /// Gets fraction.
+    /// </summary>
     protected float Fraction => Maximum == Minimum ? 0 : (float)(((double)Value - Minimum) / ((double)Maximum - Minimum));
 
-    /// <summary>Performs set fraction using the current control state.</summary>
+    /// <summary>
+    /// Performs set fraction using the current control state.
+    /// </summary>
     protected void SetFraction(double fraction) => Value = (float)(Minimum + Math.Clamp(fraction, 0, 1) * ((double)Maximum - Minimum));
     private StyleProperty<ControlOrientation> _styleAxis = new(ControlOrientation.Horizontal);
     private static readonly System.ComponentModel.PropertyChangedEventArgs AxisChangedArgs = new(nameof(Axis));
@@ -124,7 +148,9 @@ public abstract class RangeControl : Control
         }
     }
 
-    /// <summary>Gets or sets Axis; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets Axis; a local assignment overrides the style.
+    /// </summary>
     public ControlOrientation Axis { get => ConfigAxis; set => ConfigAxis = value; }
 
     private StyleProperty<float> _styleMinimum = new(0f);
@@ -199,10 +225,14 @@ public abstract class RangeControl : Control
         }
     }
 
-    /// <summary>Gets or sets Step; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets Step; a local assignment overrides the style.
+    /// </summary>
     public float Step { get => ConfigStep; set => ConfigStep = value; }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -265,7 +295,9 @@ public abstract class RangeControl : Control
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -324,7 +356,9 @@ public abstract class RangeControl : Control
             NotifyPropertyChanged(StepChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

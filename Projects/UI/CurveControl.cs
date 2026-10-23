@@ -7,7 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>CurveBase preview and editable point graph with constrained dragging, view navigation and bounded history.</summary>
+/// <summary>
+/// CurveBase preview and editable point graph with constrained dragging, view navigation and bounded history.
+/// </summary>
 public class CurveControl : Control
 {
     private readonly List<CurveSample> _samples = new();
@@ -16,10 +18,18 @@ public class CurveControl : Control
     private ChangeTracker<Vector2> _viewMinimum, _viewMaximum;
     private ChangeTracker<int> _selection;
     private ChangeTracker<bool> _readOnly;
-    /// <summary>Gets or sets the optional command notified after a completed edit.</summary>
+    /// <summary>
+    /// Gets or sets the optional command notified after a completed edit.
+    /// </summary>
     public System.Windows.Input.ICommand? Command { get => ConfigCommand; set => ConfigCommand = value; }
-    /// <summary>Gets or sets the completion parameter; null uses the displayed CurveBase.</summary>
-    public object? CommandParameter { get => ConfigCommandParameter; set => ConfigCommandParameter = value; }
+    /// <summary>
+    /// Gets or sets the completion parameter; null uses the displayed CurveBase.
+    /// </summary>
+    public  object? CommandParameter
+    {
+        get => ConfigCommandParameter;
+        set => ConfigCommandParameter = value;
+    }
 
     private System.ComponentModel.INotifyPropertyChanged? _observableCurve;
     private void TrackCurve()
@@ -60,12 +70,16 @@ public class CurveControl : Control
     private EditableCurve? _editModel;
     private CurveEditState? _before;
     private Bounds2 _plot;
-    /// <summary>Creates a curve preview/editor.</summary>
+    /// <summary>
+    /// Creates a curve preview/editor.
+    /// </summary>
     public CurveControl() : base()
     {
     }
 
-    /// <summary>Gets the displayed source; null assignment restores the control's editable default.</summary>
+    /// <summary>
+    /// Gets the displayed source; null assignment restores the control's editable default.
+    /// </summary>
     public CurveBase Curve
     {
         get
@@ -76,10 +90,14 @@ public class CurveControl : Control
         set => ConfigCurve = value;
     }
 
-    /// <summary>Gets the editable source or null when displaying an ordinary CurveBase.</summary>
+    /// <summary>
+    /// Gets the editable source or null when displaying an ordinary CurveBase.
+    /// </summary>
     public EditableCurve? EditableCurve => Curve as EditableCurve;
 
-    /// <summary>Gets or sets an optional interpolation override.</summary>
+    /// <summary>
+    /// Gets or sets an optional interpolation override.
+    /// </summary>
     public CurveInterpolation? Interpolation
     {
         get => ConfigInterpolation;
@@ -101,10 +119,18 @@ public class CurveControl : Control
         }
     }
 
-    /// <summary>Gets effective read-only mode; ordinary CurveBase sources are previews.</summary>
-    public bool IsReadOnly { get => ConfigIsReadOnly || EditableCurve is null; set => ConfigIsReadOnly = value; }
+    /// <summary>
+    /// Gets effective read-only mode; ordinary CurveBase sources are previews.
+    /// </summary>
+    public  bool IsReadOnly
+    {
+        get => ConfigIsReadOnly || EditableCurve is null;
+        set => ConfigIsReadOnly = value;
+    }
 
-    /// <summary>Gets or sets the selected point, or -1.</summary>
+    /// <summary>
+    /// Gets or sets the selected point, or -1.
+    /// </summary>
     public int SelectedIndex
     {
         get => EditableCurve is EditableCurve model && ConfigSelectedIndex >= 0 && ConfigSelectedIndex < model.Points.Count ? ConfigSelectedIndex : -1;
@@ -117,28 +143,50 @@ public class CurveControl : Control
         }
     }
 
-    /// <summary>Gets the plot area in root logical coordinates.</summary>
+    /// <summary>
+    /// Gets the plot area in root logical coordinates.
+    /// </summary>
     public Bounds2 PlotBounds => _plot;
-    /// <summary>Gets whether a point is being dragged.</summary>
+    /// <summary>
+    /// Gets whether a point is being dragged.
+    /// </summary>
     public bool IsEditing => _dragging;
-    /// <summary>Gets whether an undo operation is available.</summary>
+    /// <summary>
+    /// Gets whether an undo operation is available.
+    /// </summary>
     public bool CanUndo => !IsReadOnly && !_dragging && _undo.Count > 0;
-    /// <summary>Gets whether a redo operation is available.</summary>
+    /// <summary>
+    /// Gets whether a redo operation is available.
+    /// </summary>
     public bool CanRedo => !IsReadOnly && !_dragging && _redo.Count > 0;
-    /// <summary>Gets whether the last sampling pass found nonfinite source values.</summary>
+    /// <summary>
+    /// Gets whether the last sampling pass found nonfinite source values.
+    /// </summary>
     public bool HasInvalidSamples { get; private set; }
 
-    /// <summary>Occurs for own model edits and externally observed source changes.</summary>
+    /// <summary>
+    /// Occurs for own model edits and externally observed source changes.
+    /// </summary>
     public event EventHandler? CurveChanged;
-    /// <summary>Occurs when point selection changes.</summary>
+    /// <summary>
+    /// Occurs when point selection changes.
+    /// </summary>
     public event EventHandler? SelectionChanged;
-    /// <summary>Occurs after the view changes.</summary>
+    /// <summary>
+    /// Occurs after the view changes.
+    /// </summary>
     public event EventHandler? ViewChanged;
-    /// <summary>Occurs before a point drag starts.</summary>
+    /// <summary>
+    /// Occurs before a point drag starts.
+    /// </summary>
     public event EventHandler? EditStarted;
-    /// <summary>Occurs after a completed drag or discrete edit; optional Command is executed here.</summary>
+    /// <summary>
+    /// Occurs after a completed drag or discrete edit; optional Command is executed here.
+    /// </summary>
     public event EventHandler? EditCompleted;
-    /// <summary>Occurs when a gesture is cancelled; its own point changes are reverted.</summary>
+    /// <summary>
+    /// Occurs when a gesture is cancelled; its own point changes are reverted.
+    /// </summary>
     public event EventHandler? EditCancelled;
     /// <inheritdoc/>
     protected override string DefaultStyleName => "CurveControl";
@@ -219,7 +267,9 @@ public class CurveControl : Control
             throw new InvalidOperationException("Curve view must be finite, increasing, within ±10000, with spans 0.0001–1000.");
     }
 
-    /// <summary>Sets a validated visible range without modifying curve data.</summary>
+    /// <summary>
+    /// Sets a validated visible range without modifying curve data.
+    /// </summary>
     public void SetView(Vector2 minimum, Vector2 maximum)
     {
         ValidateView(minimum, maximum);
@@ -232,9 +282,13 @@ public class CurveControl : Control
             ViewChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    /// <summary>Resets the graph to the unit square.</summary>
+    /// <summary>
+    /// Resets the graph to the unit square.
+    /// </summary>
     public void ResetView() => SetView(Vector2.Zero, Vector2.One);
-    /// <summary>Fits finite sampled values and editable points with a small margin.</summary>
+    /// <summary>
+    /// Fits finite sampled values and editable points with a small margin.
+    /// </summary>
     public void FitToCurve()
     {
         double low = double.PositiveInfinity, high = double.NegativeInfinity;
@@ -262,7 +316,9 @@ public class CurveControl : Control
         SetView(new Vector2(-.05f, (float)min), new Vector2(1.05f, (float)(min + height)));
     }
 
-    /// <summary>Converts a data point to root coordinates. Call after layout.</summary>
+    /// <summary>
+    /// Converts a data point to root coordinates. Call after layout.
+    /// </summary>
     public Vector2 ToScreen(CurvePoint point)
     {
         var min = ConfigCurveViewMinimum;
@@ -270,7 +326,9 @@ public class CurveControl : Control
         return new Vector2((float)(_plot.X + ((double)point.X - min.X) / (max.X - min.X) * _plot.Width), (float)(_plot.Bottom - ((double)point.Y - min.Y) / (max.Y - min.Y) * _plot.Height));
     }
 
-    /// <summary>Converts root coordinates to graph coordinates. Call after layout.</summary>
+    /// <summary>
+    /// Converts root coordinates to graph coordinates. Call after layout.
+    /// </summary>
     public CurvePoint FromScreen(Vector2 position)
     {
         if (!float.IsFinite(position.X) || !float.IsFinite(position.Y))
@@ -314,7 +372,9 @@ public class CurveControl : Control
         Completed();
     }
 
-    /// <summary>Adds an interior point as one undoable edit.</summary>
+    /// <summary>
+    /// Adds an interior point as one undoable edit.
+    /// </summary>
     public int AddPoint(CurvePoint point)
     {
         if (IsReadOnly)
@@ -356,7 +416,9 @@ public class CurveControl : Control
         return new(x, y);
     }
 
-    /// <summary>Moves the selected point as one undoable edit, preserving point order.</summary>
+    /// <summary>
+    /// Moves the selected point as one undoable edit, preserving point order.
+    /// </summary>
     public bool MoveSelectedPoint(CurvePoint point, bool snap = false)
     {
         if (IsReadOnly || SelectedIndex < 0)
@@ -373,7 +435,9 @@ public class CurveControl : Control
         return true;
     }
 
-    /// <summary>Removes the selected interior point as one undoable edit.</summary>
+    /// <summary>
+    /// Removes the selected interior point as one undoable edit.
+    /// </summary>
     public bool RemoveSelectedPoint()
     {
         if (IsReadOnly || SelectedIndex <= 0 || SelectedIndex >= EditableCurve!.Points.Count - 1)
@@ -400,7 +464,9 @@ public class CurveControl : Control
         ConfigSelectedIndex = Math.Clamp(ConfigSelectedIndex, -1, model.Points.Count - 1);
     }
 
-    /// <summary>Undoes the most recent completed editor change.</summary>
+    /// <summary>
+    /// Undoes the most recent completed editor change.
+    /// </summary>
     public void Undo()
     {
         if (!CanUndo)
@@ -415,7 +481,9 @@ public class CurveControl : Control
         Completed();
     }
 
-    /// <summary>Reapplies an undone editor change.</summary>
+    /// <summary>
+    /// Reapplies an undone editor change.
+    /// </summary>
     public void Redo()
     {
         if (!CanRedo)
@@ -841,7 +909,9 @@ public class CurveControl : Control
         }
     }
 
-    /// <summary>Gets or sets ShowGrid; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets ShowGrid; a local assignment overrides the style.
+    /// </summary>
     public bool ShowGrid { get => ConfigShowGrid; set => ConfigShowGrid = value; }
 
     private StyleProperty<bool> _styleShowPoints = new(true);
@@ -856,7 +926,9 @@ public class CurveControl : Control
         }
     }
 
-    /// <summary>Gets or sets ShowPoints; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets ShowPoints; a local assignment overrides the style.
+    /// </summary>
     public bool ShowPoints { get => ConfigShowPoints; set => ConfigShowPoints = value; }
 
     private StyleProperty<float> _styleSnapX = new(0.05f);
@@ -871,7 +943,9 @@ public class CurveControl : Control
         }
     }
 
-    /// <summary>Gets or sets SnapX; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets SnapX; a local assignment overrides the style.
+    /// </summary>
     public float SnapX { get => ConfigSnapX; set => ConfigSnapX = value; }
 
     private StyleProperty<float> _styleSnapY = new(0.05f);
@@ -886,7 +960,9 @@ public class CurveControl : Control
         }
     }
 
-    /// <summary>Gets or sets SnapY; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets SnapY; a local assignment overrides the style.
+    /// </summary>
     public float SnapY { get => ConfigSnapY; set => ConfigSnapY = value; }
 
     private StyleProperty<float> _styleCurveLineThickness = new(2f);
@@ -901,8 +977,14 @@ public class CurveControl : Control
         }
     }
 
-    /// <summary>Gets or sets CurveLineThickness; a local assignment overrides the style.</summary>
-    public float CurveLineThickness { get => ConfigCurveLineThickness; set => ConfigCurveLineThickness = value; }
+    /// <summary>
+    /// Gets or sets CurveLineThickness; a local assignment overrides the style.
+    /// </summary>
+    public  float CurveLineThickness
+    {
+        get => ConfigCurveLineThickness;
+        set => ConfigCurveLineThickness = value;
+    }
 
     private StyleProperty<float> _stylePointRadius = new(5f);
     private static readonly System.ComponentModel.PropertyChangedEventArgs PointRadiusChangedArgs = new(nameof(PointRadius));
@@ -916,7 +998,9 @@ public class CurveControl : Control
         }
     }
 
-    /// <summary>Gets or sets PointRadius; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets PointRadius; a local assignment overrides the style.
+    /// </summary>
     public float PointRadius { get => ConfigPointRadius; set => ConfigPointRadius = value; }
 
     private StyleProperty<Color> _styleCurveColor = new(new Color(65, 199, 223));
@@ -931,7 +1015,9 @@ public class CurveControl : Control
         }
     }
 
-    /// <summary>Gets or sets CurveColor; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets CurveColor; a local assignment overrides the style.
+    /// </summary>
     public Color CurveColor { get => ConfigCurveColor; set => ConfigCurveColor = value; }
 
     private StyleProperty<Color> _stylePointColor = new(new Color(227, 234, 244));
@@ -946,7 +1032,9 @@ public class CurveControl : Control
         }
     }
 
-    /// <summary>Gets or sets PointColor; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets PointColor; a local assignment overrides the style.
+    /// </summary>
     public Color PointColor { get => ConfigPointColor; set => ConfigPointColor = value; }
 
     private StyleProperty<Vector2> _styleCurveViewMinimum = new(Vector2.Zero);
@@ -961,8 +1049,14 @@ public class CurveControl : Control
         }
     }
 
-    /// <summary>Gets or sets CurveViewMinimum; a local assignment overrides the style.</summary>
-    public Vector2 CurveViewMinimum { get => ConfigCurveViewMinimum; set => ConfigCurveViewMinimum = value; }
+    /// <summary>
+    /// Gets or sets CurveViewMinimum; a local assignment overrides the style.
+    /// </summary>
+    public  Vector2 CurveViewMinimum
+    {
+        get => ConfigCurveViewMinimum;
+        set => ConfigCurveViewMinimum = value;
+    }
 
     private StyleProperty<Vector2> _styleCurveViewMaximum = new(Vector2.One);
     private static readonly System.ComponentModel.PropertyChangedEventArgs CurveViewMaximumChangedArgs = new(nameof(CurveViewMaximum));
@@ -976,13 +1070,23 @@ public class CurveControl : Control
         }
     }
 
-    /// <summary>Gets or sets CurveViewMaximum; a local assignment overrides the style.</summary>
-    public Vector2 CurveViewMaximum { get => ConfigCurveViewMaximum; set => ConfigCurveViewMaximum = value; }
+    /// <summary>
+    /// Gets or sets CurveViewMaximum; a local assignment overrides the style.
+    /// </summary>
+    public  Vector2 CurveViewMaximum
+    {
+        get => ConfigCurveViewMaximum;
+        set => ConfigCurveViewMaximum = value;
+    }
     internal EditableCurve ConfigDefaultCurve { get; } = new();
-    /// <summary>Gets or sets the value for DefaultCurve.</summary>
+    /// <summary>
+    /// Gets or sets the value for DefaultCurve.
+    /// </summary>
     public EditableCurve DefaultCurve { get => ConfigDefaultCurve; }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -1103,7 +1207,9 @@ public class CurveControl : Control
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -1229,10 +1335,14 @@ public class CurveControl : Control
         }
     }
 
-    /// <summary>Gets or sets the curve grid color.</summary>
+    /// <summary>
+    /// Gets or sets the curve grid color.
+    /// </summary>
     public Color GridColor { get => ConfigGridColor; set => ConfigGridColor = value; }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

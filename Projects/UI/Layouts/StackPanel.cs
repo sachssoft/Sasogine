@@ -2,16 +2,22 @@ using Microsoft.Xna.Framework;
 using System;
 
 namespace Sachssoft.Engine.Controls.Layouts;
-/// <summary>Stacks controls in insertion order. ZIndex changes painting, not layout.</summary>
+/// <summary>
+/// Stacks controls in insertion order. ZIndex changes painting, not layout.
+/// </summary>
 public class StackPanel : ContainerControl
 {
     private readonly StackOrientation _defaultOrientation;
-    /// <summary>Initializes a stack panel.</summary>
+    /// <summary>
+    /// Initializes a stack panel.
+    /// </summary>
     public StackPanel() : this(StackOrientation.Vertical)
     {
     }
 
-    /// <summary>Creates a stack with a style-resettable orientation fallback.</summary>
+    /// <summary>
+    /// Creates a stack with a style-resettable orientation fallback.
+    /// </summary>
     protected StackPanel(StackOrientation defaultOrientation)
     {
         _defaultOrientation = defaultOrientation;
@@ -20,9 +26,13 @@ public class StackPanel : ContainerControl
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "StackPanel";
-    /// <summary>Gets the effective Orientation value or sets a local override.</summary>
+    /// <summary>
+    /// Gets the effective Orientation value or sets a local override.
+    /// </summary>
     public StackOrientation Orientation { get => ConfigOrientation; set => ConfigOrientation = value; }
-    /// <summary>Gets the effective Spacing value or sets a local override.</summary>
+    /// <summary>
+    /// Gets the effective Spacing value or sets a local override.
+    /// </summary>
     public float Spacing { get => ConfigSpacing; set => ConfigSpacing = value; }
 
     /// <inheritdoc/>
@@ -90,7 +100,9 @@ public class StackPanel : ContainerControl
         }
     }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -123,7 +135,9 @@ public class StackPanel : ContainerControl
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -152,7 +166,9 @@ public class StackPanel : ContainerControl
             NotifyPropertyChanged(SpacingChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

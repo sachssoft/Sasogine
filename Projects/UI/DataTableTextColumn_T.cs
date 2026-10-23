@@ -1,14 +1,18 @@
 using System;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>AOT-safe typed text column with optional editing and typed sorting.</summary>
+/// <summary>
+/// AOT-safe typed text column with optional editing and typed sorting.
+/// </summary>
 /// <typeparam name = "T">Reference type of the application row.</typeparam>
 public sealed class DataTableTextColumn<T> : DataTableColumn where T : class
 {
     private readonly Func<T, string> _get;
     private readonly Action<T, string>? _set;
     private readonly Comparison<T>? _compare;
-    /// <summary>Creates an explicitly bound column.</summary>
+    /// <summary>
+    /// Creates an explicitly bound column.
+    /// </summary>
     public DataTableTextColumn(string header, Func<T, string> getText, Action<T, string>? setText = null, Comparison<T>? comparison = null)
     {
         ArgumentNullException.ThrowIfNull(getText);

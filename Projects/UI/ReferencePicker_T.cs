@@ -1,13 +1,17 @@
 using System.ComponentModel;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Edits an engine reference and accepts only objects assignable to the declared target type.</summary>
+/// <summary>
+/// Edits an engine reference and accepts only objects assignable to the declared target type.
+/// </summary>
 /// <typeparam name="T">The referenced engine object type.</typeparam>
 public sealed class ReferencePicker<T> : ReferencePicker where T : class, IEngineReferenceable
 {
     private Reference<T>? _value;
     private static readonly PropertyChangedEventArgs ValueArgs = new(nameof(Value));
-    /// <summary>Gets or sets the reference. User selection replaces it instead of mutating a shared instance.</summary>
+    /// <summary>
+    /// Gets or sets the reference. User selection replaces it instead of mutating a shared instance.
+    /// </summary>
     public Reference<T>? Value
     {
         get => _value;

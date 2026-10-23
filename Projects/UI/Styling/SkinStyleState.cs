@@ -1,5 +1,7 @@
 namespace Sachssoft.Engine.Controls.Styling;
-/// <summary>Remembers one skin contribution while preserving subsequent application style edits.</summary>
+/// <summary>
+/// Remembers one skin contribution while preserving subsequent application style edits.
+/// </summary>
 internal sealed class SkinStyleState
 {
     private readonly Style? _original;

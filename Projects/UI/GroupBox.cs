@@ -1,18 +1,32 @@
 namespace Sachssoft.Engine.Controls;
-/// <summary>A bordered content group with an arbitrary control header.</summary>
+/// <summary>
+/// A bordered content group with an arbitrary control header.
+/// </summary>
 public class GroupBox : ContainerControl
 {
     private Control? _header, _content;
     private static readonly System.ComponentModel.PropertyChangedEventArgs HeaderArgs = new(nameof(Header)), ContentArgs = new(nameof(Content));
-    /// <summary>Gets or sets the header, including images or composed controls.</summary>
+    /// <summary>
+    /// Gets or sets the header, including images or composed controls.
+    /// </summary>
     public Control? Header { get => _header; set => SetOwnedControl(ref _header, value, HeaderArgs); }
-    /// <summary>Gets or sets the group content.</summary>
-    public Control? Content { get => _content; set => SetOwnedControl(ref _content, value, ContentArgs, ShowsContent); }
+    /// <summary>
+    /// Gets or sets the group content.
+    /// </summary>
+    public  Control? Content
+    {
+        get => _content;
+        set => SetOwnedControl(ref _content, value, ContentArgs, ShowsContent);
+    }
     /// <inheritdoc/>
     protected override string DefaultStyleName => "GroupBox";
-    /// <summary>Gets whether the content participates in the control tree.</summary>
+    /// <summary>
+    /// Gets whether the content participates in the control tree.
+    /// </summary>
     protected virtual bool ShowsContent => true;
-    /// <summary>Gets the header row height.</summary>
+    /// <summary>
+    /// Gets the header row height.
+    /// </summary>
     protected float EffectiveHeaderHeight => MathF.Max(HeaderHeight, _header?.DesiredSize.Height ?? 0);
 
     internal override void Prepare()
@@ -78,7 +92,9 @@ public class GroupBox : ContainerControl
 
     private StyleProperty<float> _HeaderHeight = new(30);
     private static readonly System.ComponentModel.PropertyChangedEventArgs HeaderHeightArgs = new(nameof(HeaderHeight));
-    /// <summary>Gets the effective HeaderHeight value or assigns a local override.</summary>
+    /// <summary>
+    /// Gets the effective HeaderHeight value or assigns a local override.
+    /// </summary>
     public float HeaderHeight
     {
         get => _HeaderHeight.Value;

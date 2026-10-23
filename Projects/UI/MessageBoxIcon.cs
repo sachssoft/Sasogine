@@ -1,13 +1,23 @@
 namespace Sachssoft.Engine.Controls;
-/// <summary>Defines the semantic message icon.</summary>
+/// <summary>
+/// Defines the semantic message icon.
+/// </summary>
 public enum MessageBoxIcon
 {
-    /// <summary>Information.</summary>
+    /// <summary>
+    /// Information.
+    /// </summary>
     Information,
-    /// <summary>Warning.</summary>
+    /// <summary>
+    /// Warning.
+    /// </summary>
     Warning,
-    /// <summary>Error.</summary>
+    /// <summary>
+    /// Error.
+    /// </summary>
     Error,
-    /// <summary>Question.</summary>
+    /// <summary>
+    /// Question.
+    /// </summary>
     Question,
 }

@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace Sachssoft.Engine.Controls.Input;
-/// <summary>Represents control input frame.</summary>
+/// <summary>
+/// Represents control input frame.
+/// </summary>
 public sealed class ControlInputFrame
 {
-    /// <summary>Copies events and validates the supplied logical size and elapsed time.</summary>
+    /// <summary>
+    /// Copies events and validates the supplied logical size and elapsed time.
+    /// </summary>
     public ControlInputFrame(Size2 size, TimeSpan elapsed, IEnumerable<ControlInputEvent>? events = null)
     {
         Control.ValidateSize(size, false);
@@ -24,20 +28,30 @@ public sealed class ControlInputFrame
         Events = new ReadOnlyCollection<ControlInputEvent>(items);
     }
 
-    /// <summary>Gets the physical viewport when created by ControlInputSampler; null denotes an explicitly logical frame.</summary>
+    /// <summary>
+    /// Gets the physical viewport when created by ControlInputSampler; null denotes an explicitly logical frame.
+    /// </summary>
     public Microsoft.Xna.Framework.Rectangle? PhysicalViewport { get; private set; }
-    /// <summary>Gets the sampler's pixels-per-logical-unit transform, retained for deterministic coordinate conversion.</summary>
+    /// <summary>
+    /// Gets the sampler's pixels-per-logical-unit transform, retained for deterministic coordinate conversion.
+    /// </summary>
     public float SourceScale { get; private set; } = 1;
     internal ControlInputFrame SetViewport(Microsoft.Xna.Framework.Rectangle viewport, float scale)
     {
         PhysicalViewport = viewport; SourceScale = scale; return this;
     }
 
-    /// <summary>Gets the logical viewport size.</summary>
+    /// <summary>
+    /// Gets the logical viewport size.
+    /// </summary>
     public Size2 Size { get; private set; }
-    /// <summary>Gets the caller-supplied elapsed time.</summary>
+    /// <summary>
+    /// Gets the caller-supplied elapsed time.
+    /// </summary>
     public TimeSpan Elapsed { get; private set; }
-    /// <summary>Gets events in the exact order in which they will be processed.</summary>
+    /// <summary>
+    /// Gets events in the exact order in which they will be processed.
+    /// </summary>
     public IReadOnlyList<ControlInputEvent> Events { get; }
 
     internal ControlInputFrame(List<ControlInputEvent> borrowed)

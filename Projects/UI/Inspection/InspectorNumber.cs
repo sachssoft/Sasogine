@@ -2,7 +2,9 @@ using System.Globalization;
 using System.Numerics;
 
 namespace Sachssoft.Engine.Controls.Inspection;
-/// <summary>Constructs numeric text fields without converting through float, decimal or object.</summary>
+/// <summary>
+/// Constructs numeric text fields without converting through float, decimal or object.
+/// </summary>
 internal static class InspectorNumber
 {
     internal static TypedValueTextBox<TNumber> Create<TNumber>(TNumber value)

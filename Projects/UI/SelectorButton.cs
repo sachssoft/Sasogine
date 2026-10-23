@@ -2,10 +2,14 @@ using Microsoft.Xna.Framework;
 using System;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>A radio selection rendered as a toggle button.</summary>
+/// <summary>
+/// A radio selection rendered as a toggle button.
+/// </summary>
 public sealed class SelectorButton : RadioButton
 {
-    /// <summary>Initializes a new selector button instance.</summary>
+    /// <summary>
+    /// Initializes a new selector button instance.
+    /// </summary>
     public SelectorButton() : base()
     {
     }
@@ -31,7 +35,9 @@ public sealed class SelectorButton : RadioButton
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)

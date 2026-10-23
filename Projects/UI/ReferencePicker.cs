@@ -1,7 +1,9 @@
 using System.ComponentModel;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Displays an identifier with browse/clear controls and a filtered asset picker.</summary>
+/// <summary>
+/// Displays an identifier with browse/clear controls and a filtered asset picker.
+/// </summary>
 public class ReferencePicker : ContentControl
 {
     private IReadOnlyList<AssetItem> _source = Array.Empty<AssetItem>();
@@ -11,7 +13,9 @@ public class ReferencePicker : ContentControl
     private bool _resolved;
     private static readonly PropertyChangedEventArgs IsResolvedArgs = new(nameof(IsResolved));
     private static readonly PropertyChangedEventArgs SourceArgs = new(nameof(Source)), FilterArgs = new(nameof(Filter)), ReferenceIdArgs = new(nameof(ReferenceId)), AllowClearArgs = new(nameof(AllowClear));
-    /// <summary>Creates the compact reference field.</summary>
+    /// <summary>
+    /// Creates the compact reference field.
+    /// </summary>
     public ReferencePicker()
     {
         var grid = new Grid
@@ -36,7 +40,9 @@ public class ReferencePicker : ContentControl
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ReferencePicker";
 
-    /// <summary>Gets or sets the available metadata snapshot.</summary>
+    /// <summary>
+    /// Gets or sets the available metadata snapshot.
+    /// </summary>
     public IReadOnlyList<AssetItem> Source
     {
         get => _source;
@@ -48,7 +54,9 @@ public class ReferencePicker : ContentControl
         }
     }
 
-    /// <summary>Gets or sets an additional application filter.</summary>
+    /// <summary>
+    /// Gets or sets an additional application filter.
+    /// </summary>
     public Predicate<AssetItem>? Filter
     {
         get => _filter;
@@ -59,7 +67,9 @@ public class ReferencePicker : ContentControl
         }
     }
 
-    /// <summary>Gets or sets the referenced identifier, including unresolved identifiers.</summary>
+    /// <summary>
+    /// Gets or sets the referenced identifier, including unresolved identifiers.
+    /// </summary>
     public string? ReferenceId
     {
         get => _referenceId;
@@ -73,7 +83,9 @@ public class ReferencePicker : ContentControl
         }
     }
 
-    /// <summary>Gets or sets whether the user may clear this optional reference.</summary>
+    /// <summary>
+    /// Gets or sets whether the user may clear this optional reference.
+    /// </summary>
     public bool AllowClear
     {
         get => _allowClear;
@@ -84,15 +96,21 @@ public class ReferencePicker : ContentControl
         }
     }
 
-    /// <summary>Gets whether the current identifier resolves to a compatible source entry.</summary>
+    /// <summary>
+    /// Gets whether the current identifier resolves to a compatible source entry.
+    /// </summary>
     public bool IsResolved => _resolved;
-    /// <summary>Gets the read-only display field.</summary>
+    /// <summary>
+    /// Gets the read-only display field.
+    /// </summary>
     public TextBox Identifier { get; } = new()
     {
         IsReadOnly = true,
         Height = 32
     };
-    /// <summary>Gets the browse button.</summary>
+    /// <summary>
+    /// Gets the browse button.
+    /// </summary>
     public Button BrowseButton { get; } = new()
     {
         Content = new TextBlock
@@ -100,7 +118,9 @@ public class ReferencePicker : ContentControl
             Text = "Browse"
         }
     };
-    /// <summary>Gets the clear button.</summary>
+    /// <summary>
+    /// Gets the clear button.
+    /// </summary>
     public Button ClearButton { get; } = new()
     {
         Content = new TextBlock
@@ -108,14 +128,22 @@ public class ReferencePicker : ContentControl
             Text = "×"
         }
     };
-    /// <summary>Gets the currently open asset dialog.</summary>
+    /// <summary>
+    /// Gets the currently open asset dialog.
+    /// </summary>
     public AssetPickerDialog? ActiveDialog { get; private set; }
 
-    /// <summary>Occurs after the referenced identifier changes.</summary>
+    /// <summary>
+    /// Occurs after the referenced identifier changes.
+    /// </summary>
     public event EventHandler? ReferenceChanged;
-    /// <summary>Checks compatibility through explicit typed overrides, without reflection.</summary>
+    /// <summary>
+    /// Checks compatibility through explicit typed overrides, without reflection.
+    /// </summary>
     protected virtual bool Accepts(AssetItem asset) => true;
-    /// <summary>Checks whether a drag payload or explicit selection is compatible.</summary>
+    /// <summary>
+    /// Checks whether a drag payload or explicit selection is compatible.
+    /// </summary>
     public bool CanSelectAsset(AssetItem asset)
     {
         ArgumentNullException.ThrowIfNull(asset);
@@ -131,7 +159,9 @@ public class ReferencePicker : ContentControl
         return null;
     }
 
-    /// <summary>Refreshes names and availability after changing an existing source collection.</summary>
+    /// <summary>
+    /// Refreshes names and availability after changing an existing source collection.
+    /// </summary>
     public void RefreshDisplay()
     {
         AssetItem? asset = FindReference();
@@ -141,7 +171,9 @@ public class ReferencePicker : ContentControl
         ClearButton.IsEnabled = AllowClear && ReferenceId is not null;
     }
 
-    /// <summary>Selects a compatible asset. No asset resource is loaded.</summary>
+    /// <summary>
+    /// Selects a compatible asset. No asset resource is loaded.
+    /// </summary>
     public void SelectAsset(AssetItem asset)
     {
         ArgumentNullException.ThrowIfNull(asset);
@@ -150,14 +182,18 @@ public class ReferencePicker : ContentControl
         ReferenceId = asset.Id;
     }
 
-    /// <summary>Clears an optional reference.</summary>
+    /// <summary>
+    /// Clears an optional reference.
+    /// </summary>
     public void ClearReference()
     {
         if (AllowClear)
             ReferenceId = null;
     }
 
-    /// <summary>Opens the shared asset picker in the owning workspace.</summary>
+    /// <summary>
+    /// Opens the shared asset picker in the owning workspace.
+    /// </summary>
     public void Browse()
     {
         Workspace? owner = Workspace;
@@ -183,7 +219,9 @@ public class ReferencePicker : ContentControl
         _ = owner.ShowDialog(dialog);
     }
 
-    /// <summary>Raises the reference change notification.</summary>
+    /// <summary>
+    /// Raises the reference change notification.
+    /// </summary>
     protected virtual void OnReferenceChanged() => ReferenceChanged?.Invoke(this, EventArgs.Empty);
     /// <inheritdoc/>
     protected override void OnDetached()

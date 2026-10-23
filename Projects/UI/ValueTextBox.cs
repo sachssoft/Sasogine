@@ -2,7 +2,9 @@ using Microsoft.Xna.Framework.Input;
 using Sachssoft.Engine.Input;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>A single-row numeric field with repeat arrows and a shared bar-or-text center.</summary>
+/// <summary>
+/// A single-row numeric field with repeat arrows and a shared bar-or-text center.
+/// </summary>
 public class ValueTextBox : ContainerControl
 {
     private readonly ValueTextEditor _editor = new()
@@ -24,7 +26,9 @@ public class ValueTextBox : ContainerControl
     private bool _syncing, _isEditing;
     private float _lastValue = float.NaN;
     private static readonly System.ComponentModel.PropertyChangedEventArgs EditingArgs = new(nameof(IsEditing));
-    /// <summary>Creates the two repeat arrows and the mutually exclusive center controls.</summary>
+    /// <summary>
+    /// Creates the two repeat arrows and the mutually exclusive center controls.
+    /// </summary>
     public ValueTextBox()
     {
         _decrease.Content = new ControlGlyph(ControlGlyphKind.Left);
@@ -59,20 +63,34 @@ public class ValueTextBox : ContainerControl
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ValueTextBox";
-    /// <summary>Gets the center editor, visible only while entering a number.</summary>
+    /// <summary>
+    /// Gets the center editor, visible only while entering a number.
+    /// </summary>
     public TextBox Editor => _editor;
-    /// <summary>Gets the center range bar, visible outside text editing.</summary>
+    /// <summary>
+    /// Gets the center range bar, visible outside text editing.
+    /// </summary>
     public ValueBar RangeBar => _bar;
-    /// <summary>Gets the repeating decrement button.</summary>
+    /// <summary>
+    /// Gets the repeating decrement button.
+    /// </summary>
     public RepeatButton DecreaseButton => _decrease;
-    /// <summary>Gets the repeating increment button.</summary>
+    /// <summary>
+    /// Gets the repeating increment button.
+    /// </summary>
     public RepeatButton IncreaseButton => _increase;
-    /// <summary>Gets whether the center currently accepts text input.</summary>
+    /// <summary>
+    /// Gets whether the center currently accepts text input.
+    /// </summary>
     public bool IsEditing => _isEditing;
 
-    /// <summary>Occurs after the clamped, step-aligned value changes.</summary>
+    /// <summary>
+    /// Occurs after the clamped, step-aligned value changes.
+    /// </summary>
     public event EventHandler? ValueChanged;
-    /// <summary>Replaces the bar with the editor, focuses it and selects its formatted value.</summary>
+    /// <summary>
+    /// Replaces the bar with the editor, focuses it and selects its formatted value.
+    /// </summary>
     public void BeginEdit()
     {
         if (IsEditing || !IsAvailable())
@@ -97,7 +115,9 @@ public class ValueTextBox : ContainerControl
             Workspace?.Focus(_bar);
     }
 
-    /// <summary>Discards uncommitted text and restores the range bar.</summary>
+    /// <summary>
+    /// Discards uncommitted text and restores the range bar.
+    /// </summary>
     public void CancelEdit()
     {
         ResetText();
@@ -110,7 +130,9 @@ public class ValueTextBox : ContainerControl
         Sync(true);
     }
 
-    /// <summary>Validates and commits text using invariant culture; invalid focused input remains editable.</summary>
+    /// <summary>
+    /// Validates and commits text using invariant culture; invalid focused input remains editable.
+    /// </summary>
     public bool CommitEdit()
     {
         if (!float.TryParse(_editor.Text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float value) || !float.IsFinite(value))
@@ -225,7 +247,9 @@ public class ValueTextBox : ContainerControl
 
     private StyleProperty<float> _buttonWidth = new(28);
     private static readonly System.ComponentModel.PropertyChangedEventArgs ButtonWidthArgs = new(nameof(ButtonWidth));
-    /// <summary>Gets the arrow width in logical pixels, or assigns a local style override.</summary>
+    /// <summary>
+    /// Gets the arrow width in logical pixels, or assigns a local style override.
+    /// </summary>
     public float ButtonWidth
     {
         get => _buttonWidth.Value;
@@ -238,7 +262,9 @@ public class ValueTextBox : ContainerControl
 
     private StyleProperty<float> _Minimum = new(0);
     private static readonly System.ComponentModel.PropertyChangedEventArgs MinimumArgs = new(nameof(Minimum));
-    /// <summary>Gets the effective Minimum value or assigns a local override.</summary>
+    /// <summary>
+    /// Gets the effective Minimum value or assigns a local override.
+    /// </summary>
     public float Minimum
     {
         get => _Minimum.Value;
@@ -251,7 +277,9 @@ public class ValueTextBox : ContainerControl
 
     private StyleProperty<float> _Maximum = new(100);
     private static readonly System.ComponentModel.PropertyChangedEventArgs MaximumArgs = new(nameof(Maximum));
-    /// <summary>Gets the effective Maximum value or assigns a local override.</summary>
+    /// <summary>
+    /// Gets the effective Maximum value or assigns a local override.
+    /// </summary>
     public float Maximum
     {
         get => _Maximum.Value;
@@ -264,7 +292,9 @@ public class ValueTextBox : ContainerControl
 
     private StyleProperty<float> _Step = new(0);
     private static readonly System.ComponentModel.PropertyChangedEventArgs StepArgs = new(nameof(Step));
-    /// <summary>Gets the effective Step value or assigns a local override.</summary>
+    /// <summary>
+    /// Gets the effective Step value or assigns a local override.
+    /// </summary>
     public float Step
     {
         get => _Step.Value;
@@ -277,7 +307,9 @@ public class ValueTextBox : ContainerControl
 
     private StyleProperty<float> _Value = new(0);
     private static readonly System.ComponentModel.PropertyChangedEventArgs ValueArgs = new(nameof(Value));
-    /// <summary>Gets the effective Value value or assigns a local override.</summary>
+    /// <summary>
+    /// Gets the effective Value value or assigns a local override.
+    /// </summary>
     public float Value
     {
         get => _Value.Value;

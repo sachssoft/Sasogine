@@ -2,7 +2,9 @@ using Microsoft.Xna.Framework.Input;
 using Sachssoft.Engine.Input;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Owns a deterministic pipette gesture, with preview, accept and cancel callbacks on the UI thread.</summary>
+/// <summary>
+/// Owns a deterministic pipette gesture, with preview, accept and cancel callbacks on the UI thread.
+/// </summary>
 public sealed class ColorPickSession
 {
     private IColorPickSource? _source;
@@ -11,18 +13,30 @@ public sealed class ColorPickSession
     private Color _original;
     private bool _pending, _hasSample, _acceptPending;
     private string _label = string.Empty;
-    /// <summary>Gets whether a color-picking gesture currently intercepts workspace input.</summary>
+    /// <summary>
+    /// Gets whether a color-picking gesture currently intercepts workspace input.
+    /// </summary>
     public bool IsActive => Owner is not null;
-    /// <summary>Gets the control owning the gesture.</summary>
+    /// <summary>
+    /// Gets the control owning the gesture.
+    /// </summary>
     public Control? Owner { get; private set; }
-    /// <summary>Gets the current pointer position in workspace coordinates.</summary>
+    /// <summary>
+    /// Gets the current pointer position in workspace coordinates.
+    /// </summary>
     public Vector2 Position { get; private set; }
-    /// <summary>Gets the latest valid straight RGBA preview.</summary>
+    /// <summary>
+    /// Gets the latest valid straight RGBA preview.
+    /// </summary>
     public Color SelectedColor { get; private set; }
-    /// <summary>Gets or sets whether samples retain the original property's alpha channel.</summary>
+    /// <summary>
+    /// Gets or sets whether samples retain the original property's alpha channel.
+    /// </summary>
     public bool PreserveAlpha { get; set; } = true;
 
-    /// <summary>Starts a gesture. A preview callback may update the model; cancellation must restore it.</summary>
+    /// <summary>
+    /// Starts a gesture. A preview callback may update the model; cancellation must restore it.
+    /// </summary>
     public void Begin(Control owner, IColorPickSource source, Color original, Action<Color> preview, Action<Color> accept, Action cancel)
     {
         ArgumentNullException.ThrowIfNull(owner);
@@ -48,7 +62,9 @@ public sealed class ColorPickSession
         _label = "Pick a pixel · Click: accept · Escape: cancel";
     }
 
-    /// <summary>Cancels the active gesture and invokes its rollback callback exactly once.</summary>
+    /// <summary>
+    /// Cancels the active gesture and invokes its rollback callback exactly once.
+    /// </summary>
     public void Cancel()
     {
         if (!IsActive)

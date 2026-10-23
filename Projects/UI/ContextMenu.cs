@@ -5,10 +5,14 @@ using System;
 using System.Collections.Generic;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>A popup menu; call Show at a root-logical pointer position.</summary>
+/// <summary>
+/// A popup menu; call Show at a root-logical pointer position.
+/// </summary>
 public sealed class ContextMenu : MenuBar
 {
-    /// <summary>Initializes a new context menu instance.</summary>
+    /// <summary>
+    /// Initializes a new context menu instance.
+    /// </summary>
     public ContextMenu() : base()
     {
         Vertical = true;
@@ -17,7 +21,9 @@ public sealed class ContextMenu : MenuBar
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ContextMenu";
 
-    /// <summary>Performs show using the current control state.</summary>
+    /// <summary>
+    /// Performs show using the current control state.
+    /// </summary>
     public void Show(Workspace root, Vector2 position, Control? owner = null) => root.ShowPopup(this, new Bounds2(position.X, position.Y, 0, 0), owner);
     internal override bool IsStyleLocal(string property)
     {
@@ -28,7 +34,9 @@ public sealed class ContextMenu : MenuBar
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)

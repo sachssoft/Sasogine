@@ -1,16 +1,22 @@
 namespace Sachssoft.Engine.Controls;
-/// <summary>A collapsible content group with a keyboard-accessible toggle header.</summary>
+/// <summary>
+/// A collapsible content group with a keyboard-accessible toggle header.
+/// </summary>
 public class Expander : GroupBox
 {
     private readonly ExpanderHeaderButton _toggle = new();
-    /// <summary>Creates an expanded group. Assign HeaderContent to customize the toggle label.</summary>
+    /// <summary>
+    /// Creates an expanded group. Assign HeaderContent to customize the toggle label.
+    /// </summary>
     public Expander()
     {
         Header = _toggle;
         _toggle.Clicked += (_, _) => IsExpanded = _toggle.IsChecked == true;
     }
 
-    /// <summary>Gets or sets the content inside the toggle header.</summary>
+    /// <summary>
+    /// Gets or sets the content inside the toggle header.
+    /// </summary>
     public object? HeaderContent
     {
         get => _toggle.Content;
@@ -35,7 +41,9 @@ public class Expander : GroupBox
 
     private StyleProperty<bool> _IsExpanded = new(true);
     private static readonly System.ComponentModel.PropertyChangedEventArgs IsExpandedArgs = new(nameof(IsExpanded));
-    /// <summary>Gets the effective IsExpanded value or assigns a local override.</summary>
+    /// <summary>
+    /// Gets the effective IsExpanded value or assigns a local override.
+    /// </summary>
     public bool IsExpanded
     {
         get => _IsExpanded.Value;

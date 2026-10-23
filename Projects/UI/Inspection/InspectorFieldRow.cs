@@ -1,6 +1,8 @@
 namespace Sachssoft.Engine.Controls.Inspection;
 
-/// <summary>Lays out a property with its label above the editor when horizontal space is limited.</summary>
+/// <summary>
+/// Lays out a property with its label above the editor when horizontal space is limited.
+/// </summary>
 internal sealed class InspectorFieldRow : ContainerControl
 {
     private const float LabelWidth = 112, MenuWidth = 26, Gap = 8, LabelGap = 4;

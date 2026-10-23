@@ -1,7 +1,9 @@
 using System.ComponentModel;
 
 namespace Sachssoft.Engine.Controls.Inspection;
-/// <summary>Edits a composite value as one horizontal row of equally sized, named numeric fields.</summary>
+/// <summary>
+/// Edits a composite value as one horizontal row of equally sized, named numeric fields.
+/// </summary>
 /// <typeparam name = "T">The composite value type, such as a vector, size or point.</typeparam>
 public sealed class MultiValueEditor<T> : Grid where T : struct
 {
@@ -11,7 +13,9 @@ public sealed class MultiValueEditor<T> : Grid where T : struct
     private static readonly PropertyChangedEventArgs ValueArgs = new(nameof(Value));
     private T _value;
     private bool _updating;
-    /// <summary>Creates a row from a value and explicitly described components.</summary>
+    /// <summary>
+    /// Creates a row from a value and explicitly described components.
+    /// </summary>
     public MultiValueEditor(T value, params ValueComponent<T>[] components)
     {
         ArgumentNullException.ThrowIfNull(components);
@@ -69,10 +73,14 @@ public sealed class MultiValueEditor<T> : Grid where T : struct
         DisplayValue();
     }
 
-    /// <summary>Gets the individual fields in component order.</summary>
+    /// <summary>
+    /// Gets the individual fields in component order.
+    /// </summary>
     public IReadOnlyList<ValueTextBox> Editors => _editorView;
 
-    /// <summary>Gets or sets the composite value without replacing existing component controls.</summary>
+    /// <summary>
+    /// Gets or sets the composite value without replacing existing component controls.
+    /// </summary>
     public T Value
     {
         get => _value;
@@ -86,7 +94,9 @@ public sealed class MultiValueEditor<T> : Grid where T : struct
         }
     }
 
-    /// <summary>Occurs when the composite value changes.</summary>
+    /// <summary>
+    /// Occurs when the composite value changes.
+    /// </summary>
     public event EventHandler? ValueChanged;
     internal Func<T>? ReadCurrent { get; set; }
 

@@ -4,7 +4,9 @@ using System;
 using System.Globalization;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Validated date input with a calendar popup owned by the root.</summary>
+/// <summary>
+/// Validated date input with a calendar popup owned by the root.
+/// </summary>
 public class DatePicker : ContainerControl
 {
     private readonly TextBox _editor = new()
@@ -19,7 +21,9 @@ public class DatePicker : ContainerControl
     private ChangeTracker<DateOnly?> _date;
     private ChangeTracker<string> _format, _culture;
     private bool _syncing, _dirty, _wasFocused;
-    /// <summary>Creates a date picker.</summary>
+    /// <summary>
+    /// Creates a date picker.
+    /// </summary>
     public DatePicker() : base()
     {
         _drop.Content = new ControlGlyph(ControlGlyphKind.Calendar);
@@ -43,7 +47,9 @@ public class DatePicker : ContainerControl
         };
     }
 
-    /// <summary>Gets or sets the selected date, or null.</summary>
+    /// <summary>
+    /// Gets or sets the selected date, or null.
+    /// </summary>
     public DateOnly? SelectedDate
     {
         get => ConfigSelectedDate;
@@ -58,14 +64,22 @@ public class DatePicker : ContainerControl
         }
     }
 
-    /// <summary>Gets the editor.</summary>
+    /// <summary>
+    /// Gets the editor.
+    /// </summary>
     public TextBox Editor => _editor;
-    /// <summary>Gets the open calendar.</summary>
+    /// <summary>
+    /// Gets the open calendar.
+    /// </summary>
     public Calendar? Calendar => _popup;
-    /// <summary>Gets whether the calendar is open.</summary>
+    /// <summary>
+    /// Gets whether the calendar is open.
+    /// </summary>
     public bool IsDropDownOpen => _popup is not null;
 
-    /// <summary>Occurs after the date changes.</summary>
+    /// <summary>
+    /// Occurs after the date changes.
+    /// </summary>
     public event EventHandler? SelectionChanged;
     /// <inheritdoc/>
     protected override string DefaultStyleName => "DatePicker";
@@ -107,7 +121,9 @@ public class DatePicker : ContainerControl
         }
     }
 
-    /// <summary>Commits valid text; invalid input leaves the selected date unchanged.</summary>
+    /// <summary>
+    /// Commits valid text; invalid input leaves the selected date unchanged.
+    /// </summary>
     public bool CommitEdit()
     {
         if (!TryRead(out DateOnly? value))
@@ -120,7 +136,9 @@ public class DatePicker : ContainerControl
         return true;
     }
 
-    /// <summary>Opens a calendar without borrowing content from another tree.</summary>
+    /// <summary>
+    /// Opens a calendar without borrowing content from another tree.
+    /// </summary>
     public void OpenDropDown()
     {
         if (Workspace is null || IsDropDownOpen || !IsAvailable() || ConfigIsReadOnly)
@@ -152,7 +170,9 @@ public class DatePicker : ContainerControl
         });
     }
 
-    /// <summary>Closes the calendar and restores focus through the root.</summary>
+    /// <summary>
+    /// Closes the calendar and restores focus through the root.
+    /// </summary>
     public void CloseDropDown()
     {
         if (_popup is Calendar popup)
@@ -236,7 +256,9 @@ public class DatePicker : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets IsReadOnly; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets IsReadOnly; a local assignment overrides the style.
+    /// </summary>
     public bool IsReadOnly { get => ConfigIsReadOnly; set => ConfigIsReadOnly = value; }
 
     private StyleProperty<string> _styleCultureName = new(string.Empty);
@@ -251,7 +273,9 @@ public class DatePicker : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets CultureName; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets CultureName; a local assignment overrides the style.
+    /// </summary>
     public string CultureName { get => ConfigCultureName; set => ConfigCultureName = value; }
 
     private StyleProperty<DateOnly?> _styleSelectedDate = new(null);
@@ -278,7 +302,9 @@ public class DatePicker : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets DisplayMonth; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets DisplayMonth; a local assignment overrides the style.
+    /// </summary>
     public DateOnly DisplayMonth { get => ConfigDisplayMonth; set => ConfigDisplayMonth = value; }
 
     private StyleProperty<DateOnly> _styleMinimumDate = new(DateOnly.MinValue);
@@ -293,7 +319,9 @@ public class DatePicker : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets MinimumDate; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets MinimumDate; a local assignment overrides the style.
+    /// </summary>
     public DateOnly MinimumDate { get => ConfigMinimumDate; set => ConfigMinimumDate = value; }
 
     private StyleProperty<DateOnly> _styleMaximumDate = new(DateOnly.MaxValue);
@@ -308,7 +336,9 @@ public class DatePicker : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets MaximumDate; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets MaximumDate; a local assignment overrides the style.
+    /// </summary>
     public DateOnly MaximumDate { get => ConfigMaximumDate; set => ConfigMaximumDate = value; }
 
     private StyleProperty<DateOnly?> _styleToday = new(null);
@@ -323,7 +353,9 @@ public class DatePicker : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets Today; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets Today; a local assignment overrides the style.
+    /// </summary>
     public DateOnly? Today { get => ConfigToday; set => ConfigToday = value; }
 
     private StyleProperty<DayOfWeek> _styleFirstDayOfWeek = new(DayOfWeek.Monday);
@@ -338,7 +370,9 @@ public class DatePicker : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets FirstDayOfWeek; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets FirstDayOfWeek; a local assignment overrides the style.
+    /// </summary>
     public DayOfWeek FirstDayOfWeek { get => ConfigFirstDayOfWeek; set => ConfigFirstDayOfWeek = value; }
 
     private StyleProperty<string> _styleDateFormat = new("yyyy-MM-dd");
@@ -353,10 +387,14 @@ public class DatePicker : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets DateFormat; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets DateFormat; a local assignment overrides the style.
+    /// </summary>
     public string DateFormat { get => ConfigDateFormat; set => ConfigDateFormat = value; }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -431,7 +469,9 @@ public class DatePicker : ContainerControl
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -502,7 +542,9 @@ public class DatePicker : ContainerControl
             NotifyPropertyChanged(DateFormatChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

@@ -9,7 +9,9 @@ using System.Collections.ObjectModel;
 using System.Text;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Virtualized text cells, stable explicit sorting, column resizing, row activation and optional inline editing.</summary>
+/// <summary>
+/// Virtualized text cells, stable explicit sorting, column resizing, row activation and optional inline editing.
+/// </summary>
 public class DataTable : ContainerControl
 {
     private readonly List<DataTableColumnLayout> _columns = new();
@@ -19,14 +21,22 @@ public class DataTable : ContainerControl
     private readonly List<object> _selectedObjects = new();
     private ChangeTracker<int> _primarySelection;
     private int _selectionVersion, _notifiedSelectionVersion, _anchor = -1;
-    /// <summary>Gets or sets whether Ctrl/Shift and Ctrl+A select multiple full rows.</summary>
+    /// <summary>
+    /// Gets or sets whether Ctrl/Shift and Ctrl+A select multiple full rows.
+    /// </summary>
     public bool MultiSelect { get => ConfigMultiSelect; set => ConfigMultiSelect = value; }
-    /// <summary>Gets selected source row indices in source order.</summary>
+    /// <summary>
+    /// Gets selected source row indices in source order.
+    /// </summary>
     public IReadOnlyList<int> SelectedIndices => Array.AsReadOnly(_selectedRows.ToArray());
-    /// <summary>Gets selected source objects in source order.</summary>
+    /// <summary>
+    /// Gets selected source objects in source order.
+    /// </summary>
     public IReadOnlyList<object> SelectedItems => Array.AsReadOnly(_selectedRows.Where(i => i >= 0 && i < Items.Count).Select(i => Items[i]).ToArray());
 
-    /// <summary>Selects all rows in multi-selection mode.</summary>
+    /// <summary>
+    /// Selects all rows in multi-selection mode.
+    /// </summary>
     public void SelectAll()
     {
         if (!MultiSelect)
@@ -35,7 +45,9 @@ public class DataTable : ContainerControl
         SetRows(indices, SelectedIndex >= 0 ? SelectedIndex : Items.Count > 0 ? 0 : -1);
     }
 
-    /// <summary>Formats selected full rows as tab-separated text, in display order.</summary>
+    /// <summary>
+    /// Formats selected full rows as tab-separated text, in display order.
+    /// </summary>
     public string GetSelectedText()
     {
         var result = new StringBuilder();
@@ -64,7 +76,9 @@ public class DataTable : ContainerControl
         return result.ToString();
     }
 
-    /// <summary>Clears the full-row selection.</summary>
+    /// <summary>
+    /// Clears the full-row selection.
+    /// </summary>
     public void ClearSelection() => SetRows(Array.Empty<int>(), -1);
     private void SetRows(IEnumerable<int> rows, int primary)
     {
@@ -133,7 +147,9 @@ public class DataTable : ContainerControl
     private object? _notifiedItem;
     private double _time, _lastClickTime;
     private IControlFont? _font;
-    /// <summary>Creates a table.</summary>
+    /// <summary>
+    /// Creates a table.
+    /// </summary>
     public DataTable() : base()
     {
         _comparison = CompareRows;
@@ -151,18 +167,30 @@ public class DataTable : ContainerControl
         _editor.Submitted += (_, _) => CommitEdit();
     }
 
-    /// <summary>Gets source rows.</summary>
+    /// <summary>
+    /// Gets source rows.
+    /// </summary>
     public IList<object> Items => ConfigItems;
-    /// <summary>Gets explicit column propertiess.</summary>
+    /// <summary>
+    /// Gets explicit column propertiess.
+    /// </summary>
     public IList<DataTableColumn> Columns => ConfigColumnDefinitions;
-    /// <summary>Gets the independent horizontal scrollbar.</summary>
+    /// <summary>
+    /// Gets the independent horizontal scrollbar.
+    /// </summary>
     public ScrollBar HorizontalScrollBar { get; }
-    /// <summary>Gets the independent vertical scrollbar.</summary>
+    /// <summary>
+    /// Gets the independent vertical scrollbar.
+    /// </summary>
     public ScrollBar VerticalScrollBar { get; }
-    /// <summary>Gets visible row viewport bounds.</summary>
+    /// <summary>
+    /// Gets visible row viewport bounds.
+    /// </summary>
     public Bounds2 ViewportBounds => _body;
 
-    /// <summary>Gets or sets source row selection; sorting does not change source indices.</summary>
+    /// <summary>
+    /// Gets or sets source row selection; sorting does not change source indices.
+    /// </summary>
     public int SelectedIndex
     {
         get => ConfigSelectedIndex >= 0 && ConfigSelectedIndex < Items.Count ? ConfigSelectedIndex : -1;
@@ -175,33 +203,61 @@ public class DataTable : ContainerControl
         }
     }
 
-    /// <summary>Gets the selected source item.</summary>
+    /// <summary>
+    /// Gets the selected source item.
+    /// </summary>
     public object? SelectedItem => SelectedIndex < 0 ? null : Items[SelectedIndex];
-    /// <summary>Gets the current sort column.</summary>
+    /// <summary>
+    /// Gets the current sort column.
+    /// </summary>
     public DataTableColumn? SortColumn => _sortColumn;
-    /// <summary>Gets current sorting.</summary>
+    /// <summary>
+    /// Gets current sorting.
+    /// </summary>
     public DataTableSortDirection SortDirection => _direction;
-    /// <summary>Gets whether an inline editor is active.</summary>
+    /// <summary>
+    /// Gets whether an inline editor is active.
+    /// </summary>
     public bool IsEditing => _editRow >= 0;
-    /// <summary>Gets the inline editor for validation and customization.</summary>
+    /// <summary>
+    /// Gets the inline editor for validation and customization.
+    /// </summary>
     public TextBox CellEditor => _editor;
-    /// <summary>Gets the last expected conversion/validation error.</summary>
+    /// <summary>
+    /// Gets the last expected conversion/validation error.
+    /// </summary>
     public string EditError { get; private set; } = string.Empty;
-    /// <summary>Gets or sets the command executed by Enter or double-click. Null parameter defaults to the selected row.</summary>
+    /// <summary>
+    /// Gets or sets the command executed by Enter or double-click. Null parameter defaults to the selected row.
+    /// </summary>
     public System.Windows.Input.ICommand? Command { get => ConfigCommand; set => ConfigCommand = value; }
-    /// <summary>Gets or sets an explicit row activation parameter.</summary>
-    public object? CommandParameter { get => ConfigCommandParameter; set => ConfigCommandParameter = value; }
+    /// <summary>
+    /// Gets or sets an explicit row activation parameter.
+    /// </summary>
+    public  object? CommandParameter
+    {
+        get => ConfigCommandParameter;
+        set => ConfigCommandParameter = value;
+    }
 
-    /// <summary>Occurs when selection changes.</summary>
+    /// <summary>
+    /// Occurs when selection changes.
+    /// </summary>
     public event EventHandler? SelectionChanged;
-    /// <summary>Occurs after an allowed row activation.</summary>
+    /// <summary>
+    /// Occurs after an allowed row activation.
+    /// </summary>
     public event EventHandler? RowActivated;
-    /// <summary>Occurs after a cell is committed.</summary>
+    /// <summary>
+    /// Occurs after a cell is committed.
+    /// </summary>
     public event EventHandler? CellEdited;
     /// <inheritdoc/>
     protected override string DefaultStyleName => "DataTable";
 
-    /// <summary>Invalidates sorted order after application row values have changed.</summary>
+    /// <summary>
+    /// Invalidates sorted order after application row values have changed.
+    /// </summary>
     public void Refresh()
     {
         unchecked
@@ -210,7 +266,9 @@ public class DataTable : ContainerControl
         }
     }
 
-    /// <summary>Sorts through an explicit column comparison; equal values preserve source order.</summary>
+    /// <summary>
+    /// Sorts through an explicit column comparison; equal values preserve source order.
+    /// </summary>
     public void SortBy(DataTableColumn? column, DataTableSortDirection direction = DataTableSortDirection.Ascending)
     {
         if (direction is not (DataTableSortDirection.None or DataTableSortDirection.Ascending or DataTableSortDirection.Descending))
@@ -224,7 +282,9 @@ public class DataTable : ContainerControl
         Refresh();
     }
 
-    /// <summary>Gets an item in displayed, sorted order.</summary>
+    /// <summary>
+    /// Gets an item in displayed, sorted order.
+    /// </summary>
     public object GetDisplayItem(int displayIndex) => Items[_order[displayIndex]];
     private int CompareRows(int a, int b)
     {
@@ -457,7 +517,9 @@ public class DataTable : ContainerControl
         }
     }
 
-    /// <summary>Starts an explicit editable cell. Source index remains stable across sorting.</summary>
+    /// <summary>
+    /// Starts an explicit editable cell. Source index remains stable across sorting.
+    /// </summary>
     public bool BeginEdit(int rowIndex, int columnIndex)
     {
         if (rowIndex < 0 || rowIndex >= Items.Count || columnIndex < 0 || columnIndex >= Columns.Count)
@@ -481,7 +543,9 @@ public class DataTable : ContainerControl
         return true;
     }
 
-    /// <summary>Commits through the column setter, retaining invalid text for correction.</summary>
+    /// <summary>
+    /// Commits through the column setter, retaining invalid text for correction.
+    /// </summary>
     public bool CommitEdit()
     {
         if (!IsEditing)
@@ -503,7 +567,9 @@ public class DataTable : ContainerControl
         return true;
     }
 
-    /// <summary>Discards the inline editor.</summary>
+    /// <summary>
+    /// Discards the inline editor.
+    /// </summary>
     public void CancelEdit()
     {
         bool focused = _editor.IsFocused;
@@ -782,8 +848,14 @@ public class DataTable : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets ScrollBarThickness; a local assignment overrides the style.</summary>
-    public float ScrollBarThickness { get => ConfigScrollBarThickness; set => ConfigScrollBarThickness = value; }
+    /// <summary>
+    /// Gets or sets ScrollBarThickness; a local assignment overrides the style.
+    /// </summary>
+    public  float ScrollBarThickness
+    {
+        get => ConfigScrollBarThickness;
+        set => ConfigScrollBarThickness = value;
+    }
 
     private StyleProperty<float> _styleItemHeight = new(30f);
     private static readonly System.ComponentModel.PropertyChangedEventArgs ItemHeightChangedArgs = new(nameof(ItemHeight));
@@ -797,7 +869,9 @@ public class DataTable : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets ItemHeight; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets ItemHeight; a local assignment overrides the style.
+    /// </summary>
     public float ItemHeight { get => ConfigItemHeight; set => ConfigItemHeight = value; }
 
     private StyleProperty<bool> _styleMultiSelect = new(false);
@@ -864,40 +938,78 @@ public class DataTable : ContainerControl
     private static readonly System.ComponentModel.PropertyChangedEventArgs ItemsCollectionArgs = new("Items");
     internal IList<object> ConfigItems => _ownedItems ??= new(this, ItemsCollectionArgs);
     internal IList<object> ConfigRows => ConfigItems;
-    /// <summary>Gets the owned collection for Rows.</summary>
+    /// <summary>
+    /// Gets the owned collection for Rows.
+    /// </summary>
     public IList<object> Rows { get => ConfigRows; }
 
     private ElementCollection<DataTableColumn>? _ownedColumnDefinitions;
     private static readonly System.ComponentModel.PropertyChangedEventArgs ColumnDefinitionsCollectionArgs = new("Tracks");
     internal IList<DataTableColumn> ConfigColumnDefinitions => _ownedColumnDefinitions ??= new(this, ColumnDefinitionsCollectionArgs);
-    /// <summary>Gets the owned collection for Tracks.</summary>
+    /// <summary>
+    /// Gets the owned collection for Tracks.
+    /// </summary>
     public IList<DataTableColumn> Tracks { get => ConfigColumnDefinitions; }
 
     private bool _storedShowHeaders = true;
     private static readonly System.ComponentModel.PropertyChangedEventArgs ShowHeadersStorageArgs = new("ShowHeaders");
-    internal bool ConfigShowHeaders { get => _storedShowHeaders; set => SetNotify(ref _storedShowHeaders, value, ShowHeadersStorageArgs); }
-    /// <summary>Gets or sets the value for ShowHeaders.</summary>
+    internal  bool ConfigShowHeaders
+    {
+        get => _storedShowHeaders;
+        set => SetNotify(ref _storedShowHeaders, value, ShowHeadersStorageArgs);
+    }
+    /// <summary>
+    /// Gets or sets the value for ShowHeaders.
+    /// </summary>
     public bool ShowHeaders { get => ConfigShowHeaders; set => ConfigShowHeaders = value; }
 
     private bool _storedCanUserResizeColumns = true;
     private static readonly System.ComponentModel.PropertyChangedEventArgs CanUserResizeColumnsStorageArgs = new("CanUserResizeColumns");
-    internal bool ConfigCanUserResizeColumns { get => _storedCanUserResizeColumns; set => SetNotify(ref _storedCanUserResizeColumns, value, CanUserResizeColumnsStorageArgs); }
-    /// <summary>Gets or sets the value for CanUserResizeColumns.</summary>
-    public bool CanUserResizeColumns { get => ConfigCanUserResizeColumns; set => ConfigCanUserResizeColumns = value; }
+    internal  bool ConfigCanUserResizeColumns
+    {
+        get => _storedCanUserResizeColumns;
+        set => SetNotify(ref _storedCanUserResizeColumns, value, CanUserResizeColumnsStorageArgs);
+    }
+    /// <summary>
+    /// Gets or sets the value for CanUserResizeColumns.
+    /// </summary>
+    public  bool CanUserResizeColumns
+    {
+        get => ConfigCanUserResizeColumns;
+        set => ConfigCanUserResizeColumns = value;
+    }
 
     private bool _storedCanUserSortColumns = true;
     private static readonly System.ComponentModel.PropertyChangedEventArgs CanUserSortColumnsStorageArgs = new("CanUserSortColumns");
-    internal bool ConfigCanUserSortColumns { get => _storedCanUserSortColumns; set => SetNotify(ref _storedCanUserSortColumns, value, CanUserSortColumnsStorageArgs); }
-    /// <summary>Gets or sets the value for CanUserSortColumns.</summary>
-    public bool CanUserSortColumns { get => ConfigCanUserSortColumns; set => ConfigCanUserSortColumns = value; }
+    internal  bool ConfigCanUserSortColumns
+    {
+        get => _storedCanUserSortColumns;
+        set => SetNotify(ref _storedCanUserSortColumns, value, CanUserSortColumnsStorageArgs);
+    }
+    /// <summary>
+    /// Gets or sets the value for CanUserSortColumns.
+    /// </summary>
+    public  bool CanUserSortColumns
+    {
+        get => ConfigCanUserSortColumns;
+        set => ConfigCanUserSortColumns = value;
+    }
 
     private bool _storedShowGridLines = true;
     private static readonly System.ComponentModel.PropertyChangedEventArgs ShowGridLinesStorageArgs = new("ShowGridLines");
-    internal bool ConfigShowGridLines { get => _storedShowGridLines; set => SetNotify(ref _storedShowGridLines, value, ShowGridLinesStorageArgs); }
-    /// <summary>Gets or sets the value for ShowGridLines.</summary>
+    internal  bool ConfigShowGridLines
+    {
+        get => _storedShowGridLines;
+        set => SetNotify(ref _storedShowGridLines, value, ShowGridLinesStorageArgs);
+    }
+    /// <summary>
+    /// Gets or sets the value for ShowGridLines.
+    /// </summary>
     public bool ShowGridLines { get => ConfigShowGridLines; set => ConfigShowGridLines = value; }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -960,7 +1072,9 @@ public class DataTable : ContainerControl
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -1019,7 +1133,9 @@ public class DataTable : ContainerControl
             NotifyPropertyChanged(HeaderHeightChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

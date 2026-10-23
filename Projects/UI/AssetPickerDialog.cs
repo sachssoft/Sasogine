@@ -1,8 +1,12 @@
 namespace Sachssoft.Engine.Controls;
-/// <summary>Selects one compatible registered asset using the reusable preview list.</summary>
+/// <summary>
+/// Selects one compatible registered asset using the reusable preview list.
+/// </summary>
 public sealed class AssetPickerDialog : Dialog
 {
-    /// <summary>Creates the search, list and explicit accept/cancel controls.</summary>
+    /// <summary>
+    /// Creates the search, list and explicit accept/cancel controls.
+    /// </summary>
     public AssetPickerDialog()
     {
         var layout = new Grid
@@ -49,11 +53,17 @@ public sealed class AssetPickerDialog : Dialog
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "AssetPickerDialog";
-    /// <summary>Gets the shared asset view. Supply its Source and optional Filter before showing.</summary>
+    /// <summary>
+    /// Gets the shared asset view. Supply its Source and optional Filter before showing.
+    /// </summary>
     public AssetView Assets { get; } = new();
-    /// <summary>Gets the name, identifier and kind search box.</summary>
+    /// <summary>
+    /// Gets the name, identifier and kind search box.
+    /// </summary>
     public TextBox Search { get; } = new();
-    /// <summary>Gets the accept button.</summary>
+    /// <summary>
+    /// Gets the accept button.
+    /// </summary>
     public Button AcceptButton { get; } = new()
     {
         Content = new TextBlock
@@ -63,7 +73,9 @@ public sealed class AssetPickerDialog : Dialog
         Width = 100,
         IsEnabled = false
     };
-    /// <summary>Gets the accepted selection, or null before acceptance.</summary>
+    /// <summary>
+    /// Gets the accepted selection, or null before acceptance.
+    /// </summary>
     public AssetItem? SelectedAsset { get; private set; }
 
     /// <inheritdoc/>

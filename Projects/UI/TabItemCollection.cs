@@ -3,7 +3,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Reserves every tab page immediately, including pages outside the active traversal.</summary>
+/// <summary>
+/// Reserves every tab page immediately, including pages outside the active traversal.
+/// </summary>
 public sealed class TabItemCollection : Collection<TabItem>
 {
     private static readonly PropertyChangedEventArgs ItemsChangedArgs = new(nameof(TabControl.Items));

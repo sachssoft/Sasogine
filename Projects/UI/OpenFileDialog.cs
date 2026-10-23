@@ -5,10 +5,14 @@ using System.IO;
 using System.Linq;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>OpenFileDialog configuration and behavior.</summary>
+/// <summary>
+/// OpenFileDialog configuration and behavior.
+/// </summary>
 public sealed class OpenFileDialog : FileDialog
 {
-    /// <summary>Initializes a new open file dialog instance.</summary>
+    /// <summary>
+    /// Initializes a new open file dialog instance.
+    /// </summary>
     public OpenFileDialog() : base()
     {
     }
@@ -27,7 +31,9 @@ public sealed class OpenFileDialog : FileDialog
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)

@@ -7,25 +7,35 @@ using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>A compact selector whose list is hosted in the root popup layer.</summary>
+/// <summary>
+/// A compact selector whose list is hosted in the root popup layer.
+/// </summary>
 public sealed class ComboBox : Control
 {
     private ListBox? _popup;
     private IControlFont? _font;
     private int _last = -1;
-    /// <summary>Initializes a new combo box instance.</summary>
+    /// <summary>
+    /// Initializes a new combo box instance.
+    /// </summary>
     public ComboBox() : base()
     {
     }
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ComboBox";
-    /// <summary>Gets items.</summary>
+    /// <summary>
+    /// Gets items.
+    /// </summary>
     public IList<SelectorItem> Items => ConfigItems;
-    /// <summary>Gets is drop down open.</summary>
+    /// <summary>
+    /// Gets is drop down open.
+    /// </summary>
     public bool IsDropDownOpen => _popup is not null;
 
-    /// <summary>Gets or sets selected index.</summary>
+    /// <summary>
+    /// Gets or sets selected index.
+    /// </summary>
     public int SelectedIndex
     {
         get
@@ -45,10 +55,14 @@ public sealed class ComboBox : Control
         }
     }
 
-    /// <summary>Gets selected item.</summary>
+    /// <summary>
+    /// Gets selected item.
+    /// </summary>
     public SelectorItem? SelectedItem => SelectedIndex < 0 ? null : Items[SelectedIndex];
 
-    /// <summary>Occurs when selection changed.</summary>
+    /// <summary>
+    /// Occurs when selection changed.
+    /// </summary>
     public event EventHandler? SelectionChanged;
     private void Notify()
     {
@@ -58,7 +72,9 @@ public sealed class ComboBox : Control
         SelectionChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    /// <summary>Performs open drop down using the current control state.</summary>
+    /// <summary>
+    /// Performs open drop down using the current control state.
+    /// </summary>
     public void OpenDropDown()
     {
         if (_popup is not null || Workspace is null || !IsAvailable())
@@ -82,7 +98,9 @@ public sealed class ComboBox : Control
         Workspace.ShowPopup(list, new Bounds2(Bounds.X, Bounds.Bottom, Bounds.Width, list.Height ?? 0), this, () => _popup = null);
     }
 
-    /// <summary>Performs close drop down using the current control state.</summary>
+    /// <summary>
+    /// Performs close drop down using the current control state.
+    /// </summary>
     public void CloseDropDown()
     {
         if (_popup is ListBox popup)
@@ -169,7 +187,9 @@ public sealed class ComboBox : Control
         }
     }
 
-    /// <summary>Gets or sets Placeholder; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets Placeholder; a local assignment overrides the style.
+    /// </summary>
     public string Placeholder { get => ConfigPlaceholder; set => ConfigPlaceholder = value; }
 
     private StyleProperty<float> _styleItemHeight = new(30f);
@@ -184,7 +204,9 @@ public sealed class ComboBox : Control
         }
     }
 
-    /// <summary>Gets or sets ItemHeight; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets ItemHeight; a local assignment overrides the style.
+    /// </summary>
     public float ItemHeight { get => ConfigItemHeight; set => ConfigItemHeight = value; }
 
     private StyleProperty<int> _styleSelectedIndex = new(-1);
@@ -211,10 +233,18 @@ public sealed class ComboBox : Control
         }
     }
 
-    /// <summary>Gets or sets MaxDropDownHeight; a local assignment overrides the style.</summary>
-    public float MaxDropDownHeight { get => ConfigMaxDropDownHeight; set => ConfigMaxDropDownHeight = value; }
+    /// <summary>
+    /// Gets or sets MaxDropDownHeight; a local assignment overrides the style.
+    /// </summary>
+    public  float MaxDropDownHeight
+    {
+        get => ConfigMaxDropDownHeight;
+        set => ConfigMaxDropDownHeight = value;
+    }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -259,7 +289,9 @@ public sealed class ComboBox : Control
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -304,7 +336,9 @@ public sealed class ComboBox : Control
     private static readonly System.ComponentModel.PropertyChangedEventArgs ItemsCollectionArgs = new("Items");
     internal IList<SelectorItem> ConfigItems => _ownedItems ??= new(this, ItemsCollectionArgs);
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

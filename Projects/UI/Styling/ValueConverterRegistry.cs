@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Globalization;
 
 namespace Sachssoft.Engine.Controls.Styling;
-/// <summary>Explicit named converters. Generic delegate registration is AOT-safe and requires no reflection.</summary>
+/// <summary>
+/// Explicit named converters. Generic delegate registration is AOT-safe and requires no reflection.
+/// </summary>
 public sealed class ValueConverterRegistry
 {
     private static bool InheritFont(string value) => Null(value) || value == "inherit";
@@ -30,7 +32,9 @@ public sealed class ValueConverterRegistry
     internal int Revision => _revision;
 
     private readonly Dictionary<string, IStyleValueConverter> _converters = new(StringComparer.Ordinal);
-    /// <summary>Creates the built-in explicit converters.</summary>
+    /// <summary>
+    /// Creates the built-in explicit converters.
+    /// </summary>
     public ValueConverterRegistry()
     {
         Register<string?>("NullableFontName", static s => InheritFont(s) ? null : string.IsNullOrWhiteSpace(s) ? throw new FormatException("FontName must not be blank.") : s.Trim(), static s => s ?? "null");
@@ -259,7 +263,9 @@ public sealed class ValueConverterRegistry
             _ => throw InvalidEnum("ImageStretch")});
     }
 
-    /// <summary>Registers or replaces one named converter. A formatter is optional.</summary>
+    /// <summary>
+    /// Registers or replaces one named converter. A formatter is optional.
+    /// </summary>
     public void Register<T>(string id, Func<string, T> parse, Func<T, string>? format = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
@@ -271,14 +277,18 @@ public sealed class ValueConverterRegistry
         }
     }
 
-    /// <summary>Converts through a compile-time-known delegate and validates the registered value type.</summary>
+    /// <summary>
+    /// Converts through a compile-time-known delegate and validates the registered value type.
+    /// </summary>
     public T Convert<T>(string id, string text)
     {
         ArgumentNullException.ThrowIfNull(text);
         return _converters[id] is StyleValueConverter<T> converter ? converter.Parse(text) : throw new InvalidOperationException($"Converter '{id}' has a different registered value type.");
     }
 
-    /// <summary>Formats a typed value through an explicitly registered formatter.</summary>
+    /// <summary>
+    /// Formats a typed value through an explicitly registered formatter.
+    /// </summary>
     public string Format<T>(string id, T value) => _converters[id] is StyleValueConverter<T> converter ? converter.Format(value) : throw new InvalidOperationException($"Converter '{id}' has a different registered value type.");
     private static bool Null(string s) => s.Length == 0 || s == "null";
     private static FormatException InvalidEnum(string s) => new($"Unknown enum value '{s}'.");

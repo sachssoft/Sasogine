@@ -4,7 +4,9 @@ using System;
 using System.Collections.Generic;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Arbitrary page/header content, keyboard navigation and horizontally scrolling headers.</summary>
+/// <summary>
+/// Arbitrary page/header content, keyboard navigation and horizontally scrolling headers.
+/// </summary>
 public class TabControl : ContainerControl
 {
     private readonly StackPanel _headers = new()
@@ -25,7 +27,9 @@ public class TabControl : ContainerControl
     private ChangeTracker<float> _headerHeight;
     private float _actualHeaderHeight;
     private Bounds2 _body;
-    /// <summary>Creates a tab host.</summary>
+    /// <summary>
+    /// Creates a tab host.
+    /// </summary>
     public TabControl() : base()
     {
         _headerView.Content = _headers;
@@ -57,10 +61,14 @@ public class TabControl : ContainerControl
 
     /// <inheritdoc/>
     public override void Clear() => Items.Clear();
-    /// <summary>Gets the retained pages.</summary>
+    /// <summary>
+    /// Gets the retained pages.
+    /// </summary>
     public IList<TabItem> Items => ConfigItems;
 
-    /// <summary>Gets or sets the selected source index; -1 leaves the content empty.</summary>
+    /// <summary>
+    /// Gets or sets the selected source index; -1 leaves the content empty.
+    /// </summary>
     public int SelectedIndex
     {
         get
@@ -79,12 +87,18 @@ public class TabControl : ContainerControl
         }
     }
 
-    /// <summary>Gets the selected page.</summary>
+    /// <summary>
+    /// Gets the selected page.
+    /// </summary>
     public TabItem? SelectedItem => SelectedIndex < 0 ? null : Items[SelectedIndex];
-    /// <summary>Gets the independent header scroll viewer.</summary>
+    /// <summary>
+    /// Gets the independent header scroll viewer.
+    /// </summary>
     public ScrollViewer HeaderScrollViewer => _headerView;
 
-    /// <summary>Occurs after selected content has changed at a layout boundary.</summary>
+    /// <summary>
+    /// Occurs after selected content has changed at a layout boundary.
+    /// </summary>
     public event EventHandler? SelectionChanged;
     /// <inheritdoc/>
     protected override string DefaultStyleName => "TabControl";
@@ -237,8 +251,14 @@ public class TabControl : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets ScrollBarThickness; a local assignment overrides the style.</summary>
-    public float ScrollBarThickness { get => ConfigScrollBarThickness; set => ConfigScrollBarThickness = value; }
+    /// <summary>
+    /// Gets or sets ScrollBarThickness; a local assignment overrides the style.
+    /// </summary>
+    public  float ScrollBarThickness
+    {
+        get => ConfigScrollBarThickness;
+        set => ConfigScrollBarThickness = value;
+    }
 
     private StyleProperty<int> _styleSelectedIndex = new(-1);
     private static readonly System.ComponentModel.PropertyChangedEventArgs SelectedIndexChangedArgs = new(nameof(SelectedIndex));
@@ -264,13 +284,17 @@ public class TabControl : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets HeaderHeight; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets HeaderHeight; a local assignment overrides the style.
+    /// </summary>
     public float HeaderHeight { get => ConfigHeaderHeight; set => ConfigHeaderHeight = value; }
 
     private TabItemCollection? _ownedItems;
     internal IList<TabItem> ConfigItems => _ownedItems ??= new(this);
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -309,7 +333,9 @@ public class TabControl : ContainerControl
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -344,7 +370,9 @@ public class TabControl : ContainerControl
             NotifyPropertyChanged(HeaderHeightChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

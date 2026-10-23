@@ -2,20 +2,28 @@ using Microsoft.Xna.Framework;
 using System;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Indeterminate loading indicator animated from frame time without a background timer.</summary>
+/// <summary>
+/// Indeterminate loading indicator animated from frame time without a background timer.
+/// </summary>
 public class Spinner : Control
 {
     private ChangeTracker<bool> _active;
     private ChangeTracker<float> _speed;
     private double _phase;
-    /// <summary>Creates a loading spinner.</summary>
+    /// <summary>
+    /// Creates a loading spinner.
+    /// </summary>
     public Spinner() : base()
     {
     }
 
-    /// <summary>Gets or sets whether the indicator advances.</summary>
+    /// <summary>
+    /// Gets or sets whether the indicator advances.
+    /// </summary>
     public bool IsSpinning { get => ConfigIsSpinning; set => ConfigIsSpinning = value; }
-    /// <summary>Gets normalized rotation phase.</summary>
+    /// <summary>
+    /// Gets normalized rotation phase.
+    /// </summary>
     public float Phase => (float)_phase;
     /// <inheritdoc/>
     protected override string DefaultStyleName => "Spinner";
@@ -76,10 +84,14 @@ public class Spinner : Control
         }
     }
 
-    /// <summary>Gets or sets AnimationSpeed; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets AnimationSpeed; a local assignment overrides the style.
+    /// </summary>
     public float AnimationSpeed { get => ConfigAnimationSpeed; set => ConfigAnimationSpeed = value; }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -112,7 +124,9 @@ public class Spinner : Control
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -141,7 +155,9 @@ public class Spinner : Control
             NotifyPropertyChanged(AnimationSpeedChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

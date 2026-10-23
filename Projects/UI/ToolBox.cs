@@ -2,7 +2,9 @@ using System;
 using System.ComponentModel;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Arranges ButtonBase controls in equal-size cells using fixed columns, fixed rows or automatic wrapping.</summary>
+/// <summary>
+/// Arranges ButtonBase controls in equal-size cells using fixed columns, fixed rows or automatic wrapping.
+/// </summary>
 /// <remarks>Positive Columns takes precedence over Rows. Rows-only layout fills each column from top to bottom.</remarks>
 public class ToolBox : ContainerControl
 {
@@ -11,7 +13,9 @@ public class ToolBox : ContainerControl
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ToolBox";
 
-    /// <summary>Adds a button, toggle, selector or another ButtonBase-derived control.</summary>
+    /// <summary>
+    /// Adds a button, toggle, selector or another ButtonBase-derived control.
+    /// </summary>
     /// <exception cref = "ArgumentException">The child does not derive from ButtonBase.</exception>
     public override void Add(Control child)
     {
@@ -95,7 +99,9 @@ public class ToolBox : ContainerControl
 
     private StyleProperty<int> _columns = new(0);
     private static readonly PropertyChangedEventArgs ColumnsChangedArgs = new(nameof(Columns));
-    /// <summary>Gets or sets the fixed column count; zero allows Rows or automatic width-based wrapping.</summary>
+    /// <summary>
+    /// Gets or sets the fixed column count; zero allows Rows or automatic width-based wrapping.
+    /// </summary>
     public int Columns
     {
         get => _columns.Value;
@@ -110,7 +116,9 @@ public class ToolBox : ContainerControl
 
     private StyleProperty<int> _rows = new(0);
     private static readonly PropertyChangedEventArgs RowsChangedArgs = new(nameof(Rows));
-    /// <summary>Gets or sets the fixed row count when Columns is zero; zero enables automatic wrapping.</summary>
+    /// <summary>
+    /// Gets or sets the fixed row count when Columns is zero; zero enables automatic wrapping.
+    /// </summary>
     public int Rows
     {
         get => _rows.Value;
@@ -125,7 +133,9 @@ public class ToolBox : ContainerControl
 
     private StyleProperty<float> _spacing = new(4f);
     private static readonly PropertyChangedEventArgs SpacingChangedArgs = new(nameof(Spacing));
-    /// <summary>Gets or sets the gap between adjacent cells.</summary>
+    /// <summary>
+    /// Gets or sets the gap between adjacent cells.
+    /// </summary>
     public float Spacing
     {
         get => _spacing.Value;

@@ -8,5 +8,7 @@ using System.Xml;
 using System.Xml.Linq;
 
 namespace Sachssoft.Engine.Controls.Styling;
-/// <summary>A validated atlas region and its explicit scaling mode.</summary>
+/// <summary>
+/// A validated atlas region and its explicit scaling mode.
+/// </summary>
 public sealed record SkinRegion(Rectangle Source, string Mode, PixelInsets2 Slice);

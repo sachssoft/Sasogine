@@ -3,7 +3,9 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 
 namespace Sachssoft.Engine.Controls.Drawing;
-/// <summary>Draws a UI tree through a native frame batch with local coordinates and nested clipping.</summary>
+/// <summary>
+/// Draws a UI tree through a native frame batch with local coordinates and nested clipping.
+/// </summary>
 /// <remarks>
 /// The context owns both rendering paths and their graphics resources. The caller owns fonts.
 /// Native fonts and built-in geometry use the frame batch. Legacy fonts and custom SpriteBatch
@@ -40,12 +42,16 @@ public sealed class ControlDrawContext : GameContext, IDisposable
     private DepthStencilState? _previousDepth;
     private RasterizerState? _previousRasterizer;
     private SamplerState? _previousSampler;
-    /// <summary>Creates persistent UI drawing resources for the application graphics device.</summary>
+    /// <summary>
+    /// Creates persistent UI drawing resources for the application graphics device.
+    /// </summary>
     public ControlDrawContext(GameApplicationBase application, IControlFont defaultFont, Rectangle viewport, float scale = 1) : this(application, defaultFont, viewport, scale, ControlRenderer.FrameBatch)
     {
     }
 
-    /// <summary>Creates a context with an explicit renderer for compatibility or controlled comparison.</summary>
+    /// <summary>
+    /// Creates a context with an explicit renderer for compatibility or controlled comparison.
+    /// </summary>
     public ControlDrawContext(GameApplicationBase application, IControlFont defaultFont, Rectangle viewport, float scale, ControlRenderer renderer) : base(application)
     {
         if (renderer is not (ControlRenderer.FrameBatch or ControlRenderer.SpriteBatch))
@@ -67,12 +73,18 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         };
     }
 
-    /// <summary>Gets the selected renderer.</summary>
+    /// <summary>
+    /// Gets the selected renderer.
+    /// </summary>
     public ControlRenderer Renderer { get; }
-    /// <summary>Gets native draw calls from the current or most recently completed frame.</summary>
+    /// <summary>
+    /// Gets native draw calls from the current or most recently completed frame.
+    /// </summary>
     public int FrameDrawCalls => _frameBatch?.DrawCalls ?? 0;
 
-    /// <summary>Gets the active native batch. Access ends an active compatibility SpriteBatch.</summary>
+    /// <summary>
+    /// Gets the active native batch. Access ends an active compatibility SpriteBatch.
+    /// </summary>
     public ControlFrameBatch FrameBatch
     {
         get
@@ -86,16 +98,26 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         }
     }
 
-    /// <summary>Gets the default caller-owned font, matching the layout context.</summary>
+    /// <summary>
+    /// Gets the default caller-owned font, matching the layout context.
+    /// </summary>
     public IControlFont DefaultFont { get; }
-    /// <summary>Gets the logical viewport size.</summary>
+    /// <summary>
+    /// Gets the logical viewport size.
+    /// </summary>
     public Size2 LogicalSize => new(_viewport.Width / _scale, _viewport.Height / _scale);
-    /// <summary>Gets the physical viewport used for drawing.</summary>
+    /// <summary>
+    /// Gets the physical viewport used for drawing.
+    /// </summary>
     public Rectangle Viewport => _viewport;
-    /// <summary>Gets physical pixels per logical UI unit.</summary>
+    /// <summary>
+    /// Gets physical pixels per logical UI unit.
+    /// </summary>
     public float Scale => _scale;
 
-    /// <summary>Gets the compatibility batch, flushing native work first. Prefer FrameBatch for new custom drawing.</summary>
+    /// <summary>
+    /// Gets the compatibility batch, flushing native work first. Prefer FrameBatch for new custom drawing.
+    /// </summary>
     public SpriteBatch SpriteBatch
     {
         get
@@ -107,11 +129,15 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         }
     }
 
-    /// <summary>Gets the composed opacity for custom drawing.</summary>
+    /// <summary>
+    /// Gets the composed opacity for custom drawing.
+    /// </summary>
     public float Opacity => _opacity;
 
     internal void Bind(UIRegistry registry) => _registry = registry;
-    /// <summary>Draws an explicitly resolved skin part; false permits a procedural fallback.</summary>
+    /// <summary>
+    /// Draws an explicitly resolved skin part; false permits a procedural fallback.
+    /// </summary>
     public bool DrawSkinPart(Control control, string part, Bounds2 bounds, string state = "Normal", Color? tint = null)
     {
         if (_registry?.Skin is not ControlSkin skin || skin.Texture is null || !skin.Find(control, part, state, _registry.Styles, out SkinRegion? region))
@@ -137,7 +163,9 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         return true;
     }
 
-    /// <summary>Draws a named atlas region when an active skin is attached.</summary>
+    /// <summary>
+    /// Draws a named atlas region when an active skin is attached.
+    /// </summary>
     public bool DrawSkinRegion(string name, Bounds2 bounds, Color? tint = null)
     {
         if (_registry?.Skin is not ControlSkin skin || skin.Texture is null)
@@ -146,7 +174,9 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         return true;
     }
 
-    /// <summary>Draws an explicit orientation or shared style part.</summary>
+    /// <summary>
+    /// Draws an explicit orientation or shared style part.
+    /// </summary>
     public bool DrawSkinStylePart(string style, string part, Bounds2 bounds, string state = "Normal", Color? tint = null)
     {
         if (_registry?.Skin is not ControlSkin skin || skin.Texture is null || !skin.FindStyle(style, part, state, _registry.Styles, out SkinRegion? region))
@@ -155,9 +185,13 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         return true;
     }
 
-    /// <summary>Temporarily clips local drawing, restoring the previous nested clip on disposal.</summary>
+    /// <summary>
+    /// Temporarily clips local drawing, restoring the previous nested clip on disposal.
+    /// </summary>
     public IDisposable PushClip(Bounds2 localBounds) => PushClipScope(localBounds);
-    /// <summary>Creates an allocation-free local clip scope. Dispose in reverse nesting order without copying it.</summary>
+    /// <summary>
+    /// Creates an allocation-free local clip scope. Dispose in reverse nesting order without copying it.
+    /// </summary>
     public ControlClipScope PushClipScope(Bounds2 localBounds)
     {
         EnsureDrawing();
@@ -247,7 +281,9 @@ public sealed class ControlDrawContext : GameContext, IDisposable
                 Draw(new Rectangle(source.X + xs[x], source.Y + ys[y], xs[x + 1] - xs[x], ys[y + 1] - ys[y]), new Bounds2(dx[x], dy[y], dx[x + 1] - dx[x], dy[y + 1] - dy[y]));
     }
 
-    /// <summary>Sets the target viewport and positive DPI scale between draw calls.</summary>
+    /// <summary>
+    /// Sets the target viewport and positive DPI scale between draw calls.
+    /// </summary>
     public void SetViewport(Rectangle viewport, float scale = 1)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
@@ -263,7 +299,9 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         _scale = scale;
     }
 
-    /// <summary>Draws a filled rectangle in the current control's local coordinates.</summary>
+    /// <summary>
+    /// Draws a filled rectangle in the current control's local coordinates.
+    /// </summary>
     public void FillRectangle(Bounds2 bounds, Color color)
     {
         EnsureDrawing();
@@ -272,7 +310,9 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         DrawSprite(_white, new Vector2(bounds.X, bounds.Y), null, color * _opacity, 0, Vector2.Zero, new Vector2(bounds.Width, bounds.Height), SpriteEffects.None, 0);
     }
 
-    /// <summary>Draws a line in control-local coordinates through the active ordered batch.</summary>
+    /// <summary>
+    /// Draws a line in control-local coordinates through the active ordered batch.
+    /// </summary>
     public void DrawLine(Vector2 start, Vector2 end, Color color, float thickness = 1)
     {
         EnsureDrawing();
@@ -285,7 +325,9 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         DrawSprite(_white, start, null, color * _opacity, MathF.Atan2(delta.Y, delta.X), new Vector2(0, .5f), new Vector2(length, thickness), SpriteEffects.None, 0);
     }
 
-    /// <summary>Draws a borrowed texture crop in local coordinates using the current clip and opacity.</summary>
+    /// <summary>
+    /// Draws a borrowed texture crop in local coordinates using the current clip and opacity.
+    /// </summary>
     public void DrawTexture(Texture2D texture, Rectangle source, Bounds2 destination, Color tint)
     {
         EnsureDrawing();
@@ -295,7 +337,9 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         DrawSprite(texture, new Vector2(destination.X, destination.Y), source, tint * _opacity, 0, Vector2.Zero, new Vector2(destination.Width / source.Width, destination.Height / source.Height), SpriteEffects.None, 0);
     }
 
-    /// <summary>Draws an inward rectangular border in local coordinates.</summary>
+    /// <summary>
+    /// Draws an inward rectangular border in local coordinates.
+    /// </summary>
     public void StrokeRectangle(Bounds2 bounds, Color color, float thickness)
     {
         EnsureDrawing();
@@ -308,7 +352,9 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         FillRectangle(new Bounds2(bounds.Right - t, bounds.Y + t, t, bounds.Height - 2 * t), color);
     }
 
-    /// <summary>Draws text using the current local origin and composed opacity.</summary>
+    /// <summary>
+    /// Draws text using the current local origin and composed opacity.
+    /// </summary>
     public void DrawText(IControlFont font, string text, Vector2 position, Color color)
     {
         EnsureDrawing();
@@ -404,7 +450,9 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         }
     }
 
-    /// <summary>Flushes preceding UI work, invokes a direct scene and restores the UI graphics state.</summary>
+    /// <summary>
+    /// Flushes preceding UI work, invokes a direct scene and restores the UI graphics state.
+    /// </summary>
     /// <remarks>The callback receives physical bounds and clipping. Scene shaders own their vertex bindings;
     /// this method restores render targets, viewport, blend/depth/rasterizer state and texture/sampler slots 0–7.
     /// Call SetFrameTime before drawing a scene viewport.
@@ -412,7 +460,9 @@ public sealed class ControlDrawContext : GameContext, IDisposable
     public void DrawScene(Bounds2 localBounds, Action<SceneViewportDrawContext> render)
         => DrawScene(localBounds, render, null);
 
-    /// <summary>Draws a direct scene, optionally reproducing image compositing over a uniform opaque backdrop.</summary>
+    /// <summary>
+    /// Draws a direct scene, optionally reproducing image compositing over a uniform opaque backdrop.
+    /// </summary>
     /// <remarks>Composite RGB is scene RGB plus backdrop RGB times inverse destination alpha.
     /// This preserves the previous premultiplied Image result without reading an off-screen scene texture.</remarks>
     public void DrawScene(Bounds2 localBounds, Action<SceneViewportDrawContext> render, Color? compositeBackground)
@@ -532,7 +582,9 @@ public sealed class ControlDrawContext : GameContext, IDisposable
             throw new InvalidOperationException("Drawing is only valid inside Control.OnDraw.");
     }
 
-    /// <summary>Releases owned graphics resources outside a draw call.</summary>
+    /// <summary>
+    /// Releases owned graphics resources outside a draw call.
+    /// </summary>
     public void Dispose()
     {
         if (_disposed)

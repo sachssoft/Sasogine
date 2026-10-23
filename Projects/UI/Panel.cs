@@ -1,10 +1,14 @@
 using System;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Overlays children within one content area.</summary>
+/// <summary>
+/// Overlays children within one content area.
+/// </summary>
 public class Panel : ContainerControl
 {
-    /// <summary>Initializes an overlay panel.</summary>
+    /// <summary>
+    /// Initializes an overlay panel.
+    /// </summary>
     public Panel() : base()
     {
     }
@@ -42,7 +46,9 @@ public class Panel : ContainerControl
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)

@@ -6,7 +6,9 @@ using System;
 using System.Collections.Generic;
 
 namespace Sachssoft.Engine.Controls.Input;
-/// <summary>Converts caller-sampled device states into a stable UI event order.</summary>
+/// <summary>
+/// Converts caller-sampled device states into a stable UI event order.
+/// </summary>
 /// <remarks>
 /// Sample devices once in the application, then pass those snapshots here. Native
 /// text events can be queued through AddText. For exact native event ordering or
@@ -29,16 +31,24 @@ public sealed class ControlInputSampler
     private readonly Dictionary<int, Vector2> _touches = new();
     private readonly List<TouchLocation> _orderedTouches = new();
     private readonly HashSet<int> _seenTouches = new();
-    /// <summary>Queues a text character on the UI thread for the next active frame.</summary>
+    /// <summary>
+    /// Queues a text character on the UI thread for the next active frame.
+    /// </summary>
     public void AddText(char character) => _text.Add(character);
-    /// <summary>Creates logical events from one pair of device snapshots.</summary>
+    /// <summary>
+    /// Creates logical events from one pair of device snapshots.
+    /// </summary>
     public ControlInputFrame Sample(MouseState mouse, KeyboardState keyboard, Rectangle viewport, float scale, TimeSpan elapsed, bool active = true) => Sample(mouse, keyboard, default(TouchCollection), viewport, scale, elapsed, active);
-    /// <summary>Creates ordered mouse, touch and keyboard events from caller-sampled snapshots.</summary>
+    /// <summary>
+    /// Creates ordered mouse, touch and keyboard events from caller-sampled snapshots.
+    /// </summary>
     /// <remarks>Disable MonoGame touch-to-mouse emulation when supplying native touches, to avoid duplicate gestures.</remarks>
     public ControlInputFrame Sample(MouseState mouse, KeyboardState keyboard, TouchCollection touches, Rectangle viewport, float scale, TimeSpan elapsed, bool active = true) => SampleCore(mouse, keyboard, touches, viewport, scale, elapsed, active, false);
     private readonly List<ControlInputEvent> _events = new(16);
     private ControlInputFrame? _reusable;
-    /// <summary>Samples into reusable storage. Consume immediately; do not retain this borrowed frame for replay.</summary>
+    /// <summary>
+    /// Samples into reusable storage. Consume immediately; do not retain this borrowed frame for replay.
+    /// </summary>
     public ControlInputFrame SampleReusable(MouseState mouse, KeyboardState keyboard, TouchCollection touches, Rectangle viewport, float scale, TimeSpan elapsed, bool active = true) => SampleCore(mouse, keyboard, touches, viewport, scale, elapsed, active, true);
     private ControlInputFrame SampleCore(MouseState mouse, KeyboardState keyboard, TouchCollection touches, Rectangle viewport, float scale, TimeSpan elapsed, bool active, bool reuse)
     {

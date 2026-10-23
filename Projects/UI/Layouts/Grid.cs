@@ -3,24 +3,36 @@ using System;
 using System.Collections.Generic;
 
 namespace Sachssoft.Engine.Controls.Layouts;
-/// <summary>Two-dimensional automatic, fixed and proportional layout with limits, margins and row/column spans.</summary>
+/// <summary>
+/// Two-dimensional automatic, fixed and proportional layout with limits, margins and row/column spans.
+/// </summary>
 public class Grid : ContainerControl
 {
     private readonly GridAxisLayout _rows = new(), _columns = new();
-    /// <summary>Creates a grid.</summary>
+    /// <summary>
+    /// Creates a grid.
+    /// </summary>
     public Grid()
     {
         Cells = new CellCollection(this);
     }
 
-    /// <summary>Gets the rows. An empty collection provides one proportional row.</summary>
+    /// <summary>
+    /// Gets the rows. An empty collection provides one proportional row.
+    /// </summary>
     public IList<GridRow> Rows => _rowsCollection ??= new(this, RowsChangedArgs);
-    /// <summary>Gets the columns. An empty collection provides one proportional column.</summary>
+    /// <summary>
+    /// Gets the columns. An empty collection provides one proportional column.
+    /// </summary>
     public IList<GridColumn> Columns => _columnsCollection ??= new(this, ColumnsChangedArgs);
-    /// <summary>Gets placement metadata, separate from child ownership.</summary>
+    /// <summary>
+    /// Gets placement metadata, separate from child ownership.
+    /// </summary>
     public CellCollection Cells { get; }
 
-    /// <summary>Gets or sets the gap between adjacent rows and columns.</summary>
+    /// <summary>
+    /// Gets or sets the gap between adjacent rows and columns.
+    /// </summary>
     public float Spacing
     {
         get => _styleSpacing.Value;
@@ -48,9 +60,13 @@ public class Grid : ContainerControl
         Cells.Clear();
     }
 
-    /// <summary>Gets the last arranged row height.</summary>
+    /// <summary>
+    /// Gets the last arranged row height.
+    /// </summary>
     public float GetRowHeight(int row) => _rows.Sizes[row];
-    /// <summary>Gets the last arranged column width.</summary>
+    /// <summary>
+    /// Gets the last arranged column width.
+    /// </summary>
     public float GetColumnWidth(int column) => _columns.Sizes[column];
     private GridCell GetCell(Control child)
     {
@@ -122,10 +138,18 @@ public class Grid : ContainerControl
     private static readonly System.ComponentModel.PropertyChangedEventArgs ColumnsChangedArgs = new(nameof(Columns));
     private static readonly System.ComponentModel.PropertyChangedEventArgs ShowGridLinesChangedArgs = new(nameof(ShowGridLines));
     private bool _showGridLines;
-    /// <summary>Gets or sets whether row and column boundaries are drawn.</summary>
-    public bool ShowGridLines { get => _showGridLines; set => SetNotify(ref _showGridLines, value, ShowGridLinesChangedArgs); }
+    /// <summary>
+    /// Gets or sets whether row and column boundaries are drawn.
+    /// </summary>
+    public  bool ShowGridLines
+    {
+        get => _showGridLines;
+        set => SetNotify(ref _showGridLines, value, ShowGridLinesChangedArgs);
+    }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -152,7 +176,9 @@ public class Grid : ContainerControl
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -175,7 +201,9 @@ public class Grid : ContainerControl
             NotifyPropertyChanged(SpacingChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

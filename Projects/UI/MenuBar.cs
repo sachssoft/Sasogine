@@ -5,26 +5,36 @@ using System;
 using System.Collections.Generic;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Horizontal commands and submenu entry points.</summary>
+/// <summary>
+/// Horizontal commands and submenu entry points.
+/// </summary>
 public class MenuBar : Control
 {
     private bool _useSkin = true;
     private static readonly System.ComponentModel.PropertyChangedEventArgs UseSkinArgs = new(nameof(UseSkin));
-    /// <summary>Gets or sets whether atlas skin parts are used; false draws solid menu backgrounds and glyphs.</summary>
+    /// <summary>
+    /// Gets or sets whether atlas skin parts are used; false draws solid menu backgrounds and glyphs.
+    /// </summary>
     public bool UseSkin { get => _useSkin; set => SetNotify(ref _useSkin, value, UseSkinArgs); }
 
     private IControlFont? _font;
     private int _active = -1;
     private ContextMenu? _popup;
     private int _popupIndex = -1;
-    /// <summary>Provides the declared UI member.</summary>
+    /// <summary>
+    /// Provides the declared UI member.
+    /// </summary>
     protected bool Vertical;
-    /// <summary>Initializes a new menu bar instance.</summary>
+    /// <summary>
+    /// Initializes a new menu bar instance.
+    /// </summary>
     public MenuBar() : base()
     {
     }
 
-    /// <summary>Gets items.</summary>
+    /// <summary>
+    /// Gets items.
+    /// </summary>
     public IList<MenuItem> Items => ConfigItems;
     /// <inheritdoc/>
     protected override string DefaultStyleName => "MenuBar";
@@ -324,14 +334,18 @@ public class MenuBar : Control
         }
     }
 
-    /// <summary>Gets or sets ItemHeight; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets ItemHeight; a local assignment overrides the style.
+    /// </summary>
     public float ItemHeight { get => ConfigItemHeight; set => ConfigItemHeight = value; }
 
     private ElementCollection<MenuItem>? _ownedItems;
     private static readonly System.ComponentModel.PropertyChangedEventArgs ItemsCollectionArgs = new("Items");
     internal IList<MenuItem> ConfigItems => _ownedItems ??= new(this, ItemsCollectionArgs);
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -358,7 +372,9 @@ public class MenuBar : Control
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -381,7 +397,9 @@ public class MenuBar : Control
             NotifyPropertyChanged(ItemHeightChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

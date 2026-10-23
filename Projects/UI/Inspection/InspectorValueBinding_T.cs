@@ -1,7 +1,9 @@
 using System.ComponentModel;
 
 namespace Sachssoft.Engine.Controls.Inspection;
-/// <summary>Synchronizes an explicitly described value without discovering members.</summary>
+/// <summary>
+/// Synchronizes an explicitly described value without discovering members.
+/// </summary>
 internal sealed class InspectorValueBinding<T> : IInspectorBinding
 {
     private readonly Func<T> _read;
@@ -21,6 +23,9 @@ internal sealed class InspectorValueBinding<T> : IInspectorBinding
         _comparer = comparer ?? EqualityComparer<T>.Default;
     }
 
+    /// <summary>
+    /// Performs the connect operation.
+    /// </summary>
     public void Connect()
     {
         if (_connected)
@@ -31,6 +36,9 @@ internal sealed class InspectorValueBinding<T> : IInspectorBinding
             _source.PropertyChanged += Changed;
     }
 
+    /// <summary>
+    /// Performs the disconnect operation.
+    /// </summary>
     public void Disconnect()
     {
         if (!_connected)
@@ -55,6 +63,9 @@ internal sealed class InspectorValueBinding<T> : IInspectorBinding
         Update();
     }
 
+    /// <summary>
+    /// Performs the update operation.
+    /// </summary>
     public void Update()
     {
         if (_applying || (_source is not null && !_dirty))

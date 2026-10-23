@@ -3,7 +3,9 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 
 namespace Sachssoft.Engine.Controls.Drawing;
-/// <summary>Clips triangles in pixel coordinates while preserving interpolated texture coordinates.</summary>
+/// <summary>
+/// Clips triangles in pixel coordinates while preserving interpolated texture coordinates.
+/// </summary>
 internal static class ControlBatchGeometry
 {
     internal static int ClipTriangle(VertexPositionColorTexture a, VertexPositionColorTexture b, VertexPositionColorTexture c, Bounds2 clip, Span<VertexPositionColorTexture> output)

@@ -8,7 +8,9 @@ using System.Windows.Input;
 
 namespace Sachssoft.Engine.Controls;
 
-/// <summary>Provides an interactive clockwise angle dial with keyboard, pointer, and mouse-wheel input.</summary>
+/// <summary>
+/// Provides an interactive clockwise angle dial with keyboard, pointer, and mouse-wheel input.
+/// </summary>
 /// <remarks>Zero degrees points right, 90 degrees points down, and all values are normalized to [0, 360). Editing supports optional snapping and command execution after completion.</remarks>
 public sealed class RotationControl : Control
 {
@@ -18,7 +20,9 @@ public sealed class RotationControl : Control
     private bool _startLocal;
     private Vector2 _center;
     private float _radius;
-    /// <summary>Initializes a new instance of the <see cref="RotationControl"/> class.</summary>
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RotationControl"/> class.
+    /// </summary>
     public RotationControl()
     {
     }
@@ -26,7 +30,9 @@ public sealed class RotationControl : Control
     /// <inheritdoc/>
     protected override string DefaultStyleName => "RotationControl";
 
-    /// <summary>Normalizes a finite angle to the interval [0, 360) degrees.</summary>
+    /// <summary>
+    /// Normalizes a finite angle to the interval [0, 360) degrees.
+    /// </summary>
     /// <param name="degrees">The angle in degrees.</param>
     /// <returns>The normalized angle in degrees.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The value is NaN or infinite.</exception>
@@ -40,7 +46,9 @@ public sealed class RotationControl : Control
         return angle >= 360 || angle == 0 ? 0 : angle;
     }
 
-    /// <summary>Gets or sets the clockwise angle in degrees, normalized to [0, 360).</summary>
+    /// <summary>
+    /// Gets or sets the clockwise angle in degrees, normalized to [0, 360).
+    /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The assigned angle is not finite.</exception>
     public float AngleDegrees
     {
@@ -55,34 +63,62 @@ public sealed class RotationControl : Control
         }
     }
 
-    /// <summary>Gets or sets the positive angle step used by arrow keys and the mouse wheel.</summary>
+    /// <summary>
+    /// Gets or sets the positive angle step used by arrow keys and the mouse wheel.
+    /// </summary>
     /// <remarks>The default is one degree. Valid values are finite and in (0, 360].</remarks>
     public float AngleIncrement { get => ConfigAngleIncrement; set => ConfigAngleIncrement = value; }
-    /// <summary>Gets or sets the angle interval used for Shift snapping and page-key adjustments.</summary>
+    /// <summary>
+    /// Gets or sets the angle interval used for Shift snapping and page-key adjustments.
+    /// </summary>
     /// <remarks>The default is 15 degrees. Valid values are finite and in (0, 360].</remarks>
     public float AngleSnap { get => ConfigAngleSnap; set => ConfigAngleSnap = value; }
-    /// <summary>Gets or sets whether user input is prevented from changing the angle.</summary>
+    /// <summary>
+    /// Gets or sets whether user input is prevented from changing the angle.
+    /// </summary>
     public bool IsReadOnly { get => ConfigIsReadOnly; set => ConfigIsReadOnly = value; }
-    /// <summary>Gets or sets the command executed after a completed angle change.</summary>
+    /// <summary>
+    /// Gets or sets the command executed after a completed angle change.
+    /// </summary>
     /// <remarks>When <see cref="CommandParameter"/> is null, the current angle is passed as the command parameter.</remarks>
     public ICommand? Command { get => ConfigCommand; set => ConfigCommand = value; }
-    /// <summary>Gets or sets the parameter passed to the completion command.</summary>
+    /// <summary>
+    /// Gets or sets the parameter passed to the completion command.
+    /// </summary>
     /// <remarks>A null value uses <see cref="AngleDegrees"/> instead.</remarks>
-    public object? CommandParameter { get => ConfigCommandParameter; set => ConfigCommandParameter = value; }
-    /// <summary>Gets whether a pointer drag is currently active.</summary>
+    public  object? CommandParameter
+    {
+        get => ConfigCommandParameter;
+        set => ConfigCommandParameter = value;
+    }
+    /// <summary>
+    /// Gets whether a pointer drag is currently active.
+    /// </summary>
     public bool IsEditing => _pointer is not null;
-    /// <summary>Gets the center of the dial in root logical coordinates.</summary>
+    /// <summary>
+    /// Gets the center of the dial in root logical coordinates.
+    /// </summary>
     public Vector2 DialCenter => _center;
-    /// <summary>Gets the dial radius in logical units.</summary>
+    /// <summary>
+    /// Gets the dial radius in logical units.
+    /// </summary>
     public float DialRadius => _radius;
 
-    /// <summary>Occurs when the effective angle changes, including changes from styles.</summary>
+    /// <summary>
+    /// Occurs when the effective angle changes, including changes from styles.
+    /// </summary>
     public event EventHandler? AngleChanged;
-    /// <summary>Occurs when a pointer editing session starts, before the first angle change.</summary>
+    /// <summary>
+    /// Occurs when a pointer editing session starts, before the first angle change.
+    /// </summary>
     public event EventHandler? EditStarted;
-    /// <summary>Occurs when a pointer editing session completes successfully, before the command executes.</summary>
+    /// <summary>
+    /// Occurs when a pointer editing session completes successfully, before the command executes.
+    /// </summary>
     public event EventHandler? EditCompleted;
-    /// <summary>Occurs after a pointer editing session is cancelled and any eligible local change is restored.</summary>
+    /// <summary>
+    /// Occurs after a pointer editing session is cancelled and any eligible local change is restored.
+    /// </summary>
     public event EventHandler? EditCancelled;
     private object Parameter => CommandParameter ?? AngleDegrees;
     private bool CanEdit => !IsReadOnly && (Command?.CanExecute(Parameter) ?? true);
@@ -383,7 +419,9 @@ public sealed class RotationControl : Control
         }
     }
 
-    /// <summary>Applies style values without overriding locally assigned properties.</summary>
+    /// <summary>
+    /// Applies style values without overriding locally assigned properties.
+    /// </summary>
     /// <param name="style">The style containing property values to apply.</param>
     public override void ApplyStyle(Style style)
     {
@@ -441,7 +479,9 @@ public sealed class RotationControl : Control
         }
     }
 
-    /// <summary>Removes a local property override and restores its effective style value.</summary>
+    /// <summary>
+    /// Removes a local property override and restores its effective style value.
+    /// </summary>
     /// <param name="property">The property name to reset.</param>
     public override void ResetStyleProperty(string property)
     {

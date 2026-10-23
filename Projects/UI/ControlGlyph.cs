@@ -2,7 +2,9 @@ using Microsoft.Xna.Framework;
 using System;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Small atlas-backed arrow or vector calendar icon, usable as button content.</summary>
+/// <summary>
+/// Small atlas-backed arrow or vector calendar icon, usable as button content.
+/// </summary>
 internal sealed class ControlGlyph : Control
 {
     private readonly ControlGlyphKind _kind;
@@ -56,7 +58,9 @@ internal sealed class ControlGlyph : Control
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)

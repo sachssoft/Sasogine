@@ -3,7 +3,9 @@ using Microsoft.Xna.Framework.Input;
 using System;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>A clipped content viewport with two independent, reusable ScrollBar controls.</summary>
+/// <summary>
+/// A clipped content viewport with two independent, reusable ScrollBar controls.
+/// </summary>
 public sealed class ScrollViewer : ContainerControl
 {
     private Control? _content;
@@ -11,7 +13,9 @@ public sealed class ScrollViewer : ContainerControl
     private bool _horizontal, _vertical;
     private Size2 _extent;
     private Bounds2 _viewport;
-    /// <summary>Initializes a new scroll viewer instance.</summary>
+    /// <summary>
+    /// Initializes a new scroll viewer instance.
+    /// </summary>
     public ScrollViewer() : base()
     {
         HorizontalScrollBar = new ScrollBar
@@ -28,19 +32,41 @@ public sealed class ScrollViewer : ContainerControl
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ScrollViewer";
-    /// <summary>Gets horizontal scroll bar.</summary>
+    /// <summary>
+    /// Gets horizontal scroll bar.
+    /// </summary>
     public ScrollBar HorizontalScrollBar { get; }
-    /// <summary>Gets vertical scroll bar.</summary>
+    /// <summary>
+    /// Gets vertical scroll bar.
+    /// </summary>
     public ScrollBar VerticalScrollBar { get; }
-    /// <summary>Gets viewport bounds.</summary>
+    /// <summary>
+    /// Gets viewport bounds.
+    /// </summary>
     public Bounds2 ViewportBounds => _viewport;
-    /// <summary>Gets extent.</summary>
+    /// <summary>
+    /// Gets extent.
+    /// </summary>
     public Size2 Extent => _extent;
-    /// <summary>Gets or sets horizontal scroll bar visibility.</summary>
-    public ScrollBarVisibility HorizontalScrollBarVisibility { get => ConfigHorizontalScrollBarVisibility; set => ConfigHorizontalScrollBarVisibility = value; }
-    /// <summary>Gets or sets vertical scroll bar visibility.</summary>
-    public ScrollBarVisibility VerticalScrollBarVisibility { get => ConfigVerticalScrollBarVisibility; set => ConfigVerticalScrollBarVisibility = value; }
-    /// <summary>Gets or sets content.</summary>
+    /// <summary>
+    /// Gets or sets horizontal scroll bar visibility.
+    /// </summary>
+    public  ScrollBarVisibility HorizontalScrollBarVisibility
+    {
+        get => ConfigHorizontalScrollBarVisibility;
+        set => ConfigHorizontalScrollBarVisibility = value;
+    }
+    /// <summary>
+    /// Gets or sets vertical scroll bar visibility.
+    /// </summary>
+    public  ScrollBarVisibility VerticalScrollBarVisibility
+    {
+        get => ConfigVerticalScrollBarVisibility;
+        set => ConfigVerticalScrollBarVisibility = value;
+    }
+    /// <summary>
+    /// Gets or sets content.
+    /// </summary>
     public Control? Content { get => ConfigContent; set => ConfigContent = value; }
 
     internal override void Prepare()
@@ -156,8 +182,14 @@ public sealed class ScrollViewer : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets ScrollBarThickness; a local assignment overrides the style.</summary>
-    public float ScrollBarThickness { get => ConfigScrollBarThickness; set => ConfigScrollBarThickness = value; }
+    /// <summary>
+    /// Gets or sets ScrollBarThickness; a local assignment overrides the style.
+    /// </summary>
+    public  float ScrollBarThickness
+    {
+        get => ConfigScrollBarThickness;
+        set => ConfigScrollBarThickness = value;
+    }
 
     private StyleProperty<ScrollBarVisibility> _styleHorizontalScrollBarVisibility = new(ScrollBarVisibility.Auto);
     private static readonly System.ComponentModel.PropertyChangedEventArgs HorizontalScrollBarVisibilityChangedArgs = new(nameof(HorizontalScrollBarVisibility));
@@ -183,7 +215,9 @@ public sealed class ScrollViewer : ContainerControl
         }
     }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -222,7 +256,9 @@ public sealed class ScrollViewer : ContainerControl
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -259,7 +295,11 @@ public sealed class ScrollViewer : ContainerControl
 
     private Control? _storedContent;
     private static readonly System.ComponentModel.PropertyChangedEventArgs ContentChangedArgs = new(nameof(Content));
-    internal Control? ConfigContent { get => _storedContent; set => SetOwnedControl(ref _storedContent, value, ContentChangedArgs); }
+    internal  Control? ConfigContent
+    {
+        get => _storedContent;
+        set => SetOwnedControl(ref _storedContent, value, ContentChangedArgs);
+    }
 
     /// <inheritdoc/>
     public override void Add(Control child)
@@ -278,7 +318,9 @@ public sealed class ScrollViewer : ContainerControl
 
     /// <inheritdoc/>
     public override void Clear() => Content = null;
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

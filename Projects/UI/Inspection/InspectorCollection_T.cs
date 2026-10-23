@@ -4,7 +4,9 @@ using Sachssoft.Engine.Input;
 using Sachssoft.Engine.Collections;
 
 namespace Sachssoft.Engine.Controls.Inspection;
-/// <summary>Edits a tracked collection through its own Add, RemoveAt and Move operations, with selected-item properties below the list.</summary>
+/// <summary>
+/// Edits a tracked collection through its own Add, RemoveAt and Move operations, with selected-item properties below the list.
+/// </summary>
 /// <typeparam name = "T">The reference type stored in the tracked collection.</typeparam>
 public sealed class InspectorCollection<T> : ContentControl where T : class
 {
@@ -20,7 +22,9 @@ public sealed class InspectorCollection<T> : ContentControl where T : class
     private readonly ContentControl _details = new();
     private bool _dirty = true, _syncing;
     private T? _selected, _displayed;
-    /// <summary>Creates a collection editor using an explicit item factory, label getter and property description.</summary>
+    /// <summary>
+    /// Creates a collection editor using an explicit item factory, label getter and property description.
+    /// </summary>
     public InspectorCollection(TrackableCollection<T> source, Func<T> create, Func<T, string> label, Action<InspectorView, T> describe)
     {
         _source = source;
@@ -54,14 +58,22 @@ public sealed class InspectorCollection<T> : ContentControl where T : class
         };
     }
 
-    /// <summary>Gets the selectable item list.</summary>
+    /// <summary>
+    /// Gets the selectable item list.
+    /// </summary>
     public ListBox List => _list;
-    /// <summary>Gets the selected item or null.</summary>
+    /// <summary>
+    /// Gets the selected item or null.
+    /// </summary>
     public T? SelectedItem => _selected;
-    /// <summary>Gets the selected item's current collection index.</summary>
+    /// <summary>
+    /// Gets the selected item's current collection index.
+    /// </summary>
     public int SelectedIndex => _selected is null ? -1 : _source.IndexOf(_selected);
 
-    /// <summary>Adds an item through the tracked collection and selects it.</summary>
+    /// <summary>
+    /// Adds an item through the tracked collection and selects it.
+    /// </summary>
     public void AddItem()
     {
         _selected = _create();
@@ -69,7 +81,9 @@ public sealed class InspectorCollection<T> : ContentControl where T : class
         _dirty = true;
     }
 
-    /// <summary>Removes the selected item through the tracked collection.</summary>
+    /// <summary>
+    /// Removes the selected item through the tracked collection.
+    /// </summary>
     public void RemoveSelected()
     {
         int index = SelectedIndex;
@@ -80,7 +94,9 @@ public sealed class InspectorCollection<T> : ContentControl where T : class
         _dirty = true;
     }
 
-    /// <summary>Moves the selected item by an offset while retaining object identity.</summary>
+    /// <summary>
+    /// Moves the selected item by an offset while retaining object identity.
+    /// </summary>
     public void MoveSelected(int offset)
     {
         int index = SelectedIndex;

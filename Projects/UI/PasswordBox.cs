@@ -1,18 +1,26 @@
 using System;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>A dedicated masked editor. Passwords are normal managed strings; copy/cut are disabled.</summary>
+/// <summary>
+/// A dedicated masked editor. Passwords are normal managed strings; copy/cut are disabled.
+/// </summary>
 public class PasswordBox : TextBox
 {
-    /// <summary>Creates a password editor.</summary>
+    /// <summary>
+    /// Creates a password editor.
+    /// </summary>
     public PasswordBox() : base()
     {
     }
 
-    /// <summary>Gets or sets the password.</summary>
+    /// <summary>
+    /// Gets or sets the password.
+    /// </summary>
     public string Password { get => Text; set => Text = value; }
 
-    /// <summary>Occurs when the password changes.</summary>
+    /// <summary>
+    /// Occurs when the password changes.
+    /// </summary>
     public event EventHandler? PasswordChanged { add => TextChanged += value; remove => TextChanged -= value; }
 
     /// <inheritdoc/>
@@ -34,7 +42,9 @@ public class PasswordBox : TextBox
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)

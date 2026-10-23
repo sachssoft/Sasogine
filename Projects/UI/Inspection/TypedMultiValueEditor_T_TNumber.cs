@@ -2,7 +2,9 @@ using System.ComponentModel;
 using System.Numerics;
 
 namespace Sachssoft.Engine.Controls.Inspection;
-/// <summary>Edits complete structs using their actual numeric type and explicitly grouped component rows.</summary>
+/// <summary>
+/// Edits complete structs using their actual numeric type and explicitly grouped component rows.
+/// </summary>
 /// <typeparam name = "T">The composite struct.</typeparam>
 /// <typeparam name = "TNumber">The actual component number type.</typeparam>
 public sealed class TypedMultiValueEditor<T, TNumber> : Grid where T : struct where TNumber : struct, INumber<TNumber>
@@ -14,7 +16,9 @@ public sealed class TypedMultiValueEditor<T, TNumber> : Grid where T : struct wh
     private static readonly PropertyChangedEventArgs ValueArgs = new(nameof(Value));
     private T _value;
     private bool _updating;
-    /// <summary>Creates a value editor from explicit typed component descriptions.</summary>
+    /// <summary>
+    /// Creates a value editor from explicit typed component descriptions.
+    /// </summary>
     public TypedMultiValueEditor(T value, params NumericValueComponent<T, TNumber>[] components)
     {
         ArgumentNullException.ThrowIfNull(components);
@@ -97,10 +101,14 @@ public sealed class TypedMultiValueEditor<T, TNumber> : Grid where T : struct wh
         }
     }
 
-    /// <summary>Gets fields in descriptor order.</summary>
+    /// <summary>
+    /// Gets fields in descriptor order.
+    /// </summary>
     public IReadOnlyList<TypedValueTextBox<TNumber>> Editors => _editorView;
 
-    /// <summary>Gets or sets the complete value without recreating component controls.</summary>
+    /// <summary>
+    /// Gets or sets the complete value without recreating component controls.
+    /// </summary>
     public T Value
     {
         get => _value;
@@ -150,7 +158,9 @@ public sealed class TypedMultiValueEditor<T, TNumber> : Grid where T : struct wh
         }
     }
 
-    /// <summary>Occurs after a complete value changes.</summary>
+    /// <summary>
+    /// Occurs after a complete value changes.
+    /// </summary>
     public event EventHandler? ValueChanged;
     internal Func<T>? ReadCurrent { get; set; }
     internal IEqualityComparer<T> ValueComparer => _comparer;

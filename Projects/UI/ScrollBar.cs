@@ -4,21 +4,27 @@ using Sachssoft.Engine.Input;
 using System;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>An independent scrollbar with arrow, page and thumb interaction.</summary>
+/// <summary>
+/// An independent scrollbar with arrow, page and thumb interaction.
+/// </summary>
 public sealed class ScrollBar : RangeControl
 {
     private bool _dragging;
     private float _grab;
     private int _repeat;
     private double _held, _nextRepeat;
-    /// <summary>Initializes a new scroll bar instance.</summary>
+    /// <summary>
+    /// Initializes a new scroll bar instance.
+    /// </summary>
     public ScrollBar() : base()
     {
     }
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ScrollBar";
-    /// <summary>Gets or sets viewport size.</summary>
+    /// <summary>
+    /// Gets or sets viewport size.
+    /// </summary>
     public float ViewportSize { get => ConfigViewportSize; set => ConfigViewportSize = value; }
     private float AxisLength => Orientation == ControlOrientation.Horizontal ? ContentBounds.Width : ContentBounds.Height;
     private float Arrow => MathF.Min(ConfigScrollBarThickness, AxisLength / 2);
@@ -35,7 +41,9 @@ public sealed class ScrollBar : RangeControl
     }
 
     private float ThumbStart => Arrow + (TrackLength - ThumbLength) * Fraction;
-    /// <summary>Gets thumb bounds.</summary>
+    /// <summary>
+    /// Gets thumb bounds.
+    /// </summary>
     public Bounds2 ThumbBounds => AxisRect(ThumbStart, ThumbLength, true);
 
     private Bounds2 AxisRect(float offset, float length, bool absolute = false)
@@ -207,8 +215,14 @@ public sealed class ScrollBar : RangeControl
         }
     }
 
-    /// <summary>Gets or sets MinimumThumbExtent; a local assignment overrides the style.</summary>
-    public float MinimumThumbExtent { get => ConfigMinimumThumbExtent; set => ConfigMinimumThumbExtent = value; }
+    /// <summary>
+    /// Gets or sets MinimumThumbExtent; a local assignment overrides the style.
+    /// </summary>
+    public  float MinimumThumbExtent
+    {
+        get => ConfigMinimumThumbExtent;
+        set => ConfigMinimumThumbExtent = value;
+    }
 
     private StyleProperty<float> _styleScrollBarThickness = new(20f);
     private static readonly System.ComponentModel.PropertyChangedEventArgs ScrollBarThicknessChangedArgs = new(nameof(ScrollBarThickness));
@@ -222,10 +236,18 @@ public sealed class ScrollBar : RangeControl
         }
     }
 
-    /// <summary>Gets or sets ScrollBarThickness; a local assignment overrides the style.</summary>
-    public float ScrollBarThickness { get => ConfigScrollBarThickness; set => ConfigScrollBarThickness = value; }
+    /// <summary>
+    /// Gets or sets ScrollBarThickness; a local assignment overrides the style.
+    /// </summary>
+    public  float ScrollBarThickness
+    {
+        get => ConfigScrollBarThickness;
+        set => ConfigScrollBarThickness = value;
+    }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -264,7 +286,9 @@ public sealed class ScrollBar : RangeControl
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -299,7 +323,9 @@ public sealed class ScrollBar : RangeControl
             NotifyPropertyChanged(ScrollBarThicknessChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

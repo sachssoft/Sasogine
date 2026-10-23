@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Sachssoft.Sasogine;
+namespace Sachssoft.Engine;
 
 /// <summary>
 /// Provides event data for a value that is about to change,

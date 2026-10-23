@@ -2,7 +2,9 @@ using FontStashSharp;
 using Sachssoft.Engine.Graphics.Text;
 
 namespace Sachssoft.Engine.Controls.Drawing;
-/// <summary>Owns shared renderer adapters and one glyph system per engine font face.</summary>
+/// <summary>
+/// Owns shared renderer adapters and one glyph system per engine font face.
+/// </summary>
 internal sealed class ControlFontCache : IDisposable
 {
     private readonly FontRegistry _registry;
@@ -99,6 +101,9 @@ internal sealed class ControlFontCache : IDisposable
         _systems.Clear();
     }
 
+    /// <summary>
+    /// Performs the dispose operation.
+    /// </summary>
     public void Dispose()
     {
         if (_disposed)

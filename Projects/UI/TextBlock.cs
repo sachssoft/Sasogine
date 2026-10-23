@@ -2,22 +2,40 @@ using Microsoft.Xna.Framework;
 using System;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Displays text with cached measurement, wrapping, and placement.</summary>
+/// <summary>
+/// Displays text with cached measurement, wrapping, and placement.
+/// </summary>
 public class TextBlock : Control
 {
-    /// <summary>Initializes a label.</summary>
+    /// <summary>
+    /// Initializes a label.
+    /// </summary>
     public TextBlock() : base()
     {
     }
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "TextBlock";
-    /// <summary>Gets the effective Text value or sets a local override.</summary>
+    /// <summary>
+    /// Gets the effective Text value or sets a local override.
+    /// </summary>
     public string Text { get => ConfigText; set => ConfigText = value; }
-    /// <summary>Gets the effective TextHorizontalAlignment value or sets a local override.</summary>
-    public ControlAlignment TextHorizontalAlignment { get => ConfigTextHorizontalAlignment; set => ConfigTextHorizontalAlignment = value; }
-    /// <summary>Gets the effective TextVerticalAlignment value or sets a local override.</summary>
-    public ControlAlignment TextVerticalAlignment { get => ConfigTextVerticalAlignment; set => ConfigTextVerticalAlignment = value; }
+    /// <summary>
+    /// Gets the effective TextHorizontalAlignment value or sets a local override.
+    /// </summary>
+    public  ControlAlignment TextHorizontalAlignment
+    {
+        get => ConfigTextHorizontalAlignment;
+        set => ConfigTextHorizontalAlignment = value;
+    }
+    /// <summary>
+    /// Gets the effective TextVerticalAlignment value or sets a local override.
+    /// </summary>
+    public  ControlAlignment TextVerticalAlignment
+    {
+        get => ConfigTextVerticalAlignment;
+        set => ConfigTextVerticalAlignment = value;
+    }
 
     private string _displayText = string.Empty;
     private string? _measuredText;
@@ -77,14 +95,18 @@ public class TextBlock : Control
         base.OnFontChanged();
     }
 
-    /// <summary>Invalidates layout and cached text metrics after an external font resource changes.</summary>
+    /// <summary>
+    /// Invalidates layout and cached text metrics after an external font resource changes.
+    /// </summary>
     public override void InvalidateLayout()
     {
         _metricsValid = false;
         base.InvalidateLayout();
     }
 
-    /// <summary>Gets or sets wrap text.</summary>
+    /// <summary>
+    /// Gets or sets wrap text.
+    /// </summary>
     public bool WrapText { get => ConfigWrapText; set => ConfigWrapText = value; }
 
     /// <inheritdoc/>
@@ -119,13 +141,17 @@ public class TextBlock : Control
         DrawText(context);
     }
 
-    /// <summary>Draws the current label text inside the padding using matching metrics.</summary>
+    /// <summary>
+    /// Draws the current label text inside the padding using matching metrics.
+    /// </summary>
     protected void DrawText(ControlDrawContext context)
     {
         context.DrawText(_measuredFont!, _displayText, _textPosition, IsAvailable() ? TextColor : DisabledTextColor);
     }
 
-    /// <summary>Caches the local text position when layout assigns new content bounds.</summary>
+    /// <summary>
+    /// Caches the local text position when layout assigns new content bounds.
+    /// </summary>
     protected override void ArrangeOverride(Bounds2 contentBounds)
     {
         base.ArrangeOverride(contentBounds);
@@ -186,7 +212,9 @@ public class TextBlock : Control
         }
     }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -231,7 +259,9 @@ public class TextBlock : Control
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -272,7 +302,9 @@ public class TextBlock : Control
             NotifyPropertyChanged(WrapTextChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

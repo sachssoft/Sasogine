@@ -1,11 +1,19 @@
 namespace Sachssoft.Engine.Controls;
-/// <summary>Defines when an independent scrollbar is displayed.</summary>
+/// <summary>
+/// Defines when an independent scrollbar is displayed.
+/// </summary>
 public enum ScrollBarVisibility
 {
-    /// <summary>Auto.</summary>
+    /// <summary>
+    /// Auto.
+    /// </summary>
     Auto,
-    /// <summary>Always.</summary>
+    /// <summary>
+    /// Always.
+    /// </summary>
     Always,
-    /// <summary>Hidden.</summary>
+    /// <summary>
+    /// Hidden.
+    /// </summary>
     Hidden,
 }

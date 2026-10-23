@@ -2,7 +2,9 @@ using Microsoft.Xna.Framework.Input;
 using Sachssoft.Engine.Input;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>A numeric range bar that distinguishes a click to edit from a captured drag.</summary>
+/// <summary>
+/// A numeric range bar that distinguishes a click to edit from a captured drag.
+/// </summary>
 public class ValueBar : RangeControl
 {
     private bool _armed, _isDragging;
@@ -14,15 +16,21 @@ public class ValueBar : RangeControl
     private Size2 _textSize;
     private Vector2 _textPosition;
     private static readonly System.ComponentModel.PropertyChangedEventArgs DraggingArgs = new(nameof(IsDragging));
-    /// <summary>Gets whether the current pointer gesture exceeded the drag threshold.</summary>
+    /// <summary>
+    /// Gets whether the current pointer gesture exceeded the drag threshold.
+    /// </summary>
     public bool IsDragging { get => _isDragging; private set => SetNotify(ref _isDragging, value, DraggingArgs); }
 
-    /// <summary>Occurs after a click without dragging, or an Enter/F2 keyboard activation.</summary>
+    /// <summary>
+    /// Occurs after a click without dragging, or an Enter/F2 keyboard activation.
+    /// </summary>
     public event EventHandler? EditRequested;
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ValueBar";
 
-    /// <summary>Gets the draggable thumb in root-logical coordinates.</summary>
+    /// <summary>
+    /// Gets the draggable thumb in root-logical coordinates.
+    /// </summary>
     public Bounds2 ThumbBounds
     {
         get
@@ -167,7 +175,9 @@ public class ValueBar : RangeControl
 
     private StyleProperty<float> _DragThreshold = new(4);
     private static readonly System.ComponentModel.PropertyChangedEventArgs DragThresholdArgs = new(nameof(DragThreshold));
-    /// <summary>Gets the effective DragThreshold value or assigns a local override.</summary>
+    /// <summary>
+    /// Gets the effective DragThreshold value or assigns a local override.
+    /// </summary>
     public float DragThreshold
     {
         get => _DragThreshold.Value;
@@ -180,7 +190,9 @@ public class ValueBar : RangeControl
 
     private StyleProperty<float> _ThumbWidth = new(18);
     private static readonly System.ComponentModel.PropertyChangedEventArgs ThumbWidthArgs = new(nameof(ThumbWidth));
-    /// <summary>Gets the effective ThumbWidth value or assigns a local override.</summary>
+    /// <summary>
+    /// Gets the effective ThumbWidth value or assigns a local override.
+    /// </summary>
     public float ThumbWidth
     {
         get => _ThumbWidth.Value;

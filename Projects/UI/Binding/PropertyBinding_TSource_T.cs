@@ -2,7 +2,9 @@ using System;
 using System.ComponentModel;
 
 namespace Sachssoft.Engine.Controls.Binding;
-/// <summary>Connects typed delegates without reflection, property discovery or expression compilation.</summary>
+/// <summary>
+/// Connects typed delegates without reflection, property discovery or expression compilation.
+/// </summary>
 /// <typeparam name = "TSource">The model type.</typeparam>
 /// <typeparam name = "T">The property value type.</typeparam>
 public sealed class PropertyBinding<TSource, T> : IFrameBinding, IDisposable where TSource : INotifyPropertyChanged
@@ -15,7 +17,9 @@ public sealed class PropertyBinding<TSource, T> : IFrameBinding, IDisposable whe
     private readonly Func<T>? _readTarget;
     private readonly Action<TSource, T>? _writeSource;
     private bool _sourceDirty = true, _targetDirty, _updating;
-    /// <summary>Creates a one-way binding; supplying both reverse delegates enables two-way binding.</summary>
+    /// <summary>
+    /// Creates a one-way binding; supplying both reverse delegates enables two-way binding.
+    /// </summary>
     public PropertyBinding(TSource source, string sourceProperty, Func<TSource, T> readSource, Element target, string targetProperty, Action<T> writeTarget, Func<T>? readTarget = null, Action<TSource, T>? writeSource = null)
     {
         _source = source;
@@ -44,7 +48,9 @@ public sealed class PropertyBinding<TSource, T> : IFrameBinding, IDisposable whe
             _targetDirty = true;
     }
 
-    /// <summary>Applies pending notifications in a stable order on the UI thread.</summary>
+    /// <summary>
+    /// Applies pending notifications in a stable order on the UI thread.
+    /// </summary>
     public void Update()
     {
         _updating = true;
@@ -69,7 +75,9 @@ public sealed class PropertyBinding<TSource, T> : IFrameBinding, IDisposable whe
         }
     }
 
-    /// <summary>Unsubscribes this binding when its owning screen is removed.</summary>
+    /// <summary>
+    /// Unsubscribes this binding when its owning screen is removed.
+    /// </summary>
     public void Dispose()
     {
         _source.PropertyChanged -= SourceChanged;

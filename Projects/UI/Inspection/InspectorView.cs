@@ -2,7 +2,9 @@
 using Sachssoft.Engine.Components.Definitions.Inspectors;
 
 namespace Sachssoft.Engine.Controls.Inspection;
-/// <summary>Builds grouped property editors from typed delegates, with notification-driven refresh or optional polling.</summary>
+/// <summary>
+/// Builds grouped property editors from typed delegates, with notification-driven refresh or optional polling.
+/// </summary>
 public sealed class InspectorView : ContentControl, IInspectorView
 {
     private readonly Dictionary<string, InspectorGroup> _namedGroups = new(StringComparer.Ordinal);
@@ -17,7 +19,9 @@ public sealed class InspectorView : ContentControl, IInspectorView
     private bool? _localShowPropertyMenus;
     private bool _showPropertyMenus = true;
     private static readonly PropertyChangedEventArgs ShowPropertyMenusArgs = new(nameof(ShowPropertyMenus));
-    /// <summary>Gets or sets trailing menu visibility. Nested inspectors inherit it unless explicitly overridden.</summary>
+    /// <summary>
+    /// Gets or sets trailing menu visibility. Nested inspectors inherit it unless explicitly overridden.
+    /// </summary>
     public bool ShowPropertyMenus
     {
         get => _showPropertyMenus;
@@ -60,24 +64,34 @@ public sealed class InspectorView : ContentControl, IInspectorView
                 RefreshNestedVisibility(child);
     }
 
-    /// <summary>Creates an inspector. Place it in a ScrollViewer when its content may exceed the available height.</summary>
+    /// <summary>
+    /// Creates an inspector. Place it in a ScrollViewer when its content may exceed the available height.
+    /// </summary>
     public InspectorView() : this(null)
     {
     }
 
-    /// <summary>Creates an inspector with an optional independent typed editor registry.</summary>
+    /// <summary>
+    /// Creates an inspector with an optional independent typed editor registry.
+    /// </summary>
     public InspectorView(InspectorEditorRegistry? editors)
     {
         _editors = editors;
         Content = _fields;
     }
 
-    /// <summary>Gets the explicit value editor factories available when fields are created.</summary>
+    /// <summary>
+    /// Gets the explicit value editor factories available when fields are created.
+    /// </summary>
     public InspectorEditorRegistry Editors => _editors ?? Workspace?.Registry.InspectorEditors ?? InspectorEditorRegistry.Default;
 
-    /// <summary>Adds the registered editor for an explicitly bound value without discovering its members.</summary>
+    /// <summary>
+    /// Adds the registered editor for an explicitly bound value without discovering its members.
+    /// </summary>
     public Control Add<T>(string title, Func<T> read, Action<T> write, INotifyPropertyChanged? source = null, string? propertyName = null) => Editors.Add(this, title, read, write, source, propertyName);
-    /// <summary>Adds a named property through the UI-independent inspector contract.</summary>
+    /// <summary>
+    /// Adds a named property through the UI-independent inspector contract.
+    /// </summary>
     /// <remarks>A missing setter disables editing and mutating property-menu actions while retaining live display and copy support.</remarks>
     public Control Add<TValue>(string name, string title, Func<TValue> read, Action<TValue>? write = null)
     {
@@ -102,14 +116,18 @@ public sealed class InspectorView : ContentControl, IInspectorView
     }
 
     void IInspectorView.Add<TValue>(string name, string title, Func<TValue> read, Action<TValue>? write) => Add(name, title, read, write);
-    /// <summary>Gets the editor of a named field in this group.</summary>
+    /// <summary>
+    /// Gets the editor of a named field in this group.
+    /// </summary>
     public Control GetFieldEditor(string name)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         return _namedEditors[name];
     }
 
-    /// <summary>Gets or creates a group by its stable name, updating its display title when reused.</summary>
+    /// <summary>
+    /// Gets or creates a group by its stable name, updating its display title when reused.
+    /// </summary>
     public InspectorView Group(string name, string title)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -144,7 +162,9 @@ public sealed class InspectorView : ContentControl, IInspectorView
             _namedGroups.Remove(name);
     }
 
-    /// <summary>Removes fields and groups and releases their source subscriptions.</summary>
+    /// <summary>
+    /// Removes fields and groups and releases their source subscriptions.
+    /// </summary>
     public override void Clear()
     {
         foreach (IInspectorBinding binding in _bindings)
@@ -160,7 +180,9 @@ public sealed class InspectorView : ContentControl, IInspectorView
         _fields.Clear();
     }
 
-    /// <summary>Adds a persistent, collapsible category or nested definition.</summary>
+    /// <summary>
+    /// Adds a persistent, collapsible category or nested definition.
+    /// </summary>
     public InspectorGroup AddGroup(string title, bool expanded = true)
     {
         var group = new InspectorGroup(title, _editors)
@@ -171,7 +193,9 @@ public sealed class InspectorView : ContentControl, IInspectorView
         return group;
     }
 
-    /// <summary>Adds a label and an arbitrary existing editor.</summary>
+    /// <summary>
+    /// Adds a label and an arbitrary existing editor.
+    /// </summary>
     public void AddField(string title, Control editor) => AddFieldCore(title, editor, null);
     private void AddFieldCore(string title, Control editor, IInspectorPropertyActions? actions)
     {
@@ -183,14 +207,18 @@ public sealed class InspectorView : ContentControl, IInspectorView
     }
 
     private void AddBoundField<T>(string title, Control editor, InspectorValueBinding<T> binding, Func<T> read, Func<T, T>? snapshot = null) => AddFieldCore(title, editor, new InspectorPropertyActions<T>(read, binding.SetValue, snapshot));
-    /// <summary>Gets the trailing menu for a field created by this inspector.</summary>
+    /// <summary>
+    /// Gets the trailing menu for a field created by this inspector.
+    /// </summary>
     public InspectorPropertyMenu GetPropertyMenu(Control editor)
     {
         ArgumentNullException.ThrowIfNull(editor);
         return _propertyMenus.TryGetValue(editor, out InspectorPropertyMenu? menu) ? menu : throw new ArgumentException("The editor does not belong to this inspector.", nameof(editor));
     }
 
-    /// <summary>Sets an explicit reset value. Otherwise Reset restores the snapshot captured when the field was created.</summary>
+    /// <summary>
+    /// Sets an explicit reset value. Otherwise Reset restores the snapshot captured when the field was created.
+    /// </summary>
     public void SetDefault<T>(Control editor, T value) => GetPropertyMenu(editor).SetDefault(value);
     internal bool OwnsMenu(Control editor, InspectorPropertyMenu menu) => _propertyMenus.TryGetValue(editor, out InspectorPropertyMenu? current) && ReferenceEquals(current, menu);
     private InspectorValueBinding<T> Bind<T>(Func<T> read, Action<T> write, Action<T> display, INotifyPropertyChanged? source, string? name, IEqualityComparer<T>? comparer = null)
@@ -207,7 +235,9 @@ public sealed class InspectorView : ContentControl, IInspectorView
         return binding;
     }
 
-    /// <summary>Adds a text editor. Supply source and propertyName for notification-driven refresh.</summary>
+    /// <summary>
+    /// Adds a text editor. Supply source and propertyName for notification-driven refresh.
+    /// </summary>
     public TextBox AddText(string title, Func<string> read, Action<string> write, INotifyPropertyChanged? source = null, string? propertyName = null)
     {
         var editor = new TextBox
@@ -220,7 +250,9 @@ public sealed class InspectorView : ContentControl, IInspectorView
         return editor;
     }
 
-    /// <summary>Adds a finite numeric editor using the shared value bar and text input control.</summary>
+    /// <summary>
+    /// Adds a finite numeric editor using the shared value bar and text input control.
+    /// </summary>
     public ValueTextBox AddSingle(string title, Func<float> read, Action<float> write, float minimum, float maximum, float step = 1, INotifyPropertyChanged? source = null, string? propertyName = null)
     {
         var editor = new ValueTextBox
@@ -236,7 +268,9 @@ public sealed class InspectorView : ContentControl, IInspectorView
         return editor;
     }
 
-    /// <summary>Adds one property row with explicitly described components of a composite value.</summary>
+    /// <summary>
+    /// Adds one property row with explicitly described components of a composite value.
+    /// </summary>
     public TypedMultiValueEditor<T, TNumber> AddNumericValues<T, TNumber>(string title, Func<T> read, Action<T> write, NumericValueComponent<T, TNumber>[] components, INotifyPropertyChanged? source = null, string? propertyName = null)
         where T : struct where TNumber : struct, System.Numerics.INumber<TNumber>
     {
@@ -250,7 +284,9 @@ public sealed class InspectorView : ContentControl, IInspectorView
         return editor;
     }
 
-    /// <summary>Adds numeric input in its actual number type, preserving large integers and floating-point precision.</summary>
+    /// <summary>
+    /// Adds numeric input in its actual number type, preserving large integers and floating-point precision.
+    /// </summary>
     public TypedValueTextBox<TNumber> AddNumber<TNumber>(string title, Func<TNumber> read, Action<TNumber> write, INotifyPropertyChanged? source = null, string? propertyName = null)
         where TNumber : struct, System.Numerics.INumber<TNumber>
     {
@@ -261,7 +297,9 @@ public sealed class InspectorView : ContentControl, IInspectorView
         return editor;
     }
 
-    /// <summary>Adds a typed text editor with explicit formatting and parsing.</summary>
+    /// <summary>
+    /// Adds a typed text editor with explicit formatting and parsing.
+    /// </summary>
     public TypedValueTextBox<T> AddParsed<T>(string title, Func<T> read, Action<T> write, Func<T, string> format, TryParseInspectorValue<T> parse, INotifyPropertyChanged? source = null, string? propertyName = null)
     {
         var editor = new TypedValueTextBox<T>(read(), format, parse);
@@ -271,7 +309,9 @@ public sealed class InspectorView : ContentControl, IInspectorView
         return editor;
     }
 
-    /// <summary>Adds choices explicitly, including enum choices, without enumerating runtime members.</summary>
+    /// <summary>
+    /// Adds choices explicitly, including enum choices, without enumerating runtime members.
+    /// </summary>
     public ComboBox AddChoice<T>(string title, Func<T> read, Action<T> write, IReadOnlyList<KeyValuePair<string, T>> choices, INotifyPropertyChanged? source = null, string? propertyName = null)
     {
         ArgumentNullException.ThrowIfNull(choices);
@@ -303,7 +343,9 @@ public sealed class InspectorView : ContentControl, IInspectorView
         return editor;
     }
 
-    /// <summary>Adds one property row with explicitly described components of a composite value.</summary>
+    /// <summary>
+    /// Adds one property row with explicitly described components of a composite value.
+    /// </summary>
     public MultiValueEditor<T> AddValues<T>(string title, Func<T> read, Action<T> write, ValueComponent<T>[] components, INotifyPropertyChanged? source = null, string? propertyName = null)
         where T : struct
     {
@@ -319,13 +361,21 @@ public sealed class InspectorView : ContentControl, IInspectorView
         return editor;
     }
 
-    /// <summary>Adds one X/Y row bound to a complete two-dimensional vector.</summary>
+    /// <summary>
+    /// Adds one X/Y row bound to a complete two-dimensional vector.
+    /// </summary>
     public MultiValueEditor<Vector2> AddVector2(string title, Func<Vector2> read, Action<Vector2> write, float minimum, float maximum, float step = 1, INotifyPropertyChanged? source = null, string? propertyName = null) => AddValues(title, read, write, new[] { new ValueComponent<Vector2>("X", static value => value.X, static (value, x) => new(x, value.Y), minimum, maximum, step), new ValueComponent<Vector2>("Y", static value => value.Y, static (value, y) => new(value.X, y), minimum, maximum, step) }, source, propertyName);
-    /// <summary>Adds one X/Y/Z row bound to a complete three-dimensional vector.</summary>
+    /// <summary>
+    /// Adds one X/Y/Z row bound to a complete three-dimensional vector.
+    /// </summary>
     public MultiValueEditor<Vector3> AddVector3(string title, Func<Vector3> read, Action<Vector3> write, float minimum, float maximum, float step = 1, INotifyPropertyChanged? source = null, string? propertyName = null) => AddValues(title, read, write, new[] { new ValueComponent<Vector3>("X", static value => value.X, static (value, x) => new(x, value.Y, value.Z), minimum, maximum, step), new ValueComponent<Vector3>("Y", static value => value.Y, static (value, y) => new(value.X, y, value.Z), minimum, maximum, step), new ValueComponent<Vector3>("Z", static value => value.Z, static (value, z) => new(value.X, value.Y, z), minimum, maximum, step) }, source, propertyName);
-    /// <summary>Adds one X/Y/Z/W row bound to a complete four-dimensional vector.</summary>
+    /// <summary>
+    /// Adds one X/Y/Z/W row bound to a complete four-dimensional vector.
+    /// </summary>
     public MultiValueEditor<Vector4> AddVector4(string title, Func<Vector4> read, Action<Vector4> write, float minimum, float maximum, float step = 1, INotifyPropertyChanged? source = null, string? propertyName = null) => AddValues(title, read, write, new[] { new ValueComponent<Vector4>("X", static value => value.X, static (value, x) => new(x, value.Y, value.Z, value.W), minimum, maximum, step), new ValueComponent<Vector4>("Y", static value => value.Y, static (value, y) => new(value.X, y, value.Z, value.W), minimum, maximum, step), new ValueComponent<Vector4>("Z", static value => value.Z, static (value, z) => new(value.X, value.Y, z, value.W), minimum, maximum, step), new ValueComponent<Vector4>("W", static value => value.W, static (value, w) => new(value.X, value.Y, value.Z, w), minimum, maximum, step) }, source, propertyName);
-    /// <summary>Adds a boolean editor with an explicit setter.</summary>
+    /// <summary>
+    /// Adds a boolean editor with an explicit setter.
+    /// </summary>
     public CheckBox AddBoolean(string title, Func<bool> read, Action<bool> write, INotifyPropertyChanged? source = null, string? propertyName = null)
     {
         var editor = new CheckBox
@@ -342,7 +392,9 @@ public sealed class InspectorView : ContentControl, IInspectorView
         return editor;
     }
 
-    /// <summary>Adds a color swatch opening the existing multi-model color picker; cancellation preserves the source.</summary>
+    /// <summary>
+    /// Adds a color swatch opening the existing multi-model color picker; cancellation preserves the source.
+    /// </summary>
     public Button AddColor(string title, Func<Color> read, Action<Color> write, INotifyPropertyChanged? source = null, string? propertyName = null)
     {
         var swatch = new Panel
@@ -388,7 +440,9 @@ public sealed class InspectorView : ContentControl, IInspectorView
         return editor;
     }
 
-    /// <summary>Adds a type-filtered reference field using the shared asset picker.</summary>
+    /// <summary>
+    /// Adds a type-filtered reference field using the shared asset picker.
+    /// </summary>
     public ReferencePicker<T> AddReference<T>(string title, Func<Reference<T>?> read, Action<Reference<T>?> write, IReadOnlyList<AssetItem> assets, INotifyPropertyChanged? source = null, string? propertyName = null)
         where T : class, IEngineReferenceable
     {

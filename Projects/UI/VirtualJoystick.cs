@@ -4,7 +4,9 @@ using Sachssoft.Engine.Input;
 using System;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Deterministic analog joystick with independent mouse/touch capture and constrained axes.</summary>
+/// <summary>
+/// Deterministic analog joystick with independent mouse/touch capture and constrained axes.
+/// </summary>
 public class VirtualJoystick : Control
 {
     private ChangeTracker<VirtualJoystickSettings> _settings;
@@ -12,36 +14,60 @@ public class VirtualJoystick : Control
     private ControlPointer? _pointer;
     private float _radius, _thumb;
     private bool _centerReady;
-    /// <summary>Creates a joystick with a typed properties.</summary>
+    /// <summary>
+    /// Creates a joystick with a typed properties.
+    /// </summary>
     public VirtualJoystick() : base()
     {
     }
 
-    /// <summary>Gets normalized output. Positive Y points down unless InvertY is enabled.</summary>
+    /// <summary>
+    /// Gets normalized output. Positive Y points down unless InvertY is enabled.
+    /// </summary>
     public Vector2 Value => _value;
-    /// <summary>Gets the physical normalized knob displacement before dead zone, curve or inversion.</summary>
+    /// <summary>
+    /// Gets the physical normalized knob displacement before dead zone, curve or inversion.
+    /// </summary>
     public Vector2 RawValue => _raw;
-    /// <summary>Gets whether one pointer is currently held.</summary>
+    /// <summary>
+    /// Gets whether one pointer is currently held.
+    /// </summary>
     public bool IsActive => _pointer.HasValue;
-    /// <summary>Gets the held pointer identity.</summary>
+    /// <summary>
+    /// Gets the held pointer identity.
+    /// </summary>
     public ControlPointer? ActivePointer => _pointer;
-    /// <summary>Gets the current center in root coordinates.</summary>
+    /// <summary>
+    /// Gets the current center in root coordinates.
+    /// </summary>
     public Vector2 Center => _center;
-    /// <summary>Gets the actual travel radius after available layout space is considered.</summary>
+    /// <summary>
+    /// Gets the actual travel radius after available layout space is considered.
+    /// </summary>
     public float EffectiveRadius => _radius;
 
-    /// <summary>Occurs before output changes for a newly captured pointer.</summary>
+    /// <summary>
+    /// Occurs before output changes for a newly captured pointer.
+    /// </summary>
     public event EventHandler? Started;
-    /// <summary>Occurs only when normalized output changes.</summary>
+    /// <summary>
+    /// Occurs only when normalized output changes.
+    /// </summary>
     public event EventHandler? ValueChanged;
-    /// <summary>Occurs after release, with capture already released.</summary>
+    /// <summary>
+    /// Occurs after release, with capture already released.
+    /// </summary>
     public event EventHandler? Completed;
-    /// <summary>Occurs after cancellation; output is always zero.</summary>
+    /// <summary>
+    /// Occurs after cancellation; output is always zero.
+    /// </summary>
     public event EventHandler? Cancelled;
     /// <inheritdoc/>
     protected override string DefaultStyleName => "VirtualJoystick";
 
-    /// <summary>Gets or sets joystick MovementMode.</summary>
+    /// <summary>
+    /// Gets or sets joystick MovementMode.
+    /// </summary>
     public JoystickMovementMode MovementMode
     {
         get
@@ -52,7 +78,9 @@ public class VirtualJoystick : Control
         set => ConfigMovementMode = value;
     }
 
-    /// <summary>Gets or sets joystick PlacementMode.</summary>
+    /// <summary>
+    /// Gets or sets joystick PlacementMode.
+    /// </summary>
     public JoystickPlacementMode PlacementMode
     {
         get
@@ -63,7 +91,9 @@ public class VirtualJoystick : Control
         set => ConfigPlacementMode = value;
     }
 
-    /// <summary>Gets or sets joystick CustomAxis.</summary>
+    /// <summary>
+    /// Gets or sets joystick CustomAxis.
+    /// </summary>
     public Vector2 CustomAxis
     {
         get
@@ -74,7 +104,9 @@ public class VirtualJoystick : Control
         set => ConfigCustomAxis = value;
     }
 
-    /// <summary>Gets or sets joystick Radius.</summary>
+    /// <summary>
+    /// Gets or sets joystick Radius.
+    /// </summary>
     public float Radius
     {
         get
@@ -85,7 +117,9 @@ public class VirtualJoystick : Control
         set => ConfigRadius = value;
     }
 
-    /// <summary>Gets or sets joystick ThumbSize.</summary>
+    /// <summary>
+    /// Gets or sets joystick ThumbSize.
+    /// </summary>
     public Size2 ThumbSize
     {
         get
@@ -96,7 +130,9 @@ public class VirtualJoystick : Control
         set => ConfigThumbSize = value;
     }
 
-    /// <summary>Gets or sets joystick DeadZone.</summary>
+    /// <summary>
+    /// Gets or sets joystick DeadZone.
+    /// </summary>
     public float DeadZone
     {
         get
@@ -107,7 +143,9 @@ public class VirtualJoystick : Control
         set => ConfigDeadZone = value;
     }
 
-    /// <summary>Gets or sets joystick ReturnToCenter.</summary>
+    /// <summary>
+    /// Gets or sets joystick ReturnToCenter.
+    /// </summary>
     public bool ReturnToCenter
     {
         get
@@ -118,7 +156,9 @@ public class VirtualJoystick : Control
         set => ConfigReturnToCenter = value;
     }
 
-    /// <summary>Gets or sets joystick InvertX.</summary>
+    /// <summary>
+    /// Gets or sets joystick InvertX.
+    /// </summary>
     public bool InvertX
     {
         get
@@ -129,7 +169,9 @@ public class VirtualJoystick : Control
         set => ConfigInvertX = value;
     }
 
-    /// <summary>Gets or sets joystick InvertY.</summary>
+    /// <summary>
+    /// Gets or sets joystick InvertY.
+    /// </summary>
     public bool InvertY
     {
         get
@@ -140,7 +182,9 @@ public class VirtualJoystick : Control
         set => ConfigInvertY = value;
     }
 
-    /// <summary>Gets or sets joystick ResponseCurve.</summary>
+    /// <summary>
+    /// Gets or sets joystick ResponseCurve.
+    /// </summary>
     public Sachssoft.Engine.Gameplay.Curves.CurveBase? ResponseCurve
     {
         get
@@ -327,7 +371,9 @@ public class VirtualJoystick : Control
             Completed?.Invoke(this, EventArgs.Empty);
     }
 
-    /// <summary>Clears held input and output even when ReturnToCenter is disabled.</summary>
+    /// <summary>
+    /// Clears held input and output even when ReturnToCenter is disabled.
+    /// </summary>
     public void Reset()
     {
         Stop(true);
@@ -528,7 +574,9 @@ public class VirtualJoystick : Control
         }
     }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -609,7 +657,9 @@ public class VirtualJoystick : Control
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -686,7 +736,9 @@ public class VirtualJoystick : Control
             NotifyPropertyChanged(ResponseCurveChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

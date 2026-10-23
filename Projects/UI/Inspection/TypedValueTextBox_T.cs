@@ -2,7 +2,9 @@ using System.ComponentModel;
 using Microsoft.Xna.Framework.Input;
 
 namespace Sachssoft.Engine.Controls.Inspection;
-/// <summary>Edits a typed value using explicit formatting and parsing; commits on Enter or focus loss.</summary>
+/// <summary>
+/// Edits a typed value using explicit formatting and parsing; commits on Enter or focus loss.
+/// </summary>
 /// <typeparam name = "T">The value type.</typeparam>
 public sealed class TypedValueTextBox<T> : TextBox
 {
@@ -11,7 +13,9 @@ public sealed class TypedValueTextBox<T> : TextBox
     private static readonly PropertyChangedEventArgs ValueArgs = new(nameof(Value));
     private T _value;
     private bool _syncing, _dirty;
-    /// <summary>Creates an editor with a formatter and parser that work under NativeAOT.</summary>
+    /// <summary>
+    /// Creates an editor with a formatter and parser that work under NativeAOT.
+    /// </summary>
     public TypedValueTextBox(T value, Func<T, string> format, TryParseInspectorValue<T> parse)
     {
         ArgumentNullException.ThrowIfNull(format);
@@ -32,7 +36,9 @@ public sealed class TypedValueTextBox<T> : TextBox
         Submitted += (_, _) => CommitEdit();
     }
 
-    /// <summary>Gets or sets the last committed value, preserving text currently being edited.</summary>
+    /// <summary>
+    /// Gets or sets the last committed value, preserving text currently being edited.
+    /// </summary>
     public T Value
     {
         get => _value;
@@ -47,9 +53,13 @@ public sealed class TypedValueTextBox<T> : TextBox
         }
     }
 
-    /// <summary>Occurs after a committed value changes.</summary>
+    /// <summary>
+    /// Occurs after a committed value changes.
+    /// </summary>
     public event EventHandler? ValueChanged;
-    /// <summary>Validates and commits pending text; invalid input preserves the source.</summary>
+    /// <summary>
+    /// Validates and commits pending text; invalid input preserves the source.
+    /// </summary>
     public bool CommitEdit()
     {
         if (!_dirty)
@@ -88,7 +98,9 @@ public sealed class TypedValueTextBox<T> : TextBox
         }
     }
 
-    /// <summary>Discards pending text and displays the latest committed source value.</summary>
+    /// <summary>
+    /// Discards pending text and displays the latest committed source value.
+    /// </summary>
     public void CancelEdit() => Sync();
     private void Sync()
     {

@@ -1,11 +1,15 @@
 using System;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Presents a control directly or displays an object's text representation.</summary>
+/// <summary>
+/// Presents a control directly or displays an object's text representation.
+/// </summary>
 public class ContentControl : ContainerControl
 {
     private ChangeTracker<Control?> _content;
-    /// <summary>Creates a content host.</summary>
+    /// <summary>
+    /// Creates a content host.
+    /// </summary>
     public ContentControl() : base()
     {
     }
@@ -16,7 +20,9 @@ public class ContentControl : ContainerControl
     private static readonly System.ComponentModel.PropertyChangedEventArgs ContentStorageArgs = new(nameof(Content));
     private static readonly System.ComponentModel.PropertyChangedEventArgs ContentPresenterChangedArgs = new(nameof(ContentPresenter));
 
-    /// <summary>Gets or sets the source content. Controls are presented directly; other values are converted to text when assigned.</summary>
+    /// <summary>
+    /// Gets or sets the source content. Controls are presented directly; other values are converted to text when assigned.
+    /// </summary>
     /// <remarks>Reassign an object to refresh its text representation. Null removes the presenter.</remarks>
     public object? Content
     {
@@ -41,12 +47,26 @@ public class ContentControl : ContainerControl
         }
     }
 
-    /// <summary>Gets the actual child presenting the content, or null when content is null.</summary>
+    /// <summary>
+    /// Gets the actual child presenting the content, or null when content is null.
+    /// </summary>
     public Control? ContentPresenter => _contentPresenter;
-    /// <summary>Gets or sets horizontal content alignment.</summary>
-    public ControlAlignment ContentHorizontalAlignment { get => ConfigContentHorizontalAlignment; set => ConfigContentHorizontalAlignment = value; }
-    /// <summary>Gets or sets vertical content alignment.</summary>
-    public ControlAlignment ContentVerticalAlignment { get => ConfigContentVerticalAlignment; set => ConfigContentVerticalAlignment = value; }
+    /// <summary>
+    /// Gets or sets horizontal content alignment.
+    /// </summary>
+    public  ControlAlignment ContentHorizontalAlignment
+    {
+        get => ConfigContentHorizontalAlignment;
+        set => ConfigContentHorizontalAlignment = value;
+    }
+    /// <summary>
+    /// Gets or sets vertical content alignment.
+    /// </summary>
+    public  ControlAlignment ContentVerticalAlignment
+    {
+        get => ConfigContentVerticalAlignment;
+        set => ConfigContentVerticalAlignment = value;
+    }
 
     /// <inheritdoc/>
     public override void Add(Control child)
@@ -124,7 +144,9 @@ public class ContentControl : ContainerControl
         }
     }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -157,7 +179,9 @@ public class ContentControl : ContainerControl
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -186,7 +210,9 @@ public class ContentControl : ContainerControl
             NotifyPropertyChanged(ContentVerticalAlignmentChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

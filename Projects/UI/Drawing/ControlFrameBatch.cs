@@ -7,7 +7,9 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 
 namespace Sachssoft.Engine.Controls.Drawing;
-/// <summary>Buffers clipped UI geometry in reusable GPU buffers and groups safely compatible draw items.</summary>
+/// <summary>
+/// Buffers clipped UI geometry in reusable GPU buffers and groups safely compatible draw items.
+/// </summary>
 /// <remarks>
 /// The owning draw context controls the frame lifetime and local coordinate state.
 /// Texture ownership stays with the caller. Overlapping items retain painter order;
@@ -26,7 +28,9 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
     private readonly ControlTextureVertex[]? _textureVertices;
     private readonly RenderTargetBinding[] _targetBinding = new RenderTargetBinding[1];
     internal Texture2D? OpaqueWhiteTexture { get; set; }
-    /// <summary>Gets full-target opaque fills replaced by equivalent target-only clears.</summary>
+    /// <summary>
+    /// Gets full-target opaque fills replaced by equivalent target-only clears.
+    /// </summary>
     public int OpaqueClearCount { get; private set; }
     private readonly Texture2D?[] _slots = new Texture2D?[8];
     private readonly List<ControlTextureRun> _runs = new(4);
@@ -39,11 +43,15 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
     private bool _halfPixel;
     private Bounds2 _clip;
     private bool _active, _disposed;
-    /// <summary>Creates reusable CPU/GPU buffers. Capacity is a vertex count between 32 and 65,532.</summary>
+    /// <summary>
+    /// Creates reusable CPU/GPU buffers. Capacity is a vertex count between 32 and 65,532.
+    /// </summary>
     public ControlFrameBatch(GraphicsDevice graphicsDevice, int capacity = 16384)
         : this(graphicsDevice, capacity, true) { }
 
-    /// <summary>Creates a batch with an optional compatible OpenGL texture-slot path.</summary>
+    /// <summary>
+    /// Creates a batch with an optional compatible OpenGL texture-slot path.
+    /// </summary>
     /// <param name="graphicsDevice">The graphics device.</param>
     /// <param name="capacity">The reusable vertex capacity.</param>
     /// <param name="useTextureSlots">Whether OpenGL may merge contiguous texture groups.</param>
@@ -81,11 +89,17 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
 
     /// <inheritdoc/>
     public GraphicsDevice GraphicsDevice { get; }
-    /// <summary>Gets draw calls issued by this batch during the current or most recently completed frame.</summary>
+    /// <summary>
+    /// Gets draw calls issued by this batch during the current or most recently completed frame.
+    /// </summary>
     public int DrawCalls { get; private set; }
-    /// <summary>Gets the number of accepted textured quads during the frame.</summary>
+    /// <summary>
+    /// Gets the number of accepted textured quads during the frame.
+    /// </summary>
     public int QuadCount { get; private set; }
-    /// <summary>Gets nonempty buffer submissions during the frame.</summary>
+    /// <summary>
+    /// Gets nonempty buffer submissions during the frame.
+    /// </summary>
     public int FlushCount { get; private set; }
 
     internal void Begin(int width, int height)
@@ -118,7 +132,9 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
         _clip = _halfPixel ? new Bounds2(pixelClip.X + .5f, pixelClip.Y + .5f, pixelClip.Width, pixelClip.Height) : pixelClip;
     }
 
-    /// <summary>Appends a local textured sprite while preserving the order of overlapping geometry.</summary>
+    /// <summary>
+    /// Appends a local textured sprite while preserving the order of overlapping geometry.
+    /// </summary>
     public void Draw(Texture2D texture, Vector2 position, Rectangle? source, Color color, float rotation, Vector2 origin, Vector2 scale, SpriteEffects effects = SpriteEffects.None, float layerDepth = 0)
     {
         EnsureActive();
@@ -145,7 +161,9 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
         DrawQuad(texture, ref tl, ref tr, ref bl, ref br);
     }
 
-    /// <summary>Appends FontStashSharp glyphs directly to this frame batch.</summary>
+    /// <summary>
+    /// Appends FontStashSharp glyphs directly to this frame batch.
+    /// </summary>
     public void DrawText(SpriteFontBase font, string text, Vector2 position, Color color)
     {
         EnsureActive();
@@ -322,7 +340,9 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
         return index;
     }
 
-    /// <summary>Submits pending geometry; also acts as an explicit ordering barrier for external drawing.</summary>
+    /// <summary>
+    /// Submits pending geometry; also acts as an explicit ordering barrier for external drawing.
+    /// </summary>
     public void Flush()
     {
         EnsureActive();
@@ -460,7 +480,9 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
             throw new InvalidOperationException("The frame batch is only valid during control drawing.");
     }
 
-    /// <summary>Releases owned buffers and effect; caller-owned textures are retained.</summary>
+    /// <summary>
+    /// Releases owned buffers and effect; caller-owned textures are retained.
+    /// </summary>
     public void Dispose()
     {
         if (_disposed)

@@ -1,11 +1,16 @@
 using System.Numerics;
 
 namespace Sachssoft.Engine.Controls.Inspection;
-/// <summary>Compares described numeric fields without boxing structs lacking IEquatable.</summary>
+/// <summary>
+/// Compares described numeric fields without boxing structs lacking IEquatable.
+/// </summary>
 internal sealed class NumericCompositeComparer<T, TNumber> : IEqualityComparer<T> where T : struct where TNumber : struct, INumber<TNumber>
 {
     private readonly NumericValueComponent<T, TNumber>[] _components;
     internal NumericCompositeComparer(NumericValueComponent<T, TNumber>[] components) => _components = components;
+    /// <summary>
+    /// Performs the equals operation.
+    /// </summary>
     public bool Equals(T left, T right)
     {
         for (int i = 0; i < _components.Length; i++)
@@ -14,6 +19,9 @@ internal sealed class NumericCompositeComparer<T, TNumber> : IEqualityComparer<T
         return true;
     }
 
+    /// <summary>
+    /// Performs the get hash code operation.
+    /// </summary>
     public int GetHashCode(T value)
     {
         var hash = new HashCode();

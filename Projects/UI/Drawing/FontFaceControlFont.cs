@@ -5,14 +5,18 @@ using Sachssoft.Engine.Graphics.Text;
 using System;
 
 namespace Sachssoft.Engine.Controls.Drawing;
-/// <summary>Adapts an existing Sasogine FontFace using FontStashSharp for matching text metrics.</summary>
+/// <summary>
+/// Adapts an existing Sasogine FontFace using FontStashSharp for matching text metrics.
+/// </summary>
 public sealed class FontFaceControlFont : IControlBatchFont, IDisposable
 {
     private readonly FontSystem _system;
     private readonly SpriteFontBase _font;
     private readonly bool _ownsSystem;
     private bool _disposed;
-    /// <summary>Creates an independent font cache. The caller retains ownership of the FontFace.</summary>
+    /// <summary>
+    /// Creates an independent font cache. The caller retains ownership of the FontFace.
+    /// </summary>
     public FontFaceControlFont(FontFace face, int size)
     {
         ArgumentNullException.ThrowIfNull(face);
@@ -42,9 +46,13 @@ public sealed class FontFaceControlFont : IControlBatchFont, IDisposable
         _font = system.GetFont(size);
     }
 
-    /// <summary>Gets the source face.</summary>
+    /// <summary>
+    /// Gets the source face.
+    /// </summary>
     public FontFace Face { get; }
-    /// <summary>Gets the logical font size.</summary>
+    /// <summary>
+    /// Gets the logical font size.
+    /// </summary>
     public int Size { get; }
 
     /// <inheritdoc/>
@@ -68,7 +76,9 @@ public sealed class FontFaceControlFont : IControlBatchFont, IDisposable
         batch.DrawText(_font, text, position, color);
     }
 
-    /// <summary>Releases this adapter's font cache. Does not dispose the source face.</summary>
+    /// <summary>
+    /// Releases this adapter's font cache. Does not dispose the source face.
+    /// </summary>
     public void Dispose()
     {
         if (_disposed)

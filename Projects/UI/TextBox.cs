@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Globalization;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Editable Unicode text with selection, clipboard, undo/redo and optional multiple lines.</summary>
+/// <summary>
+/// Editable Unicode text with selection, clipboard, undo/redo and optional multiple lines.
+/// </summary>
 public class TextBox : Control
 {
     private int _caret, _anchor;
@@ -22,7 +24,9 @@ public class TextBox : Control
     private IControlFont? _font;
     private float _lineHeight = 16, _scrollX, _scrollY;
     private readonly Stack<(string Text, int Caret, int Anchor)> _undo = new(), _redo = new();
-    /// <summary>Initializes a new text box instance.</summary>
+    /// <summary>
+    /// Initializes a new text box instance.
+    /// </summary>
     public TextBox() : base()
     {
     }
@@ -31,36 +35,66 @@ public class TextBox : Control
     protected override string FocusVisualState => HasError ? "Focused.Invalid" : "Focused";
     /// <inheritdoc/>
     protected override string DefaultStyleName => "TextBox";
-    /// <summary>Gets or sets text.</summary>
+    /// <summary>
+    /// Gets or sets text.
+    /// </summary>
     public string Text { get => ConfigText; set => ReplaceAll(value, false); }
-    /// <summary>Gets or sets is read only.</summary>
+    /// <summary>
+    /// Gets or sets is read only.
+    /// </summary>
     public bool IsReadOnly { get => ConfigIsReadOnly; set => ConfigIsReadOnly = value; }
-    /// <summary>Gets or sets accepts return.</summary>
+    /// <summary>
+    /// Gets or sets accepts return.
+    /// </summary>
     public bool AcceptsReturn { get => ConfigAcceptsReturn; set => ConfigAcceptsReturn = value; }
-    /// <summary>Gets or sets accepts tab.</summary>
+    /// <summary>
+    /// Gets or sets accepts tab.
+    /// </summary>
     public bool AcceptsTab { get => ConfigAcceptsTab; set => ConfigAcceptsTab = value; }
-    /// <summary>Gets or sets is password.</summary>
+    /// <summary>
+    /// Gets or sets is password.
+    /// </summary>
     public bool IsPassword { get => ConfigIsPassword; set => ConfigIsPassword = value; }
-    /// <summary>Gets or sets has error.</summary>
+    /// <summary>
+    /// Gets or sets has error.
+    /// </summary>
     public bool HasError { get => ConfigHasError; set => ConfigHasError = value; }
-    /// <summary>Gets or sets placeholder.</summary>
+    /// <summary>
+    /// Gets or sets placeholder.
+    /// </summary>
     public string Placeholder { get => ConfigPlaceholder; set => ConfigPlaceholder = value; }
-    /// <summary>Gets or sets max length.</summary>
+    /// <summary>
+    /// Gets or sets max length.
+    /// </summary>
     public int MaxLength { get => ConfigMaxLength; set => ConfigMaxLength = value; }
-    /// <summary>Gets caret index.</summary>
+    /// <summary>
+    /// Gets caret index.
+    /// </summary>
     public int CaretIndex => _caret;
-    /// <summary>Gets selection start.</summary>
+    /// <summary>
+    /// Gets selection start.
+    /// </summary>
     public int SelectionStart => Math.Min(_caret, _anchor);
-    /// <summary>Gets selection length.</summary>
+    /// <summary>
+    /// Gets selection length.
+    /// </summary>
     public int SelectionLength => Math.Abs(_caret - _anchor);
-    /// <summary>Gets selected text.</summary>
+    /// <summary>
+    /// Gets selected text.
+    /// </summary>
     public string SelectedText => Text.Substring(SelectionStart, SelectionLength);
 
-    /// <summary>Occurs when text changed.</summary>
+    /// <summary>
+    /// Occurs when text changed.
+    /// </summary>
     public event EventHandler? TextChanged;
-    /// <summary>Occurs when submitted.</summary>
+    /// <summary>
+    /// Occurs when submitted.
+    /// </summary>
     public event EventHandler? Submitted;
-    /// <summary>Performs select all using the current control state.</summary>
+    /// <summary>
+    /// Performs select all using the current control state.
+    /// </summary>
     public void SelectAll()
     {
         _anchor = 0;
@@ -69,7 +103,9 @@ public class TextBox : Control
         EnsureCaret();
     }
 
-    /// <summary>Performs select using the current control state.</summary>
+    /// <summary>
+    /// Performs select using the current control state.
+    /// </summary>
     public void Select(int start, int length)
     {
         if (start < 0 || length < 0 || (long)start + length > Text.Length)
@@ -118,9 +154,13 @@ public class TextBox : Control
         _redo.Clear();
     }
 
-    /// <summary>Performs undo using the current control state.</summary>
+    /// <summary>
+    /// Performs undo using the current control state.
+    /// </summary>
     public void Undo() => Restore(_undo, _redo);
-    /// <summary>Performs redo using the current control state.</summary>
+    /// <summary>
+    /// Performs redo using the current control state.
+    /// </summary>
     public void Redo() => Restore(_redo, _undo);
     private void Restore(Stack<(string Text, int Caret, int Anchor)> from, Stack<(string Text, int Caret, int Anchor)> to)
     {
@@ -160,7 +200,9 @@ public class TextBox : Control
         TextChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    /// <summary>Performs insert text using the current control state.</summary>
+    /// <summary>
+    /// Performs insert text using the current control state.
+    /// </summary>
     public void InsertText(string value)
     {
         ArgumentNullException.ThrowIfNull(value);
@@ -544,7 +586,9 @@ public class TextBox : Control
         }
     }
 
-    /// <summary>Draws a visible text line. Derived editors may use cached syntax runs.</summary>
+    /// <summary>
+    /// Draws a visible text line. Derived editors may use cached syntax runs.
+    /// </summary>
     protected virtual void DrawTextLine(ControlDrawContext context, IControlFont font, string line, int lineIndex, Vector2 position, Color color) => context.DrawText(font, line, position, color);
     private StyleProperty<string> _styleText = new(string.Empty);
     private static readonly System.ComponentModel.PropertyChangedEventArgs TextChangedArgs = new(nameof(Text));
@@ -642,7 +686,9 @@ public class TextBox : Control
         }
     }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -711,7 +757,9 @@ public class TextBox : Control
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -776,7 +824,9 @@ public class TextBox : Control
             NotifyPropertyChanged(HasErrorChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

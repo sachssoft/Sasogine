@@ -1,5 +1,7 @@
 namespace Sachssoft.Engine.Controls;
-/// <summary>Font-independent glyph content used by compound input controls.</summary>
+/// <summary>
+/// Font-independent glyph content used by compound input controls.
+/// </summary>
 internal enum ControlGlyphKind
 {
     Up,

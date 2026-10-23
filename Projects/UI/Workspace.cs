@@ -11,7 +11,9 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Owns one deterministic control tree, input routing, focus and frame boundaries.</summary>
+/// <summary>
+/// Owns one deterministic control tree, input routing, focus and frame boundaries.
+/// </summary>
 public sealed class Workspace : Element, IDisposable
 {
     private float _dpi = 96f;
@@ -19,7 +21,9 @@ public sealed class Workspace : Element, IDisposable
     private Rectangle? _frameViewport;
     private static readonly PropertyChangedEventArgs DpiArgs = new(nameof(Dpi));
     private static readonly PropertyChangedEventArgs DpiScaleArgs = new(nameof(DpiScale));
-    /// <summary>Gets or sets pixel density in dots per inch; 96 means 100 percent. Changes apply on the next input frame.</summary>
+    /// <summary>
+    /// Gets or sets pixel density in dots per inch; 96 means 100 percent. Changes apply on the next input frame.
+    /// </summary>
     public float Dpi
     {
         get => _dpi;
@@ -35,7 +39,9 @@ public sealed class Workspace : Element, IDisposable
         }
     }
 
-    /// <summary>Gets the requested physical pixels per logical UI unit.</summary>
+    /// <summary>
+    /// Gets the requested physical pixels per logical UI unit.
+    /// </summary>
     public float DpiScale => _dpi / 96f;
 
     /// <inheritdoc/>
@@ -46,13 +52,21 @@ public sealed class Workspace : Element, IDisposable
         base.OnPropertyChanged(notification);
     }
 
-    /// <summary>Gets or sets the application's optional viewport color source.</summary>
+    /// <summary>
+    /// Gets or sets the application's optional viewport color source.
+    /// </summary>
     public IColorPickSource? ColorPickSource { get; set; }
-    /// <summary>Gets the input-isolated color-picking session.</summary>
+    /// <summary>
+    /// Gets the input-isolated color-picking session.
+    /// </summary>
     public ColorPickSession ColorPicking { get; } = new();
-    /// <summary>Gets the workspace-local asset drag gesture.</summary>
+    /// <summary>
+    /// Gets the workspace-local asset drag gesture.
+    /// </summary>
     public AssetDragSession AssetDragging { get; } = new();
-    /// <summary>Gets explicit bindings processed before layout and after input.</summary>
+    /// <summary>
+    /// Gets explicit bindings processed before layout and after input.
+    /// </summary>
     public IList<IFrameBinding> Bindings { get; } = new List<IFrameBinding>();
 
     private void UpdateBindings()
@@ -64,12 +78,18 @@ public sealed class Workspace : Element, IDisposable
     private bool _layoutDirty = true;
     private int _styleRevision = -1;
     private Size2 _previousSize;
-    /// <summary>Invalidates layout after explicit property or tree changes.</summary>
+    /// <summary>
+    /// Invalidates layout after explicit property or tree changes.
+    /// </summary>
     internal void InvalidateLayout() => _layoutDirty = true;
-    /// <summary>Gets central styles without requiring the caller to create a registry.</summary>
+    /// <summary>
+    /// Gets central styles without requiring the caller to create a registry.
+    /// </summary>
     public StyleRegistry Styles => Registry.Styles;
 
-    /// <summary>Applies a skin before updating the tree.</summary>
+    /// <summary>
+    /// Applies a skin before updating the tree.
+    /// </summary>
     public void SetSkin(ControlSkin skin)
     {
         skin.Apply(Registry);
@@ -84,7 +104,9 @@ public sealed class Workspace : Element, IDisposable
     private bool _hasPointer;
     private Vector2 _pointer;
     private ControlLayoutContext? _layout;
-    /// <summary>Attaches an unowned control tree.</summary>
+    /// <summary>
+    /// Attaches an unowned control tree.
+    /// </summary>
     public Workspace(Control content, UIRegistry? registry = null)
     {
         Content = content ?? throw new ArgumentNullException(nameof(content));
@@ -102,10 +124,14 @@ public sealed class Workspace : Element, IDisposable
     private int _fontRegistryCount = -1;
     internal int FontRevision { get; private set; }
     internal IControlFont? LayoutFont => _layout?.DefaultFont;
-    /// <summary>Gets the borrowed Sasogine font registry used by this workspace.</summary>
+    /// <summary>
+    /// Gets the borrowed Sasogine font registry used by this workspace.
+    /// </summary>
     public FontRegistry Fonts => Registry.Fonts;
 
-    /// <summary>Invalidates font adapters after replacing families or changing externally managed font resources.</summary>
+    /// <summary>
+    /// Invalidates font adapters after replacing families or changing externally managed font resources.
+    /// </summary>
     /// <remarks>Adding or removing a family is detected automatically by count. Same-count replacement requires this method.</remarks>
     public void InvalidateFonts()
     {
@@ -128,30 +154,48 @@ public sealed class Workspace : Element, IDisposable
         return null;
     }
 
-    /// <summary>Gets the explicit UI factory and style registry shared by this tree.</summary>
+    /// <summary>
+    /// Gets the explicit UI factory and style registry shared by this tree.
+    /// </summary>
     public UIRegistry Registry { get; }
-    /// <summary>Gets the root control.</summary>
+    /// <summary>
+    /// Gets the root control.
+    /// </summary>
     public Control Content { get; }
-    /// <summary>Gets the last processed logical viewport size.</summary>
+    /// <summary>
+    /// Gets the last processed logical viewport size.
+    /// </summary>
     public Size2 Size { get; private set; }
-    /// <summary>Gets the current keyboard focus owner.</summary>
+    /// <summary>
+    /// Gets the current keyboard focus owner.
+    /// </summary>
     public Control? FocusedControl { get; private set; }
-    /// <summary>Gets the mouse capture owner. Use GetCapturedControl for touch identities.</summary>
+    /// <summary>
+    /// Gets the mouse capture owner. Use GetCapturedControl for touch identities.
+    /// </summary>
     public Control? CapturedControl => GetCapturedControl(ControlPointer.Mouse);
 
     private readonly Dictionary<ControlPointer, Control> _captures = new();
-    /// <summary>Gets the owner of an independent mouse or touch pointer.</summary>
+    /// <summary>
+    /// Gets the owner of an independent mouse or touch pointer.
+    /// </summary>
     public Control? GetCapturedControl(ControlPointer pointer) => _captures.TryGetValue(pointer, out Control? owner) ? owner : null;
-    /// <summary>Processes one application UI context.</summary>
+    /// <summary>
+    /// Processes one application UI context.
+    /// </summary>
     public void Update(ControlUpdateContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
         ProcessFrame(context.Input, context.Layout);
     }
 
-    /// <summary>Samples caller-provided mouse and keyboard states using this workspace's DPI and a physical viewport.</summary>
+    /// <summary>
+    /// Samples caller-provided mouse and keyboard states using this workspace's DPI and a physical viewport.
+    /// </summary>
     public void Update(ControlInputSampler sampler, MouseState mouse, KeyboardState keyboard, Rectangle viewport, TimeSpan elapsed, ControlLayoutContext layout, bool active = true) => Update(sampler, mouse, keyboard, default, viewport, elapsed, layout, active);
-    /// <summary>Samples mouse/touch/keyboard once, derives logical layout size and synchronizes subsequent drawing automatically.</summary>
+    /// <summary>
+    /// Samples mouse/touch/keyboard once, derives logical layout size and synchronizes subsequent drawing automatically.
+    /// </summary>
     public void Update(ControlInputSampler sampler, MouseState mouse, KeyboardState keyboard, TouchCollection touches, Rectangle viewport, TimeSpan elapsed, ControlLayoutContext layout, bool active = true)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
@@ -164,9 +208,13 @@ public sealed class Workspace : Element, IDisposable
         ProcessFrameCore(frame, layout, viewport, dpi);
     }
 
-    /// <summary>Updates one frame using the supplied layout context.</summary>
+    /// <summary>
+    /// Updates one frame using the supplied layout context.
+    /// </summary>
     public void Update(ControlInputFrame frame, ControlLayoutContext layout) => ProcessFrame(frame, layout);
-    /// <summary>Processes ordered input, updates controls once, commits mutations, and finalizes layout.</summary>
+    /// <summary>
+    /// Processes ordered input, updates controls once, commits mutations, and finalizes layout.
+    /// </summary>
     public void ProcessFrame(ControlInputFrame frame, ControlLayoutContext layout) => ProcessFrameCore(frame, layout, frame?.PhysicalViewport, Dpi);
     private void ProcessFrameCore(ControlInputFrame frame, ControlLayoutContext layout, Rectangle? viewport, float frameDpi)
     {
@@ -241,7 +289,9 @@ public sealed class Workspace : Element, IDisposable
         }
     }
 
-    /// <summary>Draws the committed tree. Requires a preceding ProcessFrame with the same size and font.</summary>
+    /// <summary>
+    /// Draws the committed tree. Requires a preceding ProcessFrame with the same size and font.
+    /// </summary>
     public void Draw(ControlDrawContext context, bool includePickingOverlay = true)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
@@ -285,7 +335,9 @@ public sealed class Workspace : Element, IDisposable
             context.SetViewport(viewport, _frameDpi / 96f);
     }
 
-    /// <summary>Draws only the pipette overlay after presenting a clean sampled render target.</summary>
+    /// <summary>
+    /// Draws only the pipette overlay after presenting a clean sampled render target.
+    /// </summary>
     public void DrawColorPickingOverlay(ControlDrawContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -333,7 +385,9 @@ public sealed class Workspace : Element, IDisposable
         return false;
     }
 
-    /// <summary>Assigns keyboard focus to a visible, enabled, focusable control in this root.</summary>
+    /// <summary>
+    /// Assigns keyboard focus to a visible, enabled, focusable control in this root.
+    /// </summary>
     public void Focus(Control? control)
     {
         if (_drawing)
@@ -698,13 +752,19 @@ public sealed class Workspace : Element, IDisposable
     private readonly List<ControlOverlay> _overlays = new();
     private readonly ConcurrentQueue<Action> _posted = new();
     private bool _committing;
-    /// <summary>Gets pointer position.</summary>
+    /// <summary>
+    /// Gets pointer position.
+    /// </summary>
     public Vector2 PointerPosition => _pointer;
-    /// <summary>Gets overlay count.</summary>
+    /// <summary>
+    /// Gets overlay count.
+    /// </summary>
     public int OverlayCount => _overlays.Count;
     private Control? ActiveOverlay => _overlays.Count == 0 ? null : _overlays[^1].Control;
 
-    /// <summary>Performs post using the current control state.</summary>
+    /// <summary>
+    /// Performs post using the current control state.
+    /// </summary>
     public void Post(Action action)
     {
         ArgumentNullException.ThrowIfNull(action);
@@ -748,7 +808,9 @@ public sealed class Workspace : Element, IDisposable
         return false;
     }
 
-    /// <summary>Performs show popup using the current control state.</summary>
+    /// <summary>
+    /// Performs show popup using the current control state.
+    /// </summary>
     public void ShowPopup(Control popup, Bounds2 placement, Control? owner = null, Action? closed = null)
     {
         ArgumentNullException.ThrowIfNull(popup);
@@ -758,7 +820,9 @@ public sealed class Workspace : Element, IDisposable
         Mutate(() => AddOverlay(popup, placement, false, true, owner, closed));
     }
 
-    /// <summary>Performs show window using the current control state.</summary>
+    /// <summary>
+    /// Performs show window using the current control state.
+    /// </summary>
     public void ShowWindow(Window window)
     {
         ArgumentNullException.ThrowIfNull(window);
@@ -766,7 +830,9 @@ public sealed class Workspace : Element, IDisposable
         Mutate(() => AddOverlay(window, Bounds2.Zero, false, false, null, null));
     }
 
-    /// <summary>Performs show dialog using the current control state.</summary>
+    /// <summary>
+    /// Performs show dialog using the current control state.
+    /// </summary>
     public Task<DialogResult> ShowDialog(Dialog dialog)
     {
         ArgumentNullException.ThrowIfNull(dialog);
@@ -830,7 +896,9 @@ public sealed class Workspace : Element, IDisposable
         }
     }
 
-    /// <summary>Performs close popup using the current control state.</summary>
+    /// <summary>
+    /// Performs close popup using the current control state.
+    /// </summary>
     public void ClosePopup(Control popup) => Mutate(() => CloseOverlay(popup));
     internal void CloseOverlay(Control control)
     {
@@ -933,7 +1001,9 @@ public sealed class Workspace : Element, IDisposable
     private Control? _tipContent;
     private double _tipElapsed;
     private bool _tipSuppressed;
-    /// <summary>Gets the currently drawn noninteractive hover tooltip.</summary>
+    /// <summary>
+    /// Gets the currently drawn noninteractive hover tooltip.
+    /// </summary>
     public ToolTip? VisibleToolTip => _visibleToolTip;
 
     private void HideToolTip()
@@ -1007,7 +1077,9 @@ public sealed class Workspace : Element, IDisposable
     }
 
     private bool _disposed;
-    /// <summary>Detaches the tree and releases binding/source subscriptions. Caller-owned fonts and skins remain borrowed.</summary>
+    /// <summary>
+    /// Detaches the tree and releases binding/source subscriptions. Caller-owned fonts and skins remain borrowed.
+    /// </summary>
     public void Dispose()
     {
         if (_disposed)

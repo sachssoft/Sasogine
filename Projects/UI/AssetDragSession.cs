@@ -2,13 +2,17 @@ using Microsoft.Xna.Framework.Input;
 using Sachssoft.Engine.Input;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Transfers an asset entry from a selectable view to a compatible reference field.</summary>
+/// <summary>
+/// Transfers an asset entry from a selectable view to a compatible reference field.
+/// </summary>
 public sealed class AssetDragSession
 {
     private AssetView? _owner;
     private ControlPointer _pointer;
     private Vector2 _position;
-    /// <summary>Gets the active asset payload, or null when no gesture is active.</summary>
+    /// <summary>
+    /// Gets the active asset payload, or null when no gesture is active.
+    /// </summary>
     public AssetItem? Payload { get; private set; }
 
     internal void Begin(AssetView owner, AssetItem asset, ControlPointer pointer, Vector2 position)
@@ -21,7 +25,9 @@ public sealed class AssetDragSession
         owner.CancelInteraction();
     }
 
-    /// <summary>Cancels the gesture and releases its capture.</summary>
+    /// <summary>
+    /// Cancels the gesture and releases its capture.
+    /// </summary>
     public void Cancel()
     {
         if (_owner?.Workspace is Workspace workspace)

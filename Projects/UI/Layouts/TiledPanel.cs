@@ -1,21 +1,31 @@
 using System;
 
 namespace Sachssoft.Engine.Controls.Layouts;
-/// <summary>Arranges children in equal-size tiles, wrapping to the available width.</summary>
+/// <summary>
+/// Arranges children in equal-size tiles, wrapping to the available width.
+/// </summary>
 public sealed class TiledPanel : ContainerControl
 {
-    /// <summary>Initializes a new tiled panel instance.</summary>
+    /// <summary>
+    /// Initializes a new tiled panel instance.
+    /// </summary>
     public TiledPanel() : base()
     {
     }
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "TiledPanel";
-    /// <summary>Gets or sets tile size.</summary>
+    /// <summary>
+    /// Gets or sets tile size.
+    /// </summary>
     public Size2 TileSize { get => ConfigTileSize; set => ConfigTileSize = value; }
-    /// <summary>Gets or sets spacing.</summary>
+    /// <summary>
+    /// Gets or sets spacing.
+    /// </summary>
     public float Spacing { get => ConfigSpacing; set => ConfigSpacing = value; }
-    /// <summary>Gets or sets columns.</summary>
+    /// <summary>
+    /// Gets or sets columns.
+    /// </summary>
     public int Columns { get => ConfigColumns; set => ConfigColumns = value; }
 
     private int CountColumns(float width)
@@ -95,7 +105,9 @@ public sealed class TiledPanel : ContainerControl
         }
     }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -134,7 +146,9 @@ public sealed class TiledPanel : ContainerControl
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -169,7 +183,9 @@ public sealed class TiledPanel : ContainerControl
             NotifyPropertyChanged(ColumnsChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

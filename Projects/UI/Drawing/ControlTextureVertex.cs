@@ -1,7 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 namespace Sachssoft.Engine.Controls.Drawing;
-/// <summary>Preserves UI vertex data and adds a stable texture slot.</summary>
+/// <summary>
+/// Preserves UI vertex data and adds a stable texture slot.
+/// </summary>
 internal struct ControlTextureVertex : IVertexType
 {
     internal Vector3 Position;

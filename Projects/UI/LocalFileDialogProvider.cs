@@ -5,10 +5,14 @@ using System.IO;
 using System.Linq;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Reads the local filesystem in explicit, caller-requested operations. Never writes files.</summary>
+/// <summary>
+/// Reads the local filesystem in explicit, caller-requested operations. Never writes files.
+/// </summary>
 public sealed class LocalFileDialogProvider : IFileDialogProvider
 {
-    /// <summary>Performs read directory using the current control state.</summary>
+    /// <summary>
+    /// Performs read directory using the current control state.
+    /// </summary>
     public FileDialogDirectory ReadDirectory(string path)
     {
         string full = Path.GetFullPath(path);
@@ -32,8 +36,12 @@ public sealed class LocalFileDialogProvider : IFileDialogProvider
         return new FileDialogDirectory(full, Directory.GetParent(full)?.FullName, sorted);
     }
 
-    /// <summary>Performs resolve using the current control state.</summary>
+    /// <summary>
+    /// Performs resolve using the current control state.
+    /// </summary>
     public string Resolve(string directory, string name) => Path.GetFullPath(Path.IsPathRooted(name) ? name : Path.Combine(directory, name));
-    /// <summary>Performs exists using the current control state.</summary>
+    /// <summary>
+    /// Performs exists using the current control state.
+    /// </summary>
     public bool Exists(string path, bool directory) => directory ? Directory.Exists(path) : File.Exists(path);
 }

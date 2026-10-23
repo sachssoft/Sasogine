@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Expandable tree with explicit item identities, two scrollbars, keyboard navigation and row activation.</summary>
+/// <summary>
+/// Expandable tree with explicit item identities, two scrollbars, keyboard navigation and row activation.
+/// </summary>
 public class TreeView : ContainerControl
 {
     private readonly List<TreeViewRow> _rows = new();
@@ -17,7 +19,9 @@ public class TreeView : ContainerControl
     private float _extent;
     private bool _ensureVisible;
     private IControlFont? _font;
-    /// <summary>Creates a tree.</summary>
+    /// <summary>
+    /// Creates a tree.
+    /// </summary>
     public TreeView() : base()
     {
         HorizontalScrollBar = new()
@@ -32,10 +36,14 @@ public class TreeView : ContainerControl
         base.Add(VerticalScrollBar);
     }
 
-    /// <summary>Gets root items.</summary>
+    /// <summary>
+    /// Gets root items.
+    /// </summary>
     public IList<TreeViewItem> Items => ConfigItems;
 
-    /// <summary>Gets or sets selection by item identity.</summary>
+    /// <summary>
+    /// Gets or sets selection by item identity.
+    /// </summary>
     public TreeViewItem? SelectedItem
     {
         get => ConfigSelectedItem;
@@ -47,22 +55,38 @@ public class TreeView : ContainerControl
         }
     }
 
-    /// <summary>Gets the count of visible rows.</summary>
+    /// <summary>
+    /// Gets the count of visible rows.
+    /// </summary>
     public int VisibleCount => _rows.Count;
-    /// <summary>Gets the independent horizontal scrollbar.</summary>
+    /// <summary>
+    /// Gets the independent horizontal scrollbar.
+    /// </summary>
     public ScrollBar HorizontalScrollBar { get; }
-    /// <summary>Gets the independent vertical scrollbar.</summary>
+    /// <summary>
+    /// Gets the independent vertical scrollbar.
+    /// </summary>
     public ScrollBar VerticalScrollBar { get; }
-    /// <summary>Gets the row viewport.</summary>
+    /// <summary>
+    /// Gets the row viewport.
+    /// </summary>
     public Bounds2 ViewportBounds => _viewport;
 
-    /// <summary>Gets one currently visible item.</summary>
+    /// <summary>
+    /// Gets one currently visible item.
+    /// </summary>
     public TreeViewItem GetVisibleItem(int index) => _rows[index].Item;
-    /// <summary>Occurs after selection changes.</summary>
+    /// <summary>
+    /// Occurs after selection changes.
+    /// </summary>
     public event EventHandler? SelectionChanged;
-    /// <summary>Occurs after expansion changes through this control.</summary>
+    /// <summary>
+    /// Occurs after expansion changes through this control.
+    /// </summary>
     public event EventHandler? ExpansionChanged;
-    /// <summary>Occurs after an enabled row is activated.</summary>
+    /// <summary>
+    /// Occurs after an enabled row is activated.
+    /// </summary>
     public event EventHandler? ItemActivated;
     /// <inheritdoc/>
     protected override string DefaultStyleName => "TreeView";
@@ -80,7 +104,9 @@ public class TreeView : ContainerControl
         }
     }
 
-    /// <summary>Changes expansion and requests selection visibility.</summary>
+    /// <summary>
+    /// Changes expansion and requests selection visibility.
+    /// </summary>
     public void SetExpanded(TreeViewItem item, bool expanded)
     {
         ArgumentNullException.ThrowIfNull(item);
@@ -361,8 +387,14 @@ public class TreeView : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets ScrollBarThickness; a local assignment overrides the style.</summary>
-    public float ScrollBarThickness { get => ConfigScrollBarThickness; set => ConfigScrollBarThickness = value; }
+    /// <summary>
+    /// Gets or sets ScrollBarThickness; a local assignment overrides the style.
+    /// </summary>
+    public  float ScrollBarThickness
+    {
+        get => ConfigScrollBarThickness;
+        set => ConfigScrollBarThickness = value;
+    }
 
     private StyleProperty<float> _styleItemHeight = new(30f);
     private static readonly System.ComponentModel.PropertyChangedEventArgs ItemHeightChangedArgs = new(nameof(ItemHeight));
@@ -376,7 +408,9 @@ public class TreeView : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets ItemHeight; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets ItemHeight; a local assignment overrides the style.
+    /// </summary>
     public float ItemHeight { get => ConfigItemHeight; set => ConfigItemHeight = value; }
 
     private StyleProperty<System.Windows.Input.ICommand?> _styleCommand = new(null);
@@ -391,7 +425,9 @@ public class TreeView : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets Command; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets Command; a local assignment overrides the style.
+    /// </summary>
     public System.Windows.Input.ICommand? Command { get => ConfigCommand; set => ConfigCommand = value; }
 
     private StyleProperty<object?> _styleCommandParameter = new(null);
@@ -406,8 +442,14 @@ public class TreeView : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets CommandParameter; a local assignment overrides the style.</summary>
-    public object? CommandParameter { get => ConfigCommandParameter; set => ConfigCommandParameter = value; }
+    /// <summary>
+    /// Gets or sets CommandParameter; a local assignment overrides the style.
+    /// </summary>
+    public  object? CommandParameter
+    {
+        get => ConfigCommandParameter;
+        set => ConfigCommandParameter = value;
+    }
 
     private StyleProperty<float> _styleIndent = new(20f);
     private static readonly System.ComponentModel.PropertyChangedEventArgs IndentChangedArgs = new(nameof(Indent));
@@ -427,9 +469,15 @@ public class TreeView : ContainerControl
 
     private TreeViewItem? _storedSelectedItem = null;
     private static readonly System.ComponentModel.PropertyChangedEventArgs SelectedItemStorageArgs = new("SelectedItem");
-    internal TreeViewItem? ConfigSelectedItem { get => _storedSelectedItem; set => SetNotify(ref _storedSelectedItem, value, SelectedItemStorageArgs); }
+    internal  TreeViewItem? ConfigSelectedItem
+    {
+        get => _storedSelectedItem;
+        set => SetNotify(ref _storedSelectedItem, value, SelectedItemStorageArgs);
+    }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -480,7 +528,9 @@ public class TreeView : ContainerControl
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -527,7 +577,9 @@ public class TreeView : ContainerControl
             NotifyPropertyChanged(IndentChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

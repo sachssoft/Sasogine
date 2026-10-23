@@ -3,24 +3,36 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>A texture or atlas image suitable for arbitrary control content.</summary>
+/// <summary>
+/// A texture or atlas image suitable for arbitrary control content.
+/// </summary>
 public class Image : Control
 {
     private ChangeTracker<Rectangle?> _rectangle;
-    /// <summary>Creates an image.</summary>
+    /// <summary>
+    /// Creates an image.
+    /// </summary>
     public Image() : base()
     {
     }
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "Image";
-    /// <summary>Gets or sets a borrowed texture.</summary>
+    /// <summary>
+    /// Gets or sets a borrowed texture.
+    /// </summary>
     public Texture2D? Source { get => ConfigSource; set => ConfigSource = value; }
-    /// <summary>Gets or sets a borrowed atlas region.</summary>
+    /// <summary>
+    /// Gets or sets a borrowed atlas region.
+    /// </summary>
     public string Region { get => ConfigRegion; set => ConfigRegion = value; }
-    /// <summary>Gets or sets image scaling.</summary>
+    /// <summary>
+    /// Gets or sets image scaling.
+    /// </summary>
     public ImageStretch Stretch { get => ConfigStretch; set => ConfigStretch = value; }
-    /// <summary>Gets or sets premultiplied tint.</summary>
+    /// <summary>
+    /// Gets or sets premultiplied tint.
+    /// </summary>
     public Color Tint { get => ConfigTint; set => ConfigTint = value; }
 
     private (Texture2D? Texture, Rectangle Source) Resolve()
@@ -106,15 +118,31 @@ public class Image : Control
 
     private Texture2D? _storedSource = null;
     private static readonly System.ComponentModel.PropertyChangedEventArgs SourceStorageArgs = new("Source");
-    internal Texture2D? ConfigSource { get => _storedSource; set => SetNotify(ref _storedSource, value, SourceStorageArgs); }
+    internal  Texture2D? ConfigSource
+    {
+        get => _storedSource;
+        set => SetNotify(ref _storedSource, value, SourceStorageArgs);
+    }
 
     private Rectangle? _storedSourceRectangle = null;
     private static readonly System.ComponentModel.PropertyChangedEventArgs SourceRectangleStorageArgs = new("SourceRectangle");
-    internal Rectangle? ConfigSourceRectangle { get => _storedSourceRectangle; set => SetNotify(ref _storedSourceRectangle, value, SourceRectangleStorageArgs); }
-    /// <summary>Gets or sets the value for SourceRectangle.</summary>
-    public Rectangle? SourceRectangle { get => ConfigSourceRectangle; set => ConfigSourceRectangle = value; }
+    internal  Rectangle? ConfigSourceRectangle
+    {
+        get => _storedSourceRectangle;
+        set => SetNotify(ref _storedSourceRectangle, value, SourceRectangleStorageArgs);
+    }
+    /// <summary>
+    /// Gets or sets the value for SourceRectangle.
+    /// </summary>
+    public  Rectangle? SourceRectangle
+    {
+        get => ConfigSourceRectangle;
+        set => ConfigSourceRectangle = value;
+    }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -153,7 +181,9 @@ public class Image : Control
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -188,7 +218,9 @@ public class Image : Control
             NotifyPropertyChanged(TintChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

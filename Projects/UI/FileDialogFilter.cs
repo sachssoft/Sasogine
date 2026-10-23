@@ -5,7 +5,9 @@ using System.IO;
 using System.Linq;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>FileDialogFilter configuration and behavior.</summary>
+/// <summary>
+/// FileDialogFilter configuration and behavior.
+/// </summary>
 public sealed record FileDialogFilter(string Name, params string[] Extensions)
 {
     internal bool Matches(string name)

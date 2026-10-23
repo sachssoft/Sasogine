@@ -8,7 +8,9 @@ using System.Xml;
 using System.Xml.Linq;
 
 namespace Sachssoft.Engine.Controls.Styling;
-/// <summary>Loads known XML fields and style keys explicitly. Owns its texture only when loaded through Load.</summary>
+/// <summary>
+/// Loads known XML fields and style keys explicitly. Owns its texture only when loaded through Load.
+/// </summary>
 public sealed class ControlSkin : IDisposable
 {
     private readonly Dictionary<string, SkinRegion> _regions = new(StringComparer.Ordinal);
@@ -23,25 +25,43 @@ public sealed class ControlSkin : IDisposable
         _height = height;
     }
 
-    /// <summary>Gets the optional atlas texture; null permits headless validation.</summary>
+    /// <summary>
+    /// Gets the optional atlas texture; null permits headless validation.
+    /// </summary>
     public Texture2D? Texture { get; private set; }
-    /// <summary>Gets the region count.</summary>
+    /// <summary>
+    /// Gets the region count.
+    /// </summary>
     public int RegionCount => _regions.Count;
 
-    /// <summary>Gets a validated atlas region.</summary>
+    /// <summary>
+    /// Gets a validated atlas region.
+    /// </summary>
     public SkinRegion this[string key] => _regions[key];
-    /// <summary>Gets the name declared by the skin.</summary>
+    /// <summary>
+    /// Gets the name declared by the skin.
+    /// </summary>
     public string Name { get; private set; } = string.Empty;
-    /// <summary>Gets the validated atlas filename declared by the skin.</summary>
+    /// <summary>
+    /// Gets the validated atlas filename declared by the skin.
+    /// </summary>
     public string AtlasFileName { get; private set; } = string.Empty;
-    /// <summary>Gets the validated texture filename declared by the atlas.</summary>
+    /// <summary>
+    /// Gets the validated texture filename declared by the atlas.
+    /// </summary>
     public string TextureFileName { get; private set; } = string.Empty;
 
-    /// <summary>Gets a named palette color.</summary>
+    /// <summary>
+    /// Gets a named palette color.
+    /// </summary>
     public Color GetColor(string name) => _palette[name];
-    /// <summary>Attempts to resolve a named palette color.</summary>
+    /// <summary>
+    /// Attempts to resolve a named palette color.
+    /// </summary>
     public bool TryGetColor(string name, out Color color) => _palette.TryGetValue(name, out color);
-    /// <summary>Loads the single skin manifest in a folder using premultiplied atlas pixels.</summary>
+    /// <summary>
+    /// Loads the single skin manifest in a folder using premultiplied atlas pixels.
+    /// </summary>
     public static ControlSkin Load(GraphicsDevice device, string directory)
     {
         ArgumentNullException.ThrowIfNull(device);
@@ -51,7 +71,9 @@ public sealed class ControlSkin : IDisposable
         return Load(device, directory, Path.GetFileName(manifests[0]));
     }
 
-    /// <summary>Loads a selected skin manifest and its declared atlas and texture from one folder.</summary>
+    /// <summary>
+    /// Loads a selected skin manifest and its declared atlas and texture from one folder.
+    /// </summary>
     public static ControlSkin Load(GraphicsDevice device, string directory, string skinFileName)
     {
         ArgumentNullException.ThrowIfNull(device);
@@ -89,7 +111,9 @@ public sealed class ControlSkin : IDisposable
         return XDocument.Load(reader).Root ?? throw new InvalidDataException("XML root is missing.");
     }
 
-    /// <summary>Reads explicit skin and atlas metadata with DTDs disabled.</summary>
+    /// <summary>
+    /// Reads explicit skin and atlas metadata with DTDs disabled.
+    /// </summary>
     public static ControlSkin Read(Stream skinStream, Stream atlasStream) => ReadCore(ReadRoot(atlasStream), ReadRoot(skinStream));
     private static ControlSkin ReadCore(XElement atlas, XElement document)
     {
@@ -161,7 +185,9 @@ public sealed class ControlSkin : IDisposable
         return skin;
     }
 
-    /// <summary>Attaches a matching atlas. A borrowed texture remains owned by the caller.</summary>
+    /// <summary>
+    /// Attaches a matching atlas. A borrowed texture remains owned by the caller.
+    /// </summary>
     public void AttachTexture(Texture2D texture, bool ownsTexture = false)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
@@ -174,7 +200,9 @@ public sealed class ControlSkin : IDisposable
         _ownsTexture = ownsTexture;
     }
 
-    /// <summary>Applies supported typed style values while preserving explicit standard settings.</summary>
+    /// <summary>
+    /// Applies supported typed style values while preserving explicit standard settings.
+    /// </summary>
     public void Apply(UIRegistry registry)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
@@ -344,7 +372,9 @@ public sealed class ControlSkin : IDisposable
         return Color.FromNonPremultiplied(R(0), R(2), R(4), text.Length == 8 ? R(6) : 255);
     }
 
-    /// <summary>Disposes an owned atlas texture.</summary>
+    /// <summary>
+    /// Disposes an owned atlas texture.
+    /// </summary>
     public void Dispose()
     {
         if (_disposed)

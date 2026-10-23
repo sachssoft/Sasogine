@@ -1,9 +1,15 @@
 namespace Sachssoft.Engine.Controls.Layouts;
-/// <summary>Defines a control's main axis.</summary>
+/// <summary>
+/// Defines a control's main axis.
+/// </summary>
 public enum ControlOrientation
 {
-    /// <summary>Horizontal.</summary>
+    /// <summary>
+    /// Horizontal.
+    /// </summary>
     Horizontal,
-    /// <summary>Vertical.</summary>
+    /// <summary>
+    /// Vertical.
+    /// </summary>
     Vertical,
 }

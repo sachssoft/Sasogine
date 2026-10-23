@@ -2,15 +2,21 @@ using Microsoft.Xna.Framework;
 using System;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Mutually exclusive selection, scoped to a parent or an explicit root-wide group name.</summary>
+/// <summary>
+/// Mutually exclusive selection, scoped to a parent or an explicit root-wide group name.
+/// </summary>
 public class RadioButton : CheckBox
 {
-    /// <summary>Initializes a new radio button instance.</summary>
+    /// <summary>
+    /// Initializes a new radio button instance.
+    /// </summary>
     public RadioButton() : base()
     {
     }
 
-    /// <summary>Gets or sets group name.</summary>
+    /// <summary>
+    /// Gets or sets group name.
+    /// </summary>
     public string GroupName { get => ConfigGroupName; set => ConfigGroupName = value; }
     /// <inheritdoc/>
     protected override string DefaultStyleName => "RadioButton";
@@ -47,7 +53,9 @@ public class RadioButton : CheckBox
         }
     }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -74,7 +82,9 @@ public class RadioButton : CheckBox
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -97,7 +107,9 @@ public class RadioButton : CheckBox
             NotifyPropertyChanged(GroupNameChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

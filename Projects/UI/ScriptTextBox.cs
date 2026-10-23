@@ -1,5 +1,7 @@
 namespace Sachssoft.Engine.Controls;
-/// <summary>An editable multiline document with cached built-in or application-defined syntax highlighting.</summary>
+/// <summary>
+/// An editable multiline document with cached built-in or application-defined syntax highlighting.
+/// </summary>
 public class ScriptTextBox : TextBox
 {
     private string? _cachedText;
@@ -12,7 +14,9 @@ public class ScriptTextBox : TextBox
     private IReadOnlyList<ScriptToken> _view = Array.Empty<ScriptToken>();
     private readonly List<(int Start, int Count)> _lines = new();
     private readonly List<string> _displayTokens = new();
-    /// <summary>Creates an editor with multiline and tab entry enabled.</summary>
+    /// <summary>
+    /// Creates an editor with multiline and tab entry enabled.
+    /// </summary>
     public ScriptTextBox()
     {
         AcceptsReturn = true;
@@ -22,7 +26,9 @@ public class ScriptTextBox : TextBox
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ScriptTextBox";
 
-    /// <summary>Gets or sets the language. Tokenization is refreshed at the next layout boundary.</summary>
+    /// <summary>
+    /// Gets or sets the language. Tokenization is refreshed at the next layout boundary.
+    /// </summary>
     public ScriptLanguage Language
     {
         get => _Language.Value;
@@ -35,7 +41,9 @@ public class ScriptTextBox : TextBox
 
     private StyleProperty<ScriptLanguage> _Language = new(ScriptLanguage.Lua);
     private static readonly System.ComponentModel.PropertyChangedEventArgs LanguageArgs = new(nameof(Language));
-    /// <summary>Gets or sets a custom highlighter; null uses the built-in Language selection.</summary>
+    /// <summary>
+    /// Gets or sets a custom highlighter; null uses the built-in Language selection.
+    /// </summary>
     /// <remarks>Assign an instance directly. No language registration or reflection is required.</remarks>
     public ISyntaxHighlighter? Highlighter
     {
@@ -49,7 +57,9 @@ public class ScriptTextBox : TextBox
         }
     }
 
-    /// <summary>Rebuilds highlighting at the next layout boundary after custom rules change.</summary>
+    /// <summary>
+    /// Rebuilds highlighting at the next layout boundary after custom rules change.
+    /// </summary>
     /// <remarks>Call this for each editor using a mutable shared highlighter. Drawing never invokes the highlighter.</remarks>
     public void InvalidateHighlighting()
     {
@@ -57,7 +67,9 @@ public class ScriptTextBox : TextBox
         InvalidateLayout();
     }
 
-    /// <summary>Gets the read-only token snapshot prepared by the latest update/layout.</summary>
+    /// <summary>
+    /// Gets the read-only token snapshot prepared by the latest update/layout.
+    /// </summary>
     public IReadOnlyList<ScriptToken> Tokens => _view;
 
     /// <inheritdoc/>
@@ -201,7 +213,9 @@ public class ScriptTextBox : TextBox
 
     private StyleProperty<Color> _KeywordColor = new(new Color(107, 177, 255));
     private static readonly System.ComponentModel.PropertyChangedEventArgs KeywordColorArgs = new(nameof(KeywordColor));
-    /// <summary>Gets the effective KeywordColor value or assigns a local override.</summary>
+    /// <summary>
+    /// Gets the effective KeywordColor value or assigns a local override.
+    /// </summary>
     public Color KeywordColor
     {
         get => _KeywordColor.Value;
@@ -214,7 +228,9 @@ public class ScriptTextBox : TextBox
 
     private StyleProperty<Color> _StringColor = new(new Color(215, 164, 112));
     private static readonly System.ComponentModel.PropertyChangedEventArgs StringColorArgs = new(nameof(StringColor));
-    /// <summary>Gets the effective StringColor value or assigns a local override.</summary>
+    /// <summary>
+    /// Gets the effective StringColor value or assigns a local override.
+    /// </summary>
     public Color StringColor
     {
         get => _StringColor.Value;
@@ -227,7 +243,9 @@ public class ScriptTextBox : TextBox
 
     private StyleProperty<Color> _CommentColor = new(new Color(115, 162, 104));
     private static readonly System.ComponentModel.PropertyChangedEventArgs CommentColorArgs = new(nameof(CommentColor));
-    /// <summary>Gets the effective CommentColor value or assigns a local override.</summary>
+    /// <summary>
+    /// Gets the effective CommentColor value or assigns a local override.
+    /// </summary>
     public Color CommentColor
     {
         get => _CommentColor.Value;
@@ -240,7 +258,9 @@ public class ScriptTextBox : TextBox
 
     private StyleProperty<Color> _NumberColor = new(new Color(181, 206, 168));
     private static readonly System.ComponentModel.PropertyChangedEventArgs NumberColorArgs = new(nameof(NumberColor));
-    /// <summary>Gets the effective NumberColor value or assigns a local override.</summary>
+    /// <summary>
+    /// Gets the effective NumberColor value or assigns a local override.
+    /// </summary>
     public Color NumberColor
     {
         get => _NumberColor.Value;

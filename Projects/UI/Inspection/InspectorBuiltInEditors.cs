@@ -12,7 +12,9 @@ using Quaternion = Microsoft.Xna.Framework.Quaternion;
 using Plane = Microsoft.Xna.Framework.Plane;
 
 namespace Sachssoft.Engine.Controls.Inspection;
-/// <summary>Registers the engine value catalog through explicit generic factories.</summary>
+/// <summary>
+/// Registers the engine value catalog through explicit generic factories.
+/// </summary>
 internal static class InspectorBuiltInEditors
 {
     internal static void Register(InspectorEditorRegistry registry)

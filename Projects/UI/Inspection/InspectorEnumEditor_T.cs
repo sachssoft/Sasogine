@@ -1,6 +1,8 @@
 namespace Sachssoft.Engine.Controls.Inspection;
 
-/// <summary>Caches the declared choices and shared editor factory for a runtime enum type.</summary>
+/// <summary>
+/// Caches the declared choices and shared editor factory for a runtime enum type.
+/// </summary>
 /// <typeparam name="T">The statically bound inspector value type.</typeparam>
 internal static class InspectorEnumEditor<T>
 {

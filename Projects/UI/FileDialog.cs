@@ -5,22 +5,38 @@ using System.IO;
 using System.Linq;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Custom-skinned directory navigation with validated results and explicit filesystem snapshots.</summary>
+/// <summary>
+/// Custom-skinned directory navigation with validated results and explicit filesystem snapshots.
+/// </summary>
 public abstract class FileDialog : Dialog
 {
     private readonly FileDialogSidebar _sidebar = new();
-    /// <summary>Gets custom favorite locations. Defaults are added once when the dialog is created.</summary>
+    /// <summary>
+    /// Gets custom favorite locations. Defaults are added once when the dialog is created.
+    /// </summary>
     public IList<FileDialogLocation> Favorites { get; } = new List<FileDialogLocation>();
-    /// <summary>Gets custom drive locations. Set UseSystemDrives to false for virtual providers.</summary>
+    /// <summary>
+    /// Gets custom drive locations. Set UseSystemDrives to false for virtual providers.
+    /// </summary>
     public IList<FileDialogLocation> Drives { get; } = new List<FileDialogLocation>();
-    /// <summary>Gets or sets whether local system drives are shown along with custom drives.</summary>
-    public bool UseSystemDrives { get => _useSystemDrives; set => SetNotify(ref _useSystemDrives, value, SystemDrivesArgs); }
+    /// <summary>
+    /// Gets or sets whether local system drives are shown along with custom drives.
+    /// </summary>
+    public  bool UseSystemDrives
+    {
+        get => _useSystemDrives;
+        set => SetNotify(ref _useSystemDrives, value, SystemDrivesArgs);
+    }
 
     private bool _useSystemDrives = true;
     private static readonly System.ComponentModel.PropertyChangedEventArgs SystemDrivesArgs = new(nameof(UseSystemDrives));
-    /// <summary>Gets the favorites list for selection and deterministic polling.</summary>
+    /// <summary>
+    /// Gets the favorites list for selection and deterministic polling.
+    /// </summary>
     public ListBox FavoritesList => _sidebar.Favorites;
-    /// <summary>Gets the drive list for selection and deterministic polling.</summary>
+    /// <summary>
+    /// Gets the drive list for selection and deterministic polling.
+    /// </summary>
     public ListBox DrivesList => _sidebar.Drives;
 
     private FileDialogDirectory? _directory;
@@ -39,7 +55,9 @@ public abstract class FileDialog : Dialog
             Text = "Cancel"
         }
     };
-    /// <summary>Initializes a new file dialog instance.</summary>
+    /// <summary>
+    /// Initializes a new file dialog instance.
+    /// </summary>
     protected FileDialog() : base()
     {
         foreach (var folder in new[]
@@ -107,18 +125,30 @@ public abstract class FileDialog : Dialog
         Content = new FileDialogLayout(_back, _up, _refresh, _path, _list, _name, _filter, _status, _confirm, _cancel, _sidebar);
     }
 
-    /// <summary>Gets selects directory.</summary>
+    /// <summary>
+    /// Gets selects directory.
+    /// </summary>
     protected abstract bool SelectsDirectory { get; }
     private IFileDialogProvider Provider => ConfigProvider ?? Workspace?.Registry.FileSystem ?? new LocalFileDialogProvider();
-    /// <summary>Gets or sets selected path.</summary>
+    /// <summary>
+    /// Gets or sets selected path.
+    /// </summary>
     public string? SelectedPath { get; private set; }
-    /// <summary>Gets current directory.</summary>
+    /// <summary>
+    /// Gets current directory.
+    /// </summary>
     public string CurrentDirectory => _directory?.FullPath ?? string.Empty;
-    /// <summary>Gets error text.</summary>
+    /// <summary>
+    /// Gets error text.
+    /// </summary>
     public string ErrorText => _status.Text;
-    /// <summary>Gets file list.</summary>
+    /// <summary>
+    /// Gets file list.
+    /// </summary>
     public ListBox FileList => _list;
-    /// <summary>Gets file name box.</summary>
+    /// <summary>
+    /// Gets file name box.
+    /// </summary>
     public TextBox FileNameBox => _name;
 
     /// <inheritdoc/>
@@ -143,7 +173,9 @@ public abstract class FileDialog : Dialog
         Navigate(start);
     }
 
-    /// <summary>Performs navigate using the current control state.</summary>
+    /// <summary>
+    /// Performs navigate using the current control state.
+    /// </summary>
     public bool Navigate(string path)
     {
         try
@@ -172,7 +204,9 @@ public abstract class FileDialog : Dialog
         }
     }
 
-    /// <summary>Performs go back using the current control state.</summary>
+    /// <summary>
+    /// Performs go back using the current control state.
+    /// </summary>
     public void GoBack()
     {
         if (_historyIndex <= 0)
@@ -191,21 +225,27 @@ public abstract class FileDialog : Dialog
         }
     }
 
-    /// <summary>Performs go up using the current control state.</summary>
+    /// <summary>
+    /// Performs go up using the current control state.
+    /// </summary>
     public void GoUp()
     {
         if (_directory?.ParentPath is string parent)
             Navigate(parent);
     }
 
-    /// <summary>Performs refresh using the current control state.</summary>
+    /// <summary>
+    /// Performs refresh using the current control state.
+    /// </summary>
     public void Refresh()
     {
         if (_directory is not null)
             Navigate(_directory.FullPath);
     }
 
-    /// <summary>Refreshes navigation shortcuts after editing Favorites or Drives.</summary>
+    /// <summary>
+    /// Refreshes navigation shortcuts after editing Favorites or Drives.
+    /// </summary>
     public void RefreshLocations()
     {
         _sidebar.Favorites.SelectedIndex = -1;
@@ -244,7 +284,9 @@ public abstract class FileDialog : Dialog
         _back.IsEnabled = _historyIndex > 0;
     }
 
-    /// <summary>Performs activate entry using the current control state.</summary>
+    /// <summary>
+    /// Performs activate entry using the current control state.
+    /// </summary>
     public void ActivateEntry()
     {
         if (_list.SelectedItem?.Value is not FileDialogEntry entry)
@@ -255,7 +297,9 @@ public abstract class FileDialog : Dialog
             AcceptSelection();
     }
 
-    /// <summary>Performs accept selection using the current control state.</summary>
+    /// <summary>
+    /// Performs accept selection using the current control state.
+    /// </summary>
     public bool AcceptSelection()
     {
         if (_directory is null)
@@ -290,19 +334,35 @@ public abstract class FileDialog : Dialog
     protected override void OnAccept() => AcceptSelection();
     private string _storedInitialDirectory = string.Empty;
     private static readonly System.ComponentModel.PropertyChangedEventArgs InitialDirectoryStorageArgs = new("InitialDirectory");
-    internal string ConfigInitialDirectory { get => _storedInitialDirectory; set => SetNotify(ref _storedInitialDirectory, value, InitialDirectoryStorageArgs); }
-    /// <summary>Gets or sets the value for InitialDirectory.</summary>
-    public string InitialDirectory { get => ConfigInitialDirectory; set => ConfigInitialDirectory = value; }
+    internal  string ConfigInitialDirectory
+    {
+        get => _storedInitialDirectory;
+        set => SetNotify(ref _storedInitialDirectory, value, InitialDirectoryStorageArgs);
+    }
+    /// <summary>
+    /// Gets or sets the value for InitialDirectory.
+    /// </summary>
+    public  string InitialDirectory
+    {
+        get => ConfigInitialDirectory;
+        set => ConfigInitialDirectory = value;
+    }
 
     private ElementCollection<FileDialogFilter>? _ownedFilters;
     private static readonly System.ComponentModel.PropertyChangedEventArgs FiltersCollectionArgs = new("Filters");
     internal IList<FileDialogFilter> ConfigFilters => _ownedFilters ??= new(this, FiltersCollectionArgs);
-    /// <summary>Gets the owned collection for Filters.</summary>
+    /// <summary>
+    /// Gets the owned collection for Filters.
+    /// </summary>
     public IList<FileDialogFilter> Filters { get => ConfigFilters; }
 
     private IFileDialogProvider? _storedProvider = null;
     private static readonly System.ComponentModel.PropertyChangedEventArgs ProviderStorageArgs = new("Provider");
-    internal IFileDialogProvider? ConfigProvider { get => _storedProvider; set => SetNotify(ref _storedProvider, value, ProviderStorageArgs); }
+    internal  IFileDialogProvider? ConfigProvider
+    {
+        get => _storedProvider;
+        set => SetNotify(ref _storedProvider, value, ProviderStorageArgs);
+    }
 
     internal override bool IsStyleLocal(string property)
     {
@@ -313,7 +373,9 @@ public abstract class FileDialog : Dialog
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)

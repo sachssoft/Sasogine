@@ -1,12 +1,16 @@
 namespace Sachssoft.Engine.Controls;
-/// <summary>Samples a caller-owned Color render target and caches a small magnifier neighborhood.</summary>
+/// <summary>
+/// Samples a caller-owned Color render target and caches a small magnifier neighborhood.
+/// </summary>
 /// <remarks>The target must be unbound before sampling. Viewport uses workspace logical coordinates.
 /// Filtering, tone mapping and display color transforms belong to the caller's rendered target.</remarks>
 public sealed class RenderTargetColorSource : IColorPickSource
 {
     private readonly Color[] _readback = new Color[81];
     private readonly Color[] _magnifier = new Color[81];
-    /// <summary>Creates a source for the target's entire image or an optional texture region.</summary>
+    /// <summary>
+    /// Creates a source for the target's entire image or an optional texture region.
+    /// </summary>
     public RenderTargetColorSource(RenderTarget2D target, Bounds2 viewport, Rectangle? source = null)
     {
         ArgumentNullException.ThrowIfNull(target);
@@ -14,17 +18,29 @@ public sealed class RenderTargetColorSource : IColorPickSource
         Viewport = viewport;
         Source = source;
     }
-    /// <summary>Gets the borrowed target. The application owns its lifetime and rendering.</summary>
+    /// <summary>
+    /// Gets the borrowed target. The application owns its lifetime and rendering.
+    /// </summary>
     public RenderTarget2D Target { get; }
-    /// <summary>Gets or sets the displayed image area in workspace logical coordinates.</summary>
+    /// <summary>
+    /// Gets or sets the displayed image area in workspace logical coordinates.
+    /// </summary>
     public Bounds2 Viewport { get; set; }
-    /// <summary>Gets or sets the sampled texture region; null uses the whole target.</summary>
+    /// <summary>
+    /// Gets or sets the sampled texture region; null uses the whole target.
+    /// </summary>
     public Rectangle? Source { get; set; }
-    /// <summary>Gets or sets whether stored premultiplied RGB should be converted to straight RGB.</summary>
+    /// <summary>
+    /// Gets or sets whether stored premultiplied RGB should be converted to straight RGB.
+    /// </summary>
     public bool UnpremultiplyAlpha { get; set; } = true;
-    /// <summary>Gets the last successfully sampled target pixel.</summary>
+    /// <summary>
+    /// Gets the last successfully sampled target pixel.
+    /// </summary>
     public Point LastPixel { get; private set; }
-    /// <summary>Gets the last 9 by 9 straight-color neighborhood; edge pixels are clamped.</summary>
+    /// <summary>
+    /// Gets the last 9 by 9 straight-color neighborhood; edge pixels are clamped.
+    /// </summary>
     public ReadOnlySpan<Color> MagnifierPixels => _magnifier;
     /// <inheritdoc/>
     public bool TryPick(Vector2 position, out Color color)

@@ -5,10 +5,14 @@ using System.IO;
 using System.Linq;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>FolderSelectorDialog configuration and behavior.</summary>
+/// <summary>
+/// FolderSelectorDialog configuration and behavior.
+/// </summary>
 public sealed class FolderSelectorDialog : FileDialog
 {
-    /// <summary>Initializes a new folder selector dialog instance.</summary>
+    /// <summary>
+    /// Initializes a new folder selector dialog instance.
+    /// </summary>
     public FolderSelectorDialog() : base()
     {
     }
@@ -27,7 +31,9 @@ public sealed class FolderSelectorDialog : FileDialog
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)

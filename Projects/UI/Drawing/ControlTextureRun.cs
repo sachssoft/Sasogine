@@ -1,6 +1,8 @@
 using Microsoft.Xna.Framework.Graphics;
 namespace Sachssoft.Engine.Controls.Drawing;
-/// <summary>Describes a contiguous index range and its eight caller-owned textures.</summary>
+/// <summary>
+/// Describes a contiguous index range and its eight caller-owned textures.
+/// </summary>
 internal readonly record struct ControlTextureRun(int StartIndex, int IndexCount,
     Texture2D? Texture0, Texture2D? Texture1, Texture2D? Texture2, Texture2D? Texture3,
     Texture2D? Texture4, Texture2D? Texture5, Texture2D? Texture6, Texture2D? Texture7)

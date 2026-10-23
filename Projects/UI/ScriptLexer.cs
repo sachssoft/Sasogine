@@ -1,5 +1,7 @@
 namespace Sachssoft.Engine.Controls;
-/// <summary>Explicit lexical rules for common script languages; no parsing, execution or reflection.</summary>
+/// <summary>
+/// Explicit lexical rules for common script languages; no parsing, execution or reflection.
+/// </summary>
 internal static class ScriptLexer
 {
     private static readonly HashSet<string> Lua = new("and break do else elseif end false for function goto if in local nil not or repeat return then true until while".Split(' '), StringComparer.Ordinal);

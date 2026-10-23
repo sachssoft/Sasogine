@@ -6,7 +6,9 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Six-week calendar with bounded date selection, culture, keyboard navigation and explicit today.</summary>
+/// <summary>
+/// Six-week calendar with bounded date selection, culture, keyboard navigation and explicit today.
+/// </summary>
 public class Calendar : ContainerControl
 {
     private readonly RepeatButton _previous = new()
@@ -28,7 +30,9 @@ public class Calendar : ContainerControl
     private readonly ReadOnlyCollection<Button> _dayView;
     private ChangeTracker<DateOnly?> _selected;
     private ChangeTracker<DateOnly> _month;
-    /// <summary>Creates a calendar. Defaults are fixed; the host supplies Today when desired.</summary>
+    /// <summary>
+    /// Creates a calendar. Defaults are fixed; the host supplies Today when desired.
+    /// </summary>
     public Calendar() : base()
     {
         _previous.Content = new ControlGlyph(ControlGlyphKind.Left);
@@ -70,7 +74,9 @@ public class Calendar : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets the selected date within configured bounds.</summary>
+    /// <summary>
+    /// Gets or sets the selected date within configured bounds.
+    /// </summary>
     public DateOnly? SelectedDate
     {
         get => ConfigSelectedDate;
@@ -85,16 +91,30 @@ public class Calendar : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets the month to display.</summary>
-    public DateOnly DisplayMonth { get => ConfigDisplayMonth; set => ConfigDisplayMonth = new DateOnly(value.Year, value.Month, 1); }
-    /// <summary>Gets dates in the visible six-week grid; null represents a date outside DateOnly limits.</summary>
+    /// <summary>
+    /// Gets or sets the month to display.
+    /// </summary>
+    public  DateOnly DisplayMonth
+    {
+        get => ConfigDisplayMonth;
+        set => ConfigDisplayMonth = new DateOnly(value.Year, value.Month, 1);
+    }
+    /// <summary>
+    /// Gets dates in the visible six-week grid; null represents a date outside DateOnly limits.
+    /// </summary>
     public IReadOnlyList<DateOnly?> VisibleDates => _dateView;
-    /// <summary>Gets the day buttons.</summary>
+    /// <summary>
+    /// Gets the day buttons.
+    /// </summary>
     public IReadOnlyList<Button> DayButtons => _dayView;
 
-    /// <summary>Occurs after date selection changes.</summary>
+    /// <summary>
+    /// Occurs after date selection changes.
+    /// </summary>
     public event EventHandler? SelectionChanged;
-    /// <summary>Occurs after month navigation.</summary>
+    /// <summary>
+    /// Occurs after month navigation.
+    /// </summary>
     public event EventHandler? DisplayMonthChanged;
     /// <inheritdoc/>
     protected override string DefaultStyleName => "Calendar";
@@ -120,7 +140,9 @@ public class Calendar : ContainerControl
         }
     }
 
-    /// <summary>Navigates a month if it intersects the permitted range.</summary>
+    /// <summary>
+    /// Navigates a month if it intersects the permitted range.
+    /// </summary>
     public void MoveMonth(int offset)
     {
         if (AdjacentMonth(offset)is DateOnly next && MonthAllowed(next))
@@ -237,7 +259,9 @@ public class Calendar : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets CultureName; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets CultureName; a local assignment overrides the style.
+    /// </summary>
     public string CultureName { get => ConfigCultureName; set => ConfigCultureName = value; }
 
     private StyleProperty<DateOnly?> _styleSelectedDate = new(null);
@@ -276,7 +300,9 @@ public class Calendar : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets MinimumDate; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets MinimumDate; a local assignment overrides the style.
+    /// </summary>
     public DateOnly MinimumDate { get => ConfigMinimumDate; set => ConfigMinimumDate = value; }
 
     private StyleProperty<DateOnly> _styleMaximumDate = new(DateOnly.MaxValue);
@@ -291,7 +317,9 @@ public class Calendar : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets MaximumDate; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets MaximumDate; a local assignment overrides the style.
+    /// </summary>
     public DateOnly MaximumDate { get => ConfigMaximumDate; set => ConfigMaximumDate = value; }
 
     private StyleProperty<DateOnly?> _styleToday = new(null);
@@ -306,7 +334,9 @@ public class Calendar : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets Today; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets Today; a local assignment overrides the style.
+    /// </summary>
     public DateOnly? Today { get => ConfigToday; set => ConfigToday = value; }
 
     private StyleProperty<DayOfWeek> _styleFirstDayOfWeek = new(DayOfWeek.Monday);
@@ -321,10 +351,14 @@ public class Calendar : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets FirstDayOfWeek; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets FirstDayOfWeek; a local assignment overrides the style.
+    /// </summary>
     public DayOfWeek FirstDayOfWeek { get => ConfigFirstDayOfWeek; set => ConfigFirstDayOfWeek = value; }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -387,7 +421,9 @@ public class Calendar : ContainerControl
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -446,7 +482,9 @@ public class Calendar : ContainerControl
             NotifyPropertyChanged(FirstDayOfWeekChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

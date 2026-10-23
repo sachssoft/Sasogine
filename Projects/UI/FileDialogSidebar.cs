@@ -1,5 +1,7 @@
 namespace Sachssoft.Engine.Controls;
-/// <summary>Places favorites above a separately scrolling drive list.</summary>
+/// <summary>
+/// Places favorites above a separately scrolling drive list.
+/// </summary>
 internal sealed class FileDialogSidebar : ContainerControl
 {
     private readonly TextBlock _favoritesTitle = new()

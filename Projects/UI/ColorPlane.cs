@@ -5,13 +5,17 @@ using System;
 using System.Globalization;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Interactive HSV area, hue strip and alpha strip, composed from the skin's independent gradients.</summary>
+/// <summary>
+/// Interactive HSV area, hue strip and alpha strip, composed from the skin's independent gradients.
+/// </summary>
 public sealed class ColorPlane : Control
 {
     private float _h, _s, _v = 1, _a = 1;
     private Color _observed = Color.White;
     private int _drag;
-    /// <summary>Initializes a new color plane instance.</summary>
+    /// <summary>
+    /// Initializes a new color plane instance.
+    /// </summary>
     public ColorPlane() : base()
     {
     }
@@ -19,7 +23,9 @@ public sealed class ColorPlane : Control
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ColorPlane";
 
-    /// <summary>Gets or sets selected color.</summary>
+    /// <summary>
+    /// Gets or sets selected color.
+    /// </summary>
     public Color SelectedColor
     {
         get => ConfigSelectedColor;
@@ -35,7 +41,9 @@ public sealed class ColorPlane : Control
         }
     }
 
-    /// <summary>Occurs when color changed.</summary>
+    /// <summary>
+    /// Occurs when color changed.
+    /// </summary>
     public event EventHandler? ColorChanged;
     private void ReadColor(Color color)
     {
@@ -140,7 +148,9 @@ public sealed class ColorPlane : Control
         }
     }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -167,7 +177,9 @@ public sealed class ColorPlane : Control
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -190,7 +202,9 @@ public sealed class ColorPlane : Control
             NotifyPropertyChanged(SelectedColorChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

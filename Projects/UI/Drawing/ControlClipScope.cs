@@ -1,7 +1,9 @@
 using System;
 
 namespace Sachssoft.Engine.Controls.Drawing;
-/// <summary>Restores the previous clip without allocating. Keep scopes nested and do not copy an active scope.</summary>
+/// <summary>
+/// Restores the previous clip without allocating. Keep scopes nested and do not copy an active scope.
+/// </summary>
 public struct ControlClipScope : IDisposable
 {
     private ControlDrawContext? _owner;
@@ -12,7 +14,9 @@ public struct ControlClipScope : IDisposable
         _previous = previous;
     }
 
-    /// <summary>Restores the owning context's previous clip once for this scope value.</summary>
+    /// <summary>
+    /// Restores the owning context's previous clip once for this scope value.
+    /// </summary>
     public void Dispose()
     {
         if (_owner is not ControlDrawContext owner)

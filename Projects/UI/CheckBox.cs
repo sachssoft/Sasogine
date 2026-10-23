@@ -2,24 +2,34 @@ using Microsoft.Xna.Framework;
 using System;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>A checkbox with an optional indeterminate state.</summary>
+/// <summary>
+/// A checkbox with an optional indeterminate state.
+/// </summary>
 public class CheckBox : ToggleButton
 {
-    /// <summary>Initializes a new check box instance.</summary>
+    /// <summary>
+    /// Initializes a new check box instance.
+    /// </summary>
     public CheckBox() : base()
     {
     }
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "CheckBox";
-    /// <summary>Gets or sets is checked.</summary>
+    /// <summary>
+    /// Gets or sets is checked.
+    /// </summary>
     public new bool? IsChecked { get => ConfigIsChecked; set => SetChecked(value); }
-    /// <summary>Gets or sets is three state.</summary>
+    /// <summary>
+    /// Gets or sets is three state.
+    /// </summary>
     public bool IsThreeState { get => ConfigIsThreeState; set => ConfigIsThreeState = value; }
 
     /// <inheritdoc/>
     protected override void ChangeCheckedState() => IsChecked = IsThreeState ? IsChecked is false ? true : IsChecked is true ? null : false : IsChecked != true;
-    /// <summary>Gets whether layout reserves space for the selection glyph.</summary>
+    /// <summary>
+    /// Gets whether layout reserves space for the selection glyph.
+    /// </summary>
     protected virtual bool HasGlyph => true;
 
     /// <inheritdoc/>
@@ -80,7 +90,9 @@ public class CheckBox : ToggleButton
         }
     }
 
-    /// <summary>Gets or sets GlyphSize; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets GlyphSize; a local assignment overrides the style.
+    /// </summary>
     public Size2 GlyphSize { get => ConfigGlyphSize; set => ConfigGlyphSize = value; }
 
     private StyleProperty<float> _styleTextSpacing = new(8f);
@@ -95,10 +107,14 @@ public class CheckBox : ToggleButton
         }
     }
 
-    /// <summary>Gets or sets TextSpacing; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets TextSpacing; a local assignment overrides the style.
+    /// </summary>
     public float TextSpacing { get => ConfigTextSpacing; set => ConfigTextSpacing = value; }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -137,7 +153,9 @@ public class CheckBox : ToggleButton
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -172,7 +190,9 @@ public class CheckBox : ToggleButton
             NotifyPropertyChanged(TextSpacingChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

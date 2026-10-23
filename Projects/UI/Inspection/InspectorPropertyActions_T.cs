@@ -1,6 +1,8 @@
 namespace Sachssoft.Engine.Controls.Inspection;
 
-/// <summary>Keeps the typed property operations and its explicit reset snapshot outside frame updates.</summary>
+/// <summary>
+/// Keeps the typed property operations and its explicit reset snapshot outside frame updates.
+/// </summary>
 internal sealed class InspectorPropertyActions<T> : IInspectorPropertyActions
 {
     private readonly Func<T> _read;
@@ -13,8 +15,20 @@ internal sealed class InspectorPropertyActions<T> : IInspectorPropertyActions
     }
     private T Snapshot(T value) => _snapshot is null ? value : _snapshot(value);
     internal void SetDefault(T value) => _default = Snapshot(value);
+    /// <summary>
+    /// Performs the reset operation.
+    /// </summary>
     public void Reset() => _write(Snapshot(_default));
+    /// <summary>
+    /// Performs the copy operation.
+    /// </summary>
     public void Copy(InspectorClipboard clipboard) => clipboard.Copy(Snapshot(_read()));
+    /// <summary>
+    /// Performs the can paste operation.
+    /// </summary>
     public bool CanPaste(InspectorClipboard clipboard) => clipboard.Contains<T>();
+    /// <summary>
+    /// Performs the paste operation.
+    /// </summary>
     public void Paste(InspectorClipboard clipboard) { if (clipboard.TryGet(out T value)) _write(Snapshot(value)); }
 }

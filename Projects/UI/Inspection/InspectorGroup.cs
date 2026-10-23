@@ -1,8 +1,12 @@
 namespace Sachssoft.Engine.Controls.Inspection;
-/// <summary>An expander containing property fields and further nested definition groups.</summary>
+/// <summary>
+/// An expander containing property fields and further nested definition groups.
+/// </summary>
 public sealed class InspectorGroup : Expander
 {
-    /// <summary>Creates a collapsible inspector group with an arbitrary title.</summary>
+    /// <summary>
+    /// Creates a collapsible inspector group with an arbitrary title.
+    /// </summary>
     public InspectorGroup(string title, InspectorEditorRegistry? editors = null)
     {
         HeaderContent = new TextBlock
@@ -17,6 +21,8 @@ public sealed class InspectorGroup : Expander
         Content = Fields;
     }
 
-    /// <summary>Gets the fields belonging to this category or nested definition.</summary>
+    /// <summary>
+    /// Gets the fields belonging to this category or nested definition.
+    /// </summary>
     public InspectorView Fields { get; }
 }

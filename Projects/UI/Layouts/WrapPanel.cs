@@ -1,21 +1,31 @@
 using System;
 
 namespace Sachssoft.Engine.Controls.Layouts;
-/// <summary>Wraps children into successive rows or columns in stable insertion order.</summary>
+/// <summary>
+/// Wraps children into successive rows or columns in stable insertion order.
+/// </summary>
 public class WrapPanel : ContainerControl
 {
-    /// <summary>Initializes a new wrap panel instance.</summary>
+    /// <summary>
+    /// Initializes a new wrap panel instance.
+    /// </summary>
     public WrapPanel() : base()
     {
     }
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "WrapPanel";
-    /// <summary>Gets or sets orientation.</summary>
+    /// <summary>
+    /// Gets or sets orientation.
+    /// </summary>
     public ControlOrientation Orientation { get => ConfigAxis; set => ConfigAxis = value; }
-    /// <summary>Gets or sets spacing.</summary>
+    /// <summary>
+    /// Gets or sets spacing.
+    /// </summary>
     public float Spacing { get => ConfigSpacing; set => ConfigSpacing = value; }
-    /// <summary>Gets or sets line spacing.</summary>
+    /// <summary>
+    /// Gets or sets line spacing.
+    /// </summary>
     public float LineSpacing { get => ConfigLineSpacing; set => ConfigLineSpacing = value; }
 
     private Size2 LayoutChildren(Size2 size, Bounds2? bounds)
@@ -92,7 +102,9 @@ public class WrapPanel : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets Axis; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets Axis; a local assignment overrides the style.
+    /// </summary>
     public ControlOrientation Axis { get => ConfigAxis; set => ConfigAxis = value; }
 
     private StyleProperty<float> _styleLineSpacing = new(8f);
@@ -107,7 +119,9 @@ public class WrapPanel : ContainerControl
         }
     }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -146,7 +160,9 @@ public class WrapPanel : ContainerControl
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -181,7 +197,9 @@ public class WrapPanel : ContainerControl
             NotifyPropertyChanged(LineSpacingChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

@@ -5,7 +5,9 @@ using System;
 using System.Globalization;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Decimal input with validated text, bounded values and repeating increment/decrement buttons.</summary>
+/// <summary>
+/// Decimal input with validated text, bounded values and repeating increment/decrement buttons.
+/// </summary>
 public class NumericSpinner : ContainerControl
 {
     private readonly TextBox _editor = new()
@@ -23,7 +25,9 @@ public class NumericSpinner : ContainerControl
     private ChangeTracker<string> _culture;
     private ChangeTracker<int> _places;
     private bool _syncing, _wasFocused, _dirty;
-    /// <summary>Creates a number spinner.</summary>
+    /// <summary>
+    /// Creates a number spinner.
+    /// </summary>
     public NumericSpinner() : base()
     {
         _increase.Content = new ControlGlyph(ControlGlyphKind.Up);
@@ -44,14 +48,22 @@ public class NumericSpinner : ContainerControl
         };
     }
 
-    /// <summary>Gets or sets minimum value.</summary>
+    /// <summary>
+    /// Gets or sets minimum value.
+    /// </summary>
     public decimal Minimum { get => ConfigNumericMinimum; set => ConfigNumericMinimum = value; }
-    /// <summary>Gets or sets maximum value.</summary>
+    /// <summary>
+    /// Gets or sets maximum value.
+    /// </summary>
     public decimal Maximum { get => ConfigNumericMaximum; set => ConfigNumericMaximum = value; }
-    /// <summary>Gets or sets the increment.</summary>
+    /// <summary>
+    /// Gets or sets the increment.
+    /// </summary>
     public decimal Increment { get => ConfigNumericIncrement; set => ConfigNumericIncrement = value; }
 
-    /// <summary>Gets or sets the rounded, clamped decimal value.</summary>
+    /// <summary>
+    /// Gets or sets the rounded, clamped decimal value.
+    /// </summary>
     public decimal Value
     {
         get
@@ -66,14 +78,22 @@ public class NumericSpinner : ContainerControl
         }
     }
 
-    /// <summary>Gets the text editor.</summary>
+    /// <summary>
+    /// Gets the text editor.
+    /// </summary>
     public TextBox Editor => _editor;
-    /// <summary>Gets the increment repeat button.</summary>
+    /// <summary>
+    /// Gets the increment repeat button.
+    /// </summary>
     public RepeatButton IncreaseButton => _increase;
-    /// <summary>Gets the decrement repeat button.</summary>
+    /// <summary>
+    /// Gets the decrement repeat button.
+    /// </summary>
     public RepeatButton DecreaseButton => _decrease;
 
-    /// <summary>Occurs after the decimal value changes.</summary>
+    /// <summary>
+    /// Occurs after the decimal value changes.
+    /// </summary>
     public event EventHandler? ValueChanged;
     /// <inheritdoc/>
     protected override string DefaultStyleName => "NumericSpinner";
@@ -113,7 +133,9 @@ public class NumericSpinner : ContainerControl
     }
 
     private bool TryRead(out decimal value) => decimal.TryParse(_editor.Text, NumberStyles.Number, Culture, out value) && value >= Minimum && value <= Maximum;
-    /// <summary>Validates and commits typed text, preserving invalid text and the old value.</summary>
+    /// <summary>
+    /// Validates and commits typed text, preserving invalid text and the old value.
+    /// </summary>
     public bool CommitEdit()
     {
         if (!TryRead(out decimal value))
@@ -244,7 +266,9 @@ public class NumericSpinner : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets IsReadOnly; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets IsReadOnly; a local assignment overrides the style.
+    /// </summary>
     public bool IsReadOnly { get => ConfigIsReadOnly; set => ConfigIsReadOnly = value; }
 
     private StyleProperty<float> _styleRepeatDelay = new(0.4f);
@@ -259,7 +283,9 @@ public class NumericSpinner : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets RepeatDelay; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets RepeatDelay; a local assignment overrides the style.
+    /// </summary>
     public float RepeatDelay { get => ConfigRepeatDelay; set => ConfigRepeatDelay = value; }
 
     private StyleProperty<float> _styleRepeatInterval = new(0.075f);
@@ -274,7 +300,9 @@ public class NumericSpinner : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets RepeatInterval; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets RepeatInterval; a local assignment overrides the style.
+    /// </summary>
     public float RepeatInterval { get => ConfigRepeatInterval; set => ConfigRepeatInterval = value; }
 
     private StyleProperty<decimal> _styleNumericMinimum = new(0m);
@@ -289,7 +317,9 @@ public class NumericSpinner : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets NumericMinimum; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets NumericMinimum; a local assignment overrides the style.
+    /// </summary>
     public decimal NumericMinimum { get => ConfigNumericMinimum; set => ConfigNumericMinimum = value; }
 
     private StyleProperty<decimal> _styleNumericMaximum = new(100m);
@@ -304,7 +334,9 @@ public class NumericSpinner : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets NumericMaximum; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets NumericMaximum; a local assignment overrides the style.
+    /// </summary>
     public decimal NumericMaximum { get => ConfigNumericMaximum; set => ConfigNumericMaximum = value; }
 
     private StyleProperty<decimal> _styleNumericValue = new(0m);
@@ -319,7 +351,9 @@ public class NumericSpinner : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets NumericValue; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets NumericValue; a local assignment overrides the style.
+    /// </summary>
     public decimal NumericValue { get => ConfigNumericValue; set => ConfigNumericValue = value; }
 
     private StyleProperty<decimal> _styleNumericIncrement = new(1m);
@@ -334,8 +368,14 @@ public class NumericSpinner : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets NumericIncrement; a local assignment overrides the style.</summary>
-    public decimal NumericIncrement { get => ConfigNumericIncrement; set => ConfigNumericIncrement = value; }
+    /// <summary>
+    /// Gets or sets NumericIncrement; a local assignment overrides the style.
+    /// </summary>
+    public  decimal NumericIncrement
+    {
+        get => ConfigNumericIncrement;
+        set => ConfigNumericIncrement = value;
+    }
 
     private StyleProperty<int> _styleDecimalPlaces = new(0);
     private static readonly System.ComponentModel.PropertyChangedEventArgs DecimalPlacesChangedArgs = new(nameof(DecimalPlaces));
@@ -349,7 +389,9 @@ public class NumericSpinner : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets DecimalPlaces; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets DecimalPlaces; a local assignment overrides the style.
+    /// </summary>
     public int DecimalPlaces { get => ConfigDecimalPlaces; set => ConfigDecimalPlaces = value; }
 
     private StyleProperty<string> _styleCultureName = new(string.Empty);
@@ -364,10 +406,14 @@ public class NumericSpinner : ContainerControl
         }
     }
 
-    /// <summary>Gets or sets CultureName; a local assignment overrides the style.</summary>
+    /// <summary>
+    /// Gets or sets CultureName; a local assignment overrides the style.
+    /// </summary>
     public string CultureName { get => ConfigCultureName; set => ConfigCultureName = value; }
 
-    /// <summary>Applies this control's explicit style values without replacing local assignments.</summary>
+    /// <summary>
+    /// Applies this control's explicit style values without replacing local assignments.
+    /// </summary>
     public override void ApplyStyle(Style style)
     {
         base.ApplyStyle(style);
@@ -442,7 +488,9 @@ public class NumericSpinner : ContainerControl
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)
@@ -513,7 +561,9 @@ public class NumericSpinner : ContainerControl
             NotifyPropertyChanged(CultureNameChangedArgs);
     }
 
-    /// <summary>Commits final style values and notifies once per effective property change.</summary>
+    /// <summary>
+    /// Commits final style values and notifies once per effective property change.
+    /// </summary>
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();

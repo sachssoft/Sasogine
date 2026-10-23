@@ -1,5 +1,7 @@
 namespace Sachssoft.Engine.Controls;
-/// <summary>Notifies its numeric owner synchronously when text input loses focus.</summary>
+/// <summary>
+/// Notifies its numeric owner synchronously when text input loses focus.
+/// </summary>
 internal sealed class ValueTextEditor : TextBox
 {
     internal event EventHandler? EditingFocusLost;

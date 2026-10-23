@@ -4,18 +4,24 @@ using System;
 using System.Collections.Generic;
 
 namespace Sachssoft.Engine.Controls.Drawing;
-/// <summary>Adapts a caller-owned MonoGame SpriteFont to UI text measurement and drawing.</summary>
+/// <summary>
+/// Adapts a caller-owned MonoGame SpriteFont to UI text measurement and drawing.
+/// </summary>
 public sealed class SpriteFontControlFont : IControlBatchFont
 {
     private readonly Dictionary<char, SpriteFont.Glyph> _glyphs;
-    /// <summary>Initializes the adapter.</summary>
+    /// <summary>
+    /// Initializes the adapter.
+    /// </summary>
     public SpriteFontControlFont(SpriteFont font)
     {
         Font = font ?? throw new ArgumentNullException(nameof(font));
         _glyphs = font.GetGlyphs();
     }
 
-    /// <summary>Gets the caller-owned font.</summary>
+    /// <summary>
+    /// Gets the caller-owned font.
+    /// </summary>
     public SpriteFont Font { get; }
 
     /// <inheritdoc/>

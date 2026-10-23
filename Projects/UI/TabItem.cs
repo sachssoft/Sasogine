@@ -1,10 +1,14 @@
 namespace Sachssoft.Engine.Controls;
-/// <summary>A retained tab page. Unselected content is detached from frame traversal.</summary>
+/// <summary>
+/// A retained tab page. Unselected content is detached from frame traversal.
+/// </summary>
 public class TabItem : ContentControl
 {
     internal TabControl? TabOwner { get; set; }
 
-    /// <summary>Creates a tab page.</summary>
+    /// <summary>
+    /// Creates a tab page.
+    /// </summary>
     public TabItem()
     {
         HeaderButton.Content = HeaderCaption;
@@ -20,16 +24,24 @@ public class TabItem : ContentControl
         StyleId = "TabControl.Header"
     };
     internal TextBlock HeaderCaption { get; } = new();
-    /// <summary>Gets or sets header text.</summary>
+    /// <summary>
+    /// Gets or sets header text.
+    /// </summary>
     public string Header { get => ConfigHeader; set => ConfigHeader = value; }
-    /// <summary>Gets whether this page is currently selected.</summary>
+    /// <summary>
+    /// Gets whether this page is currently selected.
+    /// </summary>
     public bool IsSelected => TabOwner?.SelectedItem == this;
     /// <inheritdoc/>
     protected override string DefaultStyleName => "TabItem";
 
     private string _storedHeader = string.Empty;
     private static readonly System.ComponentModel.PropertyChangedEventArgs HeaderStorageArgs = new("Header");
-    internal string ConfigHeader { get => _storedHeader; set => SetNotify(ref _storedHeader, value, HeaderStorageArgs); }
+    internal  string ConfigHeader
+    {
+        get => _storedHeader;
+        set => SetNotify(ref _storedHeader, value, HeaderStorageArgs);
+    }
 
     private Control? _storedHeaderContent = null;
     private static readonly System.ComponentModel.PropertyChangedEventArgs HeaderContentStorageArgs = new("HeaderContent");
@@ -50,7 +62,9 @@ public class TabItem : ContentControl
         }
     }
 
-    /// <summary>Gets or sets the value for HeaderContent.</summary>
+    /// <summary>
+    /// Gets or sets the value for HeaderContent.
+    /// </summary>
     public Control? HeaderContent { get => ConfigHeaderContent; set => ConfigHeaderContent = value; }
 
     internal override bool IsStyleLocal(string property)
@@ -62,7 +76,9 @@ public class TabItem : ContentControl
         }
     }
 
-    /// <summary>Removes a local override and restores the current style value.</summary>
+    /// <summary>
+    /// Removes a local override and restores the current style value.
+    /// </summary>
     public override void ResetStyleProperty(string property)
     {
         switch (property)

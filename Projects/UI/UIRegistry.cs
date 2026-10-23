@@ -5,11 +5,15 @@ using Microsoft.Xna.Framework;
 using Sachssoft.Engine.Services.Platform;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Represents uiregistry.</summary>
+/// <summary>
+/// Represents uiregistry.
+/// </summary>
 public sealed class UIRegistry
 {
     private readonly Dictionary<string, Func<Control>> _factories = new(StringComparer.Ordinal);
-    /// <summary>Creates the standard styles and all built-in control factories.</summary>
+    /// <summary>
+    /// Creates the standard styles and all built-in control factories.
+    /// </summary>
     /// <param name = "fonts">The borrowed engine registry, or null to create a registry.</param>
     /// <param name = "fontFactory">An optional adapter factory. Each workspace owns and disposes the returned adapters; never return caller-owned fonts.</param>
     public UIRegistry(FontRegistry? fonts = null, Func<FontFace, int, IControlFont>? fontFactory = null)
@@ -27,23 +31,39 @@ public sealed class UIRegistry
         RegisterControls();
     }
 
-    /// <summary>Gets the existing engine registry borrowed by this UI. Register families before updating.</summary>
+    /// <summary>
+    /// Gets the existing engine registry borrowed by this UI. Register families before updating.
+    /// </summary>
     public FontRegistry Fonts { get; }
     internal Func<FontFace, int, IControlFont>? FontFactory { get; }
-    /// <summary>Gets the styles owned by this root.</summary>
+    /// <summary>
+    /// Gets the styles owned by this root.
+    /// </summary>
     public StyleRegistry Styles { get; }
-    /// <summary>Gets explicit style converters.</summary>
+    /// <summary>
+    /// Gets explicit style converters.
+    /// </summary>
     public ValueConverterRegistry Converters { get; } = new();
-    /// <summary>Gets the explicit built-in and application-specific inspector editor factories.</summary>
+    /// <summary>
+    /// Gets the explicit built-in and application-specific inspector editor factories.
+    /// </summary>
     public Inspection.InspectorEditorRegistry InspectorEditors { get; } = new();
-    /// <summary>Gets the exact-type property clipboard shared by inspectors using this registry.</summary>
+    /// <summary>
+    /// Gets the exact-type property clipboard shared by inspectors using this registry.
+    /// </summary>
     public Inspection.InspectorClipboard InspectorClipboard { get; } = new();
-    /// <summary>Gets the number of control factories.</summary>
+    /// <summary>
+    /// Gets the number of control factories.
+    /// </summary>
     public int Count => _factories.Count;
-    /// <summary>Gets explicit factory names.</summary>
+    /// <summary>
+    /// Gets explicit factory names.
+    /// </summary>
     public IEnumerable<string> Kinds => _factories.Keys;
 
-    /// <summary>Registers a custom control factory. Ordinary new expressions need no registration.</summary>
+    /// <summary>
+    /// Registers a custom control factory. Ordinary new expressions need no registration.
+    /// </summary>
     public void Register<T>(string name, Func<T> factory)
         where T : Control
     {
@@ -51,7 +71,9 @@ public sealed class UIRegistry
         _factories.Add(name, () => factory());
     }
 
-    /// <summary>Creates an unowned control using a built-in or explicit custom factory.</summary>
+    /// <summary>
+    /// Creates an unowned control using a built-in or explicit custom factory.
+    /// </summary>
     public Control Create(string name)
     {
         var control = _factories[name]();
@@ -76,12 +98,18 @@ public sealed class UIRegistry
         return styles;
     }
 
-    /// <summary>Gets or sets skin.</summary>
+    /// <summary>
+    /// Gets or sets skin.
+    /// </summary>
     public ControlSkin? Skin { get; internal set; }
     internal Dictionary<string, SkinStyleState> SkinStyles { get; } = new(StringComparer.Ordinal);
-    /// <summary>Gets or sets clipboard.</summary>
+    /// <summary>
+    /// Gets or sets clipboard.
+    /// </summary>
     public IClipboardService? Clipboard { get; set; }
-    /// <summary>Gets or sets file system.</summary>
+    /// <summary>
+    /// Gets or sets file system.
+    /// </summary>
     public IFileDialogProvider FileSystem { get; set; } = new LocalFileDialogProvider();
     internal System.Collections.Generic.Dictionary<string, System.Collections.Generic.Dictionary<string, Color>> SkinColors { get; } = new(System.StringComparer.Ordinal);
 

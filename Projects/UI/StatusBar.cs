@@ -1,10 +1,14 @@
 using System;
 
 namespace Sachssoft.Engine.Controls;
-/// <summary>Arranges status strips in a single horizontal row.</summary>
+/// <summary>
+/// Arranges status strips in a single horizontal row.
+/// </summary>
 public class StatusBar : StackPanel
 {
-    /// <summary>Creates a horizontal status bar without a local orientation override.</summary>
+    /// <summary>
+    /// Creates a horizontal status bar without a local orientation override.
+    /// </summary>
     public StatusBar() : base(StackOrientation.Horizontal)
     {
     }
@@ -12,7 +16,9 @@ public class StatusBar : StackPanel
     /// <inheritdoc/>
     protected override string DefaultStyleName => "StatusBar";
 
-    /// <summary>Adds a status strip, reserving its ownership immediately.</summary>
+    /// <summary>
+    /// Adds a status strip, reserving its ownership immediately.
+    /// </summary>
     /// <exception cref = "ArgumentException">The child is not a StatusStrip.</exception>
     public override void Add(Control child)
     {
@@ -22,7 +28,9 @@ public class StatusBar : StackPanel
         base.Add(child);
     }
 
-    /// <summary>Adds a status strip, reserving its ownership immediately.</summary>
+    /// <summary>
+    /// Adds a status strip, reserving its ownership immediately.
+    /// </summary>
     public void Add(StatusStrip statusStrip) => base.Add(statusStrip);
 
     /// <summary>

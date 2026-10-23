@@ -1,7 +1,9 @@
 using System.ComponentModel;
 
 namespace Sachssoft.Engine.Controls.Inspection;
-/// <summary>Creates and adds an editor for an explicitly bound value.</summary>
+/// <summary>
+/// Creates and adds an editor for an explicitly bound value.
+/// </summary>
 /// <typeparam name = "T">The source value type.</typeparam>
 /// <param name = "view">The receiving inspector.</param>
 /// <param name = "title">The property label.</param>
