@@ -1,44 +1,11 @@
-﻿using System.ComponentModel;
-
 namespace Sachssoft.Engine.Controls;
-
-/// <summary>
-/// Displays a content group with a customizable, non-collapsible header.
-/// </summary>
+/// <summary>Displays the expanded expander appearance with permanently visible content and no expansion indicator.</summary>
 public class Header : GroupBox
 {
-    private readonly ContentControl _header = new();
-
-    /// <summary>
-    /// Initializes a header group with permanently visible content.
-    /// </summary>
-    public Header()
+    /// <summary>Creates a non-collapsible group with an expander-style header row.</summary>
+    public Header() : base(new StaticHeaderPresenter())
     {
-        base.Header = _header;
     }
-
-    /// <summary>
-    /// Gets or sets the content displayed inside the header.
-    /// </summary>
-    public object? HeaderContent
-    {
-        get => _header.Content;
-        set
-        {
-            if (ReferenceEquals(_header.Content, value))
-                return;
-
-            _header.Content = value;
-            NotifyPropertyChanged(HeaderContentArgs);
-        }
-    }
-
-    /// <summary>
-    /// Gets the control responsible for presenting the header content.
-    /// </summary>
-    public Control? HeaderContentPresenter => _header.ContentPresenter;
-
-    private static readonly PropertyChangedEventArgs HeaderContentArgs = new(nameof(HeaderContent));
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "Header";

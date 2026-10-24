@@ -82,7 +82,7 @@ internal static class ControlTreeChecks
             IsExpanded = false,
             Content = new Image()
         };
-        var hidden = collapsed.Content!;
+        var hidden = collapsed.ContentPresenter!;
         using var collapsedRoot = new Workspace(collapsed);
         collapsedRoot.Update(frame, layout);
         check(hidden.Parent == collapsed && hidden.Workspace is null, "Collapsed content remains owned outside traversal");

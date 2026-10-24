@@ -220,6 +220,8 @@ internal static class Program
             Run("Object content, stable text presenters and atomic ownership", () => ContentControlChecks.Run(Check, Layout));
             Run("Mobile switch activation, skin states and cached layout", () => SwitchChecks.Run(Check, Layout));
             Run("Tab strips on all edges, scrolling and keyboard navigation", () => TabPlacementChecks.Run(Check, Layout));
+            Run("Shared header groups and non-collapsible expander appearance", () => HeaderGroupChecks.Run(Check, Layout));
+            Run("Start/end edge panels, ordering and cached layout", () => EdgePanelChecks.Run(Check, Layout));
             Run("Tool groups, uniform button palettes, status content and cached wrapping", () => BarControlChecks.Run(Check, Layout));
             Run("Grid-owned placement, observable rows and columns, and invalidation", () =>
             {

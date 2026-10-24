@@ -4,30 +4,18 @@ namespace Sachssoft.Engine.Controls;
 /// </summary>
 public class Expander : GroupBox
 {
-    private readonly ExpanderHeaderButton _toggle = new();
-    /// <summary>
-    /// Creates an expanded group. Assign HeaderContent to customize the toggle label.
-    /// </summary>
-    public Expander()
+    private readonly ExpanderHeaderButton _toggle;
+    /// <summary>Creates an expanded group with a keyboard-accessible toggle header.</summary>
+    public Expander() : this(new ExpanderHeaderButton())
     {
-        Header = _toggle;
-        _toggle.Clicked += (_, _) => IsExpanded = _toggle.IsChecked == true;
     }
 
-    /// <summary>
-    /// Gets or sets the content inside the toggle header.
-    /// </summary>
-    public object? HeaderContent
+    private Expander(ExpanderHeaderButton toggle) : base(toggle)
     {
-        get => _toggle.Content;
-        set
-        {
-            _toggle.Content = value;
-            NotifyPropertyChanged(HeaderContentArgs);
-        }
+        _toggle = toggle;
+        _toggle.Clicked += (_, _) => IsExpanded = _toggle.IsChecked;
     }
 
-    private static readonly System.ComponentModel.PropertyChangedEventArgs HeaderContentArgs = new(nameof(HeaderContent));
     /// <inheritdoc/>
     protected override string DefaultStyleName => "Expander";
     /// <inheritdoc/>
@@ -71,8 +59,7 @@ public class Expander : GroupBox
     internal override bool IsStyleLocal(string property) => property switch
     {
         "IsExpanded" => _IsExpanded.HasLocalValue,
-        _ => base.IsStyleLocal(property)
-    };
+        _ => base.IsStyleLocal(property)};
     /// <inheritdoc/>
     public override void ResetStyleProperty(string property)
     {

@@ -39,7 +39,7 @@ public class ContentControl : ContainerControl
             bool changed = !ReferenceEquals(_storedContent, value);
             _storedContent = value;
             _textPresenter = textPresenter;
-            SetOwnedControl(ref _contentPresenter, next, ContentPresenterChangedArgs);
+            SetOwnedControl(ref _contentPresenter, next, ContentPresenterChangedArgs, ShowsContent);
             if (textPresenter is not null)
                 textPresenter.Text = text!;
             if (changed)
@@ -89,21 +89,24 @@ public class ContentControl : ContainerControl
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ContentControl";
 
+    /// <summary>Gets whether owned content participates in layout and traversal. Hidden content retains its parent.</summary>
+    protected virtual bool ShowsContent => true;
+
     internal override void Prepare()
     {
         base.Prepare();
         Control? next = ContentPresenter;
+        if (next is not null)
+            PresentOwnedChild(next, ShowsContent);
         if (_content.WasEnsured && ReferenceEquals(_content.NewValue, next))
             return;
-        if (next is not null)
-            PresentOwnedChild(next, true);
         _content.EnsureChange(next);
     }
 
     /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
-        if (ContentPresenter is not Control child)
+        if (!ShowsContent || ContentPresenter is not Control child)
             return Size2.Zero;
         child.Measure(context, available);
         return child.DesiredSize;
@@ -112,7 +115,7 @@ public class ContentControl : ContainerControl
     /// <inheritdoc/>
     protected override void ArrangeOverride(Bounds2 bounds)
     {
-        if (ContentPresenter is not Control child)
+        if (!ShowsContent || ContentPresenter is not Control child)
             return;
         float w = ContentHorizontalAlignment == ControlAlignment.Stretch ? bounds.Width : MathF.Min(bounds.Width, child.DesiredSize.Width);
         float h = ContentVerticalAlignment == ControlAlignment.Stretch ? bounds.Height : MathF.Min(bounds.Height, child.DesiredSize.Height);
