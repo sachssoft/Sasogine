@@ -9,6 +9,9 @@ public class ToolBar : WrapPanel
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ToolBar";
 
+    /// <inheritdoc/>
+    protected override bool DrawsDecoration => true;
+
     /// <summary>
     /// Adds a tool group, reserving its ownership immediately.
     /// </summary>

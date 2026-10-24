@@ -15,6 +15,9 @@ public class WrapPanel : ContainerControl
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "WrapPanel";
+
+    /// <inheritdoc/>
+    protected override bool DrawsDecoration => false;
     /// <summary>
     /// Gets or sets orientation.
     /// </summary>

@@ -17,6 +17,9 @@ public class Panel : ContainerControl
     protected override string DefaultStyleName => "Panel";
 
     /// <inheritdoc/>
+    protected override bool DrawsDecoration => false;
+
+    /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
         float width = 0, height = 0;

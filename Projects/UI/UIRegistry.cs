@@ -117,6 +117,7 @@ public sealed class UIRegistry
     {
         Register("DropDownButton", static () => new DropDownButton());
         Register("SplitButton", static () => new SplitButton());
+        Register("IconValueDisplay", static () => new IconValueDisplay());
         Register("HeaderContentControl", static () => new HeaderContentControl());
         Register("EdgePanel", static () => new EdgePanel());
         Register("GroupBox", static () => new GroupBox());
@@ -184,6 +185,7 @@ public sealed class UIRegistry
         styles.Register("ToolBox", new Style("ToolBox", "Panel") { ["Padding"] = "6", ["Spacing"] = "4" });
         styles.Register("StatusBar", new Style("StatusBar", "StackPanel") { ["Padding"] = "4", ["Spacing"] = "8", ["Orientation"] = "Horizontal" });
         styles.Register("StatusStrip", new Style("StatusStrip", "ContentControl") { ["Padding"] = "6,2", ["ContentHorizontalAlignment"] = "Start", ["ContentVerticalAlignment"] = "Center" });
+        styles.Register("IconValueDisplay", new Style { BasedOn = "Control", Spacing = 8 });
         styles.Register("HeaderContentControl", new Style { BasedOn = "ContentControl", ContentHorizontalAlignment = ControlAlignment.Stretch, ContentVerticalAlignment = ControlAlignment.Stretch });
         styles.Register("EdgePanel", new Style { BasedOn = "StackPanel", Orientation = StackOrientation.Horizontal });
         styles.Register("GroupBox", new Style { BasedOn = "HeaderContentControl", ContentHorizontalAlignment = ControlAlignment.Stretch, ContentVerticalAlignment = ControlAlignment.Stretch, Background = new Color(28, 35, 48), BorderColor = new Color(56, 71, 92), BorderThickness = 1 });

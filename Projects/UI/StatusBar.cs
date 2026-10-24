@@ -16,6 +16,9 @@ public class StatusBar : StackPanel
     /// <inheritdoc/>
     protected override string DefaultStyleName => "StatusBar";
 
+    /// <inheritdoc/>
+    protected override bool DrawsDecoration => true;
+
     /// <summary>
     /// Adds a status strip, reserving its ownership immediately.
     /// </summary>

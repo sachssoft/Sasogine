@@ -6,4 +6,7 @@ public class ToolStrip : WrapPanel
 {
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ToolStrip";
+
+    /// <inheritdoc/>
+    protected override bool DrawsDecoration => true;
 }

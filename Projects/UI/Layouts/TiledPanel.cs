@@ -15,6 +15,9 @@ public sealed class TiledPanel : ContainerControl
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "TiledPanel";
+
+    /// <inheritdoc/>
+    protected override bool DrawsDecoration => false;
     /// <summary>
     /// Gets or sets tile size.
     /// </summary>

@@ -1336,6 +1336,9 @@ public abstract class Control : Element
     /// <param name="context">The context for this operation.</param>
     internal void PaintOverlay(ControlDrawContext context)
     {
+        if (!DrawsDecoration)
+            return;
+
         context.StrokeRectangle(LocalBounds, BorderColor, BorderThickness);
         if (IsFocused && (!UseSkinFocus || !context.DrawSkinPart(this, "Focus", LocalBounds, FocusVisualState)))
             context.StrokeRectangle(LocalBounds, ConfigFocusColor, 1);
@@ -1375,11 +1378,21 @@ public abstract class Control : Element
     }
 
     /// <summary>
+    /// Gets whether the control draws its default background, border and focus decoration.
+    /// </summary>
+    /// <remarks>
+    /// Layout containers return false while retaining styles, clipping and child rendering.
+    /// Visual controls derived from layouts can override this property to restore decoration.
+    /// Custom drawing in an overridden OnDraw method remains available.
+    /// </remarks>
+    protected virtual bool DrawsDecoration => true;
+
+    /// <summary>
     /// Draws in local coordinates. The root owns batch and clipping scopes.
     /// </summary>
     protected virtual void OnDraw(ControlDrawContext context)
     {
-        if (!context.DrawSkinPart(this, "Background", LocalBounds))
+        if (DrawsDecoration && !context.DrawSkinPart(this, "Background", LocalBounds))
             context.FillRectangle(LocalBounds, Background);
     }
 

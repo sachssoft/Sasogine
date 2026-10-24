@@ -26,6 +26,9 @@ public class StackPanel : ContainerControl
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "StackPanel";
+
+    /// <inheritdoc/>
+    protected override bool DrawsDecoration => false;
     /// <summary>
     /// Gets the effective Orientation value or sets a local override.
     /// </summary>

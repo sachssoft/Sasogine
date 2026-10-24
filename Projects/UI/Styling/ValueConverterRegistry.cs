@@ -37,6 +37,21 @@ public sealed class ValueConverterRegistry
     /// </summary>
     public ValueConverterRegistry()
     {
+        Register<IconPlacement>("IconPlacement", static text => text switch
+        {
+            "Left" => IconPlacement.Left,
+            "Right" => IconPlacement.Right,
+            "Top" => IconPlacement.Top,
+            "Bottom" => IconPlacement.Bottom,
+            _ => throw new FormatException("Unknown icon placement.")
+        }, static value => value switch
+        {
+            IconPlacement.Left => "Left",
+            IconPlacement.Right => "Right",
+            IconPlacement.Top => "Top",
+            IconPlacement.Bottom => "Bottom",
+            _ => throw new FormatException("Unknown icon placement.")
+        });
         Register<SizeToContent>("SizeToContent", static text => text switch
         {
             "Manual" => SizeToContent.Manual,

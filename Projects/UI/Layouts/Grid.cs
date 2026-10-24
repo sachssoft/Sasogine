@@ -47,6 +47,9 @@ public class Grid : ContainerControl
     protected override string DefaultStyleName => "Grid";
 
     /// <inheritdoc/>
+    protected override bool DrawsDecoration => false;
+
+    /// <inheritdoc/>
     public override void Remove(Control child)
     {
         base.Remove(child);

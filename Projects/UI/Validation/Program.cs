@@ -217,10 +217,12 @@ internal static class Program
                 Check(calls == 1 && !button.IsEnabled);
             });
             Run("Immediate control ownership, atomic transfers and deferred traversal", () => ControlTreeChecks.Run(Check, Layout));
+            Run("HUD icon/value placement, formatting, ownership and cached layout", () => IconValueDisplayChecks.Run(Check, Layout));
             Run("Object content, stable text presenters and atomic ownership", () => ContentControlChecks.Run(Check, Layout));
             Run("Mobile switch activation, skin states and cached layout", () => SwitchChecks.Run(Check, Layout));
             Run("Tab strips on all edges, scrolling and keyboard navigation", () => TabPlacementChecks.Run(Check, Layout));
             Run("Shared header groups and non-collapsible expander appearance", () => HeaderGroupChecks.Run(Check, Layout));
+            Run("Layout styles without background, border or focus decoration", () => LayoutDecorationChecks.Run(Check, Layout));
             Run("Start/end edge panels, ordering and cached layout", () => EdgePanelChecks.Run(Check, Layout));
             Run("Window content sizing and close-button layout", () => WindowLayoutChecks.Run(Check, Layout));
             Run("Tool groups, uniform button palettes, status content and cached wrapping", () => BarControlChecks.Run(Check, Layout));

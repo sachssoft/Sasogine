@@ -10,6 +10,20 @@ namespace Sachssoft.Engine.Controls.Styling;
 /// </summary>
 public sealed class Style
 {
+    /// <summary>Gets or sets the icon edge relative to an IconValueDisplay value. Defaults to Left.</summary>
+    public IconPlacement IconPlacement
+    {
+        get => _values.TryGetValue("IconPlacement", out string? text) ? ShorthandConverters.Convert<IconPlacement>("IconPlacement", text) : Sachssoft.Engine.Controls.IconPlacement.Left;
+        set => this["IconPlacement"] = ShorthandConverters.Format("IconPlacement", value);
+    }
+
+    /// <summary>Gets or sets the IFormattable format for IconValueDisplay data. Empty uses the object's text representation.</summary>
+    public string ValueFormat
+    {
+        get => _values.TryGetValue("ValueFormat", out string? text) ? text : string.Empty;
+        set => this["ValueFormat"] = value;
+    }
+
     /// <summary>Gets or sets the dimensions fitted to content. Manual preserves configured dimensions; automatic axes ignore Width or Height without changing their stored values.</summary>
     public SizeToContent SizeToContent
     {
