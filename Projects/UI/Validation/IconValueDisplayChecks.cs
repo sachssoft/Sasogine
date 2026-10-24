@@ -9,12 +9,16 @@ using Sachssoft.Engine.Controls.Styling;
 /// <summary>Checks HUD placement, formatting, ownership, live styling and unchanged-frame allocations.</summary>
 internal static class IconValueDisplayChecks
 {
+    /// <summary>Checks HUD layout, shared decoration, formatting, ownership and stable-frame costs.</summary>
+    /// <param name = "check">The assertion callback.</param>
+    /// <param name = "layout">The fixed test font and layout context.</param>
     internal static void Run(Action<bool, string> check, ControlLayoutContext layout)
     {
         var display = new IconValueDisplay
         {
             HorizontalAlignment = ControlAlignment.Start,
-            VerticalAlignment = ControlAlignment.Start
+            VerticalAlignment = ControlAlignment.Start,
+            Padding = Insets2.Zero
         };
         check(display.Icon is null && display.Value is null && display.IconPresenter is null && display.ValuePresenter is null, "Empty HUD has no presented content");
         var icon = new MeasureProbe
@@ -30,6 +34,16 @@ internal static class IconValueDisplayChecks
         var idle = new ControlInputFrame(new Size2(400, 300), TimeSpan.Zero);
         void Frame() => workspace.Update(idle, layout);
         Frame();
+        check(display.UseStyle && display.BorderThickness == 1 && display.Background.A > 0, "The display has one shared visible style by default");
+        int initialMeasurements = icon.Measurements, initialArrangements = icon.Arrangements;
+        display.IsFocusable = true;
+        workspace.Focus(display);
+        display.UseStyle = false;
+        display.Paint(null!);
+        display.PaintOverlay(null!);
+        Frame();
+        check(display.IconPresenter == icon && display.ValuePresenter == text && icon.Measurements == initialMeasurements && icon.Arrangements == initialArrangements, "Disabling shared decoration preserves content and cached geometry, including the focused case");
+        display.UseStyle = true;
         IconPlacement[] placements = [IconPlacement.Left, IconPlacement.Right, IconPlacement.Top, IconPlacement.Bottom];
         foreach (IconPlacement placement in placements)
         {
@@ -94,12 +108,16 @@ internal static class IconValueDisplayChecks
             BasedOn = "IconValueDisplay",
             IconPlacement = IconPlacement.Top,
             Spacing = 12,
-            ValueFormat = "N0"
+            ValueFormat = "N0",
+            UseStyle = false
         };
         workspace.Registry.Styles.Register("Test.Hud", style);
         display.StyleId = "Test.Hud";
         Frame();
         check(display.IconPlacement == IconPlacement.Left && display.ValueFormat == "N1" && display.Spacing == 12, "Local placement and formatting override central styles");
+        check(display.UseStyle, "A local true assignment overrides a style that disables shared decoration");
+        display.ResetStyleProperty(nameof(IconValueDisplay.UseStyle));
+        check(!display.UseStyle, "Reset restores the central decoration switch");
         display.ResetStyleProperty(nameof(IconValueDisplay.IconPlacement));
         display.ResetStyleProperty(nameof(IconValueDisplay.ValueFormat));
         Frame();

@@ -10,6 +10,96 @@ namespace Sachssoft.Engine.Controls.Styling;
 /// </summary>
 public sealed class Style
 {
+    /// <summary>Gets or sets whether touch swiping and optional mouse dragging can scroll the viewport. Defaults to true.</summary>
+    public bool IsSwipeEnabled
+    {
+        get => _values.TryGetValue("IsSwipeEnabled", out string? text) ? ShorthandConverters.Convert<bool>("Boolean", text) : true;
+        set => this["IsSwipeEnabled"] = ShorthandConverters.Format("Boolean", value);
+    }
+
+    /// <summary>Gets or sets whether the primary mouse button can drag-scroll content when IsSwipeEnabled is true. Defaults to false.</summary>
+    public bool IsMouseDragEnabled
+    {
+        get => _values.TryGetValue("IsMouseDragEnabled", out string? text) ? ShorthandConverters.Convert<bool>("Boolean", text) : false;
+        set => this["IsMouseDragEnabled"] = ShorthandConverters.Format("Boolean", value);
+    }
+
+    /// <summary>Gets or sets whether IconValueDisplay draws its shared background, border and focus decoration. Defaults to true.</summary>
+    public bool UseStyle
+    {
+        get => _values.TryGetValue("UseStyle", out string? text) ? ShorthandConverters.Convert<bool>("Boolean", text) : true;
+        set => this["UseStyle"] = ShorthandConverters.Format("Boolean", value);
+    }
+
+    /// <summary>Gets or sets the enabled navigation inputs. Defaults to All; flags can be combined.</summary>
+    public CarouselNavigationMode NavigationMode
+    {
+        get => _values.TryGetValue("NavigationMode", out string? text) ? ShorthandConverters.Convert<CarouselNavigationMode>("CarouselNavigationMode", text) : CarouselNavigationMode.All;
+        set => this["NavigationMode"] = ShorthandConverters.Format("CarouselNavigationMode", value);
+    }
+
+    /// <summary>Gets or sets whether clickable page indicators are shown. Defaults to true.</summary>
+    public bool ShowIndicators
+    {
+        get => _values.TryGetValue("ShowIndicators", out string? text) ? ShorthandConverters.Convert<bool>("Boolean", text) : true;
+        set => this["ShowIndicators"] = ShorthandConverters.Format("Boolean", value);
+    }
+
+    /// <summary>Gets or sets whether Next and Previous wrap at the collection boundaries. Defaults to false.</summary>
+    public bool IsLooping
+    {
+        get => _values.TryGetValue("IsLooping", out string? text) ? ShorthandConverters.Convert<bool>("Boolean", text) : false;
+        set => this["IsLooping"] = ShorthandConverters.Format("Boolean", value);
+    }
+
+    /// <summary>Gets or sets the page transition effect. Defaults to Slide.</summary>
+    public CarouselTransition Transition
+    {
+        get => _values.TryGetValue("Transition", out string? text) ? ShorthandConverters.Convert<CarouselTransition>("CarouselTransition", text) : CarouselTransition.Slide;
+        set => this["Transition"] = ShorthandConverters.Format("CarouselTransition", value);
+    }
+
+    /// <summary>Gets or sets the finite transition duration in seconds. Zero switches immediately. Defaults to 0.25.</summary>
+    public float TransitionDuration
+    {
+        get => _values.TryGetValue("TransitionDuration", out string? text) ? ShorthandConverters.Convert<float>("Single", text) : 0.25f;
+        set => this["TransitionDuration"] = ShorthandConverters.Format("Single", value);
+    }
+
+    /// <summary>Gets or sets the positive movement threshold in logical UI units before a swipe takes capture. Defaults to 24.</summary>
+    public float SwipeThreshold
+    {
+        get => _values.TryGetValue("SwipeThreshold", out string? text) ? ShorthandConverters.Convert<float>("Single", text) : 24;
+        set => this["SwipeThreshold"] = ShorthandConverters.Format("Single", value);
+    }
+
+    /// <summary>Gets or sets the positive logical size of navigation buttons. Defaults to 36.</summary>
+    public float NavigationButtonSize
+    {
+        get => _values.TryGetValue("NavigationButtonSize", out string? text) ? ShorthandConverters.Convert<float>("Single", text) : 36;
+        set => this["NavigationButtonSize"] = ShorthandConverters.Format("Single", value);
+    }
+
+    /// <summary>Gets or sets the positive logical size of each page indicator. Defaults to 16.</summary>
+    public float IndicatorSize
+    {
+        get => _values.TryGetValue("IndicatorSize", out string? text) ? ShorthandConverters.Convert<float>("Single", text) : 16;
+        set => this["IndicatorSize"] = ShorthandConverters.Format("Single", value);
+    }
+
+    /// <summary>Gets or sets the nonnegative logical gap between page indicators. Defaults to 6.</summary>
+    public float IndicatorSpacing
+    {
+        get => _values.TryGetValue("IndicatorSpacing", out string? text) ? ShorthandConverters.Convert<float>("Single", text) : 6;
+        set => this["IndicatorSpacing"] = ShorthandConverters.Format("Single", value);
+    }
+
+    /// <summary>Gets or sets the finite automatic page interval in seconds. Zero disables automatic advancement. Defaults to zero.</summary>
+    public float AutoPlayInterval
+    {
+        get => _values.TryGetValue("AutoPlayInterval", out string? text) ? ShorthandConverters.Convert<float>("Single", text) : 0;
+        set => this["AutoPlayInterval"] = ShorthandConverters.Format("Single", value);
+    }
     /// <summary>Gets or sets the icon edge relative to an IconValueDisplay value. Defaults to Left.</summary>
     public IconPlacement IconPlacement
     {

@@ -421,6 +421,9 @@ public abstract class Control : Element
     /// </summary>
     internal string StandardStyleName => DefaultStyleName;
 
+    /// <summary>Gets whether the last successful measurement remains valid for its existing constraints and resolved font.</summary>
+    internal bool HasValidMeasure => !_measureDirty && _measureFontRevision == _fontResolutionRevision;
+
     /// <summary>
     /// Gets or sets the minimum logical width.
     /// </summary>
@@ -1289,6 +1292,11 @@ public abstract class Control : Element
     /// <param name="args">The input event arguments.</param>
     internal void Input(ControlInputContext context, ControlInputEventArgs args) => OnInput(context, args);
 
+    /// <summary>Dispatches the ancestor-to-target preview phase of routed input.</summary>
+    /// <param name="context">The input context used for pointer capture and focus.</param>
+    /// <param name="args">The borrowed routing state for the current event.</param>
+    internal void PreviewInput(ControlInputContext context, ControlInputEventArgs args) => OnPreviewInput(context, args);
+
     /// <summary>
     /// Updates the control using the elapsed frame time.
     /// </summary>
@@ -1360,6 +1368,14 @@ public abstract class Control : Element
     /// Receives a routed input event; set Handled to stop bubbling.
     /// </summary>
     protected virtual void OnInput(ControlInputContext context, ControlInputEventArgs args)
+    {
+    }
+
+    /// <summary>Observes routed input from ancestors to the target before normal bubbling.</summary>
+    /// <param name="context">The input context used to manage focus and pointer capture.</param>
+    /// <param name="args">The borrowed event state. Setting Handled prevents further preview and bubbling.</param>
+    /// <remarks>Gesture containers can defer capture until a movement threshold is reached, preserving child clicks.</remarks>
+    protected virtual void OnPreviewInput(ControlInputContext context, ControlInputEventArgs args)
     {
     }
 

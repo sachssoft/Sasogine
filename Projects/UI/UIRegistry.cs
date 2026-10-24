@@ -117,6 +117,7 @@ public sealed class UIRegistry
     {
         Register("DropDownButton", static () => new DropDownButton());
         Register("SplitButton", static () => new SplitButton());
+        Register("Carousel", static () => new Carousel());
         Register("IconValueDisplay", static () => new IconValueDisplay());
         Register("HeaderContentControl", static () => new HeaderContentControl());
         Register("EdgePanel", static () => new EdgePanel());
@@ -185,7 +186,11 @@ public sealed class UIRegistry
         styles.Register("ToolBox", new Style("ToolBox", "Panel") { ["Padding"] = "6", ["Spacing"] = "4" });
         styles.Register("StatusBar", new Style("StatusBar", "StackPanel") { ["Padding"] = "4", ["Spacing"] = "8", ["Orientation"] = "Horizontal" });
         styles.Register("StatusStrip", new Style("StatusStrip", "ContentControl") { ["Padding"] = "6,2", ["ContentHorizontalAlignment"] = "Start", ["ContentVerticalAlignment"] = "Center" });
-        styles.Register("IconValueDisplay", new Style { BasedOn = "Control", Spacing = 8 });
+        styles.Register("Carousel", new Style { BasedOn = "Control", IsFocusable = true });
+        styles.Register("Carousel.Previous", new Style { BasedOn = "Button", Padding = Insets2.Zero, MinWidth = 0, MinHeight = 0 });
+        styles.Register("Carousel.Next", new Style { BasedOn = "Button", Padding = Insets2.Zero, MinWidth = 0, MinHeight = 0 });
+        styles.Register("Carousel.Indicator", new Style { BasedOn = "ToggleButton", Padding = Insets2.Zero, MinWidth = 0, MinHeight = 0, BorderThickness = 0, Background = Color.Transparent });
+        styles.Register("IconValueDisplay", new Style { BasedOn = "Control", UseStyle = true, Spacing = 8, Padding = new Insets2(10, 6), Background = new Color(28, 35, 48), BorderColor = new Color(56, 71, 92), BorderThickness = 1 });
         styles.Register("HeaderContentControl", new Style { BasedOn = "ContentControl", ContentHorizontalAlignment = ControlAlignment.Stretch, ContentVerticalAlignment = ControlAlignment.Stretch });
         styles.Register("EdgePanel", new Style { BasedOn = "StackPanel", Orientation = StackOrientation.Horizontal });
         styles.Register("GroupBox", new Style { BasedOn = "HeaderContentControl", ContentHorizontalAlignment = ControlAlignment.Stretch, ContentVerticalAlignment = ControlAlignment.Stretch, Background = new Color(28, 35, 48), BorderColor = new Color(56, 71, 92), BorderThickness = 1 });
@@ -238,7 +243,7 @@ public sealed class UIRegistry
         styles.Register("ScrollBar.Horizontal", new Style { BasedOn = "Control", IsFocusable = true, Padding = Insets2.Zero, Axis = ControlOrientation.Horizontal });
         styles.Register("ScrollBar.Vertical", new Style { BasedOn = "Control", IsFocusable = true, Padding = Insets2.Zero, Axis = ControlOrientation.Vertical });
         styles.Register("ScrollBar", new Style { BasedOn = "ScrollBar.Vertical" });
-        styles.Register("ScrollViewer", new Style { BasedOn = "Panel", Padding = Insets2.Zero });
+        styles.Register("ScrollViewer", new Style { IsSwipeEnabled = true, IsMouseDragEnabled = false, SwipeThreshold = 12, BasedOn = "Panel", Padding = Insets2.Zero });
         styles.Register("TextBox", new Style { BasedOn = "Control", IsFocusable = true, Padding = new Insets2(10, 6), MinHeight = 32, Background = new Color(20, 28, 40), BorderColor = new Color(56, 71, 92) });
         styles.Register("ListBox", new Style { BasedOn = "Control", IsFocusable = true, Padding = new Insets2(2), Background = new Color(20, 28, 40) });
         styles.Register("AssetView", new Style { BasedOn = "ListBox" });

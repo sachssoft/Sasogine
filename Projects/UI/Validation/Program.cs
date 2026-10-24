@@ -217,6 +217,8 @@ internal static class Program
                 Check(calls == 1 && !button.IsEnabled);
             });
             Run("Immediate control ownership, atomic transfers and deferred traversal", () => ControlTreeChecks.Run(Check, Layout));
+            Run("Touch scroll, child click arbitration, nested handoff and mouse opt-in", () => ScrollViewerSwipeChecks.Run(Check, Layout));
+            Run("Carousel pages, gestures, transitions, styles and cached traversal", () => CarouselChecks.Run(Check, Layout));
             Run("HUD icon/value placement, formatting, ownership and cached layout", () => IconValueDisplayChecks.Run(Check, Layout));
             Run("Object content, stable text presenters and atomic ownership", () => ContentControlChecks.Run(Check, Layout));
             Run("Mobile switch activation, skin states and cached layout", () => SwitchChecks.Run(Check, Layout));

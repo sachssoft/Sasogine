@@ -583,6 +583,18 @@ public sealed class Workspace : Element, IDisposable
             _tipSuppressed = false;
         if (input.Type == ControlInputEventType.PointerCancel)
         {
+            if (GetCapturedControl(input.Pointer) is Control cancelTarget)
+            {
+                _route.Clear();
+                for (Control? node = cancelTarget; node is not null; node = node.Parent)
+                    _route.Add(node);
+                var cancelledArgs = (_routedArgs ??= new ControlInputEventArgs(input, cancelTarget)).Reset(input, cancelTarget);
+                for (int i = _route.Count - 1; i >= 0 && !cancelledArgs.Handled; i--)
+                {
+                    cancelledArgs.CurrentTarget = _route[i];
+                    _route[i].PreviewInput(_input, cancelledArgs);
+                }
+            }
             if (GetCapturedControl(input.Pointer)is Control cancelled)
                 ReleasePointer(cancelled, input.Pointer);
             if (input.PointerKind == ControlPointerKind.Touch)
@@ -647,8 +659,16 @@ public sealed class Workspace : Element, IDisposable
         for (Control? node = target; node is not null; node = node.Parent)
             route.Add(node);
         var args = (_routedArgs ??= new ControlInputEventArgs(input, target)).Reset(input, target);
+        for (int i = route.Count - 1; i >= 0 && !args.Handled; i--)
+        {
+            Control node = route[i];
+            if (!node.IsAvailable()) break;
+            args.CurrentTarget = node;
+            node.PreviewInput(_input, args);
+        }
         foreach (Control node in route)
         {
+            if (args.Handled) break;
             if (!node.IsAvailable())
                 break;
             args.CurrentTarget = node;

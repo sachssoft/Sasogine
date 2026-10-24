@@ -37,6 +37,42 @@ public sealed class ValueConverterRegistry
     /// </summary>
     public ValueConverterRegistry()
     {
+        Register<CarouselTransition>("CarouselTransition", static text => text switch
+        {
+            "None" => CarouselTransition.None,
+            "Slide" => CarouselTransition.Slide,
+            "Fade" => CarouselTransition.Fade,
+            _ => throw new FormatException("Unknown CarouselTransition.")
+        }, static value => value switch
+        {
+            CarouselTransition.None => "None",
+            CarouselTransition.Slide => "Slide",
+            CarouselTransition.Fade => "Fade",
+            _ => throw new FormatException("Unknown CarouselTransition.")
+        });
+        Register<CarouselNavigationMode>("CarouselNavigationMode", static text =>
+        {
+            CarouselNavigationMode result = CarouselNavigationMode.None;
+            foreach (string part in text.Split(new[] { ',', '|' }, StringSplitOptions.TrimEntries))
+                result |= part switch
+                {
+                    "None" => CarouselNavigationMode.None,
+                    "Arrows" => CarouselNavigationMode.Arrows,
+                    "Swipe" => CarouselNavigationMode.Swipe,
+                    "Keyboard" => CarouselNavigationMode.Keyboard,
+                    "All" => CarouselNavigationMode.All,
+                    _ => throw new FormatException("Unknown carousel navigation mode.")
+                };
+            return result;
+        }, static value =>
+        {
+            if ((value & ~CarouselNavigationMode.All) != 0) throw new FormatException("Unknown carousel navigation mode.");
+            if (value == CarouselNavigationMode.None) return "None";
+            if (value == CarouselNavigationMode.All) return "All";
+            return ((value & CarouselNavigationMode.Arrows) != 0 ? "Arrows" : "") +
+                ((value & CarouselNavigationMode.Swipe) != 0 ? ((value & CarouselNavigationMode.Arrows) != 0 ? ", Swipe" : "Swipe") : "") +
+                ((value & CarouselNavigationMode.Keyboard) != 0 ? ((value & (CarouselNavigationMode.Arrows | CarouselNavigationMode.Swipe)) != 0 ? ", Keyboard" : "Keyboard") : "");
+        });
         Register<IconPlacement>("IconPlacement", static text => text switch
         {
             "Left" => IconPlacement.Left,

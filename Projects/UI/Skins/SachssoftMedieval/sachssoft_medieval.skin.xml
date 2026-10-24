@@ -872,5 +872,18 @@
         <State name="Checked.Disabled" region="switch_thumb" />
       </Part>
     </Style>
+    <Style key="IconValueDisplay" basedOn="Control">
+      <Value property="UseStyle" value="true" />
+      <Value property="Padding" value="10,6" />
+      <Value property="Spacing" value="8" />
+      <Value property="Background" value="surface" />
+      <Value property="BorderColor" value="border" />
+      <Value property="BorderThickness" value="1" />
+      <Value property="TextColor" value="text" />
+      <Value property="DisabledTextColor" value="disabled" />
+      <Part name="Background">
+        <State name="Normal" region="panel_raised" />
+      </Part>
+    </Style>
   </Styles>
 </UiSkin>
