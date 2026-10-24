@@ -1137,6 +1137,12 @@ public abstract class Control : Element
         Workspace?.InvalidateLayout();
     }
 
+    /// <summary>Gets the explicit width used by layout. Derived controls can ignore a configured width for content sizing.</summary>
+    protected virtual float? LayoutWidth => Width;
+
+    /// <summary>Gets the explicit height used by layout. Derived controls can ignore a configured height for content sizing.</summary>
+    protected virtual float? LayoutHeight => Height;
+
     /// <summary>
     /// Measures the control within the available layout size.
     /// </summary>
@@ -1173,9 +1179,10 @@ public abstract class Control : Element
             Insets2 margin = Margin, padding = Padding;
             float width = MathF.Max(0, available.Width - margin.Horizontal);
             float height = MathF.Max(0, available.Height - margin.Vertical);
-            Size2 content = MeasureOverride(context, new Size2(MathF.Max(0, (Width ?? width) - padding.Horizontal), MathF.Max(0, (Height ?? height) - padding.Vertical)));
+            float? layoutWidth = LayoutWidth, layoutHeight = LayoutHeight;
+            Size2 content = MeasureOverride(context, new Size2(MathF.Max(0, (layoutWidth ?? width) - padding.Horizontal), MathF.Max(0, (layoutHeight ?? height) - padding.Vertical)));
             ValidateSize(content, false);
-            DesiredSize = new Size2(MathF.Max(MinWidth, Width ?? content.Width + padding.Horizontal) + margin.Horizontal, MathF.Max(MinHeight, Height ?? content.Height + padding.Vertical) + margin.Vertical);
+            DesiredSize = new Size2(MathF.Max(MinWidth, layoutWidth ?? content.Width + padding.Horizontal) + margin.Horizontal, MathF.Max(MinHeight, layoutHeight ?? content.Height + padding.Vertical) + margin.Vertical);
             ValidateSize(DesiredSize, false);
         }
         catch
@@ -1208,8 +1215,8 @@ public abstract class Control : Element
             Insets2 m = Margin;
             float availableWidth = MathF.Max(0, slot.Width - m.Horizontal);
             float availableHeight = MathF.Max(0, slot.Height - m.Vertical);
-            float width = Width ?? (HorizontalAlignment == ControlAlignment.Stretch ? availableWidth : MathF.Max(0, DesiredSize.Width - m.Horizontal));
-            float height = Height ?? (VerticalAlignment == ControlAlignment.Stretch ? availableHeight : MathF.Max(0, DesiredSize.Height - m.Vertical));
+            float width = LayoutWidth ?? (HorizontalAlignment == ControlAlignment.Stretch ? availableWidth : MathF.Max(0, DesiredSize.Width - m.Horizontal));
+            float height = LayoutHeight ?? (VerticalAlignment == ControlAlignment.Stretch ? availableHeight : MathF.Max(0, DesiredSize.Height - m.Vertical));
             width = MathF.Max(MinWidth, width);
             height = MathF.Max(MinHeight, height);
             if (constrain)

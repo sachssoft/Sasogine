@@ -222,6 +222,7 @@ internal static class Program
             Run("Tab strips on all edges, scrolling and keyboard navigation", () => TabPlacementChecks.Run(Check, Layout));
             Run("Shared header groups and non-collapsible expander appearance", () => HeaderGroupChecks.Run(Check, Layout));
             Run("Start/end edge panels, ordering and cached layout", () => EdgePanelChecks.Run(Check, Layout));
+            Run("Window content sizing and close-button layout", () => WindowLayoutChecks.Run(Check, Layout));
             Run("Tool groups, uniform button palettes, status content and cached wrapping", () => BarControlChecks.Run(Check, Layout));
             Run("Grid-owned placement, observable rows and columns, and invalidation", () =>
             {
@@ -1031,7 +1032,7 @@ internal static class Program
                 expander.IsExpanded = true;
                 Frame(er);
                 Check(child.Workspace == er);
-                ((ToggleButton)expander.Header!).PerformClick();
+                Click(er, expander.HeaderContentPresenter!.Bounds.X + 2, expander.HeaderContentPresenter.Bounds.Y + 2);
                 Frame(er);
                 Check(!expander.IsExpanded && child.Workspace is null);
                 var number = new ValueTextBox

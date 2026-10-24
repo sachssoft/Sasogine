@@ -1,5 +1,5 @@
 {
-  "files": 331,
+  "files": 334,
   "rule": "One named type per matching file; no nested or partial declarations",
   "checked": [
     "Examples/Advanced.01.Editor/EditorApplication.cs",
@@ -92,6 +92,7 @@
     "Projects/UI/ChartKind.cs",
     "Projects/UI/ChartSeries.cs",
     "Projects/UI/CheckBox.cs",
+    "Projects/UI/CloseButtonPlacement.cs",
     "Projects/UI/ColorPickerDialog.cs",
     "Projects/UI/ColorPickerLayout.cs",
     "Projects/UI/ColorPickerModel.cs",
@@ -255,6 +256,7 @@
     "Projects/UI/ScrollViewer.cs",
     "Projects/UI/SelectorButton.cs",
     "Projects/UI/SelectorItem.cs",
+    "Projects/UI/SizeToContent.cs",
     "Projects/UI/Slider.cs",
     "Projects/UI/Spinner.cs",
     "Projects/UI/SplitButton.cs",
@@ -326,6 +328,7 @@
     "Projects/UI/Validation/TextLayoutProbePanel.cs",
     "Projects/UI/Validation/TreeMutationProbe.cs",
     "Projects/UI/Validation/ValidationModel.cs",
+    "Projects/UI/Validation/WindowLayoutChecks.cs",
     "Projects/UI/ValueBar.cs",
     "Projects/UI/ValueTextBox.cs",
     "Projects/UI/ValueTextEditor.cs",

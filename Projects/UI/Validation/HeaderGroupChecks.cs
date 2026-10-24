@@ -34,10 +34,10 @@ internal static class HeaderGroupChecks
         void Frame() => workspace.Update(idle, layout);
         Frame();
         check(header.HeaderContentPresenter is TextBlock title && title.Text == "Title" && header.ContentPresenter is TextBlock body && body.Text == "Body", "Header and body support object content through shared presenters");
-        check(header.Header is not ToggleButton && expander.Header is ToggleButton, "Only the expander has an activating header");
-        check(header.Header!.DesiredSize.Height == expander.Header!.DesiredSize.Height, "Static and expanded headers have the same height");
-        check(header.HeaderContentPresenter!.Bounds.X - header.Header.Bounds.X == expander.HeaderContentPresenter!.Bounds.X - expander.Header.Bounds.X, "Static and expanded headers use the same caption indentation");
-        Vector2 point = new(header.Header.Bounds.X + 30, header.Header.Bounds.Y + 10);
+        check(header.HeaderContentPresenter!.Parent is not ToggleButton && expander.HeaderContentPresenter!.Parent is ToggleButton, "Only the expander has an activating header");
+        check(header.HeaderContentPresenter!.Parent!.DesiredSize.Height == expander.HeaderContentPresenter!.Parent!.DesiredSize.Height, "Static and expanded headers have the same height");
+        check(header.HeaderContentPresenter!.Bounds.X - header.HeaderContentPresenter!.Parent!.Bounds.X == expander.HeaderContentPresenter!.Bounds.X - expander.HeaderContentPresenter!.Parent!.Bounds.X, "Static and expanded headers use the same caption indentation");
+        Vector2 point = new(header.HeaderContentPresenter!.Parent!.Bounds.X + 30, header.HeaderContentPresenter!.Parent!.Bounds.Y + 10);
         workspace.Update(new ControlInputFrame(idle.Size, TimeSpan.Zero, new[] { new ControlInputEvent(ControlInputEventType.PointerDown, point), new ControlInputEvent(ControlInputEventType.PointerUp, point) }), layout);
         check(header.ContentPresenter!.Workspace == workspace, "Clicking a static header never hides its content");
         var expanderBody = expander.ContentPresenter;
@@ -90,16 +90,16 @@ internal static class HeaderGroupChecks
         var raw = new Image();
         var group = new GroupBox
         {
-            Header = raw,
+            HeaderContent = raw,
             Content = 42
         };
-        check(raw.Parent == group && group.HeaderContentPresenter == raw, "Direct GroupBox.Header assignment retains immediate ownership");
-        group.Header = null;
+        check(raw.Parent?.Parent == group && group.HeaderContentPresenter == raw, "HeaderContent retains immediate caption ownership inside its private host");
+        group.HeaderContent = null;
         group.HeaderContent = "Group";
         check(group.HeaderContentPresenter is TextBlock && group.Content is int, "GroupBox shares header and body data conversion");
         var oldCaption = group.HeaderContentPresenter;
-        group.Header = new Image();
-        check(oldCaption!.Parent is null, "Replacing a hosted header releases its previous caption");
+        group.HeaderContent = new Image();
+        check(oldCaption!.Parent is null, "Replacing header content releases its previous caption");
         rejected = false;
         try
         {
@@ -110,9 +110,9 @@ internal static class HeaderGroupChecks
             rejected = true;
         }
 
-        check(rejected && group.Header is Image, "Detached direct-header mode still rejects cycles");
+        check(rejected && group.HeaderContent is Image, "HeaderContent rejects owner cycles after presenter replacement");
         group.Clear();
-        check(group.Header is null && group.HeaderContent is null && group.Content is null && group.Children.Count == 0, "Clearing a group releases both slots");
+        check(group.HeaderContentPresenter is null && group.HeaderContent is null && group.Content is null && group.Children.Count == 0, "Clearing a group releases both slots");
         var style = new Style
         {
             BasedOn = "Header",
@@ -121,7 +121,7 @@ internal static class HeaderGroupChecks
         workspace.Registry.Styles.Register("Test.Header", style);
         header.StyleId = "Test.Header";
         Frame();
-        check(header.HeaderHeight == 50 && header.Header.Bounds.Height == 50, "Shared header height is style-controlled");
+        check(header.HeaderHeight == 50 && header.HeaderContentPresenter!.Parent!.Bounds.Height == 50, "Shared header height is style-controlled");
         for (int i = 0; i < 100; i++)
             Frame();
         long before = GC.GetAllocatedBytesForCurrentThread();
@@ -130,5 +130,29 @@ internal static class HeaderGroupChecks
         long bytes = GC.GetAllocatedBytesForCurrentThread() - before;
         check(bytes == 0, "Unchanged header groups preserve allocation-free cached layout");
         check(workspace.Registry.Create("HeaderContentControl") is HeaderContentControl, "The shared base is registered explicitly");
+        var queued = new HeaderContentControl
+        {
+            HeaderContent = new Image(),
+            Content = "Body"
+        };
+        var oldHeader = queued.HeaderContentPresenter;
+        var trigger = new TreeMutationProbe();
+        var queuedPanel = new StackPanel();
+        queuedPanel.Add(trigger);
+        queuedPanel.Add(queued);
+        using var queuedWorkspace = new Workspace(queuedPanel);
+        trigger.Updating = () =>
+        {
+            queued.HeaderContent = null;
+            queued.HeaderContent = "Replacement";
+            check(oldHeader!.Parent is null && queued.HeaderContentPresenter!.Parent?.Parent == queued, "Traversal-time header changes reserve ownership immediately");
+            trigger.Updating = null;
+        };
+        queuedWorkspace.Update(idle, layout);
+        check(queued.HeaderContentPresenter is TextBlock replacement && replacement.Text == "Replacement" && replacement.Workspace == queuedWorkspace, "Queued clear and replacement commit the final header at the safe boundary");
+        check(queued.Children.Count == 2 && queued.ContentPresenter!.Workspace == queuedWorkspace, "Header replacement preserves the body without duplicating the private host");
+        queued.Remove(queued.HeaderContentPresenter!);
+        queuedWorkspace.Update(idle, layout);
+        check(queued.HeaderContent is null && queued.HeaderContentPresenter is null && queued.Children.Count == 1, "Removing header content empties its presenter while retaining the body");
     }
 }

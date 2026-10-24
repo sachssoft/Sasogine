@@ -88,7 +88,7 @@ public sealed class ControlsToolsPage : Grid
         settings.Add(new TextBlock { Text = "Sensitivity / click to type, drag to adjust" });
         settings.Add(new ValueTextBox { Minimum = 0, Maximum = 2, Step = .05f, Value = 1, Height = 36 });
         left.Add(new Expander { HeaderContent = new TextBlock { Text = "Settings / click to collapse" }, Content = settings });
-        left.Add(new GroupBox { Header = new TextBlock { Text = "Tip" }, Content = new TextBlock { Text = "Click: type. Drag: adjust. Arrows: hold to repeat." }, Padding = new Insets2(8) });
+        left.Add(new GroupBox { HeaderContent = new TextBlock { Text = "Tip" }, Content = new TextBlock { Text = "Click: type. Drag: adjust. Arrows: hold to repeat." }, Padding = new Insets2(8) });
         var languages = new ComboBox
         {
             Height = 36

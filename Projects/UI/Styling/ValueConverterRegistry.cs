@@ -37,6 +37,33 @@ public sealed class ValueConverterRegistry
     /// </summary>
     public ValueConverterRegistry()
     {
+        Register<SizeToContent>("SizeToContent", static text => text switch
+        {
+            "Manual" => SizeToContent.Manual,
+            "Width" => SizeToContent.Width,
+            "Height" => SizeToContent.Height,
+            "WidthAndHeight" => SizeToContent.WidthAndHeight,
+            _ => throw new FormatException("Unknown SizeToContent.")
+        }, static value => value switch
+        {
+            SizeToContent.Manual => "Manual",
+            SizeToContent.Width => "Width",
+            SizeToContent.Height => "Height",
+            SizeToContent.WidthAndHeight => "WidthAndHeight",
+            _ => throw new FormatException("Unknown SizeToContent.")
+        });
+        Register<CloseButtonPlacement>("CloseButtonPlacement", static text => text switch
+        {
+            "Left" => CloseButtonPlacement.Left,
+            "Right" => CloseButtonPlacement.Right,
+            _ => throw new FormatException("Unknown CloseButtonPlacement.")
+        }, static value => value switch
+        {
+            CloseButtonPlacement.Left => "Left",
+            CloseButtonPlacement.Right => "Right",
+            _ => throw new FormatException("Unknown CloseButtonPlacement.")
+        });
+
         Register<TabStripPlacement>("TabStripPlacement", static text => text switch
         {
             "Top" => TabStripPlacement.Top,

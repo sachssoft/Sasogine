@@ -10,6 +10,31 @@ namespace Sachssoft.Engine.Controls.Styling;
 /// </summary>
 public sealed class Style
 {
+    /// <summary>Gets or sets the dimensions fitted to content. Manual preserves configured dimensions; automatic axes ignore Width or Height without changing their stored values.</summary>
+    public SizeToContent SizeToContent
+    {
+        get => _values.TryGetValue("SizeToContent", out string? text) ? ShorthandConverters.Convert<SizeToContent>("SizeToContent", text) : Sachssoft.Engine.Controls.SizeToContent.Manual;
+        set => this["SizeToContent"] = ShorthandConverters.Format("SizeToContent", value);
+    }
+    /// <summary>Gets or sets the title-bar edge for the close button. The default is Right.</summary>
+    public CloseButtonPlacement CloseButtonPlacement
+    {
+        get => _values.TryGetValue("CloseButtonPlacement", out string? text) ? ShorthandConverters.Convert<CloseButtonPlacement>("CloseButtonPlacement", text) : Sachssoft.Engine.Controls.CloseButtonPlacement.Right;
+        set => this["CloseButtonPlacement"] = ShorthandConverters.Format("CloseButtonPlacement", value);
+    }
+    /// <summary>Gets or sets whether to display the close button. CanClose must also be true; hiding the button does not block programmatic closing.</summary>
+    public bool ShowCloseButton
+    {
+        get => _values.TryGetValue("ShowCloseButton", out string? text) ? ShorthandConverters.Convert<bool>("Boolean", text) : true;
+        set => this["ShowCloseButton"] = ShorthandConverters.Format("Boolean", value);
+    }
+    /// <summary>Gets or sets whether the visible close button accepts pointer input. False keeps a disabled button visible and does not block programmatic closing.</summary>
+    public bool IsCloseButtonEnabled
+    {
+        get => _values.TryGetValue("IsCloseButtonEnabled", out string? text) ? ShorthandConverters.Convert<bool>("Boolean", text) : true;
+        set => this["IsCloseButtonEnabled"] = ShorthandConverters.Format("Boolean", value);
+    }
+
     /// <summary>Gets or sets the header-strip edge; the default is Top.</summary>
     public TabStripPlacement TabStripPlacement
     {

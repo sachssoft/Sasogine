@@ -71,10 +71,10 @@ internal static class ControlTreeChecks
         check(scrolled.Parent is null && scroll.Children.Count == 2, "Clearing a ScrollViewer preserves its scrollbars");
         var group = new GroupBox
         {
-            Header = scrolled
+            HeaderContent = scrolled
         };
         Reject<InvalidOperationException>(() => group.Content = scrolled, check, "Header and content cannot own the same instance");
-        group.Header = null;
+        group.HeaderContent = null;
         group.Content = scrolled;
         check(scrolled.Parent == group && group.Children.Count == 1, "A control can move between slots after release");
         var collapsed = new Expander
