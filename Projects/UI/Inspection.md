@@ -2,6 +2,8 @@
 
 Namespace: `Sachssoft.Engine.Controls.Inspection`.
 
+The default `InspectorView` style stretches its content horizontally and anchors it at the top. Collapsing or expanding groups preserves the full available row width, including nested groups and changes in scrollbar visibility.
+
 `InspectorView` is a reusable content host for explicitly described properties. `AddGroup` creates an `InspectorGroup`, which uses the existing `Expander`. Further calls on `group.Fields` produce nested definition groups. Place an inspector inside a `ScrollViewer` when necessary.
 
 ```csharp
@@ -34,3 +36,5 @@ When a source implements `INotifyPropertyChanged`, supply the source and propert
 The built-in registry includes `InspectorView`. Generic collection controls require explicit construction with their data source and factory. There is no runtime type discovery. A working entity/definition example is provided in `Examples/Advanced.08.LogoInspector`.
 
 The complete default value catalog is documented in [Inspection.ValueTypes.md](Inspection.ValueTypes.md). `inspector.Add(title, read, write, source, propertyName)` selects a factory using the explicitly bound value type. It supports precise numeric composites, grouped bounds/boxes/insets and custom typed registration.
+
+`LabelInlineMinWidth` sets the minimum available property-row width for placing the label beside its editor (default: `420` logical pixels). Below it, the label appears above the editor; `0` always keeps labels inline. For example: `inspector.LabelInlineMinWidth = 300;`. Nested inspectors inherit the value unless overridden locally or through a style. Resetting a local override restores its style or inherited value. Long label text may still wrap within the label column.

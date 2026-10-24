@@ -1,5 +1,5 @@
 {
-  "files": 347,
+  "files": 349,
   "rule": "One named type per matching file; no nested or partial declarations",
   "checked": [
     "Examples/Advanced.01.Editor/EditorApplication.cs",
@@ -318,6 +318,7 @@
     "Projects/UI/Validation/HudValueProbe.cs",
     "Projects/UI/Validation/IconValueDisplayChecks.cs",
     "Projects/UI/Validation/InspectorFieldLayoutTests.cs",
+    "Projects/UI/Validation/InspectorStretchChecks.cs",
     "Projects/UI/Validation/InspectorViewContractDefinition.cs",
     "Projects/UI/Validation/InspectorViewContractDescription.cs",
     "Projects/UI/Validation/InspectorViewContractTests.cs",
@@ -334,6 +335,7 @@
     "Projects/UI/Validation/Renderer/SceneViewportRenderTests.cs",
     "Projects/UI/Validation/SceneViewportTestColorSource.cs",
     "Projects/UI/Validation/SceneViewportTests.cs",
+    "Projects/UI/Validation/ScrollViewerSwipeChecks.cs",
     "Projects/UI/Validation/SwitchChecks.cs",
     "Projects/UI/Validation/TabPlacementChecks.cs",
     "Projects/UI/Validation/TestFont.cs",

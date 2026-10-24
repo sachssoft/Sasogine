@@ -34,7 +34,7 @@ public readonly record struct GridLength
     public static GridLength Auto => new(0, GridUnitType.Auto);
 
     /// <summary>
-    /// ???
+    /// Gets a proportional length with weight one, filling the remaining space when used alone.
     /// </summary>
     public static GridLength Full => Proportion();
 

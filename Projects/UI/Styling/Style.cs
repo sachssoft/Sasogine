@@ -10,6 +10,20 @@ namespace Sachssoft.Engine.Controls.Styling;
 /// </summary>
 public sealed class Style
 {
+    /// <summary>Gets or sets a status strip's fixed, automatic or proportional slot length. Defaults to Auto.</summary>
+    public GridLength Length
+    {
+        get => _values.TryGetValue(nameof(Length), out string? text) ? ShorthandConverters.Convert<GridLength>("GridLength", text) : GridLength.Auto;
+        set => this[nameof(Length)] = ShorthandConverters.Format("GridLength", value);
+    }
+
+    /// <summary>Gets or sets the minimum logical inspector row width for inline labels. Defaults to 420.</summary>
+    public float LabelInlineMinWidth
+    {
+        get => _values.TryGetValue(nameof(LabelInlineMinWidth), out string? text) ? ShorthandConverters.Convert<float>("Single", text) : 420;
+        set => this[nameof(LabelInlineMinWidth)] = ShorthandConverters.Format("Single", value);
+    }
+
     /// <summary>Gets or sets whether touch swiping and optional mouse dragging can scroll the viewport. Defaults to true.</summary>
     public bool IsSwipeEnabled
     {

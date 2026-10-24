@@ -1597,6 +1597,7 @@ internal static class Program
             Run("Scene viewport layout and deferred color picking", () => _checks += SceneViewportTests.Run());
             Run("Central font families, inheritance and adapter cache", () => _checks += FontControlChecks.Run());
             Run("UI-independent inspector view contract", () => _checks += InspectorViewContractTests.Run());
+            Run("Inspector groups remain full width when collapsed or expanded", () => InspectorStretchChecks.Run(Check, Layout));
             Run("Responsive inspector property rows", () => _checks += InspectorFieldLayoutTests.Run());
             if (args.Length == 2 && args[0] == "--font")
                 Run("Real engine font metrics", () =>

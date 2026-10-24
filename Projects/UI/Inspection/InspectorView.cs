@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using Sachssoft.Engine.Components.Definitions.Inspectors;
 
 namespace Sachssoft.Engine.Controls.Inspection;
@@ -7,6 +7,9 @@ namespace Sachssoft.Engine.Controls.Inspection;
 /// </summary>
 public sealed class InspectorView : ContentControl, IInspectorView
 {
+    /// <summary>Caches the effective label layout threshold notification.</summary>
+    private static readonly PropertyChangedEventArgs LabelInlineMinWidthArgs = new(nameof(LabelInlineMinWidth));
+
     private readonly Dictionary<string, InspectorGroup> _namedGroups = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Control> _namedEditors = new(StringComparer.Ordinal);
     private readonly List<IInspectorBinding> _bindings = new();
@@ -16,6 +19,12 @@ public sealed class InspectorView : ContentControl, IInspectorView
     {
         Spacing = 8
     };
+    /// <summary>Stores an optional style or local threshold; null inherits the containing inspector.</summary>
+    private StyleProperty<float?> _labelInlineMinWidth = new(null);
+
+    /// <summary>Caches the inherited or explicitly configured logical row width threshold.</summary>
+    private float _effectiveLabelInlineMinWidth = 420;
+
     private bool? _localShowPropertyMenus;
     private bool _showPropertyMenus = true;
     private static readonly PropertyChangedEventArgs ShowPropertyMenusArgs = new(nameof(ShowPropertyMenus));
@@ -78,6 +87,26 @@ public sealed class InspectorView : ContentControl, IInspectorView
     {
         _editors = editors;
         Content = _fields;
+    }
+
+    /// <inheritdoc/>
+    protected override string DefaultStyleName => nameof(InspectorView);
+
+    /// <summary>
+    /// Gets or sets the minimum available property-row width for placing its label beside the editor.
+    /// Below this logical width the label appears above the editor. Defaults to 420 and inherits
+    /// from the containing inspector unless overridden locally or through a style. Zero always uses inline labels.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The value is negative or non-finite.</exception>
+    public float LabelInlineMinWidth
+    {
+        get => _effectiveLabelInlineMinWidth;
+        set
+        {
+            ValidateLabelInlineMinWidth(value);
+            if (_labelInlineMinWidth.SetLocal(value))
+                RefreshLabelLayout();
+        }
     }
 
     /// <summary>
@@ -200,7 +229,7 @@ public sealed class InspectorView : ContentControl, IInspectorView
     private void AddFieldCore(string title, Control editor, IInspectorPropertyActions? actions)
     {
         var menu = new InspectorPropertyMenu(this, editor, actions);
-        var row = new InspectorFieldRow(title, editor, menu);
+        var row = new InspectorFieldRow(this, title, editor, menu);
         menu.SetMenuVisible(ShowPropertyMenus);
         _propertyMenus.Add(editor, menu);
         Add(row);
@@ -457,11 +486,90 @@ public sealed class InspectorView : ContentControl, IInspectorView
         return editor;
     }
 
+    /// <summary>Rejects thresholds that cannot be used by layout.</summary>
+    /// <param name="value">The minimum logical row width.</param>
+    private static void ValidateLabelInlineMinWidth(float value)
+    {
+        if (!float.IsFinite(value) || value < 0)
+            throw new ArgumentOutOfRangeException(nameof(value), "The threshold must be finite and nonnegative.");
+    }
+
+    /// <summary>Refreshes inherited thresholds and invalidates only affected property rows.</summary>
+    private void RefreshLabelLayout()
+    {
+        float inherited = 420;
+        for (Control? parent = Parent; parent is not null; parent = parent.Parent)
+            if (parent is InspectorView inspector)
+            {
+                inherited = inspector.LabelInlineMinWidth;
+                break;
+            }
+        float threshold = _labelInlineMinWidth.Value ?? inherited;
+        if (SetNotify(ref _effectiveLabelInlineMinWidth, threshold, LabelInlineMinWidthArgs))
+            foreach (Control child in _fields.Children)
+                if (child is InspectorFieldRow)
+                    child.InvalidateMeasure();
+        RefreshNestedLabelLayout(_fields);
+    }
+
+    /// <summary>Updates nested inspectors without traversing their content twice.</summary>
+    /// <param name="control">The subtree that may contain nested inspectors.</param>
+    private static void RefreshNestedLabelLayout(Control control)
+    {
+        if (control is InspectorView inspector)
+            inspector.RefreshLabelLayout();
+        else if (control is ContainerControl container)
+            foreach (Control child in container.Children)
+                RefreshNestedLabelLayout(child);
+    }
+
+    /// <inheritdoc/>
+    public override void ApplyStyle(Style style)
+    {
+        base.ApplyStyle(style);
+        if (style.Values.TryGetValue(nameof(LabelInlineMinWidth), out string? text))
+        {
+            float value = Converters.Convert<float>("Single", text);
+            ValidateLabelInlineMinWidth(value);
+            if (_labelInlineMinWidth.Apply(value))
+                RefreshLabelLayout();
+        }
+    }
+
+    /// <inheritdoc/>
+    internal override bool IsStyleLocal(string property) => property == nameof(LabelInlineMinWidth)
+        ? _labelInlineMinWidth.HasLocalValue : base.IsStyleLocal(property);
+
+    /// <inheritdoc/>
+    public override void ResetStyleProperty(string property)
+    {
+        if (property != nameof(LabelInlineMinWidth))
+            base.ResetStyleProperty(property);
+        else if (_labelInlineMinWidth.ClearLocal())
+            RefreshLabelLayout();
+    }
+
+    /// <inheritdoc/>
+    protected override void ResetStyledValues()
+    {
+        base.ResetStyledValues();
+        _labelInlineMinWidth.BeginStyle(null);
+    }
+
+    /// <inheritdoc/>
+    protected override void CommitStyledValues()
+    {
+        base.CommitStyledValues();
+        _labelInlineMinWidth.CommitStyle();
+        RefreshLabelLayout();
+    }
+
     /// <inheritdoc/>
     protected override void OnAttached()
     {
         base.OnAttached();
         RefreshPropertyMenuVisibility();
+        RefreshLabelLayout();
         foreach (IInspectorBinding binding in _bindings)
         {
             binding.Connect();

@@ -33,6 +33,7 @@ internal static class BarControlChecks
 
     internal static void Run(Action<bool, string> check, ControlLayoutContext layout)
     {
+        CheckLengths(check, layout);
         var frame = new ControlInputFrame(new Size2(140, 200), TimeSpan.Zero);
         var toolbar = new ToolBar
         {
@@ -205,4 +206,67 @@ internal static class BarControlChecks
             toolbarRoot.Update(frame, layout);
         check(GC.GetAllocatedBytesForCurrentThread() == before, "Unchanged toolbar updates must allocate zero bytes");
     }
+    /// <summary>Checks status strip slot distribution, resizing, styles, orientation and retained layout costs.</summary>
+    /// <param name="check">The assertion callback.</param>
+    /// <param name="layout">The test layout context.</param>
+    private static void CheckLengths(Action<bool, string> check, ControlLayoutContext layout)
+    {
+        var bar = new StatusBar { Padding = Insets2.Zero, Spacing = 5 };
+        StatusStrip Strip(float width) => new()
+        {
+            Padding = Insets2.Zero,
+            Content = new TextBlock { Width = width, Height = 20, Padding = Insets2.Zero }
+        };
+        var automatic = Strip(80);
+        var fixedStrip = Strip(10);
+        var first = Strip(30);
+        var second = Strip(40);
+        bar.Add(automatic);
+        bar.Add(fixedStrip, 100);
+        bar.Add(first, GridLength.Full);
+        bar.Add(second, GridLength.Proportion(2));
+        using var workspace = new Workspace(bar);
+        var frame = new ControlInputFrame(new Size2(600, 80), TimeSpan.Zero);
+        workspace.Update(frame, layout);
+        check(automatic.Bounds.Width == 80 && fixedStrip.Bounds.Width == 100, "Auto uses content width and pixels reserve an exact slot");
+        check(first.Bounds.Width == 135 && second.Bounds.Width == 270 && second.Bounds.Right == 600,
+            "Proportions split the remaining space after content, fixed lengths and gaps");
+        first.Length = GridLength.Proportion(2);
+        workspace.Update(frame, layout);
+        check(first.Bounds.Width == 202.5f && second.Bounds.Width == 202.5f, "Changing a strip length invalidates cached parent layout");
+        automatic.IsVisible = false;
+        workspace.Update(frame, layout);
+        check(first.Bounds.Width == 245 && second.Bounds.Right == 600, "Hidden strips release their slot and adjacent gap");
+        automatic.IsVisible = true;
+        first.Length = GridLength.Full;
+        workspace.Update(new ControlInputFrame(new Size2(100, 80), TimeSpan.Zero), layout);
+        check(first.Bounds.Width == 0 && second.Bounds.Width == 0, "Insufficient remaining space never produces negative proportional slots");
+        bar.Orientation = StackOrientation.Vertical;
+        workspace.Update(new ControlInputFrame(new Size2(80, 600), TimeSpan.Zero), layout);
+        check(automatic.Bounds.Height == 20 && fixedStrip.Bounds.Height == 100 && first.Bounds.Height == 155 && second.Bounds.Height == 310,
+            "Vertical orientation distributes lengths along height");
+        bar.Orientation = StackOrientation.Horizontal;
+        bar.Measure(layout, new Size2(float.PositiveInfinity, 80));
+        check(bar.DesiredSize.Width == 265, "Unbounded proportional measurement falls back to content sizing");
+        first.Length = GridLength.Proportion(0);
+        second.Length = GridLength.Proportion(0);
+        workspace.Update(frame, layout);
+        check(first.Bounds.Width == 0 && second.Bounds.Width == 0, "Zero proportional weights do not divide by zero");
+        Reject<InvalidOperationException>(() => bar.Add(first, 99), check, "Duplicate addition still enforces ownership");
+        check(first.Length == GridLength.Proportion(0), "Failed addition preserves the strip's existing length");
+        Reject<ArgumentNullException>(() => bar.Add((StatusStrip)null!, 50), check, "Convenience addition rejects null");
+        var style = new Sachssoft.Engine.Controls.Styling.Style { Length = 70 };
+        first.ApplyStyle(style);
+        check(first.Length == GridLength.Proportion(0), "Local lengths override styles");
+        first.ResetStyleProperty(nameof(StatusStrip.Length));
+        workspace.Update(frame, layout);
+        check(first.Bounds.Width == 70, "Reset restores the current style length and updates layout");
+        first.Length = GridLength.Full;
+        second.Length = GridLength.Proportion(2);
+        for (int i = 0; i < 100; i++) workspace.Update(frame, layout);
+        long before = GC.GetAllocatedBytesForCurrentThread();
+        for (int i = 0; i < 1000; i++) workspace.Update(frame, layout);
+        check(GC.GetAllocatedBytesForCurrentThread() == before, "Unchanged status bar updates allocate zero bytes");
+    }
+
 }

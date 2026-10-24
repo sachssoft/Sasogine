@@ -228,6 +228,7 @@ public sealed class UIRegistry
         styles.Register("TabControl.Header", new Style { BasedOn = "ToggleButton", Height = 38, Padding = new Insets2(14, 6) });
         styles.Register("DataTable", new Style { BasedOn = "ListBox", HeaderHeight = 34, BorderColor = new Color(43, 57, 76), MinHeight = 80 });
         styles.Register("ContentControl", new Style { BasedOn = "Control" });
+        styles.Register("InspectorView", new Style { BasedOn = "ContentControl", ContentHorizontalAlignment = ControlAlignment.Stretch, ContentVerticalAlignment = ControlAlignment.Start });
         styles.Register("Image", new Style { BasedOn = "Control" });
         styles["Control"].FocusColor = new Color(65, 199, 223);
         styles.Register("ToggleButton", new Style { BasedOn = "Button" });
