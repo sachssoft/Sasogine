@@ -2,10 +2,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using TabPlacement = Sachssoft.Engine.Controls.TabStripPlacement;
 
 namespace Sachssoft.Engine.Controls;
 /// <summary>
-/// Arbitrary page/header content, keyboard navigation and horizontally scrolling headers.
+/// Presents arbitrary pages with a scrollable header strip on any edge and keyboard navigation.
 /// </summary>
 public class TabControl : ContainerControl
 {
@@ -25,7 +26,8 @@ public class TabControl : ContainerControl
     private TabItem? _active;
     private ChangeTracker<int> _selection;
     private ChangeTracker<float> _headerHeight;
-    private float _actualHeaderHeight;
+    private float _actualHeaderExtent;
+    private ControlLayoutContext? _layoutContext;
     private Bounds2 _body;
     /// <summary>
     /// Creates a tab host.
@@ -96,6 +98,40 @@ public class TabControl : ContainerControl
     /// </summary>
     public ScrollViewer HeaderScrollViewer => _headerView;
 
+    private StyleProperty<TabPlacement> _styleTabStripPlacement = new(TabPlacement.Top);
+    private static readonly System.ComponentModel.PropertyChangedEventArgs TabStripPlacementArgs = new(nameof(TabStripPlacement));
+    /// <summary>Gets or sets the edge containing the header strip. The default is Top; changing it preserves the selected page.</summary>
+    /// <exception cref = "ArgumentOutOfRangeException">The value is not a supported edge.</exception>
+    public TabPlacement TabStripPlacement
+    {
+        get => _styleTabStripPlacement.Value;
+        set
+        {
+            VerifyTreeMutation();
+            if (value is not (TabPlacement.Top or TabPlacement.Left or TabPlacement.Bottom or TabPlacement.Right))
+                throw new ArgumentOutOfRangeException(nameof(value));
+            if (_styleTabStripPlacement.SetLocal(value))
+                NotifyPropertyChanged(TabStripPlacementArgs);
+        }
+    }
+
+    private StyleProperty<float> _styleHeaderWidth = new(160f);
+    private static readonly System.ComponentModel.PropertyChangedEventArgs HeaderWidthArgs = new(nameof(HeaderWidth));
+    /// <summary>Gets or sets the logical header width for Left and Right placement, excluding the scrollbar. Defaults to 160.</summary>
+    /// <exception cref = "ArgumentOutOfRangeException">The width is not finite or is less than one.</exception>
+    public float HeaderWidth
+    {
+        get => _styleHeaderWidth.Value;
+        set
+        {
+            VerifyTreeMutation();
+            if (!float.IsFinite(value) || value < 1)
+                throw new ArgumentOutOfRangeException(nameof(value));
+            if (_styleHeaderWidth.SetLocal(value))
+                NotifyPropertyChanged(HeaderWidthArgs);
+        }
+    }
+
     /// <summary>
     /// Occurs after selected content has changed at a layout boundary.
     /// </summary>
@@ -104,9 +140,22 @@ public class TabControl : ContainerControl
     protected override string DefaultStyleName => "TabControl";
 
     internal override Bounds2 GetChildClip(Control child) => child == _headerView ? ContentBounds : _body;
+    private bool VerticalHeaders => TabStripPlacement is TabPlacement.Left or TabPlacement.Right;
+
     internal override void Prepare()
     {
         base.Prepare();
+        StackOrientation orientation = VerticalHeaders ? StackOrientation.Vertical : StackOrientation.Horizontal;
+        if (_headers.Orientation != orientation)
+        {
+            _headers.Orientation = orientation;
+            _headerView.HorizontalScrollBar.Value = 0;
+            _headerView.VerticalScrollBar.Value = 0;
+        }
+
+        _headerView.HorizontalScrollBarVisibility = VerticalHeaders ? ScrollBarVisibility.Hidden : ScrollBarVisibility.Auto;
+        _headerView.VerticalScrollBarVisibility = VerticalHeaders ? ScrollBarVisibility.Auto : ScrollBarVisibility.Hidden;
+        _headerView.ScrollBarThickness = ConfigScrollBarThickness;
         bool rebuild = _known.Count != Items.Count;
         if (!rebuild)
             for (int i = 0; i < Items.Count; i++)
@@ -180,33 +229,69 @@ public class TabControl : ContainerControl
     /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
+        _layoutContext = context;
         _headerHeight.EnsureChange(ConfigHeaderHeight);
         if (!float.IsFinite(_headerHeight.NewValue) || _headerHeight.NewValue < 1)
             throw new InvalidOperationException("Invalid tab header height.");
+        if (!float.IsFinite(HeaderWidth) || HeaderWidth < 1 || !float.IsFinite(ConfigScrollBarThickness) || ConfigScrollBarThickness <= 0 || TabStripPlacement is not (TabPlacement.Top or TabPlacement.Left or TabPlacement.Bottom or TabPlacement.Right))
+            throw new InvalidOperationException("Invalid tab strip placement, width or scrollbar thickness.");
+        if (VerticalHeaders)
+        {
+            _headers.Measure(context, new Size2(HeaderWidth, float.PositiveInfinity));
+            bool verticalOverflow = _headers.DesiredSize.Height > available.Height;
+            _actualHeaderExtent = HeaderWidth + (verticalOverflow ? ConfigScrollBarThickness : 0);
+            _headerView.Measure(context, new Size2(_actualHeaderExtent, available.Height));
+            _active?.Measure(context, new Size2(MathF.Max(0, available.Width - _actualHeaderExtent), available.Height));
+            return new Size2(_actualHeaderExtent + (_active?.DesiredSize.Width ?? 0), MathF.Max(_headerView.DesiredSize.Height, _active?.DesiredSize.Height ?? 0));
+        }
+
         _headers.Measure(context, new Size2(float.PositiveInfinity, _headerHeight.NewValue));
         bool overflow = _headers.DesiredSize.Width > available.Width;
-        _actualHeaderHeight = _headerHeight.NewValue + (overflow ? ConfigScrollBarThickness : 0);
-        _headerView.Measure(context, new Size2(available.Width, _actualHeaderHeight));
-        _active?.Measure(context, new Size2(available.Width, MathF.Max(0, available.Height - _actualHeaderHeight)));
-        return new Size2(MathF.Max(_headerView.DesiredSize.Width, _active?.DesiredSize.Width ?? 0), _actualHeaderHeight + (_active?.DesiredSize.Height ?? 0));
+        _actualHeaderExtent = _headerHeight.NewValue + (overflow ? ConfigScrollBarThickness : 0);
+        _headerView.Measure(context, new Size2(available.Width, _actualHeaderExtent));
+        _active?.Measure(context, new Size2(available.Width, MathF.Max(0, available.Height - _actualHeaderExtent)));
+        return new Size2(MathF.Max(_headerView.DesiredSize.Width, _active?.DesiredSize.Width ?? 0), _actualHeaderExtent + (_active?.DesiredSize.Height ?? 0));
     }
 
     /// <inheritdoc/>
     protected override void ArrangeOverride(Bounds2 bounds)
     {
-        float h = MathF.Min(bounds.Height, _actualHeaderHeight);
-        _headerView.Arrange(new Bounds2(bounds.X, bounds.Y, bounds.Width, h), true);
-        _body = new Bounds2(bounds.X, bounds.Y + h, bounds.Width, MathF.Max(0, bounds.Height - h));
+        if (VerticalHeaders)
+        {
+            _actualHeaderExtent = HeaderWidth + (_headers.DesiredSize.Height > bounds.Height ? ConfigScrollBarThickness : 0);
+            float width = MathF.Min(bounds.Width, _actualHeaderExtent);
+            bool right = TabStripPlacement == TabPlacement.Right;
+            if (_layoutContext is not null)
+                _headerView.Measure(_layoutContext, new Size2(width, bounds.Height));
+            _headerView.Arrange(new Bounds2(right ? bounds.Right - width : bounds.X, bounds.Y, width, bounds.Height), true);
+            _body = new Bounds2(right ? bounds.X : bounds.X + width, bounds.Y, MathF.Max(0, bounds.Width - width), bounds.Height);
+        }
+        else
+        {
+            _actualHeaderExtent = ConfigHeaderHeight + (_headers.DesiredSize.Width > bounds.Width ? ConfigScrollBarThickness : 0);
+            float height = MathF.Min(bounds.Height, _actualHeaderExtent);
+            bool bottom = TabStripPlacement == TabPlacement.Bottom;
+            if (_layoutContext is not null)
+                _headerView.Measure(_layoutContext, new Size2(bounds.Width, height));
+            _headerView.Arrange(new Bounds2(bounds.X, bottom ? bounds.Bottom - height : bounds.Y, bounds.Width, height), true);
+            _body = new Bounds2(bounds.X, bottom ? bounds.Y : bounds.Y + height, bounds.Width, MathF.Max(0, bounds.Height - height));
+        }
+
+        if (_layoutContext is not null)
+            _active?.Measure(_layoutContext, new Size2(_body.Width, _body.Height));
         _active?.Arrange(_body, true);
         int selected = SelectedIndex;
         if (selected >= 0 && selected < _buttons.Count)
         {
             Control header = _buttons[selected];
-            float logical = header.Bounds.X - _headers.Bounds.X;
-            if (logical < _headerView.HorizontalScrollBar.Value)
-                _headerView.HorizontalScrollBar.Value = logical;
-            else if (logical + header.Bounds.Width > _headerView.HorizontalScrollBar.Value + _headerView.ViewportBounds.Width)
-                _headerView.HorizontalScrollBar.Value = logical + header.Bounds.Width - _headerView.ViewportBounds.Width;
+            ScrollBar bar = VerticalHeaders ? _headerView.VerticalScrollBar : _headerView.HorizontalScrollBar;
+            float logical = VerticalHeaders ? header.Bounds.Y - _headers.Bounds.Y : header.Bounds.X - _headers.Bounds.X;
+            float extent = VerticalHeaders ? header.Bounds.Height : header.Bounds.Width;
+            float viewport = VerticalHeaders ? _headerView.ViewportBounds.Height : _headerView.ViewportBounds.Width;
+            if (logical < bar.Value)
+                bar.Value = logical;
+            else if (logical + extent > bar.Value + viewport)
+                bar.Value = logical + extent - viewport;
         }
     }
 
@@ -217,7 +302,9 @@ public class TabControl : ContainerControl
         if (e.Type != ControlInputEventType.KeyDown || Items.Count == 0)
             return;
         bool inHeader = Workspace?.FocusedControl is Control focus && _buttons.Contains(focus as ToggleButton ?? null!);
-        int direction = e.Control && e.Key == Keys.Tab ? (e.Shift ? -1 : 1) : inHeader && e.Key == Keys.Left ? -1 : inHeader && e.Key == Keys.Right ? 1 : 0;
+        Keys previousKey = VerticalHeaders ? Keys.Up : Keys.Left;
+        Keys nextKey = VerticalHeaders ? Keys.Down : Keys.Right;
+        int direction = e.Control && e.Key == Keys.Tab ? (e.Shift ? -1 : 1) : inHeader && e.Key == previousKey ? -1 : inHeader && e.Key == nextKey ? 1 : 0;
         if (direction == 0 && !(inHeader && e.Key is Keys.Home or Keys.End))
             return;
         int next = e.Key == Keys.Home ? 0 : e.Key == Keys.End ? Items.Count - 1 : SelectedIndex;
@@ -254,11 +341,7 @@ public class TabControl : ContainerControl
     /// <summary>
     /// Gets or sets ScrollBarThickness; a local assignment overrides the style.
     /// </summary>
-    public  float ScrollBarThickness
-    {
-        get => ConfigScrollBarThickness;
-        set => ConfigScrollBarThickness = value;
-    }
+    public float ScrollBarThickness { get => ConfigScrollBarThickness; set => ConfigScrollBarThickness = value; }
 
     private StyleProperty<int> _styleSelectedIndex = new(-1);
     private static readonly System.ComponentModel.PropertyChangedEventArgs SelectedIndexChangedArgs = new(nameof(SelectedIndex));
@@ -285,7 +368,7 @@ public class TabControl : ContainerControl
     }
 
     /// <summary>
-    /// Gets or sets HeaderHeight; a local assignment overrides the style.
+    /// Gets or sets the logical height of each tab header for all placements; a local assignment overrides the style.
     /// </summary>
     public float HeaderHeight { get => ConfigHeaderHeight; set => ConfigHeaderHeight = value; }
 
@@ -302,6 +385,14 @@ public class TabControl : ContainerControl
         {
             switch (entry.Key)
             {
+                case "TabStripPlacement":
+                    if (_styleTabStripPlacement.Apply(Converters.Convert<TabPlacement>("TabStripPlacement", entry.Value)))
+                        NotifyPropertyChanged(TabStripPlacementArgs);
+                    break;
+                case "HeaderWidth":
+                    if (_styleHeaderWidth.Apply(Converters.Convert<float>("Single", entry.Value)))
+                        NotifyPropertyChanged(HeaderWidthArgs);
+                    break;
                 case "ScrollBarThickness":
                     if (_styleScrollBarThickness.Apply(Converters.Convert<float>("Single", entry.Value)))
                         NotifyPropertyChanged(ScrollBarThicknessChangedArgs);
@@ -322,6 +413,10 @@ public class TabControl : ContainerControl
     {
         switch (property)
         {
+            case "TabStripPlacement":
+                return _styleTabStripPlacement.HasLocalValue;
+            case "HeaderWidth":
+                return _styleHeaderWidth.HasLocalValue;
             case "ScrollBarThickness":
                 return _styleScrollBarThickness.HasLocalValue;
             case "SelectedIndex":
@@ -340,6 +435,14 @@ public class TabControl : ContainerControl
     {
         switch (property)
         {
+            case "TabStripPlacement":
+                if (_styleTabStripPlacement.ClearLocal())
+                    NotifyPropertyChanged(TabStripPlacementArgs);
+                return;
+            case "HeaderWidth":
+                if (_styleHeaderWidth.ClearLocal())
+                    NotifyPropertyChanged(HeaderWidthArgs);
+                return;
             case "ScrollBarThickness":
                 if (_styleScrollBarThickness.ClearLocal())
                     NotifyPropertyChanged(ScrollBarThicknessChangedArgs);
@@ -362,6 +465,10 @@ public class TabControl : ContainerControl
     protected override void ResetStyledValues()
     {
         base.ResetStyledValues();
+        if (_styleTabStripPlacement.BeginStyle(TabPlacement.Top))
+            NotifyPropertyChanged(TabStripPlacementArgs);
+        if (_styleHeaderWidth.BeginStyle(160f))
+            NotifyPropertyChanged(HeaderWidthArgs);
         if (_styleScrollBarThickness.BeginStyle(20f))
             NotifyPropertyChanged(ScrollBarThicknessChangedArgs);
         if (_styleSelectedIndex.BeginStyle(-1))
@@ -376,6 +483,10 @@ public class TabControl : ContainerControl
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();
+        if (_styleTabStripPlacement.CommitStyle())
+            NotifyPropertyChanged(TabStripPlacementArgs);
+        if (_styleHeaderWidth.CommitStyle())
+            NotifyPropertyChanged(HeaderWidthArgs);
         if (_styleScrollBarThickness.CommitStyle())
             NotifyPropertyChanged(ScrollBarThicknessChangedArgs);
         if (_styleSelectedIndex.CommitStyle())

@@ -146,6 +146,7 @@ public sealed class UIRegistry
         Register("ContentControl", static () => new ContentControl());
         Register("Image", static () => new Image());
         Register("ToggleButton", static () => new ToggleButton());
+        Register("Switch", static () => new Switch());
         Register("CheckBox", static () => new CheckBox());
         Register("RadioButton", static () => new RadioButton());
         Register("SelectorButton", static () => new SelectorButton());
@@ -219,6 +220,7 @@ public sealed class UIRegistry
         styles.Register("Image", new Style { BasedOn = "Control" });
         styles["Control"].FocusColor = new Color(65, 199, 223);
         styles.Register("ToggleButton", new Style { BasedOn = "Button" });
+        styles.Register("Switch", new Style { BasedOn = "ToggleButton", IsFocusable = true, MinWidth = 52, MinHeight = 44, Padding = Insets2.Zero, ContentHorizontalAlignment = ControlAlignment.Start, Background = new Color(75, 85, 100), PressedBackground = new Color(65, 199, 223), DisabledBackground = new Color(50, 57, 67) });
         styles.Register("CheckBox", new Style { BasedOn = "ToggleButton", IsFocusable = true, Padding = Insets2.Zero, ContentHorizontalAlignment = ControlAlignment.Start });
         styles.Register("RadioButton", new Style { BasedOn = "CheckBox", IsFocusable = true, ContentHorizontalAlignment = ControlAlignment.Start });
         styles.Register("SelectorButton", new Style { BasedOn = "ToggleButton" });

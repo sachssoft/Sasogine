@@ -167,6 +167,8 @@
     <Region key="joystick_thumb_hover" frame="radio_checked_hover" mode="Stretch" slice="0,0,0,0" />
     <Region key="joystick_thumb_pressed" frame="radio_checked_pressed" mode="Stretch" slice="0,0,0,0" />
     <Region key="joystick_thumb_disabled" frame="radio_checked_disabled" mode="Stretch" slice="0,0,0,0" />
+    <Region key="switch_track" frame="radio_unchecked_normal" mode="NineSlice" slice="9,9,9,9" />
+    <Region key="switch_thumb" frame="radio_unchecked_normal" mode="Stretch" slice="0,0,0,0" />
   </Regions>
   <Styles>
     <Style key="Control">
@@ -836,6 +838,39 @@
       <Value property="Padding" value="6,2" />
       <Value property="ContentHorizontalAlignment" value="Start" />
       <Value property="ContentVerticalAlignment" value="Center" />
+    </Style>
+    <Style key="Switch" basedOn="Control">
+      <Value property="Padding" value="0,0,0,0" />
+      <Value property="MinWidth" value="52" />
+      <Value property="MinHeight" value="44" />
+      <Value property="TrackSize" value="52,28" />
+      <Value property="ThumbSize" value="24" />
+      <Value property="TextSpacing" value="10" />
+      <Value property="ContentHorizontalAlignment" value="Start" />
+      <Value property="Background" value="border" />
+      <Value property="PressedBackground" value="accent" />
+      <Value property="DisabledBackground" value="raised" />
+      <Value property="ThumbColor" value="#FFFFFF" />
+      <Part name="Track">
+        <State name="Unchecked.Normal" region="switch_track" />
+        <State name="Unchecked.Hover" region="switch_track" />
+        <State name="Unchecked.Pressed" region="switch_track" />
+        <State name="Unchecked.Disabled" region="switch_track" />
+        <State name="Checked.Normal" region="switch_track" />
+        <State name="Checked.Hover" region="switch_track" />
+        <State name="Checked.Pressed" region="switch_track" />
+        <State name="Checked.Disabled" region="switch_track" />
+      </Part>
+      <Part name="Thumb">
+        <State name="Unchecked.Normal" region="switch_thumb" />
+        <State name="Unchecked.Hover" region="switch_thumb" />
+        <State name="Unchecked.Pressed" region="switch_thumb" />
+        <State name="Unchecked.Disabled" region="switch_thumb" />
+        <State name="Checked.Normal" region="switch_thumb" />
+        <State name="Checked.Hover" region="switch_thumb" />
+        <State name="Checked.Pressed" region="switch_thumb" />
+        <State name="Checked.Disabled" region="switch_thumb" />
+      </Part>
     </Style>
   </Styles>
 </UiSkin>

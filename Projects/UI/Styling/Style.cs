@@ -10,6 +10,19 @@ namespace Sachssoft.Engine.Controls.Styling;
 /// </summary>
 public sealed class Style
 {
+    /// <summary>Gets or sets the header-strip edge; the default is Top.</summary>
+    public TabStripPlacement TabStripPlacement
+    {
+        get => _values.TryGetValue("TabStripPlacement", out string? text) ? ShorthandConverters.Convert<TabStripPlacement>("TabStripPlacement", text) : Sachssoft.Engine.Controls.TabStripPlacement.Top;
+        set => this["TabStripPlacement"] = ShorthandConverters.Format("TabStripPlacement", value);
+    }
+
+    /// <summary>Gets or sets the logical width of a left or right tab strip, excluding its scrollbar. Defaults to 160.</summary>
+    public float HeaderWidth
+    {
+        get => _values.TryGetValue("HeaderWidth", out string? text) ? ShorthandConverters.Convert<float>("Single", text) : 160f;
+        set => this["HeaderWidth"] = ShorthandConverters.Format("Single", value);
+    }
     /// <summary>
     /// Gets or sets the requested family; null inherits from the parent.
     /// </summary>

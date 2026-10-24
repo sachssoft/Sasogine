@@ -218,6 +218,8 @@ internal static class Program
             });
             Run("Immediate control ownership, atomic transfers and deferred traversal", () => ControlTreeChecks.Run(Check, Layout));
             Run("Object content, stable text presenters and atomic ownership", () => ContentControlChecks.Run(Check, Layout));
+            Run("Mobile switch activation, skin states and cached layout", () => SwitchChecks.Run(Check, Layout));
+            Run("Tab strips on all edges, scrolling and keyboard navigation", () => TabPlacementChecks.Run(Check, Layout));
             Run("Tool groups, uniform button palettes, status content and cached wrapping", () => BarControlChecks.Run(Check, Layout));
             Run("Grid-owned placement, observable rows and columns, and invalidation", () =>
             {
@@ -1517,7 +1519,7 @@ internal static class Program
                 {
                     ControlSkin skin = ReadSkin(name);
                     skins.Add(skin);
-                    Check(skin.Name == "Sachssoft" + name && skin.RegionCount == 147);
+                    Check(skin.Name == "Sachssoft" + name && skin.RegionCount == 149);
                     Check(skin.AtlasFileName == "sachssoft_" + name.ToLowerInvariant() + ".atlas.xml");
                     Check(skin.TextureFileName == "sachssoft_" + name.ToLowerInvariant() + ".png");
                     Check(skin.TryGetColor("text", out Color text) && text == skin.GetColor("text"));

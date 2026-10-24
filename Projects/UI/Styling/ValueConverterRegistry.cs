@@ -37,6 +37,21 @@ public sealed class ValueConverterRegistry
     /// </summary>
     public ValueConverterRegistry()
     {
+        Register<TabStripPlacement>("TabStripPlacement", static text => text switch
+        {
+            "Top" => TabStripPlacement.Top,
+            "Left" => TabStripPlacement.Left,
+            "Bottom" => TabStripPlacement.Bottom,
+            "Right" => TabStripPlacement.Right,
+            _ => throw new FormatException("Unknown tab strip placement.")
+        }, static value => value switch
+        {
+            TabStripPlacement.Top => "Top",
+            TabStripPlacement.Left => "Left",
+            TabStripPlacement.Bottom => "Bottom",
+            TabStripPlacement.Right => "Right",
+            _ => throw new FormatException("Unknown tab strip placement.")
+        });
         Register<string?>("NullableFontName", static s => InheritFont(s) ? null : string.IsNullOrWhiteSpace(s) ? throw new FormatException("FontName must not be blank.") : s.Trim(), static s => s ?? "null");
         Register<int?>("NullableFontSize", static s => InheritFont(s) ? null : ReadFontSize(s), static v => v?.ToString(CultureInfo.InvariantCulture) ?? "null");
         Register<FontWeight>("FontWeight", ReadFontWeight, static v => v switch
