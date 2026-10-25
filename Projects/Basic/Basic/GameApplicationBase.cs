@@ -20,7 +20,7 @@ namespace Sachssoft.Engine;
 /// Manages the core application services, graphics device, object activation,
 /// assets, localization, settings, scenes, and application lifecycle.
 /// </remarks>
-public abstract class GameApplicationBase : Game/*, IGameApplication*/
+public abstract class GameApplicationBase : Game, IServiceProvider
 {
     private readonly string[] _commandArgs;
     private readonly GraphicsDeviceManager _graphicsDeviceManager;
@@ -217,6 +217,49 @@ public abstract class GameApplicationBase : Game/*, IGameApplication*/
         _graphicsDeviceManager.PreferredBackBufferHeight = height;
         _graphicsDeviceManager.IsFullScreen = fullscreen;
         _graphicsDeviceManager.ApplyChanges();
+    }
+
+    /// <summary>
+    /// Resolves a service registered with the application.
+    /// </summary>
+    /// <param name="serviceType">The type of service to resolve.</param>
+    /// <returns>The resolved service, or <see langword="null"/> if unavailable.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="serviceType"/> is <see langword="null"/>.
+    /// </exception>
+    public object? GetService(Type serviceType)
+    {
+        ArgumentNullException.ThrowIfNull(serviceType);
+
+        return Configuration.Services.GetService(serviceType)
+            ?? Services.GetService(serviceType);
+    }
+
+    /// <summary>
+    /// Resolves a service of the specified type.
+    /// </summary>
+    /// <typeparam name="T">The type of service to resolve.</typeparam>
+    /// <returns>The resolved service, or <see langword="null"/> if unavailable.</returns>
+    public T? GetService<T>() where T : class
+    {
+        return GetService(typeof(T)) as T;
+    }
+
+    /// <summary>
+    /// Attempts to resolve a service of the specified type.
+    /// </summary>
+    /// <typeparam name="T">The type of service to resolve.</typeparam>
+    /// <param name="service">
+    /// Receives the resolved service, or <see langword="null"/> if unavailable.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if the service was resolved successfully;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool TryGetService<T>(out T? service) where T : class
+    {
+        service = GetService<T>();
+        return service is not null;
     }
 
     /// <summary>
