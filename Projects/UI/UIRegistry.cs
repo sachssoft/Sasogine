@@ -116,6 +116,7 @@ public sealed class UIRegistry
     private void RegisterControls()
     {
         Register("DropDownButton", static () => new DropDownButton());
+        Register(nameof(Hyperlink), static () => new Hyperlink());
         Register("SplitButton", static () => new SplitButton());
         Register("Carousel", static () => new Carousel());
         Register("IconValueDisplay", static () => new IconValueDisplay());
@@ -229,6 +230,7 @@ public sealed class UIRegistry
         styles.Register("TabControl.Header", new Style { BasedOn = "ToggleButton", Height = 38, Padding = new Insets2(14, 6) });
         styles.Register("DataTable", new Style { BasedOn = "ListBox", HeaderHeight = 34, BorderColor = new Color(43, 57, 76), MinHeight = 80 });
         styles.Register("ContentControl", new Style { BasedOn = "Control" });
+        styles.Register(nameof(Hyperlink), new Style { BasedOn = "ContentControl", IsFocusable = true, Padding = Insets2.Zero, MinWidth = 0, MinHeight = 0, HorizontalAlignment = ControlAlignment.Start, VerticalAlignment = ControlAlignment.Start, TextColor = new Color(80, 170, 255), ContentHorizontalAlignment = ControlAlignment.Start, ContentVerticalAlignment = ControlAlignment.Center });
         styles.Register("InspectorView", new Style { BasedOn = "ContentControl", ContentHorizontalAlignment = ControlAlignment.Stretch, ContentVerticalAlignment = ControlAlignment.Start });
         styles.Register("Image", new Style { BasedOn = "Control" });
         styles["Control"].FocusColor = new Color(65, 199, 223);
@@ -255,7 +257,7 @@ public sealed class UIRegistry
         styles.Register("WrapPanel", new Style { BasedOn = "Panel", Padding = Insets2.Zero, Spacing = 8 });
         styles.Register("TiledPanel", new Style { BasedOn = "Panel", Padding = Insets2.Zero, Spacing = 8 });
         styles.Register(nameof(AdaptiveTilePanel), new Style { BasedOn = "Panel", Padding = Insets2.Zero, Spacing = 8 });
-        styles.Register("MenuBar", new Style { BasedOn = "Control", IsFocusable = true, Height = 36, Padding = Insets2.Zero });
+        styles.Register("MenuBar", new Style { BasedOn = "Control", IsFocusable = true, Height = 36, Padding = Insets2.Zero, BorderColor = new Color(56, 71, 92) });
         styles.Register("ContextMenu", new Style { BasedOn = "Control", IsFocusable = true, Padding = new Insets2(6) });
         styles.Register("Window", new Style { BasedOn = "ContentControl", ContentHorizontalAlignment = ControlAlignment.Stretch, ContentVerticalAlignment = ControlAlignment.Stretch, Width = 560, Height = 360, MinWidth = 220, MinHeight = 120, Padding = new Insets2(16), TitlebarHeight = 36 });
         styles.Register("Dialog", new Style { BasedOn = "Window" });

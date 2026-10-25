@@ -16,6 +16,12 @@ public class TextBlock : Control
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "TextBlock";
+
+    /// <summary>Gets the measured text, including cached automatic line breaks.</summary>
+    protected string DisplayText => _displayText;
+
+    /// <summary>Gets the arranged text origin in local logical coordinates.</summary>
+    protected Vector2 TextPosition => _textPosition;
     /// <summary>
     /// Gets the effective Text value or sets a local override.
     /// </summary>
@@ -144,10 +150,17 @@ public class TextBlock : Control
     /// <summary>
     /// Draws the current label text inside the padding using matching metrics.
     /// </summary>
-    protected void DrawText(ControlDrawContext context)
+    /// <param name="context">The current drawing context.</param>
+    protected virtual void DrawText(ControlDrawContext context)
     {
-        context.DrawText(_measuredFont!, _displayText, _textPosition, IsAvailable() ? TextColor : DisabledTextColor);
+        DrawText(context, IsAvailable() ? TextColor : DisabledTextColor);
     }
+
+    /// <summary>Draws the cached text layout using a derived control's state color.</summary>
+    /// <param name="context">The current drawing context.</param>
+    /// <param name="color">The resolved text color.</param>
+    protected void DrawText(ControlDrawContext context, Color color) =>
+        context.DrawText(_measuredFont!, _displayText, _textPosition, color);
 
     /// <summary>
     /// Caches the local text position when layout assigns new content bounds.

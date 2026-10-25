@@ -32,7 +32,7 @@ public class ContentControl : ContainerControl
             VerifyTreeMutation();
             // Convert before changing state: a failing ToString must preserve the existing content.
             string? text = value is null or Control ? null : value as string ?? value.ToString() ?? string.Empty;
-            TextBlock? textPresenter = text is null ? null : _textPresenter ?? new TextBlock { Text = text };
+            TextBlock? textPresenter = text is null ? null : _textPresenter ?? CreateTextPresenter(text);
             Control? next = value as Control ?? textPresenter;
             if (!ReferenceEquals(next, _contentPresenter) && next is not null)
                 ValidateChild(next);
@@ -51,6 +51,7 @@ public class ContentControl : ContainerControl
     /// Gets the actual child presenting the content, or null when content is null.
     /// </summary>
     public Control? ContentPresenter => _contentPresenter;
+
     /// <summary>
     /// Gets or sets horizontal content alignment.
     /// </summary>
@@ -91,6 +92,11 @@ public class ContentControl : ContainerControl
 
     /// <summary>Gets whether owned content participates in layout and traversal. Hidden content retains its parent.</summary>
     protected virtual bool ShowsContent => true;
+
+    /// <summary>Creates the retained text presenter used for non-control content.</summary>
+    /// <param name="text">The initial converted content text.</param>
+    /// <returns>A text presenter initialized with the supplied text.</returns>
+    protected virtual TextBlock CreateTextPresenter(string text) => new TextBlock { Text = text };
 
     internal override void Prepare()
     {

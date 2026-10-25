@@ -10,6 +10,34 @@ namespace Sachssoft.Engine.Controls.Styling;
 /// </summary>
 public sealed class Style
 {
+    /// <summary>Gets or sets the text color while the link is hovered or keyboard-focused.</summary>
+    public Color HoverTextColor
+    {
+        get => _values.TryGetValue(nameof(HoverTextColor), out string? text) ? ShorthandConverters.Convert<Color>("Color", text) : new Color(126, 200, 255);
+        set => this[nameof(HoverTextColor)] = ShorthandConverters.Format("Color", value);
+    }
+
+    /// <summary>Gets or sets the text color while activation is held.</summary>
+    public Color PressedTextColor
+    {
+        get => _values.TryGetValue(nameof(PressedTextColor), out string? text) ? ShorthandConverters.Convert<Color>("Color", text) : new Color(60, 130, 210);
+        set => this[nameof(PressedTextColor)] = ShorthandConverters.Format("Color", value);
+    }
+
+    /// <summary>Gets or sets whether generated text content is underlined. Defaults to true.</summary>
+    public bool Underline
+    {
+        get => _values.TryGetValue(nameof(Underline), out string? text) ? ShorthandConverters.Convert<bool>("Boolean", text) : true;
+        set => this[nameof(Underline)] = ShorthandConverters.Format("Boolean", value);
+    }
+
+    /// <summary>Gets or sets the text color after activation when the link is neither hovered nor held.</summary>
+    public Color VisitedTextColor
+    {
+        get => _values.TryGetValue(nameof(VisitedTextColor), out string? text) ? ShorthandConverters.Convert<Color>("Color", text) : new Color(178, 147, 232);
+        set => this[nameof(VisitedTextColor)] = ShorthandConverters.Format("Color", value);
+    }
+
     /// <summary>Gets or sets the minimum logical tile dimensions. Both components must be finite and positive. Defaults to 16 by 16.</summary>
     public Size2 MinTileSize
     {

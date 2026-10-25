@@ -459,7 +459,16 @@
         <State name="Disabled" region="tile_disabled" />
       </Part>
     </Style>
+    <Style key="Hyperlink" basedOn="ContentControl">
+      <Value property="TextColor" value="accent" />
+      <Value property="HoverTextColor" value="text" />
+      <Value property="PressedTextColor" value="accent" />
+      <Value property="VisitedTextColor" value="#704AA6" />
+      <Value property="DisabledTextColor" value="muted" />
+      <Value property="Underline" value="true" />
+    </Style>
     <Style key="MenuBar" basedOn="Control">
+      <Value property="BorderColor" value="border" />
       <Value property="Height" value="36" />
       <Part name="Background">
         <State name="Normal" region="menubar" />

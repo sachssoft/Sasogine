@@ -1,4 +1,3 @@
-
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
@@ -13,52 +12,98 @@ namespace Sachssoft.Engine.Controls;
 /// </summary>
 /// <remarks>
 /// <para>
-/// A menu item can execute an <see cref="ICommand"/>, invoke an
-/// <see cref="Action"/>, or provide a collection of submenu items.
+/// A menu item can execute an <see cref = "ICommand"/>, invoke an
+/// <see cref = "Action"/>, or provide a collection of submenu items.
 /// </para>
 /// <para>
 /// Checkable items toggle their checked state before executing
 /// the associated command and callback.
 /// </para>
 /// <para>
-/// Separators and disabled items cannot be activated.
+/// Disabled items cannot be activated.
 /// Command availability is determined by
-/// <see cref="ICommand.CanExecute(object?)"/>.
+/// <see cref = "ICommand.CanExecute(object? )"/>.
 /// </para>
 /// </remarks>
-public sealed class MenuItem : Element
+public sealed class MenuItem : MenuEntry
 {
-    private string _text = string.Empty;
-    private bool _isEnabled = true;
-    private bool _isSeparator;
-    private bool _isCheckable;
-    private bool _isChecked;
+    /// <summary>Caches the Action change notification.</summary>
+    private static readonly PropertyChangedEventArgs ActionArgs = new(nameof(Action));
 
-    private string? _icon;
-    private string _shortcutText = string.Empty;
-    private Keys _shortcutKey = Keys.None;
-    private bool _shortcutControl;
-    private bool _shortcutAlt;
-    private bool _shortcutShift;
+    /// <summary>Caches the Command change notification.</summary>
+    private static readonly PropertyChangedEventArgs CommandArgs = new(nameof(Command));
 
-    private ICommand? _command;
-    private object? _commandParameter;
+    /// <summary>Caches the CommandParameter change notification.</summary>
+    private static readonly PropertyChangedEventArgs CommandParameterArgs = new(nameof(CommandParameter));
+
+    /// <summary>Caches the Icon change notification.</summary>
+    private static readonly PropertyChangedEventArgs IconArgs = new(nameof(Icon));
+
+    /// <summary>Caches the IsCheckable change notification.</summary>
+    private static readonly PropertyChangedEventArgs IsCheckableArgs = new(nameof(IsCheckable));
+
+    /// <summary>Caches the IsChecked change notification.</summary>
+    private static readonly PropertyChangedEventArgs IsCheckedArgs = new(nameof(IsChecked));
+
+    /// <summary>Caches the IsEnabled change notification.</summary>
+    private static readonly PropertyChangedEventArgs IsEnabledArgs = new(nameof(IsEnabled));
+
+    /// <summary>Caches the ShortcutAlt change notification.</summary>
+    private static readonly PropertyChangedEventArgs ShortcutAltArgs = new(nameof(ShortcutAlt));
+
+    /// <summary>Caches the ShortcutControl change notification.</summary>
+    private static readonly PropertyChangedEventArgs ShortcutControlArgs = new(nameof(ShortcutControl));
+
+    /// <summary>Caches the ShortcutKey change notification.</summary>
+    private static readonly PropertyChangedEventArgs ShortcutKeyArgs = new(nameof(ShortcutKey));
+
+    /// <summary>Caches the ShortcutShift change notification.</summary>
+    private static readonly PropertyChangedEventArgs ShortcutShiftArgs = new(nameof(ShortcutShift));
+
+    /// <summary>Caches the ShortcutText change notification.</summary>
+    private static readonly PropertyChangedEventArgs ShortcutTextArgs = new(nameof(ShortcutText));
+
+    /// <summary>Caches the Text change notification.</summary>
+    private static readonly PropertyChangedEventArgs TextArgs = new(nameof(Text));
+
+    /// <summary>Stores the optional callback invoked after the command.</summary>
     private Action? _action;
 
-    private static readonly PropertyChangedEventArgs TextArgs = new(nameof(Text));
-    private static readonly PropertyChangedEventArgs IsEnabledArgs = new(nameof(IsEnabled));
-    private static readonly PropertyChangedEventArgs IsSeparatorArgs = new(nameof(IsSeparator));
-    private static readonly PropertyChangedEventArgs IsCheckableArgs = new(nameof(IsCheckable));
-    private static readonly PropertyChangedEventArgs IsCheckedArgs = new(nameof(IsChecked));
-    private static readonly PropertyChangedEventArgs IconArgs = new(nameof(Icon));
-    private static readonly PropertyChangedEventArgs ShortcutTextArgs = new(nameof(ShortcutText));
-    private static readonly PropertyChangedEventArgs ShortcutKeyArgs = new(nameof(ShortcutKey));
-    private static readonly PropertyChangedEventArgs ShortcutControlArgs = new(nameof(ShortcutControl));
-    private static readonly PropertyChangedEventArgs ShortcutAltArgs = new(nameof(ShortcutAlt));
-    private static readonly PropertyChangedEventArgs ShortcutShiftArgs = new(nameof(ShortcutShift));
-    private static readonly PropertyChangedEventArgs CommandArgs = new(nameof(Command));
-    private static readonly PropertyChangedEventArgs CommandParameterArgs = new(nameof(CommandParameter));
-    private static readonly PropertyChangedEventArgs ActionArgs = new(nameof(Action));
+    /// <summary>Stores the optional command.</summary>
+    private ICommand? _command;
+
+    /// <summary>Stores the command shortcut key.</summary>
+    private Keys _shortcutKey = Keys.None;
+
+    /// <summary>Stores whether activation toggles the checked state.</summary>
+    private bool _isCheckable;
+
+    /// <summary>Stores the current checked state.</summary>
+    private bool _isChecked;
+
+    /// <summary>Stores whether this command can be invoked.</summary>
+    private bool _isEnabled = true;
+
+    /// <summary>Stores the required Alt modifier.</summary>
+    private bool _shortcutAlt;
+
+    /// <summary>Stores the required Control modifier.</summary>
+    private bool _shortcutControl;
+
+    /// <summary>Stores the required Shift modifier.</summary>
+    private bool _shortcutShift;
+
+    /// <summary>Stores the command argument.</summary>
+    private object? _commandParameter;
+
+    /// <summary>Stores the shortcut description shown in popup menus.</summary>
+    private string _shortcutText = string.Empty;
+
+    /// <summary>Stores the displayed command caption.</summary>
+    private string _text = string.Empty;
+
+    /// <summary>Stores the optional atlas icon identifier.</summary>
+    private string? _icon;
 
     /// <summary>
     /// Gets or sets the text displayed by the menu item.
@@ -67,11 +112,7 @@ public sealed class MenuItem : Element
     /// Ampersands can be used as mnemonic markers and are removed
     /// from the internal display caption.
     /// </remarks>
-    public string Text
-    {
-        get => _text;
-        set => SetNotify(ref _text, value, TextArgs);
-    }
+    public string Text { get => _text; set => SetNotify(ref _text, value, TextArgs); }
 
     /// <summary>
     /// Gets or sets whether the menu item is enabled.
@@ -80,58 +121,30 @@ public sealed class MenuItem : Element
     /// Disabled items cannot execute commands or callbacks.
     /// The default value is <see langword="true"/>.
     /// </remarks>
-    public bool IsEnabled
-    {
-        get => _isEnabled;
-        set => SetNotify(ref _isEnabled, value, IsEnabledArgs);
-    }
-
-    /// <summary>
-    /// Gets or sets whether the item represents a menu separator.
-    /// </summary>
-    /// <remarks>
-    /// Separators are non-interactive and cannot execute commands.
-    /// </remarks>
-    public bool IsSeparator
-    {
-        get => _isSeparator;
-        set => SetNotify(ref _isSeparator, value, IsSeparatorArgs);
-    }
+    public bool IsEnabled { get => _isEnabled; set => SetNotify(ref _isEnabled, value, IsEnabledArgs); }
 
     /// <summary>
     /// Gets or sets whether the item supports a checked state.
     /// </summary>
     /// <remarks>
     /// When enabled, activating the item toggles
-    /// <see cref="IsChecked"/> before executing its command.
+    /// <see cref = "IsChecked"/> before executing its command.
     /// </remarks>
-    public bool IsCheckable
-    {
-        get => _isCheckable;
-        set => SetNotify(ref _isCheckable, value, IsCheckableArgs);
-    }
+    public bool IsCheckable { get => _isCheckable; set => SetNotify(ref _isCheckable, value, IsCheckableArgs); }
 
     /// <summary>
     /// Gets or sets whether the menu item is checked.
     /// </summary>
     /// <remarks>
     /// This property is automatically toggled during activation
-    /// when <see cref="IsCheckable"/> is enabled.
+    /// when <see cref = "IsCheckable"/> is enabled.
     /// </remarks>
-    public bool IsChecked
-    {
-        get => _isChecked;
-        set => SetNotify(ref _isChecked, value, IsCheckedArgs);
-    }
+    public bool IsChecked { get => _isChecked; set => SetNotify(ref _isChecked, value, IsCheckedArgs); }
 
     /// <summary>
     /// Gets or sets the optional icon identifier displayed by the menu item.
     /// </summary>
-    public string? Icon
-    {
-        get => _icon;
-        set => SetNotify(ref _icon, value, IconArgs);
-    }
+    public string? Icon { get => _icon; set => SetNotify(ref _icon, value, IconArgs); }
 
     /// <summary>
     /// Gets or sets the shortcut description displayed beside the menu item.
@@ -141,54 +154,34 @@ public sealed class MenuItem : Element
     /// Actual shortcut matching uses the shortcut key
     /// and modifier properties.
     /// </remarks>
-    public string ShortcutText
-    {
-        get => _shortcutText;
-        set => SetNotify(ref _shortcutText, value, ShortcutTextArgs);
-    }
+    public string ShortcutText { get => _shortcutText; set => SetNotify(ref _shortcutText, value, ShortcutTextArgs); }
 
     /// <summary>
     /// Gets or sets the keyboard key associated with the menu shortcut.
     /// </summary>
     /// <remarks>
-    /// The default value is <see cref="Keys.None"/>,
+    /// The default value is <see cref = "Keys.None"/>,
     /// indicating that no shortcut key is assigned.
     /// </remarks>
-    public Keys ShortcutKey
-    {
-        get => _shortcutKey;
-        set => SetNotify(ref _shortcutKey, value, ShortcutKeyArgs);
-    }
+    public Keys ShortcutKey { get => _shortcutKey; set => SetNotify(ref _shortcutKey, value, ShortcutKeyArgs); }
 
     /// <summary>
     /// Gets or sets whether the Control modifier is required
     /// for the keyboard shortcut.
     /// </summary>
-    public bool ShortcutControl
-    {
-        get => _shortcutControl;
-        set => SetNotify(ref _shortcutControl, value, ShortcutControlArgs);
-    }
+    public bool ShortcutControl { get => _shortcutControl; set => SetNotify(ref _shortcutControl, value, ShortcutControlArgs); }
 
     /// <summary>
     /// Gets or sets whether the Alt modifier is required
     /// for the keyboard shortcut.
     /// </summary>
-    public bool ShortcutAlt
-    {
-        get => _shortcutAlt;
-        set => SetNotify(ref _shortcutAlt, value, ShortcutAltArgs);
-    }
+    public bool ShortcutAlt { get => _shortcutAlt; set => SetNotify(ref _shortcutAlt, value, ShortcutAltArgs); }
 
     /// <summary>
     /// Gets or sets whether the Shift modifier is required
     /// for the keyboard shortcut.
     /// </summary>
-    public bool ShortcutShift
-    {
-        get => _shortcutShift;
-        set => SetNotify(ref _shortcutShift, value, ShortcutShiftArgs);
-    }
+    public bool ShortcutShift { get => _shortcutShift; set => SetNotify(ref _shortcutShift, value, ShortcutShiftArgs); }
 
     /// <summary>
     /// Gets or sets the command executed when the menu item is activated.
@@ -197,11 +190,7 @@ public sealed class MenuItem : Element
     /// The command must allow execution through CanExecute
     /// before the menu item can be activated.
     /// </remarks>
-    public ICommand? Command
-    {
-        get => _command;
-        set => SetNotify(ref _command, value, CommandArgs);
-    }
+    public ICommand? Command { get => _command; set => SetNotify(ref _command, value, CommandArgs); }
 
     /// <summary>
     /// Gets or sets the parameter passed to the command.
@@ -209,11 +198,7 @@ public sealed class MenuItem : Element
     /// <remarks>
     /// The parameter is supplied to both CanExecute and Execute.
     /// </remarks>
-    public object? CommandParameter
-    {
-        get => _commandParameter;
-        set => SetNotify(ref _commandParameter, value, CommandParameterArgs);
-    }
+    public object? CommandParameter { get => _commandParameter; set => SetNotify(ref _commandParameter, value, CommandParameterArgs); }
 
     /// <summary>
     /// Gets or sets an optional callback invoked after command execution.
@@ -222,26 +207,21 @@ public sealed class MenuItem : Element
     /// The callback is invoked after the associated command,
     /// or directly when no command is assigned.
     /// </remarks>
-    public Action? Action
-    {
-        get => _action;
-        set => SetNotify(ref _action, value, ActionArgs);
-    }
+    public Action? Action { get => _action; set => SetNotify(ref _action, value, ActionArgs); }
 
     /// <summary>
-    /// Gets the collection of child menu items displayed in a submenu.
+    /// Gets the collection of child commands and separators displayed in a submenu.
     /// </summary>
     /// <remarks>
     /// Items can be added or removed through this collection.
     /// The collection itself is not replaceable.
     /// </remarks>
-    public IList<MenuItem> Items { get; } = new List<MenuItem>();
+    public IList<MenuEntry> Items { get; } = new List<MenuEntry>();
 
     /// <summary>
     /// Gets whether the menu item is currently available for activation.
     /// </summary>
-    internal bool CanInvoke =>
-        IsEnabled && !IsSeparator && (Command?.CanExecute(CommandParameter) ?? true);
+    internal bool CanInvoke => IsEnabled && (Command?.CanExecute(CommandParameter) ?? true);
 
     /// <summary>
     /// Gets the menu caption without mnemonic ampersand markers.
@@ -253,23 +233,19 @@ public sealed class MenuItem : Element
     /// command, and optional callback.
     /// </summary>
     /// <remarks>
-    /// Does nothing when the item is disabled, is a separator,
+    /// Does nothing when the item is disabled,
     /// or its command cannot execute.
     /// </remarks>
     internal void Execute()
     {
         if (!CanInvoke)
             return;
-
         if (IsCheckable)
             IsChecked = !IsChecked;
-
         ICommand? command = Command;
         object? parameter = CommandParameter;
-
         if (command?.CanExecute(parameter) == true)
             command.Execute(parameter);
-
         Action?.Invoke();
     }
 }

@@ -1423,6 +1423,8 @@ internal static class Program
                     root.Update(sampler.SampleReusable(default, default, default, viewport, 1, TimeSpan.Zero), Layout);
                 Check(GC.GetAllocatedBytesForCurrentThread() == before, "Unchanged numeric fields must allocate zero managed bytes");
             });
+            Run("Independent menu separators, navigation and command activation", () => MenuSeparatorChecks.Run(Check, Layout));
+            Run("Hyperlink navigation requests, commands, text decoration and layout caches", () => HyperlinkChecks.Run(Check));
             Run("Menu hover navigates without invoking commands, callbacks or check states", () =>
             {
                 int commandCalls = 0, actionCalls = 0;

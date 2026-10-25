@@ -5,26 +5,47 @@ using System;
 using System.Collections.Generic;
 
 namespace Sachssoft.Engine.Controls;
+
 /// <summary>
 /// Horizontal commands and submenu entry points.
 /// </summary>
 public class MenuBar : Control
 {
-    private bool _useSkin = true;
-    private static readonly System.ComponentModel.PropertyChangedEventArgs UseSkinArgs = new(nameof(UseSkin));
-    /// <summary>
-    /// Gets or sets whether atlas skin parts are used; false draws solid menu backgrounds and glyphs.
-    /// </summary>
-    public bool UseSkin { get => _useSkin; set => SetNotify(ref _useSkin, value, UseSkinArgs); }
+    /// <summary>Caches the command row height notification.</summary>
+    private static readonly System.ComponentModel.PropertyChangedEventArgs ItemHeightChangedArgs = new(nameof(ItemHeight));
 
-    private IControlFont? _font;
-    private int _active = -1;
+    /// <summary>Caches the entry collection notification.</summary>
+    private static readonly System.ComponentModel.PropertyChangedEventArgs ItemsCollectionArgs = new("Items");
+
+    /// <summary>Caches the atlas drawing mode notification.</summary>
+    private static readonly System.ComponentModel.PropertyChangedEventArgs UseSkinArgs = new(nameof(UseSkin));
+
+    /// <summary>Stores the currently open child popup.</summary>
     private ContextMenu? _popup;
-    private int _popupIndex = -1;
+
+    /// <summary>Lazily stores menu entries with owner change notifications.</summary>
+    private ElementCollection<MenuEntry>? _ownedItems;
+
+    /// <summary>Caches the font used to measure entry captions.</summary>
+    private IControlFont? _font;
+
+    /// <summary>Stores the styled command row height and optional local override.</summary>
+    private StyleProperty<float> _styleItemHeight = new(30f);
+
     /// <summary>
-    /// Provides the declared UI member.
+    /// Selects vertical popup layout instead of horizontal menu bar layout.
     /// </summary>
     protected bool Vertical;
+
+    /// <summary>Stores whether the menu draws its atlas parts.</summary>
+    private bool _useSkin = true;
+
+    /// <summary>Stores the active command index, or minus one.</summary>
+    private int _active = -1;
+
+    /// <summary>Stores the command index associated with the child popup.</summary>
+    private int _popupIndex = -1;
+
     /// <summary>
     /// Initializes a new menu bar instance.
     /// </summary>
@@ -33,21 +54,61 @@ public class MenuBar : Control
     }
 
     /// <summary>
-    /// Gets items.
+    /// Gets or sets whether atlas skin parts are used; false draws solid menu backgrounds and glyphs.
     /// </summary>
-    public IList<MenuItem> Items => ConfigItems;
+    public bool UseSkin { get => _useSkin; set => SetNotify(ref _useSkin, value, UseSkinArgs); }
+
+    /// <summary>
+    /// Gets the command and separator entries displayed by this menu.
+    /// </summary>
+    public IList<MenuEntry> Items => ConfigItems;
+
     /// <inheritdoc/>
     protected override string DefaultStyleName => "MenuBar";
+
     /// <inheritdoc/>
     protected override bool UseSkinFocus => UseSkin;
+
+    /// <summary>Gets the effective command row height.</summary>
     private float RowHeight => ConfigItemHeight;
 
+    /// <summary>Gets or sets the containing menu for closing a popup chain; null identifies a top-level menu.</summary>
+    internal MenuBar? ParentMenu { get; set; }
+
+    /// <summary>Gets or sets the effective styled command row height.</summary>
+    internal float ConfigItemHeight
+    {
+        get => _styleItemHeight.Value;
+        set
+        {
+            if (_styleItemHeight.SetLocal(value))
+                NotifyPropertyChanged(ItemHeightChangedArgs);
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets ItemHeight; a local assignment overrides the style.
+    /// </summary>
+    public float ItemHeight { get => ConfigItemHeight; set => ConfigItemHeight = value; }
+
+    /// <summary>Gets the lazily created entry collection that invalidates this menu on changes.</summary>
+    internal IList<MenuEntry> ConfigItems => _ownedItems ??= new(this, ItemsCollectionArgs);
+
+    /// <summary>Gets the main-axis space reserved by an entry.</summary>
+    /// <param name = "entry">The command or separator being laid out.</param>
+    /// <returns>Eight logical pixels for separators, otherwise the row height or caption width.</returns>
+    private float EntryLength(MenuEntry entry) => entry is MenuItem item ? Vertical ? RowHeight : (_font?.Measure(item.Caption).Width ?? 0) + 28 : 8;
+
+    /// <summary>Gets an entry's local bounds including separators in its preceding offset.</summary>
+    /// <param name = "index">The entry index.</param>
+    /// <returns>The entry's reserved local slot.</returns>
     private Bounds2 ItemBounds(int index)
     {
         float offset = 0;
         for (int i = 0; i < index; i++)
-            offset += Vertical ? (Items[i].IsSeparator ? 8 : RowHeight) : (_font?.Measure(Items[i].Caption).Width ?? 0) + 28;
-        return Vertical ? new Bounds2(Padding.Left, Padding.Top + offset, ContentBounds.Width, Items[index].IsSeparator ? 8 : RowHeight) : new Bounds2(Padding.Left + offset, Padding.Top, (_font?.Measure(Items[index].Caption).Width ?? 0) + 28, ContentBounds.Height);
+            offset += EntryLength(Items[i]);
+        float length = EntryLength(Items[index]);
+        return Vertical ? new Bounds2(Padding.Left, Padding.Top + offset, ContentBounds.Width, length) : new Bounds2(Padding.Left + offset, Padding.Top, length, ContentBounds.Height);
     }
 
     /// <inheritdoc/>
@@ -55,16 +116,17 @@ public class MenuBar : Control
     {
         _font = GetFont(context);
         float width = 0, height = 0;
-        foreach (var item in Items)
+        foreach (MenuEntry entry in Items)
         {
             if (Vertical)
             {
-                width = MathF.Max(width, _font.Measure(item.Caption).Width + _font.Measure(item.ShortcutText).Width + 80);
-                height += item.IsSeparator ? 8 : RowHeight;
+                if (entry is MenuItem item)
+                    width = MathF.Max(width, _font.Measure(item.Caption).Width + _font.Measure(item.ShortcutText).Width + 80);
+                height += EntryLength(entry);
             }
             else
             {
-                width += _font.Measure(item.Caption).Width + 28;
+                width += EntryLength(entry);
                 height = MathF.Max(height, RowHeight);
             }
         }
@@ -72,12 +134,13 @@ public class MenuBar : Control
         return new Size2(width, height);
     }
 
+    /// <summary>Invokes a command or opens its submenu after availability checks.</summary>
+    /// <param name = "index">The entry index to activate.</param>
     private void Activate(int index)
     {
-        if (index < 0 || index >= Items.Count || !Items[index].CanInvoke || Items[index].IsSeparator)
+        if (index < 0 || index >= Items.Count || Items[index] is not MenuItem item || !item.CanInvoke)
             return;
         _active = index;
-        MenuItem item = Items[index];
         if (item.Items.Count == 0)
         {
             item.Execute();
@@ -88,6 +151,7 @@ public class MenuBar : Control
         OpenSubmenu(index);
     }
 
+    /// <summary>Closes and releases the current child popup.</summary>
     private void CloseSubmenu()
     {
         ContextMenu? old = _popup;
@@ -98,14 +162,16 @@ public class MenuBar : Control
     }
 
     // Hover may navigate to a submenu, but it must never execute an item.
+
+    /// <summary>Opens a command's mixed entry collection without executing the command.</summary>
+    /// <param name = "index">The command index whose submenu should open.</param>
     private void OpenSubmenu(int index)
     {
-        if (Workspace is not Workspace root || index < 0 || index >= Items.Count || !Items[index].CanInvoke || Items[index].Items.Count == 0)
+        if (Workspace is not Workspace root || index < 0 || index >= Items.Count || Items[index] is not MenuItem item || !item.CanInvoke || item.Items.Count == 0)
             return;
         if (_popup is not null && _popupIndex == index)
             return;
         CloseSubmenu();
-        MenuItem item = Items[index];
         var popup = new ContextMenu
         {
             UseSkin = UseSkin
@@ -120,7 +186,7 @@ public class MenuBar : Control
             popup.BorderThickness = BorderThickness;
         }
 
-        foreach (MenuItem child in item.Items)
+        foreach (MenuEntry child in item.Items)
             popup.Items.Add(child);
         Bounds2 local = ItemBounds(index);
         _popup = popup;
@@ -136,8 +202,7 @@ public class MenuBar : Control
         });
     }
 
-    internal MenuBar? ParentMenu { get; set; }
-
+    /// <summary>Closes popups through the topmost menu in the current chain.</summary>
     private void CloseMenuChain()
     {
         if (ParentMenu is MenuBar parent)
@@ -152,13 +217,16 @@ public class MenuBar : Control
             Workspace?.ClosePopup(popup);
     }
 
+    /// <summary>Finds a command shortcut or mnemonic while ignoring non-command entries.</summary>
+    /// <param name = "input">The keyboard event to match.</param>
+    /// <returns>Whether a matching shortcut or mnemonic was handled.</returns>
     internal bool HandleShortcut(ControlInputEvent input)
     {
-        bool Find(IList<MenuItem> items)
+        bool Find(IList<MenuEntry> items)
         {
-            foreach (MenuItem item in items)
+            foreach (MenuEntry entry in items)
             {
-                if (!item.CanInvoke)
+                if (entry is not MenuItem item || !item.CanInvoke)
                     continue;
                 if (item.ShortcutKey != Keys.None && item.ShortcutKey == input.Key && item.ShortcutControl == input.Control && item.ShortcutAlt == input.Alt && item.ShortcutShift == input.Shift)
                 {
@@ -178,8 +246,10 @@ public class MenuBar : Control
         if (input.Alt)
             for (int i = 0; i < Items.Count; i++)
             {
-                int marker = Items[i].Text.IndexOf('&');
-                if (marker >= 0 && marker + 1 < Items[i].Text.Length && char.ToUpperInvariant(Items[i].Text[marker + 1]) == (char)(int)input.Key)
+                if (Items[i] is not MenuItem item)
+                    continue;
+                int marker = item.Text.IndexOf('&');
+                if (marker >= 0 && marker + 1 < item.Text.Length && char.ToUpperInvariant(item.Text[marker + 1]) == (char)(int)input.Key)
                 {
                     Activate(i);
                     return true;
@@ -217,7 +287,7 @@ public class MenuBar : Control
                 _active = hit;
                 if (navigate && hit >= 0)
                 {
-                    if (Items[hit].CanInvoke && Items[hit].Items.Count > 0)
+                    if (Items[hit] is MenuItem item && item.CanInvoke && item.Items.Count > 0)
                         OpenSubmenu(hit);
                     else
                         CloseSubmenu();
@@ -253,11 +323,16 @@ public class MenuBar : Control
         int direction = e.Key is Keys.Left or Keys.Up ? -1 : e.Key is Keys.Right or Keys.Down ? 1 : 0;
         if (direction == 0)
             return;
+        int candidate = _active;
+        _active = -1;
         for (int n = 0; n < Items.Count; n++)
         {
-            _active = (_active + direction + Items.Count) % Items.Count;
-            if (Items[_active].CanInvoke && !Items[_active].IsSeparator)
+            candidate = (candidate + direction + Items.Count) % Items.Count;
+            if (Items[candidate] is MenuItem item && item.CanInvoke)
+            {
+                _active = candidate;
                 break;
+            }
         }
 
         args.Handled = true;
@@ -274,14 +349,11 @@ public class MenuBar : Control
         using (context.PushClipScope(new Bounds2(Padding.Left, Padding.Top, ContentBounds.Width, ContentBounds.Height)))
             for (int i = 0; i < Items.Count; i++)
             {
-                MenuItem item = Items[i];
                 Bounds2 b = ItemBounds(i);
-                if (item.IsSeparator)
+                if (Items[i] is not MenuItem item)
                 {
-                    var line = new Bounds2(b.X + 4, b.Y + 4, MathF.Max(0, b.Width - 8), 1);
-                    if (UseSkin)
-                        context.DrawSkinPart(this, "Separator", line);
-                    else
+                    var line = Vertical ? new Bounds2(b.X + 4, b.Y + 4, MathF.Max(0, b.Width - 8), 1) : new Bounds2(b.X + 4, b.Y + 4, 1, MathF.Max(0, b.Height - 8));
+                    if (!UseSkin || !context.DrawSkinPart(this, "Separator", line))
                         context.FillRectangle(line, BorderColor);
                     continue;
                 }
@@ -322,27 +394,6 @@ public class MenuBar : Control
             }
     }
 
-    private StyleProperty<float> _styleItemHeight = new(30f);
-    private static readonly System.ComponentModel.PropertyChangedEventArgs ItemHeightChangedArgs = new(nameof(ItemHeight));
-    internal float ConfigItemHeight
-    {
-        get => _styleItemHeight.Value;
-        set
-        {
-            if (_styleItemHeight.SetLocal(value))
-                NotifyPropertyChanged(ItemHeightChangedArgs);
-        }
-    }
-
-    /// <summary>
-    /// Gets or sets ItemHeight; a local assignment overrides the style.
-    /// </summary>
-    public float ItemHeight { get => ConfigItemHeight; set => ConfigItemHeight = value; }
-
-    private ElementCollection<MenuItem>? _ownedItems;
-    private static readonly System.ComponentModel.PropertyChangedEventArgs ItemsCollectionArgs = new("Items");
-    internal IList<MenuItem> ConfigItems => _ownedItems ??= new(this, ItemsCollectionArgs);
-
     /// <summary>
     /// Applies this control's explicit style values without replacing local assignments.
     /// </summary>
@@ -361,6 +412,7 @@ public class MenuBar : Control
         }
     }
 
+    /// <inheritdoc/>
     internal override bool IsStyleLocal(string property)
     {
         switch (property)

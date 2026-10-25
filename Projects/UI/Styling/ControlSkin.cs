@@ -328,6 +328,7 @@ public sealed class ControlSkin : IDisposable
             "TileSpacing" => "Spacing",
             "Background" or "BorderColor" or "BorderThickness" or "HoverBackground" or "PressedBackground" or "DisabledBackground" => key,
             "RepeatDelay" or "RepeatInterval" => key,
+            nameof(Hyperlink.HoverTextColor) or nameof(Hyperlink.PressedTextColor) or nameof(Hyperlink.VisitedTextColor) or nameof(Hyperlink.Underline) => key,
             "TextColor" or "DisabledTextColor" or "Padding" or "MinWidth" or "MinHeight" or "Height" or "MinimumThumbExtent" or "TrackThickness" or "ItemHeight" or "TitlebarHeight" or "Spacing" or "TextSpacing" or "HeaderHeight" or "KeywordColor" or "StringColor" or "CommentColor" or "NumberColor" or "Language" or "Kind" or "AutoScale" or "LineThickness" or "IsExpanded" or "Minimum" or "Maximum" or "Step" or "ButtonWidth" or "ThumbWidth" or "DragThreshold" => key,
             _ => null
         };
