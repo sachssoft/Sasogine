@@ -22,7 +22,7 @@ public abstract class FileDialog : Dialog
     /// <summary>
     /// Gets or sets whether local system drives are shown along with custom drives.
     /// </summary>
-    public  bool UseSystemDrives
+    public bool UseSystemDrives
     {
         get => _useSystemDrives;
         set => SetNotify(ref _useSystemDrives, value, SystemDrivesArgs);
@@ -60,18 +60,25 @@ public abstract class FileDialog : Dialog
     /// </summary>
     protected FileDialog() : base()
     {
-        foreach (var folder in new[]
+        var specialFolders = new (Environment.SpecialFolder Folder, string Name)[]
         {
-            Environment.SpecialFolder.UserProfile,
-            Environment.SpecialFolder.DesktopDirectory,
-            Environment.SpecialFolder.MyDocuments
-        }
+            (Environment.SpecialFolder.UserProfile, "Home"),
+            (Environment.SpecialFolder.DesktopDirectory, "Desktop"),
+            (Environment.SpecialFolder.MyDocuments, "Documents"),
+            (Environment.SpecialFolder.MyPictures, "Pictures"),
+            (Environment.SpecialFolder.MyMusic, "Music"),
+            (Environment.SpecialFolder.MyVideos, "Videos")
+        };
 
-        )
+        foreach (var (folder, name) in specialFolders)
         {
             string path = Environment.GetFolderPath(folder);
-            if (path.Length > 0 && !Favorites.Any(x => x.Path == path))
-                Favorites.Add(new FileDialogLocation(folder == Environment.SpecialFolder.UserProfile ? "Home" : folder == Environment.SpecialFolder.DesktopDirectory ? "Desktop" : "Documents", path));
+
+            if (!string.IsNullOrEmpty(path) && Directory.Exists(path) &&
+                !Favorites.Any(x => string.Equals(x.Path, path, StringComparison.OrdinalIgnoreCase)))
+            {
+                Favorites.Add(new FileDialogLocation(name, path));
+            }
         }
 
         _sidebar.Favorites.SelectionChanged += (_, _) =>
@@ -197,7 +204,7 @@ public abstract class FileDialog : Dialog
             RefreshItems();
             return true;
         }
-        catch (Exception exception)when (exception is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
         {
             _status.Text = exception.Message;
             return false;
@@ -263,7 +270,7 @@ public abstract class FileDialog : Dialog
                 foreach (string drive in Directory.GetLogicalDrives())
                     _sidebar.Drives.Items.Add(new SelectorItem(drive, new FileDialogLocation(drive, drive), true, "icon_folder"));
             }
-            catch (Exception exception)when (exception is IOException or UnauthorizedAccessException)
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
                 _status.Text = exception.Message;
             }
@@ -323,7 +330,7 @@ public abstract class FileDialog : Dialog
             Complete(DialogResult.OK);
             return true;
         }
-        catch (Exception exception)when (exception is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
         {
             _status.Text = exception.Message;
             return false;
@@ -334,7 +341,7 @@ public abstract class FileDialog : Dialog
     protected override void OnAccept() => AcceptSelection();
     private string _storedInitialDirectory = string.Empty;
     private static readonly System.ComponentModel.PropertyChangedEventArgs InitialDirectoryStorageArgs = new("InitialDirectory");
-    internal  string ConfigInitialDirectory
+    internal string ConfigInitialDirectory
     {
         get => _storedInitialDirectory;
         set => SetNotify(ref _storedInitialDirectory, value, InitialDirectoryStorageArgs);
@@ -342,7 +349,7 @@ public abstract class FileDialog : Dialog
     /// <summary>
     /// Gets or sets the value for InitialDirectory.
     /// </summary>
-    public  string InitialDirectory
+    public string InitialDirectory
     {
         get => ConfigInitialDirectory;
         set => ConfigInitialDirectory = value;
@@ -358,7 +365,7 @@ public abstract class FileDialog : Dialog
 
     private IFileDialogProvider? _storedProvider = null;
     private static readonly System.ComponentModel.PropertyChangedEventArgs ProviderStorageArgs = new("Provider");
-    internal  IFileDialogProvider? ConfigProvider
+    internal IFileDialogProvider? ConfigProvider
     {
         get => _storedProvider;
         set => SetNotify(ref _storedProvider, value, ProviderStorageArgs);
