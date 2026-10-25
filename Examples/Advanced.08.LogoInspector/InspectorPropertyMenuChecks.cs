@@ -80,7 +80,7 @@ internal static class InspectorPropertyMenuChecks
         styleMenu.ResetValue(); Frame();
         Check(styled.Padding.Equals(new Insets2(2, 3)), "Style reset removes the local override and restores the central style");
         firstMenu.PerformClick(); Frame();
-        Check(workspace.OverlayCount == 1 && firstMenu.Menu.Items[0].IsEnabled && firstMenu.Menu.Items[2].IsEnabled == firstMenu.CanPaste,
+        Check(workspace.OverlayCount == 1 && ((MenuItem)firstMenu.Menu.Items[0]).IsEnabled && ((MenuItem)firstMenu.Menu.Items[2]).IsEnabled == firstMenu.CanPaste,
             "Property buttons open owned menus with current command availability");
         Bounds2 menuBounds = firstMenu.Menu.Bounds;
         var click = new Vector2(menuBounds.X + firstMenu.Menu.Padding.Left + 15, menuBounds.Y + firstMenu.Menu.Padding.Top + 12);

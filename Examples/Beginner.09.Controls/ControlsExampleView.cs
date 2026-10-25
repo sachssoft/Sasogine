@@ -47,7 +47,7 @@ internal sealed class ControlsExampleView
         };
         file.Items.Add(new MenuItem { Text = "Open file...", ShortcutText = "Ctrl+O", ShortcutKey = Keys.O, ShortcutControl = true, Action = () => OpenFile() });
         file.Items.Add(new MenuItem { Text = "Choose folder...", Action = () => OpenFolder() });
-        file.Items.Add(new MenuItem { IsSeparator = true });
+        file.Items.Add(new MenuSeparator());
         file.Items.Add(new MenuItem { Text = "About", Action = () => ShowMessage() });
         menu.Items.Add(file);
         menu.Items.Add(new MenuItem { Text = "&Color", Action = () => PickColor() });
