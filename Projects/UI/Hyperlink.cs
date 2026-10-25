@@ -149,7 +149,10 @@ public class Hyperlink : ButtonBase
     protected override void OnPropertyChanged(PropertyChangedEventArgs notification)
     {
         if (notification.PropertyName is nameof(IsVisited) or nameof(NavigateUri) or nameof(HoverTextColor) or nameof(PressedTextColor) or nameof(VisitedTextColor) or nameof(Underline))
+        {
+            InvalidateVisual();
             return;
+        }
         base.OnPropertyChanged(notification);
     }
 

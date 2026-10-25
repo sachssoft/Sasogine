@@ -868,7 +868,10 @@ public class Carousel : ContainerControl
     protected override void OnPropertyChanged(PropertyChangedEventArgs notification)
     {
         if (notification.PropertyName is nameof(IsTransitioning) or nameof(TransitionProgress))
+        {
+            InvalidateVisual();
             return;
+        }
         if (notification.PropertyName is nameof(Orientation) or nameof(Transition) or nameof(TransitionDuration))
             FinishTransition();
         if (notification.PropertyName is nameof(Orientation) or nameof(NavigationMode))

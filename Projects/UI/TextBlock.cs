@@ -58,6 +58,7 @@ public class TextBlock : Control
         if (notification.PropertyName == nameof(Text) && Text is not null && _metricsValid && !WrapText && !_measuredWrap && Workspace is not null && (GetType() == typeof(TextBlock) || GetType() == typeof(Label)))
         {
             _pendingTextMetrics = true;
+            InvalidateVisual();
             Workspace.InvalidateLayout();
             return;
         }
@@ -167,6 +168,8 @@ public class TextBlock : Control
     /// </summary>
     protected override void ArrangeOverride(Bounds2 contentBounds)
     {
+        if (!IsAlignment(TextHorizontalAlignment) || !IsAlignment(TextVerticalAlignment))
+            throw new InvalidOperationException("Invalid text alignment.");
         base.ArrangeOverride(contentBounds);
         _textPosition = new Vector2(Padding.Left + Offset(contentBounds.Width - _textSize.Width, TextHorizontalAlignment), Padding.Top + Offset(contentBounds.Height - _textSize.Height, TextVerticalAlignment));
     }

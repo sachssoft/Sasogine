@@ -1,5 +1,5 @@
 {
-  "files": 357,
+  "files": 359,
   "rule": "One named type per matching file; no nested or partial declarations",
   "checked": [
     "Examples/Advanced.01.Editor/EditorApplication.cs",
@@ -329,6 +329,8 @@
     "Projects/UI/Validation/InspectorViewContractDefinition.cs",
     "Projects/UI/Validation/InspectorViewContractDescription.cs",
     "Projects/UI/Validation/InspectorViewContractTests.cs",
+    "Projects/UI/Validation/InvalidationChecks.cs",
+    "Projects/UI/Validation/InvalidationTextProbe.cs",
     "Projects/UI/Validation/LayoutDecorationChecks.cs",
     "Projects/UI/Validation/MeasureProbe.cs",
     "Projects/UI/Validation/MenuSeparatorChecks.cs",

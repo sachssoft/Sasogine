@@ -43,7 +43,14 @@ public class Spinner : Control
     protected override void OnUpdate(TimeSpan elapsed)
     {
         if (_active.NewValue && IsAvailable())
-            _phase = (_phase + elapsed.TotalSeconds * _speed.NewValue) % 1;
+        {
+            double next = (_phase + elapsed.TotalSeconds * _speed.NewValue) % 1;
+            if (_phase != next)
+            {
+                _phase = next;
+                InvalidateVisual();
+            }
+        }
     }
 
     /// <inheritdoc/>

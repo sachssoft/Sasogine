@@ -45,6 +45,8 @@ public class Chart : Control
         _dirty = true;
         if (args.PropertyName != nameof(Series))
             base.OnPropertyChanged(args);
+        else
+            InvalidateVisual();
     }
 
     /// <inheritdoc/>

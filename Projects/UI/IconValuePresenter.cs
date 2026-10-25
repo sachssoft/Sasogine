@@ -13,5 +13,7 @@ internal sealed class IconValuePresenter : ContentControl
         // Ownership changes and child text metrics already invalidate the affected geometry.
         if (notification.PropertyName != nameof(Content))
             base.OnPropertyChanged(notification);
+        else
+            InvalidateVisual();
     }
 }

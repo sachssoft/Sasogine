@@ -243,6 +243,7 @@ public class IconValueDisplay : ContainerControl
         switch (notification.PropertyName)
         {
             case nameof(UseStyle):
+                InvalidateVisual();
                 return;
             case nameof(ValueFormat):
                 _formatDirty = true;

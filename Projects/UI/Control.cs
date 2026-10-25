@@ -78,6 +78,9 @@ public abstract class Control : Element
 
     private string _styleId = string.Empty;
 
+    /// <summary>Tracks visual invalidation without consuming state while drawing.</summary>
+    private ulong _visualRevision;
+
     private StyleProperty<bool> _styleIsEnabled = new(true);
     private StyleProperty<bool> _styleIsFocusable = new(false);
     private StyleProperty<bool> _styleIsHitTestVisible = new(true);
@@ -423,6 +426,9 @@ public abstract class Control : Element
 
     /// <summary>Gets whether the last successful measurement remains valid for its existing constraints and resolved font.</summary>
     internal bool HasValidMeasure => !_measureDirty && _measureFontRevision == _fontResolutionRevision;
+
+    /// <summary>Gets the revision of this control's appearance or descendant presentation for renderer cache tracking.</summary>
+    internal ulong VisualRevision => _visualRevision;
 
     /// <summary>
     /// Gets or sets the minimum logical width.
@@ -1040,7 +1046,18 @@ public abstract class Control : Element
         if (notification.PropertyName == nameof(StyleId))
             _appliedRevision = -1;
         if (notification.PropertyName == nameof(ZIndex))
+        {
             Parent?.InvalidateOrder();
+            InvalidateVisual();
+            return;
+        }
+        if (notification.PropertyName is nameof(HorizontalAlignment) or nameof(VerticalAlignment)
+            or nameof(ContentControl.ContentHorizontalAlignment) or nameof(ContentControl.ContentVerticalAlignment)
+            or nameof(TextBlock.TextHorizontalAlignment) or nameof(TextBlock.TextVerticalAlignment))
+        {
+            InvalidateArrange();
+            return;
+        }
         if (notification.PropertyName is
             nameof(Opacity) or
             nameof(Background) or
@@ -1051,9 +1068,13 @@ public abstract class Control : Element
             nameof(DisabledBackground) or
             nameof(DisabledTextColor) or
             nameof(FocusColor) or
+            nameof(IsEnabled) or nameof(IsFocusable) or nameof(IsHitTestVisible) or nameof(TabIndex) or
             "IsPressed" or "IsReleased" or "IsHeld" or
             nameof(IsFocused) or nameof(IsHovered) or nameof(IsPointerOver))
+        {
+            InvalidateVisual();
             return;
+        }
         InvalidateMeasure();
     }
 
@@ -1133,11 +1154,41 @@ public abstract class Control : Element
     /// <summary>
     /// Invalidates measurement for this control and its layout ancestors.
     /// </summary>
-    protected internal void InvalidateMeasure()
+    protected internal void InvalidateMeasure() => InvalidateLayoutCore(true);
+
+    /// <summary>Marks this control and its ancestors as visually changed without invalidating layout.</summary>
+    /// <remarks>
+    /// The current renderer continues drawing each frame. This records a revision for renderer caches;
+    /// it does not create a bitmap cache or immediately draw. Call on the workspace thread outside Draw.
+    /// </remarks>
+    public void InvalidateVisual()
     {
-        _measureDirty = _arrangeDirty = true;
-        Parent?.InvalidateMeasure();
-        Workspace?.InvalidateLayout();
+        for (Control? control = this; control is not null; control = control.Parent)
+            unchecked
+            {
+                control._visualRevision++;
+            }
+    }
+
+    /// <summary>Invalidates arrangement for this control and its ancestors while preserving measured sizes.</summary>
+    /// <remarks>Schedules a layout pass for the next update and marks affected visuals as changed.</remarks>
+    public void InvalidateArrange() => InvalidateLayoutCore(false);
+
+    /// <summary>Marks the affected ancestor chain once, preserving measure caches for arrange-only changes.</summary>
+    /// <param name="measure">Whether to invalidate measurement as well as arrangement.</param>
+    private void InvalidateLayoutCore(bool measure)
+    {
+        for (Control? control = this; control is not null; control = control.Parent)
+        {
+            if (measure)
+                control._measureDirty = true;
+            control._arrangeDirty = true;
+            unchecked
+            {
+                control._visualRevision++;
+            }
+            control.Workspace?.InvalidateLayout();
+        }
     }
 
     /// <summary>Gets the explicit width used by layout. Derived controls can ignore a configured width for content sizing.</summary>
@@ -1211,9 +1262,15 @@ public abstract class Control : Element
         {
             if (!IsVisible)
             {
-                Bounds = Bounds2.Zero;
+                if (Bounds != Bounds2.Zero)
+                {
+                    Bounds = Bounds2.Zero;
+                    InvalidateVisual();
+                }
                 return;
             }
+            if (!IsAlignment(HorizontalAlignment) || !IsAlignment(VerticalAlignment))
+                throw new InvalidOperationException("Invalid control alignment.");
 
             Insets2 m = Margin;
             float availableWidth = MathF.Max(0, slot.Width - m.Horizontal);
@@ -1228,7 +1285,12 @@ public abstract class Control : Element
                 height = MathF.Min(height, availableHeight);
             }
 
-            Bounds = new Bounds2(slot.X + m.Left + Align(availableWidth - width, HorizontalAlignment), slot.Y + m.Top + Align(availableHeight - height, VerticalAlignment), width, height);
+            Bounds2 nextBounds = new(slot.X + m.Left + Align(availableWidth - width, HorizontalAlignment), slot.Y + m.Top + Align(availableHeight - height, VerticalAlignment), width, height);
+            if (Bounds != nextBounds)
+            {
+                Bounds = nextBounds;
+                InvalidateVisual();
+            }
             ArrangeOverride(ContentBounds);
         }
         catch
@@ -1290,12 +1352,22 @@ public abstract class Control : Element
     /// </summary>
     /// <param name="context">The context for this operation.</param>
     /// <param name="args">The input event arguments.</param>
-    internal void Input(ControlInputContext context, ControlInputEventArgs args) => OnInput(context, args);
+    internal void Input(ControlInputContext context, ControlInputEventArgs args)
+    {
+        OnInput(context, args);
+        if (args.Handled)
+            InvalidateVisual();
+    }
 
     /// <summary>Dispatches the ancestor-to-target preview phase of routed input.</summary>
     /// <param name="context">The input context used for pointer capture and focus.</param>
     /// <param name="args">The borrowed routing state for the current event.</param>
-    internal void PreviewInput(ControlInputContext context, ControlInputEventArgs args) => OnPreviewInput(context, args);
+    internal void PreviewInput(ControlInputContext context, ControlInputEventArgs args)
+    {
+        OnPreviewInput(context, args);
+        if (args.Handled)
+            InvalidateVisual();
+    }
 
     /// <summary>
     /// Updates the control using the elapsed frame time.

@@ -121,6 +121,8 @@ public class ContentControl : ContainerControl
     /// <inheritdoc/>
     protected override void ArrangeOverride(Bounds2 bounds)
     {
+        if (!IsAlignment(ContentHorizontalAlignment) || !IsAlignment(ContentVerticalAlignment))
+            throw new InvalidOperationException("Invalid content alignment.");
         if (!ShowsContent || ContentPresenter is not Control child)
             return;
         float w = ContentHorizontalAlignment == ControlAlignment.Stretch ? bounds.Width : MathF.Min(bounds.Width, child.DesiredSize.Width);

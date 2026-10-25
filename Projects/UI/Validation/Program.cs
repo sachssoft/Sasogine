@@ -464,6 +464,7 @@ internal static class Program
                 root.Update(frame, layout);
                 Check(panel.Measurements > measured && text.DesiredSize.Height > 32, "Wrapping must retain full layout invalidation");
             });
+            Run("Separate visual, arrange and measure invalidation", () => InvalidationChecks.Run(Check, Layout));
             Run("Persistent layout and text caches with targeted invalidation", () =>
             {
                 var font = new CountingFont();
@@ -1157,10 +1158,11 @@ internal static class Program
                 Check(script.Language == ScriptLanguage.Lua);
                 var dialog = new FolderSelectorDialog
                 {
+                    UseSystemFavorites = false,
                     UseSystemDrives = false
                 };
-                dialog.Favorites.Clear();
-                dialog.Favorites.Add(new FileDialogLocation("Test", "/virtual"));
+                dialog.FavoriteFolders.Clear();
+                dialog.FavoriteFolders.Add(new FileDialogLocation("Test", "/virtual"));
                 dialog.Drives.Add(new FileDialogLocation("Drive", "/drive"));
                 dialog.RefreshLocations();
                 Check(dialog.FavoritesList.Items.Count == 1 && dialog.DrivesList.Items.Count == 1);

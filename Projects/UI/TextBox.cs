@@ -101,6 +101,7 @@ public class TextBox : Control
         _caret = Text.Length;
         _blink = 0;
         EnsureCaret();
+        InvalidateVisual();
     }
 
     /// <summary>
@@ -114,6 +115,7 @@ public class TextBox : Control
         _caret = Snap(start + length);
         _blink = 0;
         EnsureCaret();
+        InvalidateVisual();
     }
 
     private static string Normalize(string value) => value.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n');
@@ -362,7 +364,10 @@ public class TextBox : Control
     /// <inheritdoc/>
     protected override void OnUpdate(TimeSpan elapsed)
     {
+        bool caretVisible = _blink < .5;
         _blink = (_blink + elapsed.TotalSeconds) % 1;
+        if (IsFocused && !IsReadOnly && caretVisible != (_blink < .5))
+            InvalidateVisual();
         if (_observed != Text)
         {
             _observed = Text;
