@@ -60,56 +60,33 @@ public sealed class GameServiceManager : IServiceProvider
     /// <summary>
     /// Gets a registered service.
     /// </summary>
-    /// <typeparam name="TInterface">
-    /// The interface type of the service.
-    /// </typeparam>
-    /// <returns>
-    /// The registered service instance.
-    /// </returns>
+    /// <typeparam name="TInterface">The interface type of the service.</typeparam>
+    /// <returns>The registered service instance.</returns>
     /// <exception cref="InvalidOperationException">
     /// Thrown when the service is not registered.
     /// </exception>
-    public TInterface Get<TInterface>()
-        where TInterface : class
+    public TInterface Get<TInterface>() where TInterface : class
     {
-        if (_services.TryGetValue(typeof(TInterface), out var entry))
-            return (TInterface)entry.GetInstance();
-
-        throw new InvalidOperationException(
-            $"Service {typeof(TInterface).Name} not registered.");
+        return (TInterface?)GetService(typeof(TInterface))
+            ?? throw new InvalidOperationException(
+                $"Service {typeof(TInterface).Name} not registered.");
     }
 
     /// <summary>
     /// Attempts to retrieve a registered service.
     /// </summary>
-    /// <typeparam name="TInterface">
-    /// The interface type of the service.
-    /// </typeparam>
+    /// <typeparam name="TInterface">The interface type of the service.</typeparam>
     /// <param name="service">
-    /// Receives the registered service when found.
+    /// Receives the registered service, or <see langword="null"/> if unavailable.
     /// </param>
     /// <returns>
-    /// <see langword="true"/> if the service is registered;
+    /// <see langword="true"/> if the service was resolved successfully;
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    public bool TryGet<TInterface>(
-        out TInterface? service)
-        where TInterface : class
+    public bool TryGet<TInterface>(out TInterface? service) where TInterface : class
     {
-        var type = typeof(TInterface);
-
-        if (!type.IsInterface)
-            throw new InvalidOperationException(
-                "Only interfaces can be resolved.");
-
-        if (_services.TryGetValue(type, out var entry))
-        {
-            service = (TInterface)entry.GetInstance();
-            return true;
-        }
-
-        service = null;
-        return false;
+        service = GetService(typeof(TInterface)) as TInterface;
+        return service is not null;
     }
 
     /// <summary>
