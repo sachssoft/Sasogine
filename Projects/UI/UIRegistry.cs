@@ -166,6 +166,7 @@ public sealed class UIRegistry
         Register("ComboBox", static () => new ComboBox());
         Register("WrapPanel", static () => new WrapPanel());
         Register("TiledPanel", static () => new TiledPanel());
+        Register(nameof(AdaptiveTilePanel), static () => new AdaptiveTilePanel());
         Register("MenuBar", static () => new MenuBar());
         Register("ContextMenu", static () => new ContextMenu());
         Register("Window", static () => new Window());
@@ -253,6 +254,7 @@ public sealed class UIRegistry
         styles.Register("ComboBox", new Style { BasedOn = "TextBox" });
         styles.Register("WrapPanel", new Style { BasedOn = "Panel", Padding = Insets2.Zero, Spacing = 8 });
         styles.Register("TiledPanel", new Style { BasedOn = "Panel", Padding = Insets2.Zero, Spacing = 8 });
+        styles.Register(nameof(AdaptiveTilePanel), new Style { BasedOn = "Panel", Padding = Insets2.Zero, Spacing = 8 });
         styles.Register("MenuBar", new Style { BasedOn = "Control", IsFocusable = true, Height = 36, Padding = Insets2.Zero });
         styles.Register("ContextMenu", new Style { BasedOn = "Control", IsFocusable = true, Padding = new Insets2(6) });
         styles.Register("Window", new Style { BasedOn = "ContentControl", ContentHorizontalAlignment = ControlAlignment.Stretch, ContentVerticalAlignment = ControlAlignment.Stretch, Width = 560, Height = 360, MinWidth = 220, MinHeight = 120, Padding = new Insets2(16), TitlebarHeight = 36 });

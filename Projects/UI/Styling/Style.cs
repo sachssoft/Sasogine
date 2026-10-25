@@ -10,6 +10,27 @@ namespace Sachssoft.Engine.Controls.Styling;
 /// </summary>
 public sealed class Style
 {
+    /// <summary>Gets or sets the minimum logical tile dimensions. Both components must be finite and positive. Defaults to 16 by 16.</summary>
+    public Size2 MinTileSize
+    {
+        get => _values.TryGetValue(nameof(MinTileSize), out string? text) ? ShorthandConverters.Convert<Size2>("Size2", text) : new Size2(16);
+        set => this[nameof(MinTileSize)] = ShorthandConverters.Format("Size2", value);
+    }
+
+    /// <summary>Gets or sets the preferred logical tile dimensions and, when enabled, their aspect ratio. Defaults to 128 by 128.</summary>
+    public Size2 PreferredTileSize
+    {
+        get => _values.TryGetValue(nameof(PreferredTileSize), out string? text) ? ShorthandConverters.Convert<Size2>("Size2", text) : new Size2(128);
+        set => this[nameof(PreferredTileSize)] = ShorthandConverters.Format("Size2", value);
+    }
+
+    /// <summary>Gets or sets whether resizing preserves the preferred aspect ratio. Defaults to true; both minimum dimensions still apply.</summary>
+    public bool PreserveAspectRatio
+    {
+        get => _values.TryGetValue(nameof(PreserveAspectRatio), out string? text) ? ShorthandConverters.Convert<bool>("Boolean", text) : true;
+        set => this[nameof(PreserveAspectRatio)] = ShorthandConverters.Format("Boolean", value);
+    }
+
     /// <summary>Gets or sets a status strip's fixed, automatic or proportional slot length. Defaults to Auto.</summary>
     public GridLength Length
     {

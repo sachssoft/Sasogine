@@ -10,7 +10,7 @@ internal static class LayoutDecorationChecks
 {
     internal static void Run(Action<bool, string> check, ControlLayoutContext layout)
     {
-        Control[] panels = [new Panel(), new Grid(), new StackPanel(), new WrapPanel(), new TiledPanel(), new EdgePanel()];
+        Control[] panels = [new Panel(), new Grid(), new StackPanel(), new WrapPanel(), new TiledPanel(), new AdaptiveTilePanel(), new EdgePanel()];
         foreach (Control panel in panels)
         {
             using var workspace = new Workspace(panel);

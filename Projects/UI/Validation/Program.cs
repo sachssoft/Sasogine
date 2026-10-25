@@ -226,6 +226,7 @@ internal static class Program
             Run("Shared header groups and non-collapsible expander appearance", () => HeaderGroupChecks.Run(Check, Layout));
             Run("Layout styles without background, border or focus decoration", () => LayoutDecorationChecks.Run(Check, Layout));
             Run("Start/end edge panels, ordering and cached layout", () => EdgePanelChecks.Run(Check, Layout));
+            Run("Adaptive tile sizing, aspect ratio, styles and cached layout", () => AdaptiveTilePanelChecks.Run(Check, Layout));
             Run("Window content sizing and close-button layout", () => WindowLayoutChecks.Run(Check, Layout));
             Run("Tool groups, uniform button palettes, status content and cached wrapping", () => BarControlChecks.Run(Check, Layout));
             Run("Grid-owned placement, observable rows and columns, and invalidation", () =>
