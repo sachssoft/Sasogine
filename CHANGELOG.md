@@ -32,6 +32,7 @@ All notable changes to this project will be documented in this file.
 * [Improve] Enhanced `HistoryService` with undo/redo history access, change notifications, save-point tracking, and unsaved modification detection.
 * [Bug] Fixed history trimming to preserve the correct undo order.
 * [Bug] Fixed persistent scenes being loaded multiple times when reactivated.
+* [Bug] **Toolkit**: SelectionTool now prevents transforming locked entities, including in mixed selections.
 
 ## [0.12.0-alpha] - 2026-10-21
 * [Feature] Introduced definition-inspector system.
