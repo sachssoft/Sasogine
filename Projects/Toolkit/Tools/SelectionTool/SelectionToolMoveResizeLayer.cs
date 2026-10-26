@@ -107,6 +107,30 @@ public sealed class SelectionToolMoveResizeLayer : SelectionToolLayer
         Point2 cursorPosition,
         Vector2 delta)
     {
+        OnNodeInteract(
+            context,
+            node,
+            target,
+            definition,
+            otherSelectedTargets,
+            otherSelectedTargetDefinitions,
+            cursorPosition,
+            delta,
+            false);
+    }
+
+    /// <inheritdoc/>
+    protected internal override void OnNodeInteract(
+        SelectionToolLayerContext context,
+        SelectionToolNode node,
+        ISelectionTarget2? target,
+        ISelectionTarget2Definition? definition,
+        IEnumerable<ISelectionTarget2>? otherSelectedTargets,
+        IEnumerable<ISelectionTarget2Definition>? otherSelectedTargetDefinitions,
+        Point2 cursorPosition,
+        Vector2 delta,
+        bool uniformScale)
+    {
         if (_move.AllowHandle(node, target, definition))
         {
             _move.OnNodeInteract(
@@ -134,7 +158,8 @@ public sealed class SelectionToolMoveResizeLayer : SelectionToolLayer
             localCursorPosition,
             out var originOffset,
             out _,
-            out _))
+            out _,
+            uniformScale))
         {
             return;
         }

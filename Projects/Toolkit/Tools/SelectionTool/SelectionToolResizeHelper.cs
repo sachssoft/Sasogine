@@ -202,6 +202,7 @@ internal sealed class SelectionToolResizeHelper
     /// <param name="originOffset">Receives the incremental local origin offset.</param>
     /// <param name="oldSize">Receives the previously applied size.</param>
     /// <param name="newSize">Receives the newly applied size.</param>
+    /// <param name="uniformScale">Whether the active action preserves the aspect ratio captured at drag start.</param>
     /// <returns><see langword="true"/> if the resize state changed; otherwise, <see langword="false"/>.</returns>
     public bool OnNodeInteract(
         SelectionToolLayerContext context,
@@ -211,7 +212,8 @@ internal sealed class SelectionToolResizeHelper
         Point2 cursorPosition,
         out Vector2 originOffset,
         out Size2 oldSize,
-        out Size2 newSize)
+        out Size2 newSize,
+        bool uniformScale = false)
     {
         originOffset = Vector2.Zero;
         oldSize = _appliedSize;
@@ -312,7 +314,7 @@ internal sealed class SelectionToolResizeHelper
         ISelectionResizable2? resizable =
             target as ISelectionResizable2;
 
-        if (resizable?.PreserveAspectRatio == true &&
+        if ((uniformScale || resizable?.PreserveAspectRatio == true) &&
             _dragStartSize.Width > 0f &&
             _dragStartSize.Height > 0f)
         {

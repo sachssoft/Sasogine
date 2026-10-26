@@ -142,6 +142,41 @@ public abstract class SelectionToolLayer
     }
 
     /// <summary>
+    /// Handles a node action with the current proportional-scaling modifier.
+    /// </summary>
+    /// <param name="context">The current selection tool settings.</param>
+    /// <param name="node">The interaction node being manipulated.</param>
+    /// <param name="target">The primary runtime target, if available.</param>
+    /// <param name="definition">The primary target definition, if available.</param>
+    /// <param name="otherSelectedTargets">The other selected runtime targets, if available.</param>
+    /// <param name="otherSelectedTargetDefinitions">The other selected definitions, if available.</param>
+    /// <param name="cursorPosition">The current cursor position in world space.</param>
+    /// <param name="delta">The cursor movement since the previous update.</param>
+    /// <param name="uniformScale">Whether the active resize action preserves its starting aspect ratio.</param>
+    /// <remarks>Layers that do not handle proportional scaling retain their existing node-action behavior.</remarks>
+    protected internal virtual void OnNodeInteract(
+        SelectionToolLayerContext context,
+        SelectionToolNode node,
+        ISelectionTarget2? target,
+        ISelectionTarget2Definition? definition,
+        IEnumerable<ISelectionTarget2>? otherSelectedTargets,
+        IEnumerable<ISelectionTarget2Definition>? otherSelectedTargetDefinitions,
+        Point2 cursorPosition,
+        Vector2 delta,
+        bool uniformScale)
+    {
+        OnNodeInteract(
+            context,
+            node,
+            target,
+            definition,
+            otherSelectedTargets,
+            otherSelectedTargetDefinitions,
+            cursorPosition,
+            delta);
+    }
+
+    /// <summary>
     /// Transforms a point from the target's untransformed local coordinate space
     /// into the transformed local coordinate space provided by this layer.
     /// </summary>

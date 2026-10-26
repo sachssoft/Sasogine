@@ -334,10 +334,14 @@ public class SelectionTool : ToolBase, INotifyTransformChanged
                         GetOtherSelectedTargetDefinitions(
                             _activeDefinition),
                         _cursorPosition,
-                        delta);
+                        delta,
+                        _interactions.Modifier.HasFlag(
+                            InteractionFlags.IsPressed));
 
                     if (IsTransforming &&
-                        delta != Vector2.Zero)
+                        (delta != Vector2.Zero ||
+                         _interactions.Modifier.HasFlag(InteractionFlags.WasJustPressed) ||
+                         _interactions.Modifier.HasFlag(InteractionFlags.WasJustReleased)))
                     {
                         NotifyTransformChanged();
                     }

@@ -144,6 +144,30 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
         Point2 cursorPosition,
         Vector2 delta)
     {
+        OnNodeInteract(
+            context,
+            node,
+            target,
+            definition,
+            otherSelectedTargets,
+            otherSelectedTargetDefinitions,
+            cursorPosition,
+            delta,
+            false);
+    }
+
+    /// <inheritdoc/>
+    protected internal override void OnNodeInteract(
+        SelectionToolLayerContext context,
+        SelectionToolNode node,
+        ISelectionTarget2? target,
+        ISelectionTarget2Definition? definition,
+        IEnumerable<ISelectionTarget2>? otherSelectedTargets,
+        IEnumerable<ISelectionTarget2Definition>? otherSelectedTargetDefinitions,
+        Point2 cursorPosition,
+        Vector2 delta,
+        bool uniformScale)
+    {
         if (_move.AllowHandle(
             node,
             target,
@@ -179,7 +203,8 @@ public sealed class SelectionToolTransformLayer : SelectionToolLayer
                 localCursorPosition,
                 out var originOffset,
                 out var oldSize,
-                out var newSize))
+                out var newSize,
+                uniformScale))
             {
                 return;
             }
