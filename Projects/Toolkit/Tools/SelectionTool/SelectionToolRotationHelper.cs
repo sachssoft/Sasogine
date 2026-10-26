@@ -120,6 +120,9 @@ internal sealed class SelectionToolRotationHelper
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
     {
+        if (target?.IsLocked == true || definition?.IsLocked == true)
+            return false;
+
         if (!IsRotationNode(node) && !ReferenceEquals(node, _pivotNode))
             return false;
 
@@ -142,6 +145,9 @@ internal sealed class SelectionToolRotationHelper
         ISelectionTarget2Definition? definition,
         Point2 cursorPosition)
     {
+        if (!AllowHandle(node, target, definition))
+            return;
+
         if ((!IsRotationNode(node) && !ReferenceEquals(node, _pivotNode)) ||
             !TryGetTransform(target, definition, out _dragStartPosition, out _dragStartSize, out _dragStartRotation, out _dragStartPivot))
         {
@@ -192,7 +198,7 @@ internal sealed class SelectionToolRotationHelper
         Point2 cursorPosition,
         Point2 localCursorPosition)
     {
-        if (!_isDragging || !ReferenceEquals(_dragNode, node))
+        if (!AllowHandle(node, target, definition) || !_isDragging || !ReferenceEquals(_dragNode, node))
             return;
 
         if (ReferenceEquals(node, _pivotNode))

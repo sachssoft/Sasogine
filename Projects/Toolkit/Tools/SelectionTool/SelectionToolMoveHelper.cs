@@ -58,6 +58,9 @@ internal sealed class SelectionToolMoveHelper
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
     {
+        if (target?.IsLocked == true || definition?.IsLocked == true)
+            return false;
+
         if (!ReferenceEquals(node, Node))
             return false;
 
@@ -80,6 +83,9 @@ internal sealed class SelectionToolMoveHelper
         ISelectionTarget2Definition? definition,
         Point2 cursorPosition)
     {
+        if (!AllowHandle(node, target, definition))
+            return;
+
         if (!ReferenceEquals(node, Node))
             return;
 
@@ -118,7 +124,7 @@ internal sealed class SelectionToolMoveHelper
         IEnumerable<ISelectionTarget2Definition>? otherSelectedTargetDefinitions,
         Point2 cursorPosition)
     {
-        if (!ReferenceEquals(node, Node) || !_isDragging)
+        if (!AllowHandle(node, target, definition) || !_isDragging)
             return;
 
         Point2 newPosition = _dragStartPosition + (cursorPosition - _dragStartCursorPosition);
@@ -161,6 +167,13 @@ internal sealed class SelectionToolMoveHelper
         {
             foreach (var otherTarget in otherSelectedTargets)
             {
+                if (otherTarget.IsLocked || otherTarget.Definition is ISelectionTargetDefinition { IsLocked: true })
+                {
+                    if (otherTarget.Definition is ISelectionTarget2Definition lockedDefinition)
+                        updatedDefinitions.Add(lockedDefinition);
+                    continue;
+                }
+
                 if (otherTarget is not ISelectionMovable2 otherMovable || !otherMovable.AllowMove)
                     continue;
 
@@ -186,7 +199,7 @@ internal sealed class SelectionToolMoveHelper
 
         foreach (var otherDefinition in otherSelectedTargetDefinitions)
         {
-            if (!updatedDefinitions.Add(otherDefinition))
+            if (otherDefinition.IsLocked || !updatedDefinitions.Add(otherDefinition))
                 continue;
 
             if (otherDefinition is ISelectionMovable2Definition otherMovableDefinition)

@@ -136,6 +136,9 @@ internal sealed class SelectionToolResizeHelper
         ISelectionTarget2? target,
         ISelectionTarget2Definition? definition)
     {
+        if (target?.IsLocked == true || definition?.IsLocked == true)
+            return false;
+
         if (!IsNode(node))
             return false;
 
@@ -172,6 +175,9 @@ internal sealed class SelectionToolResizeHelper
         ISelectionTarget2Definition? definition,
         Point2 cursorPosition)
     {
+        if (!AllowHandle(node, target, definition))
+            return;
+
         if (!IsNode(node) ||
             !TryGetSize(
                 target,
@@ -219,7 +225,8 @@ internal sealed class SelectionToolResizeHelper
         oldSize = _appliedSize;
         newSize = _appliedSize;
 
-        if (!_isDragging ||
+        if (!AllowHandle(node, target, definition) ||
+            !_isDragging ||
             !ReferenceEquals(_dragNode, node))
         {
             return false;
