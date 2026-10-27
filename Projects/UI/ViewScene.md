@@ -48,6 +48,13 @@ Pass the scene to the existing `SceneManager`. It calls `Enter`, `Load`, `Update
   a workspace transfers ownership to the scene. Clean up resources created by a failing
   `CreateWorkspace` inside that factory.
 
+For fonts supplied by application assets, use the protected parameterless constructor
+and override `CreateDefaultFont()`. The factory runs during `Load`, after `Enter`,
+when application assets are initialized. The scene owns this returned font adapter
+and disposes it after the workspace and renderer, including on failed loading.
+Reloading calls the factory again. The existing font-taking constructor keeps caller
+ownership and does not dispose the supplied font.
+
 `IScene.RequiresCamera` defaults to `true` for existing scenes. View scenes return `false`
 and expose exactly one view. Their `SceneUpdateContext.Cameras` array is empty and
 `SceneDrawContext.HasCamera` is false. Reading `ViewCamera` or `DefaultMaterial` on such a

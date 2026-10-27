@@ -26,6 +26,7 @@ All notable changes to this project will be documented in this file.
 * [Feature] Added scene transition system with timed and asynchronous transitions, including update and rendering support.
 * [Feature] Added a lightweight request-response system for decoupled component communication with callback-based responses.
 * [Feature] Added generic `GetService<T>()` and `TryGetService<T>()` methods to `GameApplicationBase`.
+* [Feature] Added camera-free scene support to `SceneManager`.
 * [Improve] **Toolkit**: Hold Shift while resizing to scale proportionally and preserve the original aspect ratio.
 * [Improve] Unified service resolution in `GameServiceManager` and removed inconsistent interface validation.
 * [Improve] Improved `DisposeManager` with thread-safe registration, duplicate resource detection, and aggregated disposal exceptions.

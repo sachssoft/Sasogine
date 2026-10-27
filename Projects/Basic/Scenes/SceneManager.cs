@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Sachssoft.Engine.Graphics.Cameras;
 using System;
 using System.Collections.Generic;
@@ -110,7 +110,10 @@ namespace Sachssoft.Engine.Scenes
         /// </param>
         private void InitializeScene(IScene scene)
         {
-            var cameras = CreateCameras(scene);
+            if (!scene.RequiresCamera && scene.ViewCount != 1)
+                throw new ArgumentException("Camera-free scenes must expose exactly one view.", nameof(scene));
+
+            var cameras = scene.RequiresCamera ? CreateCameras(scene) : Array.Empty<ICamera>();
 
             _sceneUpdateContext = new SceneUpdateContext(
                 _application,
@@ -135,6 +138,9 @@ namespace Sachssoft.Engine.Scenes
                         cameras.Length);
             }
 
+
+            if (!scene.RequiresCamera)
+                _sceneDrawContexts[0] = new SceneDrawContext(_application, scene);
 
             bool alreadyLoaded = _persistentScenes.Contains(scene);
 

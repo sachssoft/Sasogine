@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Engine.Graphics.Cameras;
 using Sachssoft.Engine.Graphics.Materials;
 
@@ -25,6 +25,12 @@ namespace Sachssoft.Engine.Scenes
         /// Gets the number of rendering views managed by this scene.
         /// </summary>
         int ViewCount { get; }
+
+        /// <summary>
+        /// Gets whether scene rendering requires cameras and default materials.
+        /// </summary>
+        /// <remarks>Existing scenes retain camera-based rendering. Camera-free scenes must expose one view.</remarks>
+        bool RequiresCamera => true;
 
         /// <summary>
         /// Loads all resources required by this scene.

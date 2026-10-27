@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Sachssoft.Engine.Graphics.Cameras;
 using Sachssoft.Engine.Graphics.Materials;
 using System;
@@ -14,6 +14,34 @@ namespace Sachssoft.Engine.Scenes;
 /// </remarks>
 public class SceneDrawContext : GameContext
 {
+    /// <summary>Stores the camera for world rendering; absent for presentation scenes.</summary>
+    private readonly ICamera? _viewCamera;
+
+    /// <summary>Stores the material for camera-based rendering; absent for presentation scenes.</summary>
+    private readonly IMaterial? _defaultMaterial;
+
+    /// <summary>Creates a rendering context without a camera or world material.</summary>
+    /// <param name="application">The application that owns the graphics device.</param>
+    /// <param name="scene">A camera-free scene with exactly one view.</param>
+    /// <param name="frameCounterSmoothing">The frame counter smoothing factor.</param>
+    /// <exception cref="ArgumentNullException">The scene or application is null.</exception>
+    /// <exception cref="ArgumentException">The scene requires a camera or has more than one view.</exception>
+    public SceneDrawContext(GameApplicationBase application, IScene scene, float frameCounterSmoothing = 0.1f)
+        : base(application, frameCounterSmoothing)
+    {
+        ArgumentNullException.ThrowIfNull(scene);
+        if (scene.RequiresCamera || scene.ViewCount != 1)
+            throw new ArgumentException("A camera-free context requires a camera-free scene with one view.", nameof(scene));
+
+        Scene = scene;
+        ViewCount = 1;
+        if (scene is ISceneRuntimeSettings settings)
+        {
+            RuntimeMode = settings.RuntimeMode;
+            RuntimeOptions = settings.RuntimeOptions;
+        }
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="SceneDrawContext"/> class.
     /// </summary>
@@ -57,10 +85,10 @@ public class SceneDrawContext : GameContext
         Scene = scene ??
             throw new ArgumentNullException(nameof(scene));
 
-        ViewCamera = viewCamera ??
+        _viewCamera = viewCamera ??
             throw new ArgumentNullException(nameof(viewCamera));
 
-        DefaultMaterial = defaultMaterial ??
+        _defaultMaterial = defaultMaterial ??
             throw new ArgumentNullException(nameof(defaultMaterial));
 
         ViewIndex = viewIndex;
@@ -94,7 +122,12 @@ public class SceneDrawContext : GameContext
     /// <summary>
     /// Gets the camera assigned to the current rendering view.
     /// </summary>
-    public ICamera ViewCamera { get; }
+    /// <exception cref="InvalidOperationException">The scene has no camera.</exception>
+    public ICamera ViewCamera => _viewCamera ??
+        throw new InvalidOperationException("This scene renders without a camera.");
+
+    /// <summary>Gets whether this context provides a world camera and material.</summary>
+    public bool HasCamera => _viewCamera is not null;
 
     /// <summary>
     /// Gets the zero-based index of the current rendering view.
@@ -110,7 +143,9 @@ public class SceneDrawContext : GameContext
     /// Gets the default material used when a drawable object does not
     /// provide a custom material.
     /// </summary>
-    public IMaterial DefaultMaterial { get; }
+    /// <exception cref="InvalidOperationException">The scene has no world material.</exception>
+    public IMaterial DefaultMaterial => _defaultMaterial ??
+        throw new InvalidOperationException("This scene renders without a world material.");
 
     /// <summary>
     /// Calculates the viewport assigned to the current rendering view.

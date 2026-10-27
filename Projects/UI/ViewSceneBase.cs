@@ -13,15 +13,19 @@ namespace Sachssoft.Engine.Controls;
 
 /// <summary>Hosts a workspace as a scene without a world camera or material.</summary>
 /// <remarks>
-/// The scene owns its workspace and drawing resources. The supplied default font and skins
-/// remain caller-owned. CreateWorkspace runs after Enter and before the first update.
+/// The scene owns its workspace and drawing resources. Constructor-supplied fonts and skins
+/// remain caller-owned; a default font created through the parameterless path belongs to the scene.
+/// CreateWorkspace runs after Enter and before the first update.
 /// Unload releases the workspace; loading again creates a fresh tree. Use OnUpdate to poll controls
 /// after input has been processed. All lifecycle calls must run on the application thread.
 /// </remarks>
 public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
 {
-    /// <summary>Provides the caller-owned font shared by measurement and rendering.</summary>
-    private readonly ControlLayoutContext _layout;
+    /// <summary>Retains an optional caller-owned font supplied at construction.</summary>
+    private readonly IControlFont? _defaultFont;
+
+    /// <summary>Determines whether a font created at load time belongs to this scene.</summary>
+    private readonly bool _ownsDefaultFont;
 
     /// <summary>Owns the loaded workspace's drawing resources.</summary>
     private ControlDrawContext? _draw;
@@ -29,8 +33,14 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
     /// <summary>Retains device history and queued native text for the active scene.</summary>
     private ControlInputSampler _input = new();
 
+    /// <summary>Shares the loaded default font between measurement and rendering.</summary>
+    private ControlLayoutContext? _layout;
+
     /// <summary>Identifies the application supplied during activation.</summary>
     private GameApplicationBase? _application;
+
+    /// <summary>Retains the default font for the current load cycle.</summary>
+    private IControlFont? _loadedFont;
 
     /// <summary>Contains the loaded control tree and its bindings.</summary>
     private Workspace? _workspace;
@@ -53,12 +63,19 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
     /// <summary>Guards the update traversal and its scene callbacks.</summary>
     private bool _updating;
 
+    /// <summary>Creates a scene that obtains its default font during Load.</summary>
+    /// <remarks>Override CreateDefaultFont. The scene disposes the returned font after unloading.</remarks>
+    protected ViewSceneBase()
+    {
+        _ownsDefaultFont = true;
+    }
+
     /// <summary>Creates a camera-free scene using a caller-owned default font.</summary>
     /// <param name="defaultFont">The font used for both measurement and rendering.</param>
     /// <exception cref="ArgumentNullException">The font is null.</exception>
     protected ViewSceneBase(IControlFont defaultFont)
     {
-        _layout = new ControlLayoutContext(defaultFont);
+        _defaultFont = defaultFont ?? throw new ArgumentNullException(nameof(defaultFont));
     }
 
     /// <summary>Gets the application supplied by Enter.</summary>
@@ -133,17 +150,29 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
             return;
 
         GameApplicationBase application = Application;
-        Workspace workspace = CreateWorkspace() ??
-            throw new InvalidOperationException("CreateWorkspace must return a workspace.");
+        Workspace? workspace = null;
         try
         {
-            _draw = new ControlDrawContext(application, _layout.DefaultFont,
+            _loadedFont = CreateDefaultFont() ??
+                throw new InvalidOperationException("CreateDefaultFont must return a font.");
+            _layout = new ControlLayoutContext(_loadedFont);
+            workspace = CreateWorkspace() ??
+                throw new InvalidOperationException("CreateWorkspace must return a workspace.");
+            _draw = new ControlDrawContext(application, _loadedFont,
                 application.GraphicsDevice.Viewport.Bounds);
             _workspace = workspace;
         }
         catch
         {
-            workspace.Dispose();
+            try
+            {
+                workspace?.Dispose();
+            }
+            finally
+            {
+                ReleaseRenderingResources();
+                Exit();
+            }
             throw;
         }
     }
@@ -167,8 +196,7 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
         finally
         {
             _workspace = null;
-            _draw?.Dispose();
-            _draw = null;
+            ReleaseRenderingResources();
         }
     }
 
@@ -245,6 +273,16 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
     /// <summary>Releases scene resources when the application shuts down.</summary>
     void IApplicationExitAware.OnApplicationExited() => Unload();
 
+    /// <summary>Obtains the default font after activation and asset initialization.</summary>
+    /// <returns>The font used for this load cycle.</returns>
+    /// <remarks>
+    /// The parameterless constructor transfers ownership of the returned font to the scene.
+    /// The font-taking constructor retains caller ownership instead.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">No font was supplied and the factory was not overridden.</exception>
+    protected virtual IControlFont CreateDefaultFont() => _defaultFont ??
+        throw new InvalidOperationException("Override CreateDefaultFont or supply a default font.");
+
     /// <summary>Creates and configures the workspace, including styles and optional skin.</summary>
     /// <returns>A new workspace owned by this scene until Unload.</returns>
     protected abstract Workspace CreateWorkspace();
@@ -256,7 +294,7 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
     protected virtual void UpdateWorkspace(SceneUpdateContext context, Rectangle viewport)
     {
         Workspace.Update(_input, Mouse.GetState(), Keyboard.GetState(), TouchPanel.GetState(),
-            viewport, context.GameTime.ElapsedGameTime, _layout, Application.IsActive);
+            viewport, context.GameTime.ElapsedGameTime, _layout!, Application.IsActive);
     }
 
     /// <summary>Runs after workspace input, bindings and layout; frame flags can be polled here.</summary>
@@ -280,7 +318,25 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
         if (_workspace is not null)
         {
             _workspace.Update(new ControlInputFrame(_workspace.Size, TimeSpan.Zero,
-                new[] { new ControlInputEvent(ControlInputEventType.Deactivate) }), _layout);
+                new[] { new ControlInputEvent(ControlInputEventType.Deactivate) }), _layout!);
+        }
+    }
+
+    /// <summary>Releases drawing resources before the optionally scene-owned font cache.</summary>
+    private void ReleaseRenderingResources()
+    {
+        try
+        {
+            _draw?.Dispose();
+        }
+        finally
+        {
+            _draw = null;
+            _layout = null;
+            IControlFont? font = _loadedFont;
+            _loadedFont = null;
+            if (_ownsDefaultFont && font is IDisposable disposable)
+                disposable.Dispose();
         }
     }
 
