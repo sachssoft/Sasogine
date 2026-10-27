@@ -1,5 +1,5 @@
 {
-  "files": 359,
+  "files": 362,
   "rule": "One named type per matching file; no nested or partial declarations",
   "checked": [
     "Examples/Advanced.01.Editor/EditorApplication.cs",
@@ -353,10 +353,13 @@
     "Projects/UI/Validation/TextLayoutProbePanel.cs",
     "Projects/UI/Validation/TreeMutationProbe.cs",
     "Projects/UI/Validation/ValidationModel.cs",
+    "Projects/UI/Validation/ViewSceneChecks.cs",
+    "Projects/UI/Validation/ViewSceneProbe.cs",
     "Projects/UI/Validation/WindowLayoutChecks.cs",
     "Projects/UI/ValueBar.cs",
     "Projects/UI/ValueTextBox.cs",
     "Projects/UI/ValueTextEditor.cs",
+    "Projects/UI/ViewSceneBase.cs",
     "Projects/UI/VirtualJoystick.cs",
     "Projects/UI/VirtualJoystickSettings.cs",
     "Projects/UI/Window.cs",

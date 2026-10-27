@@ -39,6 +39,7 @@ internal static class Program
     {
         try
         {
+            Run("Camera-free view scene contracts", () => ViewSceneChecks.Run(Check, Layout));
             Run("Scroll visibility remains stable across unbounded measurement and finite arrangement", () =>
             {
                 var list = new ListBox();
