@@ -783,7 +783,8 @@ public class Carousel : ContainerControl
             if (!_swiping)
             {
                 for (Control? node = args.Source; node is not null && node != this; node = node.Parent)
-                    if (node is ScrollViewer viewer && (viewer.IsSwiping || viewer.CanConsumeSwipe(input.Pointer, delta)))
+                    if (node is ScrollViewer viewer && (viewer.IsSwiping || viewer.CanConsumeSwipe(input.Pointer, delta)) ||
+                        node is ListBox list && list.CanConsumeSwipe(input.Pointer, delta))
                         return;
             }
 

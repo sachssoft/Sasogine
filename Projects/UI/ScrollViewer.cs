@@ -421,7 +421,8 @@ public sealed class ScrollViewer : ContainerControl
                 Vector2 movement = _yieldedSwipe ? incremental : total;
                 for (Control? node = args.Source; node is not null && node != this; node = node.Parent)
                 {
-                    if (node is ScrollViewer child && child.CanConsumeSwipe(input.Pointer, movement))
+                    if (node is ScrollViewer child && child.CanConsumeSwipe(input.Pointer, movement) ||
+                        node is ListBox list && list.CanConsumeSwipe(input.Pointer, movement))
                     {
                         _yieldedSwipe = true;
                         return;

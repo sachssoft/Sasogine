@@ -224,5 +224,6 @@ internal static class ScrollViewerSwipeChecks
             .SetViewport(new Rectangle(0, 0, 800, 600), 1);
         dpiWorkspace.ProcessFrame(physical, layout);
         check(dpiViewer.VerticalScrollBar.Value == 50, "Physical touch movement is converted once to logical workspace coordinates at high DPI");
+        ListBoxSwipeChecks.Run(check, layout);
     }
 }
