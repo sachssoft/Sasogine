@@ -20,20 +20,22 @@ All notable changes to this project will be documented in this file.
 </small>
 
 ## [0.13.0-alpha] - Planned
-* [Feature] **Controls**: Introducted new UI System Sasogine Controls
-* [Feature] Added generic `ValueChangingEventArgs<T>` and `ValueChangedEventArgs<T>` for value change notifications with cancellation support.
+* [Feature] **Controls**: Introduced Sasogine Controls, a new UI system.
+* [Feature] Added generic `ValueChangingEventArgs<T>` and `ValueChangedEventArgs<T>` for value change notifications, with cancellation support before changes are applied.
 * [Feature] Added support for registering cleanup actions in `DisposeManager`.
-* [Feature] Added scene transition system with timed and asynchronous transitions, including update and rendering support.
+* [Feature] Added a scene transition system with timed and asynchronous transitions, including update and rendering support.
 * [Feature] Added a lightweight request-response system for decoupled component communication with callback-based responses.
 * [Feature] Added generic `GetService<T>()` and `TryGetService<T>()` methods to `GameApplicationBase`.
 * [Feature] Added camera-free scene support to `SceneManager`.
-* [Improve] **Toolkit**: Hold Shift while resizing to scale proportionally and preserve the original aspect ratio.
+* [Feature] Added `IPlatformCursorService` with standard and custom cursor support, visibility control, and a Windows implementation.
+* [Feature] Added `IPlatformWindow` with capability detection, window state control, configurable titles, and close and resize permissions, including Windows and mobile implementations.
+* [Improve] **Toolkit**: Added proportional resizing with Shift to preserve the original aspect ratio.
 * [Improve] Unified service resolution in `GameServiceManager` and removed inconsistent interface validation.
 * [Improve] Improved `DisposeManager` with thread-safe registration, duplicate resource detection, and aggregated disposal exceptions.
 * [Improve] Enhanced `HistoryService` with undo/redo history access, change notifications, save-point tracking, and unsaved modification detection.
 * [Bug] Fixed history trimming to preserve the correct undo order.
 * [Bug] Fixed persistent scenes being loaded multiple times when reactivated.
-* [Bug] **Toolkit**: SelectionTool now prevents transforming locked entities, including in mixed selections.
+* [Bug] **Toolkit**: Fixed `SelectionTool` allowing transformations of locked entities, including in mixed selections.
 
 ## [0.12.0-alpha] - 2026-10-21
 * [Feature] Introduced definition-inspector system.
