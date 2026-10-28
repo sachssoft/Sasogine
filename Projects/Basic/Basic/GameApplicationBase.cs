@@ -6,6 +6,7 @@ using Sachssoft.Engine.Diagnostics.Internal;
 using Sachssoft.Engine.Resources;
 using Sachssoft.Engine.Resources.Localization;
 using Sachssoft.Engine.Scenes;
+using Sachssoft.Engine.Services.Platform;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -166,6 +167,10 @@ public abstract class GameApplicationBase : Game, IServiceProvider
 
         if (Window is not null)
             RegisterWindowEvents();
+
+        Configuration.Services.Lock();
+        Configuration.Services.ForEachOnce<IPlatformInitializable>(
+            service => service.Initialize(this));
 
         _integratedAssets.Initialize(_context);
         _localization.Close();

@@ -1,3 +1,4 @@
+
 using Microsoft.Xna.Framework;
 using Sachssoft.Engine.Services.Platform;
 using System;
@@ -9,119 +10,46 @@ namespace Sachssoft.Engine.Platform.Windows;
 
 /// <summary>Controls a native Windows game window without depending on Controls or Windows Forms.</summary>
 /// <remarks>
-/// Create one instance per initialized game window on its owning thread. Both a direct HWND and the
-/// DesktopGL SDL2 handle are supported. Other backends can supply an explicit HWND. Dispose before
-/// the game is destroyed; native destruction also removes the callback and its lifetime reservation.
-/// AllowClose governs native user requests and does not intercept Game.Exit or operating system termination.
+/// Register the service before game initialization and call Initialize after the native window is available.
+/// All native operations must execute on the owning window thread. Dispose before the game is destroyed.
+/// Native destruction also removes the callback and its lifetime reservation.
+/// AllowClose governs native user requests and does not intercept Game.Exit or OS termination.
 /// </remarks>
-public sealed class WindowsWindow : IPlatformWindow, IDisposable
+public sealed class WindowsWindow : IPlatformWindow, IPlatformInitializable, IDisposable
 {
-    /// <summary>Stores the associated game and its backend window settings.</summary>
-    private readonly Game _game;
-
-    /// <summary>Stores the actual Win32 window handle.</summary>
-    private readonly IntPtr _window;
-
-    /// <summary>Keeps the native callback delegate alive until it is detached.</summary>
+    private Game? _game;
+    private IntPtr _window;
     private readonly WindowsWindowProcedure _procedure;
 
-    /// <summary>Stores the initial backend Alt+F4 policy for restoration.</summary>
-    private readonly bool _initialAltF4;
+    private bool _initialAltF4;
+    private bool _initialResize;
+    private uint _initialCloseState;
+    private uint _initialResizeStyle;
+    private uint _threadId;
 
-    /// <summary>Stores the initial backend resizing policy for restoration.</summary>
-    private readonly bool _initialResize;
-
-    /// <summary>Stores the initial close menu enabled or grayed state.</summary>
-    private readonly uint _initialCloseState;
-
-    /// <summary>Stores the initial sizing-frame and maximize-button style bits.</summary>
-    private readonly uint _initialResizeStyle;
-
-    /// <summary>Stores the owning native thread identifier.</summary>
-    private readonly uint _threadId;
-
-    /// <summary>Roots this instance for the lifetime of its unmanaged callback.</summary>
     private GCHandle _lifetime;
-
-    /// <summary>Stores the requested close permission.</summary>
     private bool _allowClose;
-
-    /// <summary>Stores the requested manual resize permission.</summary>
     private bool _allowResize;
-
-    /// <summary>Tracks whether the native subclass is attached.</summary>
     private bool _attached;
-
-    /// <summary>Tracks whether close policy was changed by this service.</summary>
     private bool _closeChanged;
-
-    /// <summary>Tracks disposal of this service.</summary>
     private bool _disposed;
-
-    /// <summary>Tracks whether resize policy was changed by this service.</summary>
+    private bool _initialized;
     private bool _resizeChanged;
-
-    /// <summary>Tracks final destruction of the original native window.</summary>
     private bool _windowDestroyed;
 
-    /// <summary>Creates the window service after resolving the active backend's native HWND.</summary>
-    /// <param name="game">The initialized game, accessed on its window thread.</param>
-    /// <exception cref="ArgumentNullException">The game is null.</exception>
-    /// <exception cref="InvalidOperationException">The window is unavailable or already managed.</exception>
-    /// <exception cref="PlatformNotSupportedException">The backend needs an explicit HWND.</exception>
-    public WindowsWindow(Game game)
-        : this(game, ResolveHandle(game))
+    /// <summary>Creates an uninitialized Windows window service.</summary>
+    public WindowsWindow()
     {
+        _procedure = ProcessMessage;
     }
 
-    /// <summary>Creates the window service for an explicitly supplied Win32 HWND.</summary>
-    /// <param name="game">The associated game.</param>
-    /// <param name="nativeWindowHandle">The game's actual HWND, not an SDL window pointer.</param>
-    /// <exception cref="ArgumentNullException">The game is null.</exception>
-    /// <exception cref="ArgumentException">The handle is invalid or belongs to another thread or process.</exception>
-    /// <exception cref="InvalidOperationException">Another window service already owns this HWND.</exception>
-    /// <exception cref="Win32Exception">The window callback could not be installed.</exception>
-    public WindowsWindow(Game game, IntPtr nativeWindowHandle)
+    /// <inheritdoc/>
+    public nint Handle
     {
-        ArgumentNullException.ThrowIfNull(game);
-        if (!IsWindow(nativeWindowHandle))
-            throw new ArgumentException("An initialized Win32 HWND is required.", nameof(nativeWindowHandle));
-
-        _threadId = GetWindowThreadProcessId(nativeWindowHandle, out uint process);
-        if (_threadId != GetCurrentThreadId() || process != (uint)Environment.ProcessId)
-            throw new ArgumentException("The window must belong to this process and the calling thread.", nameof(nativeWindowHandle));
-
-        if (GetProp(nativeWindowHandle, OwnerProperty) != IntPtr.Zero)
-            throw new InvalidOperationException("A platform window service already manages this HWND.");
-
-        _game = game;
-        _window = nativeWindowHandle;
-        _procedure = ProcessMessage;
-        _initialAltF4 = game.Window.AllowAltF4;
-        _initialResize = game.Window.AllowUserResizing;
-        _initialResizeStyle = unchecked((uint)GetWindowLong(_window, GwlStyle)) & (WsThickFrame | WsMaximizeBox);
-        IntPtr menu = GetSystemMenu(_window, false);
-        uint closeState = menu == IntPtr.Zero ? 0 : GetMenuState(menu, ScClose, 0);
-        _initialCloseState = closeState == uint.MaxValue ? 0 : closeState & 3;
-        _allowClose = _initialAltF4 && _initialCloseState == 0;
-        _allowResize = _initialResize;
-        _lifetime = GCHandle.Alloc(this);
-        try
+        get
         {
-            if (!SetProp(_window, OwnerProperty, GCHandle.ToIntPtr(_lifetime)))
-                throw new Win32Exception(Marshal.GetLastPInvokeError());
-
-            if (!SetWindowSubclass(_window, _procedure, (UIntPtr)1, UIntPtr.Zero))
-                throw new Win32Exception(Marshal.GetLastPInvokeError());
-
-            _attached = true;
-            if (!_allowClose)
-                AllowClose = false;
-        }
-        catch
-        {
-            Detach();
-            throw;
+            VerifyAccess();
+            return _window;
         }
     }
 
@@ -163,15 +91,8 @@ public sealed class WindowsWindow : IPlatformWindow, IDisposable
         }
     }
 
-    /// <summary>Gets the resolved Win32 HWND for native integration.</summary>
-    public IntPtr NativeHandle
-    {
-        get
-        {
-            VerifyAccess();
-            return _window;
-        }
-    }
+    /// <summary>Gets whether the service has been initialized and is available.</summary>
+    public bool IsInitialized => _initialized && !_disposed && !_windowDestroyed;
 
     /// <inheritdoc/>
     public string Title
@@ -179,13 +100,13 @@ public sealed class WindowsWindow : IPlatformWindow, IDisposable
         get
         {
             VerifyAccess();
-            return _game.Window.Title;
+            return _game!.Window.Title;
         }
         set
         {
             VerifyAccess();
             ArgumentNullException.ThrowIfNull(value);
-            _game.Window.Title = value;
+            _game!.Window.Title = value;
         }
     }
 
@@ -202,7 +123,7 @@ public sealed class WindowsWindow : IPlatformWindow, IDisposable
             VerifyAccess();
             SetCloseState(_window, value ? MfEnabled : MfGrayed);
             _allowClose = value;
-            _game.Window.AllowAltF4 = value;
+            _game!.Window.AllowAltF4 = value;
             _closeChanged = true;
         }
     }
@@ -218,10 +139,97 @@ public sealed class WindowsWindow : IPlatformWindow, IDisposable
         set
         {
             VerifyAccess();
-            _game.Window.AllowUserResizing = value;
+            _game!.Window.AllowUserResizing = value;
             SetResizeStyle(_window, value ? WsThickFrame | WsMaximizeBox : 0);
             _allowResize = value;
             _resizeChanged = true;
+        }
+    }
+
+
+
+    /// <inheritdoc/>
+    public void Initialize(Game game)
+    {
+        ArgumentNullException.ThrowIfNull(game);
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
+        if (_initialized)
+            throw new InvalidOperationException("The window service is already initialized.");
+
+        if (_attached || _lifetime.IsAllocated)
+            throw new InvalidOperationException("The window service still owns native resources.");
+
+        IntPtr window = ResolveHandle(game);
+
+        if (!IsWindow(window))
+            throw new InvalidOperationException("An initialized Win32 HWND is required.");
+
+        uint threadId = GetWindowThreadProcessId(window, out uint process);
+        if (threadId != GetCurrentThreadId() || process != (uint)Environment.ProcessId)
+            throw new InvalidOperationException("The window must belong to this process and the calling thread.");
+
+        if (GetProp(window, OwnerProperty) != IntPtr.Zero)
+            throw new InvalidOperationException("A platform window service already manages this HWND.");
+
+        _game = game;
+        _window = window;
+        _threadId = threadId;
+        _windowDestroyed = false;
+
+        _initialAltF4 = game.Window.AllowAltF4;
+        _initialResize = game.Window.AllowUserResizing;
+        _initialResizeStyle = unchecked((uint)GetWindowLong(_window, GwlStyle)) & (WsThickFrame | WsMaximizeBox);
+
+        IntPtr menu = GetSystemMenu(_window, false);
+        uint closeState = menu == IntPtr.Zero ? 0 : GetMenuState(menu, ScClose, 0);
+        _initialCloseState = closeState == uint.MaxValue ? 0 : closeState & 3;
+
+        _allowClose = _initialAltF4 && _initialCloseState == 0;
+        _allowResize = _initialResize;
+        _closeChanged = false;
+        _resizeChanged = false;
+
+        try
+        {
+            _lifetime = GCHandle.Alloc(this);
+
+            if (!SetProp(_window, OwnerProperty, GCHandle.ToIntPtr(_lifetime)))
+                throw new Win32Exception(Marshal.GetLastPInvokeError());
+
+            if (!SetWindowSubclass(_window, _procedure, (UIntPtr)1, UIntPtr.Zero))
+                throw new Win32Exception(Marshal.GetLastPInvokeError());
+
+            _attached = true;
+
+            if (!_allowClose)
+            {
+                SetCloseState(_window, MfGrayed);
+                _game.Window.AllowAltF4 = false;
+                _closeChanged = true;
+            }
+
+            _initialized = true;
+        }
+        catch
+        {
+            try
+            {
+                if (_closeChanged && !_windowDestroyed && IsWindow(_window))
+                {
+                    SetCloseState(_window, _initialCloseState);
+                    game.Window.AllowAltF4 = _initialAltF4;
+                }
+
+                Detach();
+            }
+            finally
+            {
+                if (!_attached && !_lifetime.IsAllocated)
+                    ResetInitialization();
+            }
+
+            throw;
         }
     }
 
@@ -229,6 +237,7 @@ public sealed class WindowsWindow : IPlatformWindow, IDisposable
     public void Maximize()
     {
         VerifyAccess();
+
         if (!_allowResize)
             throw new InvalidOperationException("Enable manual resizing before maximizing the window.");
 
@@ -250,11 +259,21 @@ public sealed class WindowsWindow : IPlatformWindow, IDisposable
     }
 
     /// <summary>Restores the original close and resize policy and detaches the native callback.</summary>
-    /// <remarks>Disposing after native window destruction remains safe. Repeated disposal has no effect.</remarks>
+    /// <remarks>
+    /// Disposal before initialization is supported. After initialization, disposal must occur
+    /// on the owning window thread. Repeated disposal has no effect.
+    /// </remarks>
     public void Dispose()
     {
         if (_disposed)
             return;
+
+        if (!_initialized && !_attached && !_lifetime.IsAllocated)
+        {
+            _disposed = true;
+            GC.SuppressFinalize(this);
+            return;
+        }
 
         if (GetCurrentThreadId() != _threadId)
             throw new InvalidOperationException("Window services must be disposed on their owning thread.");
@@ -264,18 +283,20 @@ public sealed class WindowsWindow : IPlatformWindow, IDisposable
             if (_closeChanged)
             {
                 SetCloseState(_window, _initialCloseState);
-                _game.Window.AllowAltF4 = _initialAltF4;
+                _game!.Window.AllowAltF4 = _initialAltF4;
             }
 
             if (_resizeChanged)
             {
-                _game.Window.AllowUserResizing = _initialResize;
+                _game!.Window.AllowUserResizing = _initialResize;
                 SetResizeStyle(_window, _initialResizeStyle);
             }
         }
 
         Detach();
         _disposed = true;
+        _initialized = false;
+        _game = null;
         GC.SuppressFinalize(this);
     }
 
@@ -311,7 +332,7 @@ public sealed class WindowsWindow : IPlatformWindow, IDisposable
     }
 
     /// <summary>Removes the native callback, owner marker, and managed lifetime reservation.</summary>
-    /// <param name="destroying">Whether final destruction guarantees removal of remaining native callbacks.</param>
+    /// <param name="destroying">Whether native window destruction is in progress.</param>
     private void Detach(bool destroying = false)
     {
         if (_attached)
@@ -324,19 +345,40 @@ public sealed class WindowsWindow : IPlatformWindow, IDisposable
 
         if (_lifetime.IsAllocated)
         {
-            if (GetProp(_window, OwnerProperty) == GCHandle.ToIntPtr(_lifetime))
+            if (IsWindow(_window) &&
+                GetProp(_window, OwnerProperty) == GCHandle.ToIntPtr(_lifetime))
+            {
                 RemoveProp(_window, OwnerProperty);
+            }
 
             _lifetime.Free();
         }
     }
 
-    /// <summary>Validates the service lifetime, native window lifetime, and calling thread.</summary>
-    /// <exception cref="ObjectDisposedException">The service or original native window is no longer alive.</exception>
-    /// <exception cref="InvalidOperationException">The caller is not the owning native window thread.</exception>
+    /// <summary>Resets managed initialization state after unsuccessful initialization.</summary>
+    private void ResetInitialization()
+    {
+        _game = null;
+        _window = IntPtr.Zero;
+        _threadId = 0;
+        _initialized = false;
+        _windowDestroyed = false;
+        _closeChanged = false;
+        _resizeChanged = false;
+        _allowClose = false;
+        _allowResize = false;
+    }
+
+    /// <summary>Validates initialization, service lifetime, native window lifetime, and calling thread.</summary>
+    /// <exception cref="InvalidOperationException">The service has not been initialized or the caller is on another thread.</exception>
+    /// <exception cref="ObjectDisposedException">The service or native window is no longer available.</exception>
     private void VerifyAccess()
     {
         ObjectDisposedException.ThrowIf(_disposed || _windowDestroyed, this);
+
+        if (!_initialized)
+            throw new InvalidOperationException("The window service has not been initialized.");
+
         if (GetCurrentThreadId() != _threadId)
             throw new InvalidOperationException("Window services must be used on their owning thread.");
 

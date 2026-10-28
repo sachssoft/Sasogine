@@ -10,6 +10,10 @@ namespace Sachssoft.Engine.Services.Platform;
 /// </remarks>
 public interface IPlatformWindow
 {
+    /// <summary>Gets the backend-specific native window handle.</summary>
+    /// <remarks>The handle type depends on the active platform and backend.</remarks>
+    nint Handle { get; }
+
     /// <summary>Reports whether the platform supports a desktop window mode.</summary>
     bool SupportsWindowMode
     {
