@@ -69,25 +69,19 @@ public interface IPlatformWindow
         set;
     }
 
-    /// <summary>Gets or sets whether users may close the window.</summary>
+    /// <summary>Gets whether users are permitted to close the native window.</summary>
     /// <remarks>
-    /// Disabling this permission blocks native user close requests, including Alt+F4, while retaining
-    /// a disabled close button where supported. It does not block application-directed exit or OS termination.
-    /// Unsupported platforms permit only assigning true.
+    /// Configured during service creation and applied during initialization.
+    /// Does not prevent application-directed exit or operating system termination.
     /// </remarks>
-    bool AllowClose
-    {
-        get;
-        set;
-    }
+    bool AllowClose { get; }
 
-    /// <summary>Gets or sets whether users may resize the window.</summary>
-    /// <remarks>Unsupported platforms permit only assigning false. Application-driven resizing is separate.</remarks>
-    bool AllowResize
-    {
-        get;
-        set;
-    }
+    /// <summary>Gets whether users are permitted to resize the native window.</summary>
+    /// <remarks>
+    /// Configured during service creation and applied during initialization.
+    /// Application-driven resizing is separate.
+    /// </remarks>
+    bool AllowResize { get; }
 
     /// <summary>Maximizes the window without switching to fullscreen mode.</summary>
     /// <exception cref="System.PlatformNotSupportedException">Maximizing is not supported.</exception>

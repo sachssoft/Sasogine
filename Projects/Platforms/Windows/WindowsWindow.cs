@@ -11,6 +11,7 @@ namespace Sachssoft.Engine.Platform.Windows;
 /// <summary>Controls a native Windows game window without depending on Controls or Windows Forms.</summary>
 /// <remarks>
 /// Register the service before game initialization and call Initialize after the native window is available.
+/// Window permissions are configured during construction and applied during initialization.
 /// All native operations must execute on the owning window thread. Dispose before the game is destroyed.
 /// Native destruction also removes the callback and its lifetime reservation.
 /// AllowClose governs native user requests and does not intercept Game.Exit or OS termination.
@@ -28,8 +29,6 @@ public sealed class WindowsWindow : IPlatformWindow, IPlatformInitializable, IDi
     private uint _threadId;
 
     private GCHandle _lifetime;
-    private bool _allowClose;
-    private bool _allowResize;
     private bool _attached;
     private bool _closeChanged;
     private bool _disposed;
@@ -111,42 +110,10 @@ public sealed class WindowsWindow : IPlatformWindow, IPlatformInitializable, IDi
     }
 
     /// <inheritdoc/>
-    public bool AllowClose
-    {
-        get
-        {
-            VerifyAccess();
-            return _allowClose;
-        }
-        set
-        {
-            VerifyAccess();
-            SetCloseState(_window, value ? MfEnabled : MfGrayed);
-            _allowClose = value;
-            _game!.Window.AllowAltF4 = value;
-            _closeChanged = true;
-        }
-    }
+    public bool AllowClose { get; init; } = true;
 
     /// <inheritdoc/>
-    public bool AllowResize
-    {
-        get
-        {
-            VerifyAccess();
-            return _allowResize;
-        }
-        set
-        {
-            VerifyAccess();
-            _game!.Window.AllowUserResizing = value;
-            SetResizeStyle(_window, value ? WsThickFrame | WsMaximizeBox : 0);
-            _allowResize = value;
-            _resizeChanged = true;
-        }
-    }
-
-
+    public bool AllowResize { get; init; }
 
     /// <inheritdoc/>
     public void Initialize(Game game)
@@ -185,8 +152,6 @@ public sealed class WindowsWindow : IPlatformWindow, IPlatformInitializable, IDi
         uint closeState = menu == IntPtr.Zero ? 0 : GetMenuState(menu, ScClose, 0);
         _initialCloseState = closeState == uint.MaxValue ? 0 : closeState & 3;
 
-        _allowClose = _initialAltF4 && _initialCloseState == 0;
-        _allowResize = _initialResize;
         _closeChanged = false;
         _resizeChanged = false;
 
@@ -202,12 +167,13 @@ public sealed class WindowsWindow : IPlatformWindow, IPlatformInitializable, IDi
 
             _attached = true;
 
-            if (!_allowClose)
-            {
-                SetCloseState(_window, MfGrayed);
-                _game.Window.AllowAltF4 = false;
-                _closeChanged = true;
-            }
+            _closeChanged = true;
+            SetCloseState(_window, AllowClose ? MfEnabled : MfGrayed);
+            game.Window.AllowAltF4 = AllowClose;
+
+            _resizeChanged = true;
+            game.Window.AllowUserResizing = AllowResize;
+            SetResizeStyle(_window, AllowResize ? WsThickFrame | WsMaximizeBox : 0);
 
             _initialized = true;
         }
@@ -215,18 +181,32 @@ public sealed class WindowsWindow : IPlatformWindow, IPlatformInitializable, IDi
         {
             try
             {
-                if (_closeChanged && !_windowDestroyed && IsWindow(_window))
+                if (!_windowDestroyed && IsWindow(_window))
                 {
-                    SetCloseState(_window, _initialCloseState);
-                    game.Window.AllowAltF4 = _initialAltF4;
-                }
+                    if (_closeChanged)
+                    {
+                        SetCloseState(_window, _initialCloseState);
+                        game.Window.AllowAltF4 = _initialAltF4;
+                    }
 
-                Detach();
+                    if (_resizeChanged)
+                    {
+                        game.Window.AllowUserResizing = _initialResize;
+                        SetResizeStyle(_window, _initialResizeStyle);
+                    }
+                }
             }
             finally
             {
-                if (!_attached && !_lifetime.IsAllocated)
-                    ResetInitialization();
+                try
+                {
+                    Detach();
+                }
+                finally
+                {
+                    if (!_attached && !_lifetime.IsAllocated)
+                        ResetInitialization();
+                }
             }
 
             throw;
@@ -238,7 +218,7 @@ public sealed class WindowsWindow : IPlatformWindow, IPlatformInitializable, IDi
     {
         VerifyAccess();
 
-        if (!_allowResize)
+        if (!AllowResize)
             throw new InvalidOperationException("Enable manual resizing before maximizing the window.");
 
         ShowWindow(_window, SwMaximize);
@@ -311,14 +291,15 @@ public sealed class WindowsWindow : IPlatformWindow, IPlatformInitializable, IDi
     private IntPtr ProcessMessage(IntPtr window, uint message, UIntPtr wParam, IntPtr lParam,
         UIntPtr subclassId, UIntPtr referenceData)
     {
-        if (message == WmClose && !_allowClose)
+        if (message == WmClose && !AllowClose)
             return IntPtr.Zero;
 
         if (message == WmSysCommand)
         {
             uint command = (uint)(wParam.ToUInt64() & 0xFFF0);
-            if ((command == ScClose && !_allowClose) ||
-                ((command == ScSize || command == ScMaximize) && !_allowResize))
+
+            if ((command == ScClose && !AllowClose) ||
+                ((command == ScSize || command == ScMaximize) && !AllowResize))
                 return IntPtr.Zero;
         }
 
@@ -365,8 +346,6 @@ public sealed class WindowsWindow : IPlatformWindow, IPlatformInitializable, IDi
         _windowDestroyed = false;
         _closeChanged = false;
         _resizeChanged = false;
-        _allowClose = false;
-        _allowResize = false;
     }
 
     /// <summary>Validates initialization, service lifetime, native window lifetime, and calling thread.</summary>
