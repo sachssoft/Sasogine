@@ -31,6 +31,8 @@ All notable changes to this project will be documented in this file.
 * [Feature] Added `IPlatformWindow` with capability detection, window state control, configurable titles, and close and resize permissions, including Windows and mobile implementations.
 * [Feature] Introduced `IPlatformInitializable` for deferred platform service initialization after the game window becomes available.
 * [Feature] Added `Lock()`, `ForEach<T>()`, and `ForEachOnce<T>()` to `GameServiceManager` for controlled service lifecycle execution and registration locking.
+* [Feature] Added `IInputInteractionManager` for managing input interactions across different button types.
+* [Feature] Added `IAxis` for non-generic access to `Axis<TAxis>` values.
 * [Improve] Added automatic initialization of registered `IPlatformInitializable` services during application startup.
 * [Improve] Updated `WindowsWindow` to support parameterless construction and deferred initialization.* [Improve] **Toolkit**: Added proportional resizing with Shift to preserve the original aspect ratio.
 * [Improve] Unified service resolution in `GameServiceManager` and removed inconsistent interface validation.

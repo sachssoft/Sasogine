@@ -437,3 +437,37 @@ A task is complete only when all applicable conditions are satisfied:
 - [ ] Build and test results are reported truthfully.
 
 **Sasogine standard: strict organization, complete English XML documentation, zero warnings, zero suppressions, and preserved behavior.**
+
+---
+
+## Codex Development Rules
+
+### General
+- Work efficiently without sacrificing code quality.
+- Preserve the existing architecture and coding style.
+- Read only files relevant to the requested task.
+- Avoid unnecessary searches and repeated file reads.
+- Do not perform unrelated changes or refactoring.
+
+### Bug Fixes
+- Identify and fix the root cause.
+- Make minimal, targeted changes.
+- Inspect additional dependencies only when necessary.
+
+### Features
+- Implement requested features completely.
+- Reuse existing components and patterns.
+- Avoid unnecessary abstractions and dependencies.
+- Preserve Native AOT and trimming compatibility.
+
+### Build and Testing
+- Never run builds, tests, or publish commands unless explicitly requested.
+- Do not launch the application.
+- Leave compilation and testing to the developer.
+- Report potential compilation risks.
+
+### Efficiency
+- Avoid unnecessary tool calls.
+- Keep explanations concise.
+- Do not repeatedly analyze unchanged code.
+- Do not expand the task scope without a reason.

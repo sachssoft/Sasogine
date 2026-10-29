@@ -1,4 +1,4 @@
-﻿using Sachssoft.Engine.Scenes;
+using Sachssoft.Engine.Scenes;
 using System;
 using System.Collections.Generic;
 
@@ -10,7 +10,7 @@ namespace Sachssoft.Engine.Input
     /// <typeparam name="TButton">
     /// The button type used by the input state.
     /// </typeparam>
-    public abstract class InputInteractionManager<TButton>
+    public abstract class InputInteractionManager<TButton> : IInputInteractionManager
         where TButton : unmanaged, Enum
     {
         private static readonly TButton[] _allButtons =
@@ -43,7 +43,11 @@ namespace Sachssoft.Engine.Input
         /// <summary>
         /// Gets or sets the listener that receives input interaction notifications.
         /// </summary>
-        public IInputInteractionListener? Listener { get; set; }
+        public IInputInteractionListener? Listener
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Adds a button combination with a press action and an optional release action.
