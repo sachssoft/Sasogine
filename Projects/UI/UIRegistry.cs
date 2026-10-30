@@ -135,6 +135,8 @@ public sealed class UIRegistry
         Register("Chart", static () => new Chart());
         Register("ScriptTextBox", static () => new ScriptTextBox());
         Register("CurveControl", static () => new CurveControl());
+        Register(nameof(TimelineControl), static () => new TimelineControl());
+        Register(nameof(GridSplitter), static () => new GridSplitter());
         Register("TreeView", static () => new TreeView());
         Register("Calendar", static () => new Calendar());
         Register("DatePicker", static () => new DatePicker());
@@ -242,6 +244,8 @@ public sealed class UIRegistry
         styles.Register("Slider.Horizontal", new Style { BasedOn = "Control", IsFocusable = true, Padding = Insets2.Zero, Axis = ControlOrientation.Horizontal, MinHeight = 24 });
         styles.Register("Slider.Vertical", new Style { BasedOn = "Control", IsFocusable = true, Padding = Insets2.Zero, Axis = ControlOrientation.Vertical, MinWidth = 24 });
         styles.Register("RotationControl", new Style { BasedOn = "Control", IsFocusable = true, Padding = new Insets2(8), MinWidth = 100, MinHeight = 100, Background = new Color(17, 24, 35), BorderColor = new Color(65, 83, 105), TextColor = new Color(65, 199, 223) });
+        styles.Register(nameof(TimelineControl), new Style { BasedOn = nameof(Control), IsFocusable = true, Padding = Insets2.Zero, MinWidth = 180, MinHeight = 100 });
+        styles.Register(nameof(GridSplitter), new Style { BasedOn = nameof(Control), IsFocusable = true, Padding = Insets2.Zero, BorderThickness = 0 });
         styles.Register("TextBlock", new Style { BasedOn = "Label" });
         styles.Register("Slider", new Style { BasedOn = "Slider.Horizontal" });
         styles.Register("ScrollBar.Horizontal", new Style { BasedOn = "Control", IsFocusable = true, Padding = Insets2.Zero, Axis = ControlOrientation.Horizontal });
