@@ -7,6 +7,15 @@ namespace Sachssoft.Engine.Controls;
 /// </summary>
 public class ValueTextBox : ContainerControl
 {
+    /// <summary>Identifies changes to <see cref="NumberFormat"/>.</summary>
+    private static readonly System.ComponentModel.PropertyChangedEventArgs NumberFormatArgs = new(nameof(NumberFormat));
+    /// <summary>Identifies changes to <see cref="CultureName"/>.</summary>
+    private static readonly System.ComponentModel.PropertyChangedEventArgs CultureNameArgs = new(nameof(CultureName));
+    /// <summary>Stores the style value and local override for <see cref="NumberFormat"/>.</summary>
+    private StyleProperty<string> _styleNumberFormat = new("0.###");
+    /// <summary>Stores the style value and local override for <see cref="CultureName"/>.</summary>
+    private StyleProperty<string> _styleCultureName = new(string.Empty);
+
     private readonly ValueTextEditor _editor = new()
     {
         StyleId = "ValueTextBox.Editor",
@@ -59,6 +68,38 @@ public class ValueTextBox : ContainerControl
                 EndEdit(false);
             }
         };
+    }
+
+    /// <summary>
+    /// Gets or sets the standard or custom numeric display format. Formatting does not change the stored value.
+    /// </summary>
+    public string NumberFormat
+    {
+        get => _styleNumberFormat.Value;
+        set
+        {
+            ArgumentNullException.ThrowIfNull(value);
+            if (value != NumberFormat)
+                _ = 0f.ToString(value, System.Globalization.CultureInfo.InvariantCulture);
+            if (_styleNumberFormat.SetLocal(value))
+                NotifyPropertyChanged(NumberFormatArgs);
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the numeric culture name. An empty name selects the invariant culture.
+    /// </summary>
+    public string CultureName
+    {
+        get => _styleCultureName.Value;
+        set
+        {
+            ArgumentNullException.ThrowIfNull(value);
+            if (value != CultureName)
+                _ = System.Globalization.CultureInfo.GetCultureInfo(value);
+            if (_styleCultureName.SetLocal(value))
+                NotifyPropertyChanged(CultureNameArgs);
+        }
     }
 
     /// <inheritdoc/>
@@ -131,11 +172,11 @@ public class ValueTextBox : ContainerControl
     }
 
     /// <summary>
-    /// Validates and commits text using invariant culture; invalid focused input remains editable.
+    /// Validates and commits plain numeric text using CultureName; invalid focused input remains editable.
     /// </summary>
     public bool CommitEdit()
     {
-        if (!float.TryParse(_editor.Text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float value) || !float.IsFinite(value))
+        if (!float.TryParse(_editor.Text, System.Globalization.NumberStyles.Float | System.Globalization.NumberStyles.AllowThousands, System.Globalization.CultureInfo.GetCultureInfo(CultureName), out float value) || !float.IsFinite(value))
         {
             _editor.HasError = true;
             return false;
@@ -187,6 +228,8 @@ public class ValueTextBox : ContainerControl
             float next = Math.Clamp(Value, Minimum, Maximum);
             if (next != Value)
                 Value = next;
+            _bar.NumberFormat = NumberFormat;
+            _bar.CultureName = CultureName;
             _bar.Minimum = Minimum;
             _bar.Maximum = Maximum;
             _bar.Step = Step;
@@ -203,7 +246,7 @@ public class ValueTextBox : ContainerControl
             }
 
             if (force)
-                _editor.Text = Value.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+                _editor.Text = Value.ToString("G9", System.Globalization.CultureInfo.GetCultureInfo(CultureName));
         }
         finally
         {
@@ -333,6 +376,14 @@ public class ValueTextBox : ContainerControl
         foreach (var entry in style.Values)
             switch (entry.Key)
             {
+                case nameof(NumberFormat):
+                    if (_styleNumberFormat.Apply(Converters.Convert<string>("String", entry.Value)))
+                        NotifyPropertyChanged(NumberFormatArgs);
+                    break;
+                case nameof(CultureName):
+                    if (_styleCultureName.Apply(Converters.Convert<string>("String", entry.Value)))
+                        NotifyPropertyChanged(CultureNameArgs);
+                    break;
                 case "ButtonWidth":
                     if (_buttonWidth.Apply(Converters.Convert<float>("Single", entry.Value)))
                         NotifyPropertyChanged(ButtonWidthArgs);
@@ -358,6 +409,8 @@ public class ValueTextBox : ContainerControl
 
     internal override bool IsStyleLocal(string property) => property switch
     {
+        nameof(NumberFormat) => _styleNumberFormat.HasLocalValue,
+        nameof(CultureName) => _styleCultureName.HasLocalValue,
         "ButtonWidth" => _buttonWidth.HasLocalValue,
         "Minimum" => _Minimum.HasLocalValue,
         "Maximum" => _Maximum.HasLocalValue,
@@ -369,6 +422,14 @@ public class ValueTextBox : ContainerControl
     {
         switch (property)
         {
+            case nameof(NumberFormat):
+                if (_styleNumberFormat.ClearLocal())
+                    NotifyPropertyChanged(NumberFormatArgs);
+                return;
+            case nameof(CultureName):
+                if (_styleCultureName.ClearLocal())
+                    NotifyPropertyChanged(CultureNameArgs);
+                return;
             case "ButtonWidth":
                 if (_buttonWidth.ClearLocal())
                     NotifyPropertyChanged(ButtonWidthArgs);
@@ -399,6 +460,8 @@ public class ValueTextBox : ContainerControl
     protected override void ResetStyledValues()
     {
         base.ResetStyledValues();
+        _styleNumberFormat.BeginStyle("0.###");
+        _styleCultureName.BeginStyle(string.Empty);
         _buttonWidth.BeginStyle(28);
         _Minimum.BeginStyle(0);
         _Maximum.BeginStyle(100);
@@ -410,6 +473,10 @@ public class ValueTextBox : ContainerControl
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();
+        if (_styleNumberFormat.CommitStyle())
+            NotifyPropertyChanged(NumberFormatArgs);
+        if (_styleCultureName.CommitStyle())
+            NotifyPropertyChanged(CultureNameArgs);
         if (_buttonWidth.CommitStyle())
             NotifyPropertyChanged(ButtonWidthArgs);
         if (_Minimum.CommitStyle())

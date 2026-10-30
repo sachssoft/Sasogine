@@ -7,10 +7,23 @@ namespace Sachssoft.Engine.Controls;
 /// </summary>
 public class ValueBar : RangeControl
 {
+    /// <summary>Identifies changes to <see cref="NumberFormat"/>.</summary>
+    private static readonly System.ComponentModel.PropertyChangedEventArgs NumberFormatArgs = new(nameof(NumberFormat));
+    /// <summary>Identifies changes to <see cref="CultureName"/>.</summary>
+    private static readonly System.ComponentModel.PropertyChangedEventArgs CultureNameArgs = new(nameof(CultureName));
+    /// <summary>Stores the style value and local override for <see cref="NumberFormat"/>.</summary>
+    private StyleProperty<string> _styleNumberFormat = new("0.###");
+    /// <summary>Stores the style value and local override for <see cref="CultureName"/>.</summary>
+    private StyleProperty<string> _styleCultureName = new(string.Empty);
+
     private bool _armed, _isDragging;
     private ControlPointer _pointer;
     private Vector2 _pressPosition;
     private float _pressValue;
+    /// <summary>Stores the format used by the cached label.</summary>
+    private string? _displayFormat;
+    /// <summary>Stores the culture used by the cached label.</summary>
+    private string? _displayCulture;
     private float _displayValue = float.NaN;
     private string _text = string.Empty;
     private Size2 _textSize;
@@ -25,6 +38,38 @@ public class ValueBar : RangeControl
     /// Occurs after a click without dragging, or an Enter/F2 keyboard activation.
     /// </summary>
     public event EventHandler? EditRequested;
+    /// <summary>
+    /// Gets or sets the standard or custom numeric display format. Formatting does not change the stored value.
+    /// </summary>
+    public string NumberFormat
+    {
+        get => _styleNumberFormat.Value;
+        set
+        {
+            ArgumentNullException.ThrowIfNull(value);
+            if (value != NumberFormat)
+                _ = 0f.ToString(value, System.Globalization.CultureInfo.InvariantCulture);
+            if (_styleNumberFormat.SetLocal(value))
+                NotifyPropertyChanged(NumberFormatArgs);
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the numeric culture name. An empty name selects the invariant culture.
+    /// </summary>
+    public string CultureName
+    {
+        get => _styleCultureName.Value;
+        set
+        {
+            ArgumentNullException.ThrowIfNull(value);
+            if (value != CultureName)
+                _ = System.Globalization.CultureInfo.GetCultureInfo(value);
+            if (_styleCultureName.SetLocal(value))
+                NotifyPropertyChanged(CultureNameArgs);
+        }
+    }
+
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ValueBar";
 
@@ -140,10 +185,12 @@ public class ValueBar : RangeControl
         ValidateRange();
         if (!float.IsFinite(DragThreshold) || DragThreshold < 0 || !float.IsFinite(ThumbWidth) || ThumbWidth <= 0)
             throw new InvalidOperationException("Invalid value bar geometry.");
-        if (_displayValue != Value)
+        if (_displayValue != Value || _displayFormat != NumberFormat || _displayCulture != CultureName)
         {
             _displayValue = Value;
-            _text = Value.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+            _text = Value.ToString(NumberFormat, System.Globalization.CultureInfo.GetCultureInfo(CultureName));
+            _displayFormat = NumberFormat;
+            _displayCulture = CultureName;
         }
 
         _textSize = (GetFont(context)).Measure(_text);
@@ -210,6 +257,14 @@ public class ValueBar : RangeControl
         foreach (var entry in style.Values)
             switch (entry.Key)
             {
+                case nameof(NumberFormat):
+                    if (_styleNumberFormat.Apply(Converters.Convert<string>("String", entry.Value)))
+                        NotifyPropertyChanged(NumberFormatArgs);
+                    break;
+                case nameof(CultureName):
+                    if (_styleCultureName.Apply(Converters.Convert<string>("String", entry.Value)))
+                        NotifyPropertyChanged(CultureNameArgs);
+                    break;
                 case "DragThreshold":
                     if (_DragThreshold.Apply(Converters.Convert<float>("Single", entry.Value)))
                         NotifyPropertyChanged(DragThresholdArgs);
@@ -223,6 +278,8 @@ public class ValueBar : RangeControl
 
     internal override bool IsStyleLocal(string property) => property switch
     {
+        nameof(NumberFormat) => _styleNumberFormat.HasLocalValue,
+        nameof(CultureName) => _styleCultureName.HasLocalValue,
         "DragThreshold" => _DragThreshold.HasLocalValue,
         "ThumbWidth" => _ThumbWidth.HasLocalValue,
         _ => base.IsStyleLocal(property)};
@@ -231,6 +288,14 @@ public class ValueBar : RangeControl
     {
         switch (property)
         {
+            case nameof(NumberFormat):
+                if (_styleNumberFormat.ClearLocal())
+                    NotifyPropertyChanged(NumberFormatArgs);
+                return;
+            case nameof(CultureName):
+                if (_styleCultureName.ClearLocal())
+                    NotifyPropertyChanged(CultureNameArgs);
+                return;
             case "DragThreshold":
                 if (_DragThreshold.ClearLocal())
                     NotifyPropertyChanged(DragThresholdArgs);
@@ -249,6 +314,8 @@ public class ValueBar : RangeControl
     protected override void ResetStyledValues()
     {
         base.ResetStyledValues();
+        _styleNumberFormat.BeginStyle("0.###");
+        _styleCultureName.BeginStyle(string.Empty);
         _DragThreshold.BeginStyle(4);
         _ThumbWidth.BeginStyle(18);
     }
@@ -257,6 +324,10 @@ public class ValueBar : RangeControl
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();
+        if (_styleNumberFormat.CommitStyle())
+            NotifyPropertyChanged(NumberFormatArgs);
+        if (_styleCultureName.CommitStyle())
+            NotifyPropertyChanged(CultureNameArgs);
         if (_DragThreshold.CommitStyle())
             NotifyPropertyChanged(DragThresholdArgs);
         if (_ThumbWidth.CommitStyle())

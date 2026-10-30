@@ -14,6 +14,23 @@ namespace Sachssoft.Engine.Controls;
 /// <remarks>Zero degrees points right, 90 degrees points down, and all values are normalized to [0, 360). Editing supports optional snapping and command execution after completion.</remarks>
 public sealed class RotationControl : Control
 {
+    /// <summary>Identifies changes to <see cref="NumberFormat"/>.</summary>
+    private static readonly System.ComponentModel.PropertyChangedEventArgs NumberFormatArgs = new(nameof(NumberFormat));
+    /// <summary>Identifies changes to <see cref="CultureName"/>.</summary>
+    private static readonly System.ComponentModel.PropertyChangedEventArgs CultureNameArgs = new(nameof(CultureName));
+    /// <summary>Stores the style value and local override for <see cref="NumberFormat"/>.</summary>
+    private StyleProperty<string> _styleNumberFormat = new("0.#°");
+    /// <summary>Stores the style value and local override for <see cref="CultureName"/>.</summary>
+    private StyleProperty<string> _styleCultureName = new(string.Empty);
+
+    /// <summary>Stores the prepared angle label.</summary>
+    private string _numberText = string.Empty;
+    /// <summary>Stores the angle used by the prepared label.</summary>
+    private float _numberValue = float.NaN;
+    /// <summary>Stores the format used by the prepared label.</summary>
+    private string? _numberFormat;
+    /// <summary>Stores the culture used by the prepared label.</summary>
+    private string? _numberCulture;
     private ChangeTracker<float> _observed;
     private ControlPointer? _pointer;
     private float _startAngle, _lastWritten;
@@ -25,6 +42,38 @@ public sealed class RotationControl : Control
     /// </summary>
     public RotationControl()
     {
+    }
+
+    /// <summary>
+    /// Gets or sets the standard or custom numeric display format. Formatting does not change the stored value.
+    /// </summary>
+    public string NumberFormat
+    {
+        get => _styleNumberFormat.Value;
+        set
+        {
+            ArgumentNullException.ThrowIfNull(value);
+            if (value != NumberFormat)
+                _ = 0f.ToString(value, System.Globalization.CultureInfo.InvariantCulture);
+            if (_styleNumberFormat.SetLocal(value))
+                NotifyPropertyChanged(NumberFormatArgs);
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the numeric culture name. An empty name selects the invariant culture.
+    /// </summary>
+    public string CultureName
+    {
+        get => _styleCultureName.Value;
+        set
+        {
+            ArgumentNullException.ThrowIfNull(value);
+            if (value != CultureName)
+                _ = System.Globalization.CultureInfo.GetCultureInfo(value);
+            if (_styleCultureName.SetLocal(value))
+                NotifyPropertyChanged(CultureNameArgs);
+        }
     }
 
     /// <inheritdoc/>
@@ -122,6 +171,32 @@ public sealed class RotationControl : Control
     public event EventHandler? EditCancelled;
     private object Parameter => CommandParameter ?? AngleDegrees;
     private bool CanEdit => !IsReadOnly && (Command?.CanExecute(Parameter) ?? true);
+
+    /// <inheritdoc/>
+    internal override void Prepare()
+    {
+        base.Prepare();
+        if (_numberValue != AngleDegrees || _numberFormat != NumberFormat || _numberCulture != CultureName)
+        {
+            _numberText = AngleDegrees.ToString(NumberFormat, CultureInfo.GetCultureInfo(CultureName));
+            _numberValue = AngleDegrees;
+            _numberFormat = NumberFormat;
+            _numberCulture = CultureName;
+        }
+    }
+
+    /// <inheritdoc/>
+    protected override void OnPropertyChanged(PropertyChangedEventArgs notification)
+    {
+        base.OnPropertyChanged(notification);
+        if (notification.PropertyName is nameof(AngleDegrees) or nameof(NumberFormat) or nameof(CultureName))
+        {
+            _numberText = AngleDegrees.ToString(NumberFormat, CultureInfo.GetCultureInfo(CultureName));
+            _numberValue = AngleDegrees;
+            _numberFormat = NumberFormat;
+            _numberCulture = CultureName;
+        }
+    }
 
     private void Validate()
     {
@@ -340,7 +415,7 @@ public sealed class RotationControl : Control
         Vector2 handle = center + direction * (_radius - 4);
         if (!c.DrawSkinPart(this, "Indicator", new Bounds2(handle.X - 5, handle.Y - 5, 10, 10), state))
             c.FillRectangle(new Bounds2(handle.X - 3, handle.Y - 3, 6, 6), ink);
-        string text = AngleDegrees.ToString("0.#", CultureInfo.InvariantCulture) + "°";
+        string text = _numberText;
         var font = GetFont(c);
         var size = font.Measure(text);
         if (size.Width <= _radius * 1.35f && size.Height <= _radius * .8f)
@@ -430,6 +505,14 @@ public sealed class RotationControl : Control
         {
             switch (entry.Key)
             {
+                case nameof(NumberFormat):
+                    if (_styleNumberFormat.Apply(Converters.Convert<string>("String", entry.Value)))
+                        NotifyPropertyChanged(NumberFormatArgs);
+                    break;
+                case nameof(CultureName):
+                    if (_styleCultureName.Apply(Converters.Convert<string>("String", entry.Value)))
+                        NotifyPropertyChanged(CultureNameArgs);
+                    break;
                 case "IsReadOnly":
                     if (_styleIsReadOnly.Apply(Converters.Convert<bool>("Boolean", entry.Value)))
                         NotifyPropertyChanged(IsReadOnlyChangedArgs);
@@ -462,6 +545,10 @@ public sealed class RotationControl : Control
     {
         switch (property)
         {
+            case nameof(NumberFormat):
+                return _styleNumberFormat.HasLocalValue;
+            case nameof(CultureName):
+                return _styleCultureName.HasLocalValue;
             case "IsReadOnly":
                 return _styleIsReadOnly.HasLocalValue;
             case "Command":
@@ -487,6 +574,14 @@ public sealed class RotationControl : Control
     {
         switch (property)
         {
+            case nameof(NumberFormat):
+                if (_styleNumberFormat.ClearLocal())
+                    NotifyPropertyChanged(NumberFormatArgs);
+                return;
+            case nameof(CultureName):
+                if (_styleCultureName.ClearLocal())
+                    NotifyPropertyChanged(CultureNameArgs);
+                return;
             case "IsReadOnly":
                 if (_styleIsReadOnly.ClearLocal())
                     NotifyPropertyChanged(IsReadOnlyChangedArgs);
@@ -521,6 +616,8 @@ public sealed class RotationControl : Control
     protected override void ResetStyledValues()
     {
         base.ResetStyledValues();
+        _styleNumberFormat.BeginStyle("0.#°");
+        _styleCultureName.BeginStyle(string.Empty);
         if (_styleIsReadOnly.BeginStyle(false))
             NotifyPropertyChanged(IsReadOnlyChangedArgs);
         if (_styleCommand.BeginStyle(null))
@@ -539,6 +636,10 @@ public sealed class RotationControl : Control
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();
+        if (_styleNumberFormat.CommitStyle())
+            NotifyPropertyChanged(NumberFormatArgs);
+        if (_styleCultureName.CommitStyle())
+            NotifyPropertyChanged(CultureNameArgs);
         if (_styleIsReadOnly.CommitStyle())
             NotifyPropertyChanged(IsReadOnlyChangedArgs);
         if (_styleCommand.CommitStyle())

@@ -21,7 +21,7 @@ var field = new ValueTextBox
 };
 ```
 
-`BeginEdit()` öffnet die Eingabe, `CancelEdit()` verwirft sie. `CommitEdit()` validiert und übernimmt den Text, ohne selbst den Modus zu wechseln. `IsEditing` ist abfragbar und meldet Änderungen über `INotifyPropertyChanged`. F2/Enter/Leertaste öffnen die Eingabe bei fokussiertem Balken; Richtungstasten und Mausrad ändern den Wert. Zahlen verwenden die invariante Kultur mit Dezimalpunkt.
+`BeginEdit()` öffnet die Eingabe, `CancelEdit()` verwirft sie. `CommitEdit()` validiert und übernimmt den Text, ohne selbst den Modus zu wechseln. `IsEditing` ist abfragbar und meldet Änderungen über `INotifyPropertyChanged`. F2/Enter/Leertaste öffnen die Eingabe bei fokussiertem Balken; Richtungstasten und Mausrad ändern den Wert. Zahlen verwenden standardmäßig die invariante Kultur mit Dezimalpunkt. `CultureName = "de-DE"` aktiviert das deutsche Zahlenformat. `NumberFormat` steuert die Balkenanzeige, beispielsweise `"0"`, `"0.00"` oder `"0.##"`. Während der Texteingabe wird der ungerundete Zahlenwert ohne Format-Zusätze angezeigt. Die Wertschrittweite wird weiterhin über `Step` festgelegt.
 
 `Editor`, `RangeBar`, `DecreaseButton` und `IncreaseButton` sind zugänglich. `RangeBar` ist jetzt ein `ValueBar` statt eines `Slider`; Quellcode, der explizit den alten Typ verwendet, muss angepasst werden. Es gibt keinen zusätzlichen Balken unter dem Textfeld.
 

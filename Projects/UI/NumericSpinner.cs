@@ -10,6 +10,11 @@ namespace Sachssoft.Engine.Controls;
 /// </summary>
 public class NumericSpinner : ContainerControl
 {
+    /// <summary>Identifies changes to <see cref="NumberFormat"/>.</summary>
+    private static readonly System.ComponentModel.PropertyChangedEventArgs NumberFormatArgs = new(nameof(NumberFormat));
+    /// <summary>Stores the style value and local override for <see cref="NumberFormat"/>.</summary>
+    private StyleProperty<string> _styleNumberFormat = new(string.Empty);
+
     private readonly TextBox _editor = new()
     {
         StyleId = "NumericSpinner.Editor"
@@ -22,9 +27,19 @@ public class NumericSpinner : ContainerControl
         StyleId = "NumericSpinner.Arrow"
     };
     private ChangeTracker<decimal> _value;
+    /// <summary>Stores whether the cached text is the editable representation.</summary>
+    private bool _textFocused;
+    /// <summary>Stores the precision used by the cached editor text.</summary>
+    private int _textPlaces = -1;
+    /// <summary>Stores the culture of the cached editor text.</summary>
+    private string? _textCulture;
+    /// <summary>Stores the requested format of the cached editor text.</summary>
+    private string? _textFormat;
+    /// <summary>Stores the value of the cached editor text.</summary>
+    private decimal? _textValue;
     private ChangeTracker<string> _culture;
     private ChangeTracker<int> _places;
-    private bool _syncing, _wasFocused, _dirty;
+    private bool _syncing, _dirty;
     /// <summary>
     /// Creates a number spinner.
     /// </summary>
@@ -38,6 +53,14 @@ public class NumericSpinner : ContainerControl
         _increase.Command = new Command(_ => Change(1), _ => !ConfigIsReadOnly && Value < Maximum);
         _decrease.Command = new Command(_ => Change(-1), _ => !ConfigIsReadOnly && Value > Minimum);
         _editor.Submitted += (_, _) => CommitEdit();
+        _editor.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName != nameof(IsFocused))
+                return;
+            if (!_editor.IsFocused)
+                CommitEdit();
+            SyncText();
+        };
         _editor.TextChanged += (_, _) =>
         {
             if (!_syncing)
@@ -95,6 +118,22 @@ public class NumericSpinner : ContainerControl
     /// Occurs after the decimal value changes.
     /// </summary>
     public event EventHandler? ValueChanged;
+    /// <summary>
+    /// Gets or sets the standard or custom numeric display format. Formatting does not change the stored value. An empty format uses DecimalPlaces.
+    /// </summary>
+    public string NumberFormat
+    {
+        get => _styleNumberFormat.Value;
+        set
+        {
+            ArgumentNullException.ThrowIfNull(value);
+            if (value != NumberFormat)
+                _ = 0m.ToString(value, System.Globalization.CultureInfo.InvariantCulture);
+            if (_styleNumberFormat.SetLocal(value))
+                NotifyPropertyChanged(NumberFormatArgs);
+        }
+    }
+
     /// <inheritdoc/>
     protected override string DefaultStyleName => "NumericSpinner";
     private CultureInfo Culture => ConfigCultureName.Length == 0 ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(ConfigCultureName);
@@ -116,14 +155,26 @@ public class NumericSpinner : ContainerControl
             ValueChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    private void SyncText()
+    /// <summary>Refreshes the cached label or plain editable number without replacing pending input.</summary>
+    /// <param name="force">Whether pending text and the current formatting cache may be replaced.</param>
+    private void SyncText(bool force = false)
     {
-        if (_editor.IsFocused || _dirty)
+        if (_dirty && !force)
             return;
+        if (!force && _textValue == Value && _textFormat == NumberFormat &&
+            _textCulture == CultureName && _textFocused == _editor.IsFocused && _textPlaces == DecimalPlaces)
+            return;
+        string format = _editor.IsFocused ? "G29" : NumberFormat.Length == 0 ? "F" + ConfigDecimalPlaces : NumberFormat;
+        string text = Value.ToString(format, Culture);
+        _textValue = Value;
+        _textFormat = NumberFormat;
+        _textFocused = _editor.IsFocused;
+        _textPlaces = DecimalPlaces;
+        _textCulture = CultureName;
         _syncing = true;
         try
         {
-            _editor.Text = Value.ToString("F" + ConfigDecimalPlaces, Culture);
+            _editor.Text = text;
             _editor.HasError = false;
         }
         finally
@@ -132,12 +183,18 @@ public class NumericSpinner : ContainerControl
         }
     }
 
-    private bool TryRead(out decimal value) => decimal.TryParse(_editor.Text, NumberStyles.Number, Culture, out value) && value >= Minimum && value <= Maximum;
+    private bool TryRead(out decimal value) => decimal.TryParse(_editor.Text, NumberStyles.Float | NumberStyles.AllowThousands, Culture, out value) && value >= Minimum && value <= Maximum;
     /// <summary>
     /// Validates and commits typed text, preserving invalid text and the old value.
     /// </summary>
     public bool CommitEdit()
     {
+        if (!_dirty)
+        {
+            SyncText();
+            return true;
+        }
+        Validate();
         if (!TryRead(out decimal value))
         {
             _editor.HasError = true;
@@ -146,16 +203,7 @@ public class NumericSpinner : ContainerControl
 
         SetValue(value);
         _dirty = false;
-        _syncing = true;
-        try
-        {
-            _editor.Text = Value.ToString("F" + ConfigDecimalPlaces, Culture);
-            _editor.HasError = false;
-        }
-        finally
-        {
-            _syncing = false;
-        }
+        SyncText(true);
 
         return true;
     }
@@ -176,16 +224,7 @@ public class NumericSpinner : ContainerControl
         }
 
         SetValue(next);
-        _syncing = true;
-        try
-        {
-            _editor.Text = Value.ToString("F" + ConfigDecimalPlaces, Culture);
-            _editor.HasError = false;
-        }
-        finally
-        {
-            _syncing = false;
-        }
+        SyncText(true);
     }
 
     internal override void Prepare()
@@ -231,16 +270,7 @@ public class NumericSpinner : ContainerControl
         else if (e.Type == ControlInputEventType.KeyDown && e.Key == Keys.Escape)
         {
             _dirty = false;
-            _syncing = true;
-            try
-            {
-                _editor.Text = Value.ToString("F" + ConfigDecimalPlaces, Culture);
-                _editor.HasError = false;
-            }
-            finally
-            {
-                _syncing = false;
-            }
+            SyncText(true);
 
             args.Handled = true;
         }
@@ -249,9 +279,7 @@ public class NumericSpinner : ContainerControl
     /// <inheritdoc/>
     protected override void OnUpdate(TimeSpan elapsed)
     {
-        if (_wasFocused && !_editor.IsFocused)
-            CommitEdit();
-        _wasFocused = _editor.IsFocused;
+        SyncText();
     }
 
     private StyleProperty<bool> _styleIsReadOnly = new(false);
@@ -390,7 +418,7 @@ public class NumericSpinner : ContainerControl
     }
 
     /// <summary>
-    /// Gets or sets DecimalPlaces; a local assignment overrides the style.
+    /// Gets or sets the stored decimal precision from 0 to 28. Zero rounds values to integers; NumberFormat only changes their display.
     /// </summary>
     public int DecimalPlaces { get => ConfigDecimalPlaces; set => ConfigDecimalPlaces = value; }
 
@@ -421,6 +449,10 @@ public class NumericSpinner : ContainerControl
         {
             switch (entry.Key)
             {
+                case nameof(NumberFormat):
+                    if (_styleNumberFormat.Apply(Converters.Convert<string>("String", entry.Value)))
+                        NotifyPropertyChanged(NumberFormatArgs);
+                    break;
                 case "IsReadOnly":
                     if (_styleIsReadOnly.Apply(Converters.Convert<bool>("Boolean", entry.Value)))
                         NotifyPropertyChanged(IsReadOnlyChangedArgs);
@@ -465,6 +497,8 @@ public class NumericSpinner : ContainerControl
     {
         switch (property)
         {
+            case nameof(NumberFormat):
+                return _styleNumberFormat.HasLocalValue;
             case "IsReadOnly":
                 return _styleIsReadOnly.HasLocalValue;
             case "RepeatDelay":
@@ -495,6 +529,10 @@ public class NumericSpinner : ContainerControl
     {
         switch (property)
         {
+            case nameof(NumberFormat):
+                if (_styleNumberFormat.ClearLocal())
+                    NotifyPropertyChanged(NumberFormatArgs);
+                return;
             case "IsReadOnly":
                 if (_styleIsReadOnly.ClearLocal())
                     NotifyPropertyChanged(IsReadOnlyChangedArgs);
@@ -541,6 +579,7 @@ public class NumericSpinner : ContainerControl
     protected override void ResetStyledValues()
     {
         base.ResetStyledValues();
+        _styleNumberFormat.BeginStyle(string.Empty);
         if (_styleIsReadOnly.BeginStyle(false))
             NotifyPropertyChanged(IsReadOnlyChangedArgs);
         if (_styleRepeatDelay.BeginStyle(0.4f))
@@ -567,6 +606,8 @@ public class NumericSpinner : ContainerControl
     protected override void CommitStyledValues()
     {
         base.CommitStyledValues();
+        if (_styleNumberFormat.CommitStyle())
+            NotifyPropertyChanged(NumberFormatArgs);
         if (_styleIsReadOnly.CommitStyle())
             NotifyPropertyChanged(IsReadOnlyChangedArgs);
         if (_styleRepeatDelay.CommitStyle())

@@ -1142,6 +1142,15 @@ public sealed class Style
         set => this["NumericIncrement"] = ShorthandConverters.Format("Decimal", value);
     }
     /// <summary>
+    /// Gets or sets the numeric display format. The control supplies its default when omitted.
+    /// </summary>
+    public string NumberFormat
+    {
+        get => _values.TryGetValue(nameof(NumberFormat), out string? text) ? text : string.Empty;
+        set => this[nameof(NumberFormat)] = value;
+    }
+
+    /// <summary>
     /// Typed shorthand for DecimalPlaces.
     /// </summary>
     public  int DecimalPlaces
