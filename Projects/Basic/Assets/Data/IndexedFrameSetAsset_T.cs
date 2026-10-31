@@ -19,9 +19,17 @@ public class IndexedFrameSetAsset<TEnum>
     : AssetBase<IndexedFrameSet<TEnum>, IndexedFrameSetDefinition>
     where TEnum : struct, Enum
 {
+    /// <summary>Stores an explicitly supplied frame-name converter.</summary>
     private readonly Func<string, TEnum>? _customConvert;
-    private Texture2DAsset? _textureAsset;
+
+    /// <summary>Stores additional single-page documents following the primary loader source.</summary>
+    private readonly List<ResourceSourceBase> _additionalSources = new();
+
+    /// <summary>Stores the configured converter or the converter derived from index mappings.</summary>
     private Func<string, TEnum>? _convert;
+
+    /// <summary>Stores all resolved texture-page dependencies in atlas order.</summary>
+    private Texture2DAsset[] _textureAssets = Array.Empty<Texture2DAsset>();
 
     /// <summary>
     /// Initializes a new indexed frame set asset.
@@ -83,6 +91,7 @@ public class IndexedFrameSetAsset<TEnum>
         ArgumentNullException.ThrowIfNull(textureAsset);
 
         Definition.Texture = textureAsset;
+        Definition.Textures = null;
 
         if (indexMapping is not null)
             Definition.IndexMapping = ConvertToMapping(indexMapping);
@@ -135,9 +144,45 @@ public class IndexedFrameSetAsset<TEnum>
         ArgumentNullException.ThrowIfNull(convert);
 
         Definition.Texture = textureAsset;
+        Definition.Textures = null;
         LoaderSource = loaderSource;
         _customConvert = convert;
     }
+
+    /// <summary>Creates an asset backed by an ordered collection of atlas textures.</summary>
+    /// <param name="id">The optional asset identifier.</param>
+    /// <param name="loaderSource">A multi-page atlas document or the first single-page document.</param>
+    /// <param name="textureAssets">The ordered, nonempty texture page references.</param>
+    /// <param name="convert">The optional frame-name converter.</param>
+    public IndexedFrameSetAsset(string? id, ResourceSourceBase? loaderSource,
+        IReadOnlyList<Reference<Texture2DAsset>> textureAssets, Func<string, TEnum>? convert = null)
+        : base(new IndexedFrameSetDefinition
+        {
+            Id = id,
+            Textures = FrameSetAssetTextures.CopyReferences(textureAssets)
+        })
+    {
+        LoaderSource = loaderSource;
+        _customConvert = convert;
+    }
+
+    /// <summary>Creates an asset with an existing definition and ordered atlas page references.</summary>
+    /// <param name="definition">The asset definition.</param>
+    /// <param name="loaderSource">A multi-page atlas document or the first single-page document.</param>
+    /// <param name="textureAssets">The ordered, nonempty texture page references.</param>
+    /// <param name="convert">The optional frame-name converter.</param>
+    public IndexedFrameSetAsset(IndexedFrameSetDefinition definition, ResourceSourceBase? loaderSource,
+        IReadOnlyList<Reference<Texture2DAsset>> textureAssets, Func<string, TEnum>? convert = null)
+        : base(definition)
+    {
+        Definition.Textures = FrameSetAssetTextures.CopyReferences(textureAssets);
+        LoaderSource = loaderSource;
+        _customConvert = convert;
+    }
+
+    /// <summary>Gets additional single-page atlas sources ordered after the primary source.</summary>
+    /// <remarks>Configure before loading. When nonempty, use one single-page document per texture; the primary source is page zero.</remarks>
+    public IList<ResourceSourceBase> AdditionalSources => _additionalSources;
 
     /// <summary>
     /// Resolves the default definition used by this asset.
@@ -157,21 +202,14 @@ public class IndexedFrameSetAsset<TEnum>
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        Texture2DAsset textureAsset = _textureAsset ??
-            throw new InvalidOperationException(
-                "The texture asset could not be resolved.");
-
-        Texture2D texture = textureAsset.GetOrLoad();
+        Texture2D[] textures = FrameSetAssetTextures.Load(_textureAssets);
 
         ResourceSourceBase loaderSource = LoaderSource ??
             throw new InvalidOperationException(
                 $"{nameof(LoaderSource)} is not configured.");
 
-        FrameSetImporter importer = FrameSetImporter.Create(
-            Definition.FormatType,
-            loaderSource);
-
-        return importer.ToIndexed(texture, _convert);
+        return FrameSetAssetTextures.Import(Definition.FormatType, loaderSource, stream, _additionalSources, textures.Length)
+            .ToIndexed(textures, _convert);
     }
 
     /// <summary>
@@ -183,15 +221,7 @@ public class IndexedFrameSetAsset<TEnum>
 
         _convert = _customConvert;
 
-        if (Context is not null &&
-            Definition.Texture is not null &&
-            Context.Source.TryGet(
-                Definition.Texture.Id,
-                out IAsset? asset) &&
-            asset is Texture2DAsset textureAsset)
-        {
-            _textureAsset = textureAsset;
-        }
+        _textureAssets = FrameSetAssetTextures.Resolve(Context, Definition.Texture, Definition.Textures);
 
         if (_convert is null &&
             Definition.IndexMapping is { Count: > 0 } mapping)
@@ -218,13 +248,16 @@ public class IndexedFrameSetAsset<TEnum>
     /// <param name="asset">The asset affected by the reference change.</param>
     protected override void OnReferenceChanged(IAsset asset)
     {
-        if (!ReferenceEquals(asset, _textureAsset))
+        if (!FrameSetAssetTextures.Contains(_textureAssets, asset))
             return;
 
         if (IsLoaded)
             Reload();
     }
 
+    /// <summary>Converts an optional enum-to-name map into the definition's integer mappings.</summary>
+    /// <param name="mapping">The enum-to-name map, or null.</param>
+    /// <returns>The converted mapping list, or null.</returns>
     private static IList<IndexMapping>? ConvertToMapping(
         IDictionary<TEnum, string>? mapping)
     {

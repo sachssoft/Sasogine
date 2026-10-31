@@ -1,10 +1,10 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 
 namespace Sachssoft.Engine.Resources;
 
 /// <summary>
-/// Defines a collection of tile frames that belong to a texture.
+/// Defines a collection of tile frames that reference one or more atlas textures.
 ///
 /// A tile frame set provides access to registered tile frames using an
 /// implementation-specific key type and supports enumeration of all contained
@@ -16,9 +16,23 @@ namespace Sachssoft.Engine.Resources;
 public interface ITileFrameSet : IEnumerable<TileFrameData>
 {
     /// <summary>
-    /// Gets the texture containing the tile frames.
+    /// Gets atlas page zero for compatibility with single-texture frame sets.
     /// </summary>
-    Texture2D Texture { get; }
+    Texture2D Texture
+    {
+        get;
+    }
+
+    /// <summary>Gets the ordered atlas pages borrowed by this tile frame set.</summary>
+    IReadOnlyList<Texture2D> Textures
+    {
+        get;
+    }
+
+    /// <summary>Resolves the atlas page referenced by a tile frame.</summary>
+    /// <param name="frame">The tile frame whose texture should be resolved.</param>
+    /// <returns>The corresponding borrowed texture.</returns>
+    Texture2D GetTexture(TileFrameData frame);
 
     /// <summary>
     /// Gets a tile frame using an implementation-specific key.
@@ -29,10 +43,16 @@ public interface ITileFrameSet : IEnumerable<TileFrameData>
     /// <returns>
     /// The tile frame associated with the specified key.
     /// </returns>
-    TileFrameData this[object key] { get; }
+    TileFrameData this[object key]
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets all keys used to identify the registered tile frames.
     /// </summary>
-    IEnumerable<object> Keys { get; }
+    IEnumerable<object> Keys
+    {
+        get;
+    }
 }

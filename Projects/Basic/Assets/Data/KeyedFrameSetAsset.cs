@@ -4,6 +4,7 @@ using Sachssoft.Engine.Resources;
 using Sachssoft.Engine.Resources.Importers;
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 namespace Sachssoft.Engine.Assets.Data;
 
@@ -13,7 +14,11 @@ namespace Sachssoft.Engine.Assets.Data;
 public class KeyedFrameSetAsset
     : AssetBase<KeyedFrameSet, KeyedFrameSetAssetDefinition>
 {
-    private Texture2D? _texture;
+    /// <summary>Stores additional single-page documents following the primary loader source.</summary>
+    private readonly List<ResourceSourceBase> _additionalSources = new();
+
+    /// <summary>Stores all resolved texture-page dependencies in atlas order.</summary>
+    private Texture2DAsset[] _textureAssets = Array.Empty<Texture2DAsset>();
 
     /// <summary>
     /// Initializes a new keyed frame set asset.
@@ -96,8 +101,40 @@ public class KeyedFrameSetAsset
         ArgumentNullException.ThrowIfNull(textureAsset);
 
         Definition.Texture = textureAsset;
+        Definition.Textures = null;
         LoaderSource = loaderSource;
     }
+
+    /// <summary>Creates an asset backed by an ordered collection of atlas textures.</summary>
+    /// <param name="id">The optional asset identifier.</param>
+    /// <param name="loaderSource">A multi-page atlas document or the first single-page document.</param>
+    /// <param name="textureAssets">The ordered, nonempty texture page references.</param>
+    public KeyedFrameSetAsset(string? id, ResourceSourceBase? loaderSource,
+        IReadOnlyList<Reference<Texture2DAsset>> textureAssets)
+        : base(new KeyedFrameSetAssetDefinition
+        {
+            Id = id,
+            Textures = FrameSetAssetTextures.CopyReferences(textureAssets)
+        })
+    {
+        LoaderSource = loaderSource;
+    }
+
+    /// <summary>Creates an asset with an existing definition and ordered atlas page references.</summary>
+    /// <param name="definition">The asset definition.</param>
+    /// <param name="loaderSource">A multi-page atlas document or the first single-page document.</param>
+    /// <param name="textureAssets">The ordered, nonempty texture page references.</param>
+    public KeyedFrameSetAsset(KeyedFrameSetAssetDefinition definition, ResourceSourceBase? loaderSource,
+        IReadOnlyList<Reference<Texture2DAsset>> textureAssets)
+        : base(definition)
+    {
+        Definition.Textures = FrameSetAssetTextures.CopyReferences(textureAssets);
+        LoaderSource = loaderSource;
+    }
+
+    /// <summary>Gets additional single-page atlas sources ordered after the primary source.</summary>
+    /// <remarks>Configure before loading. When nonempty, use one single-page document per texture; the primary source is page zero.</remarks>
+    public IList<ResourceSourceBase> AdditionalSources => _additionalSources;
 
     /// <summary>
     /// Builds the runtime keyed frame set.
@@ -114,19 +151,14 @@ public class KeyedFrameSetAsset
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        Texture2D texture = _texture ??
-            throw new InvalidOperationException(
-                "The texture asset could not be resolved.");
+        Texture2D[] textures = FrameSetAssetTextures.Load(_textureAssets);
 
         ResourceSourceBase loaderSource = LoaderSource ??
             throw new InvalidOperationException(
                 $"{nameof(LoaderSource)} is not configured.");
 
-        FrameSetImporter importer = FrameSetImporter.Create(
-            Definition.FormatType,
-            loaderSource);
-
-        return importer.ToKeyed(texture);
+        return FrameSetAssetTextures.Import(Definition.FormatType, loaderSource, stream, _additionalSources, textures.Length)
+            .ToKeyed(textures);
     }
 
     /// <summary>
@@ -136,14 +168,12 @@ public class KeyedFrameSetAsset
     {
         base.ConfigureFromDefinition();
 
-        _texture = null;
+        _textureAssets = FrameSetAssetTextures.Resolve(Context, Definition.Texture, Definition.Textures);
+    }
 
-        if (Context is not null &&
-            Definition.Texture is not null &&
-            Context.Source.TryGet(Definition.Texture.Id, out IAsset? asset) &&
-            asset is Texture2DAsset textureAsset)
-        {
-            _texture = textureAsset.GetOrLoad();
-        }
+    /// <inheritdoc/>
+    protected override void OnReferenceChanged(IAsset asset)
+    {
+        if (IsLoaded && FrameSetAssetTextures.Contains(_textureAssets, asset)) Reload();
     }
 }

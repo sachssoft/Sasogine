@@ -17,7 +17,11 @@ namespace Sachssoft.Engine.Assets.Data;
 public class IndexedFrameSetAsset
     : AssetBase<IndexedFrameSet, IndexedFrameSetDefinition>
 {
-    private Texture2DAsset? _textureAsset;
+    /// <summary>Stores additional single-page documents following the primary loader source.</summary>
+    private readonly List<ResourceSourceBase> _additionalSources = new();
+
+    /// <summary>Stores all resolved texture-page dependencies in atlas order.</summary>
+    private Texture2DAsset[] _textureAssets = Array.Empty<Texture2DAsset>();
 
     /// <summary>
     /// Initializes a new indexed frame set asset.
@@ -87,8 +91,40 @@ public class IndexedFrameSetAsset
         ArgumentNullException.ThrowIfNull(textureAsset);
 
         Definition.Texture = textureAsset;
+        Definition.Textures = null;
         LoaderSource = loaderSource;
     }
+
+    /// <summary>Creates an asset backed by an ordered collection of atlas textures.</summary>
+    /// <param name="id">The optional asset identifier.</param>
+    /// <param name="loaderSource">A multi-page atlas document or the first single-page document.</param>
+    /// <param name="textureAssets">The ordered, nonempty texture page references.</param>
+    public IndexedFrameSetAsset(string? id, ResourceSourceBase? loaderSource,
+        IReadOnlyList<Reference<Texture2DAsset>> textureAssets)
+        : base(new IndexedFrameSetDefinition
+        {
+            Id = id,
+            Textures = FrameSetAssetTextures.CopyReferences(textureAssets)
+        })
+    {
+        LoaderSource = loaderSource;
+    }
+
+    /// <summary>Creates an asset with an existing definition and ordered atlas page references.</summary>
+    /// <param name="definition">The asset definition.</param>
+    /// <param name="loaderSource">A multi-page atlas document or the first single-page document.</param>
+    /// <param name="textureAssets">The ordered, nonempty texture page references.</param>
+    public IndexedFrameSetAsset(IndexedFrameSetDefinition definition, ResourceSourceBase? loaderSource,
+        IReadOnlyList<Reference<Texture2DAsset>> textureAssets)
+        : base(definition)
+    {
+        Definition.Textures = FrameSetAssetTextures.CopyReferences(textureAssets);
+        LoaderSource = loaderSource;
+    }
+
+    /// <summary>Gets additional single-page atlas sources ordered after the primary source.</summary>
+    /// <remarks>Configure before loading. When nonempty, use one single-page document per texture; the primary source is page zero.</remarks>
+    public IList<ResourceSourceBase> AdditionalSources => _additionalSources;
 
     /// <summary>
     /// Gets a strongly typed enum-indexed frame set instance.
@@ -138,24 +174,14 @@ public class IndexedFrameSetAsset
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        Texture2DAsset textureAsset = _textureAsset ??
-            throw new InvalidOperationException(
-                "The texture asset could not be resolved.");
-
-        Texture2D texture =
-            textureAsset.GetOrLoad();
+        Texture2D[] textures = FrameSetAssetTextures.Load(_textureAssets);
 
         ResourceSourceBase loaderSource = LoaderSource ??
             throw new InvalidOperationException(
                 $"{nameof(LoaderSource)} is not configured.");
 
-        FrameSetImporter importer =
-            FrameSetImporter.Create(
-                Definition.FormatType,
-                loaderSource);
-
         IndexedFrameSet frameSet =
-            new(texture);
+            new(textures);
 
         Dictionary<string, int>? indexMapping = null;
 
@@ -181,7 +207,7 @@ public class IndexedFrameSetAsset
 
         int index = 0;
 
-        foreach (FrameSetEntry entry in importer.Import())
+        foreach (FrameSetEntry entry in FrameSetAssetTextures.Import(Definition.FormatType, loaderSource, stream, _additionalSources, textures.Length))
         {
             int frameIndex;
 
@@ -207,7 +233,8 @@ public class IndexedFrameSetAsset
                     entry.Y),
                 new PixelSize2(
                     entry.Width,
-                    entry.Height));
+                    entry.Height),
+                entry.TextureIndex);
 
             index++;
         }
@@ -222,15 +249,7 @@ public class IndexedFrameSetAsset
     {
         base.ConfigureFromDefinition();
 
-        if (Context is not null &&
-            Definition.Texture is not null &&
-            Context.Source.TryGet(
-                Definition.Texture.Id,
-                out IAsset? asset) &&
-            asset is Texture2DAsset textureAsset)
-        {
-            _textureAsset = textureAsset;
-        }
+        _textureAssets = FrameSetAssetTextures.Resolve(Context, Definition.Texture, Definition.Textures);
     }
 
     /// <summary>
@@ -242,9 +261,7 @@ public class IndexedFrameSetAsset
     protected override void OnReferenceChanged(
         IAsset asset)
     {
-        if (!ReferenceEquals(
-                asset,
-                _textureAsset))
+        if (!FrameSetAssetTextures.Contains(_textureAssets, asset))
         {
             return;
         }

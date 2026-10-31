@@ -12,7 +12,7 @@ namespace Sachssoft.Engine.Assets.Data;
 /// </summary>
 /// <remarks>
 /// An indexed frame set associates numeric frame indices with enum value names
-/// and uses a texture asset as the source texture for the runtime frame set.
+/// and uses one or more ordered texture assets as the runtime atlas pages.
 /// </remarks>
 public class IndexedFrameSetDefinition : AssetDefinitionBase
 {
@@ -21,19 +21,40 @@ public class IndexedFrameSetDefinition : AssetDefinitionBase
     /// </summary>
     [Category(Categories.Common)]
     [DisplayName("Format Type")]
-    public DocumentFormatType FormatType { get; set; }
+    public DocumentFormatType FormatType
+    {
+        get;
+        set;
+    }
 
     /// <summary>
-    /// Gets or sets the reference to the texture asset used by the frame set.
+    /// Gets or sets the fallback texture reference used when <see cref="Textures"/> is null or empty.
     /// </summary>
     [Category(Categories.Common)]
     [DisplayName("Texture")]
-    public Reference<Texture2DAsset>? Texture { get; set; }
+    public Reference<Texture2DAsset>? Texture
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Gets or sets ordered atlas page references, taking precedence over <see cref="Texture"/> when nonempty.</summary>
+    [Category(Categories.Common)]
+    [DisplayName("Textures")]
+    public IList<Reference<Texture2DAsset>>? Textures
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets the mappings between numeric frame indices and enum value names.
     /// </summary>
     [Category(Categories.Common)]
     [DisplayName("Index Mapping")]
-    public IList<IndexMapping>? IndexMapping { get; set; }
+    public IList<IndexMapping>? IndexMapping
+    {
+        get;
+        set;
+    }
 }

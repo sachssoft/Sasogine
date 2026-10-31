@@ -1,5 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Engine;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,94 +7,97 @@ using System.Linq;
 
 namespace Sachssoft.Engine.Resources;
 
-/// <summary>
-/// Represents a texture frame set where frames are accessed through a strongly typed enum key.
-///
-/// This implementation is intended for runtime usage where frame references are known at compile time.
-/// Using an enum avoids string-based lookups and provides type-safe access to tile frames.
-/// </summary>
-/// <typeparam name="TEnum">
-/// Enum type used as the frame key.
-/// </typeparam>
+/// <summary>Stores tile frames across one or more borrowed atlas textures.</summary>
+/// <remarks>Textures are not disposed by this collection. Use each frame's texture index when rendering.</remarks>
+/// <typeparam name="TEnum">The enum used to identify frames.</typeparam>
 public sealed class IndexedTileFrameSet<TEnum> : ITileFrameSet
     where TEnum : struct, Enum
 {
+    /// <summary>Stores frames by their strongly typed key.</summary>
     private readonly Dictionary<TEnum, TileFrameData> _frames = new();
 
-    /// <summary>
-    /// Creates a new indexed tile frame set.
-    /// </summary>
-    /// <param name="tileSize">
-    /// Size of a single tile in pixels.
-    /// </param>
-    /// <param name="texture">
-    /// Texture containing the tile frames.
-    /// </param>
-    public IndexedTileFrameSet(
-        PixelSize2 tileSize,
-        Texture2D texture)
+    /// <summary>Creates a frame set backed by one atlas texture.</summary>
+    /// <param name="tileSize">The common tile size in pixels.</param>
+    /// <param name="texture">The borrowed texture containing page zero.</param>
+    public IndexedTileFrameSet(PixelSize2 tileSize, Texture2D texture)
     {
-        ArgumentNullException.ThrowIfNull(texture);
-
         TileSize = tileSize;
-        Texture = texture;
+        Textures = FrameSetTextures.Create(texture);
     }
 
-    /// <summary>
-    /// Gets the tile size used by this frame set.
-    /// </summary>
-    public PixelSize2 TileSize { get; }
+    /// <summary>Creates a frame set backed by multiple ordered atlas textures.</summary>
+    /// <param name="tileSize">The common tile size in pixels.</param>
+    /// <param name="textures">The nonempty, ordered atlas pages. Their references are copied.</param>
+    public IndexedTileFrameSet(PixelSize2 tileSize, IReadOnlyList<Texture2D> textures)
+    {
+        TileSize = tileSize;
+        Textures = FrameSetTextures.Create(textures);
+    }
 
-    /// <summary>
-    /// Gets the texture containing the frames.
-    /// </summary>
-    public Texture2D Texture { get; }
+    /// <summary>Gets the ordered atlas pages without transferring texture ownership.</summary>
+    public IReadOnlyList<Texture2D> Textures
+    {
+        get;
+    }
 
-    /// <summary>
-    /// Gets all enum keys of the registered tile frames.
-    /// </summary>
+    /// <summary>Gets page zero for compatibility with single-texture frame sets.</summary>
+    /// <remarks>For multiple pages, use <see cref="GetTexture(TileFrameData)"/> or the frame's texture index.</remarks>
+    public Texture2D Texture => Textures[0];
+
+    /// <summary>Gets the common tile size in pixels.</summary>
+    public PixelSize2 TileSize
+    {
+        get;
+    }
+
+    /// <summary>Gets the registered frame keys.</summary>
     public IEnumerable<TEnum> Indices => _frames.Keys;
 
-    IEnumerable<object> ITileFrameSet.Keys
-        => _frames.Keys.Cast<object>();
+    /// <inheritdoc/>
+    IEnumerable<object> ITileFrameSet.Keys => _frames.Keys.Cast<object>();
 
-    TileFrameData ITileFrameSet.this[object key]
-        => this[(TEnum)key];
+    /// <summary>Gets the frame associated with the specified key.</summary>
+    /// <param name="index">The registered frame key.</param>
+    /// <returns>The frame, including its atlas page index.</returns>
+    public TileFrameData this[TEnum index] => _frames[index];
 
-    /// <summary>
-    /// Gets the frame associated with the specified enum index.
-    /// </summary>
-    public TileFrameData this[TEnum index]
-        => _frames[index];
+    /// <inheritdoc/>
+    TileFrameData ITileFrameSet.this[object key] => this[(TEnum)key];
 
-    /// <summary>
-    /// Adds a new frame using an enum index and atlas cell coordinate.
-    /// </summary>
-    /// <param name="index">
-    /// Enum value used to identify the frame.
-    /// </param>
-    /// <param name="cell">
-    /// Atlas cell coordinate of the frame.
-    /// </param>
-    public void Add(
-        TEnum index,
-        Coordinate2 cell)
+    /// <summary>Gets the atlas texture referenced by a frame.</summary>
+    /// <param name="frame">The frame whose page should be resolved.</param>
+    /// <returns>The corresponding borrowed texture.</returns>
+    public Texture2D GetTexture(TileFrameData frame)
     {
-        _frames.Add(
-            index,
-            new TileFrameData(TileSize, cell));
+        FrameSetTextures.ValidateIndex(Textures, frame.TextureIndex);
+        return Textures[frame.TextureIndex];
     }
 
-    /// <summary>
-    /// Returns an enumerator that iterates through all tile frames.
-    /// </summary>
-    public IEnumerator<TileFrameData> GetEnumerator()
+    /// <summary>Gets the atlas texture for a registered frame key.</summary>
+    /// <param name="index">The frame key.</param>
+    /// <returns>The corresponding borrowed texture.</returns>
+    public Texture2D GetTexture(TEnum index) => GetTexture(this[index]);
+
+    /// <summary>Adds a frame on atlas page zero.</summary>
+    /// <param name="index">The unique frame key.</param>
+    /// <param name="cell">The atlas cell coordinate.</param>
+    public void Add(TEnum index, Coordinate2 cell) => Add(index, cell, 0);
+
+    /// <summary>Adds a frame on the specified atlas page.</summary>
+    /// <param name="index">The unique frame key.</param>
+    /// <param name="cell">The atlas cell coordinate.</param>
+    /// <param name="textureIndex">The zero-based index into <see cref="Textures"/>.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The texture index is not registered.</exception>
+    public void Add(TEnum index, Coordinate2 cell, int textureIndex)
     {
-        return _frames.Values.GetEnumerator();
+        FrameSetTextures.ValidateIndex(Textures, textureIndex);
+        _frames.Add(index, new TileFrameData(TileSize, cell, textureIndex));
     }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    /// <summary>Returns an enumerator over the registered frames.</summary>
+    /// <returns>The frame enumerator.</returns>
+    public IEnumerator<TileFrameData> GetEnumerator() => _frames.Values.GetEnumerator();
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

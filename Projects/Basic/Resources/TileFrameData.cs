@@ -1,4 +1,4 @@
-﻿using Sachssoft.Engine;
+using Sachssoft.Engine;
 
 namespace Sachssoft.Engine.Resources;
 
@@ -26,7 +26,20 @@ public readonly struct TileFrameData : ISourceRegion
     public TileFrameData(
         PixelSize2 size,
         Coordinate2 cell)
+        : this(size, cell, 0)
     {
+    }
+
+    /// <summary>Creates a tile region on a specified atlas page.</summary>
+    /// <param name="size">The tile size in pixels.</param>
+    /// <param name="cell">The atlas cell coordinate.</param>
+    /// <param name="textureIndex">The nonnegative, zero-based atlas page index.</param>
+    /// <exception cref="System.ArgumentOutOfRangeException">The page index is negative.</exception>
+    public TileFrameData(PixelSize2 size, Coordinate2 cell, int textureIndex)
+    {
+        if (textureIndex < 0)
+            throw new System.ArgumentOutOfRangeException(nameof(textureIndex));
+        TextureIndex = textureIndex;
         Size = size;
         Cell = cell;
 
@@ -40,15 +53,30 @@ public readonly struct TileFrameData : ISourceRegion
     /// <summary>
     /// Gets the size of the tile in pixels.
     /// </summary>
-    public PixelSize2 Size { get; }
+    public PixelSize2 Size
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets the cell coordinate of the frame inside the texture atlas.
     /// </summary>
-    public Coordinate2 Cell { get; }
+    public Coordinate2 Cell
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets the pixel bounds identifying this frame within the source texture.
     /// </summary>
-    public PixelBounds2 SourceBounds { get; }
+    public PixelBounds2 SourceBounds
+    {
+        get;
+    }
+
+    /// <summary>Gets the zero-based index of the texture containing this tile.</summary>
+    public int TextureIndex
+    {
+        get;
+    }
 }
