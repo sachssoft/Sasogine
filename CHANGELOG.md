@@ -35,6 +35,7 @@ All notable changes to this project will be documented in this file.
 * [Feature] Added `IAxis` for non-generic access to `Axis<TAxis>` values.
 * [Feature] Added optional definition cloning, settings copying, and reset support through `IDefinitionCloneable`, `IDefinitionSettingsCopyable`, `IDefinitionResettable`, and `DefinitionExtensions`, including `Try` methods.
 * [Improve] Added automatic initialization of registered `IPlatformInitializable` services during application startup.
+* [Improve] **Resources**: Extended all frame sets and tile frame sets with multiple texture pages, per-frame texture indices, and matching XML/JSON import, asset loading, and `MultiFrameBatch` support.
 * [Improve] **Toolkit**: Added `SelectionTool.CanSelectLockedEntities`, disabled by default, to skip locked entities during pointer and area selection while preserving programmatic selection.
 * [Improve] Updated `WindowsWindow` to support parameterless construction and deferred initialization.* [Improve] **Toolkit**: Added proportional resizing with Shift to preserve the original aspect ratio.
 * [Improve] Unified service resolution in `GameServiceManager` and removed inconsistent interface validation.
