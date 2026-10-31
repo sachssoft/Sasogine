@@ -1,119 +1,138 @@
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Engine;
 using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Sachssoft.Engine.Resources.Importers;
 
-/// <summary>
-/// Provides extension methods for converting imported frame set data
-/// into frame set collections.
-/// </summary>
+/// <summary>Converts imported entries into frame sets while preserving their atlas page indices.</summary>
 public static class FrameSetImporterExtensions
 {
-    /// <summary>
-    /// Imports the frame set and converts its entries into an indexed frame set.
-    /// </summary>
-    /// <typeparam name="TEnum">
-    /// The enumeration type used as the frame set index.
-    /// </typeparam>
-    /// <param name="frameSetImporter">
-    /// The frame set importer.
-    /// </param>
-    /// <param name="texture">
-    /// The texture containing the frames.
-    /// </param>
-    /// <param name="convert">
-    /// An optional function used to convert frame names into enumeration values.
-    /// When <see langword="null"/>, frame names are parsed directly as enumeration values.
-    /// </param>
-    /// <returns>
-    /// An indexed frame set containing the imported frames.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="frameSetImporter"/> or <paramref name="texture"/>
-    /// is <see langword="null"/>.
-    /// </exception>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown when a frame name cannot be converted to <typeparamref name="TEnum"/>
-    /// and no conversion function was provided.
-    /// </exception>
-    public static IndexedFrameSet<TEnum> ToIndexed<TEnum>(
-        this FrameSetImporter frameSetImporter,
-        Texture2D texture,
-        Func<string, TEnum>? convert = null)
-        where TEnum : struct, Enum
+    /// <summary>Imports enum-keyed frames from one atlas texture.</summary>
+    /// <typeparam name="TEnum">The frame key enum.</typeparam>
+    /// <param name="frameSetImporter">The document importer.</param>
+    /// <param name="texture">The borrowed atlas texture.</param>
+    /// <param name="convert">An optional name converter; otherwise enum names are parsed.</param>
+    /// <returns>The imported enum-indexed frame set.</returns>
+    public static IndexedFrameSet<TEnum> ToIndexed<TEnum>(this FrameSetImporter frameSetImporter,
+        Texture2D texture, Func<string, TEnum>? convert = null) where TEnum : struct, Enum
     {
-        ArgumentNullException.ThrowIfNull(frameSetImporter);
         ArgumentNullException.ThrowIfNull(texture);
-
-        var frameSet = new IndexedFrameSet<TEnum>(texture);
-
-        foreach (var entry in frameSetImporter.Import())
-        {
-            TEnum index;
-
-            if (convert is not null)
-            {
-                index = convert(entry.Name);
-            }
-            else if (!Enum.TryParse(
-                entry.Name,
-                out index))
-            {
-                throw new InvalidOperationException(
-                    $"The frame '{entry.Name}' could not be converted to {typeof(TEnum).Name}.");
-            }
-
-            frameSet.Add(
-                index,
-                new Point(entry.X, entry.Y),
-                new PixelSize2(entry.Width, entry.Height));
-        }
-
-        return frameSet;
+        return frameSetImporter.ToIndexed(new[] { texture }, convert);
     }
 
-    /// <summary>
-    /// Imports the frame set and converts its entries into a keyed frame set.
-    /// </summary>
-    /// <param name="frameSetImporter">
-    /// The frame set importer.
-    /// </param>
-    /// <param name="texture">
-    /// The texture containing the frames.
-    /// </param>
-    /// <param name="convert">
-    /// An optional function used to convert frame names into keys.
-    /// When <see langword="null"/>, the original frame names are used.
-    /// </param>
-    /// <returns>
-    /// A keyed frame set containing the imported frames.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="frameSetImporter"/> or <paramref name="texture"/>
-    /// is <see langword="null"/>.
-    /// </exception>
-    public static KeyedFrameSet ToKeyed(
-        this FrameSetImporter frameSetImporter,
-        Texture2D texture,
-        Func<string, string>? convert = null)
+    /// <summary>Imports enum-keyed frames from ordered atlas textures.</summary>
+    /// <typeparam name="TEnum">The frame key enum.</typeparam>
+    /// <param name="frameSetImporter">The document importer.</param>
+    /// <param name="textures">The borrowed textures in atlas page order.</param>
+    /// <param name="convert">An optional name converter; otherwise enum names are parsed.</param>
+    /// <returns>The imported enum-indexed frame set.</returns>
+    public static IndexedFrameSet<TEnum> ToIndexed<TEnum>(this FrameSetImporter frameSetImporter,
+        IReadOnlyList<Texture2D> textures, Func<string, TEnum>? convert = null) where TEnum : struct, Enum
     {
         ArgumentNullException.ThrowIfNull(frameSetImporter);
-        ArgumentNullException.ThrowIfNull(texture);
+        return frameSetImporter.Import().ToIndexed(textures, convert);
+    }
 
-        var frameSet = new KeyedFrameSet(texture);
-
-        foreach (var entry in frameSetImporter.Import())
+    /// <summary>Converts imported entries into an enum-keyed collection without discarding page indices.</summary>
+    /// <typeparam name="TEnum">The frame key enum.</typeparam>
+    /// <param name="entries">The imported frame entries.</param>
+    /// <param name="textures">The borrowed textures in atlas page order.</param>
+    /// <param name="convert">An optional name converter; otherwise enum names are parsed.</param>
+    /// <returns>The enum-indexed collection.</returns>
+    public static IndexedFrameSet<TEnum> ToIndexed<TEnum>(this IEnumerable<FrameSetEntry> entries,
+        IReadOnlyList<Texture2D> textures, Func<string, TEnum>? convert = null) where TEnum : struct, Enum
+    {
+        ArgumentNullException.ThrowIfNull(entries);
+        var result = new IndexedFrameSet<TEnum>(textures);
+        foreach (FrameSetEntry entry in entries)
         {
-            var key = convert?.Invoke(entry.Name) ?? entry.Name;
-
-            frameSet.Add(
-                key,
-                new Point(entry.X, entry.Y),
-                new PixelSize2(entry.Width, entry.Height));
+            TEnum index;
+            if (convert is not null) index = convert(entry.Name);
+            else if (!Enum.TryParse(entry.Name, out index))
+                throw new InvalidOperationException($"The frame '{entry.Name}' could not be converted to {typeof(TEnum).Name}.");
+            result.Add(index, new PixelPoint2(entry.X, entry.Y), new PixelSize2(entry.Width, entry.Height), entry.TextureIndex);
         }
+        return result;
+    }
 
-        return frameSet;
+    /// <summary>Converts imported entries into an integer-indexed collection with optional name mapping.</summary>
+    /// <param name="entries">The imported frame entries.</param>
+    /// <param name="textures">The borrowed textures in atlas page order.</param>
+    /// <param name="convert">An optional index converter; otherwise indices follow insertion order.</param>
+    /// <returns>The integer-indexed collection, including all page associations.</returns>
+    public static IndexedFrameSet ToIndexed(this IEnumerable<FrameSetEntry> entries,
+        IReadOnlyList<Texture2D> textures, Func<string, int>? convert = null)
+    {
+        ArgumentNullException.ThrowIfNull(entries);
+        var result = new IndexedFrameSet(textures);
+        int index = 0;
+        foreach (FrameSetEntry entry in entries)
+        {
+            result.Add(convert?.Invoke(entry.Name) ?? index,
+                new PixelPoint2(entry.X, entry.Y), new PixelSize2(entry.Width, entry.Height), entry.TextureIndex);
+            index++;
+        }
+        return result;
+    }
+
+    /// <summary>Imports string-keyed frames from one atlas texture.</summary>
+    /// <param name="frameSetImporter">The document importer.</param>
+    /// <param name="texture">The borrowed atlas texture.</param>
+    /// <param name="convert">An optional frame-name converter.</param>
+    /// <returns>The imported keyed frame set.</returns>
+    public static KeyedFrameSet ToKeyed(this FrameSetImporter frameSetImporter,
+        Texture2D texture, Func<string, string>? convert = null)
+    {
+        ArgumentNullException.ThrowIfNull(texture);
+        return frameSetImporter.ToKeyed(new[] { texture }, convert);
+    }
+
+    /// <summary>Imports string-keyed frames from ordered atlas textures.</summary>
+    /// <param name="frameSetImporter">The document importer.</param>
+    /// <param name="textures">The borrowed textures in atlas page order.</param>
+    /// <param name="convert">An optional frame-name converter.</param>
+    /// <returns>The imported keyed frame set.</returns>
+    public static KeyedFrameSet ToKeyed(this FrameSetImporter frameSetImporter,
+        IReadOnlyList<Texture2D> textures, Func<string, string>? convert = null)
+    {
+        ArgumentNullException.ThrowIfNull(frameSetImporter);
+        return frameSetImporter.Import().ToKeyed(textures, convert);
+    }
+
+    /// <summary>Converts imported entries into a keyed collection without discarding page indices.</summary>
+    /// <param name="entries">The imported entries.</param>
+    /// <param name="textures">The borrowed textures in atlas page order.</param>
+    /// <param name="convert">An optional frame-name converter.</param>
+    /// <returns>The imported keyed collection.</returns>
+    public static KeyedFrameSet ToKeyed(this IEnumerable<FrameSetEntry> entries,
+        IReadOnlyList<Texture2D> textures, Func<string, string>? convert = null)
+    {
+        ArgumentNullException.ThrowIfNull(entries);
+        var result = new KeyedFrameSet(textures);
+        foreach (FrameSetEntry entry in entries)
+            result.Add(convert?.Invoke(entry.Name) ?? entry.Name,
+                new PixelPoint2(entry.X, entry.Y), new PixelSize2(entry.Width, entry.Height), entry.TextureIndex);
+        return result;
+    }
+
+    /// <summary>Combines separate single-page documents in texture order, including empty pages.</summary>
+    /// <param name="pages">The importers ordered like the texture collection passed to conversion.</param>
+    /// <returns>Entries with the document's zero-based position as their texture index.</returns>
+    /// <exception cref="InvalidDataException">A document already references a nonzero page.</exception>
+    public static IEnumerable<FrameSetEntry> ImportPages(this IReadOnlyList<FrameSetImporter> pages)
+    {
+        ArgumentNullException.ThrowIfNull(pages);
+        for (int i = 0; i < pages.Count; i++)
+        {
+            FrameSetImporter importer = pages[i] ?? throw new ArgumentException("Page importers must not contain null.", nameof(pages));
+            foreach (FrameSetEntry entry in importer.Import())
+            {
+                if (entry.TextureIndex != 0)
+                    throw new InvalidDataException("ImportPages expects one single-page document per texture.");
+                entry.TextureIndex = i;
+                yield return entry;
+            }
+        }
     }
 }
