@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Engine;
 using Sachssoft.Engine.Graphics.Cameras;
+using Sachssoft.Engine.Resources;
 using System;
 using System.Collections.Generic;
 
@@ -154,6 +155,50 @@ public sealed class MultiFrameBatch : IDisposable
                 transform,
                 sourceBounds,
                 color));
+    }
+
+    /// <summary>Adds a frame using its own atlas page and source region.</summary>
+    /// <param name="frameSet">The frame's atlas collection.</param>
+    /// <param name="frame">The frame data, including its texture index.</param>
+    /// <param name="transform">The world transformation.</param>
+    /// <param name="color">The tint color.</param>
+    public void AddFrame(IFrameSet frameSet, FrameData frame, QuadTransform transform, Color color)
+    {
+        ArgumentNullException.ThrowIfNull(frameSet);
+        AddFrame(frameSet.GetTexture(frame), transform, frame.SourceBounds, color);
+    }
+
+    /// <summary>Adds a tile using its own atlas page and source region.</summary>
+    /// <param name="frameSet">The tile's atlas collection.</param>
+    /// <param name="frame">The tile data, including its texture index.</param>
+    /// <param name="transform">The world transformation.</param>
+    /// <param name="color">The tint color.</param>
+    public void AddFrame(ITileFrameSet frameSet, TileFrameData frame, QuadTransform transform, Color color)
+    {
+        ArgumentNullException.ThrowIfNull(frameSet);
+        AddFrame(frameSet.GetTexture(frame), transform, frame.SourceBounds, color);
+    }
+
+    /// <summary>Adds a frame at a position using its own atlas page.</summary>
+    /// <param name="frameSet">The frame's atlas collection.</param>
+    /// <param name="frame">The frame data.</param>
+    /// <param name="position">The world position.</param>
+    /// <param name="color">The tint color.</param>
+    public void AddFrame(IFrameSet frameSet, FrameData frame, Point2 position, Color color)
+    {
+        ArgumentNullException.ThrowIfNull(frameSet);
+        AddFrame(frameSet.GetTexture(frame), position, frame.SourceBounds, color);
+    }
+
+    /// <summary>Adds a tile at a position using its own atlas page.</summary>
+    /// <param name="frameSet">The tile's atlas collection.</param>
+    /// <param name="frame">The tile data.</param>
+    /// <param name="position">The world position.</param>
+    /// <param name="color">The tint color.</param>
+    public void AddFrame(ITileFrameSet frameSet, TileFrameData frame, Point2 position, Color color)
+    {
+        ArgumentNullException.ThrowIfNull(frameSet);
+        AddFrame(frameSet.GetTexture(frame), position, frame.SourceBounds, color);
     }
 
     /// <summary>
