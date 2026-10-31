@@ -216,6 +216,21 @@ public class SelectionTool : ToolBase, INotifyTransformChanged
     public bool EnableAreaSelection { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets whether pointer interaction can select locked targets.
+    /// </summary>
+    /// <remarks>
+    /// The default is <see langword="false"/>. This setting applies to point hit tests,
+    /// rectangular area selection, and pointer interaction with selected handles.
+    /// It does not change existing selections or restrict <see cref="Select"/> and
+    /// <see cref="AddSelection"/>. Allowing selection does not enable locked transformations.
+    /// </remarks>
+    public bool CanSelectLockedEntities
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
     /// Gets or sets a value indicating whether targets that only intersect the
     /// rectangular area selection can also be selected.
     /// </summary>
@@ -603,7 +618,7 @@ public class SelectionTool : ToolBase, INotifyTransformChanged
                 entry.Target?.IsSelected == true ||
                 entry.TargetDefinition?.IsSelected == true;
 
-            if (!isSelected)
+            if (!isSelected || !CanSelectByPointer(entry.Target, entry.TargetDefinition))
                 continue;
 
             Layer.OnTargetInvalidated(
@@ -1254,13 +1269,14 @@ public class SelectionTool : ToolBase, INotifyTransformChanged
     }
 
     /// <summary>
-    /// Performs a hit test against all available selection targets.
+    /// Performs a pointer hit test against selectable targets.
     /// </summary>
     /// <param name="touchedPosition">
     /// The position to test.
     /// </param>
     /// <returns>
-    /// A result containing all targets intersecting the specified position.
+    /// A result containing targets intersecting the specified position, excluding locked
+    /// targets unless <see cref="CanSelectLockedEntities"/> is enabled.
     /// </returns>
     public SelectionTargetHitTestResult HitTest(
         Point2 touchedPosition)
@@ -1298,6 +1314,9 @@ public class SelectionTool : ToolBase, INotifyTransformChanged
         {
             return false;
         }
+
+        if (!CanSelectByPointer(target, definition))
+            return false;
 
         Size2 targetSize =
             definition?.Size ??
@@ -1342,6 +1361,23 @@ public class SelectionTool : ToolBase, INotifyTransformChanged
             localPosition.X <= targetSize.Width &&
             localPosition.Y >= 0f &&
             localPosition.Y <= targetSize.Height;
+    }
+
+    /// <summary>
+    /// Determines whether a target is eligible for pointer-based selection under the current lock policy.
+    /// </summary>
+    /// <param name="target">The runtime target, if available.</param>
+    /// <param name="definition">The target definition, if available.</param>
+    /// <returns>
+    /// <see langword="true"/> when locked selection is enabled or neither representation is locked;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    private bool CanSelectByPointer(
+        ISelectionTarget2? target,
+        ISelectionTarget2Definition? definition)
+    {
+        return CanSelectLockedEntities ||
+            (target?.IsLocked != true && definition?.IsLocked != true);
     }
 
     private SelectionToolLayerContext
@@ -1434,6 +1470,9 @@ public class SelectionTool : ToolBase, INotifyTransformChanged
         {
             return false;
         }
+
+        if (!CanSelectByPointer(target, definition))
+            return false;
 
         Size2 size =
             definition?.Size ??
