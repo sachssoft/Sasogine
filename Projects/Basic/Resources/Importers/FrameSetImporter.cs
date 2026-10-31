@@ -10,6 +10,7 @@ namespace Sachssoft.Engine.Resources.Importers;
 /// </summary>
 public abstract class FrameSetImporter
 {
+    /// <summary>Stores the source used to open atlas document streams.</summary>
     private readonly ResourceSourceBase _resourceSource;
 
     /// <summary>
@@ -77,6 +78,16 @@ public abstract class FrameSetImporter
     {
         using Stream stream = _resourceSource.GetStream();
 
+        foreach (FrameSetEntry entry in Import(stream))
+            yield return entry;
+    }
+
+    /// <summary>Imports entries from a borrowed stream without closing or reopening it.</summary>
+    /// <param name="stream">The already-open frame set document.</param>
+    /// <returns>The imported frame entries, including atlas page indices.</returns>
+    public IEnumerable<FrameSetEntry> Import(Stream stream)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
         foreach (FrameSetEntry entry in OnImporting(stream)
             ?? throw new InvalidDataException(
                 "The frame set importer returned null."))
