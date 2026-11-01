@@ -1,0 +1,67 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Sachssoft.SvgConverter.MainWindow"
+        Title="Sachssoft SVG Converter" Width="800" Height="770"
+        MinWidth="650" MinHeight="690" Icon="/Assets/icon.png">
+  <Grid Margin="20" RowDefinitions="Auto,*,Auto,Auto,Auto,Auto" RowSpacing="14">
+    <StackPanel Grid.Row="0">
+      <TextBlock Text="SVG to PNG Converter" FontSize="24" FontWeight="SemiBold" />
+      <TextBlock Text="Convert vector graphics into texture-ready PNG files." Opacity="0.7" Margin="0,4,0,0" />
+    </StackPanel>
+    <Grid Grid.Row="1" RowDefinitions="Auto,*" RowSpacing="6">
+      <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
+        <TextBlock Text="SVG files" VerticalAlignment="Center" FontWeight="SemiBold" />
+        <Button Grid.Column="1" Content="Add SVGs…" Click="AddFiles_Click" />
+        <Button Grid.Column="2" Content="Remove selected" Click="RemoveSelected_Click" />
+        <Button Grid.Column="3" Content="Clear" Click="Clear_Click" />
+      </Grid>
+      <Border Grid.Row="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BorderThickness="1" CornerRadius="5">
+        <ListBox x:Name="FilesList" Margin="4" SelectionMode="Multiple" />
+      </Border>
+    </Grid>
+    <Grid Grid.Row="2" RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="6" ColumnSpacing="8">
+      <TextBlock Grid.ColumnSpan="2" Text="Output folder" FontWeight="SemiBold" />
+      <TextBox x:Name="OutputPathBox" Grid.Row="1" Watermark="Choose an output folder" />
+      <Button Grid.Row="1" Grid.Column="1" Content="Browse…" Click="BrowseOutput_Click" />
+    </Grid>
+    <StackPanel Grid.Row="3" Spacing="9">
+      <TextBlock Text="Resize mode" FontWeight="SemiBold" />
+      <StackPanel Orientation="Horizontal" Spacing="24">
+        <RadioButton x:Name="ScaleModeBox" GroupName="ResizeMode" Content="Scale factors" IsChecked="True" Checked="SizingChanged" />
+        <RadioButton x:Name="TargetModeBox" GroupName="ResizeMode" Content="Target size (pixels)" Checked="SizingChanged" />
+      </StackPanel>
+      <StackPanel x:Name="ScalePanel" Orientation="Horizontal" Spacing="20">
+        <CheckBox x:Name="Scale1Box" Content="1×" IsChecked="True" />
+        <CheckBox x:Name="Scale2Box" Content="2×" IsChecked="True" />
+        <CheckBox x:Name="Scale3Box" Content="3×" />
+        <CheckBox x:Name="Scale4Box" Content="4×" />
+      </StackPanel>
+      <StackPanel x:Name="TargetPanel" Spacing="8" IsVisible="False">
+        <ComboBox x:Name="DimensionBox" SelectedIndex="0" SelectionChanged="DimensionChanged">
+          <ComboBoxItem Content="Width and height" />
+          <ComboBoxItem Content="Width only" />
+          <ComboBoxItem Content="Height only" />
+        </ComboBox>
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <StackPanel Width="140" Spacing="4"><TextBlock Text="Width (px)" /><TextBox x:Name="WidthBox" Text="256" /></StackPanel>
+          <StackPanel Width="140" Spacing="4"><TextBlock Text="Height (px)" /><TextBox x:Name="HeightBox" Text="256" /></StackPanel>
+        </StackPanel>
+        <CheckBox x:Name="KeepRatioBox" Content="Keep aspect ratio (fit within target)" IsChecked="True" />
+      </StackPanel>
+      <StackPanel Spacing="5">
+        <CheckBox x:Name="SuffixBox" Content="Add filename suffix" Checked="SuffixChanged" Unchecked="SuffixChanged" />
+        <TextBox x:Name="SuffixTextBox" Text="_1x" Watermark="e.g. _1x or _large" IsEnabled="False" Width="240" HorizontalAlignment="Left" />
+      </StackPanel>
+      <CheckBox x:Name="OverwriteBox" Content="Overwrite existing PNGs" />
+    </StackPanel>
+    <Grid Grid.Row="4" RowDefinitions="Auto,Auto" RowSpacing="6">
+      <TextBlock Text="Conversion output" FontWeight="SemiBold" />
+      <TextBox x:Name="LogBox" Grid.Row="1" Height="95" IsReadOnly="True" AcceptsReturn="True"
+               TextWrapping="Wrap" FontFamily="Consolas" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+    </Grid>
+    <Grid Grid.Row="5" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+      <TextBlock x:Name="StatusText" VerticalAlignment="Center" Text="No files selected." Opacity="0.7" />
+      <Button x:Name="ConvertButton" Grid.Column="1" Content="Convert to PNG" MinWidth="145" Click="Convert_Click" />
+    </Grid>
+  </Grid>
+</Window>
