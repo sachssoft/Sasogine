@@ -57,7 +57,7 @@ Plattformspezifische Projekte verwenden bei Bedarf die entsprechenden .NET-Targe
 | **Basic**     | `Sachssoft.Sasogine`           | Backend-unabhängiger Engine-Kern                        | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine)                     |
 | **Documents** | `Sachssoft.Sasogine.Documents` | Dokumente, Ressourcen und Serialisierungsintegration    | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Documents.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Documents) |
 | **Toolkit**   | `Sachssoft.Sasogine.Toolkit`   | Wiederverwendbare Editor- und Entwicklungswerkzeuge     | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Toolkit.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Toolkit)     |
-| **Controls**  | `Sachssoft.Sasogine.Controls`  | UI-Steuerelemente, Layout und Darstellungsinfrastruktur | **Geplant**                                                                                                                              |
+| **Controls**  | `Sachssoft.Sasogine.Controls`  | UI controls, layout and presentation infrastructure | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Controls.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Controls)     |
 
 ### Rendering-Backends
 
