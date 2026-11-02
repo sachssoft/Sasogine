@@ -1,35 +1,37 @@
 # Sachssoft Sasogine
 
-Sasogine is a lightweight, extensible and AOT-friendly game engine framework for .NET built on top of [MonoGame](https://monogame.net/).
+Sasogine is a lightweight, extensible, and AOT-friendly game engine framework for .NET based on [MonoGame](https://monogame.net/).
 
-It provides reusable engine infrastructure for assets, resources, rendering, input, audio, components, tools, serialization and platform integration while keeping platform-specific services and graphics backends separated from the engine core.
+It provides reusable engine infrastructure for assets, resources, rendering, input, audio, components, tools, serialization, and platform integration. Platform-specific services and graphics backends remain separate from the engine core.
 
-> \[!WARNING\] Sasogine is currently in an early alpha stage. APIs, project structure and package boundaries may still change before a stable release.
->
-> Version `0.11.0-alpha` introduces a major architectural refactoring. The core engine is no longer tied directly to DesktopGL; platform integrations and rendering backends are maintained as separate projects.
+> [!WARNING]
+> Sasogine is currently in an early alpha stage. APIs, project structure, and package boundaries may change before a stable release.
+
+> Version `0.11.0-alpha` introduces a major architectural overhaul. The engine core is no longer directly tied to DesktopGL. Platform integrations and rendering backends are maintained as separate projects.
 
 ## Features
 
-- **Engine foundation:** Application lifecycle, services, typed definitions, factories and object references.
-- **Scenes and game objects:** Scene management, viewports, entities, components and tile map foundations.
-- **Assets and resources:** Managed loading and reloading of textures, fonts, audio and frame sets from files, memory, embedded resources or remote sources.
-- **Sprites and tiles:** Texture atlases, XML/JSON frame imports and frame access through names, indices or enums.
-- **Rendering:** Batched sprites, tiles, text and shapes; brushes, pens, gradients, textures, meshes and model rendering.
-- **Cameras and animation:** 2D cameras, isometric and related projections, parallax layers, position and rotation animations.
-- **Geometry and colors:** Paths, curves and polygon operations, including clipping, offsets and triangulation; color conversion across RGB, HSL, HSV, linear RGB and OKLab.
-- **Input and audio:** Keyboard, mouse, touch and gamepad interactions, shortcuts and vibration; WAV playback and MP3/OGG streaming.
-- **Localization:** Language switching, fallback languages, localized values and plural forms.
-- **Documents:** Serialization registries and reader/writer extensions for engine types, with JSON document formatting.
-- **Editor tools:** Object insertion, camera navigation, selection with move/resize/rotate handles, and vector path editing.
-- **Development helpers:** Scheduling, asynchronous loading and progress tracking, easing curves, randomization, frame statistics and benchmarks.
+- **Engine Fundamentals:** Application lifecycle, services, strongly typed definitions, factories, and object references.
+- **Scenes and Game Objects:** Scene management, viewports, entities, components, and tilemap foundations.
+- **Assets and Resources:** Managed loading and reloading of textures, fonts, audio, and frame sets from files, memory, embedded resources, or remote sources.
+- **Sprites and Tiles:** Texture atlases, XML/JSON frame import, and frame access by names, indices, or enums.
+- **Rendering:** Batched rendering of sprites, tiles, text, and shapes with brushes, pens, gradients, textures, meshes, and models.
+- **Controls and User Interfaces:** Extensive UI system featuring numerous controls, layouts, and data binding based on a hybrid retained-mode architecture. The system is under active development and may still contain bugs or limitations. Two visual editors are planned: Sachssoft Controls Designer for skin editing and Sachssoft View Layouter for visual interface layout design.
+- **Cameras and Animation:** 2D cameras, isometric and related projections, parallax layers, and position and rotation animations.
+- **Geometry and Colors:** Paths, curves, and polygon operations including clipping, offsets, and triangulation, as well as color conversion between RGB, HSL, HSV, linear RGB, and OKLab.
+- **Input and Audio:** Keyboard, mouse, touch, and gamepad input, shortcuts, vibration, WAV playback, and MP3/OGG streaming.
+- **Localization:** Language switching, fallback languages, localized values, and plural forms.
+- **Documents:** Serialization registries and reader/writer extensions for engine types, along with JSON document formatting.
+- **Editor Tools:** Object insertion, camera navigation, selection with handles for moving, scaling, and rotating, and vector path editing.
+- **Development Utilities:** Scheduled actions, asynchronous loading and progress reporting, easing curves, random utilities, frame statistics, and benchmarks.
 
 ## Documentation
 
 - **English Documentation:** See [README.md](README.md)
 - **German Documentation:** See [README_DE.md](README_DE.md)
-- **Programming & Architecture Guidelines:**
+- **Programming and Architecture Guidelines:**
   - [English](PROGRAMMING_ARCHITECTURE_GUIDELINES_EN.md)
-  - [Deutsch](PROGRAMMING_ARCHITECTURE_GUIDELINES_DE.md)
+  - [German](PROGRAMMING_ARCHITECTURE_GUIDELINES_DE.md)
 - **Package Build & Publish Guide:** See [PackageBuildInstructions.md](PackageBuildInstructions.md)
 - **Changelog:** See [CHANGELOG.md](CHANGELOG.md)
 - **License:** See [LICENSE.md](LICENSE.md)
@@ -44,45 +46,46 @@ It provides reusable engine infrastructure for assets, resources, rendering, inp
 - Trimming-compatible design
 - Native AOT-compatible design
 
-Platform-specific projects use their corresponding .NET target frameworks, such as `net*-windows`, `net*-android` and `net*-ios` where required.
+Platform-specific projects use the corresponding .NET target frameworks where required, such as `net*-windows`, `net*-android`, and `net*-ios`.
 
 ## Packages
 
-> \[!IMPORTANT\] Sasogine is under active alpha development. Package boundaries, APIs and backend availability may still change before a stable release.
+> [!IMPORTANT]
+> Sasogine is under active alpha development. Package boundaries, APIs, and the availability of individual backends may change before a stable release.
 
 ### Engine and Modules
 
-| Module        | Package                        | Usage                                               | NuGet                                                                                                                                    |
-|:--------------|:-------------------------------|:----------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------|
-| **Basic**     | `Sachssoft.Sasogine`           | Backend-independent engine core                     | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine)                     |
-| **Documents** | `Sachssoft.Sasogine.Documents` | Documents, resources and serialization integration  | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Documents.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Documents) |
-| **Toolkit**   | `Sachssoft.Sasogine.Toolkit`   | Reusable editor and development tools               | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Toolkit.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Toolkit)     |
-| **Controls**  | `Sachssoft.Sasogine.Controls`  | UI controls, layout and presentation infrastructure | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Controls.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Controls)     |
+| Module | Package | Purpose | NuGet |
+|:---|:---|:---|:---|
+| **Basic** | `Sachssoft.Sasogine` | Backend-independent engine core | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine) |
+| **Documents** | `Sachssoft.Sasogine.Documents` | Documents, resources, and serialization integration | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Documents.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Documents) |
+| **Toolkit** | `Sachssoft.Sasogine.Toolkit` | Reusable editor and development tools | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Toolkit.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Toolkit) |
+| **Controls** | `Sachssoft.Sasogine.Controls` | UI controls, layouts, and presentation infrastructure | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Controls.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Controls) |
 
 ### Rendering Backends
 
-| Backend         | Package                          | Graphics API                       | NuGet                                                                                                                                        |
-|:----------------|:---------------------------------|:-----------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------|
-| **DesktopGL**   | `Sachssoft.Sasogine.DesktopGL`   | OpenGL through MonoGame DesktopGL  | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.DesktopGL)     |
-| **DesktopVK**   | `Sachssoft.Sasogine.DesktopVK`   | Vulkan through MonoGame Native     | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.DesktopVK.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.DesktopVK)     |
-| **WindowsDX**   | `Sachssoft.Sasogine.WindowsDX`   | Classic MonoGame DirectX backend   | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.WindowsDX.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.WindowsDX)     |
-| **WindowsDX12** | `Sachssoft.Sasogine.WindowsDX12` | DirectX 12 through MonoGame Native | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.WindowsDX12.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.WindowsDX12) |
+| Backend | Package | Graphics API | NuGet |
+|:---|:---|:---|:---|
+| **DesktopGL** | `Sachssoft.Sasogine.DesktopGL` | OpenGL via MonoGame DesktopGL | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.DesktopGL.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.DesktopGL) |
+| **DesktopVK** | `Sachssoft.Sasogine.DesktopVK` | Vulkan via MonoGame Native | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.DesktopVK.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.DesktopVK) |
+| **WindowsDX** | `Sachssoft.Sasogine.WindowsDX` | Classic MonoGame DirectX backend | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.WindowsDX.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.WindowsDX) |
+| **WindowsDX12** | `Sachssoft.Sasogine.WindowsDX12` | DirectX 12 via MonoGame Native | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.WindowsDX12.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.WindowsDX12) |
 
 ### Platforms
 
-| Platform    | Package                               | Usage                              | NuGet                                                                                                                                                  |
-|:------------|:--------------------------------------|:-----------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Platform | Package | Purpose | NuGet |
+|:---|:---|:---|:---|
 | **Windows** | `Sachssoft.Sasogine.Platform.Windows` | Windows-specific platform services | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Platform.Windows.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Platform.Windows) |
-| **Linux**   | `Sachssoft.Sasogine.Platform.Linux`   | Linux-specific platform services   | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Platform.Linux.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Platform.Linux)     |
-| **macOS**   | `Sachssoft.Sasogine.Platform.MacOs`   | macOS-specific platform services   | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Platform.MacOs.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Platform.MacOs)     |
-| **Android** | `Sachssoft.Sasogine.Platform.Android` | Android platform integration       | **Planned**                                                                                                                                            |
-| **iOS**     | `Sachssoft.Sasogine.Platform.iOS`     | iOS platform integration           | **Planned**                                                                                                                                            |
+| **Linux** | `Sachssoft.Sasogine.Platform.Linux` | Linux-specific platform services | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Platform.Linux.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Platform.Linux) |
+| **macOS** | `Sachssoft.Sasogine.Platform.MacOs` | macOS-specific platform services | [![NuGet](https://img.shields.io/nuget/v/Sachssoft.Sasogine.Platform.MacOs.svg)](https://www.nuget.org/packages/Sachssoft.Sasogine.Platform.MacOs) |
+| **Android** | `Sachssoft.Sasogine.Platform.Android` | Android platform integration | **Planned** |
+| **iOS** | `Sachssoft.Sasogine.Platform.iOS` | iOS platform integration | **Planned** |
 
-Published Sasogine packages can also be found on the [Sachssoft NuGet profile](https://www.nuget.org/profiles/tcs-1986).
+Published Sasogine packages can also be found in the [Sachssoft NuGet profile](https://www.nuget.org/profiles/tcs-1986).
 
 ## Rendering Backends
 
-Rendering backends are separate from platform services.
+Rendering backends are separated from platform services.
 
 ### DesktopGL
 
@@ -96,21 +99,21 @@ Typical desktop targets:
 
 ### DesktopVK
 
-`Sachssoft.Sasogine.DesktopVK` uses MonoGame’s Native framework together with Vulkan runtimes.
+`Sachssoft.Sasogine.DesktopVK` uses MonoGame Native together with Vulkan runtimes.
 
-It is currently considered experimental in Sasogine.
+This backend is currently considered experimental in Sasogine.
 
 ### WindowsDX
 
 `Sachssoft.Sasogine.WindowsDX` uses the classic MonoGame WindowsDX backend.
 
-It targets Windows and DirectX-based rendering.
+It is intended for Windows and DirectX-based rendering.
 
 ### WindowsDX12
 
-`Sachssoft.Sasogine.WindowsDX12` uses MonoGame’s Native framework with the DirectX 12 runtime.
+`Sachssoft.Sasogine.WindowsDX12` uses MonoGame Native together with the DirectX 12 runtime.
 
-It is currently considered experimental in Sasogine.
+This backend is currently considered experimental in Sasogine.
 
 ## Native AOT and Trimming
 
@@ -126,15 +129,15 @@ The engine favors:
 - AOT-compatible serialization paths
 - Trimming-compatible APIs
 
-Reflection may be used as an optional fallback in selected APIs when the runtime supports it. Core functionality should not require reflection where an explicit alternative is available.
+Reflection may be used as an optional fallback in selected APIs when supported by the runtime. Core functionality should not require reflection when an explicit alternative is available.
 
-Runtime capability checks can be used before invoking reflection-dependent functionality.
+Runtime capability checks may be used before invoking reflection-dependent functionality.
 
 ## Development Structure
 
-The main source tree is organized by responsibility:
+The main source code is organized by responsibility:
 
-``` text
+```text
 Projects/
 ├── Basic/
 │   └── Sachssoft.Sasogine.csproj
@@ -157,11 +160,11 @@ Projects/
     └── WindowsDX12/
 ```
 
-Shared build and package configuration is maintained in the root-level `.props` files.
+Shared build and package configurations are maintained in the `.props` files at the repository root.
 
 ## Versioning
 
-Sasogine currently uses prerelease alpha versions.
+Sasogine currently uses alpha prerelease versions.
 
 During the alpha phase:
 
@@ -170,18 +173,18 @@ During the alpha phase:
 - Projects and packages may be reorganized.
 - Experimental backends may be incomplete.
 
-See [CHANGELOG.md](CHANGELOG.md) for release-specific changes.
+Version-specific changes are documented in [CHANGELOG.md](CHANGELOG.md).
 
 ## Issues and Development
 
-Known bugs, planned features and ongoing development are tracked through GitHub Issues:
+Known issues, planned features, and ongoing development are tracked through GitHub Issues:
 
 https://github.com/sachssoft/Sasogine/issues
 
-Bug reports and feature requests can be submitted through the issue tracker.
+Bug reports and feature requests can also be submitted there.
 
 ## License
 
 Sasogine is licensed under the MIT License.
 
-See [LICENSE.md](LICENSE.md) for details.
+For more information, see [LICENSE.md](LICENSE.md).
