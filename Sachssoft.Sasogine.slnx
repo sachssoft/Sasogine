@@ -2,6 +2,7 @@
 	<Folder Name="/Build/">
 		<File Path="Sachssoft.Sasogine.Package.props" />
 		<File Path="Sachssoft.Sasogine.props" />
+		<File Path="Sachssoft.Sasogine.Controls.props" />
 		<File Path="Sachssoft.Sasogine.Documents.props" />
 		<File Path="Sachssoft.Sasogine.Toolkit.props" />
 		<Project Path="Build/Sachssoft.Sasogine.Analyzers/Sachssoft.Sasogine.Analyzers.csproj" />

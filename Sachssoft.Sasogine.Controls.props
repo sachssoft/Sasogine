@@ -1,0 +1,48 @@
+<Project>
+
+	<Import Project="Sachssoft.Sasogine.Package.props" />
+
+	<PropertyGroup>
+
+		<!-- General -->
+		<RootNamespace>Sachssoft.Engine.Controls</RootNamespace>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+		<!-- AOT / Trimming -->
+		<IsTrimmable>true</IsTrimmable>
+		<IsAotCompatible>true</IsAotCompatible>
+
+		<EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+		<EnableAotAnalyzer>true</EnableAotAnalyzer>
+
+		<!-- Documentation -->
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+		<!-- NuGet Metadata -->
+		<Description>
+			UI controls and layout infrastructure for the Sasogine game engine,
+			including styling, input handling, data binding, and visual components.
+		</Description>
+
+		<PackageReleaseNotes>
+			Introduces the Sasogine controls and user interface infrastructure.
+		</PackageReleaseNotes>
+
+		<PackageTags>
+			Sasogine;Controls;UI;Layout;Styling;Input;DataBinding;MonoGame;GameEngine;Framework;AOT;Trimming
+		</PackageTags>
+
+		<!-- Source Exclusions -->
+		<DefaultItemExcludes>$(DefaultItemExcludes);Validation\**;Examples\**</DefaultItemExcludes>
+
+	</PropertyGroup>
+
+	<ItemGroup>
+
+		<PackageReference
+            Include="FontStashSharp.MonoGame"
+            Version="1.6.1" />
+
+	</ItemGroup>
+
+</Project>
