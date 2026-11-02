@@ -19,7 +19,9 @@ All notable changes to this project will be documented in this file.
 
 </small>
 
-## [0.13.0-alpha] - Planned
+## [0.14.0-alpha] - Planned
+
+## [0.13.0-alpha] - 2026-11-02
 * [Feature] **Controls**: Introduced Sasogine Controls, a new UI system.
 * [Feature] Added generic `ValueChangingEventArgs<T>` and `ValueChangedEventArgs<T>` for value change notifications, with cancellation support before changes are applied.
 * [Feature] Added support for registering cleanup actions in `DisposeManager`.
