@@ -20,13 +20,14 @@ All notable changes to this project will be documented in this file.
 </small>
 
 ## [0.14.0-alpha] - Planned
-* [Feature] **Monetization**: Added immutable `ProductInfo` and separate `CurrencyCode`, `CurrencySymbol`, `FormattedAmount`, `LocalizedPrice`, and `CurrencySymbolBeforeAmount` metadata for store prices and application-owned font selection.
-* [Change] **Monetization**: Changed `IProductInfo.Id` from `int` to `string` to match purchase operations and changed `Price` from `float` to `decimal`. Updated pseudo-product factories to require explicit currency metadata and culture; custom implementations and callers must migrate.
-* [Improve] **Monetization**: Extended `PseudoPurchaseService` with culture-aware price formatting, an isolated EUR/USD `CreateDemo()` catalog, validated read-only catalog snapshots, and synchronized in-memory ownership checks.
-* [Bug] **Monetization**: Unknown pseudo-product IDs now return a failed purchase instead of being recorded as owned; duplicate or invalid catalog IDs are rejected. Added usage and migration documentation in `Docs/in_app_purchases.md`.
-* [Change] **Controls**: Replaced redundant enums with Sasogine's `StretchMode` and nullable `SortDirection`; introduced shared `Orientation`, `LayoutAlignment`, and `Placement` enums and moved `CurveInterpolation` to `Gameplay.Curves`. Updated controls, examples, benchmarks, and style converters while preserving named style values. This changes public API types and some numeric enum values.
-* [Improve] **Controls**: Updated development guidelines to reuse compatible Sasogine enums, place generally reusable enums in the appropriate engine module, and retain control-specific enums where needed.
-* [Bug] **Controls**: Fixed `ValueTextBox` overwriting in-progress numeric input during repeated value updates. Decimal input now accepts both dot and comma separators and avoids floating-point display artifacts.
+* [Feature] Added immutable `ProductInfo` with currency metadata, localized prices, and separate price components for custom font selection.
+* [Change] Changed `IProductInfo.Id` to `string` and `Price` to `decimal`; pseudo-product factories now require currency metadata and culture. See `Docs/in_app_purchases.md` for migration guidance.
+* [Change] **Controls**: Replaced redundant enums with shared engine types and moved `CurveInterpolation` to `Gameplay.Curves`. Public API types and some numeric values changed; named style values remain compatible.
+* [Improve] Extended `PseudoPurchaseService` with localized prices, a EUR/USD demo catalog, validated read-only catalog snapshots, and synchronized ownership checks.
+* [Improve] **Controls**: Standardized enum reuse: shared types belong in engine modules; control-specific enums remain in Controls.
+* [Bug] Fixed reversed `LowTieredScore` and `HighTieredScore` thresholds and edits resetting or moving values to another tier; the edited value now stays in its selected tier.
+* [Bug] Fixed `PseudoPurchaseService` accepting unknown product IDs and duplicate or invalid catalog entries.
+* [Bug] **Controls**: Fixed `ValueTextBox` overwriting numeric input during repeated updates; decimal input accepts dot and comma separators without floating-point display artifacts.
 
 ## [0.13.0-alpha] - 2026-11-02
 * [Feature] **Controls**: Introduced Sasogine Controls, a new UI system.
