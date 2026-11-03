@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
 </small>
 
 ## [0.14.0-alpha] - Planned
+* [Bug] **Controls**: Fixed `ValueTextBox` overwriting in-progress numeric input during repeated value updates. Decimal input now accepts both dot and comma separators and avoids floating-point display artifacts.
 
 ## [0.13.0-alpha] - 2026-11-02
 * [Feature] **Controls**: Introduced Sasogine Controls, a new UI system.
