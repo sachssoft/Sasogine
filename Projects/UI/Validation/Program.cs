@@ -1284,6 +1284,7 @@ internal static class Program
                     root.Update(sampler.SampleReusable(default, default, default, viewport, 1, TimeSpan.Zero), Layout);
                 Check(GC.GetAllocatedBytesForCurrentThread() == before && unicode.Calls == calls, "Unchanged script updates must allocate zero bytes and skip classification");
             });
+            Run("ValueTextBox drafts survive bindings and accept decimal separators", () => _checks += ValueTextBoxEditingTests.Run(Layout));
             Run("ValueTextBox click-versus-drag, repeat arrows and exclusive editing modes", () =>
             {
                 var initialized = new ValueTextBox();
