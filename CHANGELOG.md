@@ -20,6 +20,12 @@ All notable changes to this project will be documented in this file.
 </small>
 
 ## [0.14.0-alpha] - Planned
+* [Feature] **Monetization**: Added immutable `ProductInfo` and separate `CurrencyCode`, `CurrencySymbol`, `FormattedAmount`, `LocalizedPrice`, and `CurrencySymbolBeforeAmount` metadata for store prices and application-owned font selection.
+* [Change] **Monetization**: Changed `IProductInfo.Id` from `int` to `string` to match purchase operations and changed `Price` from `float` to `decimal`. Updated pseudo-product factories to require explicit currency metadata and culture; custom implementations and callers must migrate.
+* [Improve] **Monetization**: Extended `PseudoPurchaseService` with culture-aware price formatting, an isolated EUR/USD `CreateDemo()` catalog, validated read-only catalog snapshots, and synchronized in-memory ownership checks.
+* [Bug] **Monetization**: Unknown pseudo-product IDs now return a failed purchase instead of being recorded as owned; duplicate or invalid catalog IDs are rejected. Added usage and migration documentation in `Docs/in_app_purchases.md`.
+* [Change] **Controls**: Replaced redundant enums with Sasogine's `StretchMode` and nullable `SortDirection`; introduced shared `Orientation`, `LayoutAlignment`, and `Placement` enums and moved `CurveInterpolation` to `Gameplay.Curves`. Updated controls, examples, benchmarks, and style converters while preserving named style values. This changes public API types and some numeric enum values.
+* [Improve] **Controls**: Updated development guidelines to reuse compatible Sasogine enums, place generally reusable enums in the appropriate engine module, and retain control-specific enums where needed.
 * [Bug] **Controls**: Fixed `ValueTextBox` overwriting in-progress numeric input during repeated value updates. Decimal input now accepts both dot and comma separators and avoids floating-point display artifacts.
 
 ## [0.13.0-alpha] - 2026-11-02
@@ -399,4 +405,4 @@ All notable changes to this project will be documented in this file.
 * [Feature] Initial alpha release
 * [Feature] Initial Sasogine engine framework release
 
- 
+
