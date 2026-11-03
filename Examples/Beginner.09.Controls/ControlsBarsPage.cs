@@ -1,3 +1,4 @@
+using Sachssoft.Engine;
 using Sachssoft.Engine.Input;
 
 namespace Sachssoft.Engine.Controls.Examples;
@@ -63,7 +64,7 @@ public sealed class ControlsBarsPage : Grid
 
         )
             tools.Children.Add(new SelectorButton { Content = new TextBlock { Text = name }, GroupName = "bars.toolbar", IsChecked = name == "Select", Height = 36, Command = new Command(parameter => _status.Text = $"Toolbar tool: {parameter}"), CommandParameter = name });
-        settings.Children.Add(new TextBlock { Text = "Zoom", VerticalAlignment = ControlAlignment.Center });
+        settings.Children.Add(new TextBlock { Text = "Zoom", VerticalAlignment = LayoutAlignment.Center });
         settings.Children.Add(new Slider { Width = 135, Minimum = 25, Maximum = 200, Value = 100, ToolTip = "Arbitrary controls are allowed inside a ToolStrip." });
         settings.Children.Add(new TextBox { Width = 180, Height = 36, Placeholder = "Find a tool..." });
         view.Children.Add(new ToggleButton { Content = new TextBlock { Text = "Grid" }, Height = 36, IsChecked = true });

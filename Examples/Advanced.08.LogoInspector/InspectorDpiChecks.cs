@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
+using Sachssoft.Engine;
 
 namespace Sachssoft.Engine.Controls.Examples;
 /// <summary>Checks physical viewport resizing, shared DPI input transforms and steady layout caching.</summary>
@@ -23,8 +24,8 @@ internal static class InspectorDpiChecks
         {
             Width = 100,
             Height = 32,
-            HorizontalAlignment = ControlAlignment.Start,
-            VerticalAlignment = ControlAlignment.Start
+            HorizontalAlignment = LayoutAlignment.Start,
+            VerticalAlignment = LayoutAlignment.Start
         };
         var probe = new InspectorDpiProbe();
         root.Children.Add(button);

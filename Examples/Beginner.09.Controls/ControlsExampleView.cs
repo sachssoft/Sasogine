@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Sachssoft.Engine;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -75,7 +76,7 @@ internal sealed class ControlsExampleView
         page.Add(new Label() { StyleId = "Gallery.Heading", Text = "SASOGINE  /  CONTROLS" });
         var columns = new StackPanel()
         {
-            Orientation = StackOrientation.Horizontal,
+            Orientation = Orientation.Horizontal,
             Spacing = 16,
             Height = 530
         };
@@ -137,7 +138,7 @@ internal sealed class ControlsExampleView
         };
         slider.ValueChanged += (_, _) => _status.Text = $"Slider: {slider.Value:0}";
         values.Add(slider);
-        values.Add(new ScrollBar() { Axis = ControlOrientation.Horizontal, ViewportSize = 30, Value = 32, Height = 18 });
+        values.Add(new ScrollBar() { Axis = Orientation.Horizontal, ViewportSize = 30, Value = 32, Height = 18 });
         var list = new ListBox()
         {
             Height = 166,
@@ -173,12 +174,12 @@ internal sealed class ControlsExampleView
 
         var openContent = new StackPanel()
         {
-            Orientation = StackOrientation.Horizontal,
+            Orientation = Orientation.Horizontal,
             Spacing = 8,
             Background = Color.Transparent
         };
         openContent.Add(new Image() { Region = "icon_folder_open", Width = 20, Height = 20 });
-        openContent.Add(new Label() { Text = "Open file...", VerticalAlignment = ControlAlignment.Center });
+        openContent.Add(new Label() { Text = "Open file...", VerticalAlignment = LayoutAlignment.Center });
         registry.Styles.Register(new Style("Gallery.ImageButton", "Button") { ["Height"] = "36", ["Padding"] = "12,7" });
         var open = new Button()
         {

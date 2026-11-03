@@ -1,5 +1,6 @@
-using Sachssoft.Engine.Input;
 using Microsoft.Xna.Framework;
+using Sachssoft.Engine;
+using Sachssoft.Engine.Input;
 
 namespace Sachssoft.Engine.Controls.Examples;
 /// <summary>Live frame telemetry, script editing and grouped command controls.</summary>
@@ -65,7 +66,7 @@ public sealed class ControlsToolsPage : Grid
         left.Add(bars);
         var buttons = new StackPanel
         {
-            Orientation = StackOrientation.Horizontal,
+            Orientation = Orientation.Horizontal,
             Spacing = 8
         };
         left.Add(buttons);

@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Sachssoft.Engine;
 
 namespace Sachssoft.Engine.Controls.Examples;
 /// <summary>Shows the explicitly registered value catalog without creating every editor at once.</summary>
@@ -21,8 +22,8 @@ internal sealed class InspectorValueGallery : ContentControl
 
     internal InspectorValueGallery()
     {
-        ContentHorizontalAlignment = ControlAlignment.Stretch;
-        ContentVerticalAlignment = ControlAlignment.Stretch;
+        ContentHorizontalAlignment = LayoutAlignment.Stretch;
+        ContentVerticalAlignment = LayoutAlignment.Stretch;
         var page = new StackPanel
         {
             Padding = new Insets2(12),

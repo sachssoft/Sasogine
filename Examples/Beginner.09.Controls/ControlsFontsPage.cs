@@ -1,5 +1,6 @@
-using Weight = Sachssoft.Engine.Graphics.Text.FontWeight;
+using Sachssoft.Engine;
 using FaceStyle = Sachssoft.Engine.Graphics.Text.FontStyle;
+using Weight = Sachssoft.Engine.Graphics.Text.FontWeight;
 
 namespace Sachssoft.Engine.Controls.Examples;
 /// <summary>Demonstrates registered font faces, inherited typography and local overrides.</summary>
@@ -81,7 +82,7 @@ public sealed class ControlsFontsPage : StackPanel
         size.ValueChanged += (_, _) => preview.FontSize = (int)Math.Round(size.Value);
         bold.Clicked += (_, _) => preview.FontWeight = bold.IsChecked == true ? Weight.Bold : Weight.Normal;
         italic.Clicked += (_, _) => preview.FontStyle = italic.IsChecked == true ? FaceStyle.Italic : FaceStyle.Normal;
-        tools.Children.Add(new TextBlock { Text = "Size", VerticalAlignment = ControlAlignment.Center });
+        tools.Children.Add(new TextBlock { Text = "Size", VerticalAlignment = LayoutAlignment.Center });
         tools.Children.Add(size);
         tools.Children.Add(bold);
         tools.Children.Add(italic);

@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Input;
 
 namespace Sachssoft.Engine.Controls.Examples;
@@ -53,7 +54,7 @@ internal sealed class EditorView
     {
         Height = 128,
         Width = 128,
-        HorizontalAlignment = ControlAlignment.Center,
+        HorizontalAlignment = LayoutAlignment.Center,
         ToolTip = "Drag to rotate. Shift snaps to 15°. Escape cancels. Arrow keys: 1°; Home: zero."
     };
     private readonly NumericSpinner _angle = new()
@@ -228,7 +229,7 @@ internal sealed class EditorView
         };
         rotationRow.Columns.Add(new GridColumn { Width = GridLength.Proportion() });
         rotationRow.Columns.Add(new GridColumn { Width = 110 });
-        _angle.VerticalAlignment = ControlAlignment.Center;
+        _angle.VerticalAlignment = LayoutAlignment.Center;
         _rotation.Width = 110;
         _rotation.Height = 110;
         rotationRow.Children.Add(_angle);

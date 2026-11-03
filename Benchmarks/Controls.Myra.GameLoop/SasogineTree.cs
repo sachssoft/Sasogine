@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Controls.Drawing;
 using Sachssoft.Engine.Controls.Input;
 using Sachssoft.Engine.Controls.Layouts;
@@ -31,7 +32,7 @@ internal sealed class SasogineTree : IBenchmarkTree
         {
             var line = new StackPanel
             {
-                Orientation = StackOrientation.Horizontal,
+                Orientation = Orientation.Horizontal,
                 Height = spec.CellHeight,
                 Padding = Insets2.Zero,
                 Margin = Insets2.Zero,
@@ -47,8 +48,8 @@ internal sealed class SasogineTree : IBenchmarkTree
                     Padding = Insets2.Zero,
                     Margin = Insets2.Zero,
                     Background = Color.Transparent,
-                    HorizontalAlignment = ControlAlignment.Center,
-                    VerticalAlignment = ControlAlignment.Center
+                    HorizontalAlignment = LayoutAlignment.Center,
+                    VerticalAlignment = LayoutAlignment.Center
                 };
                 var button = new Button
                 {
