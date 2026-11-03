@@ -460,6 +460,13 @@ A task is complete only when all applicable conditions are satisfied:
 - Avoid unnecessary abstractions and dependencies.
 - Preserve Native AOT and trimming compatibility.
 
+### Changelog
+- Within each version in `CHANGELOG.md`, group entries in this exact order: `[Feature]`, `[Change]`, `[Improve]`, then `[Bug]`. Insert new entries into their matching group, never automatically at the top.
+- Write concise English entries describing the concrete feature, change, improvement, or fix. Only `**Controls**`, `**Toolkit**`, and `**Documents**` may be used as bold subsystem labels, followed by a colon. Do not introduce other bold subsystem labels; describe other areas in the entry's normal text.
+- Normally use one source line per entry; use at most two source lines when essential context is needed. Keep each entry brief enough to scan; do not pack a long paragraph into a single line to bypass this limit.
+- Include enough information to understand the result and any necessary migration or breaking change. Omit implementation history, redundant wording, and excessive technical detail.
+- Before finishing a changelog edit, check the category order and entry length in the affected version. Combine entries that describe the same change when this improves clarity.
+
 ### Build and Testing
 - Never run builds, tests, or publish commands unless explicitly requested.
 - Do not launch the application.
