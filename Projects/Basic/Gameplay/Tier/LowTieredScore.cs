@@ -10,7 +10,7 @@ namespace Sachssoft.Engine.Gameplay;
 /// </typeparam>
 /// <remarks>
 /// The thresholds are normalized so that
-/// <c>Bronze &lt;= Silver &lt;= Gold</c>.
+/// <c>Bronze &gt;= Silver &gt;= Gold</c>, preserving all three supplied values.
 /// A value must be less than or equal to a threshold to achieve the corresponding tier.
 /// </remarks>
 public readonly struct LowTieredScore<TValue> : ITieredScore
@@ -42,42 +42,58 @@ public readonly struct LowTieredScore<TValue> : ITieredScore
         TValue silver,
         TValue gold)
     {
-        Bronze = Min(bronze, Min(silver, gold));
-        Silver = Clamp(silver, Bronze, Max(silver, gold));
-        Gold = Max(gold, Max(bronze, silver));
+        if (bronze.CompareTo(silver) < 0)
+            (bronze, silver) = (silver, bronze);
+        if (silver.CompareTo(gold) < 0)
+            (silver, gold) = (gold, silver);
+        if (bronze.CompareTo(silver) < 0)
+            (bronze, silver) = (silver, bronze);
+
+        Bronze = bronze;
+        Silver = silver;
+        Gold = gold;
     }
 
     /// <summary>
     /// Creates a new score definition with the specified gold threshold.
     /// </summary>
+    /// <param name="gold">The gold threshold to preserve exactly.</param>
+    /// <returns>A score with the requested gold value and neighboring limits raised only as needed.</returns>
+    /// <remarks>Bronze and silver are raised when required to retain Bronze &gt;= Silver &gt;= Gold.</remarks>
     public LowTieredScore<TValue> ChangeGold(TValue gold)
     {
         return new LowTieredScore<TValue>(
-            Bronze,
-            Silver,
+            Max(Bronze, gold),
+            Max(Silver, gold),
             gold);
     }
 
     /// <summary>
     /// Creates a new score definition with the specified silver threshold.
     /// </summary>
+    /// <param name="silver">The silver threshold to preserve exactly.</param>
+    /// <returns>A score with the requested silver value and neighboring limits adjusted only as needed.</returns>
+    /// <remarks>Bronze may increase and gold may decrease to retain Bronze &gt;= Silver &gt;= Gold.</remarks>
     public LowTieredScore<TValue> ChangeSilver(TValue silver)
     {
         return new LowTieredScore<TValue>(
-            Bronze,
+            Max(Bronze, silver),
             silver,
-            Gold);
+            Min(Gold, silver));
     }
 
     /// <summary>
     /// Creates a new score definition with the specified bronze threshold.
     /// </summary>
+    /// <param name="bronze">The bronze threshold to preserve exactly.</param>
+    /// <returns>A score with the requested bronze value and neighboring limits lowered only as needed.</returns>
+    /// <remarks>Silver and gold are lowered when required to retain Bronze &gt;= Silver &gt;= Gold.</remarks>
     public LowTieredScore<TValue> ChangeBronze(TValue bronze)
     {
         return new LowTieredScore<TValue>(
             bronze,
-            Silver,
-            Gold);
+            Min(Silver, bronze),
+            Min(Gold, bronze));
     }
 
     /// <summary>

@@ -10,7 +10,7 @@ namespace Sachssoft.Engine.Gameplay;
 /// </typeparam>
 /// <remarks>
 /// The thresholds are normalized so that
-/// <c>Bronze &lt;= Silver &lt;= Gold</c>.
+/// <c>Bronze &lt;= Silver &lt;= Gold</c>, preserving all three supplied values.
 /// A value must reach or exceed a threshold to achieve the corresponding tier.
 /// </remarks>
 public readonly struct HighTieredScore<TValue> : ITieredScore
@@ -48,9 +48,16 @@ public readonly struct HighTieredScore<TValue> : ITieredScore
         TValue silver,
         TValue gold)
     {
-        Bronze = Max(bronze, Max(silver, gold));
-        Silver = Clamp(silver, Min(silver, gold), Bronze);
-        Gold = Min(gold, Min(bronze, silver));
+        if (bronze.CompareTo(silver) > 0)
+            (bronze, silver) = (silver, bronze);
+        if (silver.CompareTo(gold) > 0)
+            (silver, gold) = (gold, silver);
+        if (bronze.CompareTo(silver) > 0)
+            (bronze, silver) = (silver, bronze);
+
+        Bronze = bronze;
+        Silver = silver;
+        Gold = gold;
     }
 
     /// <summary>
@@ -62,11 +69,12 @@ public readonly struct HighTieredScore<TValue> : ITieredScore
     /// <returns>
     /// A new tiered score containing the updated threshold.
     /// </returns>
+    /// <remarks>The gold value is preserved exactly; bronze and silver are lowered only if needed to retain Bronze &lt;= Silver &lt;= Gold.</remarks>
     public HighTieredScore<TValue> ChangeGold(TValue gold)
     {
         return new HighTieredScore<TValue>(
-            Bronze,
-            Silver,
+            Min(Bronze, gold),
+            Min(Silver, gold),
             gold);
     }
 
@@ -79,12 +87,13 @@ public readonly struct HighTieredScore<TValue> : ITieredScore
     /// <returns>
     /// A new tiered score containing the updated threshold.
     /// </returns>
+    /// <remarks>The silver value is preserved exactly; bronze may decrease and gold may increase to retain Bronze &lt;= Silver &lt;= Gold.</remarks>
     public HighTieredScore<TValue> ChangeSilver(TValue silver)
     {
         return new HighTieredScore<TValue>(
-            Bronze,
+            Min(Bronze, silver),
             silver,
-            Gold);
+            Max(Gold, silver));
     }
 
     /// <summary>
@@ -96,12 +105,13 @@ public readonly struct HighTieredScore<TValue> : ITieredScore
     /// <returns>
     /// A new tiered score containing the updated threshold.
     /// </returns>
+    /// <remarks>The bronze value is preserved exactly; silver and gold are raised only if needed to retain Bronze &lt;= Silver &lt;= Gold.</remarks>
     public HighTieredScore<TValue> ChangeBronze(TValue bronze)
     {
         return new HighTieredScore<TValue>(
             bronze,
-            Silver,
-            Gold);
+            Max(Silver, bronze),
+            Max(Gold, bronze));
     }
 
     /// <summary>
