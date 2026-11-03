@@ -1,3 +1,4 @@
+using Sachssoft.Engine;
 using System;
 
 namespace Sachssoft.Engine.Controls;
@@ -55,7 +56,7 @@ public class ContentControl : ContainerControl
     /// <summary>
     /// Gets or sets horizontal content alignment.
     /// </summary>
-    public  ControlAlignment ContentHorizontalAlignment
+    public  LayoutAlignment ContentHorizontalAlignment
     {
         get => ConfigContentHorizontalAlignment;
         set => ConfigContentHorizontalAlignment = value;
@@ -63,7 +64,7 @@ public class ContentControl : ContainerControl
     /// <summary>
     /// Gets or sets vertical content alignment.
     /// </summary>
-    public  ControlAlignment ContentVerticalAlignment
+    public  LayoutAlignment ContentVerticalAlignment
     {
         get => ConfigContentVerticalAlignment;
         set => ConfigContentVerticalAlignment = value;
@@ -125,15 +126,15 @@ public class ContentControl : ContainerControl
             throw new InvalidOperationException("Invalid content alignment.");
         if (!ShowsContent || ContentPresenter is not Control child)
             return;
-        float w = ContentHorizontalAlignment == ControlAlignment.Stretch ? bounds.Width : MathF.Min(bounds.Width, child.DesiredSize.Width);
-        float h = ContentVerticalAlignment == ControlAlignment.Stretch ? bounds.Height : MathF.Min(bounds.Height, child.DesiredSize.Height);
-        static float Offset(float space, ControlAlignment align) => align == ControlAlignment.Center ? space / 2 : align == ControlAlignment.End ? space : 0;
+        float w = ContentHorizontalAlignment == LayoutAlignment.Stretch ? bounds.Width : MathF.Min(bounds.Width, child.DesiredSize.Width);
+        float h = ContentVerticalAlignment == LayoutAlignment.Stretch ? bounds.Height : MathF.Min(bounds.Height, child.DesiredSize.Height);
+        static float Offset(float space, LayoutAlignment align) => align == LayoutAlignment.Center ? space / 2 : align == LayoutAlignment.End ? space : 0;
         child.Arrange(new Bounds2(bounds.X + Offset(bounds.Width - w, ContentHorizontalAlignment), bounds.Y + Offset(bounds.Height - h, ContentVerticalAlignment), w, h), true);
     }
 
-    private StyleProperty<ControlAlignment> _styleContentHorizontalAlignment = new(ControlAlignment.Center);
+    private StyleProperty<LayoutAlignment> _styleContentHorizontalAlignment = new(LayoutAlignment.Center);
     private static readonly System.ComponentModel.PropertyChangedEventArgs ContentHorizontalAlignmentChangedArgs = new(nameof(ContentHorizontalAlignment));
-    internal ControlAlignment ConfigContentHorizontalAlignment
+    internal LayoutAlignment ConfigContentHorizontalAlignment
     {
         get => _styleContentHorizontalAlignment.Value;
         set
@@ -143,9 +144,9 @@ public class ContentControl : ContainerControl
         }
     }
 
-    private StyleProperty<ControlAlignment> _styleContentVerticalAlignment = new(ControlAlignment.Center);
+    private StyleProperty<LayoutAlignment> _styleContentVerticalAlignment = new(LayoutAlignment.Center);
     private static readonly System.ComponentModel.PropertyChangedEventArgs ContentVerticalAlignmentChangedArgs = new(nameof(ContentVerticalAlignment));
-    internal ControlAlignment ConfigContentVerticalAlignment
+    internal LayoutAlignment ConfigContentVerticalAlignment
     {
         get => _styleContentVerticalAlignment.Value;
         set
@@ -166,11 +167,11 @@ public class ContentControl : ContainerControl
             switch (entry.Key)
             {
                 case "ContentHorizontalAlignment":
-                    if (_styleContentHorizontalAlignment.Apply(Converters.Convert<ControlAlignment>("ControlAlignment", entry.Value)))
+                    if (_styleContentHorizontalAlignment.Apply(Converters.Convert<LayoutAlignment>("LayoutAlignment", entry.Value)))
                         NotifyPropertyChanged(ContentHorizontalAlignmentChangedArgs);
                     break;
                 case "ContentVerticalAlignment":
-                    if (_styleContentVerticalAlignment.Apply(Converters.Convert<ControlAlignment>("ControlAlignment", entry.Value)))
+                    if (_styleContentVerticalAlignment.Apply(Converters.Convert<LayoutAlignment>("LayoutAlignment", entry.Value)))
                         NotifyPropertyChanged(ContentVerticalAlignmentChangedArgs);
                     break;
             }
@@ -215,9 +216,9 @@ public class ContentControl : ContainerControl
     protected override void ResetStyledValues()
     {
         base.ResetStyledValues();
-        if (_styleContentHorizontalAlignment.BeginStyle(ControlAlignment.Center))
+        if (_styleContentHorizontalAlignment.BeginStyle(LayoutAlignment.Center))
             NotifyPropertyChanged(ContentHorizontalAlignmentChangedArgs);
-        if (_styleContentVerticalAlignment.BeginStyle(ControlAlignment.Center))
+        if (_styleContentVerticalAlignment.BeginStyle(LayoutAlignment.Center))
             NotifyPropertyChanged(ContentVerticalAlignmentChangedArgs);
     }
 

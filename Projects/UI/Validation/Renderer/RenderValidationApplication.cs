@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Controls.Drawing;
 using Sachssoft.Engine.Controls.Input;
 using Sachssoft.Engine.Graphics.Text;
@@ -266,11 +267,11 @@ internal sealed class RenderValidationApplication : GameApplicationBase
             Text = "FPS: 40.0",
             Width = 360,
             Height = 60,
-            TextHorizontalAlignment = ControlAlignment.End,
-            TextVerticalAlignment = ControlAlignment.Center
+            TextHorizontalAlignment = LayoutAlignment.End,
+            TextVerticalAlignment = LayoutAlignment.Center
         };
         using (var changingRoot = new Workspace(changingText))
-        using (var expectedRoot = new Workspace(new TextBlock { Text = "FPS: 60.0", Width = 360, Height = 60, TextHorizontalAlignment = ControlAlignment.End, TextVerticalAlignment = ControlAlignment.Center }))
+        using (var expectedRoot = new Workspace(new TextBlock { Text = "FPS: 60.0", Width = 360, Height = 60, TextHorizontalAlignment = LayoutAlignment.End, TextVerticalAlignment = LayoutAlignment.Center }))
         using (var context = new ControlDrawContext(this, _font!, new Rectangle(0, 0, 1160, 760)))
         {
             var frame = new ControlInputFrame(new Size2(1160, 760), TimeSpan.Zero);
@@ -298,8 +299,8 @@ internal sealed class RenderValidationApplication : GameApplicationBase
             Width = 360,
             Height = 40,
             Margin = new Insets2(20),
-            HorizontalAlignment = ControlAlignment.Start,
-            VerticalAlignment = ControlAlignment.Start
+            HorizontalAlignment = LayoutAlignment.Start,
+            VerticalAlignment = LayoutAlignment.Start
         };
         using (var root = new Workspace(numeric))
         {

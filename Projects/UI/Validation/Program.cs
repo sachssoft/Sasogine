@@ -1,17 +1,17 @@
-using System;
-using System.ComponentModel;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
 using Sachssoft.Engine;
 using Sachssoft.Engine.Controls;
-using Sachssoft.Engine.Controls.Layouts;
-using Sachssoft.Engine.Controls.Styling;
+using Sachssoft.Engine.Controls.Binding;
 using Sachssoft.Engine.Controls.Drawing;
 using Sachssoft.Engine.Controls.Input;
-using Sachssoft.Engine.Controls.Binding;
+using Sachssoft.Engine.Controls.Layouts;
+using Sachssoft.Engine.Controls.Styling;
 using Sachssoft.Engine.Input;
+using System;
+using System.ComponentModel;
+using System.Linq;
 
 internal static class Program
 {
@@ -194,8 +194,8 @@ internal static class Program
                 {
                     Width = 100,
                     Height = 40,
-                    HorizontalAlignment = ControlAlignment.Start,
-                    VerticalAlignment = ControlAlignment.Start
+                    HorizontalAlignment = LayoutAlignment.Start,
+                    VerticalAlignment = LayoutAlignment.Start
                 };
                 var root = new Workspace(button);
                 Frame(root);
@@ -492,7 +492,7 @@ internal static class Program
                 root.Update(frame, layout);
                 Check(font.Measurements == initial, "Visual changes must preserve text metrics");
                 text.Width = 200;
-                text.TextHorizontalAlignment = ControlAlignment.End;
+                text.TextHorizontalAlignment = LayoutAlignment.End;
                 root.Update(frame, layout);
                 Check(font.Measurements == initial && text.Bounds.Width == 200, "Unwrapped text metrics must survive size and alignment changes");
                 text.Text = "Changed";
@@ -831,8 +831,8 @@ internal static class Program
                 {
                     Width = 160,
                     Height = 160,
-                    HorizontalAlignment = ControlAlignment.Start,
-                    VerticalAlignment = ControlAlignment.Start
+                    HorizontalAlignment = LayoutAlignment.Start,
+                    VerticalAlignment = LayoutAlignment.Start
                 };
                 var root = new Workspace(dial);
                 Frame(root);
@@ -863,8 +863,8 @@ internal static class Program
                     Width = 160,
                     Height = 160,
                     Radius = 50,
-                    HorizontalAlignment = ControlAlignment.Start,
-                    VerticalAlignment = ControlAlignment.Start
+                    HorizontalAlignment = LayoutAlignment.Start,
+                    VerticalAlignment = LayoutAlignment.Start
                 };
                 var sr = new Workspace(stick);
                 Frame(sr);

@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Sachssoft.Engine;
 using System;
 
 namespace Sachssoft.Engine.Controls;
@@ -29,7 +30,7 @@ public class TextBlock : Control
     /// <summary>
     /// Gets the effective TextHorizontalAlignment value or sets a local override.
     /// </summary>
-    public  ControlAlignment TextHorizontalAlignment
+    public  LayoutAlignment TextHorizontalAlignment
     {
         get => ConfigTextHorizontalAlignment;
         set => ConfigTextHorizontalAlignment = value;
@@ -37,7 +38,7 @@ public class TextBlock : Control
     /// <summary>
     /// Gets the effective TextVerticalAlignment value or sets a local override.
     /// </summary>
-    public  ControlAlignment TextVerticalAlignment
+    public  LayoutAlignment TextVerticalAlignment
     {
         get => ConfigTextVerticalAlignment;
         set => ConfigTextVerticalAlignment = value;
@@ -174,10 +175,10 @@ public class TextBlock : Control
         _textPosition = new Vector2(Padding.Left + Offset(contentBounds.Width - _textSize.Width, TextHorizontalAlignment), Padding.Top + Offset(contentBounds.Height - _textSize.Height, TextVerticalAlignment));
     }
 
-    private static float Offset(float spare, ControlAlignment alignment) => alignment switch
+    private static float Offset(float spare, LayoutAlignment alignment) => alignment switch
     {
-        ControlAlignment.Center => spare / 2,
-        ControlAlignment.End => spare,
+        LayoutAlignment.Center => spare / 2,
+        LayoutAlignment.End => spare,
         _ => 0
     };
     private StyleProperty<string> _styleText = new(string.Empty);
@@ -192,9 +193,9 @@ public class TextBlock : Control
         }
     }
 
-    private StyleProperty<ControlAlignment> _styleTextHorizontalAlignment = new(ControlAlignment.Start);
+    private StyleProperty<LayoutAlignment> _styleTextHorizontalAlignment = new(LayoutAlignment.Start);
     private static readonly System.ComponentModel.PropertyChangedEventArgs TextHorizontalAlignmentChangedArgs = new(nameof(TextHorizontalAlignment));
-    internal ControlAlignment ConfigTextHorizontalAlignment
+    internal LayoutAlignment ConfigTextHorizontalAlignment
     {
         get => _styleTextHorizontalAlignment.Value;
         set
@@ -204,9 +205,9 @@ public class TextBlock : Control
         }
     }
 
-    private StyleProperty<ControlAlignment> _styleTextVerticalAlignment = new(ControlAlignment.Center);
+    private StyleProperty<LayoutAlignment> _styleTextVerticalAlignment = new(LayoutAlignment.Center);
     private static readonly System.ComponentModel.PropertyChangedEventArgs TextVerticalAlignmentChangedArgs = new(nameof(TextVerticalAlignment));
-    internal ControlAlignment ConfigTextVerticalAlignment
+    internal LayoutAlignment ConfigTextVerticalAlignment
     {
         get => _styleTextVerticalAlignment.Value;
         set
@@ -243,11 +244,11 @@ public class TextBlock : Control
                         NotifyPropertyChanged(TextChangedArgs);
                     break;
                 case "TextHorizontalAlignment":
-                    if (_styleTextHorizontalAlignment.Apply(Converters.Convert<ControlAlignment>("ControlAlignment", entry.Value)))
+                    if (_styleTextHorizontalAlignment.Apply(Converters.Convert<LayoutAlignment>("LayoutAlignment", entry.Value)))
                         NotifyPropertyChanged(TextHorizontalAlignmentChangedArgs);
                     break;
                 case "TextVerticalAlignment":
-                    if (_styleTextVerticalAlignment.Apply(Converters.Convert<ControlAlignment>("ControlAlignment", entry.Value)))
+                    if (_styleTextVerticalAlignment.Apply(Converters.Convert<LayoutAlignment>("LayoutAlignment", entry.Value)))
                         NotifyPropertyChanged(TextVerticalAlignmentChangedArgs);
                     break;
                 case "WrapText":
@@ -310,9 +311,9 @@ public class TextBlock : Control
         base.ResetStyledValues();
         if (_styleText.BeginStyle(string.Empty))
             NotifyPropertyChanged(TextChangedArgs);
-        if (_styleTextHorizontalAlignment.BeginStyle(ControlAlignment.Start))
+        if (_styleTextHorizontalAlignment.BeginStyle(LayoutAlignment.Start))
             NotifyPropertyChanged(TextHorizontalAlignmentChangedArgs);
-        if (_styleTextVerticalAlignment.BeginStyle(ControlAlignment.Center))
+        if (_styleTextVerticalAlignment.BeginStyle(LayoutAlignment.Center))
             NotifyPropertyChanged(TextVerticalAlignmentChangedArgs);
         if (_styleWrapText.BeginStyle(false))
             NotifyPropertyChanged(WrapTextChangedArgs);

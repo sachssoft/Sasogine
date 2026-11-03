@@ -1,6 +1,8 @@
 using Microsoft.Xna.Framework;
-using Sachssoft.Engine.Graphics.Text;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Gameplay.Curves;
+using Sachssoft.Engine.Graphics.Rendering;
+using Sachssoft.Engine.Graphics.Text;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -73,19 +75,19 @@ public sealed class ValueConverterRegistry
                 ((value & CarouselNavigationMode.Swipe) != 0 ? ((value & CarouselNavigationMode.Arrows) != 0 ? ", Swipe" : "Swipe") : "") +
                 ((value & CarouselNavigationMode.Keyboard) != 0 ? ((value & (CarouselNavigationMode.Arrows | CarouselNavigationMode.Swipe)) != 0 ? ", Keyboard" : "Keyboard") : "");
         });
-        Register<IconPlacement>("IconPlacement", static text => text switch
+        Register<Placement>("Placement", static text => text switch
         {
-            "Left" => IconPlacement.Left,
-            "Right" => IconPlacement.Right,
-            "Top" => IconPlacement.Top,
-            "Bottom" => IconPlacement.Bottom,
+            "Left" => Placement.Left,
+            "Right" => Placement.Right,
+            "Top" => Placement.Top,
+            "Bottom" => Placement.Bottom,
             _ => throw new FormatException("Unknown icon placement.")
         }, static value => value switch
         {
-            IconPlacement.Left => "Left",
-            IconPlacement.Right => "Right",
-            IconPlacement.Top => "Top",
-            IconPlacement.Bottom => "Bottom",
+            Placement.Left => "Left",
+            Placement.Right => "Right",
+            Placement.Top => "Top",
+            Placement.Bottom => "Bottom",
             _ => throw new FormatException("Unknown icon placement.")
         });
         Register<SizeToContent>("SizeToContent", static text => text switch
@@ -115,21 +117,6 @@ public sealed class ValueConverterRegistry
             _ => throw new FormatException("Unknown CloseButtonPlacement.")
         });
 
-        Register<TabStripPlacement>("TabStripPlacement", static text => text switch
-        {
-            "Top" => TabStripPlacement.Top,
-            "Left" => TabStripPlacement.Left,
-            "Bottom" => TabStripPlacement.Bottom,
-            "Right" => TabStripPlacement.Right,
-            _ => throw new FormatException("Unknown tab strip placement.")
-        }, static value => value switch
-        {
-            TabStripPlacement.Top => "Top",
-            TabStripPlacement.Left => "Left",
-            TabStripPlacement.Bottom => "Bottom",
-            TabStripPlacement.Right => "Right",
-            _ => throw new FormatException("Unknown tab strip placement.")
-        });
         Register<string?>("NullableFontName", static s => InheritFont(s) ? null : string.IsNullOrWhiteSpace(s) ? throw new FormatException("FontName must not be blank.") : s.Trim(), static s => s ?? "null");
         Register<int?>("NullableFontSize", static s => InheritFont(s) ? null : ReadFontSize(s), static v => v?.ToString(CultureInfo.InvariantCulture) ?? "null");
         Register<FontWeight>("FontWeight", ReadFontWeight, static v => v switch
@@ -306,29 +293,24 @@ public sealed class ValueConverterRegistry
             return a.Length == 2 ? new Vector2(a[0], a[1]) : throw new FormatException("Vector requires two numbers.");
         }, static v => v.HasValue ? Join(v.Value.X, v.Value.Y) : "null");
         Register("Color", ParseColor, static v => $"{v.R},{v.G},{v.B},{v.A}");
-        Register<ControlAlignment>("ControlAlignment", static s => s switch
+        Register<LayoutAlignment>("LayoutAlignment", static s => s switch
         {
-            "Start" => ControlAlignment.Start,
-            "Center" => ControlAlignment.Center,
-            "End" => ControlAlignment.End,
-            "Stretch" => ControlAlignment.Stretch,
+            "Start" => LayoutAlignment.Start,
+            "Center" => LayoutAlignment.Center,
+            "End" => LayoutAlignment.End,
+            "Stretch" => LayoutAlignment.Stretch,
             _ => throw InvalidEnum(s)}, static v => v switch
         {
-            ControlAlignment.Start => "Start",
-            ControlAlignment.Center => "Center",
-            ControlAlignment.End => "End",
-            ControlAlignment.Stretch => "Stretch",
-            _ => throw InvalidEnum("ControlAlignment")});
-        Register<StackOrientation>("StackOrientation", static s => s switch
+            LayoutAlignment.Start => "Start",
+            LayoutAlignment.Center => "Center",
+            LayoutAlignment.End => "End",
+            LayoutAlignment.Stretch => "Stretch",
+            _ => throw InvalidEnum("LayoutAlignment")});
+        Register<Orientation>("Orientation", static s => s switch
         {
-            "Horizontal" => StackOrientation.Horizontal,
-            "Vertical" => StackOrientation.Vertical,
-            _ => throw InvalidEnum(s)}, static v => v == StackOrientation.Horizontal ? "Horizontal" : v == StackOrientation.Vertical ? "Vertical" : throw InvalidEnum("StackOrientation"));
-        Register<ControlOrientation>("ControlOrientation", static s => s switch
-        {
-            "Horizontal" => ControlOrientation.Horizontal,
-            "Vertical" => ControlOrientation.Vertical,
-            _ => throw InvalidEnum(s)}, static v => v == ControlOrientation.Horizontal ? "Horizontal" : v == ControlOrientation.Vertical ? "Vertical" : throw InvalidEnum("ControlOrientation"));
+            "Horizontal" => Orientation.Horizontal,
+            "Vertical" => Orientation.Vertical,
+            _ => throw InvalidEnum(s)}, static v => v == Orientation.Horizontal ? "Horizontal" : v == Orientation.Vertical ? "Vertical" : throw InvalidEnum("Orientation"));
         Register<ScrollBarVisibility>("ScrollBarVisibility", static s => s switch
         {
             "Auto" => ScrollBarVisibility.Auto,
@@ -341,19 +323,27 @@ public sealed class ValueConverterRegistry
             ScrollBarVisibility.Hidden => "Hidden",
             _ => throw InvalidEnum("ScrollBarVisibility")});
         Register<IControlFont?>("Font", static s => Null(s) ? null : throw new KeyNotFoundException("Register the Font converter for named application fonts."), static v => v is null ? "null" : throw new NotSupportedException("Use a named font ID in the style."));
-        Register<ImageStretch>("ImageStretch", static s => s switch
+        Register<StretchMode>("StretchMode", static s => s switch
         {
-            "None" => ImageStretch.None,
-            "Fill" => ImageStretch.Fill,
-            "Uniform" => ImageStretch.Uniform,
-            "UniformToFill" => ImageStretch.UniformToFill,
+            "None" => StretchMode.None,
+            "Fill" => StretchMode.Fill,
+            "Uniform" => StretchMode.Uniform,
+            "UniformToFill" => StretchMode.UniformToFill,
             _ => throw InvalidEnum(s)}, static v => v switch
         {
-            ImageStretch.None => "None",
-            ImageStretch.Fill => "Fill",
-            ImageStretch.Uniform => "Uniform",
-            ImageStretch.UniformToFill => "UniformToFill",
-            _ => throw InvalidEnum("ImageStretch")});
+            StretchMode.None => "None",
+            StretchMode.Fill => "Fill",
+            StretchMode.Uniform => "Uniform",
+            StretchMode.UniformToFill => "UniformToFill",
+            _ => throw InvalidEnum("StretchMode")});
+
+        // Preserve named style converters while exposing the shared engine types.
+        _converters["IconPlacement"] = _converters["Placement"];
+        _converters["TabStripPlacement"] = _converters["Placement"];
+        _converters["ControlAlignment"] = _converters["LayoutAlignment"];
+        _converters["StackOrientation"] = _converters["Orientation"];
+        _converters["ControlOrientation"] = _converters["Orientation"];
+        _converters["ImageStretch"] = _converters["StretchMode"];
     }
 
     /// <summary>

@@ -36,7 +36,7 @@ internal static class EdgePanelChecks
         var idle = new ControlInputFrame(new Size2(300, 100), TimeSpan.Zero);
         void Frame() => workspace.Update(idle, layout);
         Frame();
-        check(panel.Orientation == StackOrientation.Horizontal && start.Bounds.X == 0, "Default Start is left");
+        check(panel.Orientation == Orientation.Horizontal && start.Bounds.X == 0, "Default Start is left");
         check(firstEnd.Bounds.X == 245 && lastEnd.Bounds.X == 280, "End items keep insertion order against the right edge");
         int measurements = start.Measurements, arrangements = start.Arrangements;
         panel.Put(start, PanelEdge.Start);
@@ -48,7 +48,7 @@ internal static class EdgePanelChecks
         panel.Put(firstEnd, PanelEdge.Start);
         Frame();
         check(firstEnd.Bounds.X == 0 && start.Bounds.X == 235, "Moving an end item to Start updates the two groups");
-        panel.Orientation = StackOrientation.Vertical;
+        panel.Orientation = Orientation.Vertical;
         Frame();
         check(firstEnd.Bounds.Y == 0 && start.Bounds.Y == 55 && lastEnd.Bounds.Y == 80, "Vertical orientation uses top and bottom");
         lastEnd.IsVisible = false;
@@ -96,7 +96,7 @@ internal static class EdgePanelChecks
         var style = new Style
         {
             BasedOn = "EdgePanel",
-            Orientation = StackOrientation.Horizontal,
+            Orientation = Orientation.Horizontal,
             Spacing = 8
         };
         workspace.Registry.Styles.Register("Test.Edges", style);
@@ -104,7 +104,7 @@ internal static class EdgePanelChecks
         panel.ResetStyleProperty(nameof(EdgePanel.Orientation));
         panel.ResetStyleProperty(nameof(EdgePanel.Spacing));
         Frame();
-        check(panel.Orientation == StackOrientation.Horizontal && panel.Spacing == 8, "Orientation and spacing use standard StackPanel styles");
+        check(panel.Orientation == Orientation.Horizontal && panel.Spacing == 8, "Orientation and spacing use standard StackPanel styles");
         for (int i = 0; i < 100; i++)
             Frame();
         long before = GC.GetAllocatedBytesForCurrentThread();

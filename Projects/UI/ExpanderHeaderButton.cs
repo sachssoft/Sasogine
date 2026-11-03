@@ -1,3 +1,4 @@
+using Sachssoft.Engine;
 namespace Sachssoft.Engine.Controls;
 /// <summary>
 /// Draws an expansion indicator beside arbitrary header content.
@@ -7,7 +8,7 @@ internal sealed class ExpanderHeaderButton : ToggleButton
     internal ExpanderHeaderButton()
     {
         Padding = new Insets2(28, 7, 10, 7);
-        ContentHorizontalAlignment = ControlAlignment.Start;
+        ContentHorizontalAlignment = LayoutAlignment.Start;
     }
 
     /// <inheritdoc/>

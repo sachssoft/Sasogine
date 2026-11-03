@@ -1,3 +1,4 @@
+using Sachssoft.Engine;
 namespace Sachssoft.Engine.Controls.Layouts;
 /// <summary>Stacks two ordered groups against opposite edges, leaving unused space between them.</summary>
 /// <remarks>Horizontal orientation uses left/right edges; vertical orientation uses top/bottom edges.
@@ -7,7 +8,7 @@ public class EdgePanel : StackPanel
 {
     private readonly Dictionary<Control, PanelEdge> _edges = new(ReferenceEqualityComparer.Instance);
     /// <summary>Creates a horizontal panel with zero spacing.</summary>
-    public EdgePanel() : base(StackOrientation.Horizontal)
+    public EdgePanel() : base(Orientation.Horizontal)
     {
     }
 
@@ -66,7 +67,7 @@ public class EdgePanel : StackPanel
     /// <inheritdoc/>
     protected override void ArrangeOverride(Bounds2 bounds)
     {
-        bool vertical = Orientation == StackOrientation.Vertical;
+        bool vertical = Orientation == Orientation.Vertical;
         float length = vertical ? bounds.Height : bounds.Width;
         float startExtent = 0, endExtent = 0;
         int startCount = 0, endCount = 0;

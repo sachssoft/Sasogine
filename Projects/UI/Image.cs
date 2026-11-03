@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Engine.Graphics.Rendering;
 using System;
 
 namespace Sachssoft.Engine.Controls;
@@ -29,7 +30,7 @@ public class Image : Control
     /// <summary>
     /// Gets or sets image scaling.
     /// </summary>
-    public ImageStretch Stretch { get => ConfigStretch; set => ConfigStretch = value; }
+    public StretchMode Stretch { get => ConfigStretch; set => ConfigStretch = value; }
     /// <summary>
     /// Gets or sets premultiplied tint.
     /// </summary>
@@ -63,18 +64,18 @@ public class Image : Control
             return;
         Bounds2 b = new(Padding.Left, Padding.Top, ContentBounds.Width, ContentBounds.Height);
         float w = source.Source.Width, h = source.Source.Height;
-        if (Stretch == ImageStretch.Fill)
+        if (Stretch == StretchMode.Fill)
         {
             w = b.Width;
             h = b.Height;
         }
-        else if (Stretch is ImageStretch.Uniform or ImageStretch.UniformToFill)
+        else if (Stretch is StretchMode.Uniform or StretchMode.UniformToFill)
         {
-            float x = b.Width / w, y = b.Height / h, scale = Stretch == ImageStretch.Uniform ? MathF.Min(x, y) : MathF.Max(x, y);
+            float x = b.Width / w, y = b.Height / h, scale = Stretch == StretchMode.Uniform ? MathF.Min(x, y) : MathF.Max(x, y);
             w *= scale;
             h *= scale;
         }
-        else if (Stretch != ImageStretch.None)
+        else if (Stretch != StretchMode.None)
             throw new InvalidOperationException("Invalid image stretch mode.");
         using (context.PushClipScope(b))
             context.DrawTexture(source.Texture, source.Source, new Bounds2(b.X + (b.Width - w) / 2, b.Y + (b.Height - h) / 2, w, h), Tint);
@@ -92,9 +93,9 @@ public class Image : Control
         }
     }
 
-    private StyleProperty<ImageStretch> _styleStretch = new(ImageStretch.Uniform);
+    private StyleProperty<StretchMode> _styleStretch = new(StretchMode.Uniform);
     private static readonly System.ComponentModel.PropertyChangedEventArgs StretchChangedArgs = new(nameof(Stretch));
-    internal ImageStretch ConfigStretch
+    internal StretchMode ConfigStretch
     {
         get => _styleStretch.Value;
         set
@@ -155,7 +156,7 @@ public class Image : Control
                         NotifyPropertyChanged(RegionChangedArgs);
                     break;
                 case "Stretch":
-                    if (_styleStretch.Apply(Converters.Convert<ImageStretch>("ImageStretch", entry.Value)))
+                    if (_styleStretch.Apply(Converters.Convert<StretchMode>("StretchMode", entry.Value)))
                         NotifyPropertyChanged(StretchChangedArgs);
                     break;
                 case "Tint":
@@ -212,7 +213,7 @@ public class Image : Control
         base.ResetStyledValues();
         if (_styleRegion.BeginStyle(string.Empty))
             NotifyPropertyChanged(RegionChangedArgs);
-        if (_styleStretch.BeginStyle(ImageStretch.Uniform))
+        if (_styleStretch.BeginStyle(StretchMode.Uniform))
             NotifyPropertyChanged(StretchChangedArgs);
         if (_styleTint.BeginStyle(Color.White))
             NotifyPropertyChanged(TintChangedArgs);

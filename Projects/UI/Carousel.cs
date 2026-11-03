@@ -1,12 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Controls.Input;
 using Sachssoft.Engine.Controls.Layouts;
 using Sachssoft.Engine.Controls.Styling;
 using Sachssoft.Engine.Input;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace Sachssoft.Engine.Controls;
 
@@ -89,7 +90,7 @@ public class Carousel : ContainerControl
     /// <summary>Arranges page indicators independently of the page viewport.</summary>
     private readonly StackPanel _indicatorPanel = new()
     {
-        Orientation = StackOrientation.Horizontal,
+        Orientation = Orientation.Horizontal,
         ZIndex = 2
     };
 
@@ -115,7 +116,7 @@ public class Carousel : ContainerControl
     private StyleProperty<CarouselTransition> _styleTransition = new(CarouselTransition.Slide);
 
     /// <summary>Stores the styled and locally overridden Orientation value.</summary>
-    private StyleProperty<ControlOrientation> _styleOrientation = new(ControlOrientation.Horizontal);
+    private StyleProperty<Orientation> _styleOrientation = new(Orientation.Horizontal);
 
     /// <summary>Stores the styled and locally overridden IsLooping value.</summary>
     private StyleProperty<bool> _styleIsLooping = new(false);
@@ -239,16 +240,16 @@ public class Carousel : ContainerControl
     protected override string DefaultStyleName => "Carousel";
 
     /// <summary>Gets whether pages and swipe distances use the horizontal axis.</summary>
-    private bool Horizontal => Orientation == ControlOrientation.Horizontal;
+    private bool Horizontal => Orientation == Orientation.Horizontal;
 
     /// <summary>Gets or sets the page and swipe axis. Defaults to Horizontal.</summary>
-    public ControlOrientation Orientation
+    public Orientation Orientation
     {
         get => _styleOrientation.Value;
         set
         {
             VerifyTreeMutation();
-            if (value is not (ControlOrientation.Horizontal or ControlOrientation.Vertical))
+            if (value is not (Orientation.Horizontal or Orientation.Vertical))
                 throw new ArgumentOutOfRangeException(nameof(value));
             if (_styleOrientation.SetLocal(value))
                 NotifyPropertyChanged(OrientationArgs);
@@ -583,8 +584,8 @@ public class Carousel : ContainerControl
         _previous.IsVisible = _next.IsVisible = arrows;
         _previous.IsEnabled = Items.Count > 0 && (IsLooping || _selectedIndex > 0);
         _next.IsEnabled = Items.Count > 0 && (IsLooping || _selectedIndex < Items.Count - 1);
-        _previous.Content = Orientation == ControlOrientation.Horizontal ? "‹" : "↑";
-        _next.Content = Orientation == ControlOrientation.Horizontal ? "›" : "↓";
+        _previous.Content = Orientation == Orientation.Horizontal ? "‹" : "↑";
+        _next.Content = Orientation == Orientation.Horizontal ? "›" : "↓";
         _previous.Width = _previous.Height = _next.Width = _next.Height = NavigationButtonSize;
         while (_indicators.Count > Items.Count)
         {
@@ -901,8 +902,8 @@ public class Carousel : ContainerControl
             {
                 case nameof(Orientation):
                 {
-                    ControlOrientation value = Converters.Convert<ControlOrientation>("ControlOrientation", entry.Value);
-                    if (value is not (ControlOrientation.Horizontal or ControlOrientation.Vertical))
+                    Orientation value = Converters.Convert<Orientation>("Orientation", entry.Value);
+                    if (value is not (Orientation.Horizontal or Orientation.Vertical))
                         throw new ArgumentOutOfRangeException(nameof(value));
                     if (_styleOrientation.Apply(value))
                         NotifyPropertyChanged(OrientationArgs);
@@ -1091,7 +1092,7 @@ public class Carousel : ContainerControl
     protected override void ResetStyledValues()
     {
         base.ResetStyledValues();
-        _styleOrientation.BeginStyle(ControlOrientation.Horizontal);
+        _styleOrientation.BeginStyle(Orientation.Horizontal);
         _styleNavigationMode.BeginStyle(CarouselNavigationMode.All);
         _styleShowIndicators.BeginStyle(true);
         _styleIsLooping.BeginStyle(false);

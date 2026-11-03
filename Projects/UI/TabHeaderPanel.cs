@@ -1,3 +1,4 @@
+using Sachssoft.Engine;
 using Sachssoft.Engine.Controls.Drawing;
 using Sachssoft.Engine.Controls.Layouts;
 using System;
@@ -63,7 +64,7 @@ internal sealed class TabHeaderPanel : StackPanel
         int count = CountVisibleHeaders();
         if (count == 0)
             return Size2.Zero;
-        bool vertical = Orientation == StackOrientation.Vertical;
+        bool vertical = Orientation == Orientation.Vertical;
         float spacing = GetEffectiveSpacing(StretchExtent, count);
         float extent = MathF.Max(0, (StretchExtent - spacing * (count - 1)) / count);
         float cross = 0;
@@ -88,7 +89,7 @@ internal sealed class TabHeaderPanel : StackPanel
 
         ValidateStack();
         int count = CountVisibleHeaders();
-        bool vertical = Orientation == StackOrientation.Vertical;
+        bool vertical = Orientation == Orientation.Vertical;
         float main = vertical ? contentBounds.Height : contentBounds.Width;
         float spacing = GetEffectiveSpacing(main, count);
         float extent = count == 0 ? 0 : MathF.Max(0, (main - spacing * (count - 1)) / count);
@@ -128,7 +129,7 @@ internal sealed class TabHeaderPanel : StackPanel
     /// <summary>Rejects invalid inherited stack geometry before equal sizing is calculated.</summary>
     private void ValidateStack()
     {
-        if (!float.IsFinite(Spacing) || Spacing < 0 || Orientation is not (StackOrientation.Horizontal or StackOrientation.Vertical))
+        if (!float.IsFinite(Spacing) || Spacing < 0 || Orientation is not (Orientation.Horizontal or Orientation.Vertical))
             throw new InvalidOperationException("Invalid tab header stack configuration.");
     }
 }

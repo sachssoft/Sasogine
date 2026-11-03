@@ -3,9 +3,9 @@ using Microsoft.Xna.Framework.Input;
 using Sachssoft.Engine.Input;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
-using System.Collections.ObjectModel;
 using System.Text;
 
 namespace Sachssoft.Engine.Controls;
@@ -139,7 +139,7 @@ public class DataTable : ContainerControl
     private ChangeTracker<int> _refresh;
     private ChangeTracker<float> _rowHeight, _headerHeight;
     private DataTableColumn? _sortColumn, _resizing, _editingColumn;
-    private DataTableSortDirection _direction;
+    private Sachssoft.Engine.SortDirection? _direction;
     private float _extentWidth, _resizeStartWidth, _resizeStartX;
     private Bounds2 _body, _header;
     private int _selectedColumn, _editRow = -1, _notifiedIndex = -1, _lastClick = -1, _revision;
@@ -155,11 +155,11 @@ public class DataTable : ContainerControl
         _comparison = CompareRows;
         HorizontalScrollBar = new ScrollBar()
         {
-            Axis = ControlOrientation.Horizontal
+            Axis = Orientation.Horizontal
         };
         VerticalScrollBar = new ScrollBar()
         {
-            Axis = ControlOrientation.Vertical
+            Axis = Orientation.Vertical
         };
         base.Add(HorizontalScrollBar);
         base.Add(VerticalScrollBar);
@@ -212,9 +212,9 @@ public class DataTable : ContainerControl
     /// </summary>
     public DataTableColumn? SortColumn => _sortColumn;
     /// <summary>
-    /// Gets current sorting.
+    /// Gets the current sorting direction, or <see langword="null"/> for source order.
     /// </summary>
-    public DataTableSortDirection SortDirection => _direction;
+    public Sachssoft.Engine.SortDirection? SortDirection => _direction;
     /// <summary>
     /// Gets whether an inline editor is active.
     /// </summary>
@@ -269,16 +269,20 @@ public class DataTable : ContainerControl
     /// <summary>
     /// Sorts through an explicit column comparison; equal values preserve source order.
     /// </summary>
-    public void SortBy(DataTableColumn? column, DataTableSortDirection direction = DataTableSortDirection.Ascending)
+    /// <param name="column">The column to sort by, or <see langword="null"/> to restore source order.</param>
+    /// <param name="direction">The sorting direction, or <see langword="null"/> to restore source order.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The direction is not a supported sorting value.</exception>
+    /// <exception cref="ArgumentException">The column does not belong to this table.</exception>
+    public void SortBy(DataTableColumn? column, Sachssoft.Engine.SortDirection? direction = Sachssoft.Engine.SortDirection.Ascending)
     {
-        if (direction is not (DataTableSortDirection.None or DataTableSortDirection.Ascending or DataTableSortDirection.Descending))
+        if (direction is not (null or Sachssoft.Engine.SortDirection.Ascending or Sachssoft.Engine.SortDirection.Descending))
             throw new ArgumentOutOfRangeException(nameof(direction));
         if (column is not null && !Columns.Contains(column))
             throw new ArgumentException("Column is not part of this table.", nameof(column));
         if (IsEditing && !CommitEdit())
             return;
         _sortColumn = column;
-        _direction = column is null ? DataTableSortDirection.None : direction;
+        _direction = column is null ? null : direction;
         Refresh();
     }
 
@@ -291,7 +295,7 @@ public class DataTable : ContainerControl
         int result = _sortColumn!.Compare(_source[a], _source[b]);
         if (result == 0)
             return a.CompareTo(b);
-        return _direction == DataTableSortDirection.Descending ? (result > 0 ? -1 : 1) : result;
+        return _direction == Sachssoft.Engine.SortDirection.Descending ? (result > 0 ? -1 : 1) : result;
     }
 
     private void ReconcileRows()
@@ -308,7 +312,7 @@ public class DataTable : ContainerControl
         if (_sortColumn is not null && !Columns.Contains(_sortColumn))
         {
             _sortColumn = null;
-            _direction = DataTableSortDirection.None;
+            _direction = null;
             changed = true;
         }
 
@@ -333,7 +337,7 @@ public class DataTable : ContainerControl
             _order.Add(i);
         }
 
-        if (_sortColumn is not null && _direction != DataTableSortDirection.None)
+        if (_sortColumn is not null && _direction != null)
             _order.Sort(_comparison);
         if (remap)
         {
@@ -646,7 +650,7 @@ public class DataTable : ContainerControl
 
                     if (local >= c.X && local < c.X + c.Width && ConfigCanUserSortColumns && c.Column.CanSort)
                     {
-                        var next = ReferenceEquals(_sortColumn, c.Column) && _direction == DataTableSortDirection.Ascending ? DataTableSortDirection.Descending : ReferenceEquals(_sortColumn, c.Column) && _direction == DataTableSortDirection.Descending ? DataTableSortDirection.None : DataTableSortDirection.Ascending;
+                        Sachssoft.Engine.SortDirection? next = ReferenceEquals(_sortColumn, c.Column) && _direction == Sachssoft.Engine.SortDirection.Ascending ? Sachssoft.Engine.SortDirection.Descending : ReferenceEquals(_sortColumn, c.Column) && _direction == Sachssoft.Engine.SortDirection.Descending ? null : Sachssoft.Engine.SortDirection.Ascending;
                         SortBy(c.Column, next);
                         args.Handled = true;
                         return;
@@ -791,7 +795,7 @@ public class DataTable : ContainerControl
                         continue;
                     using (context.PushClipScope(Local(b)))
                     {
-                        string caption = c.Column.Header + (ReferenceEquals(_sortColumn, c.Column) ? _direction == DataTableSortDirection.Ascending ? "  ▲" : _direction == DataTableSortDirection.Descending ? "  ▼" : "" : "");
+                        string caption = c.Column.Header + (ReferenceEquals(_sortColumn, c.Column) ? _direction == Sachssoft.Engine.SortDirection.Ascending ? "  ▲" : _direction == Sachssoft.Engine.SortDirection.Descending ? "  ▼" : "" : "");
                         context.DrawText(font, caption, new Vector2(b.X - Bounds.X + 7, b.Y - Bounds.Y + (b.Height - font.Measure(caption).Height) / 2), ConfigTextColor);
                     }
 
@@ -823,7 +827,7 @@ public class DataTable : ContainerControl
                         continue;
                     string text = c.Column.GetText(Items[source]);
                     Size2 measured = font.Measure(text);
-                    float offset = c.Column.TextAlignment == ControlAlignment.End ? MathF.Max(7, c.Width - measured.Width - 7) : c.Column.TextAlignment == ControlAlignment.Center ? MathF.Max(7, (c.Width - measured.Width) / 2) : 7;
+                    float offset = c.Column.TextAlignment == LayoutAlignment.End ? MathF.Max(7, c.Width - measured.Width - 7) : c.Column.TextAlignment == LayoutAlignment.Center ? MathF.Max(7, (c.Width - measured.Width) / 2) : 7;
                     using (context.PushClipScope(Local(b)))
                         context.DrawText(font, text, new Vector2(b.X - Bounds.X + offset, b.Y - Bounds.Y + (rowHeight - measured.Height) / 2), IsAvailable() ? ConfigTextColor : ConfigDisabledTextColor);
                     if (ConfigShowGridLines)

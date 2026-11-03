@@ -1,8 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Sachssoft.Engine;
+using Sachssoft.Engine.Input;
 using System;
 using System.ComponentModel;
-using Sachssoft.Engine.Input;
 
 namespace Sachssoft.Engine.Controls;
 
@@ -117,11 +118,11 @@ public sealed class ScrollViewer : ContainerControl
     {
         HorizontalScrollBar = new ScrollBar
         {
-            Orientation = ControlOrientation.Horizontal
+            Orientation = Orientation.Horizontal
         };
         VerticalScrollBar = new ScrollBar
         {
-            Orientation = ControlOrientation.Vertical
+            Orientation = Orientation.Vertical
         };
         base.Add(HorizontalScrollBar);
         base.Add(VerticalScrollBar);

@@ -1,8 +1,8 @@
-using System;
 using Microsoft.Xna.Framework;
 using Sachssoft.Engine;
 using Sachssoft.Engine.Controls;
 using Sachssoft.Engine.Controls.Input;
+using System;
 
 /// <summary>Checks independent visual, arrangement and measurement invalidation.</summary>
 internal static class InvalidationChecks
@@ -22,8 +22,8 @@ internal static class InvalidationChecks
         };
         var child = new MeasureProbe
         {
-            HorizontalAlignment = ControlAlignment.Start,
-            VerticalAlignment = ControlAlignment.Start
+            HorizontalAlignment = LayoutAlignment.Start,
+            VerticalAlignment = LayoutAlignment.Start
         };
         var sibling = new MeasureProbe();
         branch.Add(child);
@@ -54,8 +54,8 @@ internal static class InvalidationChecks
         workspace.Update(frame, layout);
         check(root.Arrangements == rootArranges + 1 && child.Arrangements == childArranges + 1 && sibling.Arrangements == siblingArranges, "Arrange invalidation reaches affected ancestors but preserves unrelated arrangement caches");
         check(root.Measurements == rootMeasures && branch.Measurements == branchMeasures && child.Measurements == childMeasures, "Arrange invalidation preserves every measured size in the ancestor chain");
-        child.HorizontalAlignment = ControlAlignment.End;
-        child.VerticalAlignment = ControlAlignment.End;
+        child.HorizontalAlignment = LayoutAlignment.End;
+        child.VerticalAlignment = LayoutAlignment.End;
         workspace.Update(frame, layout);
         check(child.Bounds.Right == 300 && child.Bounds.Bottom == 200 && child.Measurements == childMeasures, "Control alignment changes update placement without measuring again");
         child.InvalidateMeasure();
@@ -84,7 +84,7 @@ internal static class InvalidationChecks
         childArranges = child.Arrangements;
         workspace.Update(frame, layout);
         check(child.Arrangements == childArranges + 1 && child.Measurements == childMeasures, "Failed arrangement remains dirty until the next successful retry");
-        child.HorizontalAlignment = (ControlAlignment)999;
+        child.HorizontalAlignment = (LayoutAlignment)999;
         rejected = false;
         try
         {
@@ -96,7 +96,7 @@ internal static class InvalidationChecks
         }
 
         check(rejected, "Arrange-only alignment changes retain validation");
-        child.HorizontalAlignment = ControlAlignment.Start;
+        child.HorizontalAlignment = LayoutAlignment.Start;
         workspace.Update(frame, layout);
         for (int i = 0; i < 100; i++)
         {
@@ -142,8 +142,8 @@ internal static class InvalidationChecks
         textWorkspace.Update(frame, textLayout);
         int textMeasures = text.Measurements;
         int fontMeasures = font.Measurements;
-        text.TextHorizontalAlignment = ControlAlignment.End;
-        text.TextVerticalAlignment = ControlAlignment.End;
+        text.TextHorizontalAlignment = LayoutAlignment.End;
+        text.TextVerticalAlignment = LayoutAlignment.End;
         textWorkspace.Update(frame, textLayout);
         check(text.Position == new Vector2(68, 44) && text.Measurements == textMeasures && font.Measurements == fontMeasures, "Text alignment changes move cached glyph placement without remeasurement");
         var host = new ContentControl
@@ -155,8 +155,8 @@ internal static class InvalidationChecks
         hostWorkspace.Update(frame, layout);
         var hosted = (MeasureProbe)host.ContentPresenter!;
         int hostedMeasures = hosted.Measurements;
-        host.ContentHorizontalAlignment = ControlAlignment.End;
-        host.ContentVerticalAlignment = ControlAlignment.End;
+        host.ContentHorizontalAlignment = LayoutAlignment.End;
+        host.ContentVerticalAlignment = LayoutAlignment.End;
         hostWorkspace.Update(frame, layout);
         check(hosted.Bounds.Right == 300 && hosted.Bounds.Bottom == 200 && hosted.Measurements == hostedMeasures, "Content alignment changes only rearrange retained content");
         var textParent = new TextLayoutProbePanel();

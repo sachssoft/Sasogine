@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Sachssoft.Engine;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,7 +21,7 @@ public class Calendar : ContainerControl
     };
     private readonly Label _caption = new()
     {
-        TextHorizontalAlignment = ControlAlignment.Center
+        TextHorizontalAlignment = LayoutAlignment.Center
     };
     private readonly Label[] _weekdays = new Label[7];
     private readonly Button[] _days = new Button[42];
@@ -48,7 +49,7 @@ public class Calendar : ContainerControl
         {
             _weekdays[i] = new Label()
             {
-                TextHorizontalAlignment = ControlAlignment.Center
+                TextHorizontalAlignment = LayoutAlignment.Center
             };
             base.Add(_weekdays[i]);
         }

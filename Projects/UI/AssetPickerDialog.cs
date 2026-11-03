@@ -1,3 +1,4 @@
+using Sachssoft.Engine;
 namespace Sachssoft.Engine.Controls;
 /// <summary>
 /// Selects one compatible registered asset using the reusable preview list.
@@ -36,7 +37,7 @@ public sealed class AssetPickerDialog : Dialog
         cancel.Clicked += (_, _) => Close();
         var buttons = new StackPanel
         {
-            Orientation = StackOrientation.Horizontal,
+            Orientation = Orientation.Horizontal,
             Spacing = 8
         };
         buttons.Add(AcceptButton);

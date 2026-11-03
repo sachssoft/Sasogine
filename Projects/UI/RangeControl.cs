@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Input;
 using System;
 
@@ -36,7 +37,7 @@ public abstract class RangeControl : Control
     /// <summary>
     /// Gets or sets orientation.
     /// </summary>
-    public ControlOrientation Orientation { get => ConfigAxis; set => ConfigAxis = value; }
+    public Orientation Orientation { get => ConfigAxis; set => ConfigAxis = value; }
 
     /// <summary>
     /// Gets or sets value.
@@ -72,7 +73,7 @@ public abstract class RangeControl : Control
     protected void ValidateRange()
     {
         float step = ConfigStep;
-        if (!float.IsFinite(Minimum) || !float.IsFinite(Maximum) || Maximum < Minimum || !float.IsFinite(ConfigValue) || !float.IsFinite(SmallChange) || SmallChange < 0 || !float.IsFinite(LargeChange) || LargeChange < 0 || !float.IsFinite(step) || step < 0 || Orientation is not (ControlOrientation.Horizontal or ControlOrientation.Vertical))
+        if (!float.IsFinite(Minimum) || !float.IsFinite(Maximum) || Maximum < Minimum || !float.IsFinite(ConfigValue) || !float.IsFinite(SmallChange) || SmallChange < 0 || !float.IsFinite(LargeChange) || LargeChange < 0 || !float.IsFinite(step) || step < 0 || Orientation is not (Orientation.Horizontal or Orientation.Vertical))
             throw new InvalidOperationException("Invalid control range.");
     }
 
@@ -136,9 +137,9 @@ public abstract class RangeControl : Control
     /// Performs set fraction using the current control state.
     /// </summary>
     protected void SetFraction(double fraction) => Value = (float)(Minimum + Math.Clamp(fraction, 0, 1) * ((double)Maximum - Minimum));
-    private StyleProperty<ControlOrientation> _styleAxis = new(ControlOrientation.Horizontal);
+    private StyleProperty<Orientation> _styleAxis = new(Orientation.Horizontal);
     private static readonly System.ComponentModel.PropertyChangedEventArgs AxisChangedArgs = new(nameof(Axis));
-    internal ControlOrientation ConfigAxis
+    internal Orientation ConfigAxis
     {
         get => _styleAxis.Value;
         set
@@ -151,7 +152,7 @@ public abstract class RangeControl : Control
     /// <summary>
     /// Gets or sets Axis; a local assignment overrides the style.
     /// </summary>
-    public ControlOrientation Axis { get => ConfigAxis; set => ConfigAxis = value; }
+    public Orientation Axis { get => ConfigAxis; set => ConfigAxis = value; }
 
     private StyleProperty<float> _styleMinimum = new(0f);
     private static readonly System.ComponentModel.PropertyChangedEventArgs MinimumChangedArgs = new(nameof(Minimum));
@@ -241,7 +242,7 @@ public abstract class RangeControl : Control
             switch (entry.Key)
             {
                 case "Axis":
-                    if (_styleAxis.Apply(Converters.Convert<ControlOrientation>("ControlOrientation", entry.Value)))
+                    if (_styleAxis.Apply(Converters.Convert<Orientation>("Orientation", entry.Value)))
                         NotifyPropertyChanged(AxisChangedArgs);
                     break;
                 case "Minimum":
@@ -340,7 +341,7 @@ public abstract class RangeControl : Control
     protected override void ResetStyledValues()
     {
         base.ResetStyledValues();
-        if (_styleAxis.BeginStyle(ControlOrientation.Horizontal))
+        if (_styleAxis.BeginStyle(Orientation.Horizontal))
             NotifyPropertyChanged(AxisChangedArgs);
         if (_styleMinimum.BeginStyle(0f))
             NotifyPropertyChanged(MinimumChangedArgs);

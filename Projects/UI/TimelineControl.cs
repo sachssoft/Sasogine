@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Collections;
 using Sachssoft.Engine.Input;
 using System;
@@ -116,10 +117,10 @@ public sealed class TimelineControl : ContainerControl
     private readonly List<TimelineTrackLayout> _visibleTracks = new();
 
     /// <summary>Provides the independent horizontal scrollbar.</summary>
-    private readonly ScrollBar _horizontalScrollBar = new() { Orientation = ControlOrientation.Horizontal };
+    private readonly ScrollBar _horizontalScrollBar = new() { Orientation = Orientation.Horizontal };
 
     /// <summary>Provides the independent vertical scrollbar.</summary>
-    private readonly ScrollBar _verticalScrollBar = new() { Orientation = ControlOrientation.Vertical };
+    private readonly ScrollBar _verticalScrollBar = new() { Orientation = Orientation.Vertical };
 
     /// <summary>Stores explicitly supplied observable timeline rows.</summary>
     private readonly TrackableCollection<TimelineTrack> _tracks = new();

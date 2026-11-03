@@ -1,3 +1,4 @@
+using Sachssoft.Engine;
 using System;
 
 namespace Sachssoft.Engine.Controls;
@@ -6,7 +7,7 @@ namespace Sachssoft.Engine.Controls;
 public class StatusBar : StackPanel
 {
     /// <summary>Creates a horizontal status bar without a local orientation override.</summary>
-    public StatusBar() : base(StackOrientation.Horizontal)
+    public StatusBar() : base(Orientation.Horizontal)
     {
     }
 
@@ -44,9 +45,9 @@ public class StatusBar : StackPanel
     /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
-        if (!float.IsFinite(Spacing) || Spacing < 0 || Orientation is not (StackOrientation.Vertical or StackOrientation.Horizontal))
+        if (!float.IsFinite(Spacing) || Spacing < 0 || Orientation is not (Orientation.Vertical or Orientation.Horizontal))
             throw new InvalidOperationException("Invalid status bar configuration.");
-        bool vertical = Orientation == StackOrientation.Vertical;
+        bool vertical = Orientation == Orientation.Vertical;
         float availableMain = vertical ? available.Height : available.Width;
         float availableCross = vertical ? available.Width : available.Height;
         double occupied = 0;
@@ -92,7 +93,7 @@ public class StatusBar : StackPanel
     /// <inheritdoc/>
     protected override void ArrangeOverride(Bounds2 bounds)
     {
-        bool vertical = Orientation == StackOrientation.Vertical;
+        bool vertical = Orientation == Orientation.Vertical;
         double occupied = 0;
         double weight = 0;
         int count = 0;

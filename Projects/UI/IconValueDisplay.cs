@@ -1,7 +1,8 @@
+using Sachssoft.Engine;
+using Sachssoft.Engine.Controls.Styling;
 using System;
 using System.ComponentModel;
-using Sachssoft.Engine.Controls.Styling;
-using DisplayPlacement = Sachssoft.Engine.Controls.IconPlacement;
+using DisplayPlacement = Sachssoft.Engine.Placement;
 
 namespace Sachssoft.Engine.Controls;
 
@@ -47,7 +48,7 @@ public class IconValueDisplay : ContainerControl
     private IFormatProvider? _valueFormatProvider;
 
     /// <summary>Stores the styled and locally overridden icon placement.</summary>
-    private StyleProperty<IconPlacement> _placement = new(DisplayPlacement.Left);
+    private StyleProperty<Placement> _placement = new(DisplayPlacement.Left);
 
     /// <summary>Stores whether the shared icon and value decoration is rendered.</summary>
     private StyleProperty<bool> _useStyle = new(true);
@@ -118,7 +119,7 @@ public class IconValueDisplay : ContainerControl
     public Control? ValuePresenter => _valueHost.ContentPresenter;
 
     /// <summary>Gets or sets the icon edge relative to the value. The default is Left; Top and Bottom select a vertical layout.</summary>
-    public IconPlacement IconPlacement
+    public Placement IconPlacement
     {
         get => _placement.Value;
         set
@@ -357,7 +358,7 @@ public class IconValueDisplay : ContainerControl
 
     /// <summary>Rejects icon edges outside the supported four placements.</summary>
     /// <param name = "value">The requested icon placement.</param>
-    private static void ValidatePlacement(IconPlacement value)
+    private static void ValidatePlacement(Placement value)
     {
         if (value is < DisplayPlacement.Left or > DisplayPlacement.Bottom)
             throw new ArgumentOutOfRangeException(nameof(value));
@@ -384,7 +385,7 @@ public class IconValueDisplay : ContainerControl
                         NotifyPropertyChanged(UseStyleArgs);
                     break;
                 case nameof(IconPlacement):
-                    if (_placement.Apply(Converters.Convert<IconPlacement>("IconPlacement", entry.Value)))
+                    if (_placement.Apply(Converters.Convert<Placement>("Placement", entry.Value)))
                         NotifyPropertyChanged(PlacementArgs);
                     break;
                 case nameof(Spacing):

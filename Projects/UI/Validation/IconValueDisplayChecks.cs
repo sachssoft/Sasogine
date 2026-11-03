@@ -1,10 +1,10 @@
-using System.Globalization;
 using Microsoft.Xna.Framework;
 using Sachssoft.Engine;
 using Sachssoft.Engine.Controls;
 using Sachssoft.Engine.Controls.Input;
 using Sachssoft.Engine.Controls.Layouts;
 using Sachssoft.Engine.Controls.Styling;
+using System.Globalization;
 
 /// <summary>Checks HUD placement, formatting, ownership, live styling and unchanged-frame allocations.</summary>
 internal static class IconValueDisplayChecks
@@ -16,8 +16,8 @@ internal static class IconValueDisplayChecks
     {
         var display = new IconValueDisplay
         {
-            HorizontalAlignment = ControlAlignment.Start,
-            VerticalAlignment = ControlAlignment.Start,
+            HorizontalAlignment = LayoutAlignment.Start,
+            VerticalAlignment = LayoutAlignment.Start,
             Padding = Insets2.Zero
         };
         check(display.Icon is null && display.Value is null && display.IconPresenter is null && display.ValuePresenter is null, "Empty HUD has no presented content");
@@ -44,25 +44,25 @@ internal static class IconValueDisplayChecks
         Frame();
         check(display.IconPresenter == icon && display.ValuePresenter == text && icon.Measurements == initialMeasurements && icon.Arrangements == initialArrangements, "Disabling shared decoration preserves content and cached geometry, including the focused case");
         display.UseStyle = true;
-        IconPlacement[] placements = [IconPlacement.Left, IconPlacement.Right, IconPlacement.Top, IconPlacement.Bottom];
-        foreach (IconPlacement placement in placements)
+        Placement[] placements = [Placement.Left, Placement.Right, Placement.Top, Placement.Bottom];
+        foreach (Placement placement in placements)
         {
             display.IconPlacement = placement;
             Frame();
-            bool horizontal = placement is IconPlacement.Left or IconPlacement.Right;
+            bool horizontal = placement is Placement.Left or Placement.Right;
             check(display.DesiredSize.Width == (horizontal ? 56 : 24) && display.DesiredSize.Height == (horizontal ? 24 : 48), "Placement selects the expected intrinsic axis: " + placement);
             float gap = placement switch
             {
-                IconPlacement.Left => text.Bounds.X - icon.Bounds.Right,
-                IconPlacement.Right => icon.Bounds.X - text.Bounds.Right,
-                IconPlacement.Top => text.Bounds.Y - icon.Bounds.Bottom,
+                Placement.Left => text.Bounds.X - icon.Bounds.Right,
+                Placement.Right => icon.Bounds.X - text.Bounds.Right,
+                Placement.Top => text.Bounds.Y - icon.Bounds.Bottom,
                 _ => icon.Bounds.Y - text.Bounds.Bottom
             };
             check(gap == 8, "Icon and value retain their requested gap: " + placement);
             check(horizontal ? icon.Bounds.Y + 12 == text.Bounds.Y + 8 : icon.Bounds.X + 12 == text.Bounds.X + 12, "Presenters are centered across the layout axis: " + placement);
         }
 
-        display.IconPlacement = IconPlacement.Left;
+        display.IconPlacement = Placement.Left;
         Frame();
         int measurements = icon.Measurements, arrangements = icon.Arrangements;
         display.Value = "200";
@@ -106,7 +106,7 @@ internal static class IconValueDisplayChecks
         var style = new Style
         {
             BasedOn = "IconValueDisplay",
-            IconPlacement = IconPlacement.Top,
+            IconPlacement = Placement.Top,
             Spacing = 12,
             ValueFormat = "N0",
             UseStyle = false
@@ -114,19 +114,19 @@ internal static class IconValueDisplayChecks
         workspace.Registry.Styles.Register("Test.Hud", style);
         display.StyleId = "Test.Hud";
         Frame();
-        check(display.IconPlacement == IconPlacement.Left && display.ValueFormat == "N1" && display.Spacing == 12, "Local placement and formatting override central styles");
+        check(display.IconPlacement == Placement.Left && display.ValueFormat == "N1" && display.Spacing == 12, "Local placement and formatting override central styles");
         check(display.UseStyle, "A local true assignment overrides a style that disables shared decoration");
         display.ResetStyleProperty(nameof(IconValueDisplay.UseStyle));
         check(!display.UseStyle, "Reset restores the central decoration switch");
         display.ResetStyleProperty(nameof(IconValueDisplay.IconPlacement));
         display.ResetStyleProperty(nameof(IconValueDisplay.ValueFormat));
         Frame();
-        check(display.IconPlacement == IconPlacement.Top && display.ValueFormat == "N0" && ((TextBlock)display.ValuePresenter!).Text == "42", "Reset restores central placement and formatting");
+        check(display.IconPlacement == Placement.Top && display.ValueFormat == "N0" && ((TextBlock)display.ValuePresenter!).Text == "42", "Reset restores central placement and formatting");
         style.ValueFormat = "N2";
         Frame();
         check(((TextBlock)display.ValuePresenter!).Text == "42.50", "A live style change refreshes the formatted value");
         check(workspace.Registry.Create("IconValueDisplay") is IconValueDisplay, "HUD factory registration requires no reflection");
-        check(workspace.Registry.Converters.Convert<IconPlacement>("IconPlacement", "Bottom") == IconPlacement.Bottom, "Placement has an explicit AOT-safe converter");
+        check(workspace.Registry.Converters.Convert<Placement>("IconPlacement", "Bottom") == Placement.Bottom, "Placement has an explicit AOT-safe converter");
         var other = new ContentControl
         {
             Content = new Image()
@@ -179,15 +179,15 @@ internal static class IconValueDisplayChecks
         rejected = false;
         try
         {
-            display.IconPlacement = (IconPlacement)99;
+            display.IconPlacement = (Placement)99;
         }
         catch (ArgumentOutOfRangeException)
         {
             rejected = true;
         }
 
-        check(rejected && display.IconPlacement == IconPlacement.Top, "Invalid placement leaves the layout unchanged");
-        display.IconPlacement = IconPlacement.Right;
+        check(rejected && display.IconPlacement == Placement.Top, "Invalid placement leaves the layout unchanged");
+        display.IconPlacement = Placement.Right;
         display.Width = 20;
         display.Height = 20;
         Frame();

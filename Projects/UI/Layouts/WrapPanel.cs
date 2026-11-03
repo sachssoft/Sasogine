@@ -1,3 +1,4 @@
+using Sachssoft.Engine;
 using System;
 
 namespace Sachssoft.Engine.Controls.Layouts;
@@ -21,7 +22,7 @@ public class WrapPanel : ContainerControl
     /// <summary>
     /// Gets or sets orientation.
     /// </summary>
-    public ControlOrientation Orientation { get => ConfigAxis; set => ConfigAxis = value; }
+    public Orientation Orientation { get => ConfigAxis; set => ConfigAxis = value; }
     /// <summary>
     /// Gets or sets spacing.
     /// </summary>
@@ -35,7 +36,7 @@ public class WrapPanel : ContainerControl
     {
         if (!float.IsFinite(Spacing) || Spacing < 0 || !float.IsFinite(LineSpacing) || LineSpacing < 0)
             throw new InvalidOperationException("Invalid wrapping spacing.");
-        bool horizontal = Orientation == ControlOrientation.Horizontal;
+        bool horizontal = Orientation == Orientation.Horizontal;
         float limit = horizontal ? size.Width : size.Height;
         float main = 0, cross = 0, lineCross = 0, max = 0;
         bool occupied = false;
@@ -93,9 +94,9 @@ public class WrapPanel : ContainerControl
         }
     }
 
-    private StyleProperty<ControlOrientation> _styleAxis = new(ControlOrientation.Horizontal);
+    private StyleProperty<Orientation> _styleAxis = new(Orientation.Horizontal);
     private static readonly System.ComponentModel.PropertyChangedEventArgs AxisChangedArgs = new(nameof(Axis));
-    internal ControlOrientation ConfigAxis
+    internal Orientation ConfigAxis
     {
         get => _styleAxis.Value;
         set
@@ -108,7 +109,7 @@ public class WrapPanel : ContainerControl
     /// <summary>
     /// Gets or sets Axis; a local assignment overrides the style.
     /// </summary>
-    public ControlOrientation Axis { get => ConfigAxis; set => ConfigAxis = value; }
+    public Orientation Axis { get => ConfigAxis; set => ConfigAxis = value; }
 
     private StyleProperty<float> _styleLineSpacing = new(8f);
     private static readonly System.ComponentModel.PropertyChangedEventArgs LineSpacingChangedArgs = new(nameof(LineSpacing));
@@ -137,7 +138,7 @@ public class WrapPanel : ContainerControl
                         NotifyPropertyChanged(SpacingChangedArgs);
                     break;
                 case "Axis":
-                    if (_styleAxis.Apply(Converters.Convert<ControlOrientation>("ControlOrientation", entry.Value)))
+                    if (_styleAxis.Apply(Converters.Convert<Orientation>("Orientation", entry.Value)))
                         NotifyPropertyChanged(AxisChangedArgs);
                     break;
                 case "LineSpacing":
@@ -194,7 +195,7 @@ public class WrapPanel : ContainerControl
         base.ResetStyledValues();
         if (_styleSpacing.BeginStyle(0f))
             NotifyPropertyChanged(SpacingChangedArgs);
-        if (_styleAxis.BeginStyle(ControlOrientation.Horizontal))
+        if (_styleAxis.BeginStyle(Orientation.Horizontal))
             NotifyPropertyChanged(AxisChangedArgs);
         if (_styleLineSpacing.BeginStyle(8f))
             NotifyPropertyChanged(LineSpacingChangedArgs);

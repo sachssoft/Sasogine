@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Graphics.Text;
 using System;
 
@@ -32,7 +33,7 @@ public sealed class UiHostExample : IDisposable
         Workspace = new Workspace(page);
         var registry = Workspace.Registry;
         registry.Styles.Register("Page", new Style { BasedOn = "Panel", Background = new Color(18, 22, 30) });
-        registry.Styles.Register("Menu", new Style { BasedOn = "StackPanel", Width = 360, Margin = new Insets2(28), Padding = new Insets2(20), Spacing = 14, HorizontalAlignment = ControlAlignment.Start, VerticalAlignment = ControlAlignment.Start, Background = new Color(30, 36, 48) });
+        registry.Styles.Register("Menu", new Style { BasedOn = "StackPanel", Width = 360, Margin = new Insets2(28), Padding = new Insets2(20), Spacing = 14, HorizontalAlignment = LayoutAlignment.Start, VerticalAlignment = LayoutAlignment.Start, Background = new Color(30, 36, 48) });
         registry.Styles.Register("Heading", new Style { BasedOn = "Label", TextColor = new Color(120, 190, 255) });
         registry.Styles.Register("PrimaryButton", new Style { BasedOn = "Button", Height = 46 });
         var menu = new StackPanel

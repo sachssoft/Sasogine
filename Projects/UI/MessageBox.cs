@@ -1,3 +1,4 @@
+using Sachssoft.Engine;
 
 using System;
 using System.ComponentModel;
@@ -34,7 +35,7 @@ public sealed class MessageBox : Dialog
         _message = new Label
         {
             WrapText = true,
-            HorizontalAlignment = ControlAlignment.Stretch
+            HorizontalAlignment = LayoutAlignment.Stretch
         };
 
         _buttons = new WrapPanel

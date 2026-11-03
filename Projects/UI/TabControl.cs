@@ -1,8 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Sachssoft.Engine;
 using System;
 using System.Collections.Generic;
-using TabPlacement = Sachssoft.Engine.Controls.TabStripPlacement;
+using TabPlacement = Sachssoft.Engine.Placement;
 
 namespace Sachssoft.Engine.Controls;
 
@@ -47,7 +48,7 @@ public class TabControl : ContainerControl
     /// <summary>Retains the natural or equally sized header stack.</summary>
     private readonly TabHeaderPanel _headers = new()
     {
-        Orientation = StackOrientation.Horizontal,
+        Orientation = Orientation.Horizontal,
         Spacing = 4,
         Background = Color.Transparent
     };
@@ -287,7 +288,7 @@ public class TabControl : ContainerControl
             _headerView.VerticalScrollBar.Value = 0;
         }
 
-        StackOrientation orientation = VerticalHeaders ? StackOrientation.Vertical : StackOrientation.Horizontal;
+        Orientation orientation = VerticalHeaders ? Orientation.Vertical : Orientation.Horizontal;
         if (_headers.Orientation != orientation)
         {
             _headers.Orientation = orientation;

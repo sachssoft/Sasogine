@@ -1,3 +1,4 @@
+using Sachssoft.Engine;
 namespace Sachssoft.Engine.Controls;
 
 /// <summary>Retains a page while keeping its animation opacity separate from user properties.</summary>
@@ -6,8 +7,8 @@ internal sealed class CarouselPageHost : ContentControl
     /// <summary>Creates a stretch-aligned page host with page-layer drawing order.</summary>
     internal CarouselPageHost()
     {
-        ContentHorizontalAlignment = ControlAlignment.Stretch;
-        ContentVerticalAlignment = ControlAlignment.Stretch;
+        ContentHorizontalAlignment = LayoutAlignment.Stretch;
+        ContentVerticalAlignment = LayoutAlignment.Stretch;
         ZIndex = 1;
     }
 

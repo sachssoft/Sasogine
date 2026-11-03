@@ -1,3 +1,4 @@
+using Sachssoft.Engine;
 using System;
 
 namespace Sachssoft.Engine.Controls;
@@ -103,12 +104,12 @@ public abstract class DataTableColumn : Element
     /// <summary>
     /// Gets or sets cell text alignment.
     /// </summary>
-    private ControlAlignment _TextAlignment = ControlAlignment.Start;
+    private LayoutAlignment _TextAlignment = LayoutAlignment.Start;
     private static readonly System.ComponentModel.PropertyChangedEventArgs TextAlignmentArgs = new(nameof(TextAlignment));
     /// <summary>
     /// Gets or sets TextAlignment.
     /// </summary>
-    public  ControlAlignment TextAlignment
+    public  LayoutAlignment TextAlignment
     {
         get => _TextAlignment;
         set => SetNotify(ref _TextAlignment, value, TextAlignmentArgs);

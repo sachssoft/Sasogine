@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Input;
 using System;
 
@@ -26,7 +27,7 @@ public sealed class ScrollBar : RangeControl
     /// Gets or sets viewport size.
     /// </summary>
     public float ViewportSize { get => ConfigViewportSize; set => ConfigViewportSize = value; }
-    private float AxisLength => Orientation == ControlOrientation.Horizontal ? ContentBounds.Width : ContentBounds.Height;
+    private float AxisLength => Orientation == Orientation.Horizontal ? ContentBounds.Width : ContentBounds.Height;
     private float Arrow => MathF.Min(ConfigScrollBarThickness, AxisLength / 2);
     private float TrackLength => MathF.Max(0, AxisLength - 2 * Arrow);
 
@@ -50,10 +51,10 @@ public sealed class ScrollBar : RangeControl
     {
         var b = ContentBounds;
         float x = absolute ? b.X : Padding.Left, y = absolute ? b.Y : Padding.Top;
-        return Orientation == ControlOrientation.Horizontal ? new Bounds2(x + offset, y + 2, length, MathF.Max(0, b.Height - 4)) : new Bounds2(x + 2, y + offset, MathF.Max(0, b.Width - 4), length);
+        return Orientation == Orientation.Horizontal ? new Bounds2(x + offset, y + 2, length, MathF.Max(0, b.Height - 4)) : new Bounds2(x + 2, y + offset, MathF.Max(0, b.Width - 4), length);
     }
 
-    private float Coordinate(Vector2 p) => Orientation == ControlOrientation.Horizontal ? p.X - ContentBounds.X : p.Y - ContentBounds.Y;
+    private float Coordinate(Vector2 p) => Orientation == Orientation.Horizontal ? p.X - ContentBounds.X : p.Y - ContentBounds.Y;
     /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
@@ -63,7 +64,7 @@ public sealed class ScrollBar : RangeControl
         float t = ConfigScrollBarThickness;
         if (!float.IsFinite(t) || t <= 0)
             throw new InvalidOperationException("Invalid scrollbar thickness.");
-        return Orientation == ControlOrientation.Horizontal ? new Size2(120, t) : new Size2(t, 120);
+        return Orientation == Orientation.Horizontal ? new Size2(120, t) : new Size2(t, 120);
     }
 
     /// <inheritdoc/>
@@ -171,7 +172,7 @@ public sealed class ScrollBar : RangeControl
     /// <inheritdoc/>
     protected override void OnDraw(ControlDrawContext context)
     {
-        string style = Orientation == ControlOrientation.Horizontal ? "ScrollBar.Horizontal" : "ScrollBar.Vertical";
+        string style = Orientation == Orientation.Horizontal ? "ScrollBar.Horizontal" : "ScrollBar.Vertical";
         string state = !IsAvailable() ? "Disabled" : _dragging ? "Pressed" : IsPointerOver ? "Hover" : "Normal";
         if (!context.DrawSkinStylePart(style, "Track", AxisRect(Arrow, TrackLength)))
             context.FillRectangle(AxisRect(Arrow, TrackLength), new Color(20, 26, 36));

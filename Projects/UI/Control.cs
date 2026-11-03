@@ -1,5 +1,6 @@
-using Sachssoft.Engine.Graphics.Text;
 using Microsoft.Xna.Framework;
+using Sachssoft.Engine;
+using Sachssoft.Engine.Graphics.Text;
 using System;
 
 namespace Sachssoft.Engine.Controls;
@@ -97,8 +98,8 @@ public abstract class Control : Element
 
     private StyleProperty<Control?> _styleToolTipContent = new(null);
 
-    private StyleProperty<ControlAlignment> _styleHorizontalAlignment = new(ControlAlignment.Stretch);
-    private StyleProperty<ControlAlignment> _styleVerticalAlignment = new(ControlAlignment.Stretch);
+    private StyleProperty<LayoutAlignment> _styleHorizontalAlignment = new(LayoutAlignment.Stretch);
+    private StyleProperty<LayoutAlignment> _styleVerticalAlignment = new(LayoutAlignment.Stretch);
 
     private StyleProperty<float> _styleBorderThickness = new(0f);
     private StyleProperty<float> _styleMinHeight = new(0f);
@@ -275,7 +276,7 @@ public abstract class Control : Element
     /// <summary>
     /// Gets the effective HorizontalAlignment value or sets a local override.
     /// </summary>
-    public ControlAlignment HorizontalAlignment
+    public LayoutAlignment HorizontalAlignment
     {
         get => ConfigHorizontalAlignment;
         set => ConfigHorizontalAlignment = value;
@@ -284,7 +285,7 @@ public abstract class Control : Element
     /// <summary>
     /// Gets the effective VerticalAlignment value or sets a local override.
     /// </summary>
-    public ControlAlignment VerticalAlignment
+    public LayoutAlignment VerticalAlignment
     {
         get => ConfigVerticalAlignment;
         set => ConfigVerticalAlignment = value;
@@ -591,7 +592,7 @@ public abstract class Control : Element
     /// <summary>
     /// Gets or sets config horizontal alignment.
     /// </summary>
-    internal ControlAlignment ConfigHorizontalAlignment
+    internal LayoutAlignment ConfigHorizontalAlignment
     {
         get => _styleHorizontalAlignment.Value;
         set
@@ -604,7 +605,7 @@ public abstract class Control : Element
     /// <summary>
     /// Gets or sets config vertical alignment.
     /// </summary>
-    internal ControlAlignment ConfigVerticalAlignment
+    internal LayoutAlignment ConfigVerticalAlignment
     {
         get => _styleVerticalAlignment.Value;
         set
@@ -1275,8 +1276,8 @@ public abstract class Control : Element
             Insets2 m = Margin;
             float availableWidth = MathF.Max(0, slot.Width - m.Horizontal);
             float availableHeight = MathF.Max(0, slot.Height - m.Vertical);
-            float width = LayoutWidth ?? (HorizontalAlignment == ControlAlignment.Stretch ? availableWidth : MathF.Max(0, DesiredSize.Width - m.Horizontal));
-            float height = LayoutHeight ?? (VerticalAlignment == ControlAlignment.Stretch ? availableHeight : MathF.Max(0, DesiredSize.Height - m.Vertical));
+            float width = LayoutWidth ?? (HorizontalAlignment == LayoutAlignment.Stretch ? availableWidth : MathF.Max(0, DesiredSize.Width - m.Horizontal));
+            float height = LayoutHeight ?? (VerticalAlignment == LayoutAlignment.Stretch ? availableHeight : MathF.Max(0, DesiredSize.Height - m.Vertical));
             width = MathF.Max(MinWidth, width);
             height = MathF.Max(MinHeight, height);
             if (constrain)
@@ -1490,10 +1491,10 @@ public abstract class Control : Element
     /// <param name="spare">The unoccupied layout space.</param>
     /// <param name="alignment">The alignment to apply.</param>
     /// <returns>The result of the operation.</returns>
-    private static float Align(float spare, ControlAlignment alignment) => alignment switch
+    private static float Align(float spare, LayoutAlignment alignment) => alignment switch
     {
-        ControlAlignment.Center => spare / 2,
-        ControlAlignment.End => spare,
+        LayoutAlignment.Center => spare / 2,
+        LayoutAlignment.End => spare,
         _ => 0
     };
 
@@ -1534,7 +1535,7 @@ public abstract class Control : Element
     /// </summary>
     /// <param name="value">The value to validate.</param>
     /// <returns>The result of the operation.</returns>
-    internal static bool IsAlignment(ControlAlignment value) => value is ControlAlignment.Start or ControlAlignment.Center or ControlAlignment.End or ControlAlignment.Stretch;
+    internal static bool IsAlignment(LayoutAlignment value) => value is LayoutAlignment.Start or LayoutAlignment.Center or LayoutAlignment.End or LayoutAlignment.Stretch;
 
     /// <summary>
     /// Validates that inset values are finite and nonnegative.
@@ -1689,11 +1690,11 @@ public abstract class Control : Element
                         NotifyPropertyChanged(PaddingChangedArgs);
                     break;
                 case nameof(HorizontalAlignment):
-                    if (_styleHorizontalAlignment.Apply(Converters.Convert<ControlAlignment>("ControlAlignment", entry.Value)))
+                    if (_styleHorizontalAlignment.Apply(Converters.Convert<LayoutAlignment>("LayoutAlignment", entry.Value)))
                         NotifyPropertyChanged(HorizontalAlignmentChangedArgs);
                     break;
                 case nameof(VerticalAlignment):
-                    if (_styleVerticalAlignment.Apply(Converters.Convert<ControlAlignment>("ControlAlignment", entry.Value)))
+                    if (_styleVerticalAlignment.Apply(Converters.Convert<LayoutAlignment>("LayoutAlignment", entry.Value)))
                         NotifyPropertyChanged(VerticalAlignmentChangedArgs);
                     break;
                 case nameof(Opacity):
@@ -2051,9 +2052,9 @@ public abstract class Control : Element
             NotifyPropertyChanged(MarginChangedArgs);
         if (_stylePadding.BeginStyle(Insets2.Zero))
             NotifyPropertyChanged(PaddingChangedArgs);
-        if (_styleHorizontalAlignment.BeginStyle(ControlAlignment.Stretch))
+        if (_styleHorizontalAlignment.BeginStyle(LayoutAlignment.Stretch))
             NotifyPropertyChanged(HorizontalAlignmentChangedArgs);
-        if (_styleVerticalAlignment.BeginStyle(ControlAlignment.Stretch))
+        if (_styleVerticalAlignment.BeginStyle(LayoutAlignment.Stretch))
             NotifyPropertyChanged(VerticalAlignmentChangedArgs);
         if (_styleOpacity.BeginStyle(1f))
             NotifyPropertyChanged(OpacityChangedArgs);

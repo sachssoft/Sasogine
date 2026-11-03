@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Gameplay.Curves;
 using Sachssoft.Engine.Input;
 using System;
@@ -173,7 +174,7 @@ public sealed class ControlsCurvePage : Grid
         {
             Width = 184,
             Height = 184,
-            HorizontalAlignment = ControlAlignment.Center,
+            HorizontalAlignment = LayoutAlignment.Center,
             ResponseCurve = model,
             DeadZone = 0,
             ToolTip = "The joystick evaluates the exact same EditableCurve through CurveBase."
@@ -193,7 +194,7 @@ public sealed class ControlsCurvePage : Grid
         };
         Children.Add(pointRow);
         Cells.Put(pointRow, row: 3);
-        pointRow.Add(new Label() { Text = "Selected point", Height = 36, VerticalAlignment = ControlAlignment.Center });
+        pointRow.Add(new Label() { Text = "Selected point", Height = 36, VerticalAlignment = LayoutAlignment.Center });
         var xInput = new NumericSpinner()
         {
             Width = 140,
@@ -212,11 +213,11 @@ public sealed class ControlsCurvePage : Grid
             NumericIncrement = .01m,
             DecimalPlaces = 3
         };
-        pointRow.Add(new Label() { Text = "X", Height = 36, VerticalAlignment = ControlAlignment.Center });
+        pointRow.Add(new Label() { Text = "X", Height = 36, VerticalAlignment = LayoutAlignment.Center });
         pointRow.Add(xInput);
-        pointRow.Add(new Label() { Text = "Y", Height = 36, VerticalAlignment = ControlAlignment.Center });
+        pointRow.Add(new Label() { Text = "Y", Height = 36, VerticalAlignment = LayoutAlignment.Center });
         pointRow.Add(yInput);
-        pointRow.Add(new Label() { Text = "Shift = snap  |  Ctrl+Z / Ctrl+Y", Height = 36, VerticalAlignment = ControlAlignment.Center });
+        pointRow.Add(new Label() { Text = "Shift = snap  |  Ctrl+Z / Ctrl+Y", Height = 36, VerticalAlignment = LayoutAlignment.Center });
         var status = new Label()
         {
             Text = "Drag handles, edit X/Y, or compare engine curves on the right. Home resets the view; F fits it.",

@@ -46,7 +46,7 @@ internal sealed class CacheApplication : GameApplicationBase
         Vector2 initial = _font.LastPosition;
         for (int i=0;i<100;i++) { Prepare(); DrawChecked(); }
         if (_font.Measurements != baseline) throw new InvalidOperationException("Unchanged frames remeasured text.");
-        _text.TextHorizontalAlignment = ControlAlignment.End;
+        _text.TextHorizontalAlignment = LayoutAlignment.End;
         Prepare(); DrawChecked();
         if (_font.Measurements != baseline || _font.LastPosition.X <= initial.X) throw new InvalidOperationException("Cached alignment did not update.");
         _text.TextColor = Color.Yellow;

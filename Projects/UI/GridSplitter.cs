@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Input;
 using System;
 using System.ComponentModel;
@@ -30,10 +31,10 @@ public sealed class GridSplitter : Control
     private static readonly PropertyChangedEventArgs MinimumPaneSizeChangedArgs = new(nameof(MinimumPaneSize));
 
     /// <summary>The direction captured when editing begins.</summary>
-    private ControlOrientation _activeDirection;
+    private Orientation _activeDirection;
 
     /// <summary>The configured resize direction.</summary>
-    private ControlOrientation _direction = ControlOrientation.Horizontal;
+    private Orientation _direction = Orientation.Horizontal;
 
     /// <summary>The captured pointer identity.</summary>
     private ControlPointer? _pointer;
@@ -75,12 +76,12 @@ public sealed class GridSplitter : Control
     private float _startPosition;
 
     /// <summary>Gets or sets the axis along which adjacent panes are resized.</summary>
-    public ControlOrientation Direction
+    public Orientation Direction
     {
         get => _direction;
         set
         {
-            if (value is not (ControlOrientation.Horizontal or ControlOrientation.Vertical))
+            if (value is not (Orientation.Horizontal or Orientation.Vertical))
                 throw new ArgumentOutOfRangeException(nameof(value));
             if (_direction == value)
                 return;
@@ -122,7 +123,7 @@ public sealed class GridSplitter : Control
     /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
-        return Direction == ControlOrientation.Horizontal ? new Size2(6, 24) : new Size2(24, 6);
+        return Direction == Orientation.Horizontal ? new Size2(6, 24) : new Size2(24, 6);
     }
 
     /// <inheritdoc/>
@@ -174,7 +175,7 @@ public sealed class GridSplitter : Control
         }
         else if (input.Type == ControlInputEventType.KeyDown && IsFocused)
         {
-            bool horizontal = Direction == ControlOrientation.Horizontal;
+            bool horizontal = Direction == Orientation.Horizontal;
             int sign = input.Key == (horizontal ? Keys.Left : Keys.Up) ? -1 :
                 input.Key == (horizontal ? Keys.Right : Keys.Down) ? 1 : 0;
             if (sign != 0 && BeginResize())
@@ -216,7 +217,7 @@ public sealed class GridSplitter : Control
     protected override void OnDraw(ControlDrawContext context)
     {
         base.OnDraw(context);
-        bool horizontal = Direction == ControlOrientation.Horizontal;
+        bool horizontal = Direction == Orientation.Horizontal;
         float length = MathF.Min(24, horizontal ? ContentBounds.Height : ContentBounds.Width);
         var grip = horizontal
             ? new Bounds2(Padding.Left + ContentBounds.Width / 2 - 1, Padding.Top + (ContentBounds.Height - length) / 2, 2, length)
@@ -230,7 +231,7 @@ public sealed class GridSplitter : Control
     {
         if (Parent is not Grid grid || !grid.Cells.TryGetValue(this, out var cell))
             return false;
-        bool horizontal = Direction == ControlOrientation.Horizontal;
+        bool horizontal = Direction == Orientation.Horizontal;
         int index = horizontal ? cell.Column : cell.Row;
         int count = horizontal ? grid.Columns.Count : grid.Rows.Count;
         if (index < 1 || index + 1 >= count || (horizontal ? cell.ColumnSpan : cell.RowSpan) != 1)
@@ -256,7 +257,7 @@ public sealed class GridSplitter : Control
         if (_grid is null || Parent != _grid || Direction != _activeDirection ||
             !_grid.Cells.TryGetValue(this, out var cell))
             return false;
-        bool horizontal = _activeDirection == ControlOrientation.Horizontal;
+        bool horizontal = _activeDirection == Orientation.Horizontal;
         int index = horizontal ? cell.Column : cell.Row;
         int count = horizontal ? _grid.Columns.Count : _grid.Rows.Count;
         return index > 0 && index + 1 < count &&
@@ -348,6 +349,6 @@ public sealed class GridSplitter : Control
     /// <returns>The horizontal or vertical coordinate.</returns>
     private float Coordinate(Vector2 position)
     {
-        return _activeDirection == ControlOrientation.Horizontal ? position.X : position.Y;
+        return _activeDirection == Orientation.Horizontal ? position.X : position.Y;
     }
 }

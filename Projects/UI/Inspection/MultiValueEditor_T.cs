@@ -1,3 +1,4 @@
+using Sachssoft.Engine;
 using System.ComponentModel;
 
 namespace Sachssoft.Engine.Controls.Inspection;
@@ -40,7 +41,7 @@ public sealed class MultiValueEditor<T> : Grid where T : struct
             var gridChild1 = new TextBlock
             {
                 Text = component.Name,
-                VerticalAlignment = ControlAlignment.Center
+                VerticalAlignment = LayoutAlignment.Center
             };
             cell.Children.Add(gridChild1);
             cell.Cells.Put(gridChild1, column: 0);

@@ -102,7 +102,7 @@ internal static class CarouselChecks
         check(carousel.TransitionProgress == .5f && first.Bounds.X == -200 && second.Bounds.X == 200 && first.Bounds.Width == 400, "Slide geometry advances deterministically on the horizontal axis");
         Frame(.5);
         check(!carousel.IsTransitioning && first.Workspace is null && second.Bounds.X == 0, "Completed slide releases the outgoing page");
-        carousel.Orientation = ControlOrientation.Vertical;
+        carousel.Orientation = Orientation.Vertical;
         carousel.Previous();
         Frame();
         Frame(.5);
@@ -119,7 +119,7 @@ internal static class CarouselChecks
         check(carousel.SelectedIndex == 0 && carousel.IsTransitioning && second.Workspace == workspace && first.Workspace is null, "Rapid navigation retains only the previous destination and the new destination");
         Frame(1);
         carousel.Transition = CarouselTransition.None;
-        carousel.Orientation = ControlOrientation.Horizontal;
+        carousel.Orientation = Orientation.Horizontal;
         carousel.NavigationMode = CarouselNavigationMode.All;
         carousel.ShowIndicators = true;
         Frame();
@@ -135,7 +135,7 @@ internal static class CarouselChecks
         workspace.Focus(carousel);
         Frame(0, new ControlInputEvent(ControlInputEventType.KeyDown, Key: Keys.End));
         check(carousel.SelectedIndex == 2, "End selects the final page");
-        carousel.Orientation = ControlOrientation.Vertical;
+        carousel.Orientation = Orientation.Vertical;
         Frame();
         Frame(0, new ControlInputEvent(ControlInputEventType.KeyDown, Key: Keys.Up));
         check(carousel.SelectedIndex == 1, "Vertical carousels respond to Up and Down");
@@ -146,7 +146,7 @@ internal static class CarouselChecks
         };
         carousel.Items.Add(button);
         carousel.Items.Add(new Panel());
-        carousel.Orientation = ControlOrientation.Horizontal;
+        carousel.Orientation = Orientation.Horizontal;
         carousel.NavigationMode = CarouselNavigationMode.Swipe;
         carousel.ShowIndicators = false;
         carousel.SelectedIndex = 0;
@@ -197,7 +197,7 @@ internal static class CarouselChecks
         carousel.ResetStyleProperty(nameof(Carousel.ShowIndicators));
         carousel.ResetStyleProperty(nameof(Carousel.Orientation));
         Frame();
-        check(carousel.Transition == CarouselTransition.Fade && carousel.TransitionDuration == .4f && carousel.Orientation == ControlOrientation.Vertical && carousel.ShowIndicators, "Central carousel styles restore through ResetStyleProperty");
+        check(carousel.Transition == CarouselTransition.Fade && carousel.TransitionDuration == .4f && carousel.Orientation == Orientation.Vertical && carousel.ShowIndicators, "Central carousel styles restore through ResetStyleProperty");
         check(workspace.Registry.Converters.Convert<CarouselNavigationMode>("CarouselNavigationMode", "Arrows | Swipe") == (CarouselNavigationMode.Arrows | CarouselNavigationMode.Swipe), "Navigation flags use an explicit converter without reflection");
         check(workspace.Registry.Create("Carousel") is Carousel, "Carousel factory is registered automatically");
         carousel.Transition = CarouselTransition.None;

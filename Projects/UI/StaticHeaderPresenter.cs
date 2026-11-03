@@ -1,3 +1,4 @@
+using Sachssoft.Engine;
 namespace Sachssoft.Engine.Controls;
 /// <summary>Draws the expanded expander header appearance without activation or an expansion indicator.</summary>
 internal sealed class StaticHeaderPresenter : ContentControl
@@ -5,7 +6,7 @@ internal sealed class StaticHeaderPresenter : ContentControl
     internal StaticHeaderPresenter()
     {
         Padding = new Insets2(28, 7, 10, 7);
-        ContentHorizontalAlignment = ControlAlignment.Start;
+        ContentHorizontalAlignment = LayoutAlignment.Start;
         IsFocusable = false;
     }
 

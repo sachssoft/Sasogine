@@ -11,6 +11,16 @@ Diese Regeln gelten für das Controls-Projekt. Bestehende Architektur und APIs h
 - Bestehende öffentliche Verträge möglichst erhalten; Breaking Changes nur bei nachgewiesenem Bedarf.
 - Keine Platzhalter, stillschweigend ignorierten Fehler oder ungetesteten Erfolgsmeldungen.
 
+## Enums und gemeinsame Engine-Typen
+
+- Vor jeder neuen Enum zuerst in Sasogine nach einem vorhandenen Typ mit derselben fachlichen Bedeutung suchen. Controls verwendet passende Sasogine-Enums direkt in Properties, Methoden, Styles und Konvertern; keine redundanten Controls-Enums oder Wrapper einführen.
+- Nicht nur Namen vergleichen: Werte, Standardwerte, Flags, erlaubte Kombinationen und Verhalten müssen passen. Controls verwendet `StretchMode`, `Orientation`, `LayoutAlignment`, `Placement` und `SortDirection?` aus Sasogine sowie `CurveInterpolation` aus `Sachssoft.Engine.Gameplay.Curves`. Bei Sortierung bedeutet `null` die ursprüngliche Reihenfolge; `LayoutAlignment.Stretch` bleibt ausdrücklich erhalten. Keine alten Controls-Enums erneut einführen und Unterschiede nicht durch Casts oder stillschweigende Ersatzwerte verbergen.
+- Allgemein nutzbare Enums ohne Abhängigkeit von Controls gehören in das passende Sasogine-Basismodul und dessen fachlichen Namespace. Controls darf diese Typen verwenden; das Basismodul darf dadurch keine Abhängigkeit von Controls erhalten.
+- Gleichartige allgemeine Konzepte zusammenführen, statt sie pro Control neu zu benennen. Insbesondere Orientierung, Platzierung, Sortierung und Bildskalierung auf gemeinsame Typen prüfen. Einen gemeinsamen Typ nur bei tatsächlich gleicher Bedeutung verwenden; keine unnötigen Werte oder unsinnigen Kombinationen in Control-APIs zulassen.
+- Eigene Controls-Enums sind erlaubt, wenn kein passender Sasogine-Typ existiert und das Konzept spezifisch für Controls, deren Layout oder Interaktion ist. Keine rein Controls-spezifischen Typen vorsorglich in das Basismodul verschieben.
+- Bei Migrationen sämtliche Aufrufer, Beispiele, Style-Konverter, Registrierungen und Serialisierung berücksichtigen. Numerische Werte, gespeicherte Namen und Standardwerte prüfen; Änderungen an öffentlichen APIs und Dateiformaten ausdrücklich benennen. Keine reine numerische Umwandlung zwischen unterschiedlich definierten Enums verwenden.
+- Weiterhin ein Enum pro gleichnamiger Datei und englische XML-Dokumentation für Typ und Werte; AOT- und Trimming-Vorgaben gelten unverändert.
+
 ## Properties und Styling
 
 - `Element` und vorhandenes `INotifyPropertyChanged`-Muster nutzen: `SetNotify`, gecachte `PropertyChangedEventArgs`, keine überflüssigen Änderungsmeldungen.

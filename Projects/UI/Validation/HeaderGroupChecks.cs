@@ -23,7 +23,7 @@ internal static class HeaderGroupChecks
         };
         var panel = new StackPanel
         {
-            Orientation = StackOrientation.Horizontal
+            Orientation = Orientation.Horizontal
         };
         header.Width = 200;
         expander.Width = 200;

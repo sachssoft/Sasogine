@@ -1,3 +1,4 @@
+using Sachssoft.Engine;
 using System.ComponentModel;
 
 namespace Sachssoft.Engine.Controls;
@@ -11,7 +12,7 @@ public class HeaderContentControl : ContentControl
     private static readonly PropertyChangedEventArgs HeaderContentArgs = new(nameof(HeaderContent));
     private static readonly PropertyChangedEventArgs HeaderPresenterArgs = new(nameof(HeaderContentPresenter));
     /// <summary>Creates an empty group with a private reusable header host.</summary>
-    public HeaderContentControl() : this(new ContentControl { ContentHorizontalAlignment = ControlAlignment.Start })
+    public HeaderContentControl() : this(new ContentControl { ContentHorizontalAlignment = LayoutAlignment.Start })
     {
     }
 

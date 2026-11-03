@@ -1,7 +1,8 @@
+using Sachssoft.Engine;
+using Sachssoft.Engine.Collections;
+using Sachssoft.Engine.Input;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using Sachssoft.Engine.Input;
-using Sachssoft.Engine.Collections;
 
 namespace Sachssoft.Engine.Controls.Inspection;
 /// <summary>
@@ -37,7 +38,7 @@ public sealed class InspectorCollection<T> : ContentControl where T : class
         };
         var toolbar = new StackPanel
         {
-            Orientation = StackOrientation.Horizontal,
+            Orientation = Orientation.Horizontal,
             Spacing = 6
         };
         AddAction(toolbar, "+", AddItem, () => true);

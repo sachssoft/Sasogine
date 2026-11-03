@@ -1,8 +1,9 @@
+using Microsoft.Xna.Framework;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Graphics.Text;
+using Sachssoft.Engine.Services.Platform;
 using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Sachssoft.Engine.Services.Platform;
 
 namespace Sachssoft.Engine.Controls;
 /// <summary>
@@ -90,10 +91,10 @@ public sealed class UIRegistry
         styles.Register("Panel", new Style { BasedOn = "Control" });
         styles.Register("StackPanel", new Style { BasedOn = "Panel" });
         styles.Register("Inspector.MultiValue", new Style { BasedOn = "Grid", Spacing = 4, Background = Color.Transparent, BorderThickness = 0 });
-        styles.Register("Inspector.PropertyMenu", new Style { BasedOn = "Control", IsFocusable = true, Width = 26, Height = 30, Padding = Insets2.Zero, Background = new Color(32, 35, 42), HoverBackground = new Color(53, 59, 70), PressedBackground = new Color(23, 26, 32), DisabledBackground = new Color(28, 30, 35), TextColor = new Color(230, 233, 239), DisabledTextColor = new Color(115, 121, 132), BorderThickness = 0, VerticalAlignment = ControlAlignment.Start });
+        styles.Register("Inspector.PropertyMenu", new Style { BasedOn = "Control", IsFocusable = true, Width = 26, Height = 30, Padding = Insets2.Zero, Background = new Color(32, 35, 42), HoverBackground = new Color(53, 59, 70), PressedBackground = new Color(23, 26, 32), DisabledBackground = new Color(28, 30, 35), TextColor = new Color(230, 233, 239), DisabledTextColor = new Color(115, 121, 132), BorderThickness = 0, VerticalAlignment = LayoutAlignment.Start });
         styles.Register("Inspector.Component", new Style { BasedOn = "Grid", Spacing = 2, Background = Color.Transparent, BorderThickness = 0 });
         styles.Register("Label", new Style { BasedOn = "Control" });
-        styles.Register("Button", new Style { BasedOn = "ContentControl", IsFocusable = true, Padding = new Insets2(12, 7), Background = new Color(48, 52, 64), ContentHorizontalAlignment = ControlAlignment.Center, HoverBackground = new Color(64, 72, 92), PressedBackground = new Color(36, 84, 132), DisabledBackground = new Color(32, 34, 40), FocusColor = new Color(100, 180, 255) });
+        styles.Register("Button", new Style { BasedOn = "ContentControl", IsFocusable = true, Padding = new Insets2(12, 7), Background = new Color(48, 52, 64), ContentHorizontalAlignment = LayoutAlignment.Center, HoverBackground = new Color(64, 72, 92), PressedBackground = new Color(36, 84, 132), DisabledBackground = new Color(32, 34, 40), FocusColor = new Color(100, 180, 255) });
         AddStandardStyles(styles);
         return styles;
     }
@@ -195,9 +196,9 @@ public sealed class UIRegistry
         styles.Register("Carousel.Next", new Style { BasedOn = "Button", Padding = Insets2.Zero, MinWidth = 0, MinHeight = 0 });
         styles.Register("Carousel.Indicator", new Style { BasedOn = "ToggleButton", Padding = Insets2.Zero, MinWidth = 0, MinHeight = 0, BorderThickness = 0, Background = Color.Transparent });
         styles.Register("IconValueDisplay", new Style { BasedOn = "Control", UseStyle = true, Spacing = 8, Padding = new Insets2(10, 6), Background = new Color(28, 35, 48), BorderColor = new Color(56, 71, 92), BorderThickness = 1 });
-        styles.Register("HeaderContentControl", new Style { BasedOn = "ContentControl", ContentHorizontalAlignment = ControlAlignment.Stretch, ContentVerticalAlignment = ControlAlignment.Stretch });
-        styles.Register("EdgePanel", new Style { BasedOn = "StackPanel", Orientation = StackOrientation.Horizontal });
-        styles.Register("GroupBox", new Style { BasedOn = "HeaderContentControl", ContentHorizontalAlignment = ControlAlignment.Stretch, ContentVerticalAlignment = ControlAlignment.Stretch, Background = new Color(28, 35, 48), BorderColor = new Color(56, 71, 92), BorderThickness = 1 });
+        styles.Register("HeaderContentControl", new Style { BasedOn = "ContentControl", ContentHorizontalAlignment = LayoutAlignment.Stretch, ContentVerticalAlignment = LayoutAlignment.Stretch });
+        styles.Register("EdgePanel", new Style { BasedOn = "StackPanel", Orientation = Orientation.Horizontal });
+        styles.Register("GroupBox", new Style { BasedOn = "HeaderContentControl", ContentHorizontalAlignment = LayoutAlignment.Stretch, ContentVerticalAlignment = LayoutAlignment.Stretch, Background = new Color(28, 35, 48), BorderColor = new Color(56, 71, 92), BorderThickness = 1 });
         styles.Register("Expander", new Style { BasedOn = "GroupBox" });
         styles.Register(nameof(Header), new Style { BasedOn = "GroupBox" });
         styles.Register("ValueTextBox", new Style { BasedOn = "Control" });
@@ -228,28 +229,28 @@ public sealed class UIRegistry
         styles.Register("VirtualJoystick", new Style { BasedOn = "Control", Padding = new Insets2(8), Radius = 64, ThumbSize = new Size2(40), DeadZone = .12f, Background = Color.Transparent, BorderColor = new Color(56, 71, 92), PressedBackground = new Color(65, 199, 223), TextColor = new Color(157, 179, 201), DisabledBackground = new Color(50, 58, 70) });
         styles.Register("Grid", new Style { BasedOn = "Control", Padding = Insets2.Zero });
         styles.Register("TabControl", new Style { BasedOn = "Panel", Padding = Insets2.Zero });
-        styles.Register("TabItem", new Style { BasedOn = "ContentControl", Padding = new Insets2(12), ContentHorizontalAlignment = ControlAlignment.Stretch, ContentVerticalAlignment = ControlAlignment.Stretch });
+        styles.Register("TabItem", new Style { BasedOn = "ContentControl", Padding = new Insets2(12), ContentHorizontalAlignment = LayoutAlignment.Stretch, ContentVerticalAlignment = LayoutAlignment.Stretch });
         styles.Register("TabControl.Header", new Style { BasedOn = "ToggleButton", Height = 38, Padding = new Insets2(14, 6) });
         styles.Register("DataTable", new Style { BasedOn = "ListBox", HeaderHeight = 34, BorderColor = new Color(43, 57, 76), MinHeight = 80 });
         styles.Register("ContentControl", new Style { BasedOn = "Control" });
-        styles.Register(nameof(Hyperlink), new Style { BasedOn = "ContentControl", IsFocusable = true, Padding = Insets2.Zero, MinWidth = 0, MinHeight = 0, HorizontalAlignment = ControlAlignment.Start, VerticalAlignment = ControlAlignment.Start, TextColor = new Color(80, 170, 255), ContentHorizontalAlignment = ControlAlignment.Start, ContentVerticalAlignment = ControlAlignment.Center });
-        styles.Register("InspectorView", new Style { BasedOn = "ContentControl", ContentHorizontalAlignment = ControlAlignment.Stretch, ContentVerticalAlignment = ControlAlignment.Start });
+        styles.Register(nameof(Hyperlink), new Style { BasedOn = "ContentControl", IsFocusable = true, Padding = Insets2.Zero, MinWidth = 0, MinHeight = 0, HorizontalAlignment = LayoutAlignment.Start, VerticalAlignment = LayoutAlignment.Start, TextColor = new Color(80, 170, 255), ContentHorizontalAlignment = LayoutAlignment.Start, ContentVerticalAlignment = LayoutAlignment.Center });
+        styles.Register("InspectorView", new Style { BasedOn = "ContentControl", ContentHorizontalAlignment = LayoutAlignment.Stretch, ContentVerticalAlignment = LayoutAlignment.Start });
         styles.Register("Image", new Style { BasedOn = "Control" });
         styles["Control"].FocusColor = new Color(65, 199, 223);
         styles.Register("ToggleButton", new Style { BasedOn = "Button" });
-        styles.Register("Switch", new Style { BasedOn = "ToggleButton", IsFocusable = true, MinWidth = 52, MinHeight = 44, Padding = Insets2.Zero, ContentHorizontalAlignment = ControlAlignment.Start, Background = new Color(75, 85, 100), PressedBackground = new Color(65, 199, 223), DisabledBackground = new Color(50, 57, 67) });
-        styles.Register("CheckBox", new Style { BasedOn = "ToggleButton", IsFocusable = true, Padding = Insets2.Zero, ContentHorizontalAlignment = ControlAlignment.Start });
-        styles.Register("RadioButton", new Style { BasedOn = "CheckBox", IsFocusable = true, ContentHorizontalAlignment = ControlAlignment.Start });
+        styles.Register("Switch", new Style { BasedOn = "ToggleButton", IsFocusable = true, MinWidth = 52, MinHeight = 44, Padding = Insets2.Zero, ContentHorizontalAlignment = LayoutAlignment.Start, Background = new Color(75, 85, 100), PressedBackground = new Color(65, 199, 223), DisabledBackground = new Color(50, 57, 67) });
+        styles.Register("CheckBox", new Style { BasedOn = "ToggleButton", IsFocusable = true, Padding = Insets2.Zero, ContentHorizontalAlignment = LayoutAlignment.Start });
+        styles.Register("RadioButton", new Style { BasedOn = "CheckBox", IsFocusable = true, ContentHorizontalAlignment = LayoutAlignment.Start });
         styles.Register("SelectorButton", new Style { BasedOn = "ToggleButton" });
-        styles.Register("Slider.Horizontal", new Style { BasedOn = "Control", IsFocusable = true, Padding = Insets2.Zero, Axis = ControlOrientation.Horizontal, MinHeight = 24 });
-        styles.Register("Slider.Vertical", new Style { BasedOn = "Control", IsFocusable = true, Padding = Insets2.Zero, Axis = ControlOrientation.Vertical, MinWidth = 24 });
+        styles.Register("Slider.Horizontal", new Style { BasedOn = "Control", IsFocusable = true, Padding = Insets2.Zero, Axis = Orientation.Horizontal, MinHeight = 24 });
+        styles.Register("Slider.Vertical", new Style { BasedOn = "Control", IsFocusable = true, Padding = Insets2.Zero, Axis = Orientation.Vertical, MinWidth = 24 });
         styles.Register("RotationControl", new Style { BasedOn = "Control", IsFocusable = true, Padding = new Insets2(8), MinWidth = 100, MinHeight = 100, Background = new Color(17, 24, 35), BorderColor = new Color(65, 83, 105), TextColor = new Color(65, 199, 223) });
         styles.Register(nameof(TimelineControl), new Style { BasedOn = nameof(Control), IsFocusable = true, Padding = Insets2.Zero, MinWidth = 180, MinHeight = 100 });
         styles.Register(nameof(GridSplitter), new Style { BasedOn = nameof(Control), IsFocusable = true, Padding = Insets2.Zero, BorderThickness = 0 });
         styles.Register("TextBlock", new Style { BasedOn = "Label" });
         styles.Register("Slider", new Style { BasedOn = "Slider.Horizontal" });
-        styles.Register("ScrollBar.Horizontal", new Style { BasedOn = "Control", IsFocusable = true, Padding = Insets2.Zero, Axis = ControlOrientation.Horizontal });
-        styles.Register("ScrollBar.Vertical", new Style { BasedOn = "Control", IsFocusable = true, Padding = Insets2.Zero, Axis = ControlOrientation.Vertical });
+        styles.Register("ScrollBar.Horizontal", new Style { BasedOn = "Control", IsFocusable = true, Padding = Insets2.Zero, Axis = Orientation.Horizontal });
+        styles.Register("ScrollBar.Vertical", new Style { BasedOn = "Control", IsFocusable = true, Padding = Insets2.Zero, Axis = Orientation.Vertical });
         styles.Register("ScrollBar", new Style { BasedOn = "ScrollBar.Vertical" });
         styles.Register("ScrollViewer", new Style { IsSwipeEnabled = true, IsMouseDragEnabled = false, SwipeThreshold = 12, BasedOn = "Panel", Padding = Insets2.Zero });
         styles.Register("TextBox", new Style { BasedOn = "Control", IsFocusable = true, Padding = new Insets2(10, 6), MinHeight = 32, Background = new Color(20, 28, 40), BorderColor = new Color(56, 71, 92) });
@@ -263,7 +264,7 @@ public sealed class UIRegistry
         styles.Register(nameof(AdaptiveTilePanel), new Style { BasedOn = "Panel", Padding = Insets2.Zero, Spacing = 8 });
         styles.Register("MenuBar", new Style { BasedOn = "Control", IsFocusable = true, Height = 36, Padding = Insets2.Zero, BorderColor = new Color(56, 71, 92) });
         styles.Register("ContextMenu", new Style { BasedOn = "Control", IsFocusable = true, Padding = new Insets2(6) });
-        styles.Register("Window", new Style { BasedOn = "ContentControl", ContentHorizontalAlignment = ControlAlignment.Stretch, ContentVerticalAlignment = ControlAlignment.Stretch, Width = 560, Height = 360, MinWidth = 220, MinHeight = 120, Padding = new Insets2(16), TitlebarHeight = 36 });
+        styles.Register("Window", new Style { BasedOn = "ContentControl", ContentHorizontalAlignment = LayoutAlignment.Stretch, ContentVerticalAlignment = LayoutAlignment.Stretch, Width = 560, Height = 360, MinWidth = 220, MinHeight = 120, Padding = new Insets2(16), TitlebarHeight = 36 });
         styles.Register("Dialog", new Style { BasedOn = "Window" });
         styles.Register("OpenFileDialog", new Style { BasedOn = "Dialog", Title = "Open file", Width = 640, Height = 440, MinWidth = 360, MinHeight = 260 });
         styles.Register("FolderSelectorDialog", new Style { BasedOn = "Dialog", Title = "Select folder", Width = 640, Height = 440, MinWidth = 360, MinHeight = 260 });

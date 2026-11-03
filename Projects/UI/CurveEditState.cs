@@ -1,3 +1,4 @@
+using Sachssoft.Engine.Gameplay.Curves;
 namespace Sachssoft.Engine.Controls;
 /// <summary>
 /// One immutable history entry owned by a curve editor.

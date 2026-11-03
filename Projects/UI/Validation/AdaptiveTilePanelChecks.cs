@@ -1,9 +1,9 @@
-using System;
 using Sachssoft.Engine;
 using Sachssoft.Engine.Controls;
 using Sachssoft.Engine.Controls.Input;
 using Sachssoft.Engine.Controls.Layouts;
 using Sachssoft.Engine.Controls.Styling;
+using System;
 
 /// <summary>Checks adaptive tile sizing, retained layout, styles and scrolling.</summary>
 internal static class AdaptiveTilePanelChecks
@@ -61,10 +61,10 @@ internal static class AdaptiveTilePanelChecks
         check(panel.ActualTileSize == new Size2(110, 60), "Without aspect preservation the cross-axis keeps its preferred or minimum dimension");
         panel.MinTileSize = new Size2(16);
         panel.PreserveAspectRatio = true;
-        panel.Orientation = StackOrientation.Vertical;
+        panel.Orientation = Orientation.Vertical;
         workspace.Update(new ControlInputFrame(new Size2(500, 200), TimeSpan.Zero), layout);
         check(panel.ActualTileSize == new Size2(120, 60) && probes[3].Bounds.X == 130 && probes[2].Bounds.Bottom == 200, "Vertical orientation fills columns against the available height");
-        panel.Orientation = StackOrientation.Horizontal;
+        panel.Orientation = Orientation.Horizontal;
         panel.Measure(layout, new Size2(float.PositiveInfinity, float.PositiveInfinity));
         check(panel.DesiredSize == new Size2(540, 50), "Unbounded measurement uses a natural single line instead of an empty extent");
         panel.Arrange(new Bounds2(0, 0, 350, 300));
@@ -127,7 +127,7 @@ internal static class AdaptiveTilePanelChecks
         bool invalidOrientation = false;
         try
         {
-            panel.Orientation = (StackOrientation)99;
+            panel.Orientation = (Orientation)99;
         }
         catch (ArgumentOutOfRangeException)
         {

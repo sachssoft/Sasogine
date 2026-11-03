@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Sachssoft.Engine;
 using System;
 
 namespace Sachssoft.Engine.Controls.Examples;
@@ -157,12 +158,12 @@ public sealed class ControlsAdvancedPage : Grid
         inputCard.Add(Date);
         var loading = new StackPanel()
         {
-            Orientation = StackOrientation.Horizontal,
+            Orientation = Orientation.Horizontal,
             Spacing = 12,
             Height = 44
         };
         loading.Add(new Spinner() { Width = 36, Height = 36 });
-        loading.Add(new Label() { Text = "Loading spinner", VerticalAlignment = ControlAlignment.Center });
+        loading.Add(new Label() { Text = "Loading spinner", VerticalAlignment = LayoutAlignment.Center });
         inputCard.Add(loading);
         var help = new Button()
         {

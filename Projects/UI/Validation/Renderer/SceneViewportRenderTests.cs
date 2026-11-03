@@ -1,9 +1,11 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Controls.Drawing;
 using Sachssoft.Engine.Controls.Input;
 using Sachssoft.Engine.Controls.Layouts;
+using Sachssoft.Engine.Graphics.Rendering;
+using System;
 namespace Sachssoft.Engine.Controls.Examples;
 /// <summary>Compares direct viewports to images, including inherited clipping, nested targets and UI painter order.</summary>
 internal static class SceneViewportRenderTests
@@ -48,11 +50,11 @@ internal static class SceneViewportRenderTests
             Workspace Make(bool direct)
             {
                 Control view=direct ? new SceneViewport { Width=300,Height=200,Background=Color.Black,UseDirectRendering=true,CompositeBackground=nonPremultiplied ? new Color(30,45,60) : null,Render=_=>Geometry(true) } :
-                    new Image { Width=300,Height=200,Source=image,Stretch=ImageStretch.Fill };
-                var panel=new Panel { Width=partial?240:400,Height=partial?160:300,Margin=new Insets2(40,30,0,0),HorizontalAlignment=ControlAlignment.Start,VerticalAlignment=ControlAlignment.Start };
-                view.Margin=new Insets2(20,10,0,0);view.HorizontalAlignment=ControlAlignment.Start;view.VerticalAlignment=ControlAlignment.Start;
+                    new Image { Width=300,Height=200,Source=image,Stretch=StretchMode.Fill };
+                var panel=new Panel { Width=partial?240:400,Height=partial?160:300,Margin=new Insets2(40,30,0,0),HorizontalAlignment=LayoutAlignment.Start,VerticalAlignment=LayoutAlignment.Start };
+                view.Margin=new Insets2(20,10,0,0);view.HorizontalAlignment=LayoutAlignment.Start;view.VerticalAlignment=LayoutAlignment.Start;
                 panel.Add(view);
-                panel.Add(new TextBlock { Text="UI overlay",Width=140,Height=30,Background=Color.Yellow,TextColor=Color.Black,Margin=new Insets2(80,80,0,0),HorizontalAlignment=ControlAlignment.Start,VerticalAlignment=ControlAlignment.Start });
+                panel.Add(new TextBlock { Text="UI overlay",Width=140,Height=30,Background=Color.Yellow,TextColor=Color.Black,Margin=new Insets2(80,80,0,0),HorizontalAlignment=LayoutAlignment.Start,VerticalAlignment=LayoutAlignment.Start });
                 return new Workspace(new Panel { Background=new Color(30,45,60), Children={panel} });
             }
             Color[] Capture(bool direct)

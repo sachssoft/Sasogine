@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Input;
 using System;
 using System.Collections.Generic;
@@ -26,11 +27,11 @@ public class TreeView : ContainerControl
     {
         HorizontalScrollBar = new()
         {
-            Axis = ControlOrientation.Horizontal
+            Axis = Orientation.Horizontal
         };
         VerticalScrollBar = new()
         {
-            Axis = ControlOrientation.Vertical
+            Axis = Orientation.Vertical
         };
         base.Add(HorizontalScrollBar);
         base.Add(VerticalScrollBar);

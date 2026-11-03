@@ -1,3 +1,4 @@
+using Sachssoft.Engine;
 using System.ComponentModel;
 using System.Numerics;
 
@@ -61,7 +62,7 @@ public sealed class TypedMultiValueEditor<T, TNumber> : Grid where T : struct wh
                 var gridChild1 = new TextBlock
                 {
                     Text = groups[row],
-                    VerticalAlignment = ControlAlignment.Center
+                    VerticalAlignment = LayoutAlignment.Center
                 };
                 Children.Add(gridChild1);
                 Cells.Put(gridChild1, row, 0);
@@ -83,7 +84,7 @@ public sealed class TypedMultiValueEditor<T, TNumber> : Grid where T : struct wh
             var gridChild2 = new TextBlock
             {
                 Text = component.Name,
-                VerticalAlignment = ControlAlignment.Center
+                VerticalAlignment = LayoutAlignment.Center
             };
             cell.Children.Add(gridChild2);
             cell.Cells.Put(gridChild2, column: 0);

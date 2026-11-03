@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Input;
 using System;
 using System.Collections.Generic;
@@ -148,7 +149,7 @@ public class ListBox : ContainerControl
         _invalidSelection = IsInvalidSelection;
         ScrollBar = new ScrollBar
         {
-            Orientation = ControlOrientation.Vertical
+            Orientation = Orientation.Vertical
         };
         base.Add(ScrollBar);
     }

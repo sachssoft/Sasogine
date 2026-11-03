@@ -1,5 +1,6 @@
-using System.ComponentModel;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Components.Definitions.Inspectors;
+using System.ComponentModel;
 
 namespace Sachssoft.Engine.Controls.Inspection;
 /// <summary>
@@ -434,7 +435,7 @@ public sealed class InspectorView : ContentControl, IInspectorView
         var label = new TextBlock();
         var content = new StackPanel
         {
-            Orientation = StackOrientation.Horizontal,
+            Orientation = Orientation.Horizontal,
             Spacing = 8
         };
         content.Add(swatch);

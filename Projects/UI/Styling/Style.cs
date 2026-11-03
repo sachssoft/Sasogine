@@ -1,4 +1,7 @@
 using Microsoft.Xna.Framework;
+using Sachssoft.Engine;
+using Sachssoft.Engine.Gameplay.Curves;
+using Sachssoft.Engine.Graphics.Rendering;
 using Sachssoft.Engine.Graphics.Text;
 using System;
 using System.Collections.Generic;
@@ -164,10 +167,10 @@ public sealed class Style
         set => this["AutoPlayInterval"] = ShorthandConverters.Format("Single", value);
     }
     /// <summary>Gets or sets the icon edge relative to an IconValueDisplay value. Defaults to Left.</summary>
-    public IconPlacement IconPlacement
+    public Placement IconPlacement
     {
-        get => _values.TryGetValue("IconPlacement", out string? text) ? ShorthandConverters.Convert<IconPlacement>("IconPlacement", text) : Sachssoft.Engine.Controls.IconPlacement.Left;
-        set => this["IconPlacement"] = ShorthandConverters.Format("IconPlacement", value);
+        get => _values.TryGetValue("IconPlacement", out string? text) ? ShorthandConverters.Convert<Placement>("Placement", text) : Sachssoft.Engine.Placement.Left;
+        set => this["IconPlacement"] = ShorthandConverters.Format("Placement", value);
     }
 
     /// <summary>Gets or sets the IFormattable format for IconValueDisplay data. Empty uses the object's text representation.</summary>
@@ -203,10 +206,10 @@ public sealed class Style
     }
 
     /// <summary>Gets or sets the header-strip edge; the default is Top.</summary>
-    public TabStripPlacement TabStripPlacement
+    public Placement TabStripPlacement
     {
-        get => _values.TryGetValue("TabStripPlacement", out string? text) ? ShorthandConverters.Convert<TabStripPlacement>("TabStripPlacement", text) : Sachssoft.Engine.Controls.TabStripPlacement.Top;
-        set => this["TabStripPlacement"] = ShorthandConverters.Format("TabStripPlacement", value);
+        get => _values.TryGetValue("TabStripPlacement", out string? text) ? ShorthandConverters.Convert<Placement>("Placement", text) : Sachssoft.Engine.Placement.Top;
+        set => this["TabStripPlacement"] = ShorthandConverters.Format("Placement", value);
     }
 
     /// <summary>Gets or sets the logical width of a left or right tab strip, excluding its scrollbar. Defaults to 160.</summary>
@@ -408,18 +411,18 @@ public sealed class Style
     /// <summary>
     /// Typed shorthand for the string value HorizontalAlignment.
     /// </summary>
-    public  ControlAlignment HorizontalAlignment
+    public  LayoutAlignment HorizontalAlignment
     {
-        get => _values.TryGetValue("HorizontalAlignment", out string? text) ? ShorthandConverters.Convert<ControlAlignment>("ControlAlignment", text) : ControlAlignment.Stretch;
-        set => this["HorizontalAlignment"] = ShorthandConverters.Format("ControlAlignment", value);
+        get => _values.TryGetValue("HorizontalAlignment", out string? text) ? ShorthandConverters.Convert<LayoutAlignment>("LayoutAlignment", text) : LayoutAlignment.Stretch;
+        set => this["HorizontalAlignment"] = ShorthandConverters.Format("LayoutAlignment", value);
     }
     /// <summary>
     /// Typed shorthand for the string value VerticalAlignment.
     /// </summary>
-    public  ControlAlignment VerticalAlignment
+    public  LayoutAlignment VerticalAlignment
     {
-        get => _values.TryGetValue("VerticalAlignment", out string? text) ? ShorthandConverters.Convert<ControlAlignment>("ControlAlignment", text) : ControlAlignment.Stretch;
-        set => this["VerticalAlignment"] = ShorthandConverters.Format("ControlAlignment", value);
+        get => _values.TryGetValue("VerticalAlignment", out string? text) ? ShorthandConverters.Convert<LayoutAlignment>("LayoutAlignment", text) : LayoutAlignment.Stretch;
+        set => this["VerticalAlignment"] = ShorthandConverters.Format("LayoutAlignment", value);
     }
     /// <summary>
     /// Typed shorthand for the string value Opacity.
@@ -480,18 +483,18 @@ public sealed class Style
     /// <summary>
     /// Typed shorthand for the string value TextHorizontalAlignment.
     /// </summary>
-    public  ControlAlignment TextHorizontalAlignment
+    public  LayoutAlignment TextHorizontalAlignment
     {
-        get => _values.TryGetValue("TextHorizontalAlignment", out string? text) ? ShorthandConverters.Convert<ControlAlignment>("ControlAlignment", text) : ControlAlignment.Start;
-        set => this["TextHorizontalAlignment"] = ShorthandConverters.Format("ControlAlignment", value);
+        get => _values.TryGetValue("TextHorizontalAlignment", out string? text) ? ShorthandConverters.Convert<LayoutAlignment>("LayoutAlignment", text) : LayoutAlignment.Start;
+        set => this["TextHorizontalAlignment"] = ShorthandConverters.Format("LayoutAlignment", value);
     }
     /// <summary>
     /// Typed shorthand for the string value TextVerticalAlignment.
     /// </summary>
-    public  ControlAlignment TextVerticalAlignment
+    public  LayoutAlignment TextVerticalAlignment
     {
-        get => _values.TryGetValue("TextVerticalAlignment", out string? text) ? ShorthandConverters.Convert<ControlAlignment>("ControlAlignment", text) : ControlAlignment.Center;
-        set => this["TextVerticalAlignment"] = ShorthandConverters.Format("ControlAlignment", value);
+        get => _values.TryGetValue("TextVerticalAlignment", out string? text) ? ShorthandConverters.Convert<LayoutAlignment>("LayoutAlignment", text) : LayoutAlignment.Center;
+        set => this["TextVerticalAlignment"] = ShorthandConverters.Format("LayoutAlignment", value);
     }
     /// <summary>
     /// Typed shorthand for the string value HoverBackground.
@@ -528,10 +531,10 @@ public sealed class Style
     /// <summary>
     /// Typed shorthand for the string value Orientation.
     /// </summary>
-    public  StackOrientation Orientation
+    public  Orientation Orientation
     {
-        get => _values.TryGetValue("Orientation", out string? text) ? ShorthandConverters.Convert<StackOrientation>("StackOrientation", text) : StackOrientation.Vertical;
-        set => this["Orientation"] = ShorthandConverters.Format("StackOrientation", value);
+        get => _values.TryGetValue("Orientation", out string? text) ? ShorthandConverters.Convert<Orientation>("Orientation", text) : Orientation.Vertical;
+        set => this["Orientation"] = ShorthandConverters.Format("Orientation", value);
     }
     /// <summary>
     /// Typed shorthand for the string value Spacing.
@@ -600,10 +603,10 @@ public sealed class Style
     /// <summary>
     /// Typed shorthand for the string value Axis.
     /// </summary>
-    public  ControlOrientation Axis
+    public  Orientation Axis
     {
-        get => _values.TryGetValue("Axis", out string? text) ? ShorthandConverters.Convert<ControlOrientation>("ControlOrientation", text) : ControlOrientation.Horizontal;
-        set => this["Axis"] = ShorthandConverters.Format("ControlOrientation", value);
+        get => _values.TryGetValue("Axis", out string? text) ? ShorthandConverters.Convert<Orientation>("Orientation", text) : Orientation.Horizontal;
+        set => this["Axis"] = ShorthandConverters.Format("Orientation", value);
     }
     /// <summary>
     /// Typed shorthand for the string value Minimum.
@@ -896,18 +899,18 @@ public sealed class Style
     /// <summary>
     /// Typed shorthand for the string value ContentHorizontalAlignment.
     /// </summary>
-    public  ControlAlignment ContentHorizontalAlignment
+    public  LayoutAlignment ContentHorizontalAlignment
     {
-        get => _values.TryGetValue("ContentHorizontalAlignment", out string? text) ? ShorthandConverters.Convert<ControlAlignment>("ControlAlignment", text) : ControlAlignment.Center;
-        set => this["ContentHorizontalAlignment"] = ShorthandConverters.Format("ControlAlignment", value);
+        get => _values.TryGetValue("ContentHorizontalAlignment", out string? text) ? ShorthandConverters.Convert<LayoutAlignment>("LayoutAlignment", text) : LayoutAlignment.Center;
+        set => this["ContentHorizontalAlignment"] = ShorthandConverters.Format("LayoutAlignment", value);
     }
     /// <summary>
     /// Typed shorthand for the string value ContentVerticalAlignment.
     /// </summary>
-    public  ControlAlignment ContentVerticalAlignment
+    public  LayoutAlignment ContentVerticalAlignment
     {
-        get => _values.TryGetValue("ContentVerticalAlignment", out string? text) ? ShorthandConverters.Convert<ControlAlignment>("ControlAlignment", text) : ControlAlignment.Center;
-        set => this["ContentVerticalAlignment"] = ShorthandConverters.Format("ControlAlignment", value);
+        get => _values.TryGetValue("ContentVerticalAlignment", out string? text) ? ShorthandConverters.Convert<LayoutAlignment>("LayoutAlignment", text) : LayoutAlignment.Center;
+        set => this["ContentVerticalAlignment"] = ShorthandConverters.Format("LayoutAlignment", value);
     }
     /// <summary>
     /// Typed shorthand for image Region.
@@ -920,10 +923,10 @@ public sealed class Style
     /// <summary>
     /// Typed shorthand for image Stretch.
     /// </summary>
-    public  ImageStretch Stretch
+    public  StretchMode Stretch
     {
-        get => _values.TryGetValue("Stretch", out string? text) ? ShorthandConverters.Convert<ImageStretch>("ImageStretch", text) : ImageStretch.Uniform;
-        set => this["Stretch"] = ShorthandConverters.Format("ImageStretch", value);
+        get => _values.TryGetValue("Stretch", out string? text) ? ShorthandConverters.Convert<StretchMode>("StretchMode", text) : StretchMode.Uniform;
+        set => this["Stretch"] = ShorthandConverters.Format("StretchMode", value);
     }
     /// <summary>
     /// Typed shorthand for image Tint.

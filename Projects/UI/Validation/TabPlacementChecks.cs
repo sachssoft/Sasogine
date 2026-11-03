@@ -33,10 +33,10 @@ internal static class TabPlacementChecks
         tabs.SelectionChanged += (_, _) => selections++;
         foreach (var placement in new[]
         {
-            TabStripPlacement.Top,
-            TabStripPlacement.Left,
-            TabStripPlacement.Bottom,
-            TabStripPlacement.Right
+            Placement.Top,
+            Placement.Left,
+            Placement.Bottom,
+            Placement.Right
         }
 
         )
@@ -46,13 +46,13 @@ internal static class TabPlacementChecks
             Bounds2 strip = tabs.HeaderScrollViewer.Bounds, page = tabs.SelectedItem!.Bounds;
             check(placement switch
             {
-                TabStripPlacement.Top => strip.Bottom == page.Y && strip.Y == 0 && page.Bottom == 300,
-                TabStripPlacement.Left => strip.Right == page.X && strip.X == 0 && page.Right == 400,
-                TabStripPlacement.Bottom => page.Bottom == strip.Y && page.Y == 0 && strip.Bottom == 300,
+                Placement.Top => strip.Bottom == page.Y && strip.Y == 0 && page.Bottom == 300,
+                Placement.Left => strip.Right == page.X && strip.X == 0 && page.Right == 400,
+                Placement.Bottom => page.Bottom == strip.Y && page.Y == 0 && strip.Bottom == 300,
                 _ => page.Right == strip.X && page.X == 0 && strip.Right == 400
             }, placement + " places the header beside, without overlapping, the page");
-            bool vertical = placement is TabStripPlacement.Left or TabStripPlacement.Right;
-            check(headers.Orientation == (vertical ? StackOrientation.Vertical : StackOrientation.Horizontal), placement + " sets the header stack orientation");
+            bool vertical = placement is Placement.Left or Placement.Right;
+            check(headers.Orientation == (vertical ? Orientation.Vertical : Orientation.Horizontal), placement + " sets the header stack orientation");
             check(vertical ? strip.Width == 110 : strip.Height == 38, placement + " uses the correct strip dimension");
             check(tabs.SelectedIndex == 0 && selections == 0 && tabs.Items[0].Workspace == workspace && tabs.Items[1].Workspace is null, "Changing placement preserves selection and page ownership");
             check(ReferenceEquals(firstHeader, headers.Children[0]), "Placement changes reuse header controls");
@@ -70,7 +70,7 @@ internal static class TabPlacementChecks
             check(bytes == 0, placement + " retains an allocation-free cached update/layout");
         }
 
-        tabs.TabStripPlacement = TabStripPlacement.Left;
+        tabs.TabStripPlacement = Placement.Left;
         Frame();
         workspace.Focus(headers.Children[0]);
         workspace.Update(new ControlInputFrame(idle.Size, TimeSpan.Zero, new[] { new ControlInputEvent(ControlInputEventType.KeyDown, Key: Keys.Down) }), layout);
@@ -80,34 +80,34 @@ internal static class TabPlacementChecks
         var style = new Style
         {
             BasedOn = "TabControl",
-            TabStripPlacement = TabStripPlacement.Bottom,
+            TabStripPlacement = Placement.Bottom,
             HeaderWidth = 135
         };
         workspace.Registry.Styles.Register("Test.Tabs", style);
         tabs.StyleId = "Test.Tabs";
         Frame();
-        check(tabs.TabStripPlacement == TabStripPlacement.Left && tabs.HeaderWidth == 110, "Local placement and width override styles");
+        check(tabs.TabStripPlacement == Placement.Left && tabs.HeaderWidth == 110, "Local placement and width override styles");
         tabs.ResetStyleProperty(nameof(TabControl.TabStripPlacement));
         tabs.ResetStyleProperty(nameof(TabControl.HeaderWidth));
         Frame();
-        check(tabs.TabStripPlacement == TabStripPlacement.Bottom && tabs.HeaderWidth == 135, "Reset restores the central placement style");
-        style.TabStripPlacement = TabStripPlacement.Right;
+        check(tabs.TabStripPlacement == Placement.Bottom && tabs.HeaderWidth == 135, "Reset restores the central placement style");
+        style.TabStripPlacement = Placement.Right;
         Frame();
-        check(tabs.TabStripPlacement == TabStripPlacement.Right && tabs.HeaderScrollViewer.Bounds.Width == 135, "Live style changes update the edge layout");
+        check(tabs.TabStripPlacement == Placement.Right && tabs.HeaderScrollViewer.Bounds.Width == 135, "Live style changes update the edge layout");
         bool rejected = false;
         try
         {
-            tabs.TabStripPlacement = (TabStripPlacement)99;
+            tabs.TabStripPlacement = (Placement)99;
         }
         catch (ArgumentOutOfRangeException)
         {
             rejected = true;
         }
 
-        check(rejected && tabs.TabStripPlacement == TabStripPlacement.Right, "Invalid edges leave placement unchanged");
+        check(rejected && tabs.TabStripPlacement == Placement.Right, "Invalid edges leave placement unchanged");
         var many = new TabControl
         {
-            TabStripPlacement = TabStripPlacement.Left,
+            TabStripPlacement = Placement.Left,
             HeaderWidth = 100,
             ScrollBarThickness = 14
         };
@@ -127,7 +127,7 @@ internal static class TabPlacementChecks
         many.Measure(layout, new Size2(float.PositiveInfinity, float.PositiveInfinity));
         many.Arrange(new Bounds2(0, 0, 320, 160), true);
         check(viewer.VerticalScrollBar.IsVisible && viewer.Bounds.Width == 114 && viewer.ViewportBounds.Width == 100, "Finite arrangement reserves vertical scrollbar space after unbounded measurement");
-        many.TabStripPlacement = TabStripPlacement.Bottom;
+        many.TabStripPlacement = Placement.Bottom;
         scrolling.Update(small, layout);
         scrolling.Update(small, layout);
         check(viewer.HorizontalScrollBar.IsVisible && !viewer.VerticalScrollBar.IsVisible && viewer.HorizontalScrollBar.Value > 0, "Changing orientation moves overflow onto the horizontal axis");
@@ -172,19 +172,19 @@ internal static class TabPlacementChecks
         tabs.StretchHeaders = true;
         Frame();
         check(changes == 1, "StretchHeaders notifies only when its effective value changes");
-        foreach (TabStripPlacement placement in new[]
+        foreach (Placement placement in new[]
         {
-            TabStripPlacement.Top,
-            TabStripPlacement.Bottom,
-            TabStripPlacement.Left,
-            TabStripPlacement.Right
+            Placement.Top,
+            Placement.Bottom,
+            Placement.Left,
+            Placement.Right
         }
 
         )
         {
             tabs.TabStripPlacement = placement;
             Frame();
-            bool vertical = placement is TabStripPlacement.Left or TabStripPlacement.Right;
+            bool vertical = placement is Placement.Left or Placement.Right;
             float main = vertical ? headers.Bounds.Height : headers.Bounds.Width;
             float expected = (main - headers.Spacing * 2) / 3;
             for (int i = 0; i < headers.Children.Count; i++)
@@ -205,7 +205,7 @@ internal static class TabPlacementChecks
             check(allocated == 0, placement + " stretches headers without steady-frame allocations: " + allocated + " bytes");
         }
 
-        tabs.TabStripPlacement = TabStripPlacement.Top;
+        tabs.TabStripPlacement = Placement.Top;
         Frame();
         tabs.Measure(layout, new Size2(float.PositiveInfinity, float.PositiveInfinity));
         tabs.Arrange(new Bounds2(0, 0, 480, 260), true);
@@ -220,7 +220,7 @@ internal static class TabPlacementChecks
         tabs.StretchHeaders = false;
         Frame();
         check(headers.Children[0].Bounds.Width < headers.Children[1].Bounds.Width, "Disabling stretching restores natural horizontal widths");
-        tabs.TabStripPlacement = TabStripPlacement.Left;
+        tabs.TabStripPlacement = Placement.Left;
         Frame();
         check(headers.Children[0].Bounds.Height == tabs.HeaderHeight, "Disabling stretching restores configured side-header heights");
         var style = new Style
@@ -247,7 +247,7 @@ internal static class TabPlacementChecks
         check(headers.Children[0].Bounds.Height == headers.Bounds.Height, "A single side header fills the available height");
         var probe = new MeasureProbe();
         tabs.Items[0].Content = probe;
-        tabs.TabStripPlacement = TabStripPlacement.Top;
+        tabs.TabStripPlacement = Placement.Top;
         tabs.Width = 900;
         Frame();
         Frame();

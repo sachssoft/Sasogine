@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Input;
 using System;
 
@@ -19,7 +20,7 @@ public sealed class Slider : RangeControl
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "Slider";
-    private float ThumbExtent => Orientation == ControlOrientation.Horizontal ? ConfigThumbSize.Width : ConfigThumbSize.Height;
+    private float ThumbExtent => Orientation == Orientation.Horizontal ? ConfigThumbSize.Width : ConfigThumbSize.Height;
 
     /// <summary>
     /// Gets thumb bounds.
@@ -30,7 +31,7 @@ public sealed class Slider : RangeControl
         {
             Size2 size = ConfigThumbSize;
             Bounds2 b = ContentBounds;
-            return Orientation == ControlOrientation.Horizontal ? new Bounds2(b.X + MathF.Max(0, b.Width - size.Width) * Fraction, b.Y + (b.Height - size.Height) / 2, size.Width, size.Height) : new Bounds2(b.X + (b.Width - size.Width) / 2, b.Y + MathF.Max(0, b.Height - size.Height) * (1 - Fraction), size.Width, size.Height);
+            return Orientation == Orientation.Horizontal ? new Bounds2(b.X + MathF.Max(0, b.Width - size.Width) * Fraction, b.Y + (b.Height - size.Height) / 2, size.Width, size.Height) : new Bounds2(b.X + (b.Width - size.Width) / 2, b.Y + MathF.Max(0, b.Height - size.Height) * (1 - Fraction), size.Width, size.Height);
         }
     }
 
@@ -40,13 +41,13 @@ public sealed class Slider : RangeControl
         ValidateRange();
         Size2 size = ConfigThumbSize;
         ValidateSize(size, false);
-        return Orientation == ControlOrientation.Horizontal ? new Size2(120, MathF.Max(size.Height, 24)) : new Size2(MathF.Max(size.Width, 24), 120);
+        return Orientation == Orientation.Horizontal ? new Size2(120, MathF.Max(size.Height, 24)) : new Size2(MathF.Max(size.Width, 24), 120);
     }
 
     private void Position(Vector2 point)
     {
         Bounds2 b = ContentBounds;
-        bool horizontal = Orientation == ControlOrientation.Horizontal;
+        bool horizontal = Orientation == Orientation.Horizontal;
         float length = (horizontal ? b.Width : b.Height) - ThumbExtent;
         if (length <= 0)
             return;
@@ -87,7 +88,7 @@ public sealed class Slider : RangeControl
     {
         Bounds2 b = ContentBounds;
         float t = ConfigTrackThickness;
-        bool horizontal = Orientation == ControlOrientation.Horizontal;
+        bool horizontal = Orientation == Orientation.Horizontal;
         var track = horizontal ? new Bounds2(Padding.Left + ThumbExtent / 2, Padding.Top + (b.Height - t) / 2, MathF.Max(0, b.Width - ThumbExtent), t) : new Bounds2(Padding.Left + (b.Width - t) / 2, Padding.Top + ThumbExtent / 2, t, MathF.Max(0, b.Height - ThumbExtent));
         string variant = horizontal ? "Slider.Horizontal" : "Slider.Vertical";
         DrawVariant(context, variant, "Track", track, "Normal", new Color(30, 38, 50));

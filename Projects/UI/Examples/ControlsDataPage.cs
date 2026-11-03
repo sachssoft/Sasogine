@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Sachssoft.Engine;
 using Sachssoft.Engine.Input;
 using System;
 using System.Globalization;
@@ -37,7 +38,7 @@ public sealed class ControlsDataPage : Grid
         var gridChild2 = new Label()
         {
             Text = "Project",
-            VerticalAlignment = ControlAlignment.Center
+            VerticalAlignment = LayoutAlignment.Center
         };
         form.Children.Add(gridChild2);
         form.Cells.Put(gridChild2);
@@ -51,7 +52,7 @@ public sealed class ControlsDataPage : Grid
         var gridChild4 = new Label()
         {
             Text = "Auto | 2* | *",
-            VerticalAlignment = ControlAlignment.Center
+            VerticalAlignment = LayoutAlignment.Center
         };
         form.Children.Add(gridChild4);
         form.Cells.Put(gridChild4, column: 2);
@@ -65,7 +66,7 @@ public sealed class ControlsDataPage : Grid
         };
         table.Columns.Add(new DataTableTextColumn<ControlsDemoRow>("Library", static row => row.Name, static (row, text) => row.Name = string.IsNullOrWhiteSpace(text) ? throw new ArgumentException("A name is required.") : text) { Width = 290 });
         table.Columns.Add(new DataTableTextColumn<ControlsDemoRow>("Version", static row => row.Version, static (row, text) => row.Version = text) { Width = 160 });
-        table.Columns.Add(new DataTableTextColumn<ControlsDemoRow>("Downloads", static row => row.Downloads.ToString("N0", CultureInfo.InvariantCulture), static (row, text) => row.Downloads = int.Parse(text, NumberStyles.Integer | NumberStyles.AllowThousands, CultureInfo.InvariantCulture), static (a, b) => a.Downloads.CompareTo(b.Downloads)) { Width = 170, TextAlignment = ControlAlignment.End });
+        table.Columns.Add(new DataTableTextColumn<ControlsDemoRow>("Downloads", static row => row.Downloads.ToString("N0", CultureInfo.InvariantCulture), static (row, text) => row.Downloads = int.Parse(text, NumberStyles.Integer | NumberStyles.AllowThousands, CultureInfo.InvariantCulture), static (a, b) => a.Downloads.CompareTo(b.Downloads)) { Width = 170, TextAlignment = LayoutAlignment.End });
         table.Columns.Add(new DataTableTextColumn<ControlsDemoRow>("License", static row => row.License) { Width = 180 });
         table.Columns.Add(new DataTableTextColumn<ControlsDemoRow>("Notes", static row => "Explicit delegates / no reflection") { Width = 340 });
         string[] names =

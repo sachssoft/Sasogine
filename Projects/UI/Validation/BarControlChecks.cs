@@ -1,9 +1,9 @@
-using System;
 using Sachssoft.Engine;
 using Sachssoft.Engine.Controls;
 using Sachssoft.Engine.Controls.Drawing;
 using Sachssoft.Engine.Controls.Input;
 using Sachssoft.Engine.Controls.Layouts;
+using System;
 
 internal static class BarControlChecks
 {
@@ -179,14 +179,14 @@ internal static class BarControlChecks
         Reject<InvalidOperationException>(() => statusButton.Content = text, check, "Status content cannot have two owners");
         using var statusRoot = new Workspace(status);
         statusRoot.Update(frame, layout);
-        check(status.Orientation == StackOrientation.Horizontal && statusButton.Bounds.X == 53, "Status strips form a horizontal row");
+        check(status.Orientation == Orientation.Horizontal && statusButton.Bounds.X == 53, "Status strips form a horizontal row");
         check(text.Parent == statusText, "StatusStrip uses immediate Content ownership");
         statusText.Content = null;
         statusButton.Content = text;
         check(text.Parent == statusButton, "Status content can move after explicit release");
         statusRoot.Styles["StatusBar"]["Orientation"] = "Vertical";
         statusRoot.Update(frame, layout);
-        check(status.Orientation == StackOrientation.Vertical, "Status bar defaults do not block central styles");
+        check(status.Orientation == Orientation.Vertical, "Status bar defaults do not block central styles");
         var empty = new ToolBox
         {
             Padding = Insets2.Zero
@@ -241,11 +241,11 @@ internal static class BarControlChecks
         first.Length = GridLength.Full;
         workspace.Update(new ControlInputFrame(new Size2(100, 80), TimeSpan.Zero), layout);
         check(first.Bounds.Width == 0 && second.Bounds.Width == 0, "Insufficient remaining space never produces negative proportional slots");
-        bar.Orientation = StackOrientation.Vertical;
+        bar.Orientation = Orientation.Vertical;
         workspace.Update(new ControlInputFrame(new Size2(80, 600), TimeSpan.Zero), layout);
         check(automatic.Bounds.Height == 20 && fixedStrip.Bounds.Height == 100 && first.Bounds.Height == 155 && second.Bounds.Height == 310,
             "Vertical orientation distributes lengths along height");
-        bar.Orientation = StackOrientation.Horizontal;
+        bar.Orientation = Orientation.Horizontal;
         bar.Measure(layout, new Size2(float.PositiveInfinity, 80));
         check(bar.DesiredSize.Width == 265, "Unbounded proportional measurement falls back to content sizing");
         first.Length = GridLength.Proportion(0);

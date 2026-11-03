@@ -1,3 +1,4 @@
+using Sachssoft.Engine;
 using System;
 using System.ComponentModel;
 
@@ -45,7 +46,7 @@ public sealed class AdaptiveTilePanel : ContainerControl
     private StyleProperty<Size2> _preferredTileSize = new(new Size2(128));
 
     /// <summary>Stores the styled Orientation and its optional local override.</summary>
-    private StyleProperty<StackOrientation> _orientation = new(StackOrientation.Horizontal);
+    private StyleProperty<Orientation> _orientation = new(Orientation.Horizontal);
 
     /// <summary>Stores the styled PreserveAspectRatio and its optional local override.</summary>
     private StyleProperty<bool> _preserveAspectRatio = new(true);
@@ -78,7 +79,7 @@ public sealed class AdaptiveTilePanel : ContainerControl
 
     /// <summary>Gets or sets the wrapping direction. Horizontal fills rows; Vertical fills columns. Defaults to Horizontal.</summary>
     /// <exception cref = "ArgumentOutOfRangeException">The value is outside the documented range.</exception>
-    public StackOrientation Orientation
+    public Orientation Orientation
     {
         get => _orientation.Value;
         set
@@ -150,7 +151,7 @@ public sealed class AdaptiveTilePanel : ContainerControl
             _measuredTileSize = tile;
         }
 
-        bool horizontal = Orientation == StackOrientation.Horizontal;
+        bool horizontal = Orientation == Orientation.Horizontal;
         int index = 0;
         foreach (Control child in Children)
         {
@@ -210,7 +211,7 @@ public sealed class AdaptiveTilePanel : ContainerControl
         cells = 1;
         if (count == 0)
             return Size2.Zero;
-        bool horizontal = Orientation == StackOrientation.Horizontal;
+        bool horizontal = Orientation == Orientation.Horizontal;
         Size2 preferred = PreferredTileSize;
         Size2 minimum = MinTileSize;
         double scale = PreserveAspectRatio ? Math.Max(1, Math.Max((double)minimum.Width / preferred.Width, (double)minimum.Height / preferred.Height)) : 1;
@@ -256,14 +257,14 @@ public sealed class AdaptiveTilePanel : ContainerControl
         if (count == 0)
             return Size2.Zero;
         int lines = (count - 1) / cells + 1;
-        int columns = Orientation == StackOrientation.Horizontal ? cells : lines;
-        int rows = Orientation == StackOrientation.Horizontal ? lines : cells;
+        int columns = Orientation == Orientation.Horizontal ? cells : lines;
+        int rows = Orientation == Orientation.Horizontal ? lines : cells;
         double width = columns * (double)tile.Width + (columns - 1d) * Spacing;
         double height = rows * (double)tile.Height + (rows - 1d) * Spacing;
         // Avoid a phantom overflow caused by summing rounded Single-precision tile sizes.
-        if (Orientation == StackOrientation.Horizontal && float.IsFinite(available.Width))
+        if (Orientation == Orientation.Horizontal && float.IsFinite(available.Width))
             width = Math.Max(available.Width, tile.Width);
-        if (Orientation == StackOrientation.Vertical && float.IsFinite(available.Height))
+        if (Orientation == Orientation.Vertical && float.IsFinite(available.Height))
             height = Math.Max(available.Height, tile.Height);
         return new Size2(ToExtent(width), ToExtent(height));
     }
@@ -289,9 +290,9 @@ public sealed class AdaptiveTilePanel : ContainerControl
 
     /// <summary>Validates the supported wrapping orientations.</summary>
     /// <param name = "value">The requested wrapping direction.</param>
-    private static void ValidateOrientation(StackOrientation value)
+    private static void ValidateOrientation(Orientation value)
     {
-        if (value is not (StackOrientation.Horizontal or StackOrientation.Vertical))
+        if (value is not (Orientation.Horizontal or Orientation.Vertical))
             throw new ArgumentOutOfRangeException(nameof(value));
     }
 
@@ -322,7 +323,7 @@ public sealed class AdaptiveTilePanel : ContainerControl
 
                 case nameof(Orientation):
                 {
-                    StackOrientation value = Converters.Convert<StackOrientation>("StackOrientation", entry.Value);
+                    Orientation value = Converters.Convert<Orientation>("Orientation", entry.Value);
                     ValidateOrientation(value);
                     if (_orientation.Apply(value))
                         NotifyPropertyChanged(OrientationArgs);
@@ -404,7 +405,7 @@ public sealed class AdaptiveTilePanel : ContainerControl
     {
         base.ResetStyledValues();
         _minTileSize.BeginStyle(new Size2(16));
-        _orientation.BeginStyle(StackOrientation.Horizontal);
+        _orientation.BeginStyle(Orientation.Horizontal);
         _preferredTileSize.BeginStyle(new Size2(128));
         _preserveAspectRatio.BeginStyle(true);
         _spacing.BeginStyle(8);

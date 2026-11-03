@@ -1,3 +1,4 @@
+using Sachssoft.Engine;
 namespace Sachssoft.Engine.Controls.Inspection;
 /// <summary>
 /// Lays out a property with its label above the editor when horizontal space is limited.
@@ -35,7 +36,7 @@ internal sealed class InspectorFieldRow : ContainerControl
             Text = title,
             ToolTip = title,
             WrapText = true,
-            VerticalAlignment = ControlAlignment.Center
+            VerticalAlignment = LayoutAlignment.Center
         };
         _editor = editor;
         _menu = menu;

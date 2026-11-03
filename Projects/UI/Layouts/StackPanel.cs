@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Sachssoft.Engine;
 using System;
 
 namespace Sachssoft.Engine.Controls.Layouts;
@@ -7,18 +8,18 @@ namespace Sachssoft.Engine.Controls.Layouts;
 /// </summary>
 public class StackPanel : ContainerControl
 {
-    private readonly StackOrientation _defaultOrientation;
+    private readonly Orientation _defaultOrientation;
     /// <summary>
     /// Initializes a stack panel.
     /// </summary>
-    public StackPanel() : this(StackOrientation.Vertical)
+    public StackPanel() : this(Orientation.Vertical)
     {
     }
 
     /// <summary>
     /// Creates a stack with a style-resettable orientation fallback.
     /// </summary>
-    protected StackPanel(StackOrientation defaultOrientation)
+    protected StackPanel(Orientation defaultOrientation)
     {
         _defaultOrientation = defaultOrientation;
         _styleOrientation = new(defaultOrientation);
@@ -32,7 +33,7 @@ public class StackPanel : ContainerControl
     /// <summary>
     /// Gets the effective Orientation value or sets a local override.
     /// </summary>
-    public StackOrientation Orientation { get => ConfigOrientation; set => ConfigOrientation = value; }
+    public Orientation Orientation { get => ConfigOrientation; set => ConfigOrientation = value; }
     /// <summary>
     /// Gets the effective Spacing value or sets a local override.
     /// </summary>
@@ -41,9 +42,9 @@ public class StackPanel : ContainerControl
     /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
-        if (!float.IsFinite(Spacing) || Spacing < 0 || Orientation is not (StackOrientation.Vertical or StackOrientation.Horizontal))
+        if (!float.IsFinite(Spacing) || Spacing < 0 || Orientation is not (Orientation.Vertical or Orientation.Horizontal))
             throw new InvalidOperationException("Invalid stack configuration.");
-        bool vertical = Orientation == StackOrientation.Vertical;
+        bool vertical = Orientation == Orientation.Vertical;
         float main = 0, cross = 0;
         int count = 0;
         foreach (Control child in Children)
@@ -63,7 +64,7 @@ public class StackPanel : ContainerControl
     /// <inheritdoc/>
     protected override void ArrangeOverride(Bounds2 contentBounds)
     {
-        bool vertical = Orientation == StackOrientation.Vertical;
+        bool vertical = Orientation == Orientation.Vertical;
         float offset = 0;
         foreach (Control child in Children)
         {
@@ -79,9 +80,9 @@ public class StackPanel : ContainerControl
         }
     }
 
-    private StyleProperty<StackOrientation> _styleOrientation = new(StackOrientation.Vertical);
+    private StyleProperty<Orientation> _styleOrientation = new(Orientation.Vertical);
     private static readonly System.ComponentModel.PropertyChangedEventArgs OrientationChangedArgs = new(nameof(Orientation));
-    internal StackOrientation ConfigOrientation
+    internal Orientation ConfigOrientation
     {
         get => _styleOrientation.Value;
         set
@@ -114,7 +115,7 @@ public class StackPanel : ContainerControl
             switch (entry.Key)
             {
                 case "Orientation":
-                    if (_styleOrientation.Apply(Converters.Convert<StackOrientation>("StackOrientation", entry.Value)))
+                    if (_styleOrientation.Apply(Converters.Convert<Orientation>("Orientation", entry.Value)))
                         NotifyPropertyChanged(OrientationChangedArgs);
                     break;
                 case "Spacing":

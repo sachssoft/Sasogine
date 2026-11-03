@@ -149,7 +149,7 @@ internal static class ListBoxSwipeChecks
         Frame(Touch(ControlInputEventType.PointerMove, 50, -2000));
         Frame(Touch(ControlInputEventType.PointerMove, 50, -2030), Touch(ControlInputEventType.PointerUp, 50, -2040));
         check(outer.VerticalScrollBar.Value == 40 && !inner.IsSwiping, "List boundary handoff consumes only new movement in the parent");
-        foreach (ControlOrientation orientation in new[] { ControlOrientation.Horizontal, ControlOrientation.Vertical })
+        foreach (Orientation orientation in new[] { Orientation.Horizontal, Orientation.Vertical })
         {
             var page = CreateList();
             var carousel = new Carousel { Orientation = orientation, Transition = CarouselTransition.None, NavigationMode = CarouselNavigationMode.Swipe, ShowIndicators = false };
@@ -158,10 +158,10 @@ internal static class ListBoxSwipeChecks
             pages.Update(idle, layout);
             pages.Update(new ControlInputFrame(idle.Size, TimeSpan.Zero, new[] { Touch(ControlInputEventType.PointerDown, 150, 140), Touch(ControlInputEventType.PointerMove, 150, 60), Touch(ControlInputEventType.PointerUp, 150, 40) }), layout);
             check(page.ScrollBar.Value == 100 && carousel.SelectedIndex == 0, "List scrolling wins over " + orientation + " carousel paging");
-            if (orientation == ControlOrientation.Vertical) page.ScrollBar.Value = page.ScrollBar.Maximum;
+            if (orientation == Orientation.Vertical) page.ScrollBar.Value = page.ScrollBar.Maximum;
             pages.Update(idle, layout);
-            var end = orientation == ControlOrientation.Horizontal ? new Vector2(30, 100) : new Vector2(150, 20);
-            var start = orientation == ControlOrientation.Horizontal ? new Vector2(230, 100) : new Vector2(150, 140);
+            var end = orientation == Orientation.Horizontal ? new Vector2(30, 100) : new Vector2(150, 20);
+            var start = orientation == Orientation.Horizontal ? new Vector2(230, 100) : new Vector2(150, 140);
             pages.Update(new ControlInputFrame(idle.Size, TimeSpan.Zero, new[] { Touch(ControlInputEventType.PointerDown, start.X, start.Y), Touch(ControlInputEventType.PointerMove, end.X, end.Y), Touch(ControlInputEventType.PointerUp, end.X, end.Y) }), layout);
             check(carousel.SelectedIndex == 1, "The parent carousel can consume its axis or an exhausted list boundary");
         }
