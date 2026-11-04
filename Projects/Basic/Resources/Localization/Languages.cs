@@ -27,9 +27,9 @@ public static class Languages
         RussianPluralSelector =
             quantity =>
             {
-                int value = Math.Abs(quantity);
-                int mod10 = value % 10;
-                int mod100 = value % 100;
+                long value = Math.Abs((long)quantity);
+                long mod10 = value % 10;
+                long mod100 = value % 100;
 
                 if (mod10 == 1 && mod100 != 11)
                     return LocalizationPluralCase.One;
@@ -47,9 +47,9 @@ public static class Languages
         PolishPluralSelector =
             quantity =>
             {
-                int value = Math.Abs(quantity);
-                int mod10 = value % 10;
-                int mod100 = value % 100;
+                long value = Math.Abs((long)quantity);
+                long mod10 = value % 10;
+                long mod100 = value % 100;
 
                 if (value == 1)
                     return LocalizationPluralCase.One;
@@ -67,7 +67,7 @@ public static class Languages
         CzechPluralSelector =
             quantity =>
             {
-                int value = Math.Abs(quantity);
+                long value = Math.Abs((long)quantity);
 
                 return value switch
                 {
@@ -81,7 +81,7 @@ public static class Languages
         SlovenianPluralSelector =
             quantity =>
             {
-                int mod100 = Math.Abs(quantity) % 100;
+                long mod100 = Math.Abs((long)quantity) % 100;
 
                 return mod100 switch
                 {
@@ -96,9 +96,9 @@ public static class Languages
         LithuanianPluralSelector =
             quantity =>
             {
-                int value = Math.Abs(quantity);
-                int mod10 = value % 10;
-                int mod100 = value % 100;
+                long value = Math.Abs((long)quantity);
+                long mod10 = value % 10;
+                long mod100 = value % 100;
 
                 if (mod10 == 1 &&
                     mod100 is not (>= 11 and <= 19))
@@ -119,9 +119,9 @@ public static class Languages
         LatvianPluralSelector =
             quantity =>
             {
-                int value = Math.Abs(quantity);
-                int mod10 = value % 10;
-                int mod100 = value % 100;
+                long value = Math.Abs((long)quantity);
+                long mod10 = value % 10;
+                long mod100 = value % 100;
 
                 if (mod10 == 0 ||
                     mod100 is >= 11 and <= 19)
@@ -139,8 +139,8 @@ public static class Languages
         RomanianPluralSelector =
             quantity =>
             {
-                int value = Math.Abs(quantity);
-                int mod100 = value % 100;
+                long value = Math.Abs((long)quantity);
+                long mod100 = value % 100;
 
                 if (value == 1)
                     return LocalizationPluralCase.One;

@@ -38,7 +38,7 @@ public static class Localized
         ArgumentNullException.ThrowIfNull(application);
         ArgumentException.ThrowIfNullOrEmpty(key);
 
-        return application.Localization.Entries.GetValue(
+        return application.Localization.GetValue(
             key,
             defaultValue);
     }

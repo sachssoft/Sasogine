@@ -29,7 +29,15 @@ public sealed class LocalizationBinding : IDisposable
         _setter = setter;
 
         _application.Localization.LanguageChanged += OnLanguageChanged;
-        UpdateValue();
+        try
+        {
+            UpdateValue();
+        }
+        catch
+        {
+            _application.Localization.LanguageChanged -= OnLanguageChanged;
+            throw;
+        }
     }
 
     /// <inheritdoc/>
@@ -52,6 +60,6 @@ public sealed class LocalizationBinding : IDisposable
         if (_disposed)
             return;
 
-        _setter(_application.Localization.Entries.GetValue(_key, _fallback));
+        _setter(_application.Localization.GetValue(_key, _fallback));
     }
 }

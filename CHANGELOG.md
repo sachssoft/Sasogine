@@ -20,6 +20,8 @@ All notable changes to this project will be documented in this file.
 </small>
 
 ## [0.14.0-alpha] - Planned
+* [Feature] Added XML localization tables and a managed translation-table asset with text and plural variants.
+* [Bug] Localization falls back per missing text key and uses language-specific plural forms through the manager. Failed initial bindings no longer leave an event subscription behind.
 * [Feature] Added immutable `ProductInfo` with currency metadata, localized prices, and separate price components for custom font selection.
 * [Feature] Added `CornerType` and corner-size overloads to `ShapeBatch` for filled and stroked rectangles, including brush, pen, and transformation support.
 * [Feature] Added PackageContainer for versioned packages with application-defined identifiers, separate metadata streams, and per-entry Brotli compression.

@@ -205,6 +205,44 @@ public sealed class LocalizationManager
         return _languages.TryGetValue(language.Name, out entry);
     }
 
+    /// <summary>
+    /// Gets a localized string, falling back per key when the active translation is missing.
+    /// </summary>
+    /// <param name="key">The localization key.</param>
+    /// <param name="defaultValue">The value used when neither language provides a translation.</param>
+    /// <returns>The resolved translation or <paramref name="defaultValue"/>.</returns>
+    public string? GetValue(string key, string? defaultValue = null)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+
+        return (TryGetEntry(CurrentLanguage, out LanguageEntry? entry) ? entry.Dictionary.GetValue(key) : null)
+            ?? (TryGetEntry(FallbackLanguage, out LanguageEntry? fallback) ? fallback.Dictionary.GetValue(key) : null)
+            ?? defaultValue;
+    }
+
+    /// <summary>
+    /// Gets a pluralized string using the rules of the language that supplies the translation.
+    /// </summary>
+    /// <param name="key">The localization key.</param>
+    /// <param name="quantity">The integer quantity used to select the plural form.</param>
+    /// <param name="defaultValue">The value used when neither language provides a translation.</param>
+    /// <returns>The resolved translation template or <paramref name="defaultValue"/>.</returns>
+    public string? GetValue(string key, int quantity, string? defaultValue = null)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+
+        return (TryGetEntry(CurrentLanguage, out LanguageEntry? entry)
+                ? entry.Dictionary.GetValue(key, entry.GetPluralCase(quantity))
+                : null)
+            ?? (TryGetEntry(FallbackLanguage, out LanguageEntry? fallback)
+                ? fallback.Dictionary.GetValue(key, fallback.GetPluralCase(quantity))
+                : null)
+            ?? defaultValue;
+    }
+
+    /// <summary>
+    /// Closes registration and the registered dictionaries while keeping language selection available.
+    /// </summary>
     internal void Close()
     {
         if (_isClosed)

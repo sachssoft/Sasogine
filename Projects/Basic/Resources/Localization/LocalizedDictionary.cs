@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace Sachssoft.Engine.Resources.Localization;
 
@@ -33,6 +36,54 @@ public class LocalizedDictionary
     /// Gets a value indicating whether this dictionary is closed for modifications.
     /// </summary>
     public bool IsClosed => _isClosed;
+
+    /// <summary>
+    /// Reads and closes a translation table from a localization XML document.
+    /// </summary>
+    /// <param name="stream">The XML stream, which remains open.</param>
+    /// <returns>A read-only translation table.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is null.</exception>
+    /// <exception cref="XmlException">The document contains invalid or prohibited XML.</exception>
+    /// <exception cref="InvalidDataException">The table contains invalid or duplicate entries.</exception>
+    public static LocalizedDictionary ReadXml(Stream stream)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+
+        using var reader = XmlReader.Create(stream, new XmlReaderSettings
+        {
+            DtdProcessing = DtdProcessing.Prohibit,
+            XmlResolver = null
+        });
+
+        var root = XDocument.Load(reader, LoadOptions.PreserveWhitespace).Root;
+        if (root is null || root.Name != "localization")
+            throw new InvalidDataException("Expected a localization root element.");
+
+        RejectMixedContent(root);
+        var dictionary = new LocalizedDictionary();
+        foreach (XElement element in root.Elements())
+        {
+            string? key = (string?)element.Attribute("key");
+            if (string.IsNullOrWhiteSpace(key) || dictionary.ContainsKey(key))
+                throw new InvalidDataException($"Missing or duplicate localization key '{key}'.");
+
+            if (element.Name == "text")
+            {
+                dictionary.AddEntry(key, ReadText(element));
+            }
+            else if (element.Name == "plural")
+            {
+                dictionary.AddEntry(key, null, ReadPluralForms(element));
+            }
+            else
+            {
+                throw new InvalidDataException($"Unknown localization element '{element.Name}'.");
+            }
+        }
+
+        dictionary.Close();
+        return dictionary;
+    }
 
     /// <summary>
     /// Determines whether the specified key exists.
@@ -163,11 +214,96 @@ public class LocalizedDictionary
         _isClosed = true;
     }
 
+    /// <summary>
+    /// Gets a translation for a plural category selected by the language.
+    /// </summary>
+    /// <param name="key">The localization key.</param>
+    /// <param name="pluralCase">The category selected by the language's plural rule.</param>
+    /// <returns>The selected form, the general form, the plain value, or <see langword="null"/>.</returns>
+    internal string? GetValue(string key, LocalizationPluralCase pluralCase)
+    {
+        if (!_entries.TryGetValue(key, out Entry? entry))
+            return null;
+
+        var forms = entry.PluralCases;
+        if (forms is not null)
+        {
+            if (forms.TryGetValue(pluralCase, out string? value) && value is not null)
+                return value;
+
+            if (forms.TryGetValue(LocalizationPluralCase.Default, out value) && value is not null)
+                return value;
+        }
+
+        return entry.Value;
+    }
+
+    /// <summary>
+    /// Rejects mutations after the dictionary is closed.
+    /// </summary>
     private void EnsureWritable()
     {
         if (_isClosed)
             throw new InvalidOperationException(
                 "Cannot modify a closed localized dictionary.");
+    }
+
+    /// <summary>
+    /// Reads the named plural variants without allowing duplicate categories.
+    /// </summary>
+    /// <param name="element">The plural entry containing the variants.</param>
+    /// <returns>The parsed variants indexed by grammatical category.</returns>
+    private static Dictionary<LocalizationPluralCase, string?> ReadPluralForms(XElement element)
+    {
+        RejectMixedContent(element);
+        var forms = new Dictionary<LocalizationPluralCase, string?>();
+        foreach (XElement form in element.Elements())
+        {
+            LocalizationPluralCase category = form.Name.ToString() switch
+            {
+                "zero" => LocalizationPluralCase.Zero,
+                "one" => LocalizationPluralCase.One,
+                "two" => LocalizationPluralCase.Two,
+                "few" => LocalizationPluralCase.Few,
+                "many" => LocalizationPluralCase.Many,
+                "other" => LocalizationPluralCase.Other,
+                _ => throw new InvalidDataException($"Unknown plural form '{form.Name}'.")
+            };
+
+            if (!forms.TryAdd(category, ReadText(form)))
+                throw new InvalidDataException($"Duplicate plural form '{form.Name}'.");
+        }
+
+        if (forms.Count == 0)
+            throw new InvalidDataException("A plural entry must contain at least one form.");
+
+        return forms;
+    }
+
+    /// <summary>
+    /// Reads the text of a leaf element without interpreting markup.
+    /// </summary>
+    /// <param name="element">The element containing a translation.</param>
+    /// <returns>The untrimmed translation text.</returns>
+    private static string ReadText(XElement element)
+    {
+        if (element.HasElements)
+            throw new InvalidDataException($"Unexpected nested element in '{element.Name}'.");
+
+        return element.Value;
+    }
+
+    /// <summary>
+    /// Rejects stray text in an element that should only contain child elements.
+    /// </summary>
+    /// <param name="element">The element to validate.</param>
+    private static void RejectMixedContent(XElement element)
+    {
+        foreach (var node in element.Nodes())
+        {
+            if (node is XText text && !string.IsNullOrWhiteSpace(text.Value))
+                throw new InvalidDataException($"Unexpected text in '{element.Name}'.");
+        }
     }
 
     private static LocalizationPluralCase ResolvePluralCase(
