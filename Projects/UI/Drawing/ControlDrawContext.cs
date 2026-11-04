@@ -307,7 +307,11 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         EnsureDrawing();
         if (bounds.Width <= 0 || bounds.Height <= 0 || color.A == 0)
             return;
-        DrawSprite(_white, new Vector2(bounds.X, bounds.Y), null, color * _opacity, 0, Vector2.Zero, new Vector2(bounds.Width, bounds.Height), SpriteEffects.None, 0);
+        Vector2 start = SnapDrawPosition(new Vector2(bounds.Left, bounds.Top));
+        Vector2 end = SnapDrawPosition(new Vector2(bounds.Right, bounds.Bottom));
+        Vector2 size = end - start;
+        if (size.X > 0 && size.Y > 0)
+            DrawSprite(_white, start, null, color * _opacity, 0, Vector2.Zero, size, SpriteEffects.None, 0);
     }
 
     /// <summary>
@@ -334,7 +338,12 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         ArgumentNullException.ThrowIfNull(texture);
         if (source.Width <= 0 || source.Height <= 0 || destination.Width <= 0 || destination.Height <= 0)
             return;
-        DrawSprite(texture, new Vector2(destination.X, destination.Y), source, tint * _opacity, 0, Vector2.Zero, new Vector2(destination.Width / source.Width, destination.Height / source.Height), SpriteEffects.None, 0);
+        Vector2 start = SnapDrawPosition(new Vector2(destination.Left, destination.Top));
+        Vector2 end = SnapDrawPosition(new Vector2(destination.Right, destination.Bottom));
+        Vector2 size = end - start;
+        if (size.X > 0 && size.Y > 0)
+            DrawSprite(texture, start, source, tint * _opacity, 0, Vector2.Zero,
+                new Vector2(size.X / source.Width, size.Y / source.Height), SpriteEffects.None, 0);
     }
 
     /// <summary>
@@ -360,6 +369,7 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         EnsureDrawing();
         ArgumentNullException.ThrowIfNull(font);
         ArgumentNullException.ThrowIfNull(text);
+        position = SnapDrawPosition(position);
         if (_frameBatch is not null && !_legacyControl && font is IControlBatchFont batchedFont)
         {
             EndLegacy();
@@ -414,6 +424,16 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         }
         else
             EnsureLegacy();
+    }
+
+    /// <summary>Aligns a local draw position to the nearest device pixel.</summary>
+    /// <param name="position">The unsnapped position relative to the current control.</param>
+    /// <returns>The pixel-aligned position in the same local coordinates.</returns>
+    private Vector2 SnapDrawPosition(Vector2 position)
+    {
+        var origin = new Vector2(_currentBounds.X, _currentBounds.Y);
+        Vector2 pixels = (origin + position) * _scale;
+        return new Vector2(MathF.Floor(pixels.X + 0.5f), MathF.Floor(pixels.Y + 0.5f)) / _scale - origin;
     }
 
     private void EnsureLegacy()
