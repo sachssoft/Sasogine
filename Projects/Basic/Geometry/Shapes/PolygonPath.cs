@@ -14,9 +14,13 @@ namespace Sachssoft.Engine.Geometry.Shapes;
 public class PolygonPath : ShapePathBase
 {
     /// <summary>
-    /// Gets the number of segments used to sample each rounded corner.
+    /// Gets the number of segments used to sample each rounded corner; must be at least one.
     /// </summary>
-    public int Segments { get; init; } = 8;
+    public int Segments
+    {
+        get;
+        init;
+    } = 8;
 
     /// <summary>
     /// Gets the number of sides of the polygon.
@@ -24,12 +28,20 @@ public class PolygonPath : ShapePathBase
     /// <remarks>
     /// The value must be at least <c>3</c>.
     /// </remarks>
-    public int Sides { get; init; } = 5;
+    public int Sides
+    {
+        get;
+        init;
+    } = 5;
 
     /// <summary>
     /// Gets the rotation angle of the polygon, in degrees.
     /// </summary>
-    public float Angle { get; init; }
+    public float Angle
+    {
+        get;
+        init;
+    }
 
     /// <summary>
     /// Gets the amount of corner rounding.
@@ -39,13 +51,20 @@ public class PolygonPath : ShapePathBase
     /// A value of <c>0</c> produces sharp corners, while higher values
     /// increase the rounding amount.
     /// </remarks>
-    public float Rounding { get; init; }
+    public float Rounding
+    {
+        get;
+        init;
+    }
 
     /// <summary>
     /// Gets the interpolation type used to generate rounded corners.
     /// </summary>
-    public RoundingType RoundingType { get; init; } =
-        RoundingType.Quadratic;
+    public RoundingType RoundingType
+    {
+        get;
+        init;
+    } = RoundingType.Quadratic;
 
     /// <summary>
     /// Builds the path representing the polygon.
@@ -54,19 +73,21 @@ public class PolygonPath : ShapePathBase
     /// A <see cref="Path"/> containing the generated polygon geometry.
     /// </returns>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when <see cref="Sides"/> is less than <c>3</c>.
-    /// </exception>
-    /// <exception cref="NotImplementedException">
-    /// Thrown when the specified <see cref="RoundingType"/> is not supported.
+    /// A side count, segment count, angle, rounding amount, or interpolation type is invalid.
     /// </exception>
     protected override Path BuildDefinedPath()
     {
-        if (Sides < 3)
+        if (Sides < 3 || Sides == int.MaxValue)
             throw new InvalidOperationException(
-                "Polygon must have at least 3 sides.");
+                "Sides must be at least 3 and less than int.MaxValue.");
+
+        ShapePathGeometry.ValidateSegments(Segments);
+        ShapePathGeometry.ValidateFinite(Angle, nameof(Angle));
+        ShapePathGeometry.ValidateFinite(Rounding, nameof(Rounding));
+        ShapePathGeometry.ValidateRoundingType(RoundingType, nameof(RoundingType));
 
         float rounding = MathHelper.Clamp(Rounding, 0f, 1f) / 2f;
-        float rotationRad = MathHelper.ToRadians(Angle);
+        float rotationRad = MathHelper.ToRadians(Angle % 360f);
         float step = MathHelper.TwoPi / Sides;
         float radius = 0.5f;
 
@@ -89,28 +110,22 @@ public class PolygonPath : ShapePathBase
             Vector2 curr = points[i];
             Vector2 next = points[(i + 1) % Sides];
 
-            Vector2 dirPrev = Vector2.Normalize(curr - prev);
-            Vector2 dirNext = Vector2.Normalize(next - curr);
-
-            float distPrev =
-                Vector2.Distance(curr, prev) * rounding;
-
-            float distNext =
-                Vector2.Distance(next, curr) * rounding;
+            if (rounding == 0f)
+            {
+                polygon.Add(curr);
+                continue;
+            }
 
             Vector2 start =
-                curr - dirPrev * distPrev;
+                prev * rounding + curr * (1f - rounding);
 
             Vector2 end =
-                curr + dirNext * distNext;
+                curr * (1f - rounding) + next * rounding;
 
             Vector2[] sampledPoints = RoundingType switch
             {
                 RoundingType.Linear =>
-                    GeometrySampler.SampleLinear(
-                        start,
-                        end,
-                        Segments),
+                    new[] { start, end },
 
                 RoundingType.Quadratic =>
                     GeometrySampler.SampleQuadraticBezier(
@@ -122,27 +137,17 @@ public class PolygonPath : ShapePathBase
                 RoundingType.Cubic =>
                     GeometrySampler.SampleCubicBezier(
                         start,
-                        start + dirPrev * distPrev * 0.5f,
-                        end - dirNext * distNext * 0.5f,
+                        start * 0.5f + curr * 0.5f,
+                        end * 0.5f + curr * 0.5f,
                         end,
                         Segments),
 
-                _ => throw new NotImplementedException()
+                _ => throw new InvalidOperationException("The rounding type is unsupported.")
             };
 
             polygon.AddRange(sampledPoints);
         }
 
-        if (polygon.Count > 0 &&
-            polygon[0] != polygon[^1])
-        {
-            polygon.Add(polygon[0]);
-        }
-
-        return new Path(
-            new[]
-            {
-                polygon.ToArray()
-            });
+        return ShapePathGeometry.CreatePath(polygon);
     }
 }

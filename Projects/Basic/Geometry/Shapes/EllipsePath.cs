@@ -12,96 +12,48 @@ public class EllipsePath : ShapePathBase
 {
     /// <summary>
     /// Gets the number of segments used to construct the full ellipse.
-    /// Higher values produce a more detailed approximation of the curve.
+    /// Must be at least three; higher values produce a more detailed approximation.
     /// </summary>
-    public int Segments { get; init; } = 64;
+    public int Segments
+    {
+        get;
+        init;
+    } = 64;
 
     /// <summary>
     /// Gets the rounding method used to construct the individual
     /// segments of the ellipse.
     /// </summary>
     /// <remarks>
-    /// Linear rounding connects consecutive ellipse points directly,
-    /// while quadratic and cubic rounding use Bézier interpolation
-    /// between the generated points.
+    /// The contour samples only segment endpoints, so all supported rounding
+    /// methods produce the same polyline approximation.
     /// </remarks>
-    public RoundingType RoundingType { get; init; } =
-        RoundingType.Linear;
+    public RoundingType RoundingType
+    {
+        get;
+        init;
+    } = RoundingType.Linear;
 
     /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException">
+    /// The segment count or interpolation type is invalid.
+    /// </exception>
     protected override Path BuildDefinedPath()
     {
+        ShapePathGeometry.ValidateSegments(Segments, 3);
+        ShapePathGeometry.ValidateRoundingType(RoundingType, nameof(RoundingType));
+
         var points = new List<Vector2>();
 
-        const float cx = 0.5f;
-        const float cy = 0.5f;
-        const float rx = 0.5f;
-        const float ry = 0.5f;
-
-        Vector2 center =
-            new(cx, cy);
-
-        Vector2 prevPoint =
-            new(cx + rx, cy);
-
-        points.Add(prevPoint);
-
-        for (int i = 1; i <= Segments; i++)
+        for (int i = 0; i < Segments; i++)
         {
-            float t =
-                i / (float)Segments;
+            float angle = i / (float)Segments * MathHelper.TwoPi;
 
-            float angle =
-                t * MathHelper.TwoPi;
-
-            Vector2 nextPoint =
-                new(
-                    cx + rx * MathF.Cos(angle),
-                    cy + ry * MathF.Sin(angle));
-
-            Vector2[] sampledPoints =
-                RoundingType switch
-                {
-                    RoundingType.Linear =>
-                        GeometrySampler.SampleLinear(
-                            prevPoint,
-                            nextPoint,
-                            1),
-
-                    RoundingType.Quadratic =>
-                        GeometrySampler.SampleQuadraticBezier(
-                            prevPoint,
-                            center,
-                            nextPoint,
-                            1),
-
-                    RoundingType.Cubic =>
-                        GeometrySampler.SampleCubicBezier(
-                            prevPoint,
-                            prevPoint + (center - prevPoint) * 0.5f,
-                            nextPoint + (center - nextPoint) * 0.5f,
-                            nextPoint,
-                            1),
-
-                    _ => throw new NotImplementedException()
-                };
-
-            for (int j = 1; j < sampledPoints.Length; j++)
-                points.Add(sampledPoints[j]);
-
-            prevPoint = nextPoint;
+            points.Add(new Vector2(
+                0.5f + 0.5f * MathF.Cos(angle),
+                0.5f + 0.5f * MathF.Sin(angle)));
         }
 
-        if (points.Count > 0 &&
-            points[0] != points[^1])
-        {
-            points.Add(points[0]);
-        }
-
-        return new Path(
-            new[]
-            {
-                points.ToArray()
-            });
+        return ShapePathGeometry.CreatePath(points);
     }
 }

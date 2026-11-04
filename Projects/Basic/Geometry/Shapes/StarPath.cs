@@ -17,55 +17,91 @@ public class StarPath : ShapePathBase
     /// <summary>
     /// Gets the number of outer points of the star.
     /// </summary>
-    public int Spikes { get; init; } = 5;
+    public int Spikes
+    {
+        get;
+        init;
+    } = 5;
 
     /// <summary>
-    /// Gets the radius of the outer points.
+    /// Gets the positive, finite radius of the outer points.
     /// </summary>
-    public float OuterRadius { get; init; } = 1f;
+    public float OuterRadius
+    {
+        get;
+        init;
+    } = 1f;
 
     /// <summary>
-    /// Gets the radius of the inner points.
+    /// Gets the nonnegative, finite radius of the inner points.
     /// </summary>
-    public float InnerRadius { get; init; } = 0.5f;
+    public float InnerRadius
+    {
+        get;
+        init;
+    } = 0.5f;
 
     /// <summary>
     /// Gets the rotation angle of the star, in degrees.
     /// </summary>
-    public float Angle { get; init; }
+    public float Angle
+    {
+        get;
+        init;
+    }
 
     /// <summary>
     /// Gets the rounding amount applied to the outer points.
     /// </summary>
     /// <remarks>
-    /// The effective value is clamped to the range <c>0</c> to <c>1</c>.
+    /// The value is clamped to zero through one. Inner and outer rounding amounts
+    /// are proportionally reduced when their sum would exceed one adjacent edge.
     /// </remarks>
-    public float OuterRounding { get; init; }
+    public float OuterRounding
+    {
+        get;
+        init;
+    }
 
     /// <summary>
     /// Gets the rounding amount applied to the inner points.
     /// </summary>
     /// <remarks>
-    /// The effective value is clamped to the range <c>0</c> to <c>1</c>.
+    /// The value is clamped to zero through one. Inner and outer rounding amounts
+    /// are proportionally reduced when their sum would exceed one adjacent edge.
     /// </remarks>
-    public float InnerRounding { get; init; }
+    public float InnerRounding
+    {
+        get;
+        init;
+    }
 
     /// <summary>
     /// Gets the rounding type used for the outer points.
     /// </summary>
-    public RoundingType OuterRoundingType { get; init; } =
-        RoundingType.Quadratic;
+    public RoundingType OuterRoundingType
+    {
+        get;
+        init;
+    } = RoundingType.Quadratic;
 
     /// <summary>
     /// Gets the rounding type used for the inner points.
     /// </summary>
-    public RoundingType InnerRoundingType { get; init; } =
-        RoundingType.Quadratic;
+    public RoundingType InnerRoundingType
+    {
+        get;
+        init;
+    } = RoundingType.Quadratic;
 
     /// <summary>
-    /// Gets the number of segments used to sample rounded points.
+    /// Gets the number of segments used to sample rounded points; must be at least one.
     /// </summary>
-    public int Segments { get; init; } = 8;
+    public int Segments
+    {
+        get;
+        init;
+    } = 8;
 
     /// <summary>
     /// Builds the path representing the star.
@@ -74,15 +110,27 @@ public class StarPath : ShapePathBase
     /// A <see cref="Path"/> containing the generated star geometry.
     /// </returns>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when <see cref="Spikes"/> is less than <c>2</c>.
+    /// A spike count, segment count, radius, angle, rounding amount, or interpolation type is invalid.
     /// </exception>
     protected override Path BuildDefinedPath()
     {
-        if (Spikes < 2)
+        if (Spikes < 2 || Spikes > (int.MaxValue - 1) / 2)
         {
             throw new InvalidOperationException(
-                "Star must have at least 2 spikes.");
+                "Spikes must be at least 2 and permit allocating twice as many points.");
         }
+
+        ShapePathGeometry.ValidateSegments(Segments);
+        ShapePathGeometry.ValidateFinite(Angle, nameof(Angle));
+        ShapePathGeometry.ValidateFinite(OuterRadius, nameof(OuterRadius));
+        ShapePathGeometry.ValidateFinite(InnerRadius, nameof(InnerRadius));
+        ShapePathGeometry.ValidateFinite(OuterRounding, nameof(OuterRounding));
+        ShapePathGeometry.ValidateFinite(InnerRounding, nameof(InnerRounding));
+        ShapePathGeometry.ValidateRoundingType(OuterRoundingType, nameof(OuterRoundingType));
+        ShapePathGeometry.ValidateRoundingType(InnerRoundingType, nameof(InnerRoundingType));
+
+        if (OuterRadius <= 0f || InnerRadius < 0f)
+            throw new InvalidOperationException("OuterRadius must be positive and InnerRadius must be nonnegative.");
 
         float outerRounding =
             MathHelper.Clamp(OuterRounding, 0f, 1f);
@@ -90,7 +138,15 @@ public class StarPath : ShapePathBase
         float innerRounding =
             MathHelper.Clamp(InnerRounding, 0f, 1f);
 
-        float rotation = MathHelper.ToRadians(Angle);
+        float roundingSum = outerRounding + innerRounding;
+
+        if (roundingSum > 1f)
+        {
+            outerRounding /= roundingSum;
+            innerRounding /= roundingSum;
+        }
+
+        float rotation = MathHelper.ToRadians(Angle % 360f);
         float step = MathHelper.TwoPi / Spikes;
         float halfStep = step * 0.5f;
 
@@ -151,19 +207,18 @@ public class StarPath : ShapePathBase
                 roundingType);
         }
 
-        if (polygon.Count > 0 &&
-            polygon[0] != polygon[^1])
-        {
-            polygon.Add(polygon[0]);
-        }
-
-        return new Path(
-            new[]
-            {
-                polygon.ToArray()
-            });
+        return ShapePathGeometry.CreatePath(polygon);
     }
 
+    /// <summary>
+    /// Appends a sharp or rounded star vertex to the contour.
+    /// </summary>
+    /// <param name="polygon">The contour receiving the sampled points.</param>
+    /// <param name="previous">The previous star vertex.</param>
+    /// <param name="current">The vertex being sampled.</param>
+    /// <param name="next">The next star vertex.</param>
+    /// <param name="rounding">The non-overlapping fraction of each adjacent edge.</param>
+    /// <param name="roundingType">The corner interpolation type.</param>
     private void AddPoint(
         List<Vector2> polygon,
         Vector2 previous,
@@ -178,31 +233,16 @@ public class StarPath : ShapePathBase
             return;
         }
 
-        Vector2 previousDirection =
-            Vector2.Normalize(current - previous);
-
-        Vector2 nextDirection =
-            Vector2.Normalize(next - current);
-
-        float previousDistance =
-            Vector2.Distance(previous, current) * rounding;
-
-        float nextDistance =
-            Vector2.Distance(current, next) * rounding;
-
         Vector2 start =
-            current - previousDirection * previousDistance;
+            previous * rounding + current * (1f - rounding);
 
         Vector2 end =
-            current + nextDirection * nextDistance;
+            current * (1f - rounding) + next * rounding;
 
         Vector2[] sampledPoints = roundingType switch
         {
             RoundingType.Linear =>
-                GeometrySampler.SampleLinear(
-                    start,
-                    end,
-                    Segments),
+                new[] { start, end },
 
             RoundingType.Quadratic =>
                 GeometrySampler.SampleQuadraticBezier(
@@ -214,12 +254,12 @@ public class StarPath : ShapePathBase
             RoundingType.Cubic =>
                 GeometrySampler.SampleCubicBezier(
                     start,
-                    start + previousDirection * previousDistance * 0.5f,
-                    end - nextDirection * nextDistance * 0.5f,
+                    start * 0.5f + current * 0.5f,
+                    end * 0.5f + current * 0.5f,
                     end,
                     Segments),
 
-            _ => throw new NotImplementedException()
+            _ => throw new InvalidOperationException("The rounding type is unsupported.")
         };
 
         polygon.AddRange(sampledPoints);
