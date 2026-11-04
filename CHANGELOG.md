@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file.
 ## [0.14.0-alpha] - Planned
 * [Feature] Added immutable `ProductInfo` with currency metadata, localized prices, and separate price components for custom font selection.
 * [Feature] Added `CornerType` and corner-size overloads to `ShapeBatch` for filled and stroked rectangles, including brush, pen, and transformation support.
+* [Feature] Added PackageContainer for versioned packages with application-defined identifiers, separate metadata streams, and per-entry Brotli compression.
 * [Change] Changed `IProductInfo.Id` to `string` and `Price` to `decimal`; pseudo-product factories now require currency metadata and culture. See `Docs/in_app_purchases.md` for migration guidance.
 * [Change] **Controls**: Replaced redundant enums with shared engine types and moved `CurveInterpolation` to `Gameplay.Curves`. Public API types and some numeric values changed; named style values remain compatible.
 * [Change] Renamed `EdgeType` to `CornerType` and corrected `Below` to `Bevel`; numeric values remain unchanged.
@@ -33,6 +34,8 @@ All notable changes to this project will be documented in this file.
 * [Bug] **Controls**: Fixed `ValueTextBox` overwriting numeric input during repeated updates; decimal input accepts dot and comma separators without floating-point display artifacts.
 * [Bug] Fixed overlapping `ShapeBatch` stroke geometry causing darker transparent joins and crossings; added finite-input checks and rollback after brush failures.
 * [Bug] Fixed `ShapeBatch` ignoring the selected shader technique and rendering with the first technique instead.
+* [Bug] Fixed overlapping shape-path corners, duplicate contour points, and invalid geometry parameters.
+* [Bug] **Controls**: Aligned text origins and rectangular drawing edges to device pixels while preserving fractional layout coordinates.
 
 ## [0.13.0-alpha] - 2026-11-02
 * [Feature] **Controls**: Introduced Sasogine Controls, a new UI system.
