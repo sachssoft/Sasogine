@@ -38,10 +38,13 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
     private readonly Texture?[] _savedTextures = new Texture?[7];
     private readonly RasterizerState _rasterizer;
     private int _vertexCount, _indexCount, _itemCount, _groupCount;
-    private Vector2 _offset;
-    private float _scale;
+    /// <summary>Maps local vertices into physical viewport coordinates.</summary>
+    private Matrix _transform = Matrix.Identity;
     private bool _halfPixel;
     private Bounds2 _clip;
+    /// <summary>Borrows the drawing context's active clip equations.</summary>
+    private Vector3[]? _clipPlanes;
+    private int _clipPlaneCount;
     private bool _active, _disposed;
     /// <summary>
     /// Creates reusable CPU/GPU buffers. Capacity is a vertex count between 32 and 65,532.
@@ -124,10 +127,13 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
         _active = true;
     }
 
-    internal void SetControl(Vector2 offset, float scale, Bounds2 pixelClip)
+    /// <summary>Selects the active inward halfplanes without retaining per-quad allocations.</summary>
+    internal void SetClipPlanes(Vector3[] planes, int count) { _clipPlanes = planes; _clipPlaneCount = count; }
+
+    internal void SetControl(Vector2 offset, float scale, Bounds2 pixelClip, Matrix? visualTransform = null)
     {
-        _offset = offset;
-        _scale = scale;
+        _transform = Matrix.CreateTranslation(offset.X, offset.Y, 0)
+            * (visualTransform ?? Matrix.Identity) * Matrix.CreateScale(scale, scale, 1);
         // Clipping precedes the projection, so compensate its optional half-pixel translation.
         _clip = _halfPixel ? new Bounds2(pixelClip.X + .5f, pixelClip.Y + .5f, pixelClip.Width, pixelClip.Height) : pixelClip;
     }
@@ -195,9 +201,18 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
             QuadCount++;
             return;
         }
+        ReadOnlySpan<Vector3> planes = _clipPlanes.AsSpan(0, _clipPlaneCount);
+        bool insidePlanes = ControlBatchGeometry.Contains(a.Position, planes) && ControlBatchGeometry.Contains(b.Position, planes)
+            && ControlBatchGeometry.Contains(c.Position, planes) && ControlBatchGeometry.Contains(d.Position, planes);
+        if (_clipPlaneCount > 0 && (!insidePlanes || x < _clip.Left || right > _clip.Right || y < _clip.Top || bottom > _clip.Bottom))
+        {
+            if (DrawPlaneClipped(texture, a, b, c, d, planes, Control.Intersect(bounds, _clip))) QuadCount++;
+            return;
+        }
         Reserve(14, 30, 2);
         int vertexStart = _vertexCount, indexStart = _indexCount;
-        if (x >= _clip.Left && right <= _clip.Right && y >= _clip.Top && bottom <= _clip.Bottom)
+        if (x >= _clip.Left && right <= _clip.Right && y >= _clip.Top && bottom <= _clip.Bottom
+            && insidePlanes)
         {
             _vertices[_vertexCount++] = a;
             _vertices[_vertexCount++] = b;
@@ -213,9 +228,9 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
         else
         {
             // Clip original triangles independently to preserve their UV/color interpolation.
-            Span<VertexPositionColorTexture> clipped = stackalloc VertexPositionColorTexture[12];
-            AddPolygon(clipped, ControlBatchGeometry.ClipTriangle(a, b, c, _clip, clipped));
-            AddPolygon(clipped, ControlBatchGeometry.ClipTriangle(b, d, c, _clip, clipped));
+            Span<VertexPositionColorTexture> clipped = stackalloc VertexPositionColorTexture[12 + _clipPlaneCount];
+            AddPolygon(clipped, ControlBatchGeometry.ClipTriangle(a, b, c, _clip, planes, clipped));
+            AddPolygon(clipped, ControlBatchGeometry.ClipTriangle(b, d, c, _clip, planes, clipped));
             if (_indexCount == indexStart)
                 return;
             bounds = Control.Intersect(bounds, _clip);
@@ -239,9 +254,37 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
         QuadCount++;
     }
 
+    /// <summary>Streams clipped triangles so arbitrary clip depth also works with the smallest batch capacity.</summary>
+    private bool DrawPlaneClipped(Texture2D texture, VertexPositionColorTexture a, VertexPositionColorTexture b,
+        VertexPositionColorTexture c, VertexPositionColorTexture d, ReadOnlySpan<Vector3> planes, Bounds2 bounds)
+    {
+        Span<VertexPositionColorTexture> clipped = stackalloc VertexPositionColorTexture[planes.Length + 12];
+        bool added = false;
+        for (int triangle = 0; triangle < 2; triangle++)
+        {
+            int count = triangle == 0 ? ControlBatchGeometry.ClipTriangle(a, b, c, _clip, planes, clipped)
+                : ControlBatchGeometry.ClipTriangle(b, d, c, _clip, planes, clipped);
+            for (int index = 1; index < count - 1; index++)
+            {
+                Reserve(3, 3, 1);
+                int vertex = _vertexCount, start = _indexCount;
+                _vertices[_vertexCount++] = clipped[0]; _vertices[_vertexCount++] = clipped[index]; _vertices[_vertexCount++] = clipped[index + 1];
+                Index(vertex); Index(vertex + 1); Index(vertex + 2);
+                int group = FindGroup(texture, bounds), item = _itemCount++;
+                _items[item] = new ControlBatchItem { Start = start, Count = 3, Next = -1 };
+                ref var g = ref _groups[group];
+                if (g.Last < 0) g.First = item; else _items[g.Last].Next = item;
+                g.Last = item; g.Bounds = ControlBatchGeometry.Union(g.Bounds, bounds);
+                added = true;
+            }
+        }
+        return added;
+    }
+
     private bool TryClearOpaqueTarget(Texture2D texture, VertexPositionColorTexture a,
         VertexPositionColorTexture b, VertexPositionColorTexture c, VertexPositionColorTexture d)
     {
+        if (_clipPlaneCount > 0) return false;
         if (_textureEffect is null || _halfPixel || QuadCount != 0 || FlushCount != 0 ||
             !ReferenceEquals(texture, OpaqueWhiteTexture) || a.Color.A != 255 ||
             a.Color != b.Color || a.Color != c.Color || a.Color != d.Color ||
@@ -289,8 +332,7 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
 
     private VertexPositionColorTexture Transform(VertexPositionColorTexture value)
     {
-        value.Position.X = (value.Position.X + _offset.X) * _scale;
-        value.Position.Y = (value.Position.Y + _offset.Y) * _scale;
+        value.Position = Vector3.Transform(value.Position, _transform);
         return value;
     }
 

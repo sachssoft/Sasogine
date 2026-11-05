@@ -20,6 +20,9 @@ All notable changes to this project will be documented in this file.
 </small>
 
 ## [0.14.0-alpha] - Planned
+* [Feature] **Controls**: Added templated ItemsControl with observable sources, item factories, interchangeable panels and editable Canvas items.
+* [Feature] **Controls**: Added move, resize, independent scale, rotation and pivot gestures with affine drawing/input, exact nested clipping and scene composition.
+* [Feature] **Controls**: Added JavaScript syntax highlighting, including module keywords and multiline template strings.
 * [Feature] Added XML localization tables and a managed translation-table asset with text and plural variants.
 * [Bug] Localization falls back per missing text key and uses language-specific plural forms through the manager. Failed initial bindings no longer leave an event subscription behind.
 * [Feature] Added immutable `ProductInfo` with currency metadata, localized prices, and separate price components for custom font selection.

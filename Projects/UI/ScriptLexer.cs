@@ -7,6 +7,7 @@ internal static class ScriptLexer
     private static readonly HashSet<string> Lua = new("and break do else elseif end false for function goto if in local nil not or repeat return then true until while".Split(' '), StringComparer.Ordinal);
     private static readonly HashSet<string> Python = new("False None True and as assert async await break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield match case".Split(' '), StringComparer.Ordinal);
     private static readonly HashSet<string> CSharp = new("abstract as async await base bool break byte case catch char checked class const continue decimal default delegate do double else enum event explicit extern false finally fixed float for foreach if implicit in int interface internal is lock long namespace new null object operator out override params private protected public readonly record ref return sbyte sealed short sizeof stackalloc static string struct switch this throw true try typeof uint ulong unchecked unsafe ushort using var virtual void volatile while yield get set init required".Split(' '), StringComparer.Ordinal);
+    private static readonly HashSet<string> JavaScript = new("async await break case catch class const continue debugger default delete do else export extends false finally for from function get if import in instanceof let new null of return set static super switch this throw true try typeof undefined var void while with yield".Split(' '), StringComparer.Ordinal);
     internal static void Highlight(string text, ScriptLanguage language, List<SyntaxSpan> spans)
     {
         int i = 0;
@@ -25,22 +26,22 @@ internal static class ScriptLexer
             if (terminator is not null)
             {
                 kind = blockKind;
-                ConsumeBlock(text, ref i, terminator, ref terminator);
+                ConsumeBlock(text, ref i, terminator, ref terminator, language == ScriptLanguage.JavaScript && terminator == "`" );
             }
             else if (language == ScriptLanguage.PlainText)
             {
                 while (i < text.Length && text[i] != '\n')
                     i++;
             }
-            else if (language == ScriptLanguage.CSharp && At(text, i, "/*") || language == ScriptLanguage.Lua && At(text, i, "--[["))
+            else if (language is ScriptLanguage.CSharp or ScriptLanguage.JavaScript && At(text, i, "/*") || language == ScriptLanguage.Lua && At(text, i, "--[["))
             {
                 kind = ScriptTokenKind.Comment;
-                terminator = language == ScriptLanguage.CSharp ? "*/" : "]]";
+                terminator = language is ScriptLanguage.CSharp or ScriptLanguage.JavaScript ? "*/" : "]]";
                 blockKind = kind;
-                i += language == ScriptLanguage.CSharp ? 2 : 4;
-                ConsumeBlock(text, ref i, terminator, ref terminator);
+                i += language is ScriptLanguage.CSharp or ScriptLanguage.JavaScript ? 2 : 4;
+                ConsumeBlock(text, ref i, terminator, ref terminator, language == ScriptLanguage.JavaScript && terminator == "`" );
             }
-            else if (language == ScriptLanguage.Python && text[i] == '#' || language == ScriptLanguage.Lua && At(text, i, "--") || language == ScriptLanguage.CSharp && At(text, i, "//"))
+            else if (language == ScriptLanguage.Python && text[i] == '#' || language == ScriptLanguage.Lua && At(text, i, "--") || language is ScriptLanguage.CSharp or ScriptLanguage.JavaScript && At(text, i, "//"))
             {
                 kind = ScriptTokenKind.Comment;
                 while (i < text.Length && text[i] != '\n')
@@ -52,21 +53,27 @@ internal static class ScriptLexer
                 terminator = "]]";
                 blockKind = kind;
                 i += 2;
-                ConsumeBlock(text, ref i, terminator, ref terminator);
+                ConsumeBlock(text, ref i, terminator, ref terminator, language == ScriptLanguage.JavaScript && terminator == "`" );
             }
-            else if (text[i] is '\'' or '"' || language == ScriptLanguage.CSharp && At(text, i, "@\""))
+            else if (text[i] is '\'' or '"' || language == ScriptLanguage.JavaScript && text[i] == '`' || language == ScriptLanguage.CSharp && At(text, i, "@\""))
             {
                 kind = ScriptTokenKind.String;
                 bool verbatim = text[i] == '@';
                 if (verbatim)
                     i++;
                 char quote = text[i++];
-                if (language == ScriptLanguage.Python && i + 1 < text.Length && text[i] == quote && text[i + 1] == quote)
+                if (language == ScriptLanguage.JavaScript && quote == '`')
+                {
+                    terminator = "`";
+                    blockKind = kind;
+                    ConsumeBlock(text, ref i, terminator, ref terminator, language == ScriptLanguage.JavaScript && terminator == "`" );
+                }
+                else if (language == ScriptLanguage.Python && i + 1 < text.Length && text[i] == quote && text[i + 1] == quote)
                 {
                     i += 2;
                     terminator = new string (quote, 3);
                     blockKind = kind;
-                    ConsumeBlock(text, ref i, terminator, ref terminator);
+                    ConsumeBlock(text, ref i, terminator, ref terminator, language == ScriptLanguage.JavaScript && terminator == "`" );
                 }
                 else
                 {
@@ -103,7 +110,7 @@ internal static class ScriptLexer
                 while (i < text.Length && (char.IsLetterOrDigit(text[i]) || text[i] == '_'))
                     i++;
                 string word = text[start..i];
-                var words = language == ScriptLanguage.Lua ? Lua : language == ScriptLanguage.Python ? Python : CSharp;
+                var words = language == ScriptLanguage.Lua ? Lua : language == ScriptLanguage.Python ? Python : language == ScriptLanguage.JavaScript ? JavaScript : CSharp;
                 if (words.Contains(word))
                     kind = ScriptTokenKind.Keyword;
             }
@@ -119,10 +126,11 @@ internal static class ScriptLexer
     }
 
     private static bool At(string text, int index, string value) => text.AsSpan(index).StartsWith(value.AsSpan(), StringComparison.Ordinal);
-    private static void ConsumeBlock(string text, ref int i, string end, ref string? terminator)
+    private static void ConsumeBlock(string text, ref int i, string end, ref string? terminator, bool escaped = false)
     {
         while (i < text.Length && text[i] != '\n')
         {
+            if (escaped && text[i] == '\\' && i + 1 < text.Length && text[i + 1] != '\n') { i += 2; continue; }
             if (At(text, i, end))
             {
                 i += end.Length;

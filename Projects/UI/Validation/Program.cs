@@ -39,6 +39,8 @@ internal static class Program
     {
         try
         {
+            Run("Exact rotated and nested clip geometry", () => ClipPlanesChecks.Run(Check));
+            Run("Items, panel templates and editable canvas transforms", CanvasItemsChecks.Run);
             Run("Camera-free view scene contracts", () => ViewSceneChecks.Run(Check, Layout));
             Run("Scroll visibility remains stable across unbounded measurement and finite arrangement", () =>
             {

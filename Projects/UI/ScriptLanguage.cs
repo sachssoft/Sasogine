@@ -19,5 +19,7 @@ public enum ScriptLanguage
     /// <summary>
     /// C# keywords, comments and quoted strings.
     /// </summary>
-    CSharp
+    CSharp,
+    /// <summary>JavaScript keywords, comments and string/template literals.</summary>
+    JavaScript
 }

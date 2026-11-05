@@ -663,7 +663,7 @@ public sealed class Workspace : Element, IDisposable
         {
             Control node = route[i];
             if (!node.IsAvailable()) break;
-            args.CurrentTarget = node;
+            args.SetTarget(node);
             node.PreviewInput(_input, args);
         }
         foreach (Control node in route)
@@ -671,7 +671,7 @@ public sealed class Workspace : Element, IDisposable
             if (args.Handled) break;
             if (!node.IsAvailable())
                 break;
-            args.CurrentTarget = node;
+            args.SetTarget(node);
             node.Input(_input, args);
             if (args.Handled)
                 break;
@@ -718,15 +718,17 @@ public sealed class Workspace : Element, IDisposable
     {
         if (!control.IsAvailable(true))
             return null;
-        Bounds2 visible = Control.Intersect(clip, control.Bounds);
-        if (!Control.Contains(visible, point.X, point.Y))
+        Matrix transform = ControlTransforms.GetVisualTransform(control);
+        Bounds2 visible = Control.Intersect(clip, ControlTransforms.TransformBounds(control.Bounds, transform));
+        Vector2 local = Vector2.Transform(point, Matrix.Invert(transform));
+        if (!Control.Contains(visible, point.X, point.Y) || !Control.Contains(control.Bounds, local.X, local.Y))
             return null;
         if (control is ContainerControl container)
         {
             Control[] children = container.OrderedChildren;
             for (int i = children.Length - 1; i >= 0; i--)
             {
-                Control? hit = Hit(children[i], Control.Intersect(visible, control.GetChildClip(children[i])), point);
+                Control? hit = Hit(children[i], Control.Intersect(visible, ControlTransforms.TransformBounds(control.GetChildClip(children[i]), transform)), point);
                 if (hit is not null)
                     return hit;
             }
@@ -756,17 +758,29 @@ public sealed class Workspace : Element, IDisposable
     {
         if (!control.IsVisible)
             return;
-        clip = Control.Intersect(clip, control.Bounds);
+        Matrix transform = ControlTransforms.GetVisualTransform(control);
+        clip = Control.Intersect(clip, ControlTransforms.TransformBounds(control.Bounds, transform));
         opacity *= control.Opacity;
         if (clip.Width <= 0 || clip.Height <= 0 || opacity <= 0)
             return;
-        context.SetControl(control.Bounds, clip, opacity);
-        control.Paint(context);
-        if (control is ContainerControl container)
-            foreach (Control child in container.OrderedChildren)
-                DrawTree(child, Control.Intersect(clip, control.GetChildClip(child)), opacity, context);
-        context.SetControl(control.Bounds, clip, opacity);
-        control.PaintOverlay(context);
+        int previousPlanes = context.PushVisualClip(control.Bounds, transform);
+        try
+        {
+            context.SetControl(control.Bounds, clip, opacity, visualTransform: transform);
+            control.Paint(context);
+            if (control is ContainerControl container)
+                foreach (Control child in container.OrderedChildren)
+                {
+                    Bounds2 childClip = control.GetChildClip(child);
+                    int childPlanes = context.PushVisualClip(childClip, transform);
+                    try { DrawTree(child, Control.Intersect(clip, ControlTransforms.TransformBounds(childClip, transform)), opacity, context); }
+                    finally { context.RestoreVisualClip(childPlanes); }
+                }
+            context.SetControl(control.Bounds, clip, opacity, visualTransform: transform);
+            control.PaintOverlay(context);
+            if (control is IControlAdornment adorned) adorned.DrawAdornment(context);
+        }
+        finally { context.RestoreVisualClip(previousPlanes); }
     }
 
     private readonly List<ControlOverlay> _overlays = new();

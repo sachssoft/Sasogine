@@ -23,6 +23,9 @@ public sealed class UIRegistry
         FontFactory = fontFactory;
         Styles = CreateStandardStyles();
         Register("Panel", static () => new Panel());
+        Register(nameof(ItemsControl), static () => new ItemsControl());
+        Register(nameof(Canvas), static () => new Canvas());
+        Register(nameof(CanvasItem), static () => new CanvasItem());
         Register("StackPanel", static () => new StackPanel());
         Register("Label", static () => new Label());
         Register("TextBlock", static () => new TextBlock());
@@ -89,6 +92,8 @@ public sealed class UIRegistry
         var styles = new StyleRegistry();
         styles.Register("Control", new Style());
         styles.Register("Panel", new Style { BasedOn = "Control" });
+        styles.Register(nameof(ItemsControl), new Style { BasedOn = "Panel", Padding = Insets2.Zero });
+        styles.Register(nameof(Canvas), new Style { BasedOn = "Panel", Padding = Insets2.Zero, IsFocusable = true });
         styles.Register("StackPanel", new Style { BasedOn = "Panel" });
         styles.Register("Inspector.MultiValue", new Style { BasedOn = "Grid", Spacing = 4, Background = Color.Transparent, BorderThickness = 0 });
         styles.Register("Inspector.PropertyMenu", new Style { BasedOn = "Control", IsFocusable = true, Width = 26, Height = 30, Padding = Insets2.Zero, Background = new Color(32, 35, 42), HoverBackground = new Color(53, 59, 70), PressedBackground = new Color(23, 26, 32), DisabledBackground = new Color(28, 30, 35), TextColor = new Color(230, 233, 239), DisabledTextColor = new Color(115, 121, 132), BorderThickness = 0, VerticalAlignment = LayoutAlignment.Start });

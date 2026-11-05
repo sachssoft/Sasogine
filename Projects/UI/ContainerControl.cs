@@ -124,6 +124,27 @@ public abstract class ContainerControl : Control
         Mutate(() => CommitRemove(child, revision));
     }
 
+    /// <summary>Moves an owned child in layout order without detaching it or cancelling input.</summary>
+    /// <param name="child">The control owned by this container.</param>
+    /// <param name="index">The final zero-based index among logically owned children.</param>
+    /// <remarks>Z-index remains independent of layout order. Deferred additions and moves are
+    /// committed at the same safe traversal boundary as other tree mutations.</remarks>
+    public void Move(Control child, int index)
+    {
+        ArgumentNullException.ThrowIfNull(child);
+        VerifyTreeMutation();
+        if (!ReferenceEquals(child.Parent, this))
+            throw new InvalidOperationException("The control is not owned by this container.");
+        if ((uint)index >= (uint)_ownedChildren.Count)
+            throw new ArgumentOutOfRangeException(nameof(index));
+        int previous = _ownedChildren.IndexOf(child);
+        if (previous == index)
+            return;
+        _ownedChildren.RemoveAt(previous);
+        _ownedChildren.Insert(index, child);
+        Mutate(() => CommitMove(child));
+    }
+
     /// <summary>
     /// Releases all logically owned children, including additions awaiting commitment.
     /// </summary>
@@ -431,6 +452,26 @@ public abstract class ContainerControl : Control
 
         InvalidateMeasure();
         Attach(child, null);
+    }
+
+    /// <summary>Commits the current logical position of an owned child without changing attachment.</summary>
+    /// <param name="child">The child whose layout order changed.</param>
+    private void CommitMove(Control child)
+    {
+        if (!ReferenceEquals(child.Parent, this) || !ReferenceEquals(child.CommittedParent, this))
+            return;
+        int index = 0;
+        foreach (Control owned in _ownedChildren)
+        {
+            if (ReferenceEquals(owned, child))
+                break;
+            if (ReferenceEquals(owned.CommittedParent, this))
+                index++;
+        }
+        _children.Remove(child);
+        _children.Insert(index, child);
+        _orderDirty = true;
+        InvalidateMeasure();
     }
 
     /// <summary>

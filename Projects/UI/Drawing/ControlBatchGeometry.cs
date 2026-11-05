@@ -9,22 +9,26 @@ namespace Sachssoft.Engine.Controls.Drawing;
 internal static class ControlBatchGeometry
 {
     internal static int ClipTriangle(VertexPositionColorTexture a, VertexPositionColorTexture b, VertexPositionColorTexture c, Bounds2 clip, Span<VertexPositionColorTexture> output)
+        => ClipTriangle(a, b, c, clip, ReadOnlySpan<Vector3>.Empty, output);
+
+    /// <summary>Clips a triangle against rectangular bounds and arbitrary inward halfplanes.</summary>
+    internal static int ClipTriangle(VertexPositionColorTexture a, VertexPositionColorTexture b, VertexPositionColorTexture c, Bounds2 clip, ReadOnlySpan<Vector3> planes, Span<VertexPositionColorTexture> output)
     {
-        Span<VertexPositionColorTexture> first = stackalloc VertexPositionColorTexture[12];
-        Span<VertexPositionColorTexture> second = stackalloc VertexPositionColorTexture[12];
+        Span<VertexPositionColorTexture> first = stackalloc VertexPositionColorTexture[planes.Length + 8];
+        Span<VertexPositionColorTexture> second = stackalloc VertexPositionColorTexture[planes.Length + 8];
         first[0] = a;
         first[1] = b;
         first[2] = c;
         int count = 3;
-        for (int side = 0; side < 4 && count > 0; side++)
+        for (int side = 0; side < 4 + planes.Length && count > 0; side++)
         {
             int next = 0;
             VertexPositionColorTexture previous = first[count - 1];
-            float previousDistance = Distance(previous.Position, clip, side);
+            float previousDistance = ClipDistance(previous.Position, clip, planes, side);
             for (int i = 0; i < count; i++)
             {
                 var current = first[i];
-                float distance = Distance(current.Position, clip, side);
+                float distance = ClipDistance(current.Position, clip, planes, side);
                 bool inside = distance >= 0, wasInside = previousDistance >= 0;
                 if (inside != wasInside)
                 {
@@ -45,6 +49,16 @@ internal static class ControlBatchGeometry
         first[..count].CopyTo(output);
         return count;
     }
+
+    /// <summary>Tests whether a point belongs to every active inward halfplane.</summary>
+    internal static bool Contains(Vector3 point, ReadOnlySpan<Vector3> planes)
+    {
+        foreach (Vector3 plane in planes) if (point.X * plane.X + point.Y * plane.Y + plane.Z < 0) return false;
+        return true;
+    }
+
+    private static float ClipDistance(Vector3 point, Bounds2 clip, ReadOnlySpan<Vector3> planes, int side)
+        => side < 4 ? Distance(point, clip, side) : point.X * planes[side - 4].X + point.Y * planes[side - 4].Y + planes[side - 4].Z;
 
     private static float Distance(Vector3 p, Bounds2 clip, int side) => side switch
     {

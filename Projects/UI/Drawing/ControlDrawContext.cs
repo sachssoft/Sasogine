@@ -20,6 +20,8 @@ public sealed class ControlDrawContext : GameContext, IDisposable
     private RenderTargetBinding[] _sceneCurrentTargets = Array.Empty<RenderTargetBinding>();
     private readonly RasterizerState _sceneRasterizer = new() { CullMode = CullMode.None, ScissorTestEnable = true };
     private bool _drawingScene;
+    /// <summary>Retains a reusable scene texture for affine composition.</summary>
+    private RenderTarget2D? _transformedSceneTarget;
     private SpriteBatch? _sceneCompositeBatch;
     private readonly BlendState _sceneCompositeBlend = new()
     {
@@ -34,7 +36,14 @@ public sealed class ControlDrawContext : GameContext, IDisposable
     private Rectangle _viewport;
     private float _scale;
     private float _opacity = 1;
+
+    /// <summary>Maps absolute layout coordinates through the current control's visual ancestors.</summary>
+    private Matrix _visualTransform = Matrix.Identity;
     private Bounds2 _currentBounds, _currentClip;
+    /// <summary>Retains reusable inward halfplanes for rotated ancestor clips.</summary>
+    private Vector3[] _clipPlanes = new Vector3[32];
+    /// <summary>Tracks the active prefix shared with the frame batch.</summary>
+    private int _clipPlaneCount;
     private UIRegistry? _registry;
     private Viewport _previousViewport;
     private Rectangle _previousScissor;
@@ -196,15 +205,52 @@ public sealed class ControlDrawContext : GameContext, IDisposable
     {
         EnsureDrawing();
         Bounds2 previous = _currentClip;
+        int previousPlanes = _clipPlaneCount;
         var absolute = new Bounds2(_currentBounds.X + localBounds.X, _currentBounds.Y + localBounds.Y, localBounds.Width, localBounds.Height);
-        SetControl(_currentBounds, Control.Intersect(previous, absolute), _opacity, true);
-        return new ControlClipScope(this, previous);
+        PushVisualClip(absolute, _visualTransform);
+        SetControl(_currentBounds, Control.Intersect(previous, ControlTransforms.TransformBounds(absolute, _visualTransform)), _opacity, true, _visualTransform);
+        return new ControlClipScope(this, previous, previousPlanes);
     }
 
-    internal void RestoreClip(Bounds2 previous)
+    /// <summary>Adds exact inward clip planes only when an axis-aligned envelope cannot describe the rectangle.</summary>
+    /// <param name="bounds">The absolute layout rectangle.</param>
+    /// <param name="transform">The visual transform mapping the rectangle to workspace coordinates.</param>
+    /// <returns>The plane count to restore after the nested drawing operation.</returns>
+    internal int PushVisualClip(Bounds2 bounds, Matrix transform)
+    {
+        int previous = _clipPlaneCount;
+        if (transform.M12 == 0 && transform.M21 == 0) return previous;
+        if (_clipPlaneCount + 4 > _clipPlanes.Length) Array.Resize(ref _clipPlanes, Math.Max(_clipPlanes.Length * 2, _clipPlaneCount + 4));
+        Vector2 a = Vector2.Transform(new Vector2(bounds.Left, bounds.Top), transform) * _scale;
+        Vector2 b = Vector2.Transform(new Vector2(bounds.Right, bounds.Top), transform) * _scale;
+        Vector2 c = Vector2.Transform(new Vector2(bounds.Right, bounds.Bottom), transform) * _scale;
+        Vector2 d = Vector2.Transform(new Vector2(bounds.Left, bounds.Bottom), transform) * _scale;
+        float orientation = (b.X - a.X) * (c.Y - a.Y) - (b.Y - a.Y) * (c.X - a.X) >= 0 ? 1 : -1;
+        AddClipPlane(a, b, orientation); AddClipPlane(b, c, orientation); AddClipPlane(c, d, orientation); AddClipPlane(d, a, orientation);
+        _frameBatch?.SetClipPlanes(_clipPlanes, _clipPlaneCount);
+        return previous;
+    }
+
+    /// <summary>Restores the active clip prefix after drawing a descendant.</summary>
+    /// <param name="count">The prefix captured before entering the descendant.</param>
+    internal void RestoreVisualClip(int count)
+    {
+        _clipPlaneCount = count;
+        _frameBatch?.SetClipPlanes(_clipPlanes, count);
+    }
+
+    /// <summary>Appends an inward edge equation in physical viewport coordinates.</summary>
+    private void AddClipPlane(Vector2 a, Vector2 b, float orientation)
+    {
+        float x = (a.Y - b.Y) * orientation, y = (b.X - a.X) * orientation;
+        _clipPlanes[_clipPlaneCount++] = new Vector3(x, y, -x * a.X - y * a.Y);
+    }
+
+    internal void RestoreClip(Bounds2 previous, int previousPlanes)
     {
         EnsureDrawing();
-        SetControl(_currentBounds, previous, _opacity, true);
+        RestoreVisualClip(previousPlanes);
+        SetControl(_currentBounds, previous, _opacity, true, _visualTransform);
     }
 
     private void DrawRegion(ControlSkin skin, SkinRegion region, Bounds2 destination, Color color)
@@ -407,18 +453,19 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         }
     }
 
-    internal void SetControl(Bounds2 bounds, Bounds2 clip, float opacity, bool preserveCompatibility = false)
+    internal void SetControl(Bounds2 bounds, Bounds2 clip, float opacity, bool preserveCompatibility = false, Matrix? visualTransform = null)
     {
         bool compatibility = preserveCompatibility && _legacyControl;
         EndLegacy();
         _legacyControl = compatibility;
         _opacity = opacity;
+        _visualTransform = visualTransform ?? Matrix.Identity;
         _currentBounds = bounds;
         _currentClip = clip;
         if (_frameBatch is not null)
         {
             Rectangle pixels = ToPixelClip(clip, _viewport, _scale);
-            _frameBatch.SetControl(new Vector2(bounds.X, bounds.Y), _scale, new Bounds2(pixels.X - _viewport.X, pixels.Y - _viewport.Y, pixels.Width, pixels.Height));
+            _frameBatch.SetControl(new Vector2(bounds.X, bounds.Y), _scale, new Bounds2(pixels.X - _viewport.X, pixels.Y - _viewport.Y, pixels.Width, pixels.Height), _visualTransform);
             if (_legacyControl)
                 EnsureLegacy();
         }
@@ -431,6 +478,8 @@ public sealed class ControlDrawContext : GameContext, IDisposable
     /// <returns>The pixel-aligned position in the same local coordinates.</returns>
     private Vector2 SnapDrawPosition(Vector2 position)
     {
+        if (_visualTransform != Matrix.Identity)
+            return position;
         var origin = new Vector2(_currentBounds.X, _currentBounds.Y);
         Vector2 pixels = (origin + position) * _scale;
         return new Vector2(MathF.Floor(pixels.X + 0.5f), MathF.Floor(pixels.Y + 0.5f)) / _scale - origin;
@@ -443,7 +492,7 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         _frameBatch?.Flush();
         _batch ??= new SpriteBatch(GraphicsDevice);
         GraphicsDevice.ScissorRectangle = ToPixelClip(_currentClip, _viewport, _scale);
-        Matrix transform = Matrix.CreateTranslation(_currentBounds.X, _currentBounds.Y, 0) * Matrix.CreateScale(_scale, _scale, 1);
+        Matrix transform = Matrix.CreateTranslation(_currentBounds.X, _currentBounds.Y, 0) * _visualTransform * Matrix.CreateScale(_scale, _scale, 1);
         _batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, _rasterizer, null, transform);
         _batchActive = true;
     }
@@ -490,6 +539,11 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         EnsureDrawing();
         ArgumentNullException.ThrowIfNull(render);
         if (_drawingScene) throw new InvalidOperationException("Direct scene rendering cannot be reentered.");
+        if (_visualTransform != Matrix.Identity)
+        {
+            DrawTransformedScene(localBounds, render, compositeBackground);
+            return;
+        }
         Rectangle clip = ToPixelClip(_currentClip, _viewport, _scale);
         int left = (int)Math.Floor(_viewport.X + (_currentBounds.X + localBounds.X) * _scale);
         int top = (int)Math.Floor(_viewport.Y + (_currentBounds.Y + localBounds.Y) * _scale);
@@ -559,6 +613,66 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         }
     }
 
+    /// <summary>Renders transformed scene content offscreen, then composes it through the normal affine UI path.</summary>
+    private void DrawTransformedScene(Bounds2 localBounds, Action<SceneViewportDrawContext> render, Color? compositeBackground)
+    {
+        int width = checked((int)Math.Ceiling(localBounds.Width * _scale));
+        int height = checked((int)Math.Ceiling(localBounds.Height * _scale));
+        if (width <= 0 || height <= 0) return;
+        if (compositeBackground is { A: not 255 }) throw new ArgumentException("The composite backdrop must be opaque.", nameof(compositeBackground));
+        EndLegacy();
+        _frameBatch?.Flush();
+        var device = GraphicsDevice;
+        var viewport = device.Viewport; var scissor = device.ScissorRectangle;
+        var blend = device.BlendState; var depth = device.DepthStencilState; var rasterizer = device.RasterizerState;
+        var usage = device.PresentationParameters.RenderTargetUsage;
+        int count = device.RenderTargetCount;
+        if (_sceneTargets.Length != count) _sceneTargets = new RenderTargetBinding[count];
+        if (count > 0) device.GetRenderTargets(_sceneTargets);
+        for (int slot = 0; slot < 8; slot++) { _sceneTextures[slot] = device.Textures[slot]; _sceneSamplers[slot] = device.SamplerStates[slot]; }
+        if (_transformedSceneTarget is null || _transformedSceneTarget.Width != width || _transformedSceneTarget.Height != height)
+        {
+            for (int slot = 0; slot < 8; slot++)
+                if (ReferenceEquals(_sceneTextures[slot], _transformedSceneTarget)) { _sceneTextures[slot] = null; device.Textures[slot] = null; }
+            _transformedSceneTarget?.Dispose();
+            _transformedSceneTarget = new RenderTarget2D(device, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8, 0, RenderTargetUsage.PreserveContents);
+        }
+        _drawingScene = true;
+        try
+        {
+            if (count == 0) device.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents;
+            for (int slot = 0; slot < 8; slot++) if (ReferenceEquals(device.Textures[slot], _transformedSceneTarget)) device.Textures[slot] = null;
+            device.SetRenderTarget(_transformedSceneTarget);
+            Rectangle bounds = new(0, 0, width, height);
+            device.Viewport = new Viewport(bounds); device.ScissorRectangle = bounds;
+            device.RasterizerState = _sceneRasterizer;
+            device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer | ClearOptions.Stencil, Color.Transparent, 1, 0);
+            render(new SceneViewportDrawContext(device, bounds, bounds, 1, GameTime));
+            if (compositeBackground is { } background)
+            {
+                device.SetRenderTarget(_transformedSceneTarget);
+                device.Viewport = new Viewport(bounds); device.ScissorRectangle = bounds;
+                _sceneCompositeBatch ??= new SpriteBatch(device);
+                _sceneCompositeBatch.Begin(SpriteSortMode.Immediate, _sceneCompositeBlend, SamplerState.PointClamp, DepthStencilState.None, _sceneRasterizer);
+                try { _sceneCompositeBatch.Draw(_white, bounds, background); }
+                finally { _sceneCompositeBatch.End(); }
+            }
+        }
+        finally
+        {
+            try
+            {
+                device.SetRenderTargets(_sceneTargets);
+                device.PresentationParameters.RenderTargetUsage = usage;
+                device.Viewport = viewport; device.ScissorRectangle = scissor;
+                device.BlendState = blend; device.DepthStencilState = depth; device.RasterizerState = rasterizer;
+                for (int slot = 0; slot < 8; slot++) { device.Textures[slot] = _sceneTextures[slot]; device.SamplerStates[slot] = _sceneSamplers[slot]; }
+            }
+            finally { _drawingScene = false; Array.Clear(_sceneTextures); Array.Clear(_sceneTargets); }
+        }
+        DrawTexture(_transformedSceneTarget, new Rectangle(0, 0, width, height), localBounds, Color.White);
+    }
+
     internal static Rectangle ToPixelClip(Bounds2 clip, Rectangle viewport, float scale)
     {
         int left = (int)Math.Clamp(Math.Floor(viewport.X + (double)clip.Left * scale), viewport.Left, (long)viewport.X + viewport.Width);
@@ -618,6 +732,7 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         _sceneRasterizer.Dispose();
         _sceneCompositeBatch?.Dispose();
         _sceneCompositeBlend.Dispose();
+        _transformedSceneTarget?.Dispose();
         _disposed = true;
     }
 }
