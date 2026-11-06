@@ -25,7 +25,6 @@ All notable changes to this project will be documented in this file.
 * [Feature] **Controls**: Added move, resize, independent scale, rotation and pivot gestures with affine drawing/input, exact nested clipping and scene composition.
 * [Feature] **Controls**: Added JavaScript syntax highlighting, including module keywords and multiline template strings.
 * [Feature] Added XML localization tables and a managed translation-table asset with text and plural variants.
-* [Bug] Localization falls back per missing text key and uses language-specific plural forms through the manager. Failed initial bindings no longer leave an event subscription behind.
 * [Feature] Added immutable `ProductInfo` with currency metadata, localized prices, and separate price components for custom font selection.
 * [Feature] Added `CornerType` and corner-size overloads to `ShapeBatch` for filled and stroked rectangles, including brush, pen, and transformation support.
 * [Feature] Added PackageContainer for versioned packages with application-defined identifiers, separate metadata streams, and per-entry Brotli compression.
@@ -35,6 +34,9 @@ All notable changes to this project will be documented in this file.
 * [Improve] Extended `PseudoPurchaseService` with localized prices, a EUR/USD demo catalog, validated read-only catalog snapshots, and synchronized ownership checks.
 * [Improve] **Controls**: Standardized enum reuse: shared types belong in engine modules; control-specific enums remain in Controls.
 * [Improve] Added an allocation-free geometry path for ordinary `ShapeBatch` rectangle outlines and reusable buffers for polygon strokes.
+* [Bug] Isolated desktop keyboard events and Controls text subscriptions to prevent Android startup crashes when MonoGame lacks InputKeyEventArgs or GameWindow.TextInput.
+* [Bug] Fixed Android platform compilation with the required window handle, application-context imports, display-density conversion, and version-aware clipboard access.
+* [Bug] Localization falls back per missing text key and uses language-specific plural forms through the manager. Failed initial bindings no longer leave an event subscription behind.
 * [Bug] Fixed reversed `LowTieredScore` and `HighTieredScore` thresholds and edits resetting or moving values to another tier; the edited value now stays in its selected tier.
 * [Bug] Fixed `PseudoPurchaseService` accepting unknown product IDs and duplicate or invalid catalog entries.
 * [Bug] **Controls**: Fixed `ValueTextBox` overwriting numeric input during repeated updates; decimal input accepts dot and comma separators without floating-point display artifacts.
