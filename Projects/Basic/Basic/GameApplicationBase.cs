@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Engine.Assets;
 using Sachssoft.Engine.Diagnostics;
@@ -11,6 +11,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 namespace Sachssoft.Engine;
 
@@ -432,9 +433,8 @@ public abstract class GameApplicationBase : Game, IServiceProvider
         Window.FileDrop += Window_FileDrop;
         Window.ClientSizeChanged += Window_ClientSizeChanged;
         Window.OrientationChanged += Window_OrientationChanged;
-        Window.KeyDown += Window_KeyDown;
-        Window.KeyUp += Window_KeyUp;
-        Window.TextInput += Window_TextInput;
+        if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
+            RegisterDesktopWindowInput();
     }
 
     private IGameActivator CreateDefaultActivator(GameConfiguration configuration)
@@ -464,22 +464,11 @@ public abstract class GameApplicationBase : Game, IServiceProvider
             resizeAware.OnOrientationChanged();
     }
 
-    private void Window_KeyUp(object? sender, InputKeyEventArgs e)
+    /// <summary>Registers desktop-only input without resolving its backend-specific argument types on mobile.</summary>
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void RegisterDesktopWindowInput()
     {
-        if (_scenes.CurrentScene is IClientKeyboardInput input)
-            input.OnKeyUp(e.Key);
-    }
-
-    private void Window_KeyDown(object? sender, InputKeyEventArgs e)
-    {
-        if (_scenes.CurrentScene is IClientKeyboardInput input)
-            input.OnKeyDown(e.Key);
-    }
-
-    private void Window_TextInput(object? sender, TextInputEventArgs e)
-    {
-        if (_scenes.CurrentScene is IClientKeyboardInput input)
-            input.OnTextInput(e.Character);
+        new DesktopWindowInput(this).Attach();
     }
 
     private static IApplicationDebug CreateDefaultApplicationDebug()
