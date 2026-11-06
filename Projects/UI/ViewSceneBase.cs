@@ -8,6 +8,7 @@ using Sachssoft.Engine.Graphics.Cameras;
 using Sachssoft.Engine.Graphics.Materials;
 using Sachssoft.Engine.Scenes;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Sachssoft.Engine.Controls;
 
@@ -122,7 +123,8 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
         _application = eventArgs.Application;
         _input = new ControlInputSampler();
         _frameReady = false;
-        Application.Window.TextInput += OnTextInput;
+        if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
+            SetDesktopTextInputSubscription(true);
         _active = true;
     }
 
@@ -132,7 +134,8 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
         if (!_active)
             return;
 
-        Application.Window.TextInput -= OnTextInput;
+        if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
+            SetDesktopTextInputSubscription(false);
         _active = false;
         _frameReady = false;
         if (_updating)
@@ -301,6 +304,17 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
     /// <param name="context">The current scene update and timing.</param>
     protected virtual void OnUpdate(SceneUpdateContext context)
     {
+    }
+
+    /// <summary>Changes the desktop-only text event binding outside mobile lifecycle methods.</summary>
+    /// <param name="subscribe">Whether the active scene should receive desktop text input.</param>
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void SetDesktopTextInputSubscription(bool subscribe)
+    {
+        if (subscribe)
+            Application.Window.TextInput += OnTextInput;
+        else
+            Application.Window.TextInput -= OnTextInput;
     }
 
     /// <summary>Queues native text only while this scene and its application are active.</summary>
