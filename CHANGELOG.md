@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
 </small>
 
 ## [0.14.0-alpha] - Planned
+* [Feature] **Controls**: Added visible glyph bounds measurement to FontFaceControlFont for aligning text from different font families.
 * [Feature] **Controls**: Added templated ItemsControl with observable sources, item factories, interchangeable panels and editable Canvas items.
 * [Feature] **Controls**: Added move, resize, independent scale, rotation and pivot gestures with affine drawing/input, exact nested clipping and scene composition.
 * [Feature] **Controls**: Added JavaScript syntax highlighting, including module keywords and multiline template strings.

@@ -62,6 +62,25 @@ public sealed class FontFaceControlFont : IControlBatchFont, IDisposable
         return new Size2(_font.MeasureString(text));
     }
 
+    /// <summary>
+    /// Measures the visible glyph bounds relative to the text drawing origin.
+    /// </summary>
+    /// <param name="text">The text whose rendered glyph bounds are requested.</param>
+    /// <returns>The visible bounds, including their offset from the drawing origin.</returns>
+    /// <exception cref="ObjectDisposedException">This adapter has been disposed.</exception>
+    /// <exception cref="ArgumentNullException">The text is null.</exception>
+    public Bounds2 MeasureInkBounds(string text)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        ArgumentNullException.ThrowIfNull(text);
+
+        if (text.Length == 0)
+            return Bounds2.Zero;
+
+        var bounds = _font.TextBounds(text, Vector2.Zero);
+        return new Bounds2(bounds.X, bounds.Y, bounds.X2 - bounds.X, bounds.Y2 - bounds.Y);
+    }
+
     /// <inheritdoc/>
     public void Draw(SpriteBatch batch, string text, Vector2 position, Color color)
     {
