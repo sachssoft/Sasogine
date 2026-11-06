@@ -1,3 +1,4 @@
+using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Provider;
@@ -22,7 +23,7 @@ public sealed class AndroidDeviceInfoService : IDeviceInfoService
     public string Model => string.IsNullOrWhiteSpace(Build.Manufacturer) ? Build.Model ?? "Android" : $"{Build.Manufacturer} {Build.Model}".Trim();
     public int ScreenWidth => _game.Window.ClientBounds.Width;
     public int ScreenHeight => _game.Window.ClientBounds.Height;
-    public float ScreenDpi => Application.Context.Resources?.DisplayMetrics?.DensityDpi ?? (float)DisplayMetricsDensity.Default;
+    public float ScreenDpi => (float)(Application.Context.Resources?.DisplayMetrics?.DensityDpi ?? DisplayMetricsDensity.Default);
     public bool IsLandscape => ScreenWidth >= ScreenHeight;
 
     public string? DeviceId

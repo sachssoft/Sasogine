@@ -20,6 +20,9 @@ public sealed class AndroidWindow : IPlatformWindow
     }
 
     /// <inheritdoc/>
+    public nint Handle => _game.Window.Handle;
+
+    /// <inheritdoc/>
     public bool SupportsWindowMode => false;
 
     /// <inheritdoc/>

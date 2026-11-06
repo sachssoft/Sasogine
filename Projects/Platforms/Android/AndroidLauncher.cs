@@ -1,3 +1,4 @@
+using Android.App;
 using Android.Content;
 using Sachssoft.Engine.Services.Platform;
 using System;
