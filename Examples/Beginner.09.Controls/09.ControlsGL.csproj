@@ -13,7 +13,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.6" />
-    <PackageReference Include="FontStashSharp.MonoGame" Version="1.6.1" />
+    <PackageReference Include="FontStashSharp.MonoGame" Version="1.6.2" />
     <ProjectReference Include="..\..\Projects\UI\Sachssoft.Sasogine.Controls.csproj" Condition="'$(UseBuiltEngine)' != 'true'" />
   </ItemGroup>
   <!-- Optional fast path: use the engine assemblies already built in this checkout. -->

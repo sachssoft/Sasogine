@@ -19,7 +19,12 @@ All notable changes to this project will be documented in this file.
 
 </small>
 
-## [0.15.0-alpha] - Planned
+
+## [0.14.3-alpha] - 2026-11-30 (Planned)
+
+## [0.14.2-alpha] - 2026-11-23 (Planned)
+
+## [0.14.1-alpha] - 2026-11-16 (Planned)
 
 ## [0.14.0-alpha] - 2026-11-09
 * [Feature] **Controls**: Added visible glyph bounds measurement to FontFaceControlFont for aligning text from different font families.
