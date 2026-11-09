@@ -95,6 +95,46 @@ public static partial class FormatReaderExtensions
         return (new PixelPoint3(x, y, depth));
     }
 
+    /// <summary>
+    /// Reads a <see cref="Coordinate2"/> value from the specified property.
+    /// </summary>
+    /// <param name="reader">The format reader used to read the value.</param>
+    /// <param name="property">The name of the property to read.</param>
+    /// <param name="fallback">The fallback value used when the property or individual components are missing.</param>
+    /// <returns>The deserialized <see cref="Coordinate2"/> value, or the fallback if the property does not exist.</returns>
+    public static Coordinate2 ReadCoordinate2(this FormatReaderBase reader, string property, Coordinate2 fallback)
+    {
+        var childReader = reader.Read(property);
+
+        if (childReader == null)
+            return fallback;
+
+        var x = childReader.ReadInt32(nameof(Coordinate2.X), fallback.X);
+        var y = childReader.ReadInt32(nameof(Coordinate2.Y), fallback.Y);
+
+        return (new Coordinate2(x, y));
+    }
+
+    /// <summary>
+    /// Reads a <see cref="Coordinate3"/> value from the specified property.
+    /// </summary>
+    /// <param name="reader">The format reader used to read the value.</param>
+    /// <param name="property">The name of the property to read.</param>
+    /// <param name="fallback">The fallback value used when the property or individual components are missing.</param>
+    /// <returns>The deserialized <see cref="Coordinate3"/> value, or the fallback if the property does not exist.</returns>
+    public static Coordinate3 ReadCoordinate3(this FormatReaderBase reader, string property, Coordinate3 fallback)
+    {
+        var childReader = reader.Read(property);
+
+        if (childReader == null)
+            return fallback;
+
+        var x = childReader.ReadInt32(nameof(Coordinate3.X), fallback.X);
+        var y = childReader.ReadInt32(nameof(Coordinate3.Y), fallback.Y);
+        var depth = childReader.ReadInt32(nameof(Coordinate3.Z), fallback.Z);
+
+        return (new Coordinate3(x, y, depth));
+    }
 
     /// <summary>
     /// Reads a Size2 value from the specified markup property.

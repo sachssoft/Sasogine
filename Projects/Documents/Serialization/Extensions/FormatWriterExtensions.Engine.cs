@@ -113,6 +113,38 @@ public static partial class FormatWriterExtensions
         writer.Write(property, childWriter);
     }
 
+    /// <summary>
+    /// Writes a <see cref="Coordinate2"/> value to the specified property.
+    /// </summary>
+    /// <param name="writer">The format writer used to write the value.</param>
+    /// <param name="property">The name of the property to write.</param>
+    /// <param name="value">The <see cref="Coordinate2"/> value to serialize.</param>
+    public static void WriteCoordinate2(this FormatWriterBase writer, string property, Coordinate2 value)
+    {
+        var childWriter = writer.CreateWriter();
+
+        childWriter.WriteInt32(nameof(Coordinate2.X), value.X);
+        childWriter.WriteInt32(nameof(Coordinate2.Y), value.Y);
+
+        writer.Write(property, childWriter);
+    }
+
+    /// <summary>
+    /// Writes a <see cref="Coordinate3"/> value to the specified property.
+    /// </summary>
+    /// <param name="writer">The format writer used to write the value.</param>
+    /// <param name="property">The name of the property to write.</param>
+    /// <param name="value">The <see cref="Coordinate3"/> value to serialize.</param>
+    public static void WriteCoordinate3(this FormatWriterBase writer, string property, Coordinate3 value)
+    {
+        var childWriter = writer.CreateWriter();
+
+        childWriter.WriteInt32(nameof(Coordinate3.X), value.X);
+        childWriter.WriteInt32(nameof(Coordinate3.Y), value.Y);
+        childWriter.WriteInt32(nameof(Coordinate3.Z), value.Z);
+
+        writer.Write(property, childWriter);
+    }
 
     /// <summary>
     /// Writes a Size2 value to the specified markup property.

@@ -19,7 +19,9 @@ All notable changes to this project will be documented in this file.
 
 </small>
 
-## [0.14.0-alpha] - Planned
+## [0.15.0-alpha] - Planned
+
+## [0.14.0-alpha] - 2026-11-09
 * [Feature] **Controls**: Added visible glyph bounds measurement to FontFaceControlFont for aligning text from different font families.
 * [Feature] **Controls**: Added templated ItemsControl with observable sources, item factories, interchangeable panels and editable Canvas items.
 * [Feature] **Controls**: Added move, resize, independent scale, rotation and pivot gestures with affine drawing/input, exact nested clipping and scene composition.
@@ -34,6 +36,7 @@ All notable changes to this project will be documented in this file.
 * [Improve] Extended `PseudoPurchaseService` with localized prices, a EUR/USD demo catalog, validated read-only catalog snapshots, and synchronized ownership checks.
 * [Improve] **Controls**: Standardized enum reuse: shared types belong in engine modules; control-specific enums remain in Controls.
 * [Improve] Added an allocation-free geometry path for ordinary `ShapeBatch` rectangle outlines and reusable buffers for polygon strokes.
+* [Improve] **Documents**: Added missing `ReadCoordinate2`, `ReadCoordinate3`, `WriteCoordinate2`, and `WriteCoordinate3` methods for serialization.
 * [Bug] Isolated desktop keyboard events and Controls text subscriptions to prevent Android startup crashes when MonoGame lacks InputKeyEventArgs or GameWindow.TextInput.
 * [Bug] Fixed Android platform compilation with the required window handle, application-context imports, display-density conversion, and version-aware clipboard access.
 * [Bug] Localization falls back per missing text key and uses language-specific plural forms through the manager. Failed initial bindings no longer leave an event subscription behind.
