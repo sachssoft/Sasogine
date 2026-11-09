@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/build/">
+  </Folder>
+
+  <Folder Name="/src/">
+    <Project Path="src/Sachssoft.VarietyGolf.csproj" />
+  </Folder>
+
+  <Folder Name="/targets/">
+  </Folder>
+
+  <Folder Name="/docs/">
+  </Folder>
+
+  <Folder Name="/docs/info/">
+  </Folder>
+</Solution>
