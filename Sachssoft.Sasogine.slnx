@@ -20,6 +20,7 @@
 		<File Path="PackageBuildInstructions_DE.md" />
 		<File Path="PROGRAMMING_ARCHITECTURE_GUIDELINES_DE.md" />
 		<File Path="PROGRAMMING_ARCHITECTURE_GUIDELINES_EN.md" />
+		<File Path="Projects/UI/ISSUES.md" />
 		<File Path="README.md" />
 		<File Path="README_DE.md" />
 	</Folder>
