@@ -100,7 +100,7 @@ public sealed class MenuItem : MenuEntry
     private string _shortcutText = string.Empty;
 
     /// <summary>Stores the displayed command caption.</summary>
-    private string _text = string.Empty;
+    private string? _text = string.Empty;
 
     /// <summary>Stores the optional atlas icon identifier.</summary>
     private string? _icon;
@@ -112,7 +112,7 @@ public sealed class MenuItem : MenuEntry
     /// Ampersands can be used as mnemonic markers and are removed
     /// from the internal display caption.
     /// </remarks>
-    public string Text { get => _text; set => SetNotify(ref _text, value, TextArgs); }
+    public string? Text { get => _text; set => SetNotify(ref _text, value, TextArgs); }
 
     /// <summary>
     /// Gets or sets whether the menu item is enabled.
@@ -226,7 +226,7 @@ public sealed class MenuItem : MenuEntry
     /// <summary>
     /// Gets the menu caption without mnemonic ampersand markers.
     /// </summary>
-    internal string Caption => Text.Replace("&", string.Empty, StringComparison.Ordinal);
+    internal string? Caption => Text?.Replace("&", string.Empty, StringComparison.Ordinal);
 
     /// <summary>
     /// Executes the menu item's checked-state transition,
