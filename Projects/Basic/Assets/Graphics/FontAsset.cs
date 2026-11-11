@@ -96,8 +96,8 @@ namespace Sachssoft.Engine.Assets.Graphics
             return new FontFace(
                 memory.ToArray(),
                 Definition.Name,
-                Definition.WeightDefinition,
-                Definition.StyleDefinition);
+                Definition.Weight,
+                Definition.Style);
         }
     }
 }
