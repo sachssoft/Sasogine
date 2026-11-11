@@ -184,7 +184,7 @@ public class Grid : ContainerControl
         int columnSpan = 1,
         int rowSpan = 1)
     {
-        Cells.Put(control, row: row, column: column, rowSpan: rowSpan);
+        Cells.Put(control, row: row, column: column, columnSpan: columnSpan, rowSpan: rowSpan);
         Children.Add(control);
     }
 

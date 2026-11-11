@@ -26,6 +26,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.14.1-alpha] - 2026-11-16 (Planned)
 * [Change] Renamed `FontAssetDefinition.WeightDefinition` and `StyleDefinition` to `Weight` and `Style` for improved API clarity and consistency.
+* [Bug] **Controls**: Fixed `Grid.Place()` ignoring the `columnSpan` parameter.
 
 ## [0.14.0-alpha] - 2026-11-09
 * [Feature] **Controls**: Added visible glyph bounds measurement to FontFaceControlFont for aligning text from different font families.
