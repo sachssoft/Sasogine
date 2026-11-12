@@ -41,6 +41,7 @@ All notable changes to this project will be documented in this file.
 * [Improve] **Controls**: Reused font inheritance and text measurements to reduce layout spikes when opening dense pages.
 * [Improve] **Controls**: Reduced host setup with workspace-owned input sampling, layout, and drawing.
 * [Improve] **Controls**: Simplified `SceneViewport` with an owned render target, pixel mapping, and color picking.
+* [Improve] **Controls**: Coalesced layout and visual invalidations and limited layout preparation to affected branches.
 * [Bug] **Controls**: Fixed `Grid.Place()` ignoring the `columnSpan` parameter.
 * [Bug] **Controls**: Fixed menu measurement, drawing, and access keys for entries without text.
 
