@@ -176,6 +176,24 @@ public abstract class QuadBatchBase : IDisposable
         _vertexCount += 4;
     }
 
+    internal void AddGlyphQuad(in VertexPositionColorTexture topLeft, in VertexPositionColorTexture topRight,
+        in VertexPositionColorTexture bottomLeft, in VertexPositionColorTexture bottomRight)
+    {
+        ThrowIfDisposed();
+        if (!_isBegun)
+            throw new InvalidOperationException("Batch must be started before adding glyphs.");
+
+        EnsureCapacity();
+        int vertex = _quadCount * 4;
+        Vector3 normal = new(0, 0, -1);
+        _vertices[vertex] = new(topLeft.Position, topLeft.Color, normal, topLeft.TextureCoordinate);
+        _vertices[vertex + 1] = new(topRight.Position, topRight.Color, normal, topRight.TextureCoordinate);
+        _vertices[vertex + 2] = new(bottomRight.Position, bottomRight.Color, normal, bottomRight.TextureCoordinate);
+        _vertices[vertex + 3] = new(bottomLeft.Position, bottomLeft.Color, normal, bottomLeft.TextureCoordinate);
+        _quadCount++;
+        _vertexCount += 4;
+    }
+
     private Vector2 GetUV(
         int x,
         int y)

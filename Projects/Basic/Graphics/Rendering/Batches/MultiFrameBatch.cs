@@ -157,6 +157,14 @@ public sealed class MultiFrameBatch : IDisposable
                 color));
     }
 
+    internal void AddGlyphQuad(Texture2D texture, in VertexPositionColorTexture topLeft, in VertexPositionColorTexture topRight,
+        in VertexPositionColorTexture bottomLeft, in VertexPositionColorTexture bottomRight)
+    {
+        ThrowIfDisposed();
+        ThrowIfNotBegun();
+        GetGroup(texture).Glyphs.Add((topLeft, topRight, bottomLeft, bottomRight));
+    }
+
     /// <summary>Adds a frame using its own atlas page and source region.</summary>
     /// <param name="frameSet">The frame's atlas collection.</param>
     /// <param name="frame">The frame data, including its texture index.</param>
@@ -236,6 +244,9 @@ public sealed class MultiFrameBatch : IDisposable
                         frame.Color);
                 }
 
+                foreach (var glyph in group.Glyphs)
+                    _frameBatch.AddGlyphQuad(glyph.TopLeft, glyph.TopRight, glyph.BottomLeft, glyph.BottomRight);
+
                 _frameBatch.End();
             }
         }
@@ -281,6 +292,7 @@ public sealed class MultiFrameBatch : IDisposable
         {
             group = _groups[groupIndex];
             group.Frames.Clear();
+            group.Glyphs.Clear();
         }
         else
         {
@@ -307,6 +319,7 @@ public sealed class MultiFrameBatch : IDisposable
 
             group.Texture = null;
             group.Frames.Clear();
+            group.Glyphs.Clear();
         }
 
         _groupCount = 0;
@@ -333,6 +346,8 @@ public sealed class MultiFrameBatch : IDisposable
         public Texture2D? Texture;
 
         public readonly List<FrameEntry> Frames = [];
+        public readonly List<(VertexPositionColorTexture TopLeft, VertexPositionColorTexture TopRight,
+            VertexPositionColorTexture BottomLeft, VertexPositionColorTexture BottomRight)> Glyphs = [];
     }
 
     private readonly struct FrameEntry
