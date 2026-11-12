@@ -22,6 +22,7 @@ namespace Sachssoft.Engine.Scenes
         private SceneDrawContext[]? _sceneDrawContexts;
 
         private bool _isLoaded;
+        private bool _sceneEntered;
         private IScene _currentScene;
 
         private IScene? _pendingScene;
@@ -100,6 +101,40 @@ namespace Sachssoft.Engine.Scenes
             _isLoaded = true;
         }
 
+        /// <inheritdoc/>
+        public void Unload()
+        {
+            bool exitCurrent = _sceneEntered;
+            bool unloadCurrent = _isLoaded || exitCurrent;
+            _isLoaded = false;
+            _sceneEntered = false;
+            _sceneUpdateContext = null;
+            _sceneDrawContexts = null;
+            _transition = null;
+            _pendingScene = null;
+            _transitionCompletion?.TrySetCanceled();
+            _transitionCompletion = null;
+
+            List<Exception>? failures = null;
+            if (exitCurrent)
+                Attempt(_currentScene.Exit);
+            if (unloadCurrent)
+                Attempt(_currentScene.Unload);
+            foreach (IScene scene in _persistentScenes)
+                if (!unloadCurrent || !ReferenceEquals(scene, _currentScene))
+                    Attempt(scene.Unload);
+            _persistentScenes.Clear();
+            _currentScene = _mainScene;
+            if (failures is not null)
+                throw new AggregateException("Scene cleanup failed.", failures);
+
+            void Attempt(Action action)
+            {
+                try { action(); }
+                catch (Exception error) { (failures ??= new()).Add(error); }
+            }
+        }
+
 
         /// <summary>
         /// Initializes a scene by creating cameras, render contexts,
@@ -144,6 +179,7 @@ namespace Sachssoft.Engine.Scenes
 
             bool alreadyLoaded = _persistentScenes.Contains(scene);
 
+            _sceneEntered = true;
             scene.Enter(CreateEventArgs());
 
             if (!alreadyLoaded)
@@ -291,6 +327,7 @@ namespace Sachssoft.Engine.Scenes
             IScene nextScene,
             bool forceRemove)
         {
+            _sceneEntered = false;
             _currentScene.Exit();
 
 

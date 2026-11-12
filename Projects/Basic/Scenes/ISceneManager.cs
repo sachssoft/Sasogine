@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Sachssoft.Engine.Scenes
@@ -53,6 +55,31 @@ namespace Sachssoft.Engine.Scenes
         /// Loads the scene manager and initializes required resources.
         /// </summary>
         void Load();
+
+        /// <summary>Stops the current scene and unloads all active scenes.</summary>
+        /// <remarks>Override to release partially loaded scenes and reset manager-specific state.</remarks>
+        void Unload()
+        {
+            if (!IsLoaded)
+                return;
+
+            IScene current = CurrentScene;
+            IScene[] others = ActiveScenes.Where(scene => !ReferenceEquals(scene, current))
+                .Distinct<IScene>(ReferenceEqualityComparer.Instance).ToArray();
+            List<Exception>? failures = null;
+            Attempt(current.Exit);
+            Attempt(current.Unload);
+            foreach (IScene scene in others)
+                Attempt(scene.Unload);
+            if (failures is not null)
+                throw new AggregateException("Scene cleanup failed.", failures);
+
+            void Attempt(Action action)
+            {
+                try { action(); }
+                catch (Exception error) { (failures ??= new()).Add(error); }
+            }
+        }
 
 
         /// <summary>

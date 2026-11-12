@@ -8,6 +8,7 @@ using Sachssoft.Engine.Resources.Localization;
 using Sachssoft.Engine.Scenes;
 using Sachssoft.Engine.Services.Platform;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -27,13 +28,19 @@ public abstract class GameApplicationBase : Game, IServiceProvider
     private readonly string[] _commandArgs;
     private readonly GraphicsDeviceManager _graphicsDeviceManager;
 
-    private protected readonly IApplicationContext _context;
-    private protected readonly IApplicationDebug _applicationDebug;
-    private protected readonly LocalizationManager _localization;
-    private protected readonly IGameActivator _activator;
-    private protected readonly AssetStore _integratedAssets;
-    private protected readonly ISceneManager _scenes;
-    private protected readonly IGameSettings? _settings;
+    private readonly IApplicationDebug _applicationDebug;
+    private readonly List<IDisposable> _ownedComponents = new();
+    private IApplicationContext? _context;
+    private LocalizationManager? _localization;
+    private IGameActivator? _activator;
+    private AssetStore? _integratedAssets;
+    private ISceneManager? _scenes;
+    private IGameSettings? _settings;
+    private bool _initializationStarted;
+    private bool _settingsLoaded;
+    private bool _assetsNeedUnload;
+    private bool _scenesNeedUnload;
+    private bool _shutdown;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GameApplicationBase"/> class
@@ -59,41 +66,18 @@ public abstract class GameApplicationBase : Game, IServiceProvider
     /// </summary>
     /// <param name="configuration">The optional application configuration.</param>
     /// <param name="args">The command-line arguments passed to the application.</param>
-    /// <exception cref="GameException">
-    /// Thrown when a required engine service cannot be created.
-    /// </exception>
     public GameApplicationBase(GameConfiguration? configuration, params string[] args)
     {
         Configuration = configuration ?? new GameConfiguration();
         _commandArgs = args ?? [];
 
-        _context = CreateContext()
-            ?? throw new GameException("Application context creation failed.");
-
         _applicationDebug = Configuration.Debug
             ?? CreateDefaultApplicationDebug();
 
-        _localization = CreateLocalization()
-            ?? throw new GameException("Localization manager creation failed.");
-
-        _localization.CurrentLanguage = Configuration.Language ?? _localization.FallbackLanguage;
-        ConfigureLocalization(_localization, Configuration);
-
-        _activator = CreateActivator(Configuration) ?? 
-            CreateDefaultActivator(Configuration);
-
-        _integratedAssets = CreateIntegratedAssets(Configuration) ?? 
-            new AssetStore(this);
-
-        _settings = CreateSettings(Configuration);
-
-        _scenes = CreateScenes(Configuration)
-            ?? throw new GameException("Scene manager creation failed.");
-
-        _graphicsDeviceManager = ConfigureGraphicsDevice();
-
+        Content.RootDirectory = Configuration.ContentRootDirectory;
+        _graphicsDeviceManager = new GraphicsDeviceManager(this);
+        ApplyGraphicsConfiguration(Configuration.Graphics);
         Services.AddService(typeof(GraphicsDeviceManager), _graphicsDeviceManager);
-        _graphicsDeviceManager.ApplyChanges();
     }
 
     /// <summary>
@@ -104,7 +88,8 @@ public abstract class GameApplicationBase : Game, IServiceProvider
     /// <summary>
     /// Gets the application context.
     /// </summary>
-    public IApplicationContext Context => _context;
+    /// <exception cref="InvalidOperationException">The context has not been created yet.</exception>
+    public IApplicationContext Context => _context ?? throw ComponentUnavailable(nameof(Context));
 
     /// <summary>
     /// Gets the application diagnostic output.
@@ -114,22 +99,26 @@ public abstract class GameApplicationBase : Game, IServiceProvider
     /// <summary>
     /// Gets the localization manager.
     /// </summary>
-    public LocalizationManager Localization => _localization;
+    /// <exception cref="InvalidOperationException">The localization manager has not been created yet.</exception>
+    public LocalizationManager Localization => _localization ?? throw ComponentUnavailable(nameof(Localization));
 
     /// <summary>
     /// Gets the game activator used to create engine objects from registered definitions.
     /// </summary>
-    public IGameActivator Activator => _activator;
+    /// <exception cref="InvalidOperationException">The activator has not been created yet.</exception>
+    public IGameActivator Activator => _activator ?? throw ComponentUnavailable(nameof(Activator));
 
     /// <summary>
     /// Gets the scene manager.
     /// </summary>
-    public ISceneManager Scenes => _scenes;
+    /// <exception cref="InvalidOperationException">The scene manager has not been created yet.</exception>
+    public ISceneManager Scenes => _scenes ?? throw ComponentUnavailable(nameof(Scenes));
 
     /// <summary>
     /// Gets the integrated asset store provided by the application.
     /// </summary>
-    public AssetStore IntegratedAssets => _integratedAssets;
+    /// <exception cref="InvalidOperationException">The asset store has not been created yet.</exception>
+    public AssetStore IntegratedAssets => _integratedAssets ?? throw ComponentUnavailable(nameof(IntegratedAssets));
 
     /// <summary>
     /// Gets the application settings.
@@ -162,41 +151,126 @@ public abstract class GameApplicationBase : Game, IServiceProvider
     /// </summary>
     protected override void Initialize()
     {
-        IsFixedTimeStep = false;
-        Content.RootDirectory = "Content";
-        IsMouseVisible = true;
+        if (_initializationStarted || _shutdown)
+            throw new InvalidOperationException("Application initialization can only start once.");
 
-        if (Window is not null)
-            RegisterWindowEvents();
+        _initializationStarted = true;
+        var configuration = new ApplicationConfiguration(Configuration.Services);
+        try
+        {
+            IsFixedTimeStep = false;
+            IsMouseVisible = true;
 
-        Configuration.Services.Lock();
-        Configuration.Services.ForEachOnce<IPlatformInitializable>(
-            service => service.Initialize(this));
+            ConfigureApplication(configuration);
+            if (configuration.Scenes is not null && configuration.StartScene is not null)
+                throw new GameException("Configure either Scenes or StartScene, not both.");
+            if (configuration.Activator is not null && configuration.Registry is not null)
+                throw new GameException("Configure either Activator or Registry, not both.");
 
-        _integratedAssets.Initialize(_context);
-        _localization.Close();
+            Configuration.Services.Lock();
+            _context = Own(configuration.Context is { } context
+                ? CreateComponent(context, nameof(configuration.Context))
+                : new ApplicationContext(this));
+            LocalizationManager localizationManager = Own(configuration.Localization is { } localization
+                ? CreateComponent(localization, nameof(configuration.Localization))
+                : new LocalizationManager());
+            _localization = localizationManager;
+            localizationManager.CurrentLanguage = Configuration.Language ?? localizationManager.FallbackLanguage;
+            configuration.ConfigureLocalization?.Invoke(localizationManager);
+            _activator = Own(configuration.Activator ?? (configuration.Registry is { } registry
+                ? (IGameActivator)new GameActivator(Own(registry))
+                : EmptyGameActivator.Instance));
 
-        base.Initialize();
+            _integratedAssets = Own(configuration.Assets is { } assets
+                ? CreateComponent(assets, nameof(configuration.Assets))
+                : new AssetStore(this));
+            _assetsNeedUnload = true;
+            if (configuration.Settings is { } settings)
+                _settings = Own(CreateComponent(settings, nameof(configuration.Settings)));
+
+            Configuration.Services.ForEachOnce<IPlatformInitializable>(service => service.Initialize(this));
+            IntegratedAssets.Initialize(Context);
+            localizationManager.Close();
+            _scenes = Own(configuration.Scenes is { } scenes
+                ? CreateComponent(scenes, nameof(configuration.Scenes))
+                : new SceneManager(this, configuration.StartScene is { } start
+                    ? Own(CreateComponent(start, nameof(configuration.StartScene)))
+                    : new EmptyApplicationScene()));
+
+            if (Window is not null)
+                RegisterWindowEvents();
+            base.Initialize();
+        }
+        catch (Exception error)
+        {
+            try
+            {
+                if (configuration.Activator is { } activator)
+                    Own(activator);
+                if (configuration.Registry is { } registry)
+                    Own(registry);
+                Shutdown(saveSettings: false);
+            }
+            catch (Exception cleanupError)
+            {
+                throw new AggregateException("Application startup and cleanup failed.", error, cleanupError);
+            }
+            throw;
+        }
     }
 
     /// <summary>
-    /// Creates and configures the graphics device manager.
+    /// Configures runtime components once, after the derived application constructor has completed.
     /// </summary>
-    /// <returns>The configured graphics device manager.</returns>
-    protected virtual GraphicsDeviceManager ConfigureGraphicsDevice()
+    /// <param name="configuration">The runtime component and service configuration.</param>
+    protected virtual void ConfigureApplication(ApplicationConfiguration configuration)
     {
-        return new GraphicsDeviceManager(this)
-        {
-            PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width,
-            PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height,
-            HardwareModeSwitch = true,
-            PreferMultiSampling = true,
-            GraphicsProfile = GraphicsProfile.HiDef,
-            PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8,
-            SupportedOrientations =
-                DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight
-        };
     }
+
+    private void ApplyGraphicsConfiguration(GraphicsConfiguration graphics)
+    {
+        ArgumentNullException.ThrowIfNull(graphics);
+        if (graphics.Width is <= 0 || graphics.Height is <= 0)
+            throw new ArgumentOutOfRangeException(nameof(graphics), "Back-buffer dimensions must be positive.");
+
+        var manager = _graphicsDeviceManager;
+        int width = manager.PreferredBackBufferWidth;
+        int height = manager.PreferredBackBufferHeight;
+        if (graphics.UseDisplayResolution && (graphics.Width is null || graphics.Height is null))
+        {
+            var display = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
+            width = display.Width;
+            height = display.Height;
+            const DisplayOrientation landscape = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight;
+            if (OperatingSystem.IsAndroid() && graphics.SupportedOrientations is { } orientation &&
+                (orientation & landscape) != 0 && (orientation & ~landscape) == 0 && height > width)
+                (width, height) = (height, width);
+        }
+
+        manager.PreferredBackBufferWidth = graphics.Width ?? width;
+        manager.PreferredBackBufferHeight = graphics.Height ?? height;
+        manager.IsFullScreen = graphics.FullScreen ?? manager.IsFullScreen;
+        manager.HardwareModeSwitch = graphics.HardwareModeSwitch ?? manager.HardwareModeSwitch;
+        manager.PreferMultiSampling = graphics.MultiSampling ?? manager.PreferMultiSampling;
+        manager.GraphicsProfile = graphics.Profile ?? manager.GraphicsProfile;
+        manager.PreferredDepthStencilFormat = graphics.DepthStencilFormat ?? manager.PreferredDepthStencilFormat;
+        manager.SynchronizeWithVerticalRetrace = graphics.SynchronizeWithVerticalRetrace ?? manager.SynchronizeWithVerticalRetrace;
+        manager.SupportedOrientations = graphics.SupportedOrientations ?? manager.SupportedOrientations;
+        manager.PreferHalfPixelOffset = graphics.PreferHalfPixelOffset ?? manager.PreferHalfPixelOffset;
+    }
+
+    private T CreateComponent<T>(Func<GameApplicationBase, T> factory, string name) where T : class =>
+        factory(this) ?? throw new GameException($"The {name} factory returned null.");
+
+    private T Own<T>(T component) where T : class
+    {
+        if (component is IDisposable disposable && !_ownedComponents.Any(existing => ReferenceEquals(existing, disposable)))
+            _ownedComponents.Add(disposable);
+        return component;
+    }
+
+    private static InvalidOperationException ComponentUnavailable(string name) =>
+        new($"Application component '{name}' is unavailable at this stage of initialization.");
 
     /// <summary>
     /// Changes the preferred application resolution.
@@ -222,7 +296,8 @@ public abstract class GameApplicationBase : Game, IServiceProvider
         _graphicsDeviceManager.PreferredBackBufferWidth = width;
         _graphicsDeviceManager.PreferredBackBufferHeight = height;
         _graphicsDeviceManager.IsFullScreen = fullscreen;
-        _graphicsDeviceManager.ApplyChanges();
+        if (_graphicsDeviceManager.GraphicsDevice is not null)
+            _graphicsDeviceManager.ApplyChanges();
     }
 
     /// <summary>
@@ -274,8 +349,11 @@ public abstract class GameApplicationBase : Game, IServiceProvider
     protected override void LoadContent()
     {
         _settings?.Load();
-        _integratedAssets.LoadAll();
-        _scenes.Load();
+        _settingsLoaded = _settings is not null;
+        _assetsNeedUnload = true;
+        IntegratedAssets.LoadAll();
+        _scenesNeedUnload = true;
+        Scenes.Load();
     }
 
     /// <summary>
@@ -283,8 +361,14 @@ public abstract class GameApplicationBase : Game, IServiceProvider
     /// </summary>
     protected override void UnloadContent()
     {
-        _integratedAssets.UnloadAll();
-        base.UnloadContent();
+        try
+        {
+            ReleaseContent(saveSettings: true);
+        }
+        finally
+        {
+            base.UnloadContent();
+        }
     }
 
     /// <summary>
@@ -295,8 +379,8 @@ public abstract class GameApplicationBase : Game, IServiceProvider
     {
         base.Update(gameTime);
 
-        if (_scenes.IsLoaded)
-            _scenes.Update(gameTime);
+        if (_scenes is { IsLoaded: true } scenes)
+            scenes.Update(gameTime);
     }
 
     /// <summary>
@@ -307,8 +391,8 @@ public abstract class GameApplicationBase : Game, IServiceProvider
     {
         base.Draw(gameTime);
 
-        if (_scenes.IsLoaded)
-            _scenes.Draw(gameTime);
+        if (_scenes is { IsLoaded: true } scenes)
+            scenes.Draw(gameTime);
     }
 
     /// <summary>
@@ -318,7 +402,7 @@ public abstract class GameApplicationBase : Game, IServiceProvider
     {
         base.OnActivated(sender, args);
 
-        if (_scenes.IsLoaded && _scenes.CurrentScene is IClientActivator activator)
+        if (_scenes is { IsLoaded: true } scenes && scenes.CurrentScene is IClientActivator activator)
             activator.OnClientActivate();
     }
 
@@ -329,7 +413,7 @@ public abstract class GameApplicationBase : Game, IServiceProvider
     {
         base.OnDeactivated(sender, args);
 
-        if (_scenes.IsLoaded && _scenes.CurrentScene is IClientActivator activator)
+        if (_scenes is { IsLoaded: true } scenes && scenes.CurrentScene is IClientActivator activator)
             activator.OnClientDeactivate();
     }
 
@@ -338,95 +422,85 @@ public abstract class GameApplicationBase : Game, IServiceProvider
     /// </summary>
     protected override void OnExiting(object sender, ExitingEventArgs args)
     {
-        if (_scenes.IsLoaded)
-        {
-            if (_scenes.CurrentScene is IApplicationExitAware exitAware)
-                exitAware.OnApplicationExited();
-
-            foreach (var scene in _scenes.ActiveScenes.ToArray())
-                scene.Unload();
-        }
-
-        _settings?.Save();
-
         base.OnExiting(sender, args);
+        if (args.Cancel)
+            return;
+
+        try
+        {
+            if (_scenes is { IsLoaded: true } scenes && scenes.CurrentScene is IApplicationExitAware exitAware)
+                exitAware.OnApplicationExited();
+        }
+        finally
+        {
+            ReleaseContent(saveSettings: true);
+        }
     }
 
-    /// <summary>
-    /// Creates the application context used by engine components.
-    /// </summary>
-    /// <returns>The application context associated with this application.</returns>
-    protected virtual IApplicationContext CreateContext()
+    /// <summary>Releases Sasogine components before MonoGame disposes the graphics device.</summary>
+    /// <param name="disposing">Whether managed resources can be released.</param>
+    protected override void Dispose(bool disposing)
     {
-        return new ApplicationContext(this);
+        try
+        {
+            if (disposing)
+                Shutdown(saveSettings: true);
+        }
+        finally
+        {
+            base.Dispose(disposing);
+        }
     }
 
-    /// <summary>
-    /// Creates the localization manager used by the application.
-    /// </summary>
-    /// <returns>The localization manager.</returns>
-    protected virtual LocalizationManager CreateLocalization()
+    private void Shutdown(bool saveSettings)
     {
-        return new LocalizationManager();
+        if (_shutdown)
+            return;
+
+        _shutdown = true;
+        List<Exception>? failures = null;
+        AttemptCleanup(() => ReleaseContent(saveSettings), ref failures);
+        for (int i = _ownedComponents.Count - 1; i >= 0; i--)
+            AttemptCleanup(_ownedComponents[i].Dispose, ref failures);
+        _ownedComponents.Clear();
+        if (failures is not null)
+            throw new AggregateException("Application cleanup failed.", failures);
     }
 
-    /// <summary>
-    /// Configures localization for the application.
-    /// </summary>
-    /// <param name="localization">The localization manager to configure.</param>
-    /// <param name="configuration">The application configuration.</param>
-    protected virtual void ConfigureLocalization(
-        LocalizationManager localization,
-        GameConfiguration configuration)
+    private void ReleaseContent(bool saveSettings)
     {
+        List<Exception>? failures = null;
+        if (_scenesNeedUnload)
+        {
+            _scenesNeedUnload = false;
+            AttemptCleanup(Scenes.Unload, ref failures);
+        }
+        if (_settingsLoaded)
+        {
+            _settingsLoaded = false;
+            if (saveSettings && _settings is { } settings)
+                AttemptCleanup(settings.Save, ref failures);
+        }
+        if (_assetsNeedUnload)
+        {
+            _assetsNeedUnload = false;
+            AttemptCleanup(IntegratedAssets.UnloadAll, ref failures);
+        }
+        if (failures is not null)
+            throw new AggregateException("Application content could not be fully released.", failures);
     }
 
-    /// <summary>
-    /// Creates the game activator used by the application.
-    /// </summary>
-    /// <param name="configuration">The application configuration.</param>
-    /// <returns>
-    /// The game activator, or <see langword="null"/> to create one from the game registry.
-    /// </returns>
-    protected virtual IGameActivator? CreateActivator(GameConfiguration configuration) =>
-        null;
-
-    /// <summary>
-    /// Creates the game registry used by the application when no custom activator is provided.
-    /// </summary>
-    /// <param name="configuration">The application configuration.</param>
-    /// <returns>
-    /// The game registry, or <see langword="null"/> when none is provided.
-    /// </returns>
-    protected virtual IGameRegistry? CreateRegistry(GameConfiguration configuration) =>
-        null;
-
-    /// <summary>
-    /// Creates the integrated asset store provided by the application.
-    /// </summary>
-    /// <param name="configuration">The application configuration.</param>
-    /// <returns>
-    /// The integrated asset store, or <see langword="null"/> to use the default.
-    /// </returns>
-    protected virtual AssetStore? CreateIntegratedAssets(GameConfiguration configuration) =>
-        null;
-
-    /// <summary>
-    /// Creates the scene manager.
-    /// </summary>
-    /// <param name="configuration">The application configuration.</param>
-    /// <returns>The scene manager.</returns>
-    protected abstract ISceneManager CreateScenes(GameConfiguration configuration);
-
-    /// <summary>
-    /// Creates the application settings.
-    /// </summary>
-    /// <param name="configuration">The application configuration.</param>
-    /// <returns>
-    /// The settings implementation, or <see langword="null"/> when none is provided.
-    /// </returns>
-    protected virtual IGameSettings? CreateSettings(GameConfiguration configuration) =>
-        null;
+    private static void AttemptCleanup(Action cleanup, ref List<Exception>? failures)
+    {
+        try
+        {
+            cleanup();
+        }
+        catch (Exception error)
+        {
+            (failures ??= new()).Add(error);
+        }
+    }
 
     private void RegisterWindowEvents()
     {
@@ -437,30 +511,21 @@ public abstract class GameApplicationBase : Game, IServiceProvider
             RegisterDesktopWindowInput();
     }
 
-    private IGameActivator CreateDefaultActivator(GameConfiguration configuration)
-    {
-        IGameRegistry? registry = CreateRegistry(configuration);
-
-        return registry is not null
-            ? new GameActivator(registry)
-            : EmptyGameActivator.Instance;
-    }
-
     private void Window_FileDrop(object? sender, FileDropEventArgs e)
     {
-        if (_scenes.CurrentScene is IClientFileDropReceiver receiver)
+        if (_scenes is { IsLoaded: true } scenes && scenes.CurrentScene is IClientFileDropReceiver receiver)
             receiver.OnFileDrop(e.Files);
     }
 
     private void Window_ClientSizeChanged(object? sender, EventArgs e)
     {
-        if (_scenes.CurrentScene is IClientResizeAware resizeAware)
+        if (_scenes is { IsLoaded: true } scenes && scenes.CurrentScene is IClientResizeAware resizeAware)
             resizeAware.OnClientSizeChanged();
     }
 
     private void Window_OrientationChanged(object? sender, EventArgs e)
     {
-        if (_scenes.CurrentScene is IClientResizeAware resizeAware)
+        if (_scenes is { IsLoaded: true } scenes && scenes.CurrentScene is IClientResizeAware resizeAware)
             resizeAware.OnOrientationChanged();
     }
 

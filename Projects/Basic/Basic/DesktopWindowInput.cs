@@ -30,7 +30,7 @@ internal sealed class DesktopWindowInput
     /// <param name="args">The pressed key.</param>
     private void OnKeyDown(object? sender, InputKeyEventArgs args)
     {
-        if (_application.Scenes.CurrentScene is IClientKeyboardInput input)
+        if (_application.Scenes is { IsLoaded: true } scenes && scenes.CurrentScene is IClientKeyboardInput input)
             input.OnKeyDown(args.Key);
     }
 
@@ -39,7 +39,7 @@ internal sealed class DesktopWindowInput
     /// <param name="args">The released key.</param>
     private void OnKeyUp(object? sender, InputKeyEventArgs args)
     {
-        if (_application.Scenes.CurrentScene is IClientKeyboardInput input)
+        if (_application.Scenes is { IsLoaded: true } scenes && scenes.CurrentScene is IClientKeyboardInput input)
             input.OnKeyUp(args.Key);
     }
 
@@ -48,7 +48,7 @@ internal sealed class DesktopWindowInput
     /// <param name="args">The entered character.</param>
     private void OnTextInput(object? sender, TextInputEventArgs args)
     {
-        if (_application.Scenes.CurrentScene is IClientKeyboardInput input)
+        if (_application.Scenes is { IsLoaded: true } scenes && scenes.CurrentScene is IClientKeyboardInput input)
             input.OnTextInput(args.Character);
     }
 }
