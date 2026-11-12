@@ -26,6 +26,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.14.1-alpha] - 2026-11-16 (Planned)
 * [Change] Renamed `FontAssetDefinition.WeightDefinition` and `StyleDefinition` to `Weight` and `Style` for improved API clarity and consistency.
+* [Improve] **Controls**: Improved nullable string support, along with various minor fixes and improvements.
 * [Bug] **Controls**: Fixed `Grid.Place()` ignoring the `columnSpan` parameter.
 
 ## [0.14.0-alpha] - 2026-11-09
@@ -50,7 +51,7 @@ All notable changes to this project will be documented in this file.
 * [Bug] Fixed reversed `LowTieredScore` and `HighTieredScore` thresholds and edits resetting or moving values to another tier; the edited value now stays in its selected tier.
 * [Bug] Fixed `PseudoPurchaseService` accepting unknown product IDs and duplicate or invalid catalog entries.
 * [Bug] **Controls**: Fixed `ValueTextBox` overwriting numeric input during repeated updates; decimal input accepts dot and comma separators without floating-point display artifacts.
-* [Bug] Fixed overlapping `ShapeBatch` stroke geometry causing darker transparent joins and crossings; added finite-input checks and rollback after brush failures.
+* [Bug] Fixed overlapping `ShapeBatch` stroke geometry causing darker transparent joins and crossings and added finite-input checks and rollback after brush failures.
 * [Bug] Fixed `ShapeBatch` ignoring the selected shader technique and rendering with the first technique instead.
 * [Bug] Fixed overlapping shape-path corners, duplicate contour points, and invalid geometry parameters.
 * [Bug] **Controls**: Aligned text origins and rectangular drawing edges to device pixels while preserving fractional layout coordinates.
