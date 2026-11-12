@@ -1,5 +1,6 @@
 using Sachssoft.Engine.Graphics.Text;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
 using System.ComponentModel;
@@ -75,25 +76,251 @@ public sealed class Workspace : Element, IDisposable
             Bindings[i].Update();
     }
 
+    /// <summary>Coalesces multiple changes to the same scroll offset before arranging its content.</summary>
+    private readonly HashSet<ScrollViewer> _queuedScrollViewers = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>Preserves the order in which scroll offsets changed.</summary>
+    private readonly Queue<ScrollViewer> _scrollViewers = new();
+
+    /// <summary>Stores the controls on the previous pointer hit path.</summary>
+    private List<Control> _hoverPath = new(16);
+
+    /// <summary>Reuses storage for the next pointer hit path.</summary>
+    private List<Control> _nextHoverPath = new(16);
+
+    /// <summary>Tracks committed membership and ordering changes separately from layout.</summary>
+    private bool _controlsDirty = true;
+
     private bool _layoutDirty = true;
+
+    /// <summary>Tracks changes that require preparing controls before measurement.</summary>
+    private bool _prepareDirty = true;
     private int _styleRevision = -1;
     private Size2 _previousSize;
     /// <summary>
     /// Invalidates layout after explicit property or tree changes.
     /// </summary>
-    internal void InvalidateLayout() => _layoutDirty = true;
+    /// <param name="prepare">Whether control preparation and measurement may have changed.</param>
+    internal void InvalidateLayout(bool prepare = true)
+    {
+        _layoutDirty = true;
+        _prepareDirty |= prepare;
+    }
+
+    /// <summary>Invalidates the snapshot of the committed control tree.</summary>
+    internal void InvalidateControlTree()
+    {
+        _controlsDirty = true;
+        InvalidateFontInheritance();
+        InvalidateLayout();
+    }
+
+    /// <summary>Gets the revision of font inputs and logical ancestry in this workspace.</summary>
+    internal ulong FontInheritanceRevision { get; private set; }
+
+    /// <summary>Gets or sets the row whose binding changes are handled by its current layout pass.</summary>
+    internal Control? LocalLayoutRoot { get; set; }
+
+    /// <summary>Invalidates cached checks of inherited font descriptors.</summary>
+    internal void InvalidateFontInheritance() => FontInheritanceRevision = unchecked(FontInheritanceRevision + 1);
+
+    /// <summary>Queues content arrangement for a scroll viewer whose range value changed.</summary>
+    /// <param name="viewer">The scroll viewer whose content offset changed.</param>
+    internal void QueueScrollOffset(ScrollViewer viewer)
+    {
+        if (_queuedScrollViewers.Add(viewer))
+            _scrollViewers.Enqueue(viewer);
+    }
     /// <summary>
     /// Gets central styles without requiring the caller to create a registry.
     /// </summary>
     public StyleRegistry Styles => Registry.Styles;
 
+    private Dictionary<string, ControlSkinRegistration>? _skins;
+    private Dictionary<string, ControlSkinRegistration> Skins => _skins ??= new(StringComparer.Ordinal)
+    {
+        [nameof(SkinPreset.SachssoftDark)] = new(static device => ControlSkin.LoadEmbedded(device, SkinPreset.SachssoftDark)),
+        [nameof(SkinPreset.SachssoftLight)] = new(static device => ControlSkin.LoadEmbedded(device, SkinPreset.SachssoftLight)),
+        [nameof(SkinPreset.SachssoftModern)] = new(static device => ControlSkin.LoadEmbedded(device, SkinPreset.SachssoftModern)),
+        [nameof(SkinPreset.SachssoftFuturistic)] = new(static device => ControlSkin.LoadEmbedded(device, SkinPreset.SachssoftFuturistic)),
+        [nameof(SkinPreset.SachssoftMedieval)] = new(static device => ControlSkin.LoadEmbedded(device, SkinPreset.SachssoftMedieval))
+    };
+    private string? _skinName = nameof(SkinPreset.SachssoftDark);
+    private ControlSkin? _directSkin;
+    private GraphicsDevice? _skinDevice;
+
     /// <summary>
-    /// Applies a skin before updating the tree.
+    /// Gets the case-sensitive names of the built-in and custom skins registered in this workspace.
     /// </summary>
+    public IReadOnlyCollection<string> AvailableSkins => Skins.Keys;
+
+    /// <summary>Checks whether a skin is registered under the exact name.</summary>
+    /// <param name="name">The case-sensitive registered name.</param>
+    /// <returns>Whether the name is registered.</returns>
+    public bool ContainsSkin(string name) => Skins.ContainsKey(name);
+
+    /// <summary>Registers a caller-owned skin for selection by name.</summary>
+    /// <param name="name">The case-sensitive name to register.</param>
+    /// <param name="skin">The skin borrowed by the workspace.</param>
+    /// <param name="replaceExisting">Whether to replace an existing registration with the same name.</param>
+    /// <exception cref="ArgumentException">The name already exists and replacement was not requested.</exception>
+    public void RegisterSkin(string name, ControlSkin skin, bool replaceExisting = false)
+    {
+        ArgumentNullException.ThrowIfNull(skin);
+        if (_skins is not null && _skins.Values.Any(entry => entry.Factory is not null && ReferenceEquals(entry.Skin, skin)))
+            throw new ArgumentException("A workspace-owned skin cannot be registered as a borrowed skin.", nameof(skin));
+        RegisterSkinCore(name, new ControlSkinRegistration(skin), replaceExisting);
+    }
+
+    /// <summary>Registers a factory that creates a workspace-owned skin when first selected on a graphics device.</summary>
+    /// <param name="name">The case-sensitive name to register.</param>
+    /// <param name="factory">Creates a new skin for the supplied graphics device. The workspace disposes each result.</param>
+    /// <param name="replaceExisting">Whether to replace an existing registration with the same name.</param>
+    /// <exception cref="ArgumentException">The name already exists and replacement was not requested.</exception>
+    public void RegisterSkin(string name, Func<GraphicsDevice, ControlSkin> factory, bool replaceExisting = false)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        RegisterSkinCore(name, new ControlSkinRegistration(factory), replaceExisting);
+    }
+
+    private void RegisterSkinCore(string name, ControlSkinRegistration registration, bool replaceExisting)
+    {
+        VerifyTreeMutation();
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        if (Skins.TryGetValue(name, out ControlSkinRegistration? previous) && !replaceExisting)
+            throw new ArgumentException($"A control skin named '{name}' is already registered.", nameof(name));
+
+        if (_skinName == name)
+            ApplyRegistration(registration);
+        Skins[name] = registration;
+        if (previous?.Factory is not null)
+            previous.Skin?.Dispose();
+    }
+
+    /// <summary>Selects a built-in skin using the same registry as named skins.</summary>
+    /// <param name="preset">The built-in selection. Default selects Sachssoft Dark.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The preset is undefined.</exception>
+    public void SetSkin(SkinPreset preset)
+    {
+        string name = preset switch
+        {
+            SkinPreset.Default or SkinPreset.SachssoftDark => nameof(SkinPreset.SachssoftDark),
+            SkinPreset.SachssoftLight => nameof(SkinPreset.SachssoftLight),
+            SkinPreset.SachssoftModern => nameof(SkinPreset.SachssoftModern),
+            SkinPreset.SachssoftFuturistic => nameof(SkinPreset.SachssoftFuturistic),
+            SkinPreset.SachssoftMedieval => nameof(SkinPreset.SachssoftMedieval),
+            _ => throw new ArgumentOutOfRangeException(nameof(preset), preset, "Unknown skin preset.")
+        };
+        SetSkin(name);
+    }
+
+    /// <summary>Selects a registered skin. Loading waits for graphics initialization if necessary.</summary>
+    /// <param name="name">The case-sensitive registered name.</param>
+    /// <exception cref="KeyNotFoundException">The name is not registered.</exception>
+    public void SetSkin(string name)
+    {
+        VerifyTreeMutation();
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        if (!Skins.TryGetValue(name, out ControlSkinRegistration? registration))
+            throw new KeyNotFoundException($"No control skin named '{name}' is registered.");
+        ApplyRegistration(registration);
+        _skinName = name;
+        _directSkin = null;
+    }
+
+    /// <summary>Applies a caller-owned skin directly, including metadata-only skins.</summary>
+    /// <param name="skin">The skin borrowed by the workspace.</param>
     public void SetSkin(ControlSkin skin)
     {
+        VerifyTreeMutation();
+        ArgumentNullException.ThrowIfNull(skin);
+        if (_skins is not null)
+            foreach (var entry in _skins)
+                if (entry.Value.Factory is not null && ReferenceEquals(entry.Value.Skin, skin))
+                {
+                    SetSkin(entry.Key);
+                    return;
+                }
+        ApplySkin(skin, _skinDevice);
+        _skinName = null;
+        _directSkin = skin;
+    }
+
+    /// <summary>
+    /// Connects the graphics device and applies the selected skin, or Sachssoft Dark by default.
+    /// Hosts that supply their own input snapshots call this before the first update and after device replacement.
+    /// </summary>
+    /// <param name="device">The graphics device that will draw the workspace.</param>
+    public void InitializeGraphics(GraphicsDevice device)
+    {
+        VerifyTreeMutation();
+        ArgumentNullException.ThrowIfNull(device);
+        if (ReferenceEquals(_skinDevice, device) && Registry.Skin?.Texture?.IsDisposed != true)
+            return;
+
+        ControlSkinRegistration? registration = _skinName is null ? null : Skins[_skinName];
+        ControlSkin? skin = registration?.Factory is { } factory
+            ? CreateAndApplySkin(factory, device)
+            : registration?.Skin ?? _directSkin;
+        if (registration?.Factory is null && skin is not null)
+            ApplySkin(skin, device);
+
+        ReleaseOwnedSkins();
+        if (registration?.Factory is not null)
+            registration.Skin = skin;
+        _skinDevice = device;
+    }
+
+    private void ApplyRegistration(ControlSkinRegistration registration)
+    {
+        if (registration.Skin is { } skin && (registration.Factory is null || skin.Texture?.IsDisposed != true))
+            ApplySkin(skin, _skinDevice);
+        else if (_skinDevice is { } device && registration.Factory is { } factory)
+        {
+            ControlSkin? previous = registration.Skin;
+            registration.Skin = CreateAndApplySkin(factory, device);
+            previous?.Dispose();
+        }
+    }
+
+    private ControlSkin CreateAndApplySkin(Func<GraphicsDevice, ControlSkin> factory, GraphicsDevice device)
+    {
+        ControlSkin skin = factory(device) ?? throw new InvalidOperationException("The control skin factory returned null.");
+        try
+        {
+            ApplySkin(skin, device);
+            return skin;
+        }
+        catch
+        {
+            skin.Dispose();
+            throw;
+        }
+    }
+
+    private void ApplySkin(ControlSkin skin, GraphicsDevice? device)
+    {
+        if (skin.Texture is { } texture && (texture.IsDisposed || device is not null && !ReferenceEquals(texture.GraphicsDevice, device)))
+            throw new InvalidOperationException("The skin texture must be usable on the workspace graphics device.");
+        if (ReferenceEquals(Registry.Skin, skin))
+            return;
         skin.Apply(Registry);
-        _layoutDirty = true;
+        InvalidateLayout();
+    }
+
+    private void ReleaseOwnedSkins()
+    {
+        if (_skins is null)
+            return;
+        foreach (ControlSkinRegistration registration in _skins.Values)
+        {
+            if (registration.Factory is null || registration.Skin is not { } skin)
+                continue;
+            if (ReferenceEquals(Registry.Skin, skin))
+                ControlSkin.Clear(Registry);
+            skin.Dispose();
+            registration.Skin = null;
+        }
     }
 
     private readonly List<Action> _pending = new();
@@ -113,6 +340,11 @@ public sealed class Workspace : Element, IDisposable
         if (content.Parent is not null || content.RootOwner is not null || content.Workspace is not null || content.CommittedParent is not null)
             throw new InvalidOperationException("Content already has an owner.");
         Registry = registry ?? content.FactoryRegistry ?? new UIRegistry();
+        if (Registry.Skin is { } skin)
+        {
+            _skinName = null;
+            _directSkin = skin;
+        }
         ReserveRoot(content);
         ContainerControl.Attach(content, this);
         _input = new ControlInputContext(this);
@@ -137,7 +369,7 @@ public sealed class Workspace : Element, IDisposable
     {
         VerifyTreeMutation();
         _fontsDirty = true;
-        _layoutDirty = true;
+        InvalidateLayout();
         _fontRegistryCount = Fonts.Count;
     }
 
@@ -186,6 +418,7 @@ public sealed class Workspace : Element, IDisposable
     public void Update(ControlUpdateContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
+        InitializeGraphics(context.GraphicsDevice);
         ProcessFrame(context.Input, context.Layout);
     }
 
@@ -238,19 +471,18 @@ public sealed class Workspace : Element, IDisposable
                 posted();
             Commit();
             UpdateBindings();
-            if (_layoutDirty)
-                RebuildControls();
+            RebuildControls();
             foreach (Control control in EnumerateControls())
                 control.BeginFrame();
             if (!_previousSize.Equals(logicalSize))
             {
-                _layoutDirty = true;
+                InvalidateLayout();
                 _previousSize = logicalSize;
             }
 
             Size = logicalSize;
             if (!ReferenceEquals(_layout?.DefaultFont, layout.DefaultFont))
-                _layoutDirty = true;
+                InvalidateLayout();
             _layout = layout;
             if (_fontRegistryCount != Fonts.Count)
                 InvalidateFonts();
@@ -309,13 +541,13 @@ public sealed class Workspace : Element, IDisposable
             context.Begin();
             try
             {
-                DrawTree(Content, new Bounds2(0, 0, Size.Width, Size.Height), 1f, context);
+                DrawTree(Content, new Bounds2(0, 0, Size.Width, Size.Height), 1f, context, Matrix.Identity);
                 DrawOverlays(context);
                 if (includePickingOverlay)
                     ColorPicking.Draw(context, Size);
                 AssetDragging.Draw(context, Size);
                 if (_visibleToolTip is ToolTip tip)
-                    DrawTree(tip, new Bounds2(0, 0, Size.Width, Size.Height), 1, context);
+                    DrawTree(tip, new Bounds2(0, 0, Size.Width, Size.Height), 1, context, Matrix.Identity);
             }
             finally
             {
@@ -491,7 +723,7 @@ public sealed class Workspace : Element, IDisposable
         }
     }
 
-    private static void PrepareTree(Control control)
+    internal static void PrepareTree(Control control)
     {
         control.Prepare();
         if (control is ContainerControl container)
@@ -517,22 +749,51 @@ public sealed class Workspace : Element, IDisposable
         Registry.Styles.PollChanges();
         if (_styleRevision != Registry.Styles.Revision)
         {
-            _layoutDirty = true;
+            InvalidateLayout();
             _styleRevision = Registry.Styles.Revision;
         }
 
-        if (!_layoutDirty)
-            return;
-        _layoutDirty = false;
-        RebuildControls();
-        PrepareTree(Content);
-        foreach (var overlay in _overlays)
-            PrepareTree(overlay.Control);
-        RebuildControls();
-        Content.Measure(_layout!, Size);
-        Content.Arrange(new Bounds2(0, 0, Size.Width, Size.Height));
-        LayoutOverlays();
-        RefreshHover();
+        bool geometryChanged = _layoutDirty;
+        if (_layoutDirty)
+        {
+            _layoutDirty = false;
+            RebuildControls();
+            if (_prepareDirty)
+            {
+                _prepareDirty = false;
+                PrepareTree(Content);
+                foreach (ControlOverlay overlay in _overlays)
+                    PrepareTree(overlay.Control);
+                RebuildControls();
+            }
+
+            Content.Measure(_layout!, Size);
+            Content.Arrange(new Bounds2(0, 0, Size.Width, Size.Height));
+            LayoutOverlays();
+        }
+
+        int scrollCount = _scrollViewers.Count;
+        for (int i = 0; i < scrollCount; i++)
+        {
+            ScrollViewer viewer = _scrollViewers.Dequeue();
+            _queuedScrollViewers.Remove(viewer);
+            if (ReferenceEquals(viewer.Workspace, this))
+            {
+                try
+                {
+                    viewer.ArrangeScrollOffset();
+                    geometryChanged = true;
+                }
+                catch
+                {
+                    QueueScrollOffset(viewer);
+                    throw;
+                }
+            }
+        }
+
+        if (geometryChanged)
+            RefreshHover();
     }
 
     private void ValidateInteraction()
@@ -625,10 +886,10 @@ public sealed class Workspace : Element, IDisposable
         {
             _pointer = input.Position;
             _hasPointer = true;
-            RefreshHover();
+            Control? hit = RefreshHover();
             if (input.Type == ControlInputEventType.PointerDown && DismissOutsidePopup(_pointer))
                 return;
-            target = GetCapturedControl(input.Pointer) ?? HitTarget(_pointer);
+            target = GetCapturedControl(input.Pointer) ?? hit;
             // Older controls have one gesture state. Never let another contact steal it.
             if (CapturedByAnotherPointer(target, input.Pointer))
                 return;
@@ -704,31 +965,71 @@ public sealed class Workspace : Element, IDisposable
         Focus(controls[next]);
     }
 
-    private void RefreshHover()
+    /// <summary>Updates hover only on controls entering or leaving the pointer hit path.</summary>
+    /// <returns>The hit target used for hover and pointer dispatch.</returns>
+    private Control? RefreshHover()
     {
         Control? hit = _hasPointer ? HitTarget(_pointer) : null;
-        for (int i = 0; i < _controls.Count; i++)
+        _nextHoverPath.Clear();
+        for (Control? node = hit; node is not null; node = node.Parent)
+            _nextHoverPath.Add(node);
+
+        int previous = _hoverPath.Count - 1;
+        int next = _nextHoverPath.Count - 1;
+        while (previous >= 0 && next >= 0 && _nextHoverPath[next].IsPointerOver &&
+            ReferenceEquals(_hoverPath[previous], _nextHoverPath[next]))
         {
-            var c = _controls[i];
-            c.IsPointerOver = hit is not null && Within(hit, c);
+            previous--;
+            next--;
         }
+
+        for (int i = 0; i <= previous; i++)
+            if (ReferenceEquals(_hoverPath[i].Workspace, this))
+                _hoverPath[i].IsPointerOver = false;
+        for (int i = next; i >= 0; i--)
+            if (ReferenceEquals(_nextHoverPath[i].Workspace, this))
+                _nextHoverPath[i].IsPointerOver = true;
+
+        (_hoverPath, _nextHoverPath) = (_nextHoverPath, _hoverPath);
+        _nextHoverPath.Clear();
+        return hit;
     }
 
-    private static Control? Hit(Control control, Bounds2 clip, Vector2 point)
+    /// <summary>Finds the topmost eligible control at a point inside the current clip.</summary>
+    /// <param name="control">The root of the branch being searched.</param>
+    /// <param name="clip">The ancestor clip in workspace coordinates.</param>
+    /// <param name="point">The pointer in workspace coordinates.</param>
+    /// <param name="parentTransform">The composed transform of the already visited ancestors.</param>
+    /// <returns>The hit control, if any.</returns>
+    private static Control? Hit(Control control, Bounds2 clip, Vector2 point, Matrix parentTransform)
     {
-        if (!control.IsAvailable(true))
+        if (control.Workspace is null || !control.IsVisible || !control.IsEnabled || !control.IsHitTestVisible ||
+            !Control.Contains(clip, point.X, point.Y))
+        {
             return null;
-        Matrix transform = ControlTransforms.GetVisualTransform(control);
+        }
+
+        Matrix transform = ControlTransforms.Compose(control, parentTransform);
         Bounds2 visible = Control.Intersect(clip, ControlTransforms.TransformBounds(control.Bounds, transform));
-        Vector2 local = Vector2.Transform(point, Matrix.Invert(transform));
-        if (!Control.Contains(visible, point.X, point.Y) || !Control.Contains(control.Bounds, local.X, local.Y))
+        if (!Control.Contains(visible, point.X, point.Y))
             return null;
+        if (transform != Matrix.Identity)
+        {
+            Vector2 local = Vector2.Transform(point, Matrix.Invert(transform));
+            if (!Control.Contains(control.Bounds, local.X, local.Y))
+                return null;
+        }
+
         if (control is ContainerControl container)
         {
             Control[] children = container.OrderedChildren;
             for (int i = children.Length - 1; i >= 0; i--)
             {
-                Control? hit = Hit(children[i], Control.Intersect(visible, ControlTransforms.TransformBounds(control.GetChildClip(children[i]), transform)), point);
+                Control child = children[i];
+                if (!ReferenceEquals(child.Parent, container))
+                    continue;
+                Bounds2 childClip = Control.Intersect(visible, ControlTransforms.TransformBounds(control.GetChildClip(child), transform));
+                Control? hit = Hit(child, childClip, point, transform);
                 if (hit is not null)
                     return hit;
             }
@@ -754,11 +1055,17 @@ public sealed class Workspace : Element, IDisposable
         return true;
     }
 
-    private static void DrawTree(Control control, Bounds2 clip, float opacity, ControlDrawContext context)
+    /// <summary>Paints a visible control and its children in their established drawing order.</summary>
+    /// <param name="control">The control being painted.</param>
+    /// <param name="clip">The ancestor clip in workspace coordinates.</param>
+    /// <param name="opacity">The combined opacity of the ancestors.</param>
+    /// <param name="context">The active drawing context.</param>
+    /// <param name="parentTransform">The composed transform of the ancestors.</param>
+    private static void DrawTree(Control control, Bounds2 clip, float opacity, ControlDrawContext context, Matrix parentTransform)
     {
         if (!control.IsVisible)
             return;
-        Matrix transform = ControlTransforms.GetVisualTransform(control);
+        Matrix transform = ControlTransforms.Compose(control, parentTransform);
         clip = Control.Intersect(clip, ControlTransforms.TransformBounds(control.Bounds, transform));
         opacity *= control.Opacity;
         if (clip.Width <= 0 || clip.Height <= 0 || opacity <= 0)
@@ -773,7 +1080,7 @@ public sealed class Workspace : Element, IDisposable
                 {
                     Bounds2 childClip = control.GetChildClip(child);
                     int childPlanes = context.PushVisualClip(childClip, transform);
-                    try { DrawTree(child, Control.Intersect(clip, ControlTransforms.TransformBounds(childClip, transform)), opacity, context); }
+                    try { DrawTree(child, Control.Intersect(clip, ControlTransforms.TransformBounds(childClip, transform)), opacity, context, transform); }
                     finally { context.RestoreVisualClip(childPlanes); }
                 }
             context.SetControl(control.Bounds, clip, opacity, visualTransform: transform);
@@ -809,6 +1116,9 @@ public sealed class Workspace : Element, IDisposable
     internal List<Control> EnumerateControls() => _controls;
     private void RebuildControls()
     {
+        if (!_controlsDirty)
+            return;
+        _controlsDirty = false;
         _controls.Clear();
         Collect(Content);
         for (int i = 0; i < _overlays.Count; i++)
@@ -831,7 +1141,7 @@ public sealed class Workspace : Element, IDisposable
         return false;
     }
 
-    private bool IsInActiveScope(Control control)
+    internal bool IsInActiveScope(Control control)
     {
         int modal = _overlays.FindLastIndex(e => e.Modal);
         if (modal < 0)
@@ -840,6 +1150,24 @@ public sealed class Workspace : Element, IDisposable
             if (Within(control, _overlays[i].Control))
                 return true;
         return false;
+    }
+
+    /// <summary>Releases interactions owned by a row before it is assigned to different data.</summary>
+    /// <param name="row">The recycled presentation.</param>
+    /// <param name="selector">The optional control that should retain keyboard focus.</param>
+    internal void ResetRecycledInteraction(Control row, Control? selector)
+    {
+        if (FocusedControl is { } focused && Within(focused, row))
+            Focus(selector is { IsFocusable: true } && selector.IsAvailable() && IsInActiveScope(selector) ? selector : null);
+        if (_captures.Count > 0)
+        {
+            foreach (Control capture in _captures.Values)
+                if (Within(capture, row))
+                {
+                    ReleasePointers(control => Within(control, row));
+                    break;
+                }
+        }
     }
 
     /// <summary>
@@ -914,6 +1242,7 @@ public sealed class Workspace : Element, IDisposable
         Control? old = FocusedControl;
         ReleasePointers(static _ => true);
         _overlays.Add(new ControlOverlay(control, placement, modal, popup, owner, old, closed));
+        InvalidateControlTree();
         try
         {
             ContainerControl.Attach(control, this);
@@ -942,6 +1271,7 @@ public sealed class Workspace : Element, IDisposable
         foreach (ControlOverlay child in _overlays.Where(e => e.Owner is not null && Within(e.Owner, control)).ToArray())
             CloseOverlay(child.Control);
         _overlays.Remove(entry);
+        InvalidateControlTree();
         ContainerControl.Attach(control, null);
         ReleaseRoot(control);
         if (FocusedControl is Control focus && Within(focus, control))
@@ -980,14 +1310,14 @@ public sealed class Workspace : Element, IDisposable
         for (int i = _overlays.Count - 1; i >= 0; i--)
         {
             ControlOverlay e = _overlays[i];
-            Control? hit = Hit(e.Control, bounds, point);
+            Control? hit = Hit(e.Control, bounds, point, Matrix.Identity);
             if (hit is not null)
                 return hit;
             if (e.Modal)
                 return null;
         }
 
-        return Hit(Content, bounds, point);
+        return Hit(Content, bounds, point, Matrix.Identity);
     }
 
     private void LayoutOverlays()
@@ -1025,7 +1355,7 @@ public sealed class Workspace : Element, IDisposable
             Bounds2 b = entry.Control.Bounds;
             if (entry.Control is not MenuBar { UseSkin: false })
                 context.DrawSkinPart(entry.Control, "Shadow", new Bounds2(b.X - 8, b.Y - 8, b.Width + 16, b.Height + 16));
-            DrawTree(entry.Control, bounds, 1, context);
+            DrawTree(entry.Control, bounds, 1, context, Matrix.Identity);
         }
     }
 
@@ -1112,7 +1442,7 @@ public sealed class Workspace : Element, IDisposable
 
     private bool _disposed;
     /// <summary>
-    /// Detaches the tree and releases binding/source subscriptions. Caller-owned fonts and skins remain borrowed.
+    /// Detaches the tree and releases subscriptions and internally loaded skins. Caller-owned fonts and skins remain borrowed.
     /// </summary>
     public void Dispose()
     {
@@ -1148,7 +1478,13 @@ public sealed class Workspace : Element, IDisposable
         }
 
         _fontCache?.Dispose();
+        ReleaseOwnedSkins();
+        _skins?.Clear();
         _controls.Clear();
+        _hoverPath.Clear();
+        _nextHoverPath.Clear();
+        _scrollViewers.Clear();
+        _queuedScrollViewers.Clear();
         _pending.Clear();
         while (_posted.TryDequeue(out _))
         {

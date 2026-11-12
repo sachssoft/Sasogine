@@ -9,10 +9,13 @@ using System.Xml.Linq;
 
 namespace Sachssoft.Engine.Controls.Styling;
 /// <summary>
-/// Loads known XML fields and style keys explicitly. Owns its texture only when loaded through Load.
+/// Holds the visual resources and style values for a set of controls.
+/// Skins created by the loading methods own their atlas texture.
 /// </summary>
 public sealed class ControlSkin : IDisposable
 {
+    private const string EmbeddedSkinPrefix = "Sachssoft.Sasogine.Controls.Skins.";
+
     private readonly Dictionary<string, SkinRegion> _regions = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Dictionary<string, Dictionary<string, string>>> _parts = new(StringComparer.Ordinal);
     private readonly List<(string Key, string? Base, List<(string Key, string Value)> Values)> _styles = new();
@@ -59,6 +62,39 @@ public sealed class ControlSkin : IDisposable
     /// Attempts to resolve a named palette color.
     /// </summary>
     public bool TryGetColor(string name, out Color color) => _palette.TryGetValue(name, out color);
+
+    /// <summary>
+    /// Loads a built-in skin and its atlas directly from the Controls assembly.
+    /// </summary>
+    /// <param name="device">The graphics device used to create the atlas texture.</param>
+    /// <param name="preset">The built-in skin to load. Defaults to Sachssoft Dark.</param>
+    /// <returns>A skin that owns its texture and must be disposed by the caller.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="device"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="preset"/> is undefined.</exception>
+    /// <exception cref="FileNotFoundException">A required embedded resource is missing.</exception>
+    public static ControlSkin LoadEmbedded(GraphicsDevice device, SkinPreset preset = SkinPreset.SachssoftDark)
+    {
+        ArgumentNullException.ThrowIfNull(device);
+        string skinFileName = preset switch
+        {
+            SkinPreset.Default or SkinPreset.SachssoftDark => "sachssoft_dark.skin.xml",
+            SkinPreset.SachssoftLight => "sachssoft_light.skin.xml",
+            SkinPreset.SachssoftModern => "sachssoft_modern.skin.xml",
+            SkinPreset.SachssoftFuturistic => "sachssoft_futuristic.skin.xml",
+            SkinPreset.SachssoftMedieval => "sachssoft_medieval.skin.xml",
+            _ => throw new ArgumentOutOfRangeException(nameof(preset), preset, "Unknown skin preset.")
+        };
+
+        return LoadCore(device, skinFileName, OpenEmbeddedSkinFile);
+    }
+
+    private static Stream OpenEmbeddedSkinFile(string fileName)
+    {
+        string resourceName = EmbeddedSkinPrefix + fileName;
+        return typeof(ControlSkin).Assembly.GetManifestResourceStream(resourceName)
+            ?? throw new FileNotFoundException("Embedded control skin resource was not found.", resourceName);
+    }
+
     /// <summary>
     /// Loads the single skin manifest in a folder using premultiplied atlas pixels.
     /// </summary>
@@ -77,23 +113,29 @@ public sealed class ControlSkin : IDisposable
     public static ControlSkin Load(GraphicsDevice device, string directory, string skinFileName)
     {
         ArgumentNullException.ThrowIfNull(device);
+        return LoadCore(device, SafeFileName(skinFileName), fileName => File.OpenRead(Path.Combine(directory, fileName)));
+    }
+
+    private static ControlSkin LoadCore(GraphicsDevice device, string skinFileName, Func<string, Stream> open)
+    {
         XElement document;
-        using (var stream = File.OpenRead(Path.Combine(directory, SafeFileName(skinFileName))))
+        using (var stream = open(skinFileName))
             document = ReadRoot(stream);
         string atlasName = SafeFileName(Required(document, "atlas"));
         XElement atlas;
-        using (var stream = File.OpenRead(Path.Combine(directory, atlasName)))
+        using (var stream = open(atlasName))
             atlas = ReadRoot(stream);
         ControlSkin skin = ReadCore(atlas, document);
+        using var textureStream = open(skin.TextureFileName);
+        Texture2D texture = Texture2D.FromStream(device, textureStream);
         try
         {
-            using var textureStream = File.OpenRead(Path.Combine(directory, skin.TextureFileName));
-            skin.AttachTexture(Texture2D.FromStream(device, textureStream), true);
+            skin.AttachTexture(texture, true);
             return skin;
         }
         catch
         {
-            skin.Dispose();
+            texture.Dispose();
             throw;
         }
     }
@@ -207,6 +249,12 @@ public sealed class ControlSkin : IDisposable
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentNullException.ThrowIfNull(registry);
+        Clear(registry);
+        ApplyStyles(registry);
+    }
+
+    internal static void Clear(UIRegistry registry)
+    {
         foreach (var previous in registry.SkinStyles)
             if (registry.Styles.TryGet(previous.Key, out Style? current))
             {
@@ -218,6 +266,12 @@ public sealed class ControlSkin : IDisposable
             }
 
         registry.SkinStyles.Clear();
+        registry.SkinColors.Clear();
+        registry.Skin = null;
+    }
+
+    private void ApplyStyles(UIRegistry registry)
+    {
         foreach (var item in _styles)
         {
             var style = new Style
@@ -233,7 +287,6 @@ public sealed class ControlSkin : IDisposable
             registry.Styles.Set(item.Key, style);
         }
 
-        registry.SkinColors.Clear();
         string[] colors =
         {
             "Background",

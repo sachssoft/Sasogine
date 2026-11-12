@@ -6,6 +6,7 @@ using Sachssoft.Engine.Graphics.Text;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading;
 
 namespace Sachssoft.Engine.Controls.Styling;
 /// <summary>
@@ -13,6 +14,9 @@ namespace Sachssoft.Engine.Controls.Styling;
 /// </summary>
 public sealed class Style
 {
+    /// <summary>Tracks mutations across styles so registries can skip unchanged polling.</summary>
+    private static long _changeRevision;
+
     /// <summary>Gets or sets the text color while the link is hovered or keyboard-focused.</summary>
     public Color HoverTextColor
     {
@@ -292,12 +296,17 @@ public sealed class Style
     public IReadOnlyDictionary<string, string> Values => _view;
     internal int Version => _version;
 
+    /// <summary>Gets the latest mutation revision across all style instances.</summary>
+    internal static long ChangeRevision => Volatile.Read(ref _changeRevision);
+
     private void Changed()
     {
         unchecked
         {
             _version++;
         }
+
+        Interlocked.Increment(ref _changeRevision);
     }
 
     /// <summary>

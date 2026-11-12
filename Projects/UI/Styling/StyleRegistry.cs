@@ -9,6 +9,9 @@ public sealed class StyleRegistry
 {
     private readonly Dictionary<string, StyleRegistryEntry> _styles = new(StringComparer.Ordinal);
     private int _revision;
+
+    /// <summary>Stores the last global style mutation checked by this registry.</summary>
+    private long _polledChangeRevision;
     internal int Revision => _revision;
     /// <summary>
     /// Gets the number of named styles.
@@ -83,6 +86,11 @@ public sealed class StyleRegistry
 
     internal void PollChanges()
     {
+        long changeRevision = Style.ChangeRevision;
+        if (_polledChangeRevision == changeRevision)
+            return;
+
+        _polledChangeRevision = changeRevision;
         foreach (var entry in _styles.Values)
             if (entry.Version != entry.Style.Version)
             {
