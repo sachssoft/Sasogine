@@ -26,8 +26,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Projects\UI\Skins\SachssoftDark\sachssoft_dark.png;..\..\Projects\UI\Skins\SachssoftDark\sachssoft_dark.atlas.xml;..\..\Projects\UI\Skins\SachssoftDark\sachssoft_dark.skin.xml"
-          Link="Skins\SachssoftDark\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <None Update="Content\Fonts\*.ttf;Content\Fonts\*.otf" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

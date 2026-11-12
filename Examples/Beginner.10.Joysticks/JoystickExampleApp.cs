@@ -48,7 +48,7 @@ internal sealed class JoystickExampleApp : GameApplicationBase
         _font = new FontFaceControlFont(face, 20);
         _layout = new ControlLayoutContext(_font);
         _draw = new ControlDrawContext(this, _font, GraphicsDevice.Viewport.Bounds);
-        _skin = ControlSkin.Load(GraphicsDevice, Path.Combine(AppContext.BaseDirectory, "Skins", "SachssoftDark"));
+        _skin = ControlSkin.LoadEmbedded(GraphicsDevice);
         _workspace!.SetSkin(_skin);
         if (_options.SnapshotPath is not null)
             _snapshot = new RenderTarget2D(GraphicsDevice, 1160, 760);

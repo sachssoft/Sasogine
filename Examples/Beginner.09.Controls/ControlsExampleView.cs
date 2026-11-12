@@ -251,5 +251,5 @@ internal sealed class ControlsExampleView
             Workspace.Post(() => _status.Text = $"Color: {dialog.SelectedColor}");
     }
 
-    private void ShowMessage() => _ = MessageBox.Show(Workspace, "All controls share the same atlas, style registry and input lifecycle.", "Sasogine Controls", MessageBoxButtons.OKCancel);
+    private void ShowMessage() => _ = MessageBox.ShowAsync(Workspace, "All controls share the same atlas, style registry and input lifecycle.", "Sasogine Controls", MessageBoxButtons.OKCancel);
 }

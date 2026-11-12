@@ -57,7 +57,7 @@ internal sealed class LogoInspectorApplication : GameApplicationBase
         _font = new FontFaceControlFont(face, 20);
         _layout = new ControlLayoutContext(_font);
         _draw = new ControlDrawContext(this, _font, GraphicsDevice.Viewport.Bounds);
-        _skin = ControlSkin.Load(GraphicsDevice, Path.Combine(AppContext.BaseDirectory, "Skins", "Sachssoft" + _options.SkinId));
+        _skin = ControlSkin.LoadEmbedded(GraphicsDevice, _options.Skin);
         _workspace!.SetSkin(_skin);
         _titleFont = new FontFaceControlFont(new FontFace(File.ReadAllBytes(_options.FontPath), "Logo title"), 48);
         _view!.Canvas.TitleFont = _titleFont;

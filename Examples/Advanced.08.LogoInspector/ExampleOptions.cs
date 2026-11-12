@@ -1,10 +1,10 @@
 namespace Sachssoft.Engine.Controls.Examples;
-internal sealed record ExampleOptions(string FontPath, string? SnapshotPath, string SkinId, bool Verify, string? ValueType = null, bool Assets = false, float Dpi = 96, bool VerifyResize = false)
+internal sealed record ExampleOptions(string FontPath, string? SnapshotPath, SkinPreset Skin, bool Verify, string? ValueType = null, bool Assets = false, float Dpi = 96, bool VerifyResize = false)
 {
     internal static ExampleOptions Parse(string[] args)
     {
         string? font = null, snapshot = null, valueType = null;
-        string skin = "Modern";
+        SkinPreset skin = SkinPreset.SachssoftModern;
         bool verify = false, assets = false, verifyResize = false;
         float dpi = 96;
         for (int i = 0; i < args.Length; i++)
@@ -34,11 +34,11 @@ internal sealed record ExampleOptions(string FontPath, string? SnapshotPath, str
             else
                 skin = args[i].ToLowerInvariant() switch
                 {
-                    "dark" => "Dark",
-                    "light" => "Light",
-                    "modern" => "Modern",
-                    "futuristic" => "Futuristic",
-                    "medieval" => "Medieval",
+                    "dark" => SkinPreset.SachssoftDark,
+                    "light" => SkinPreset.SachssoftLight,
+                    "modern" => SkinPreset.SachssoftModern,
+                    "futuristic" => SkinPreset.SachssoftFuturistic,
+                    "medieval" => SkinPreset.SachssoftMedieval,
                     _ => throw new ArgumentException("Unknown skin.")};
         }
 

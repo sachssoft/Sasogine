@@ -27,7 +27,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="../../Projects/UI/Skins/**/*.png;../../Projects/UI/Skins/**/*.xml" Link="Skins/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <None Update="Content\Fonts\*.ttf;Content\Fonts\*.otf" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

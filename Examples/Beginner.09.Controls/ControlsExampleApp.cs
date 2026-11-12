@@ -11,7 +11,6 @@ internal sealed class ControlsExampleApp : GameApplicationBase
     private readonly ExampleOptions _options;
     private readonly ControlInputSampler _input = new();
     private FontFaceControlFont? _font;
-    private ControlSkin? _skin;
     private ControlLayoutContext? _layout;
     private ControlDrawContext? _draw;
     private ControlsExampleView? _view;
@@ -60,6 +59,8 @@ internal sealed class ControlsExampleApp : GameApplicationBase
         _layout = new ControlLayoutContext(_font);
         _draw = new ControlDrawContext(this, _font, GraphicsDevice.Viewport.Bounds);
         ChangeSkin(_options.SkinId);
+        _workspace.InitializeGraphics(GraphicsDevice);
+        UpdateSkinPalette();
         _workspace!.Registry.Clipboard = new ExampleClipboardService();
         ((TabControl)_workspace.Content).SelectedIndex = _options.PageIndex;
         if (_options.SnapshotPath is not null)
@@ -85,21 +86,25 @@ internal sealed class ControlsExampleApp : GameApplicationBase
 
     private void ChangeSkin(string id)
     {
-        string folder = id switch
+        SkinPreset preset = id switch
         {
-            "dark" => "SachssoftDark",
-            "light" => "SachssoftLight",
-            "modern" => "SachssoftModern",
-            "futuristic" => "SachssoftFuturistic",
-            "medieval" => "SachssoftMedieval",
+            "dark" => SkinPreset.SachssoftDark,
+            "light" => SkinPreset.SachssoftLight,
+            "modern" => SkinPreset.SachssoftModern,
+            "futuristic" => SkinPreset.SachssoftFuturistic,
+            "medieval" => SkinPreset.SachssoftMedieval,
             _ => throw new ArgumentException("Unknown skin ID.", nameof(id))};
-        ControlSkin next = ControlSkin.Load(GraphicsDevice, Path.Combine(AppContext.BaseDirectory, "Skins", folder));
-        ControlSkin? previous = _skin;
-        _workspace!.SetSkin(next);
-        _view!.ApplyPalette(next);
-        _skin = next;
-        Window.Title = "Sasogine Controls | " + next.Name;
-        previous?.Dispose();
+        _workspace!.SetSkin(preset);
+        UpdateSkinPalette();
+    }
+
+    private void UpdateSkinPalette()
+    {
+        if (_workspace!.Registry.Skin is { } skin)
+        {
+            _view!.ApplyPalette(skin);
+            Window.Title = "Sasogine Controls | " + skin.Name;
+        }
     }
 
     private void OnTextInput(object? sender, TextInputEventArgs args)
@@ -135,7 +140,6 @@ internal sealed class ControlsExampleApp : GameApplicationBase
         _workspace?.Dispose();
         _draw?.Dispose();
         _font?.Dispose();
-        _skin?.Dispose();
         _snapshot?.Dispose();
         base.UnloadContent();
     }
