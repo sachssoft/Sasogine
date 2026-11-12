@@ -27,6 +27,8 @@ public sealed class ControlInputSampler
     };
     private MouseState _mouse;
     private KeyboardState _keyboard;
+    private bool _waitingForMouseActivity;
+    private Vector2? _sampledMousePosition;
     private readonly List<char> _text = new();
     private readonly Dictionary<int, Vector2> _touches = new();
     private readonly List<TouchLocation> _orderedTouches = new();
@@ -50,7 +52,20 @@ public sealed class ControlInputSampler
     /// Samples into reusable storage. Consume immediately; do not retain this borrowed frame for replay.
     /// </summary>
     public ControlInputFrame SampleReusable(MouseState mouse, KeyboardState keyboard, TouchCollection touches, Rectangle viewport, float scale, TimeSpan elapsed, bool active = true) => SampleCore(mouse, keyboard, touches, viewport, scale, elapsed, active, true);
-    private ControlInputFrame SampleCore(MouseState mouse, KeyboardState keyboard, TouchCollection touches, Rectangle viewport, float scale, TimeSpan elapsed, bool active, bool reuse)
+    /// <summary>Samples a workspace frame with optional native touch precedence.</summary>
+    /// <param name="mouse">The raw mouse snapshot.</param>
+    /// <param name="keyboard">The raw keyboard snapshot.</param>
+    /// <param name="touches">The raw touch snapshot.</param>
+    /// <param name="viewport">The physical viewport used to normalize input coordinates.</param>
+    /// <param name="scale">The physical-to-logical scale divisor.</param>
+    /// <param name="elapsed">The time elapsed since the previous frame.</param>
+    /// <param name="active">Whether the workspace is accepting input.</param>
+    /// <param name="preferTouchInput">Whether native touch suppresses concurrent mouse events.</param>
+    /// <returns>A borrowed frame that remains valid until the next reusable sample.</returns>
+    internal ControlInputFrame SampleReusable(MouseState mouse, KeyboardState keyboard, TouchCollection touches, Rectangle viewport, float scale, TimeSpan elapsed, bool active, bool preferTouchInput) =>
+        SampleCore(mouse, keyboard, touches, viewport, scale, elapsed, active, true, preferTouchInput);
+
+    private ControlInputFrame SampleCore(MouseState mouse, KeyboardState keyboard, TouchCollection touches, Rectangle viewport, float scale, TimeSpan elapsed, bool active, bool reuse, bool preferTouchInput = false)
     {
         if (!float.IsFinite(scale) || scale <= 0)
             throw new ArgumentOutOfRangeException(nameof(scale));
@@ -63,32 +78,49 @@ public sealed class ControlInputSampler
         {
             events.Add(new ControlInputEvent(ControlInputEventType.Deactivate));
             _touches.Clear();
+            _sampledMousePosition = null;
         }
         else
         {
             bool shift = keyboard.IsKeyDown(Keys.LeftShift) || keyboard.IsKeyDown(Keys.RightShift);
             bool control = keyboard.IsKeyDown(Keys.LeftControl) || keyboard.IsKeyDown(Keys.RightControl);
             bool alt = keyboard.IsKeyDown(Keys.LeftAlt) || keyboard.IsKeyDown(Keys.RightAlt);
-            // Include the position even if stationary: resize/DPI changes can move it logically.
-            events.Add(new ControlInputEvent(ControlInputEventType.PointerMove, position));
-            foreach (MouseButton button in PointerButtons)
+            if (ShouldSampleMouse(mouse, touches, preferTouchInput, position, events))
             {
-                bool wasDown = Down(_mouse, button), isDown = Down(mouse, button);
-                if (wasDown != isDown)
-                    events.Add(new ControlInputEvent(isDown ? ControlInputEventType.PointerDown : ControlInputEventType.PointerUp, position, button, Shift: shift, Control: control, Alt: alt));
+                // Compare logical positions so resize or DPI changes can still produce a move.
+                if (!preferTouchInput || _sampledMousePosition != position)
+                    events.Add(new ControlInputEvent(ControlInputEventType.PointerMove, position));
+                _sampledMousePosition = position;
+                foreach (MouseButton button in PointerButtons)
+                {
+                    bool wasDown = Down(_mouse, button), isDown = Down(mouse, button);
+                    if (wasDown != isDown)
+                        events.Add(new ControlInputEvent(isDown ? ControlInputEventType.PointerDown : ControlInputEventType.PointerUp, position, button, Shift: shift, Control: control, Alt: alt));
+                }
+
+                int wheel = unchecked(mouse.ScrollWheelValue - _mouse.ScrollWheelValue);
+                if (wheel != 0)
+                    events.Add(new ControlInputEvent(ControlInputEventType.PointerWheel, position, WheelDelta: wheel));
+            }
+            else
+            {
+                _sampledMousePosition = null;
             }
 
-            int wheel = unchecked(mouse.ScrollWheelValue - _mouse.ScrollWheelValue);
-            if (wheel != 0)
-                events.Add(new ControlInputEvent(ControlInputEventType.PointerWheel, position, WheelDelta: wheel));
-            SampleTouches(touches, viewport, scale, events);
+            if (touches.Count > 0 || _touches.Count > 0)
+                SampleTouches(touches, viewport, scale, events, preferTouchInput);
+
             // Key codes have a bounded numeric range; scan deterministically without arrays or discovery.
-            for (int keyCode = 0; keyCode <= 255; keyCode++)
+            if (!preferTouchInput || _keyboard != keyboard)
             {
-                Keys key = (Keys)keyCode;
-                bool wasDown = _keyboard.IsKeyDown(key), isDown = keyboard.IsKeyDown(key);
-                if (wasDown != isDown)
-                    events.Add(new ControlInputEvent(isDown ? ControlInputEventType.KeyDown : ControlInputEventType.KeyUp, Key: key, Shift: shift, Control: keyboard.IsKeyDown(Keys.LeftControl) || keyboard.IsKeyDown(Keys.RightControl), Alt: keyboard.IsKeyDown(Keys.LeftAlt) || keyboard.IsKeyDown(Keys.RightAlt)));
+                for (int keyCode = 0; keyCode <= 255; keyCode++)
+                {
+                    Keys key = (Keys)keyCode;
+                    bool wasDown = _keyboard.IsKeyDown(key), isDown = keyboard.IsKeyDown(key);
+                    if (wasDown != isDown)
+                        events.Add(new ControlInputEvent(isDown ? ControlInputEventType.KeyDown : ControlInputEventType.KeyUp,
+                            Key: key, Shift: shift, Control: control, Alt: alt));
+                }
             }
 
             foreach (char character in _text)
@@ -102,7 +134,46 @@ public sealed class ControlInputSampler
         return result.SetViewport(viewport, scale);
     }
 
-    private void SampleTouches(TouchCollection touches, Rectangle viewport, float scale, List<ControlInputEvent> events)
+    /// <summary>Suppresses mouse events during native touch and waits for fresh mouse activity afterward.</summary>
+    /// <param name="mouse">The raw mouse snapshot.</param>
+    /// <param name="touches">The raw touch snapshot.</param>
+    /// <param name="preferTouchInput">Whether native contacts take precedence over the mouse.</param>
+    /// <param name="position">The current mouse position in logical workspace coordinates.</param>
+    /// <param name="events">The current event buffer for a possible mouse cancellation.</param>
+    /// <returns>Whether the mouse snapshot should produce pointer events.</returns>
+    private bool ShouldSampleMouse(MouseState mouse, TouchCollection touches, bool preferTouchInput, Vector2 position, List<ControlInputEvent> events)
+    {
+        if (!preferTouchInput)
+        {
+            _waitingForMouseActivity = false;
+            return true;
+        }
+
+        if (touches.Count > 0 || _touches.Count > 0)
+        {
+            if (!_waitingForMouseActivity)
+                events.Add(new ControlInputEvent(ControlInputEventType.PointerCancel, position));
+
+            _waitingForMouseActivity = true;
+            return false;
+        }
+
+        if (!_waitingForMouseActivity)
+            return true;
+        if (mouse.X == _mouse.X && mouse.Y == _mouse.Y && mouse.ScrollWheelValue == _mouse.ScrollWheelValue)
+        {
+            bool pressed = false;
+            foreach (MouseButton button in PointerButtons)
+                pressed |= Down(mouse, button) && !Down(_mouse, button);
+            if (!pressed)
+                return false;
+        }
+
+        _waitingForMouseActivity = false;
+        return true;
+    }
+
+    private void SampleTouches(TouchCollection touches, Rectangle viewport, float scale, List<ControlInputEvent> events, bool skipStationaryTouches)
     {
         _orderedTouches.Clear();
         _seenTouches.Clear();
@@ -114,7 +185,7 @@ public sealed class ControlInputSampler
             if (!_seenTouches.Add(touch.Id))
                 throw new ArgumentException("Duplicate touch ID.", nameof(touches));
             Vector2 position = (touch.Position - new Vector2(viewport.X, viewport.Y)) / scale;
-            bool known = _touches.ContainsKey(touch.Id);
+            bool known = _touches.TryGetValue(touch.Id, out Vector2 previous);
             ControlInputEventType? type = touch.State switch
             {
                 TouchLocationState.Pressed when !known => ControlInputEventType.PointerDown,
@@ -122,6 +193,9 @@ public sealed class ControlInputSampler
                 TouchLocationState.Released when known => ControlInputEventType.PointerUp,
                 _ => null
             };
+            if (skipStationaryTouches && type == ControlInputEventType.PointerMove && position == previous)
+                continue;
+
             if (type.HasValue)
             {
                 events.Add(new ControlInputEvent(type.Value, position, PointerId: touch.Id, PointerKind: ControlPointerKind.Touch));
