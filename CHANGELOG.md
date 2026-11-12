@@ -24,7 +24,8 @@ All notable changes to this project will be documented in this file.
 
 ## [0.14.2-alpha] - 2026-11-23 (Planned)
 
-## [0.14.1-alpha] - 2026-11-16 (Planned)
+
+## [0.14.1-alpha] - 2026-11-12 (Boilerplate Reduction and Performance Optimization)
 * [Feature] **Controls**: Added recycling item templates and virtual stack, tile, and adaptive tile panels for `ItemsControl`.
 * [Feature] **Controls**: Added observable sources and templates to selectors, asset views, trees, tables, tabs, carousels, and menus.
 * [Feature] **Controls**: Embedded all five bundled skins and added typed loading via `ControlSkin.LoadEmbedded()` to simplify skin setup.
