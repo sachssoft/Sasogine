@@ -14,6 +14,85 @@ namespace Sachssoft.Engine.Controls;
 /// </summary>
 public class DataTable : ContainerControl
 {
+    private ItemsProjection<object>? _dataRows;
+
+    /// <summary>Gets or sets the observable data source for the table rows.</summary>
+    public System.Collections.IEnumerable? ItemsSource
+    {
+        get => _dataRows?.Source;
+        set
+        {
+            VerifyTreeMutation();
+            if (ReferenceEquals(_dataRows?.Source, value))
+                return;
+            var projection = _dataRows ??= new ItemsProjection<object>(InvalidateMeasure);
+            projection.SetSource(value, Items.Count != 0);
+            if (Workspace is not null)
+                projection.Attach();
+            NotifyPropertyChanged(ItemsSourceChangedArgs);
+        }
+    }
+
+    private static readonly System.ComponentModel.PropertyChangedEventArgs ItemsSourceChangedArgs = new(nameof(ItemsSource));
+
+    private readonly Dictionary<DataTableColumn, ViewportTemplatePool> _cellPool = new();
+    private readonly HashSet<DataTableColumn> _visibleTemplateColumns = new();
+    private readonly List<DataTableColumn> _inactiveTemplateColumns = new();
+    private ControlLayoutContext? _cellLayout;
+    private bool _hasCellTemplates;
+
+    /// <summary>Refreshes a row source without collection-change notifications.</summary>
+    public void RefreshItems()
+    {
+        _dataRows?.Refresh();
+        Refresh();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnAttached()
+    {
+        base.OnAttached();
+        _dataRows?.Attach();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDetached()
+    {
+        _dataRows?.Detach();
+        base.OnDetached();
+    }
+
+    /// <inheritdoc/>
+    internal override void Prepare()
+    {
+        base.Prepare();
+        object? selected = SelectedItem;
+        HashSet<object>? selectedRows = null;
+        if (_dataRows is { NeedsSynchronization: true } && _selectedRows.Count > 0)
+        {
+            selectedRows = new HashSet<object>(ReferenceEqualityComparer.Instance);
+            foreach (int index in _selectedRows)
+                if ((uint)index < (uint)Items.Count)
+                    selectedRows.Add(Items[index]);
+        }
+        if (_dataRows?.Synchronize(ConfigItems, static row => row ?? throw new InvalidOperationException("A table row cannot be null."),
+            allowRepeatedItems: true) == true && selectedRows is not null)
+        {
+            int primary = -1;
+            var indices = new List<int>(selectedRows.Count);
+            for (int i = 0; i < Items.Count; i++)
+            {
+                if (selectedRows.Contains(Items[i]))
+                    indices.Add(i);
+                if (primary < 0 && ReferenceEquals(Items[i], selected))
+                    primary = i;
+            }
+            if (primary < 0 && indices.Count > 0)
+                primary = indices[0];
+            _anchor = primary;
+            SetRows(indices, primary);
+        }
+    }
     private readonly List<DataTableColumnLayout> _columns = new();
     private readonly List<object> _source = new();
     private readonly List<int> _order = new();
@@ -95,6 +174,8 @@ public class DataTable : ContainerControl
 
         ConfigSelectedIndex = primary;
         _primarySelection.Set(primary);
+        if (_hasCellTemplates)
+            InvalidateArrange();
         _ensureVisible = true;
         NotifySelection();
         EnsureSelectionVisible();
@@ -134,6 +215,7 @@ public class DataTable : ContainerControl
     private readonly TextBox _editor = new()
     {
         IsVisible = false,
+        ZIndex = 1,
         Padding = new Insets2(5, 3)
     };
     private ChangeTracker<int> _refresh;
@@ -164,13 +246,19 @@ public class DataTable : ContainerControl
         base.Add(HorizontalScrollBar);
         base.Add(VerticalScrollBar);
         base.Add(_editor);
+        HorizontalScrollBar.PropertyChanged += OnCellScrollChanged;
+        VerticalScrollBar.PropertyChanged += OnCellScrollChanged;
         _editor.Submitted += (_, _) => CommitEdit();
     }
 
     /// <summary>
     /// Gets source rows.
     /// </summary>
-    public IList<object> Items => ConfigItems;
+    public IList<object> Items => _dataRows?.OwnsItems == true
+        ? _readOnlyItems ??= new System.Collections.ObjectModel.ReadOnlyCollection<object>(ConfigItems)
+        : ConfigItems;
+
+    private IList<object>? _readOnlyItems;
     /// <summary>
     /// Gets explicit column propertiess.
     /// </summary>
@@ -260,6 +348,8 @@ public class DataTable : ContainerControl
     /// </summary>
     public void Refresh()
     {
+        foreach (ViewportTemplatePool pool in _cellPool.Values)
+            pool.InvalidateBindings();
         unchecked
         {
             _revision++;
@@ -382,6 +472,8 @@ public class DataTable : ContainerControl
     /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
+        _cellLayout = context;
+        _hasCellTemplates = false;
         _font = GetFont(context);
         ReconcileRows();
         NotifySelection();
@@ -392,6 +484,7 @@ public class DataTable : ContainerControl
             ArgumentNullException.ThrowIfNull(column);
             if (!column.IsVisible)
                 continue;
+            _hasCellTemplates |= column.CellTemplate is not null;
             if (!float.IsFinite(column.Width) || column.Width < 0 || !float.IsFinite(column.MinWidth) || column.MinWidth < 0 || float.IsNaN(column.MaxWidth) || column.MaxWidth < column.MinWidth)
                 throw new InvalidOperationException("Invalid table column width.");
             float width = Math.Clamp(column.Width, column.MinWidth, column.MaxWidth);
@@ -439,6 +532,8 @@ public class DataTable : ContainerControl
             EnsureSelectionVisible();
         }
 
+        ArrangeCellTemplates();
+
         if (IsEditing)
         {
             int display = _order.IndexOf(_editRow);
@@ -454,7 +549,54 @@ public class DataTable : ContainerControl
         }
     }
 
-    internal override Bounds2 GetChildClip(Control child) => child == _editor ? _body : ContentBounds;
+    internal override Bounds2 GetChildClip(Control child) =>
+        ReferenceEquals(child, HorizontalScrollBar) || ReferenceEquals(child, VerticalScrollBar) ? ContentBounds : _body;
+
+    /// <summary>Schedules layout for visible cell controls when the viewport scrolls.</summary>
+    /// <param name="sender">The scrollbar that moved.</param>
+    /// <param name="args">The changed scrollbar property.</param>
+    private void OnCellScrollChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs args)
+    {
+        if (_hasCellTemplates && args.PropertyName == nameof(ScrollBar.Value))
+            InvalidateArrange();
+    }
+
+    /// <summary>Recycles display controls only for visible rows and columns with custom templates.</summary>
+    private void ArrangeCellTemplates()
+    {
+        if ((!_hasCellTemplates && _cellPool.Count == 0) || _cellLayout is not { } layout)
+            return;
+        _visibleTemplateColumns.Clear();
+        float height = RowHeight;
+        int count = _body.Height <= 0 ? 0 : (int)Math.Min(_order.Count, Math.Ceiling((double)_body.Height / height) + 1);
+        int first = (int)Math.Clamp(Math.Floor((double)VerticalScrollBar.Value / height), 0, _order.Count - count);
+        foreach (DataTableColumnLayout column in _columns)
+        {
+            float x = _body.X + column.X - HorizontalScrollBar.Value;
+            if (count == 0 || x >= _body.Right || x + column.Width <= _body.Left || column.Column.CellTemplate is not { } template)
+                continue;
+            _visibleTemplateColumns.Add(column.Column);
+            if (!_cellPool.TryGetValue(column.Column, out ViewportTemplatePool? pool))
+                _cellPool.Add(column.Column, pool = new ViewportTemplatePool(this));
+            pool.Resize(count, template);
+            for (int display = first; display < first + count; display++)
+            {
+                int source = _order[display];
+                pool.Arrange(display, Items[source], new Bounds2(x, _body.Y + display * height - VerticalScrollBar.Value,
+                    column.Width, height), layout, _selectedRows.Contains(source));
+            }
+        }
+
+        _inactiveTemplateColumns.Clear();
+        foreach (var entry in _cellPool)
+            if (!_visibleTemplateColumns.Contains(entry.Key))
+                _inactiveTemplateColumns.Add(entry.Key);
+        foreach (DataTableColumn column in _inactiveTemplateColumns)
+        {
+            _cellPool[column].Clear();
+            _cellPool.Remove(column);
+        }
+    }
     private void NotifySelection()
     {
         int index = SelectedIndex;
@@ -825,11 +967,14 @@ public class DataTable : ContainerControl
                     var b = new Bounds2(_body.X + c.X - HorizontalScrollBar.Value, row.Y, c.Width, rowHeight);
                     if (b.Right < _body.X || b.X > _body.Right)
                         continue;
-                    string text = c.Column.GetText(Items[source]);
-                    Size2 measured = font.Measure(text);
-                    float offset = c.Column.TextAlignment == LayoutAlignment.End ? MathF.Max(7, c.Width - measured.Width - 7) : c.Column.TextAlignment == LayoutAlignment.Center ? MathF.Max(7, (c.Width - measured.Width) / 2) : 7;
-                    using (context.PushClipScope(Local(b)))
-                        context.DrawText(font, text, new Vector2(b.X - Bounds.X + offset, b.Y - Bounds.Y + (rowHeight - measured.Height) / 2), IsAvailable() ? ConfigTextColor : ConfigDisabledTextColor);
+                    if (c.Column.CellTemplate is null)
+                    {
+                        string text = c.Column.GetText(Items[source]);
+                        Size2 measured = font.Measure(text);
+                        float offset = c.Column.TextAlignment == LayoutAlignment.End ? MathF.Max(7, c.Width - measured.Width - 7) : c.Column.TextAlignment == LayoutAlignment.Center ? MathF.Max(7, (c.Width - measured.Width) / 2) : 7;
+                        using (context.PushClipScope(Local(b)))
+                            context.DrawText(font, text, new Vector2(b.X - Bounds.X + offset, b.Y - Bounds.Y + (rowHeight - measured.Height) / 2), IsAvailable() ? ConfigTextColor : ConfigDisabledTextColor);
+                    }
                     if (ConfigShowGridLines)
                         context.FillRectangle(new Bounds2(b.Right - Bounds.X - 1, b.Y - Bounds.Y, 1, b.Height), BorderColor);
                 }
@@ -945,7 +1090,7 @@ public class DataTable : ContainerControl
     /// <summary>
     /// Gets the owned collection for Rows.
     /// </summary>
-    public IList<object> Rows { get => ConfigRows; }
+    public IList<object> Rows { get => Items; }
 
     private ElementCollection<DataTableColumn>? _ownedColumnDefinitions;
     private static readonly System.ComponentModel.PropertyChangedEventArgs ColumnDefinitionsCollectionArgs = new("Tracks");

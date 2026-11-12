@@ -187,11 +187,15 @@ public sealed class AssetView : ListBox
             int index = GetItemIndexAt(input.Position);
             _dragCandidate = index >= 0 ? Items[index].Value as AssetItem : null;
         }
-        else if (input.Type == ControlInputEventType.PointerMove && _dragCandidate is AssetItem asset && !IsSwiping && Workspace?.GetCapturedControl(input.Pointer) == this && Vector2.DistanceSquared(_dragStart, input.Position) >= 36 && (input.PointerKind != ControlPointerKind.Touch || MathF.Abs(input.Position.X - _dragStart.X) > MathF.Abs(input.Position.Y - _dragStart.Y)))
+        else if (input.Type == ControlInputEventType.PointerMove && _dragCandidate is AssetItem asset && !IsSwiping &&
+            Workspace is { } workspace && workspace.GetCapturedControl(input.Pointer) is { } capture &&
+            (ReferenceEquals(capture, this) || ItemsPresenter?.IndexFromContainer(capture) >= 0) &&
+            Vector2.DistanceSquared(_dragStart, input.Position) >= 36 &&
+            (input.PointerKind != ControlPointerKind.Touch || MathF.Abs(input.Position.X - _dragStart.X) > MathF.Abs(input.Position.Y - _dragStart.Y)))
         {
             if (input.PointerKind == ControlPointerKind.Touch)
                 SelectedIndex = GetItemIndexAt(_dragStart);
-            Workspace.AssetDragging.Begin(this, asset, input.Pointer, input.Position);
+            workspace.AssetDragging.Begin(this, asset, input.Pointer, input.Position);
             _dragCandidate = null;
             args.Handled = true;
         }
@@ -222,9 +226,43 @@ public sealed class AssetView : ListBox
     protected override float MeasureItems(IControlFont font) => ViewMode == AssetViewMode.Tiles ? TileSize.Width * 3 + Spacing * 2 : 260;
 
     /// <inheritdoc/>
+    protected override VirtualizingPanel CreateDefaultItemsPanel() => ViewMode == AssetViewMode.List
+        ? base.CreateDefaultItemsPanel()
+        : new VirtualAdaptiveTilePanel { PreferredTileSize = TileSize, Spacing = Spacing };
+
+    /// <inheritdoc/>
+    protected override IRecyclingItemTemplate CreateDefaultItemTemplate() => new RecyclingItemTemplate<AssetViewItem>(() => new AssetViewItem(this));
+
+    /// <inheritdoc/>
+    protected override string GetDefaultItemText(object? item) => item is AssetItem asset ? asset.Name : base.GetDefaultItemText(item);
+
+    /// <summary>Gets the caption shown for non-asset data in a template slot.</summary>
+    /// <param name="item">The source item.</param>
+    /// <returns>The item caption.</returns>
+    internal string CaptionForAssetData(object? item) => GetItemCaption(item);
+
+    /// <inheritdoc/>
+    protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs notification)
+    {
+        if (ItemsPresenter is not null && ItemsPanel is null && notification.PropertyName is nameof(ViewMode) or nameof(TileSize) or nameof(Spacing))
+            OnItemPresentationChanged();
+        base.OnPropertyChanged(notification);
+    }
+
+    /// <inheritdoc/>
     protected override void OnUpdate(TimeSpan elapsed)
     {
         base.OnUpdate(elapsed);
+        if (ItemsPresenter is { } presenter)
+        {
+            foreach (Control item in presenter.ItemsPanelRoot.Children)
+            {
+                object? data = item.DataContext is SelectorItem selector ? selector.Value : item.DataContext;
+                if (data is AssetItem asset)
+                    asset.RequestPreview();
+            }
+            return;
+        }
         GetVisibleRange(out int first, out int last);
         // Loading never occurs in Draw. Each entry caches success, absence or failure.
         for (int i = first; i < last; i++)
@@ -241,6 +279,16 @@ public sealed class AssetView : ListBox
             return;
         }
 
+        DrawAssetPresentation(context, row, asset, font);
+    }
+
+    /// <summary>Draws an asset preview for either the direct or the templated presentation path.</summary>
+    /// <param name="context">The active drawing context.</param>
+    /// <param name="row">The local item bounds.</param>
+    /// <param name="asset">The displayed asset.</param>
+    /// <param name="font">The resolved caption font.</param>
+    internal void DrawAssetPresentation(ControlDrawContext context, Bounds2 row, AssetItem asset, IControlFont font)
+    {
         using var clip = context.PushClipScope(row);
         bool tiles = ViewMode == AssetViewMode.Tiles;
         var image = tiles ? new Bounds2(row.X + 8, row.Y + 6, MathF.Max(0, row.Width - 16), MathF.Max(0, row.Height - 50)) : new Bounds2(row.X + 5, row.Y + 4, MathF.Max(0, row.Height - 8), MathF.Max(0, row.Height - 8));

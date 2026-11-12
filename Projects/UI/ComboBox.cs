@@ -10,8 +10,222 @@ namespace Sachssoft.Engine.Controls;
 /// <summary>
 /// A compact selector whose list is hosted in the root popup layer.
 /// </summary>
-public sealed class ComboBox : Control
+public sealed class ComboBox : ContainerControl
 {
+    private ItemsProjection<SelectorItem>? _dataItems;
+    private Func<object?, string>? _itemTextSelector;
+    private object? _pendingSelectedValue;
+    private bool _hasPendingSelectedValue;
+    private SelectorItem? _notifiedSelectedItem;
+    private IRecyclingItemTemplate? _itemTemplate;
+    private ITemplate<ItemsControl, ContainerControl>? _itemsPanel;
+    private Control? _selectedPresenter;
+    private ITemplate<object?, Control>? _selectedContentTemplate;
+    private ITemplate<object?, Control>? _appliedSelectedContentTemplate;
+    private ITemplate<object?, string>? _selectedTextTemplate;
+    private ITemplate<object?, string>? _appliedSelectedTextTemplate;
+    private SelectorItem? _presentedSelection;
+    private string? _selectedCaption;
+    private static readonly System.ComponentModel.PropertyChangedEventArgs SelectedPresenterArgs = new("SelectedPresenter");
+
+    private ItemsProjection<SelectorItem> DataItems => _dataItems ??= new ItemsProjection<SelectorItem>(InvalidateMeasure);
+
+    /// <summary>Gets or sets the observable source of selectable entries.</summary>
+    public System.Collections.IEnumerable? ItemsSource
+    {
+        get => _dataItems?.Source;
+        set
+        {
+            VerifyTreeMutation();
+            if (ReferenceEquals(_dataItems?.Source, value))
+                return;
+            DataItems.SetSource(value, Items.Count != 0);
+            if (Workspace is not null)
+                DataItems.Attach();
+            OnItemPresentationChanged();
+            NotifyPropertyChanged(ItemsSourceArgs);
+        }
+    }
+
+    private static readonly System.ComponentModel.PropertyChangedEventArgs ItemsSourceArgs = new(nameof(ItemsSource));
+    private static readonly System.ComponentModel.PropertyChangedEventArgs SelectedValueArgs = new(nameof(SelectedValue));
+
+    /// <summary>Gets or sets the optional caption selector for data items.</summary>
+    public Func<object?, string>? ItemTextSelector
+    {
+        get => _itemTextSelector;
+        set
+        {
+            if (ReferenceEquals(_itemTextSelector, value))
+                return;
+            _itemTextSelector = value;
+            DataItems.Refresh(recreate: true);
+            OnItemPresentationChanged();
+        }
+    }
+
+    /// <summary>Gets or sets the reusable control template for data items.</summary>
+    public IRecyclingItemTemplate? ItemTemplate
+    {
+        get => _itemTemplate;
+        set
+        {
+            VerifyTreeMutation();
+            if (ReferenceEquals(_itemTemplate, value))
+                return;
+            _itemTemplate = value;
+            OnItemPresentationChanged();
+        }
+    }
+
+    /// <summary>Gets or sets the panel factory for templated items.</summary>
+    public ITemplate<ItemsControl, ContainerControl>? ItemsPanel
+    {
+        get => _itemsPanel;
+        set
+        {
+            VerifyTreeMutation();
+            if (ReferenceEquals(_itemsPanel, value))
+                return;
+            _itemsPanel = value;
+            OnItemPresentationChanged();
+        }
+    }
+
+    /// <summary>Gets or sets the primary selection by its application data.</summary>
+    public object? SelectedValue
+    {
+        get => _hasPendingSelectedValue ? _pendingSelectedValue : SelectedItem?.Value;
+        set
+        {
+            if (_dataItems is { NeedsSynchronization: true })
+            {
+                _pendingSelectedValue = value;
+                _hasPendingSelectedValue = true;
+                return;
+            }
+            int index = -1;
+            if (value is not null)
+                for (int i = 0; i < Items.Count; i++)
+                    if (ReferenceEquals(Items[i].Value, value) || Equals(Items[i].Value, value))
+                    {
+                        index = i;
+                        break;
+                    }
+            SelectedIndex = index;
+        }
+    }
+
+    /// <summary>Refreshes a data source without collection-change notifications.</summary>
+    public void RefreshItems()
+    {
+        _dataItems?.Refresh();
+        if (ItemsSource is not null)
+            _popup?.RefreshItems();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnAttached()
+    {
+        base.OnAttached();
+        _dataItems?.Attach();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDetached()
+    {
+        _dataItems?.Detach();
+        base.OnDetached();
+    }
+
+    /// <inheritdoc/>
+    internal override void Prepare()
+    {
+        base.Prepare();
+        SelectorItem? selected = SelectedItem;
+        if (_dataItems?.Synchronize(ConfigItems, CreateSelectorItem) == true)
+        {
+            int index = selected is null ? SelectedIndex : Items.IndexOf(selected);
+            if (index < 0 && selected?.Value is { } value)
+                SelectedValue = value;
+            else if (index != SelectedIndex)
+                SelectedIndex = index;
+        }
+        if (_hasPendingSelectedValue && _dataItems?.NeedsSynchronization != true)
+        {
+            object? requested = _pendingSelectedValue;
+            _pendingSelectedValue = null;
+            _hasPendingSelectedValue = false;
+            SelectedValue = requested;
+        }
+        PrepareSelectedPresentation();
+    }
+
+    /// <summary>Builds the legacy selection descriptor for one application data item.</summary>
+    /// <param name="item">The application data.</param>
+    /// <returns>The descriptor used for selection and plain text presentation.</returns>
+    private SelectorItem CreateSelectorItem(object? item) => item is SelectorItem selector ? selector with { }
+        : new SelectorItem(ItemTextSelector?.Invoke(item) ?? item?.ToString() ?? string.Empty, item);
+
+    /// <summary>Discards a popup when its source or template configuration changes.</summary>
+    private void OnItemPresentationChanged()
+    {
+        CloseDropDown();
+        InvalidateMeasure();
+    }
+
+    /// <summary>Formats the selected data item independently from the popup row.</summary>
+    public ITemplate<object?, string>? SelectedTextTemplate
+    {
+        get => _selectedTextTemplate;
+        set
+        {
+            if (ReferenceEquals(_selectedTextTemplate, value))
+                return;
+            _selectedTextTemplate = value;
+            InvalidateMeasure();
+        }
+    }
+
+    /// <summary>Gets or sets the control template displayed while the dropdown is closed.</summary>
+    public ITemplate<object?, Control>? SelectedContentTemplate
+    {
+        get => _selectedContentTemplate;
+        set
+        {
+            VerifyTreeMutation();
+            if (ReferenceEquals(_selectedContentTemplate, value))
+                return;
+            _selectedContentTemplate = value;
+            InvalidateMeasure();
+        }
+    }
+
+    /// <summary>Refreshes the selected item display during update, outside drawing.</summary>
+    private void PrepareSelectedPresentation()
+    {
+        SelectorItem? selected = SelectedItem;
+        if (ReferenceEquals(selected, _presentedSelection) &&
+            ReferenceEquals(_appliedSelectedContentTemplate, SelectedContentTemplate) &&
+            ReferenceEquals(_appliedSelectedTextTemplate, SelectedTextTemplate))
+            return;
+
+        object? item = selected?.Value ?? selected;
+        Control? presentation = selected is not null && SelectedContentTemplate is { } content
+            ? content.Create(item) ?? throw new InvalidOperationException("The selection template returned null.") : null;
+        if (presentation is not null)
+        {
+            presentation.DataContext = item;
+            presentation.IsHitTestVisible = false;
+            presentation.IsFocusable = false;
+        }
+        _selectedCaption = selected is not null ? SelectedTextTemplate?.Create(item) : null;
+        SetOwnedControl(ref _selectedPresenter, presentation, SelectedPresenterArgs);
+        _presentedSelection = selected;
+        _appliedSelectedContentTemplate = SelectedContentTemplate;
+        _appliedSelectedTextTemplate = SelectedTextTemplate;
+    }
+
     private ListBox? _popup;
     private IControlFont? _font;
     private int _last = -1;
@@ -27,7 +241,11 @@ public sealed class ComboBox : Control
     /// <summary>
     /// Gets items.
     /// </summary>
-    public IList<SelectorItem> Items => ConfigItems;
+    public IList<SelectorItem> Items => _dataItems?.OwnsItems == true
+        ? _readOnlyItems ??= new System.Collections.ObjectModel.ReadOnlyCollection<SelectorItem>(ConfigItems)
+        : ConfigItems;
+
+    private IList<SelectorItem>? _readOnlyItems;
     /// <summary>
     /// Gets is drop down open.
     /// </summary>
@@ -66,9 +284,14 @@ public sealed class ComboBox : Control
     public event EventHandler? SelectionChanged;
     private void Notify()
     {
-        if (_last == SelectedIndex)
+        SelectorItem? selected = SelectedItem;
+        if (_last == SelectedIndex && ReferenceEquals(_notifiedSelectedItem, selected))
             return;
         _last = SelectedIndex;
+        _notifiedSelectedItem = selected;
+        if (SelectedContentTemplate is not null || SelectedTextTemplate is not null)
+            InvalidateMeasure();
+        NotifyPropertyChanged(SelectedValueArgs);
         SelectionChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -85,9 +308,17 @@ public sealed class ComboBox : Control
             Width = Bounds.Width,
             Padding = new Insets2(2)
         };
-        foreach (SelectorItem item in Items)
-            list.Items.Add(item);
-        list.SelectedIndex = SelectedIndex;
+        if (ItemsSource is not null)
+        {
+            list.ItemsSource = ItemsSource;
+            list.ItemTextSelector = ItemTextSelector;
+        }
+        else
+            foreach (SelectorItem item in Items)
+                list.Items.Add(item);
+        list.ItemTemplate = ItemTemplate;
+        list.ItemsPanel = ItemsPanel;
+        list.SetPopupSelection(SelectedIndex);
         list.ItemActivated += (_, _) =>
         {
             if (list.SelectedIndex >= 0)
@@ -111,8 +342,14 @@ public sealed class ComboBox : Control
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
         _font = GetFont(context);
-        return new Size2(160, MathF.Max(20, _font.Measure("Mg").Height));
+        _selectedPresenter?.Measure(context, new Size2(MathF.Max(0, available.Width - 28), available.Height));
+        return new Size2(MathF.Max(160, (_selectedPresenter?.DesiredSize.Width ?? 0) + 28),
+            MathF.Max(MathF.Max(20, _font.Measure("Mg").Height), _selectedPresenter?.DesiredSize.Height ?? 0));
     }
+
+    /// <inheritdoc/>
+    protected override void ArrangeOverride(Bounds2 bounds) =>
+        _selectedPresenter?.Arrange(new Bounds2(bounds.X, bounds.Y, MathF.Max(0, bounds.Width - 28), bounds.Height), true);
 
     /// <inheritdoc/>
     protected override void OnUpdate(TimeSpan elapsed)
@@ -170,7 +407,9 @@ public sealed class ComboBox : Control
 
         context.DrawSkinPart(this, "DropDownGlyph", new Bounds2(Bounds.Width - 27, (Bounds.Height - 20) / 2, 20, 20));
         var font = GetFont(context);
-        string text = SelectedItem?.Text ?? ConfigPlaceholder;
+        if (_selectedPresenter is not null)
+            return;
+        string text = _selectedCaption ?? SelectedItem?.Text ?? ConfigPlaceholder;
         using (context.PushClipScope(new Bounds2(Padding.Left, Padding.Top, MathF.Max(0, Bounds.Width - Padding.Horizontal - 28), MathF.Max(0, Bounds.Height - Padding.Vertical))))
             context.DrawText(font, text, new Vector2(Padding.Left, (Bounds.Height - font.Measure(text).Height) / 2), IsAvailable() ? ConfigTextColor : ConfigDisabledTextColor);
     }

@@ -36,6 +36,18 @@ public sealed class Slider : RangeControl
     }
 
     /// <inheritdoc/>
+    protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs notification)
+    {
+        if (notification.PropertyName == nameof(Value))
+        {
+            InvalidateVisual();
+            return;
+        }
+
+        base.OnPropertyChanged(notification);
+    }
+
+    /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
         ValidateRange();

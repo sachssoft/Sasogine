@@ -79,13 +79,11 @@ Vorhandene gemeinsame Input-, Layout- und Rendering-Systeme verwenden und geziel
 
 Zusätzlich echte UI-Virtualisierung mit Container-Recycling einführen.
 
-Geplante Controls:
+Die gemeinsame Virtualisierung gehört zu `ItemsControl` und seinem austauschbaren Items-Panel:
 
-- `VirtualListBox`
-- `VirtualItemsControl`
-- `VirtualDataTable`
-- `VirtualTreeView`
-- `VirtualGrid`
+- `VirtualStackPanel` für feste Zeilenhöhen
+- `VirtualTilePanel` für feste Kachelgrößen
+- `VirtualAdaptiveTilePanel` für Kacheln mit viewportabhängiger Spaltenzahl
 
 ### Anforderungen
 
@@ -96,7 +94,7 @@ Geplante Controls:
 - Dynamische Collection-Änderungen unterstützen.
 - Virtualisierung ohne unnötige Architekturkomplexität implementieren.
 
-Zunächst `VirtualListBox` priorisieren und anschließend weitere Virtual-Controls auf Grundlage wiederverwendbarer Komponenten entwickeln.
+Die Trophäen-Rangliste nutzt `ItemsControl` und `VirtualStackPanel`. Datengebundene `ListBox`- und `AssetView`-Einträge sowie die Popup-Liste der `ComboBox` verwenden ebenfalls den gemeinsamen Items-Host.
 
 ## 5. Gesamtes UI-Framework optimieren
 

@@ -16,6 +16,80 @@ namespace Sachssoft.Engine.Controls;
 /// inactive pages retain ownership and state. A new navigation request completes the previous transition before starting another.</remarks>
 public class Carousel : ContainerControl
 {
+    private ItemsProjection<Control>? _dataItems;
+    private ITemplate<object?, Control>? _dataTemplate;
+
+    private ItemsProjection<Control> Projection => _dataItems ??= new ItemsProjection<Control>(InvalidateMeasure);
+
+    /// <summary>Gets or sets the observable data source for the displayed items.</summary>
+    public System.Collections.IEnumerable? ItemsSource
+    {
+        get => _dataItems?.Source;
+        set
+        {
+            VerifyTreeMutation();
+            if (ReferenceEquals(_dataItems?.Source, value))
+                return;
+            Projection.SetSource(value, Items.Count != 0);
+            if (Workspace is not null)
+                Projection.Attach();
+            CollectionChanged(DataItemsSourceChangedArgs);
+        }
+    }
+
+    private static readonly System.ComponentModel.PropertyChangedEventArgs DataItemsSourceChangedArgs = new(nameof(ItemsSource));
+
+    /// <summary>Gets or sets the factory used to present an entry from the data source.</summary>
+    public ITemplate<object?, Control>? PageTemplate
+    {
+        get => _dataTemplate;
+        set
+        {
+            VerifyTreeMutation();
+            if (ReferenceEquals(_dataTemplate, value))
+                return;
+            _dataTemplate = value;
+            Projection.Refresh(recreate: true);
+        }
+    }
+
+    /// <summary>Schedules synchronization of a source that does not notify collection changes.</summary>
+    public void RefreshItems() => _dataItems?.Refresh();
+
+    /// <summary>Rejects direct page mutations while an external source owns the collection.</summary>
+    internal void VerifyItemsMutation()
+    {
+        VerifyTreeMutation();
+        if (_dataItems is { OwnsItems: true, IsSynchronizing: false })
+            throw new InvalidOperationException("Direct Items are read-only while ItemsSource is assigned.");
+    }
+
+    /// <inheritdoc/>
+    protected override void OnAttached()
+    {
+        base.OnAttached();
+        _dataItems?.Attach();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDetached()
+    {
+        _dataItems?.Detach();
+        base.OnDetached();
+    }
+
+    /// <summary>Creates an item presentation for one source entry.</summary>
+    /// <param name="item">The source entry.</param>
+    /// <returns>The presentation added to the existing items collection.</returns>
+    private Control CreateDataItem(object? item)
+    {
+        if (PageTemplate is null && item is Control existing)
+            return existing;
+        Control page = PageTemplate is null ? new ItemContainer(item) : PageTemplate.Create(item);
+        page.DataContext = item;
+        return page;
+    }
+
     /// <summary>Caches the notification for AutoPlayInterval changes.</summary>
     private static readonly PropertyChangedEventArgs AutoPlayIntervalArgs = new(nameof(AutoPlayInterval));
 
@@ -102,6 +176,12 @@ public class Carousel : ContainerControl
 
     /// <summary>Stores the host retained only for the current transition.</summary>
     private CarouselPageHost? _outgoing;
+
+    /// <summary>Stores the last presented destination to reconcile at most two hosts.</summary>
+    private CarouselPageHost? _presentedIncoming;
+
+    /// <summary>Stores the last presented outgoing host until its transition ends.</summary>
+    private CarouselPageHost? _presentedOutgoing;
 
     /// <summary>Stores the selected source page independently of its current collection index.</summary>
     private Control? _selectedItem;
@@ -545,12 +625,38 @@ public class Carousel : ContainerControl
     /// <summary>Attaches only incoming and outgoing hosts while retaining inactive ownership reservations.</summary>
     private void SynchronizePages()
     {
-        foreach (CarouselPageHost host in _hosts.Values)
+        if (ReferenceEquals(_presentedIncoming, _incoming) &&
+            ReferenceEquals(_presentedOutgoing, _outgoing))
         {
-            bool active = ReferenceEquals(host, _incoming) || ReferenceEquals(host, _outgoing);
-            host.IsHitTestVisible = ReferenceEquals(host, _incoming) && !IsTransitioning;
-            PresentOwnedChild(host, active);
+            return;
         }
+
+        if (_presentedIncoming is CarouselPageHost previousIncoming &&
+            !ReferenceEquals(previousIncoming, _incoming) && !ReferenceEquals(previousIncoming, _outgoing))
+        {
+            PresentOwnedChild(previousIncoming, false);
+        }
+
+        if (_presentedOutgoing is CarouselPageHost previousOutgoing &&
+            !ReferenceEquals(previousOutgoing, _incoming) && !ReferenceEquals(previousOutgoing, _outgoing))
+        {
+            PresentOwnedChild(previousOutgoing, false);
+        }
+
+        if (_outgoing is CarouselPageHost outgoing)
+        {
+            outgoing.IsHitTestVisible = false;
+            PresentOwnedChild(outgoing, true);
+        }
+
+        if (_incoming is CarouselPageHost incoming)
+        {
+            incoming.IsHitTestVisible = !IsTransitioning;
+            PresentOwnedChild(incoming, true);
+        }
+
+        _presentedIncoming = _incoming;
+        _presentedOutgoing = _outgoing;
     }
 
     /// <inheritdoc/>
@@ -573,6 +679,13 @@ public class Carousel : ContainerControl
     internal override void Prepare()
     {
         base.Prepare();
+        Control? selected = SelectedItem;
+        if (_dataItems?.Synchronize(Items, CreateDataItem, Items.Move) == true && selected is not null)
+        {
+            int index = Items.IndexOf(selected);
+            if (index >= 0)
+                SelectedIndex = index;
+        }
         SynchronizePages();
         UpdateNavigation();
     }
@@ -587,6 +700,10 @@ public class Carousel : ContainerControl
         _previous.Content = Orientation == Orientation.Horizontal ? "‹" : "↑";
         _next.Content = Orientation == Orientation.Horizontal ? "›" : "↓";
         _previous.Width = _previous.Height = _next.Width = _next.Height = NavigationButtonSize;
+        _indicatorPanel.IsVisible = ShowIndicators && Items.Count > 1;
+        if (!_indicatorPanel.IsVisible)
+            return;
+
         while (_indicators.Count > Items.Count)
         {
             int last = _indicators.Count - 1;
@@ -613,7 +730,6 @@ public class Carousel : ContainerControl
         }
 
         _indicatorPanel.Spacing = IndicatorSpacing;
-        _indicatorPanel.IsVisible = ShowIndicators && Items.Count > 1;
     }
 
     /// <inheritdoc/>
@@ -659,11 +775,20 @@ public class Carousel : ContainerControl
         ArrangePages();
     }
 
-    /// <summary>Arranges measured transition hosts without remeasuring their retained page content.</summary>
+    /// <summary>Arranges the participating pages in the stable viewport and applies their presentation state.</summary>
     private void ArrangePages()
     {
         if (!_pagesMeasured)
             return;
+
+        _outgoing?.Arrange(_viewport, true);
+        _incoming?.Arrange(_viewport, true);
+        UpdatePageVisuals();
+    }
+
+    /// <summary>Updates the presentation of the active pages without running layout.</summary>
+    private void UpdatePageVisuals()
+    {
         float length = Horizontal ? _viewport.Width : _viewport.Height;
         bool slide = IsTransitioning && Transition == CarouselTransition.Slide;
         float incomingOffset = slide ? _direction * (1 - _progress) * length : 0;
@@ -671,30 +796,26 @@ public class Carousel : ContainerControl
         if (_outgoing is not null)
         {
             _outgoing.Opacity = Transition == CarouselTransition.Fade ? 1 - _progress : 1;
-            _outgoing.Arrange(PageSlot(outgoingOffset), true);
+            _outgoing.SetSlideOffset(Horizontal ? outgoingOffset : 0, Horizontal ? 0 : outgoingOffset);
         }
 
         if (_incoming is not null)
         {
             _incoming.Opacity = IsTransitioning && Transition == CarouselTransition.Fade ? _progress : 1;
-            _incoming.Arrange(PageSlot(incomingOffset), true);
+            _incoming.SetSlideOffset(Horizontal ? incomingOffset : 0, Horizontal ? 0 : incomingOffset);
         }
     }
 
-    /// <summary>Offsets the cached viewport along the selected slide axis.</summary>
-    /// <param name = "offset">The signed logical displacement along the main axis.</param>
-    /// <returns>The displaced page slot in workspace logical coordinates.</returns>
-    private Bounds2 PageSlot(float offset) => new(_viewport.X + (Horizontal ? offset : 0), _viewport.Y + (Horizontal ? 0 : offset), _viewport.Width, _viewport.Height);
-
-    /// <summary>Restores the destination page opacity and schedules outgoing page detachment.</summary>
+    /// <summary>Restores normal page presentation and schedules outgoing page detachment.</summary>
     private void FinishTransition()
     {
-        if (!IsTransitioning)
+        if (_outgoing is not CarouselPageHost outgoing)
             return;
+        outgoing.SetSlideOffset(0, 0);
+        outgoing.Opacity = 1;
         _outgoing = null;
         _progress = 1;
-        if (_incoming is not null)
-            _incoming.Opacity = 1;
+        UpdatePageVisuals();
         SynchronizeLater();
         NotifyPropertyChanged(TransitioningArgs);
         NotifyPropertyChanged(ProgressArgs);
@@ -708,12 +829,17 @@ public class Carousel : ContainerControl
         double seconds = Math.Max(0, elapsed.TotalSeconds);
         if (IsTransitioning)
         {
-            _progress = TransitionDuration <= 0 ? 1 : MathF.Min(1, _progress + (float)(seconds / TransitionDuration));
-            if (_progress >= 1)
+            float progress = TransitionDuration <= 0 ? 1 : MathF.Min(1, _progress + (float)(seconds / TransitionDuration));
+            if (progress == _progress)
+                return;
+            if (progress >= 1)
                 FinishTransition();
             else
+            {
+                _progress = progress;
+                UpdatePageVisuals();
                 NotifyPropertyChanged(ProgressArgs);
-            ArrangePages();
+            }
             return;
         }
 

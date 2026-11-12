@@ -14,10 +14,12 @@ public class ItemContainer : ContentControl
         ContentVerticalAlignment = LayoutAlignment.Stretch;
     }
 
-    /// <summary>Gets the data item supplied when this presentation was created.</summary>
-    /// <remarks>The source is immutable; replacing an item creates a new presentation.</remarks>
-    public object? DataContext
+    /// <inheritdoc/>
+    protected override void OnDraw(ControlDrawContext context)
     {
-        get;
+        base.OnDraw(context);
+        if (IsItemSelected && !context.DrawSkinStylePart("ListBox", "Item", LocalBounds, "Selected"))
+            context.FillRectangle(LocalBounds, new Color(33, 70, 84));
     }
+
 }

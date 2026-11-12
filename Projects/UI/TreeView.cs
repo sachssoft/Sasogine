@@ -11,6 +11,103 @@ namespace Sachssoft.Engine.Controls;
 /// </summary>
 public class TreeView : ContainerControl
 {
+    private ItemsProjection<TreeViewItem>? _dataItems;
+    private ITemplate<object?, TreeViewItem>? _dataTemplate;
+    private bool _treeDirty = true;
+    private IRecyclingItemTemplate? _nodeContentTemplate;
+    private ViewportTemplatePool? _nodePool;
+    private ControlLayoutContext? _nodeLayout;
+    private static readonly System.ComponentModel.PropertyChangedEventArgs NodeContentTemplateArgs = new(nameof(NodeContentTemplate));
+
+    /// <summary>Gets or sets the recyclable visual template for the visible content of each node.</summary>
+    /// <remarks>The data context is the node value, or the node itself if no value is supplied. Expansion and icons remain owned by the tree.</remarks>
+    public IRecyclingItemTemplate? NodeContentTemplate
+    {
+        get => _nodeContentTemplate;
+        set => SetNotify(ref _nodeContentTemplate, value, NodeContentTemplateArgs);
+    }
+
+    private ItemsProjection<TreeViewItem> Projection => _dataItems ??= new ItemsProjection<TreeViewItem>(InvalidateMeasure);
+
+    /// <summary>Gets or sets the observable data source for the displayed items.</summary>
+    public System.Collections.IEnumerable? ItemsSource
+    {
+        get => _dataItems?.Source;
+        set
+        {
+            VerifyTreeMutation();
+            if (ReferenceEquals(_dataItems?.Source, value))
+                return;
+            Projection.SetSource(value, Items.Count != 0);
+            if (Workspace is not null)
+                Projection.Attach();
+            CollectionChanged(DataItemsSourceChangedArgs);
+        }
+    }
+
+    private static readonly System.ComponentModel.PropertyChangedEventArgs DataItemsSourceChangedArgs = new(nameof(ItemsSource));
+
+    /// <summary>Gets or sets the factory used to present an entry from the data source.</summary>
+    public ITemplate<object?, TreeViewItem>? NodeTemplate
+    {
+        get => _dataTemplate;
+        set
+        {
+            VerifyTreeMutation();
+            if (ReferenceEquals(_dataTemplate, value))
+                return;
+            _dataTemplate = value;
+            Projection.Refresh(recreate: true);
+        }
+    }
+
+    /// <summary>Schedules synchronization of a source that does not notify collection changes.</summary>
+    public void RefreshItems() => _dataItems?.Refresh();
+
+    /// <inheritdoc/>
+    protected override void OnAttached()
+    {
+        base.OnAttached();
+        _dataItems?.Attach();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDetached()
+    {
+        _dataItems?.Detach();
+        foreach (TreeViewItem item in _seen)
+            item.PropertyChanged -= OnNodeChanged;
+        _treeDirty = true;
+        base.OnDetached();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs notification)
+    {
+        if (notification.PropertyName == nameof(Items))
+            _treeDirty = true;
+        base.OnPropertyChanged(notification);
+    }
+
+    /// <summary>Invalidates the flattened rows after node, expansion or child collection changes.</summary>
+    /// <param name="sender">The changed node.</param>
+    /// <param name="notification">The changed property.</param>
+    private void OnNodeChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs notification)
+    {
+        _treeDirty = true;
+        _nodePool?.InvalidateBindings();
+        InvalidateMeasure();
+    }
+
+    /// <summary>Creates an item presentation for one source entry.</summary>
+    /// <param name="item">The source entry.</param>
+    /// <returns>The presentation added to the existing items collection.</returns>
+    private TreeViewItem CreateDataItem(object? item)
+    {
+        return NodeTemplate is null ? item as TreeViewItem ?? new TreeViewItem { Text = item?.ToString() ?? string.Empty, Value = item }
+            : NodeTemplate.Create(item);
+    }
+
     private readonly List<TreeViewRow> _rows = new();
     private readonly HashSet<TreeViewItem> _seen = new();
     private readonly Stack<(TreeViewItem Item, TreeViewItem? Parent, int Depth, bool Visible, bool Enabled)> _walk = new();
@@ -35,12 +132,18 @@ public class TreeView : ContainerControl
         };
         base.Add(HorizontalScrollBar);
         base.Add(VerticalScrollBar);
+        HorizontalScrollBar.PropertyChanged += OnNodeScrollChanged;
+        VerticalScrollBar.PropertyChanged += OnNodeScrollChanged;
     }
 
     /// <summary>
     /// Gets root items.
     /// </summary>
-    public IList<TreeViewItem> Items => ConfigItems;
+    public IList<TreeViewItem> Items => _dataItems?.OwnsItems == true
+        ? _readOnlyItems ??= new System.Collections.ObjectModel.ReadOnlyCollection<TreeViewItem>(ConfigItems)
+        : ConfigItems;
+
+    private IList<TreeViewItem>? _readOnlyItems;
 
     /// <summary>
     /// Gets or sets selection by item identity.
@@ -121,26 +224,36 @@ public class TreeView : ContainerControl
     internal override void Prepare()
     {
         base.Prepare();
+        _dataItems?.Synchronize(ConfigItems, CreateDataItem);
         _height.EnsureChange(ConfigItemHeight);
         _indent.EnsureChange(ConfigIndent);
         if (!float.IsFinite(RowHeight) || RowHeight <= 0 || !float.IsFinite(Indent) || Indent < 0)
             throw new InvalidOperationException("Invalid tree row size.");
-        _rows.Clear();
-        _seen.Clear();
-        _walk.Clear();
-        for (int i = Items.Count - 1; i >= 0; i--)
-            _walk.Push((Items[i], null, 0, true, true));
-        while (_walk.Count > 0)
+        if (_treeDirty)
         {
-            var entry = _walk.Pop();
-            var item = entry.Item ?? throw new InvalidOperationException("Null tree item.");
-            if (!_seen.Add(item))
-                throw new InvalidOperationException("Tree items must have one owner and cannot form cycles.");
-            bool enabled = entry.Enabled && item.IsEnabled;
-            if (entry.Visible)
-                _rows.Add(new TreeViewRow(item, entry.Parent, entry.Depth, enabled));
-            for (int i = item.Items.Count - 1; i >= 0; i--)
-                _walk.Push((item.Items[i], item, checked(entry.Depth + 1), entry.Visible && item.IsExpanded, enabled));
+            foreach (TreeViewItem item in _seen)
+                item.PropertyChanged -= OnNodeChanged;
+            _rows.Clear();
+            _seen.Clear();
+            _walk.Clear();
+            for (int i = Items.Count - 1; i >= 0; i--)
+                _walk.Push((Items[i], null, 0, true, true));
+            while (_walk.Count > 0)
+            {
+                var entry = _walk.Pop();
+                var item = entry.Item ?? throw new InvalidOperationException("Null tree item.");
+                if (!_seen.Add(item))
+                    throw new InvalidOperationException("Tree items must have one owner and cannot form cycles.");
+                bool enabled = entry.Enabled && item.IsEnabled;
+                if (entry.Visible)
+                    _rows.Add(new TreeViewRow(item, entry.Parent, entry.Depth, enabled));
+                for (int i = item.Items.Count - 1; i >= 0; i--)
+                    _walk.Push((item.Items[i], item, checked(entry.Depth + 1), entry.Visible && item.IsExpanded, enabled));
+            }
+            if (Workspace is not null)
+                foreach (TreeViewItem item in _seen)
+                    item.PropertyChanged += OnNodeChanged;
+            _treeDirty = false;
         }
 
         if (SelectedItem is not null)
@@ -176,6 +289,7 @@ public class TreeView : ContainerControl
     /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
+        _nodeLayout = context;
         _font = GetFont(context);
         _extent = 0;
         foreach (var row in _rows)
@@ -223,6 +337,47 @@ public class TreeView : ContainerControl
                 else if (top + RowHeight > VerticalScrollBar.Value + _viewport.Height)
                     VerticalScrollBar.Value = top + RowHeight - _viewport.Height;
             }
+        }
+        ArrangeNodeContents();
+    }
+
+    /// <inheritdoc/>
+    internal override Bounds2 GetChildClip(Control child) =>
+        ReferenceEquals(child, HorizontalScrollBar) || ReferenceEquals(child, VerticalScrollBar) ? ContentBounds : _viewport;
+
+    /// <summary>Schedules position updates for templated rows when the viewport scrolls.</summary>
+    /// <param name="sender">The scrollbar that moved.</param>
+    /// <param name="notification">The changed property.</param>
+    private void OnNodeScrollChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs notification)
+    {
+        if (NodeContentTemplate is not null && notification.PropertyName == nameof(ScrollBar.Value))
+            InvalidateArrange();
+    }
+
+    /// <summary>Recycles visible row contents while the tree retains indentation and expansion state.</summary>
+    private void ArrangeNodeContents()
+    {
+        if (NodeContentTemplate is not { } template)
+        {
+            _nodePool?.Clear();
+            _nodePool = null;
+            return;
+        }
+        if (_nodeLayout is not { } layout)
+            return;
+
+        float height = RowHeight;
+        float offset = VerticalScrollBar.Value;
+        int count = _viewport.Height <= 0 ? 0 : (int)Math.Min(_rows.Count, Math.Ceiling((double)_viewport.Height / height) + 1);
+        int first = (int)Math.Clamp(Math.Floor((double)offset / height), 0, _rows.Count - count);
+        var pool = _nodePool ??= new ViewportTemplatePool(this);
+        pool.Resize(count, template);
+        for (int index = first; index < first + count; index++)
+        {
+            var row = _rows[index];
+            float x = _viewport.X + row.Depth * Indent + 24 + (row.Item.Icon is null ? 0 : 24) - HorizontalScrollBar.Value;
+            var bounds = new Bounds2(x, _viewport.Y + index * height - offset, MathF.Max(0, _viewport.Right - x), height);
+            pool.Arrange(index, row.Item.Value ?? row.Item, bounds, layout, ReferenceEquals(row.Item, SelectedItem));
         }
     }
 
@@ -371,7 +526,8 @@ public class TreeView : ContainerControl
                     x += 24;
                 }
 
-                context.DrawText(font, row.Item.Text, new Vector2(x, y + (RowHeight - font.Measure(row.Item.Text).Height) / 2), color);
+                if (NodeContentTemplate is null)
+                    context.DrawText(font, row.Item.Text, new Vector2(x, y + (RowHeight - font.Measure(row.Item.Text).Height) / 2), color);
             }
         }
     }

@@ -12,6 +12,101 @@ namespace Sachssoft.Engine.Controls;
 /// </summary>
 public class TabControl : ContainerControl
 {
+    private ItemsProjection<TabItem>? _dataItems;
+    private ITemplate<object?, Control>? _dataTemplate;
+
+    private ItemsProjection<TabItem> Projection => _dataItems ??= new ItemsProjection<TabItem>(InvalidateMeasure);
+
+    /// <summary>Gets or sets the observable data source for the displayed items.</summary>
+    public System.Collections.IEnumerable? ItemsSource
+    {
+        get => _dataItems?.Source;
+        set
+        {
+            VerifyTreeMutation();
+            if (ReferenceEquals(_dataItems?.Source, value))
+                return;
+            Projection.SetSource(value, Items.Count != 0);
+            if (Workspace is not null)
+                Projection.Attach();
+            CollectionChanged(DataItemsSourceChangedArgs);
+        }
+    }
+
+    private static readonly System.ComponentModel.PropertyChangedEventArgs DataItemsSourceChangedArgs = new(nameof(ItemsSource));
+
+    /// <summary>Gets or sets the factory used to present an entry from the data source.</summary>
+    public ITemplate<object?, Control>? ContentTemplate
+    {
+        get => _dataTemplate;
+        set
+        {
+            VerifyTreeMutation();
+            if (ReferenceEquals(_dataTemplate, value))
+                return;
+            _dataTemplate = value;
+            Projection.Refresh(recreate: true);
+        }
+    }
+
+    private ITemplate<object?, Control>? _headerTemplate;
+
+    /// <summary>Gets or sets the presentation of each data-driven tab header.</summary>
+    public ITemplate<object?, Control>? HeaderTemplate
+    {
+        get => _headerTemplate;
+        set
+        {
+            VerifyTreeMutation();
+            if (ReferenceEquals(_headerTemplate, value))
+                return;
+            _headerTemplate = value;
+            Projection.Refresh(recreate: true);
+        }
+    }
+
+    /// <summary>Schedules synchronization of a source that does not notify collection changes.</summary>
+    public void RefreshItems() => _dataItems?.Refresh();
+
+    /// <inheritdoc/>
+    protected override void OnAttached()
+    {
+        base.OnAttached();
+        _dataItems?.Attach();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDetached()
+    {
+        _dataItems?.Detach();
+        base.OnDetached();
+    }
+
+    /// <summary>Creates an item presentation for one source entry.</summary>
+    /// <param name="item">The source entry.</param>
+    /// <returns>The presentation added to the existing items collection.</returns>
+    private TabItem CreateDataItem(object? item)
+    {
+        if (HeaderTemplate is null && ContentTemplate is null && item is TabItem existing)
+            return existing;
+        var tab = new TabItem { DataContext = item, Header = item?.ToString() ?? string.Empty };
+        if (HeaderTemplate is not null)
+        {
+            Control header = HeaderTemplate.Create(item);
+            header.DataContext = item;
+            tab.HeaderContent = header;
+        }
+        if (ContentTemplate is not null)
+        {
+            Control content = ContentTemplate.Create(item);
+            content.DataContext = item;
+            tab.Content = content;
+        }
+        else
+            tab.Content = item;
+        return tab;
+    }
+
     /// <summary>Caches notifications for changes to natural header height.</summary>
     private static readonly System.ComponentModel.PropertyChangedEventArgs HeaderHeightChangedArgs = new(nameof(HeaderHeight));
 
@@ -109,7 +204,11 @@ public class TabControl : ContainerControl
     /// <summary>
     /// Gets the retained pages.
     /// </summary>
-    public IList<TabItem> Items => ConfigItems;
+    public IList<TabItem> Items => _dataItems?.OwnsItems == true
+        ? _readOnlyItems ??= new System.Collections.ObjectModel.ReadOnlyCollection<TabItem>(ConfigItems)
+        : ConfigItems;
+
+    private IList<TabItem>? _readOnlyItems;
 
     /// <summary>
     /// Gets or sets the selected source index; -1 leaves the content empty.
@@ -281,6 +380,13 @@ public class TabControl : ContainerControl
     internal override void Prepare()
     {
         base.Prepare();
+        TabItem? previousTab = SelectedItem;
+        if (_dataItems?.Synchronize(ConfigItems, CreateDataItem, ((TabItemCollection)ConfigItems).Move) == true && previousTab is not null)
+        {
+            int index = Items.IndexOf(previousTab);
+            if (index >= 0)
+                SelectedIndex = index;
+        }
         if (_headers.StretchHeaders != StretchHeaders)
         {
             _headers.StretchHeaders = StretchHeaders;

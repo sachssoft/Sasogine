@@ -235,6 +235,8 @@ public sealed class ControlDrawContext : GameContext, IDisposable
     /// <param name="count">The prefix captured before entering the descendant.</param>
     internal void RestoreVisualClip(int count)
     {
+        if (_clipPlaneCount == count)
+            return;
         _clipPlaneCount = count;
         _frameBatch?.SetClipPlanes(_clipPlanes, count);
     }
@@ -539,16 +541,18 @@ public sealed class ControlDrawContext : GameContext, IDisposable
         EnsureDrawing();
         ArgumentNullException.ThrowIfNull(render);
         if (_drawingScene) throw new InvalidOperationException("Direct scene rendering cannot be reentered.");
-        if (_visualTransform != Matrix.Identity)
+        if (!ControlTransforms.TryGetTranslation(_visualTransform, out Vector2 offset))
         {
             DrawTransformedScene(localBounds, render, compositeBackground);
             return;
         }
         Rectangle clip = ToPixelClip(_currentClip, _viewport, _scale);
-        int left = (int)Math.Floor(_viewport.X + (_currentBounds.X + localBounds.X) * _scale);
-        int top = (int)Math.Floor(_viewport.Y + (_currentBounds.Y + localBounds.Y) * _scale);
-        int right = (int)Math.Ceiling(_viewport.X + (_currentBounds.X + localBounds.Right) * _scale);
-        int bottom = (int)Math.Ceiling(_viewport.Y + (_currentBounds.Y + localBounds.Bottom) * _scale);
+        float x = _currentBounds.X + offset.X;
+        float y = _currentBounds.Y + offset.Y;
+        int left = (int)Math.Floor(_viewport.X + (x + localBounds.X) * _scale);
+        int top = (int)Math.Floor(_viewport.Y + (y + localBounds.Y) * _scale);
+        int right = (int)Math.Ceiling(_viewport.X + (x + localBounds.Right) * _scale);
+        int bottom = (int)Math.Ceiling(_viewport.Y + (y + localBounds.Bottom) * _scale);
         Rectangle bounds = new(left, top, right - left, bottom - top);
         clip = Rectangle.Intersect(clip, bounds);
         if (bounds.Width <= 0 || bounds.Height <= 0 || clip.Width <= 0 || clip.Height <= 0) return;

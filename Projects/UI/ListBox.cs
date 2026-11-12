@@ -15,6 +15,244 @@ namespace Sachssoft.Engine.Controls;
 /// </summary>
 public class ListBox : ContainerControl
 {
+    private ItemsProjection<SelectorItem>? _dataItems;
+    private Func<object?, string>? _itemTextSelector;
+    private object? _pendingSelectedValue;
+    private bool _hasPendingSelectedValue;
+    private SelectorItem? _notifiedSelectedItem;
+    private IRecyclingItemTemplate? _itemTemplate;
+    private ITemplate<ItemsControl, ContainerControl>? _itemsPanel;
+
+    private ItemsProjection<SelectorItem> DataItems => _dataItems ??= new ItemsProjection<SelectorItem>(InvalidateMeasure);
+
+    /// <summary>Gets or sets the observable source of selectable entries.</summary>
+    public System.Collections.IEnumerable? ItemsSource
+    {
+        get => _dataItems?.Source;
+        set
+        {
+            VerifyTreeMutation();
+            if (ReferenceEquals(_dataItems?.Source, value))
+                return;
+            DataItems.SetSource(value, Items.Count != 0);
+            if (Workspace is not null)
+                DataItems.Attach();
+            OnItemPresentationChanged();
+            NotifyPropertyChanged(ItemsSourceArgs);
+        }
+    }
+
+    private static readonly System.ComponentModel.PropertyChangedEventArgs ItemsSourceArgs = new(nameof(ItemsSource));
+    private static readonly System.ComponentModel.PropertyChangedEventArgs SelectedValueArgs = new(nameof(SelectedValue));
+
+    /// <summary>Gets or sets the optional caption selector for data items.</summary>
+    public Func<object?, string>? ItemTextSelector
+    {
+        get => _itemTextSelector;
+        set
+        {
+            if (ReferenceEquals(_itemTextSelector, value))
+                return;
+            _itemTextSelector = value;
+            DataItems.Refresh(recreate: true);
+            OnItemPresentationChanged();
+        }
+    }
+
+    /// <summary>Gets or sets the reusable control template for data items.</summary>
+    public IRecyclingItemTemplate? ItemTemplate
+    {
+        get => _itemTemplate;
+        set
+        {
+            VerifyTreeMutation();
+            if (ReferenceEquals(_itemTemplate, value))
+                return;
+            _itemTemplate = value;
+            OnItemPresentationChanged();
+        }
+    }
+
+    /// <summary>Gets or sets the panel factory for templated items.</summary>
+    public ITemplate<ItemsControl, ContainerControl>? ItemsPanel
+    {
+        get => _itemsPanel;
+        set
+        {
+            VerifyTreeMutation();
+            if (ReferenceEquals(_itemsPanel, value))
+                return;
+            _itemsPanel = value;
+            OnItemPresentationChanged();
+        }
+    }
+
+    /// <summary>Gets or sets the primary selection by its application data.</summary>
+    public object? SelectedValue
+    {
+        get => _hasPendingSelectedValue ? _pendingSelectedValue : SelectedItem?.Value;
+        set
+        {
+            if (_dataItems is { NeedsSynchronization: true })
+            {
+                _pendingSelectedValue = value;
+                _hasPendingSelectedValue = true;
+                return;
+            }
+            int index = -1;
+            if (value is not null)
+                for (int i = 0; i < Items.Count; i++)
+                    if (ReferenceEquals(Items[i].Value, value) || Equals(Items[i].Value, value))
+                    {
+                        index = i;
+                        break;
+                    }
+            SelectedIndex = index;
+        }
+    }
+
+    /// <summary>Refreshes a data source without collection-change notifications.</summary>
+    public void RefreshItems()
+    {
+        _dataItems?.Refresh();
+        ItemsPresenter?.RefreshItems();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnAttached()
+    {
+        base.OnAttached();
+        _dataItems?.Attach();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDetached()
+    {
+        _dataItems?.Detach();
+        base.OnDetached();
+    }
+
+    /// <inheritdoc/>
+    internal override void Prepare()
+    {
+        base.Prepare();
+        SelectorItem? selected = SelectedItem;
+        HashSet<SelectorItem>? selectedItems = null;
+        if (MultiSelect && _dataItems is { NeedsSynchronization: true } && _selected.Count > 0)
+        {
+            selectedItems = new HashSet<SelectorItem>(ReferenceEqualityComparer.Instance);
+            foreach (int index in _selected)
+                if ((uint)index < (uint)Items.Count)
+                    selectedItems.Add(Items[index]);
+        }
+        if (_dataItems?.Synchronize(ConfigItems, CreateSelectorItem) == true)
+        {
+            int index = selected is null ? SelectedIndex : Items.IndexOf(selected);
+            if (selectedItems is not null)
+            {
+                _selected.Clear();
+                for (int i = 0; i < Items.Count; i++)
+                    if (selectedItems.Contains(Items[i]) && Items[i].IsEnabled)
+                        _selected.Add(i);
+                int primary = index >= 0 && _selected.Contains(index) ? index : _selected.Count == 0 ? -1 : _selected.Min;
+                ConfigSelectedIndex = _anchor = primary;
+                ItemsPresenter?.RefreshSelectionState();
+                Notify();
+            }
+            else if (index < 0 && selected?.Value is { } value)
+                SelectedValue = value;
+            else if (index != SelectedIndex)
+                SelectedIndex = index;
+        }
+        if (_hasPendingSelectedValue && _dataItems?.NeedsSynchronization != true)
+        {
+            object? requested = _pendingSelectedValue;
+            _pendingSelectedValue = null;
+            _hasPendingSelectedValue = false;
+            SelectedValue = requested;
+        }
+        PrepareTemplateHost();
+    }
+
+    /// <summary>Builds the legacy selection descriptor for one application data item.</summary>
+    /// <param name="item">The application data.</param>
+    /// <returns>The descriptor used for selection and plain text presentation.</returns>
+    private SelectorItem CreateSelectorItem(object? item) => item is SelectorItem selector ? selector with { }
+        : new SelectorItem(GetItemCaption(item), item);
+
+    /// <summary>Gets the default caption for a data item.</summary>
+    /// <param name="item">The item supplied by the source.</param>
+    /// <returns>The item caption.</returns>
+    protected virtual string GetDefaultItemText(object? item) => item?.ToString() ?? string.Empty;
+
+    /// <summary>Gets the configured caption for either a direct item or a data item.</summary>
+    /// <param name="item">The source entry.</param>
+    /// <returns>The caption shown by the default template.</returns>
+    protected string GetItemCaption(object? item) => item is SelectorItem selector ? selector.Text
+        : ItemTextSelector?.Invoke(item) ?? GetDefaultItemText(item);
+
+    private Control? _templateHost;
+    private ItemsControl? _itemsPresenter;
+    private readonly ScrollBar _legacyScrollBar;
+    private ControlPointer _templatePointer;
+    private bool _templateHostDirty;
+    private static readonly System.ComponentModel.PropertyChangedEventArgs TemplateHostArgs = new("TemplateHost");
+
+    /// <summary>Schedules a new items host for the changed presentation configuration.</summary>
+    protected void OnItemPresentationChanged()
+    {
+        _templateHostDirty = true;
+        InvalidateMeasure();
+    }
+
+    /// <summary>Configures the shared items host for the optional templated mode.</summary>
+    private void PrepareTemplateHost()
+    {
+        if (!_templateHostDirty)
+            return;
+        _templateHostDirty = false;
+        if (ItemsSource is null && ItemTemplate is null && ItemsPanel is null)
+        {
+            _itemsPresenter = null;
+            SetOwnedControl(ref _templateHost, null, TemplateHostArgs);
+            return;
+        }
+
+        var host = new ItemsControl
+        {
+            ItemsSource = ItemsSource ?? Items,
+            ItemsPanel = ItemsPanel ?? new DelegateTemplate<ItemsControl, ContainerControl>(_ => CreateDefaultItemsPanel()),
+            ItemTemplate = ItemTemplate ?? CreateDefaultItemTemplate(),
+            SelectionState = index => _selected.Contains(index) || index == SelectedIndex,
+            SelectionOwner = this
+        };
+        ScrollViewer viewer = host.ItemsScrollViewer ?? new ScrollViewer
+        {
+            Content = host,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden
+        };
+        viewer.IsSwipeEnabled = IsSwipeEnabled;
+        viewer.SwipeThreshold = SwipeThreshold;
+        _itemsPresenter = host;
+        SetOwnedControl(ref _templateHost, host.ItemsScrollViewer is null ? viewer : host, TemplateHostArgs);
+    }
+
+    /// <summary>Creates the panel used when templated items do not specify their own layout.</summary>
+    /// <returns>A virtual panel for the list's default item geometry.</returns>
+    protected virtual VirtualizingPanel CreateDefaultItemsPanel() =>
+        new VirtualStackPanel { ItemHeight = ItemExtent, Spacing = ItemSpacing };
+
+    /// <summary>Creates the default reusable presentation for source-backed rows.</summary>
+    /// <returns>A template for the standard item caption.</returns>
+    protected virtual IRecyclingItemTemplate CreateDefaultItemTemplate() =>
+        new RecyclingItemTemplate<ItemContainer>(static () => new ItemContainer(null), (row, item) => row.Content = GetItemCaption(item));
+
+    /// <summary>Gets the shared items host when the list uses a template or custom panel.</summary>
+    public ItemsControl? ItemsPresenter => _itemsPresenter;
+
+    /// <summary>Gets the viewport used for the templated list, when active.</summary>
+    public ScrollViewer? ItemsViewport => ItemsPresenter?.ItemsScrollViewer ?? _templateHost as ScrollViewer;
+
     /// <summary>Caches changes to the touch-scroll policy.</summary>
     private static readonly PropertyChangedEventArgs IsSwipeEnabledArgs = new(nameof(IsSwipeEnabled));
 
@@ -56,6 +294,12 @@ public class ListBox : ContainerControl
 
     /// <summary>Lazily stores the observable list-owned item collection.</summary>
     private ElementCollection<SelectorItem>? _ownedItems;
+
+    /// <summary>Stores the font used to measure the current item captions.</summary>
+    private IControlFont? _itemWidthFont;
+
+    /// <summary>Stores the preferred width of the current item captions.</summary>
+    private float _itemWidth;
 
     /// <summary>Caches the font resolved during measurement for item rendering.</summary>
     private IControlFont? _font;
@@ -147,11 +391,11 @@ public class ListBox : ContainerControl
     public ListBox() : base()
     {
         _invalidSelection = IsInvalidSelection;
-        ScrollBar = new ScrollBar
+        _legacyScrollBar = new ScrollBar
         {
             Orientation = Orientation.Vertical
         };
-        base.Add(ScrollBar);
+        base.Add(_legacyScrollBar);
     }
 
     /// <summary>
@@ -180,15 +424,16 @@ public class ListBox : ContainerControl
     /// <summary>
     /// Gets the observable collection of selectable items.
     /// </summary>
-    public IList<SelectorItem> Items => ConfigItems;
+    public IList<SelectorItem> Items => _dataItems?.OwnsItems == true
+        ? _readOnlyItems ??= new System.Collections.ObjectModel.ReadOnlyCollection<SelectorItem>(ConfigItems)
+        : ConfigItems;
+
+    private IList<SelectorItem>? _readOnlyItems;
 
     /// <summary>
     /// Gets the independent vertical scrollbar.
     /// </summary>
-    public ScrollBar ScrollBar
-    {
-        get;
-    }
+    public ScrollBar ScrollBar => ItemsViewport?.VerticalScrollBar ?? _legacyScrollBar;
 
     /// <summary>Gets or sets whether fingers can scroll the list vertically. Defaults to true; mouse and keyboard behavior is preserved.</summary>
     public bool IsSwipeEnabled
@@ -203,7 +448,7 @@ public class ListBox : ContainerControl
     }
 
     /// <summary>Gets whether a finger currently owns an active scroll gesture.</summary>
-    public bool IsSwiping => _isSwiping;
+    public bool IsSwiping => ItemsViewport?.IsSwiping ?? _isSwiping;
 
     /// <summary>Gets or sets the positive touch movement threshold in logical UI units. Defaults to 12.</summary>
     /// <exception cref = "ArgumentOutOfRangeException">The threshold is nonfinite or not positive.</exception>
@@ -362,6 +607,9 @@ public class ListBox : ContainerControl
     /// <returns>The preferred logical list width.</returns>
     protected virtual float MeasureItems(IControlFont font)
     {
+        if (ReferenceEquals(_itemWidthFont, font))
+            return _itemWidth;
+
         float width = 120;
         for (int i = 0; i < Items.Count; i++)
         {
@@ -370,6 +618,8 @@ public class ListBox : ContainerControl
             width = MathF.Max(width, font.Measure(item.Text).Width + 32);
         }
 
+        _itemWidth = width;
+        _itemWidthFont = font;
         return width;
     }
 
@@ -398,6 +648,13 @@ public class ListBox : ContainerControl
     {
         if (index < 0 || index >= Items.Count)
             throw new ArgumentOutOfRangeException(nameof(index));
+        if (ItemsPresenter is { } host)
+        {
+            if (host.ItemsPanelRoot is VirtualizingPanel panel)
+                return panel.GetItemBounds(index);
+            if (host.TryContainerFromIndex(index) is { } item)
+                return item.Bounds;
+        }
         float width = GetItemWidth(_viewport.Width);
         return new Bounds2(_viewport.X + index % _columns * (width + ItemSpacing), _viewport.Y + index / _columns * (ItemExtent + ItemSpacing) - ScrollBar.Value, width, ItemExtent);
     }
@@ -406,10 +663,22 @@ public class ListBox : ContainerControl
     private void Notify()
     {
         int current = SelectedIndex;
-        if (_lastPrimary == current)
+        SelectorItem? selected = SelectedItem;
+        if (_lastPrimary == current && ReferenceEquals(_notifiedSelectedItem, selected))
             return;
         _lastPrimary = current;
+        _notifiedSelectedItem = selected;
+        ItemsPresenter?.RefreshSelectionState();
+        NotifyPropertyChanged(SelectedValueArgs);
         SelectionChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>Retains a popup's initial selection until the source is synchronized.</summary>
+    /// <param name="index">The requested initial source index.</param>
+    internal void SetPopupSelection(int index)
+    {
+        ConfigSelectedIndex = index;
+        _ensureSelection = true;
     }
 
     /// <summary>Brings an item into view while preserving the offset of an already visible oversized item.</summary>
@@ -418,6 +687,20 @@ public class ListBox : ContainerControl
     {
         if (index < 0)
             return;
+        if (ItemsPresenter is { } host)
+        {
+            if (host.ItemsScrollViewer is not null)
+                host.ScrollIntoView(index);
+            else if (ItemsViewport is { } viewer && host.TryContainerFromIndex(index) is { } item)
+            {
+                Bounds2 viewport = viewer.ViewportBounds;
+                if (item.Bounds.Top < viewport.Top)
+                    ScrollBar.Value += item.Bounds.Top - viewport.Top;
+                else if (item.Bounds.Bottom > viewport.Bottom)
+                    ScrollBar.Value += item.Bounds.Bottom - viewport.Bottom;
+            }
+            return;
+        }
         float top = index / _columns * (ItemExtent + ItemSpacing), bottom = top + ItemExtent;
         if (ItemExtent > _viewport.Height)
         {
@@ -463,6 +746,9 @@ public class ListBox : ContainerControl
 
         ConfigSelectedIndex = _selected.Contains(index) ? index : _selected.Count > 0 ? _selected.Max : -1;
         _lastPrimary = SelectedIndex;
+        _notifiedSelectedItem = SelectedItem;
+        ItemsPresenter?.RefreshSelectionState();
+        NotifyPropertyChanged(SelectedValueArgs);
         SelectionChanged?.Invoke(this, EventArgs.Empty);
         EnsureVisible(index);
     }
@@ -470,6 +756,11 @@ public class ListBox : ContainerControl
     /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
+        if (_templateHost is { } host)
+        {
+            host.Measure(context, available);
+            return host.DesiredSize;
+        }
         _layout = context;
         if (!float.IsFinite(ItemExtent) || ItemExtent <= 0 || !float.IsFinite(ItemSpacing) || ItemSpacing < 0)
             throw new InvalidOperationException("Invalid item geometry.");
@@ -484,6 +775,19 @@ public class ListBox : ContainerControl
     /// <inheritdoc/>
     protected override void ArrangeOverride(Bounds2 contentBounds)
     {
+        if (_templateHost is { } host)
+        {
+            _legacyScrollBar.IsVisible = false;
+            host.Arrange(contentBounds, true);
+            _viewport = ItemsViewport?.ViewportBounds ?? contentBounds;
+            _columns = (ItemsPresenter?.ItemsPanelRoot as VirtualizingPanel)?.ArrangedColumns ?? 1;
+            if (_ensureSelection)
+            {
+                EnsureVisible(SelectedIndex);
+                _ensureSelection = false;
+            }
+            return;
+        }
         _columns = GetColumnCount(contentBounds.Width);
         _showBar = ContentHeight(_columns) > contentBounds.Height;
         float t = _showBar ? ConfigScrollBarThickness : 0;
@@ -532,6 +836,11 @@ public class ListBox : ContainerControl
     /// <inheritdoc/>
     protected override void OnPropertyChanged(PropertyChangedEventArgs notification)
     {
+        if (notification.PropertyName == nameof(Items))
+            _itemWidthFont = null;
+        if (notification.PropertyName == nameof(ItemHeight) && ItemsPresenter is not null && ItemsPanel is null)
+            OnItemPresentationChanged();
+
         if (notification.PropertyName == nameof(IsSwiping))
         {
             InvalidateVisual();
@@ -541,6 +850,11 @@ public class ListBox : ContainerControl
         if (notification.PropertyName is nameof(IsSwipeEnabled) or nameof(SwipeThreshold))
         {
             CancelSwipe();
+            if (ItemsViewport is { } viewer)
+            {
+                viewer.IsSwipeEnabled = IsSwipeEnabled;
+                viewer.SwipeThreshold = SwipeThreshold;
+            }
             return;
         }
 
@@ -549,6 +863,13 @@ public class ListBox : ContainerControl
         if (notification.PropertyName is nameof(Items) or nameof(MultiSelect) or nameof(SelectedIndex))
             _selectionDirty = true;
         base.OnPropertyChanged(notification);
+    }
+
+    /// <inheritdoc/>
+    protected override void OnFontChanged()
+    {
+        _itemWidthFont = null;
+        base.OnFontChanged();
     }
 
     /// <summary>Identifies selections invalidated by item removal or disabling.</summary>
@@ -561,6 +882,15 @@ public class ListBox : ContainerControl
     /// <returns>The source index, or minus one outside an item.</returns>
     protected int GetItemIndexAt(Vector2 point)
     {
+        if (ItemsPresenter is { } host)
+        {
+            if (!Contains(_viewport, point.X, point.Y))
+                return -1;
+            foreach (Control item in host.ItemsPanelRoot.Children)
+                if (Contains(item.Bounds, point.X, point.Y))
+                    return host.IndexFromContainer(item);
+            return -1;
+        }
         if (!Contains(_viewport, point.X, point.Y))
             return -1;
         int column = (int)((point.X - _viewport.X) / (GetItemWidth(_viewport.Width) + ItemSpacing));
@@ -573,6 +903,43 @@ public class ListBox : ContainerControl
     protected override void OnInput(ControlInputContext context, ControlInputEventArgs args)
     {
         var e = args.Input;
+        if (ItemsPresenter is { } host && e.Type != ControlInputEventType.KeyDown)
+        {
+            if (e.Type == ControlInputEventType.PointerDown && e.Button == MouseButton.Left)
+            {
+                _pressed = host.IndexFromContainer(args.Source);
+                _templatePointer = e.Pointer;
+                if (_pressed >= 0 && e.PointerKind == ControlPointerKind.Mouse)
+                    context.CapturePointer(args.Source);
+            }
+            else if (e.Type == ControlInputEventType.PointerUp && e.Button == MouseButton.Left && e.Pointer == _templatePointer)
+            {
+                int hitIndex = GetItemIndexAt(e.Position);
+                int pressedIndex = _pressed;
+                _pressed = -1;
+                if (hitIndex >= 0 && hitIndex == pressedIndex)
+                {
+                    Choose(hitIndex, e.Shift, e.Control);
+                    args.Handled = true;
+                    if (hitIndex == SelectedIndex)
+                    {
+                        IsKeyboardActivation = false;
+                        ItemActivated?.Invoke(this, EventArgs.Empty);
+                        if (_lastClick == hitIndex && _time - _clickTime <= .35)
+                        {
+                            _lastClick = -1;
+                            ItemDoubleClicked?.Invoke(this, EventArgs.Empty);
+                        }
+                        else
+                        {
+                            _lastClick = hitIndex;
+                            _clickTime = _time;
+                        }
+                    }
+                }
+            }
+            return;
+        }
         if (_trackingSwipe && e.Pointer != _swipePointer && e.Type is ControlInputEventType.PointerDown or ControlInputEventType.PointerMove or ControlInputEventType.PointerUp)
         {
             args.Handled = true;
@@ -658,7 +1025,8 @@ public class ListBox : ContainerControl
                 break;
             case Keys.PageUp:
             case Keys.PageDown:
-                index += direction * Math.Max(1, (int)(_viewport.Height / (ItemExtent + ItemSpacing)) * _columns);
+                float stride = (ItemsPresenter?.ItemsPanelRoot as VirtualizingPanel)?.ArrangedRowStride ?? 0;
+                index += direction * Math.Max(1, (int)(_viewport.Height / (stride > 0 ? stride : ItemExtent + ItemSpacing)) * _columns);
                 break;
             case Keys.Home:
                 index = 0;
@@ -685,6 +1053,12 @@ public class ListBox : ContainerControl
     /// <inheritdoc/>
     protected override void OnPreviewInput(ControlInputContext context, ControlInputEventArgs args)
     {
+        if (_templateHost is not null)
+        {
+            if (args.Input.Type == ControlInputEventType.PointerCancel && args.Input.Pointer == _templatePointer)
+                _pressed = -1;
+            return;
+        }
         ControlInputEvent input = args.Input;
         if (input.Type == ControlInputEventType.PointerCancel && _trackingSwipe && input.Pointer == _swipePointer)
         {
@@ -794,7 +1168,7 @@ public class ListBox : ContainerControl
     protected override void OnDraw(ControlDrawContext context)
     {
         base.OnDraw(context);
-        if (_font is null)
+        if (_templateHost is not null || _font is null)
             return;
         var clip = new Bounds2(_viewport.X - Bounds.X, _viewport.Y - Bounds.Y, _viewport.Width, _viewport.Height);
         using (context.PushClipScope(clip))

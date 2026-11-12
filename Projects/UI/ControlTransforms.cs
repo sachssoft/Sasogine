@@ -15,12 +15,36 @@ internal static class ControlTransforms
         return result;
     }
 
+    /// <summary>Combines the local transform with the already composed ancestor transform.</summary>
+    /// <param name="control">The control being visited.</param>
+    /// <param name="parent">The transform of the control's parent.</param>
+    /// <returns>The control's transform in workspace coordinates.</returns>
+    internal static Matrix Compose(Control control, Matrix parent)
+        => control is IControlTransform transformed ? transformed.VisualTransform * parent : parent;
+
+    /// <summary>Recognizes an axis-preserving translation in the UI plane.</summary>
+    /// <param name="transform">The affine visual transform.</param>
+    /// <param name="offset">The logical displacement when the transform is a translation.</param>
+    /// <returns>Whether the transform changes only the X and Y origin.</returns>
+    internal static bool TryGetTranslation(Matrix transform, out Vector2 offset)
+    {
+        offset = new Vector2(transform.M41, transform.M42);
+        transform.M41 = 0;
+        transform.M42 = 0;
+        return transform == Matrix.Identity;
+    }
+
     /// <summary>Calculates an axis-aligned envelope of a transformed layout rectangle.</summary>
     /// <param name="bounds">The untransformed rectangle.</param>
     /// <param name="transform">The matrix mapping layout to workspace coordinates.</param>
     /// <returns>The rectangle enclosing the transformed corners.</returns>
     internal static Bounds2 TransformBounds(Bounds2 bounds, Matrix transform)
     {
+        if (transform == Matrix.Identity)
+            return bounds;
+        if (TryGetTranslation(transform, out Vector2 offset))
+            return new Bounds2(bounds.X + offset.X, bounds.Y + offset.Y, bounds.Width, bounds.Height);
+
         Vector2 a = Vector2.Transform(new Vector2(bounds.Left, bounds.Top), transform);
         Vector2 b = Vector2.Transform(new Vector2(bounds.Right, bounds.Top), transform);
         Vector2 c = Vector2.Transform(new Vector2(bounds.Left, bounds.Bottom), transform);
@@ -37,5 +61,8 @@ internal static class ControlTransforms
     /// <param name="position">The pointer position in workspace coordinates.</param>
     /// <returns>The equivalent absolute untransformed layout position.</returns>
     internal static Vector2 ToLayout(Control control, Vector2 position)
-        => Vector2.Transform(position, Matrix.Invert(GetVisualTransform(control)));
+    {
+        Matrix transform = GetVisualTransform(control);
+        return transform == Matrix.Identity ? position : Vector2.Transform(position, Matrix.Invert(transform));
+    }
 }

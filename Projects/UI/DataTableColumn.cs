@@ -7,6 +7,16 @@ namespace Sachssoft.Engine.Controls;
 /// </summary>
 public abstract class DataTableColumn : Element
 {
+    private IRecyclingItemTemplate? _cellTemplate;
+    private static readonly System.ComponentModel.PropertyChangedEventArgs CellTemplateArgs = new(nameof(CellTemplate));
+
+    /// <summary>Gets or sets a recyclable display template for visible cells in this column.</summary>
+    /// <remarks>The data context is the row. Editing and sorting continue to use the column's data accessors.</remarks>
+    public IRecyclingItemTemplate? CellTemplate
+    {
+        get => _cellTemplate;
+        set => SetNotify(ref _cellTemplate, value, CellTemplateArgs);
+    }
     /// <summary>
     /// Gets or sets a stable application ID.
     /// </summary>

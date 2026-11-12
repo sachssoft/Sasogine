@@ -124,6 +124,8 @@ public sealed class ScrollViewer : ContainerControl
         {
             Orientation = Orientation.Vertical
         };
+        HorizontalScrollBar.PropertyChanged += ScrollBarPropertyChanged;
+        VerticalScrollBar.PropertyChanged += ScrollBarPropertyChanged;
         base.Add(HorizontalScrollBar);
         base.Add(VerticalScrollBar);
     }
@@ -329,6 +331,8 @@ public sealed class ScrollViewer : ContainerControl
             _vertical = VerticalScrollBarVisibility == ScrollBarVisibility.Always;
             for (int i = 0; i < 3; i++)
             {
+                bool previousHorizontal = _horizontal;
+                bool previousVertical = _vertical;
                 if (_layout is not null && _content is not null)
                 {
                     _content.Measure(_layout, new Size2(HorizontalScrollBarVisibility == ScrollBarVisibility.Hidden ? MathF.Max(0, contentBounds.Width - (_vertical ? t : 0)) : float.PositiveInfinity, VerticalScrollBarVisibility == ScrollBarVisibility.Hidden ? MathF.Max(0, contentBounds.Height - (_horizontal ? t : 0)) : float.PositiveInfinity));
@@ -339,6 +343,10 @@ public sealed class ScrollViewer : ContainerControl
                     _horizontal = _extent.Width > MathF.Max(0, contentBounds.Width - (_vertical ? t : 0));
                 if (VerticalScrollBarVisibility == ScrollBarVisibility.Auto)
                     _vertical = _extent.Height > MathF.Max(0, contentBounds.Height - (_horizontal ? t : 0));
+
+                if (_horizontal == previousHorizontal && _vertical == previousVertical &&
+                    (_content?.HasValidMeasure ?? true))
+                    break;
             }
         }
 
@@ -361,9 +369,35 @@ public sealed class ScrollViewer : ContainerControl
         VerticalScrollBar.SmallChange = 24;
         HorizontalScrollBar.Arrange(new Bounds2(contentBounds.X, _viewport.Bottom, _viewport.Width, t), true);
         VerticalScrollBar.Arrange(new Bounds2(_viewport.Right, contentBounds.Y, t, _viewport.Height), true);
-        _content?.Arrange(new Bounds2(_viewport.X - (_horizontal ? HorizontalScrollBar.Value : 0), _viewport.Y - (_vertical ? VerticalScrollBar.Value : 0), MathF.Max(_viewport.Width, _extent.Width), MathF.Max(_viewport.Height, _extent.Height)));
+        ArrangeContent();
         _lastArrangedSize = new Size2(contentBounds.Width, contentBounds.Height);
         _layoutCacheReady = true;
+    }
+
+    /// <summary>Arranges the scrolled subtree against the previously measured extent.</summary>
+    internal void ArrangeScrollOffset()
+    {
+        if (_layoutCacheReady && IsVisible)
+            ArrangeContent();
+    }
+
+    /// <summary>Positions the committed content relative to the current viewport and range values.</summary>
+    private void ArrangeContent()
+    {
+        _content?.Arrange(new Bounds2(
+            _viewport.X - (_horizontal ? HorizontalScrollBar.Value : 0),
+            _viewport.Y - (_vertical ? VerticalScrollBar.Value : 0),
+            MathF.Max(_viewport.Width, _extent.Width),
+            MathF.Max(_viewport.Height, _extent.Height)));
+    }
+
+    /// <summary>Schedules a local arrangement when a scrollbar changes position.</summary>
+    /// <param name="sender">The scrollbar that raised the notification.</param>
+    /// <param name="notification">The changed scrollbar property.</param>
+    private void ScrollBarPropertyChanged(object? sender, PropertyChangedEventArgs notification)
+    {
+        if (notification.PropertyName == nameof(RangeControl.Value))
+            Workspace?.QueueScrollOffset(this);
     }
 
     /// <inheritdoc/>

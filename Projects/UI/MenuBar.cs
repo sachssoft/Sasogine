@@ -11,6 +11,69 @@ namespace Sachssoft.Engine.Controls;
 /// </summary>
 public class MenuBar : Control
 {
+    private ItemsProjection<MenuEntry>? _dataItems;
+    private ITemplate<object?, MenuEntry>? _dataTemplate;
+
+    private ItemsProjection<MenuEntry> Projection => _dataItems ??= new ItemsProjection<MenuEntry>(InvalidateMeasure);
+
+    /// <summary>Gets or sets the observable data source for the displayed items.</summary>
+    public System.Collections.IEnumerable? ItemsSource
+    {
+        get => _dataItems?.Source;
+        set
+        {
+            VerifyTreeMutation();
+            if (ReferenceEquals(_dataItems?.Source, value))
+                return;
+            Projection.SetSource(value, Items.Count != 0);
+            if (Workspace is not null)
+                Projection.Attach();
+            CollectionChanged(DataItemsSourceChangedArgs);
+        }
+    }
+
+    private static readonly System.ComponentModel.PropertyChangedEventArgs DataItemsSourceChangedArgs = new(nameof(ItemsSource));
+
+    /// <summary>Gets or sets the factory used to present an entry from the data source.</summary>
+    public ITemplate<object?, MenuEntry>? ItemTemplate
+    {
+        get => _dataTemplate;
+        set
+        {
+            VerifyTreeMutation();
+            if (ReferenceEquals(_dataTemplate, value))
+                return;
+            _dataTemplate = value;
+            Projection.Refresh(recreate: true);
+        }
+    }
+
+    /// <summary>Schedules synchronization of a source that does not notify collection changes.</summary>
+    public void RefreshItems() => _dataItems?.Refresh();
+
+    /// <inheritdoc/>
+    protected override void OnAttached()
+    {
+        base.OnAttached();
+        _dataItems?.Attach();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDetached()
+    {
+        _dataItems?.Detach();
+        base.OnDetached();
+    }
+
+    /// <summary>Creates an item presentation for one source entry.</summary>
+    /// <param name="item">The source entry.</param>
+    /// <returns>The presentation added to the existing items collection.</returns>
+    private MenuEntry CreateDataItem(object? item)
+    {
+        return ItemTemplate is null ? item as MenuEntry ?? new MenuItem { Text = item?.ToString() ?? string.Empty }
+            : ItemTemplate.Create(item);
+    }
+
     /// <summary>Caches the command row height notification.</summary>
     private static readonly System.ComponentModel.PropertyChangedEventArgs ItemHeightChangedArgs = new(nameof(ItemHeight));
 
@@ -61,7 +124,11 @@ public class MenuBar : Control
     /// <summary>
     /// Gets the command and separator entries displayed by this menu.
     /// </summary>
-    public IList<MenuEntry> Items => ConfigItems;
+    public IList<MenuEntry> Items => _dataItems?.OwnsItems == true
+        ? _readOnlyItems ??= new System.Collections.ObjectModel.ReadOnlyCollection<MenuEntry>(ConfigItems)
+        : ConfigItems;
+
+    private IList<MenuEntry>? _readOnlyItems;
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "MenuBar";
@@ -97,7 +164,7 @@ public class MenuBar : Control
     /// <summary>Gets the main-axis space reserved by an entry.</summary>
     /// <param name = "entry">The command or separator being laid out.</param>
     /// <returns>Eight logical pixels for separators, otherwise the row height or caption width.</returns>
-    private float EntryLength(MenuEntry entry) => entry is MenuItem item ? Vertical ? RowHeight : (_font?.Measure(item.Caption).Width ?? 0) + 28 : 8;
+    private float EntryLength(MenuEntry entry) => entry is MenuItem item ? Vertical ? RowHeight : (_font?.Measure(item.Caption ?? string.Empty).Width ?? 0) + 28 : 8;
 
     /// <summary>Gets an entry's local bounds including separators in its preceding offset.</summary>
     /// <param name = "index">The entry index.</param>
@@ -112,6 +179,13 @@ public class MenuBar : Control
     }
 
     /// <inheritdoc/>
+    internal override void Prepare()
+    {
+        base.Prepare();
+        _dataItems?.Synchronize(ConfigItems, CreateDataItem);
+    }
+
+    /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
         _font = GetFont(context);
@@ -121,7 +195,7 @@ public class MenuBar : Control
             if (Vertical)
             {
                 if (entry is MenuItem item)
-                    width = MathF.Max(width, _font.Measure(item.Caption).Width + _font.Measure(item.ShortcutText).Width + 80);
+                    width = MathF.Max(width, _font.Measure(item.Caption ?? string.Empty).Width + _font.Measure(item.ShortcutText).Width + 80);
                 height += EntryLength(entry);
             }
             else
@@ -246,10 +320,10 @@ public class MenuBar : Control
         if (input.Alt)
             for (int i = 0; i < Items.Count; i++)
             {
-                if (Items[i] is not MenuItem item)
+                if (Items[i] is not MenuItem { Text: string text })
                     continue;
-                int marker = item.Text.IndexOf('&');
-                if (marker >= 0 && marker + 1 < item.Text.Length && char.ToUpperInvariant(item.Text[marker + 1]) == (char)(int)input.Key)
+                int marker = text.IndexOf('&');
+                if (marker >= 0 && marker + 1 < text.Length && char.ToUpperInvariant(text[marker + 1]) == (char)(int)input.Key)
                 {
                     Activate(i);
                     return true;
@@ -377,7 +451,8 @@ public class MenuBar : Control
                 }
                 else if (Vertical && item.Icon is string icon)
                     context.DrawSkinRegion(icon, new Bounds2(b.X + 4, b.Y + (b.Height - 20) / 2, 20, 20));
-                context.DrawText(font, item.Caption, new Vector2(textX, b.Y + (b.Height - font.Measure(item.Caption).Height) / 2), color);
+                if (item.Caption is string caption)
+                    context.DrawText(font, caption, new Vector2(textX, b.Y + (b.Height - font.Measure(caption).Height) / 2), color);
                 if (Vertical && item.Items.Count > 0)
                 {
                     if (UseSkin)

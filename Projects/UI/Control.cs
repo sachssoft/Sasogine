@@ -13,6 +13,9 @@ namespace Sachssoft.Engine.Controls;
 /// </remarks>
 public abstract class Control : Element
 {
+    /// <summary>Identifies changes to the data item associated with a presentation.</summary>
+    private static readonly System.ComponentModel.PropertyChangedEventArgs DataContextChangedArgs = new(nameof(DataContext));
+    private static readonly System.ComponentModel.PropertyChangedEventArgs ItemSelectedArgs = new(nameof(IsItemSelected));
     private static readonly System.ComponentModel.PropertyChangedEventArgs BackgroundChangedArgs = new(nameof(Background));
     private static readonly System.ComponentModel.PropertyChangedEventArgs BorderColorChangedArgs = new(nameof(BorderColor));
     private static readonly System.ComponentModel.PropertyChangedEventArgs BorderThicknessChangedArgs = new(nameof(BorderThickness));
@@ -79,8 +82,15 @@ public abstract class Control : Element
 
     private string _styleId = string.Empty;
 
+    /// <summary>Stores the data item explicitly assigned to this control.</summary>
+    private object? _dataContext;
+    private bool _isItemSelected;
+
     /// <summary>Tracks visual invalidation without consuming state while drawing.</summary>
     private ulong _visualRevision;
+
+    /// <summary>Stores the workspace inheritance revision checked by the last font resolution.</summary>
+    private ulong _resolvedFontInheritanceRevision;
 
     private StyleProperty<bool> _styleIsEnabled = new(true);
     private StyleProperty<bool> _styleIsFocusable = new(false);
@@ -336,10 +346,31 @@ public abstract class Control : Element
         internal set;
     }
 
+    /// <summary>Gets or sets the data item presented by this control.</summary>
+    /// <remarks>Item hosts set this property on the presentation root when a container is recycled.</remarks>
+    public object? DataContext
+    {
+        get => _dataContext;
+        set
+        {
+            if (ReferenceEquals(_dataContext, value))
+                return;
+            _dataContext = value;
+            NotifyPropertyChanged(DataContextChangedArgs);
+        }
+    }
+
     internal ContainerControl? CommittedParent
     {
         get;
         set;
+    }
+
+    /// <summary>Gets whether the data item presented by this control is selected by its items host.</summary>
+    public bool IsItemSelected
+    {
+        get => _isItemSelected;
+        internal set => SetNotify(ref _isItemSelected, value, ItemSelectedArgs);
     }
 
     internal uint OwnershipRevision
@@ -1044,6 +1075,10 @@ public abstract class Control : Element
     /// <inheritdoc/>
     protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs notification)
     {
+        if (notification.PropertyName == nameof(DataContext))
+            return;
+        if (notification.PropertyName is nameof(Font) or nameof(FontName) or nameof(FontSize) or nameof(FontWeight) or nameof(FontStyle))
+            Workspace?.InvalidateFontInheritance();
         if (notification.PropertyName == nameof(StyleId))
             _appliedRevision = -1;
         if (notification.PropertyName == nameof(ZIndex))
@@ -1070,6 +1105,7 @@ public abstract class Control : Element
             nameof(DisabledTextColor) or
             nameof(FocusColor) or
             nameof(IsEnabled) or nameof(IsFocusable) or nameof(IsHitTestVisible) or nameof(TabIndex) or
+            nameof(IsItemSelected) or
             "IsPressed" or "IsReleased" or "IsHeld" or
             nameof(IsFocused) or nameof(IsHovered) or nameof(IsPointerOver))
         {
@@ -1179,6 +1215,15 @@ public abstract class Control : Element
     /// <param name="measure">Whether to invalidate measurement as well as arrangement.</param>
     private void InvalidateLayoutCore(bool measure)
     {
+        Control? localRoot = Workspace?.LocalLayoutRoot;
+        if (localRoot is not null)
+        {
+            Control? ancestor = this;
+            while (ancestor is not null && !ReferenceEquals(ancestor, localRoot))
+                ancestor = ancestor.Parent;
+            localRoot = ancestor;
+        }
+
         for (Control? control = this; control is not null; control = control.Parent)
         {
             if (measure)
@@ -1188,7 +1233,13 @@ public abstract class Control : Element
             {
                 control._visualRevision++;
             }
-            control.Workspace?.InvalidateLayout();
+            if (localRoot is null)
+                control.Workspace?.InvalidateLayout(measure);
+            else if (ReferenceEquals(control, localRoot))
+            {
+                control.Parent?.InvalidateVisual();
+                break;
+            }
         }
     }
 
@@ -1574,7 +1625,15 @@ public abstract class Control : Element
     /// <param name="fallback">The fallback font.</param>
     private void EnsureFont(IControlFont fallback)
     {
-        Control? parent = Parent ?? Workspace?.FontParent(this);
+        Workspace? workspace = Workspace;
+        int revision = workspace?.FontRevision ?? 0;
+        ulong inheritanceRevision = workspace?.FontInheritanceRevision ?? 0;
+        bool current = _fontReady && ReferenceEquals(_resolvedFallback, fallback) &&
+            ReferenceEquals(_resolvedFontWorkspace, workspace) && _resolvedRegistryRevision == revision;
+        if (workspace is not null && current && _resolvedFontInheritanceRevision == inheritanceRevision)
+            return;
+
+        Control? parent = Parent ?? workspace?.FontParent(this);
         ControlFontRequest inherited = default;
         if (parent is not null)
         {
@@ -1586,13 +1645,15 @@ public abstract class Control : Element
         if (Font is not null)
             inherited = default;
         var request = new ControlFontRequest(_styleFontName.Value ?? inherited.Name, _styleFontSize.Value ?? inherited.Size, _styleFontWeight.Value ?? inherited.Weight, _styleFontStyle.Value ?? inherited.Style, Font ?? inherited.Source);
-        int revision = Workspace?.FontRevision ?? 0;
-        if (_fontReady && _fontRequest == request && ReferenceEquals(_resolvedFallback, fallback) && ReferenceEquals(_resolvedFontWorkspace, Workspace) && _resolvedRegistryRevision == revision)
+        if (current && _fontRequest == request)
+        {
+            _resolvedFontInheritanceRevision = inheritanceRevision;
             return;
+        }
         IControlFont font;
         if (!request.HasDescriptor)
             font = request.Source ?? fallback;
-        else if (Workspace is Workspace workspace)
+        else if (workspace is not null)
             font = workspace.ResolveFont(request, fallback);
         else
             throw new InvalidOperationException("Attach a control to a Workspace before resolving named font properties.");
@@ -1600,8 +1661,9 @@ public abstract class Control : Element
         _resolvedFont = font;
         _fontRequest = request;
         _resolvedFallback = fallback;
-        _resolvedFontWorkspace = Workspace;
+        _resolvedFontWorkspace = workspace;
         _resolvedRegistryRevision = revision;
+        _resolvedFontInheritanceRevision = inheritanceRevision;
         _fontReady = false;
         unchecked
         {

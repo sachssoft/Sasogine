@@ -67,4 +67,16 @@ public sealed class TabItemCollection : Collection<TabItem>
         base.ClearItems();
         Changed();
     }
+
+    /// <summary>Moves a retained tab without releasing its ownership.</summary>
+    /// <param name="oldIndex">The current index.</param>
+    /// <param name="newIndex">The destination index.</param>
+    internal void Move(int oldIndex, int newIndex)
+    {
+        _owner.VerifyTreeMutation();
+        TabItem item = this[oldIndex];
+        base.RemoveItem(oldIndex);
+        base.InsertItem(newIndex, item);
+        Changed();
+    }
 }

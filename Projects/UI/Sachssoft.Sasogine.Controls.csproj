@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<Import Project="..\..\Sachssoft.Sasogine.Controls.props" />
+	<Import Project="EmbeddedSkins.props" />
 
 	<PropertyGroup>
 		<PackageId>Sachssoft.Sasogine.Controls</PackageId>
@@ -15,8 +16,6 @@
 		<PackageReference Remove="Sachssoft.Sasogine.DesktopGL" />
 		<Compile Remove="Validation\**\*.cs" />
 		<Compile Remove="Examples\**\*.cs" />
-		<None Update="Skins\SachssoftDark\*.png;Skins\SachssoftDark\*.xml"
-              CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
 </Project>

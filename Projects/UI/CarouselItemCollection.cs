@@ -20,7 +20,7 @@ public sealed class CarouselItemCollection : Collection<Control>, INotifyCollect
     /// <inheritdoc/>
     protected override void InsertItem(int index, Control item)
     {
-        _owner.VerifyTreeMutation();
+        _owner.VerifyItemsMutation();
         if ((uint)index > (uint)Count)
             throw new ArgumentOutOfRangeException(nameof(index));
         _owner.ReservePage(item);
@@ -32,7 +32,7 @@ public sealed class CarouselItemCollection : Collection<Control>, INotifyCollect
     /// <inheritdoc/>
     protected override void SetItem(int index, Control item)
     {
-        _owner.VerifyTreeMutation();
+        _owner.VerifyItemsMutation();
         Control previous = this[index];
         if (ReferenceEquals(previous, item))
             return;
@@ -46,7 +46,7 @@ public sealed class CarouselItemCollection : Collection<Control>, INotifyCollect
     /// <inheritdoc/>
     protected override void RemoveItem(int index)
     {
-        _owner.VerifyTreeMutation();
+        _owner.VerifyItemsMutation();
         Control previous = this[index];
         base.RemoveItem(index);
         _owner.ReleasePage(previous);
@@ -57,7 +57,7 @@ public sealed class CarouselItemCollection : Collection<Control>, INotifyCollect
     /// <inheritdoc/>
     protected override void ClearItems()
     {
-        _owner.VerifyTreeMutation();
+        _owner.VerifyItemsMutation();
         if (Count == 0)
             return;
         foreach (Control page in this)
@@ -72,7 +72,7 @@ public sealed class CarouselItemCollection : Collection<Control>, INotifyCollect
     /// <param name = "newIndex">The destination index.</param>
     public void Move(int oldIndex, int newIndex)
     {
-        _owner.VerifyTreeMutation();
+        _owner.VerifyItemsMutation();
         Control item = this[oldIndex];
         if ((uint)newIndex >= (uint)Count)
             throw new ArgumentOutOfRangeException(nameof(newIndex));

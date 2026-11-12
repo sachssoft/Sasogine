@@ -10,10 +10,19 @@ namespace Sachssoft.Engine.Controls.Drawing;
 /// </summary>
 public sealed class FontFaceControlFont : IControlBatchFont, IDisposable
 {
+    /// <summary>Limits caching to short captions and wrapped label fragments.</summary>
+    private const int MaximumCachedLength = 128;
+
+    /// <summary>Bounds the number of retained strings for each immutable face and size.</summary>
+    private const int MeasurementCacheSize = 256;
+
     private readonly FontSystem _system;
     private readonly SpriteFontBase _font;
     private readonly bool _ownsSystem;
     private bool _disposed;
+
+    /// <summary>Stores recent text measurements, replacing entries when their slots collide.</summary>
+    private (string? Text, Size2 Size)[]? _measurements;
     /// <summary>
     /// Creates an independent font cache. The caller retains ownership of the FontFace.
     /// </summary>
@@ -59,7 +68,18 @@ public sealed class FontFaceControlFont : IControlBatchFont, IDisposable
     public Size2 Measure(string text)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        return new Size2(_font.MeasureString(text));
+        if (text is null || text.Length == 0 || text.Length > MaximumCachedLength)
+            return new Size2(_font.MeasureString(text!));
+
+        var measurements = _measurements ??= new (string?, Size2)[MeasurementCacheSize];
+        int index = text.GetHashCode(StringComparison.Ordinal) & (MeasurementCacheSize - 1);
+        ref var entry = ref measurements[index];
+        if (string.Equals(entry.Text, text, StringComparison.Ordinal))
+            return entry.Size;
+
+        Size2 measured = new(_font.MeasureString(text));
+        entry = (text, measured);
+        return measured;
     }
 
     /// <summary>
@@ -104,6 +124,7 @@ public sealed class FontFaceControlFont : IControlBatchFont, IDisposable
             return;
         if (_ownsSystem)
             _system.Dispose();
+        _measurements = null;
         _disposed = true;
     }
 }

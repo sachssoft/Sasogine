@@ -56,6 +56,18 @@ public sealed class ScrollBar : RangeControl
 
     private float Coordinate(Vector2 p) => Orientation == Orientation.Horizontal ? p.X - ContentBounds.X : p.Y - ContentBounds.Y;
     /// <inheritdoc/>
+    protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs notification)
+    {
+        if (notification.PropertyName == nameof(Value))
+        {
+            InvalidateVisual();
+            return;
+        }
+
+        base.OnPropertyChanged(notification);
+    }
+
+    /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
         ValidateRange();

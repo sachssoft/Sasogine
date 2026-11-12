@@ -161,6 +161,7 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
             _layout = new ControlLayoutContext(_loadedFont);
             workspace = CreateWorkspace() ??
                 throw new InvalidOperationException("CreateWorkspace must return a workspace.");
+            workspace.InitializeGraphics(application.GraphicsDevice);
             _draw = new ControlDrawContext(application, _loadedFont,
                 application.GraphicsDevice.Viewport.Bounds);
             _workspace = workspace;
@@ -221,6 +222,7 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
         _updating = true;
         try
         {
+            Workspace.InitializeGraphics(context.GraphicsDevice);
             UpdateWorkspace(context, viewport);
             if (_active && IsLoaded)
                 OnUpdate(context);

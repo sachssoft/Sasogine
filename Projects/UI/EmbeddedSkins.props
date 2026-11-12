@@ -1,0 +1,8 @@
+<Project>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Skins/Sachssoft*/sachssoft_*.skin.xml;$(MSBuildThisFileDirectory)Skins/Sachssoft*/sachssoft_*.atlas.xml;$(MSBuildThisFileDirectory)Skins/Sachssoft*/sachssoft_*.png">
+      <LogicalName>Sachssoft.Sasogine.Controls.Skins.%(Filename)%(Extension)</LogicalName>
+      <WithCulture>false</WithCulture>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

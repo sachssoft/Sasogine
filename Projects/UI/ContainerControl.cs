@@ -344,6 +344,7 @@ public abstract class ContainerControl : Control
 
         RemoveReference(_ownedChildren, child);
 
+        child.Workspace?.InvalidateFontInheritance();
         child.Parent = null;
         child.OwnershipRevision = unchecked(child.OwnershipRevision + 1);
     }
@@ -398,6 +399,7 @@ public abstract class ContainerControl : Control
         ValidateChild(child);
 
         _ownedChildren.Add(child);
+        child.Workspace?.InvalidateFontInheritance();
         child.Parent = this;
         child.OwnershipRevision = unchecked(child.OwnershipRevision + 1);
 
@@ -429,6 +431,7 @@ public abstract class ContainerControl : Control
         _orderDirty = true;
 
         InvalidateMeasure();
+        Workspace?.InvalidateControlTree();
         Attach(child, Workspace);
     }
 
@@ -451,6 +454,7 @@ public abstract class ContainerControl : Control
         _orderDirty = true;
 
         InvalidateMeasure();
+        Workspace?.InvalidateControlTree();
         Attach(child, null);
     }
 
@@ -472,6 +476,7 @@ public abstract class ContainerControl : Control
         _children.Insert(index, child);
         _orderDirty = true;
         InvalidateMeasure();
+        Workspace?.InvalidateControlTree();
     }
 
     /// <summary>

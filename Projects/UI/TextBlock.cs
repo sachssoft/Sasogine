@@ -56,7 +56,8 @@ public class TextBlock : Control
     protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs notification)
     {
         // Exact built-in types keep custom subclass measurement contracts unchanged.
-        if (notification.PropertyName == nameof(Text) && Text is not null && _metricsValid && !WrapText && !_measuredWrap && Workspace is not null && (GetType() == typeof(TextBlock) || GetType() == typeof(Label)))
+        if (notification.PropertyName == nameof(Text) && Text is not null && _metricsValid && !WrapText && !_measuredWrap &&
+            Workspace is { LocalLayoutRoot: null } && (GetType() == typeof(TextBlock) || GetType() == typeof(Label)))
         {
             _pendingTextMetrics = true;
             InvalidateVisual();
