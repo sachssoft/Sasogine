@@ -12,14 +12,14 @@ namespace Sachssoft.Engine.Controls;
 /// </summary>
 /// <remarks>
 /// Place the splitter in a dedicated row or column of its direct parent grid.
-/// Horizontal direction changes column widths; vertical direction changes row heights.
+/// Horizontal orientation changes column widths; vertical orientation changes row heights.
 /// Automatic dimensions become fixed sizes after editing. Proportional dimensions
 /// retain proportional sizing. Escape cancels the current pointer gesture.
 /// </remarks>
 public sealed class GridSplitter : Control
 {
-    /// <summary>Cached notification for the resizing direction.</summary>
-    private static readonly PropertyChangedEventArgs DirectionChangedArgs = new(nameof(Direction));
+    /// <summary>Cached notification for the resizing orientation.</summary>
+    private static readonly PropertyChangedEventArgs OrientationChangedArgs = new(nameof(Orientation));
 
     /// <summary>Cached notification for pointer editing state.</summary>
     private static readonly PropertyChangedEventArgs IsDraggingChangedArgs = new(nameof(IsDragging));
@@ -30,11 +30,11 @@ public sealed class GridSplitter : Control
     /// <summary>Cached notification for the interactive pane minimum.</summary>
     private static readonly PropertyChangedEventArgs MinimumPaneSizeChangedArgs = new(nameof(MinimumPaneSize));
 
-    /// <summary>The direction captured when editing begins.</summary>
-    private Orientation _activeDirection;
+    /// <summary>The orientation captured when editing begins.</summary>
+    private Orientation _activeOrientation;
 
-    /// <summary>The configured resize direction.</summary>
-    private Orientation _direction = Orientation.Horizontal;
+    /// <summary>The configured resize orientation.</summary>
+    private Orientation _orientation = Orientation.Horizontal;
 
     /// <summary>The captured pointer identity.</summary>
     private ControlPointer? _pointer;
@@ -76,17 +76,17 @@ public sealed class GridSplitter : Control
     private float _startPosition;
 
     /// <summary>Gets or sets the axis along which adjacent panes are resized.</summary>
-    public Orientation Direction
+    public Orientation Orientation
     {
-        get => _direction;
+        get => _orientation;
         set
         {
             if (value is not (Orientation.Horizontal or Orientation.Vertical))
                 throw new ArgumentOutOfRangeException(nameof(value));
-            if (_direction == value)
+            if (_orientation == value)
                 return;
             Stop(true);
-            SetNotify(ref _direction, value, DirectionChangedArgs);
+            SetNotify(ref _orientation, value, OrientationChangedArgs);
         }
     }
 
@@ -123,7 +123,7 @@ public sealed class GridSplitter : Control
     /// <inheritdoc/>
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
-        return Direction == Orientation.Horizontal ? new Size2(6, 24) : new Size2(24, 6);
+        return Orientation == Orientation.Horizontal ? new Size2(6, 24) : new Size2(24, 6);
     }
 
     /// <inheritdoc/>
@@ -175,7 +175,7 @@ public sealed class GridSplitter : Control
         }
         else if (input.Type == ControlInputEventType.KeyDown && IsFocused)
         {
-            bool horizontal = Direction == Orientation.Horizontal;
+            bool horizontal = Orientation == Orientation.Horizontal;
             int sign = input.Key == (horizontal ? Keys.Left : Keys.Up) ? -1 :
                 input.Key == (horizontal ? Keys.Right : Keys.Down) ? 1 : 0;
             if (sign != 0 && BeginResize())
@@ -217,7 +217,7 @@ public sealed class GridSplitter : Control
     protected override void OnDraw(ControlDrawContext context)
     {
         base.OnDraw(context);
-        bool horizontal = Direction == Orientation.Horizontal;
+        bool horizontal = Orientation == Orientation.Horizontal;
         float length = MathF.Min(24, horizontal ? ContentBounds.Height : ContentBounds.Width);
         var grip = horizontal
             ? new Bounds2(Padding.Left + ContentBounds.Width / 2 - 1, Padding.Top + (ContentBounds.Height - length) / 2, 2, length)
@@ -231,7 +231,7 @@ public sealed class GridSplitter : Control
     {
         if (Parent is not Grid grid || !grid.Cells.TryGetValue(this, out var cell))
             return false;
-        bool horizontal = Direction == Orientation.Horizontal;
+        bool horizontal = Orientation == Orientation.Horizontal;
         int index = horizontal ? cell.Column : cell.Row;
         int count = horizontal ? grid.Columns.Count : grid.Rows.Count;
         if (index < 1 || index + 1 >= count || (horizontal ? cell.ColumnSpan : cell.RowSpan) != 1)
@@ -242,7 +242,7 @@ public sealed class GridSplitter : Control
         if (!float.IsFinite(_firstSize + _secondSize) || _firstSize <= 0 || _secondSize <= 0)
             return false;
         _grid = grid;
-        _activeDirection = Direction;
+        _activeOrientation = Orientation;
         _first = horizontal ? grid.Columns[index - 1] : grid.Rows[index - 1];
         _second = horizontal ? grid.Columns[index + 1] : grid.Rows[index + 1];
         _firstLength = _lastFirst = _first.Length;
@@ -254,10 +254,10 @@ public sealed class GridSplitter : Control
     /// <returns>Whether the captured grid relationship remains valid.</returns>
     private bool HasSamePanes()
     {
-        if (_grid is null || Parent != _grid || Direction != _activeDirection ||
+        if (_grid is null || Parent != _grid || Orientation != _activeOrientation ||
             !_grid.Cells.TryGetValue(this, out var cell))
             return false;
-        bool horizontal = _activeDirection == Orientation.Horizontal;
+        bool horizontal = _activeOrientation == Orientation.Horizontal;
         int index = horizontal ? cell.Column : cell.Row;
         int count = horizontal ? _grid.Columns.Count : _grid.Rows.Count;
         return index > 0 && index + 1 < count &&
@@ -349,6 +349,6 @@ public sealed class GridSplitter : Control
     /// <returns>The horizontal or vertical coordinate.</returns>
     private float Coordinate(Vector2 position)
     {
-        return _activeDirection == Orientation.Horizontal ? position.X : position.Y;
+        return _activeOrientation == Orientation.Horizontal ? position.X : position.Y;
     }
 }

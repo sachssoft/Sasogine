@@ -1,7 +1,7 @@
 # GridSplitter
 
 Place a splitter in a dedicated cell between the two rows or columns it resizes.
-`Direction = Horizontal` changes column widths; `Vertical` changes row heights.
+`Orientation.Horizontal` changes column widths. `Orientation.Vertical` changes row heights.
 The splitter must be a direct child of the grid. It may span cells across the other axis.
 
 ```csharp
@@ -12,7 +12,7 @@ grid.Columns.Add(new GridColumn(GridLength.Full));
 
 var splitter = new GridSplitter
 {
-    Direction = ControlOrientation.Horizontal,
+    Orientation = Orientation.Horizontal,
     MinimumPaneSize = 80
 };
 grid.Cells.Put(splitter, row: 0, column: 1);
