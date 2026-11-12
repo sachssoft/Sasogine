@@ -110,6 +110,33 @@ internal static class ListBoxSwipeChecks
         CheckOversizedAndEmpty(check, layout, idle);
         CheckNested(check, layout, idle);
         CheckAssets(check, layout, idle);
+        CheckCaptionWidths(check, idle);
+    }
+
+    /// <summary>Checks that caption widths survive relayout and refresh when captions or font metrics change.</summary>
+    /// <param name="check">The assertion callback.</param>
+    /// <param name="idle">The shared empty frame and viewport.</param>
+    private static void CheckCaptionWidths(Action<bool, string> check, ControlInputFrame idle)
+    {
+        var list = CreateList();
+        var font = new CountingFont();
+        var layout = new ControlLayoutContext(font);
+        using var root = new Workspace(list);
+        root.Update(idle, layout);
+        int measurements = font.Measurements;
+        list.Width = 210;
+        root.Update(idle, layout);
+        check(font.Measurements == measurements, "List resize reuses caption widths");
+
+        list.Items[0] = new SelectorItem("A changed caption");
+        root.Update(idle, layout);
+        check(font.Measurements > measurements, "Replacing list data refreshes caption widths");
+
+        measurements = font.Measurements;
+        font.Scale = 1.5f;
+        root.InvalidateFonts();
+        root.Update(idle, layout);
+        check(font.Measurements > measurements, "Invalidating font metrics refreshes cached caption widths");
     }
 
     /// <summary>Checks empty hit regions and tall cards without selection-induced scroll jumps.</summary>

@@ -108,6 +108,16 @@ internal static class FontControlChecks
         button.FontWeight = null;
         Frame();
         Check(ReferenceEquals(buttonText.EffectiveFont, borrowed), "Explicit adapter starts an inherited font scope");
+        var branch = new StackPanel { FontSize = 14 };
+        root.Add(branch);
+        root.Remove(editor);
+        branch.Add(editor);
+        Frame();
+        Check(((FontProbe)editor.EffectiveFont!).Size == 14, "Moving a cached editor refreshes inherited font metrics");
+        branch.Remove(editor);
+        root.Add(editor);
+        Frame();
+        Check(((FontProbe)editor.EffectiveFont!).Size == 30, "Returning a cached editor restores its original font scope");
         var popup = new TextBlock
         {
             Text = "Popup"

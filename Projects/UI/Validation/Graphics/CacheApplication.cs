@@ -17,8 +17,22 @@ internal sealed class CacheApplication : GameApplicationBase
     private ControlDrawContext? _draw;
     private ControlLayoutContext? _layout;
     private RenderTarget2D? _target;
-    protected override GraphicsDeviceManager ConfigureGraphicsDevice() => new(this) { PreferredBackBufferWidth = 640, PreferredBackBufferHeight = 240, SynchronizeWithVerticalRetrace = false };
-    protected override ISceneManager CreateScenes(GameConfiguration configuration) => new SceneManager(this, new BenchmarkScene());
+    internal CacheApplication() : base(CreateGameConfiguration())
+    {
+    }
+
+    private static GameConfiguration CreateGameConfiguration() => new()
+    {
+        Graphics = new GraphicsConfiguration
+        {
+            Width = 640,
+            Height = 240,
+            SynchronizeWithVerticalRetrace = false
+        }
+    };
+    /// <inheritdoc/>
+    protected override void ConfigureApplication(ApplicationConfiguration configuration) =>
+        configuration.StartScene = static _ => new BenchmarkScene();
     protected override void LoadContent()
     {
         base.LoadContent();

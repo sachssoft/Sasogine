@@ -39,6 +39,12 @@ internal static class Program
     {
         try
         {
+            if (args.Contains("--scroll-benchmark"))
+            {
+                ScrollPerformanceProbe.Run(Layout);
+                return 0;
+            }
+
             Run("Exact rotated and nested clip geometry", () => ClipPlanesChecks.Run(Check));
             Run("Items, panel templates and editable canvas transforms", CanvasItemsChecks.Run);
             Run("Camera-free view scene contracts", () => ViewSceneChecks.Run(Check, Layout));
@@ -222,6 +228,8 @@ internal static class Program
             Run("Immediate control ownership, atomic transfers and deferred traversal", () => ControlTreeChecks.Run(Check, Layout));
             Run("Touch scroll, child click arbitration, nested handoff and mouse opt-in", () => ScrollViewerSwipeChecks.Run(Check, Layout));
             Run("Carousel pages, gestures, transitions, styles and cached traversal", () => CarouselChecks.Run(Check, Layout));
+            Run("Virtual items recycling, range and touch scrolling", () => VirtualItemsChecks.Run(Check, Layout));
+            Run("Observable sources and templates across data-driven controls", () => DataDrivenControlChecks.Run(Check, Layout));
             Run("HUD icon/value placement, formatting, ownership and cached layout", () => IconValueDisplayChecks.Run(Check, Layout));
             Run("Object content, stable text presenters and atomic ownership", () => ContentControlChecks.Run(Check, Layout));
             Run("Mobile switch activation, skin states and cached layout", () => SwitchChecks.Run(Check, Layout));

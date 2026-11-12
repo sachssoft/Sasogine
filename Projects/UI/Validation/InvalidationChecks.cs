@@ -213,5 +213,21 @@ internal static class InvalidationChecks
         revision = spinner.VisualRevision;
         spinnerWorkspace.Update(new ControlInputFrame(frame.Size, TimeSpan.FromSeconds(.1)), layout);
         check(spinner.VisualRevision > revision && spinnerParent.Measurements == spinnerMeasures, "Spinner animation invalidates visuals without measuring its parent");
+
+        var ranges = new TextLayoutProbePanel();
+        var slider = new Slider();
+        var bar = new ScrollBar();
+        ranges.Add(slider);
+        ranges.Add(bar);
+        using var rangeWorkspace = new Workspace(ranges);
+        rangeWorkspace.Update(frame, layout);
+        int rangeMeasures = ranges.Measurements;
+        int rangeArrangements = ranges.Arrangements;
+        revision = ranges.VisualRevision;
+        slider.Value = 40;
+        bar.Value = 60;
+        rangeWorkspace.Update(frame, layout);
+        check(ranges.VisualRevision > revision && ranges.Measurements == rangeMeasures && ranges.Arrangements == rangeArrangements,
+            "Slider and independent scrollbar value changes repaint without workspace layout");
     }
 }

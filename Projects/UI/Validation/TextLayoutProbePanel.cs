@@ -3,7 +3,13 @@ using Sachssoft.Engine.Controls;
 /// <summary>Counts parent layout work after text metric changes.</summary>
 internal sealed class TextLayoutProbePanel : Panel
 {
-    internal int Measurements, Arrangements;
+    internal int Measurements, Arrangements, Preparations;
+    /// <inheritdoc/>
+    internal override void Prepare()
+    {
+        Preparations++;
+        base.Prepare();
+    }
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     { Measurements++; return base.MeasureOverride(context, available); }
     protected override void ArrangeOverride(Bounds2 bounds)

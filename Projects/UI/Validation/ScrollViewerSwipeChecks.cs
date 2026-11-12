@@ -170,7 +170,9 @@ internal static class ScrollViewerSwipeChecks
             Content = measured,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden
         };
-        using var cachedWorkspace = new Workspace(cached);
+        var cachedRoot = new TextLayoutProbePanel { Padding = Insets2.Zero };
+        cachedRoot.Add(cached);
+        using var cachedWorkspace = new Workspace(cachedRoot);
         cachedWorkspace.Update(idle, layout);
         int measurements = measured.Measurements;
         cachedWorkspace.Update(new ControlInputFrame(size, TimeSpan.Zero, [Touch(ControlInputEventType.PointerDown, 100, 200), Touch(ControlInputEventType.PointerMove, 100, 150), Touch(ControlInputEventType.PointerUp, 100, 150)]), layout);
@@ -194,10 +196,15 @@ internal static class ScrollViewerSwipeChecks
         for (int i = 0; i < 100; i++)
             Move(i);
         measurements = measured.Measurements;
+        int rootMeasures = cachedRoot.Measurements;
+        int rootArrangements = cachedRoot.Arrangements;
+        int rootPreparations = cachedRoot.Preparations;
         before = GC.GetAllocatedBytesForCurrentThread();
         for (int i = 0; i < 1000; i++)
             Move(i);
         check(GC.GetAllocatedBytesForCurrentThread() == before && measured.Measurements == measurements, "Steady swipe movement reuses input, content measurement and traversal without allocations");
+        check(cachedRoot.Measurements == rootMeasures && cachedRoot.Arrangements == rootArrangements &&
+            cachedRoot.Preparations == rootPreparations, "Scroll offset changes leave workspace preparation, measurement and arrangement untouched");
         cachedWorkspace.Update(new ControlInputFrame(size, TimeSpan.Zero, [Touch(ControlInputEventType.PointerUp, 100, 160)]), layout);
         measured.Height = 180;
         cachedWorkspace.Update(idle, layout);

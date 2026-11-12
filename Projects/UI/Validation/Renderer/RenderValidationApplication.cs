@@ -17,16 +17,27 @@ internal sealed class RenderValidationApplication : GameApplicationBase
     private SpriteFontControlFont? _spriteFont;
     private bool _done;
     internal static bool HalfPixelMode { get; set; }
+    /// <summary>Runs the mixed-control carousel benchmark in place of the image comparison suite.</summary>
+    internal static bool CarouselBenchmark { get; set; }
 
-    protected override GraphicsDeviceManager ConfigureGraphicsDevice() => new(this)
+    internal RenderValidationApplication() : base(CreateGameConfiguration())
     {
-        PreferredBackBufferWidth = 1160,
-        PreferredBackBufferHeight = 760,
-        SynchronizeWithVerticalRetrace = false,
-        GraphicsProfile = GraphicsProfile.Reach,
-        PreferHalfPixelOffset = HalfPixelMode
+    }
+
+    private static GameConfiguration CreateGameConfiguration() => new()
+    {
+        Graphics = new GraphicsConfiguration
+        {
+            Width = 1160,
+            Height = 760,
+            SynchronizeWithVerticalRetrace = false,
+            Profile = GraphicsProfile.Reach,
+            PreferHalfPixelOffset = HalfPixelMode
+        }
     };
-    protected override ISceneManager CreateScenes(GameConfiguration c) => new SceneManager(this, new BenchmarkScene());
+    /// <inheritdoc/>
+    protected override void ConfigureApplication(ApplicationConfiguration configuration) =>
+        configuration.StartScene = static _ => new BenchmarkScene();
     protected override void LoadContent()
     {
         base.LoadContent();
@@ -34,7 +45,7 @@ internal sealed class RenderValidationApplication : GameApplicationBase
             throw new InvalidOperationException("Pixel addressing option was not applied.");
         Console.WriteLine($"HALF PIXEL: {GraphicsDevice.UseHalfPixelOffset}");
         _font = new FontFaceControlFont(new FontFace(File.ReadAllBytes(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "segoeui.ttf")), "Segoe"), 20);
-        _skin = ControlSkin.Load(GraphicsDevice, Path.Combine(AppContext.BaseDirectory, "Skins", "SachssoftDark"));
+        _skin = ControlSkin.LoadEmbedded(GraphicsDevice);
         _target = new RenderTarget2D(GraphicsDevice, 1160, 760, false, SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
         _image = new Texture2D(GraphicsDevice, 8, 8);
         var data = new Color[64];
@@ -138,6 +149,13 @@ internal sealed class RenderValidationApplication : GameApplicationBase
         if (_done || _font is null)
             return;
         _done = true;
+        if (CarouselBenchmark)
+        {
+            CarouselStressBenchmark.Run(this, _target!, _font, _skin!);
+            Exit();
+            return;
+        }
+        CheckWorkspaceSkins();
         var view = new ControlsExampleView();
         using (var root = view.Workspace)
         {
@@ -189,17 +207,15 @@ internal sealed class RenderValidationApplication : GameApplicationBase
             Compare(root, "custom-script-dpi", 1.25f, new Rectangle(13, 17, 1120, 720));
         }
 
-        foreach (string theme in new[]
+        foreach (var (preset, theme) in new[]
         {
-            "Light",
-            "Modern",
-            "Futuristic",
-            "Medieval"
-        }
-
-        )
+            (SkinPreset.SachssoftLight, "Light"),
+            (SkinPreset.SachssoftModern, "Modern"),
+            (SkinPreset.SachssoftFuturistic, "Futuristic"),
+            (SkinPreset.SachssoftMedieval, "Medieval")
+        })
         {
-            using var themedSkin = ControlSkin.Load(GraphicsDevice, Path.Combine(AppContext.BaseDirectory, "Skins", "Sachssoft" + theme));
+            using var themedSkin = ControlSkin.LoadEmbedded(GraphicsDevice, preset);
             var themedView = new ControlsExampleView();
             using var themedRoot = themedView.Workspace;
             themedRoot.SetSkin(themedSkin);
@@ -288,6 +304,7 @@ internal sealed class RenderValidationApplication : GameApplicationBase
             Console.WriteLine("PASS: live text refresh matches a freshly laid-out control pixel for pixel.");
         }
 
+        CheckCarouselSlide();
         SceneViewportRenderTests.Run(this, _font!);
         AllocationProbe();
         var numeric = new ValueTextBox
@@ -323,6 +340,103 @@ internal sealed class RenderValidationApplication : GameApplicationBase
 
         Console.WriteLine("PASS: gallery, skin, clipping, DPI, transparency, sprite fonts and compatibility barriers.");
         Exit();
+    }
+
+    /// <summary>Checks automatic selection, lazy factories, caching, and ownership on a graphics device.</summary>
+    private void CheckWorkspaceSkins()
+    {
+        using var workspace = new Workspace(new Button { Text = "Start" });
+        using var borrowed = ControlSkin.LoadEmbedded(GraphicsDevice, SkinPreset.SachssoftLight);
+        int factoryCalls = 0;
+        workspace.RegisterSkin("Custom", device =>
+        {
+            factoryCalls++;
+            return ControlSkin.LoadEmbedded(device, SkinPreset.SachssoftModern);
+        });
+        workspace.RegisterSkin("Borrowed", borrowed);
+        if (workspace.AvailableSkins.Count != 7 || !workspace.ContainsSkin("Custom") || workspace.ContainsSkin("custom"))
+            throw new InvalidOperationException("The workspace skin registry did not expose the expected names.");
+
+        using var deferred = new Workspace(new Button());
+        deferred.RegisterSkin("Deferred", device =>
+        {
+            factoryCalls++;
+            return ControlSkin.LoadEmbedded(device);
+        });
+        deferred.SetSkin("Deferred");
+        if (factoryCalls != 0 || deferred.Registry.Skin is not null)
+            throw new InvalidOperationException("A pending skin selection loaded before graphics initialization.");
+        deferred.InitializeGraphics(GraphicsDevice);
+        if (factoryCalls != 1 || deferred.Registry.Skin?.Texture is null)
+            throw new InvalidOperationException("Graphics initialization did not resolve the pending skin.");
+
+        workspace.InitializeGraphics(GraphicsDevice);
+        ControlSkin dark = workspace.Registry.Skin ?? throw new InvalidOperationException("No default workspace skin.");
+        workspace.SetSkin(SkinPreset.Default);
+        workspace.SetSkin("SachssoftDark");
+        if (!ReferenceEquals(workspace.Registry.Skin, dark) || dark.Texture is null)
+            throw new InvalidOperationException("The default and named Dark selections should share one loaded skin.");
+
+        workspace.SetSkin("Custom");
+        Texture2D owned = workspace.Registry.Skin?.Texture ?? throw new InvalidOperationException("No custom skin texture.");
+        workspace.SetSkin("Borrowed");
+        if (!ReferenceEquals(workspace.Registry.Skin, borrowed))
+            throw new InvalidOperationException("The registered borrowed skin was not selected.");
+        workspace.SetSkin("Custom");
+        if (factoryCalls != 2 || !ReferenceEquals(workspace.Registry.Skin?.Texture, owned))
+            throw new InvalidOperationException("Returning to a skin should reuse its texture.");
+        workspace.Dispose();
+        if (!owned.IsDisposed || borrowed.Texture is not { IsDisposed: false })
+            throw new InvalidOperationException("The workspace disposed the wrong skin textures.");
+    }
+
+    /// <summary>Checks slide clipping and the direct scene path on the active UI target.</summary>
+    private void CheckCarouselSlide()
+    {
+        var carousel = new Carousel
+        {
+            Width = 200,
+            Height = 100,
+            Margin = new Insets2(40, 40, 0, 0),
+            Padding = Insets2.Zero,
+            HorizontalAlignment = LayoutAlignment.Start,
+            VerticalAlignment = LayoutAlignment.Start,
+            NavigationMode = CarouselNavigationMode.None,
+            ShowIndicators = false,
+            Transition = CarouselTransition.Slide,
+            TransitionDuration = 1
+        };
+        bool direct = false;
+        carousel.Items.Add(new TextBlock { Background = Color.Red });
+        carousel.Items.Add(new SceneViewport
+        {
+            Background = Color.Blue,
+            Padding = Insets2.Zero,
+            UseDirectRendering = true,
+            Render = scene =>
+            {
+                direct = scene.Bounds == new Rectangle(140, 40, 200, 100) &&
+                    scene.Clip == new Rectangle(140, 40, 100, 100) &&
+                    ReferenceEquals(scene.GraphicsDevice.GetRenderTargets()[0].RenderTarget, _target);
+            }
+        });
+
+        using var root = new Workspace(carousel);
+        var size = new Size2(1160, 760);
+        var layout = new ControlLayoutContext(_font!);
+        root.Update(new ControlInputFrame(size, TimeSpan.Zero), layout);
+        carousel.Next();
+        root.Update(new ControlInputFrame(size, TimeSpan.FromSeconds(.5)), layout);
+        using var context = new ControlDrawContext(this, _font!, new Rectangle(0, 0, 1160, 760));
+        context.SetFrameTime(new GameTime(TimeSpan.FromSeconds(.5), TimeSpan.FromSeconds(.5)));
+        Color[] pixels = Render(root, context, null);
+        if (!direct || pixels[75 * 1160 + 90] != Color.Red || pixels[75 * 1160 + 190] != Color.Blue ||
+            pixels[75 * 1160 + 20] != new Color(9, 14, 23) || pixels[75 * 1160 + 260] != new Color(9, 14, 23))
+        {
+            throw new InvalidOperationException("Carousel slide did not preserve the viewport clip and direct scene target.");
+        }
+
+        Console.WriteLine("PASS: Carousel slide clips both pages and keeps a translated SceneViewport on the UI target.");
     }
 
     protected override void UnloadContent()

@@ -99,14 +99,15 @@ internal static class CarouselChecks
         Frame();
         check(carousel.IsTransitioning && first.Workspace == workspace && second.Workspace == workspace && carousel.TransitionProgress == 0, "A transition attaches exactly its outgoing and incoming pages");
         Frame(.5);
-        check(carousel.TransitionProgress == .5f && first.Bounds.X == -200 && second.Bounds.X == 200 && first.Bounds.Width == 400, "Slide geometry advances deterministically on the horizontal axis");
+        check(carousel.TransitionProgress == .5f && VisualBounds(first).X == -200 && VisualBounds(second).X == 200 && first.Bounds.Width == 400, "Slide geometry advances deterministically on the horizontal axis");
+        check(first.Bounds.X == 0 && second.Bounds.X == 0, "Sliding leaves both pages arranged at the viewport origin");
         Frame(.5);
         check(!carousel.IsTransitioning && first.Workspace is null && second.Bounds.X == 0, "Completed slide releases the outgoing page");
         carousel.Orientation = Orientation.Vertical;
         carousel.Previous();
         Frame();
         Frame(.5);
-        check(first.Bounds.Y == -150 && second.Bounds.Y == 150, "Previous slides in the opposite direction on the vertical axis");
+        check(VisualBounds(first).Y == -150 && VisualBounds(second).Y == 150, "Previous slides in the opposite direction on the vertical axis");
         carousel.Transition = CarouselTransition.Fade;
         Frame();
         check(!carousel.IsTransitioning, "Changing effect terminates the previous transition safely");
@@ -222,5 +223,55 @@ internal static class CarouselChecks
         Frame();
         check(updatePage.Workspace is null && carousel.SelectedIndex == 1 && carousel.SelectedItem!.Workspace == workspace, "Collection and selection changes during Update commit at a safe frame boundary");
         check(selectedEvents > 0, "Selection changes notify observers");
+        CheckLargeSlide(check, layout, idle);
+    }
+
+    /// <summary>Gets the rendered envelope of a laid-out control.</summary>
+    /// <param name="control">The page being inspected.</param>
+    /// <returns>The page bounds with its host's presentation transform applied.</returns>
+    private static Bounds2 VisualBounds(Control control) =>
+        ControlTransforms.TransformBounds(control.Bounds, ControlTransforms.GetVisualTransform(control));
+
+    /// <summary>Checks that steady slide frames leave both heavy page trees laid out.</summary>
+    /// <param name="check">The assertion callback.</param>
+    /// <param name="layout">The fixed font and layout context.</param>
+    /// <param name="idle">The input frame used to attach and lay out the pages.</param>
+    private static void CheckLargeSlide(Action<bool, string> check, ControlLayoutContext layout, ControlInputFrame idle)
+    {
+        var carousel = new Carousel
+        {
+            NavigationMode = CarouselNavigationMode.None,
+            ShowIndicators = false,
+            Transition = CarouselTransition.Slide,
+            TransitionDuration = 1
+        };
+        var probes = new List<MeasureProbe>(1000);
+        for (int page = 0; page < 2; page++)
+        {
+            var panel = new StackPanel();
+            for (int item = 0; item < 500; item++)
+            {
+                var probe = new MeasureProbe();
+                probes.Add(probe);
+                panel.Add(probe);
+            }
+            carousel.Items.Add(panel);
+        }
+
+        using var workspace = new Workspace(carousel);
+        workspace.Update(idle, layout);
+        carousel.Next();
+        workspace.Update(idle, layout);
+        workspace.Update(idle, layout);
+        int measurements = probes.Sum(probe => probe.Measurements);
+        int arrangements = probes.Sum(probe => probe.Arrangements);
+        var animation = new ControlInputFrame(idle.Size, TimeSpan.FromMilliseconds(16));
+        for (int i = 0; i < 30; i++)
+            workspace.Update(animation, layout);
+
+        check(carousel.TransitionProgress > 0 && carousel.TransitionProgress < 1 &&
+            probes.Sum(probe => probe.Measurements) == measurements &&
+            probes.Sum(probe => probe.Arrangements) == arrangements,
+            "Thirty slide frames move two pages with 1000 controls without running page layout");
     }
 }
