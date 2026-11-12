@@ -104,6 +104,7 @@ public sealed class ScrollViewer : ContainerControl
 
     /// <summary>Records whether a pointer is a pending scroll gesture candidate.</summary>
     private bool _trackingSwipe;
+    private ScrollGestureMotion _swipeMotion;
 
     /// <summary>Stores the vertical scrollbar decision for the arranged viewport.</summary>
     private bool _vertical;
@@ -419,13 +420,17 @@ public sealed class ScrollViewer : ContainerControl
     protected override void OnPreviewInput(ControlInputContext context, ControlInputEventArgs args)
     {
         ControlInputEvent input = args.Input;
+        bool smooth = context.Workspace.IsSmoothScrollingEnabled;
+        if (_swipeMotion.IsCoasting && input.Type is ControlInputEventType.PointerDown or ControlInputEventType.PointerWheel or ControlInputEventType.KeyDown)
+            _swipeMotion = default;
+
         if (input.Type == ControlInputEventType.PointerCancel && _trackingSwipe && input.Pointer == _swipePointer)
         {
             CancelSwipe();
             return;
         }
 
-        if (!IsSwipeEnabled || (input.PointerKind == ControlPointerKind.Mouse && !IsMouseDragEnabled))
+        if (!IsSwipeEnabled || (input.PointerKind == ControlPointerKind.Mouse && !IsMouseDragEnabled && Workspace?.IsMouseDragScrollingEnabled != true))
             return;
         if (input.Type == ControlInputEventType.PointerDown && input.Button == MouseButton.Left)
         {
@@ -437,6 +442,8 @@ public sealed class ScrollViewer : ContainerControl
             _yieldedSwipe = false;
             _swipePointer = input.Pointer;
             _swipeStart = _swipePrevious = input.Position;
+            if (smooth)
+                _swipeMotion.Begin(context.Workspace.ScrollInputTime);
             // Retain the child route for taps and cancellation without taking the gesture yet.
             context.CapturePointer(args.Source);
             return;
@@ -468,21 +475,35 @@ public sealed class ScrollViewer : ContainerControl
                     return;
                 context.CapturePointer(this);
                 SetNotify(ref _isSwiping, true, IsSwipingArgs);
-                incremental = movement;
+                incremental = smooth && !_yieldedSwipe
+                    ? ScrollGestureMotion.AfterThreshold(total, incremental, SwipeThreshold)
+                    : movement;
             }
 
-            Pan(incremental);
+            Vector2 applied = Pan(incremental);
+            if (smooth)
+                _swipeMotion.Track(applied, context.Workspace.ScrollInputTime);
             args.Handled = true;
         }
         else if (input.Type == ControlInputEventType.PointerUp && input.Button == MouseButton.Left)
         {
-            if (_isSwiping)
+            if (!_isSwiping)
             {
-                Pan(input.Position - _swipePrevious);
-                args.Handled = true;
+                CancelSwipe();
+                return;
             }
 
+            Vector2 applied = Pan(input.Position - _swipePrevious);
+            ScrollGestureMotion motion = _swipeMotion;
             CancelSwipe();
+            if (smooth)
+            {
+                motion.Track(applied, context.Workspace.ScrollInputTime);
+                motion.Release(context.Workspace.ScrollInputTime);
+                _swipeMotion = motion;
+            }
+
+            args.Handled = true;
         }
     }
 
@@ -533,17 +554,22 @@ public sealed class ScrollViewer : ContainerControl
 
     /// <summary>Moves content opposite to the finger through the existing clamped scrollbar values.</summary>
     /// <param name = "movement">The incremental logical pointer displacement.</param>
-    private void Pan(Vector2 movement)
+    /// <returns>The applied movement after clamping the scroll ranges.</returns>
+    private Vector2 Pan(Vector2 movement)
     {
-        if (_horizontal)
-            HorizontalScrollBar.Value = (float)Math.Clamp((double)HorizontalScrollBar.Value - movement.X, HorizontalScrollBar.Minimum, HorizontalScrollBar.Maximum);
-        if (_vertical)
-            VerticalScrollBar.Value = (float)Math.Clamp((double)VerticalScrollBar.Value - movement.Y, VerticalScrollBar.Minimum, VerticalScrollBar.Maximum);
+        float x = HorizontalScrollBar.Value;
+        float y = VerticalScrollBar.Value;
+        if (_horizontal && movement.X != 0)
+            HorizontalScrollBar.Value = (float)Math.Clamp((double)x - movement.X, HorizontalScrollBar.Minimum, HorizontalScrollBar.Maximum);
+        if (_vertical && movement.Y != 0)
+            VerticalScrollBar.Value = (float)Math.Clamp((double)y - movement.Y, VerticalScrollBar.Minimum, VerticalScrollBar.Maximum);
+        return new Vector2(x - HorizontalScrollBar.Value, y - VerticalScrollBar.Value);
     }
 
     /// <summary>Clears pending swipe state and releases capture if it belongs to this viewer.</summary>
     private void CancelSwipe()
     {
+        _swipeMotion = default;
         _trackingSwipe = false;
         _yieldedSwipe = false;
         SetNotify(ref _isSwiping, false, IsSwipingArgs);
@@ -556,6 +582,28 @@ public sealed class ScrollViewer : ContainerControl
     {
         if (_trackingSwipe && !HasSwipeCapture(this, _swipePointer))
             CancelSwipe();
+        if (!_swipeMotion.IsCoasting)
+            return;
+
+        if (Workspace is not { IsSmoothScrollingEnabled: true } workspace)
+        {
+            _swipeMotion = default;
+            return;
+        }
+
+        if (_swipeMotion.TryAdvance(workspace.ScrollInputTime, out Vector2 movement))
+        {
+            Pan(movement);
+            _swipeMotion.StopBlockedAxes(!_horizontal || !CanMove(HorizontalScrollBar, movement.X),
+                !_vertical || !CanMove(VerticalScrollBar, movement.Y));
+        }
+    }
+
+    /// <inheritdoc/>
+    protected override void OnDetached()
+    {
+        _swipeMotion = default;
+        base.OnDetached();
     }
 
     /// <inheritdoc/>
@@ -590,7 +638,7 @@ public sealed class ScrollViewer : ContainerControl
     protected override void OnDraw(ControlDrawContext context)
     {
         base.OnDraw(context);
-        if (_horizontal && _vertical)
+        if (_horizontal && _vertical && HorizontalScrollBar.IsPresentationVisible && VerticalScrollBar.IsPresentationVisible)
             context.DrawSkinPart(this, "Corner", new Bounds2(_viewport.Right - Bounds.X, _viewport.Bottom - Bounds.Y, ConfigScrollBarThickness, ConfigScrollBarThickness));
     }
 
