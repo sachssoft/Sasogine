@@ -63,6 +63,11 @@ public abstract class Control : Element
     private bool _isPointerOver;
     private bool _lastConstrain;
     private bool _measureDirty = true;
+    private bool _preparePending = true;
+
+    private ulong _measureInvalidationEpoch;
+    private ulong _arrangeInvalidationEpoch;
+    private ulong _visualInvalidationEpoch;
 
     private Bounds2 _lastSlot;
 
@@ -404,6 +409,9 @@ public abstract class Control : Element
             if (_workspace is not null)
                 OnDetached();
             _workspace = value;
+            _measureInvalidationEpoch = 0;
+            _arrangeInvalidationEpoch = 0;
+            _visualInvalidationEpoch = 0;
             _appliedRevision = -1;
             if (_workspace is not null)
                 OnAttached();
@@ -1079,7 +1087,11 @@ public abstract class Control : Element
         if (notification.PropertyName == nameof(DataContext))
             return;
         if (notification.PropertyName is nameof(Font) or nameof(FontName) or nameof(FontSize) or nameof(FontWeight) or nameof(FontStyle))
+        {
             Workspace?.InvalidateFontInheritance();
+            InvalidateLayoutCore(measure: true, prepareAll: true);
+            return;
+        }
         if (notification.PropertyName == nameof(StyleId))
             _appliedRevision = -1;
         if (notification.PropertyName == nameof(ZIndex))
@@ -1201,22 +1213,56 @@ public abstract class Control : Element
     /// </remarks>
     public void InvalidateVisual()
     {
+        ulong epoch = Workspace?.VisualInvalidationEpoch ?? 0;
         for (Control? control = this; control is not null; control = control.Parent)
-            unchecked
-            {
-                control._visualRevision++;
-            }
+        {
+#if LAYOUT_METRICS
+            LayoutMetrics.Visit(control);
+#endif
+            if (epoch != 0 && control._visualInvalidationEpoch == epoch)
+                break;
+
+            control._visualInvalidationEpoch = epoch;
+            control._visualRevision = unchecked(control._visualRevision + 1);
+        }
     }
 
     /// <summary>Invalidates arrangement for this control and its ancestors while preserving measured sizes.</summary>
     /// <remarks>Schedules a layout pass for the next update and marks affected visuals as changed.</remarks>
     public void InvalidateArrange() => InvalidateLayoutCore(false);
 
-    /// <summary>Marks the affected ancestor chain once, preserving measure caches for arrange-only changes.</summary>
-    /// <param name="measure">Whether to invalidate measurement as well as arrangement.</param>
-    private void InvalidateLayoutCore(bool measure)
+    /// <summary>Schedules preparation along the changed branch while preserving its measured size.</summary>
+    internal void InvalidatePreparation()
     {
-        Control? localRoot = Workspace?.LocalLayoutRoot;
+        for (Control? control = this; control is not null; control = control.Parent)
+        {
+#if LAYOUT_METRICS
+            LayoutMetrics.Visit(control);
+#endif
+            control._preparePending = true;
+        }
+
+        Workspace?.ScheduleControlLayout(measure: false, prepare: true);
+    }
+
+    /// <summary>Consumes pending preparation before invoking code that may schedule it again.</summary>
+    /// <param name="dirtyOnly">Whether to skip branches without pending preparation.</param>
+    internal bool BeginPreparation(bool dirtyOnly)
+    {
+        if (dirtyOnly && !_preparePending)
+            return false;
+
+        _preparePending = false;
+        return true;
+    }
+
+    /// <summary>Marks the affected ancestor chain and schedules the workspace once.</summary>
+    /// <param name="measure">Whether to invalidate measurement as well as arrangement.</param>
+    /// <param name="prepareAll">Whether inherited font changes may also affect overlay trees.</param>
+    private void InvalidateLayoutCore(bool measure, bool prepareAll = false)
+    {
+        Workspace? workspace = Workspace;
+        Control? localRoot = workspace?.LocalLayoutRoot;
         if (localRoot is not null)
         {
             Control? ancestor = this;
@@ -1225,23 +1271,50 @@ public abstract class Control : Element
             localRoot = ancestor;
         }
 
+        if (prepareAll && localRoot is null)
+            workspace?.InvalidateLayout();
+
+        ulong layoutEpoch = localRoot is null ? workspace?.LayoutInvalidationEpoch ?? 0 : 0;
+        ulong visualEpoch = workspace?.VisualInvalidationEpoch ?? 0;
         for (Control? control = this; control is not null; control = control.Parent)
         {
-            if (measure)
-                control._measureDirty = true;
-            control._arrangeDirty = true;
-            unchecked
+#if LAYOUT_METRICS
+            LayoutMetrics.Visit(control);
+#endif
+            if (layoutEpoch != 0 &&
+                (measure ? control._measureInvalidationEpoch : control._arrangeInvalidationEpoch) == layoutEpoch)
             {
-                control._visualRevision++;
+                if (control._visualInvalidationEpoch != visualEpoch)
+                    control.InvalidateVisual();
+                return;
             }
-            if (localRoot is null)
-                control.Workspace?.InvalidateLayout(measure);
-            else if (ReferenceEquals(control, localRoot))
+
+            if (measure)
+            {
+                control._measureDirty = true;
+                control._preparePending = true;
+                control._measureInvalidationEpoch = layoutEpoch;
+            }
+
+            control._arrangeDirty = true;
+            control._arrangeInvalidationEpoch = layoutEpoch;
+            if (visualEpoch == 0 || control._visualInvalidationEpoch != visualEpoch)
+            {
+                control._visualInvalidationEpoch = visualEpoch;
+                control._visualRevision = unchecked(control._visualRevision + 1);
+            }
+
+            if (ReferenceEquals(control, localRoot))
             {
                 control.Parent?.InvalidateVisual();
-                break;
+                return;
             }
+
+            // An attached ancestor can own an invalidated child before attachment is committed.
+            workspace ??= control.Workspace;
         }
+
+        workspace?.ScheduleControlLayout(measure, prepare: measure);
     }
 
     /// <summary>Gets the explicit width used by layout. Derived controls can ignore a configured width for content sizing.</summary>
@@ -1257,6 +1330,9 @@ public abstract class Control : Element
     /// <param name="available">The available size for measurement.</param>
     internal void Measure(ControlLayoutContext context, Size2 available)
     {
+#if LAYOUT_METRICS
+        LayoutMetrics.MeasureCalls++;
+#endif
         try
         {
             EnsureFont(context.DefaultFont);
@@ -1269,7 +1345,11 @@ public abstract class Control : Element
 
         if (!_measureDirty && _measureFontRevision == _fontResolutionRevision && _lastAvailable.Width == available.Width && _lastAvailable.Height == available.Height && ReferenceEquals(_measureFont, context.DefaultFont))
             return;
+        Workspace?.ObserveExternalLayout();
         _measureDirty = false;
+#if LAYOUT_METRICS
+        LayoutMetrics.Measures++;
+#endif
         _measureFontRevision = _fontResolutionRevision;
         _arrangeDirty = true;
         _lastAvailable = available;
@@ -1306,9 +1386,16 @@ public abstract class Control : Element
     /// <param name="constrain">Whether to constrain the arranged size to the available bounds.</param>
     internal void Arrange(Bounds2 slot, bool constrain = false)
     {
+#if LAYOUT_METRICS
+        LayoutMetrics.ArrangeCalls++;
+#endif
         if (!_arrangeDirty && _lastSlot.X == slot.X && _lastSlot.Y == slot.Y && _lastSlot.Width == slot.Width && _lastSlot.Height == slot.Height && _lastConstrain == constrain)
             return;
+        Workspace?.ObserveExternalLayout();
         _arrangeDirty = false;
+#if LAYOUT_METRICS
+        LayoutMetrics.Arranges++;
+#endif
         _lastSlot = slot;
         _lastConstrain = constrain;
         try
@@ -1348,8 +1435,7 @@ public abstract class Control : Element
         }
         catch
         {
-            _arrangeDirty = true;
-            Workspace?.InvalidateLayout();
+            InvalidateArrange();
             throw;
         }
     }
