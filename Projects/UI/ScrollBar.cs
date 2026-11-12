@@ -23,6 +23,23 @@ public sealed class ScrollBar : RangeControl
 
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ScrollBar";
+
+    /// <summary>Gets whether scrollbar artwork is visible under the current workspace input policy.</summary>
+    /// <remarks>Custom artwork can use this property while retaining the native scrollbar's layout and hit area.</remarks>
+    public bool IsPresentationVisible
+    {
+        get
+        {
+            if (!IsVisible)
+                return false;
+
+            if (Workspace is not { ShowScrollBarsOnMouseHover: true } workspace)
+                return true;
+
+            Control hoverTarget = Parent is Control host && (host is ScrollViewer or ListBox) ? host : this;
+            return (workspace.HasMouseHover && hoverTarget.IsPointerOver) || ReferenceEquals(workspace.CapturedControl, this);
+        }
+    }
     /// <summary>
     /// Gets or sets viewport size.
     /// </summary>
@@ -190,14 +207,9 @@ public sealed class ScrollBar : RangeControl
             context.FillRectangle(AxisRect(Arrow, TrackLength), new Color(20, 26, 36));
         if (!context.DrawSkinStylePart(style, "Thumb", AxisRect(ThumbStart, ThumbLength), state))
             context.FillRectangle(AxisRect(ThumbStart, ThumbLength), new Color(90, 120, 145));
-        foreach (bool end in new[]
+        for (int i = 0; i < 2; i++)
         {
-            false,
-            true
-        }
-
-        )
-        {
+            bool end = i == 1;
             Bounds2 b = AxisRect(end ? AxisLength - Arrow : 0, Arrow);
             context.DrawSkinStylePart(style, end ? "IncreaseButton" : "DecreaseButton", b, state);
             context.DrawSkinStylePart(style, end ? "IncreaseGlyph" : "DecreaseGlyph", b, "Normal", IsAvailable() ? Color.White : ConfigDisabledTextColor);

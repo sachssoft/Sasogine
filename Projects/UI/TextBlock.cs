@@ -61,7 +61,7 @@ public class TextBlock : Control
         {
             _pendingTextMetrics = true;
             InvalidateVisual();
-            Workspace.InvalidateLayout();
+            InvalidatePreparation();
             return;
         }
 

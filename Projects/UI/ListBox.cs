@@ -128,6 +128,7 @@ public class ListBox : ContainerControl
     /// <inheritdoc/>
     protected override void OnDetached()
     {
+        _swipeMotion = default;
         _dataItems?.Detach();
         base.OnDetached();
     }
@@ -354,6 +355,7 @@ public class ListBox : ContainerControl
 
     /// <summary>Accumulates update time for deterministic double-click detection.</summary>
     private double _time;
+    private ScrollGestureMotion _swipeMotion;
 
     /// <summary>Stores the starting index for range selection.</summary>
     private int _anchor = -1;
@@ -817,6 +819,17 @@ public class ListBox : ContainerControl
         if (_trackingSwipe && !ScrollViewer.HasSwipeCapture(this, _swipePointer))
             CancelSwipe();
         _time += elapsed.TotalSeconds;
+        if (_swipeMotion.IsCoasting)
+        {
+            if (Workspace is not { IsSmoothScrollingEnabled: true } workspace)
+                _swipeMotion = default;
+            else if (_swipeMotion.TryAdvance(workspace.ScrollInputTime, out Vector2 movement))
+            {
+                Pan(movement.Y);
+                _swipeMotion.StopBlockedAxes(true, !CanScrollInDirection(movement));
+            }
+        }
+
         if (_selectionDirty)
         {
             _selectionDirty = false;
@@ -957,7 +970,7 @@ public class ListBox : ContainerControl
         if (e.Type == ControlInputEventType.PointerDown && e.Button == MouseButton.Left)
         {
             _pressed = GetItemIndexAt(e.Position);
-            if (e.PointerKind != ControlPointerKind.Touch || !IsSwipeEnabled)
+            if (!CanStartSwipe(e.PointerKind))
                 Choose(_pressed, e.Shift, e.Control);
             context.CapturePointer(this);
             args.Handled = true;
@@ -968,7 +981,7 @@ public class ListBox : ContainerControl
         {
             int hit = GetItemIndexAt(e.Position), pressed = _pressed;
             _pressed = -1;
-            if (pressed >= 0 && hit == pressed && e.PointerKind == ControlPointerKind.Touch && IsSwipeEnabled)
+            if (pressed >= 0 && hit == pressed && CanStartSwipe(e.PointerKind))
                 Choose(hit, e.Shift, e.Control);
             context.ReleasePointer(this);
             args.Handled = true;
@@ -1060,13 +1073,17 @@ public class ListBox : ContainerControl
             return;
         }
         ControlInputEvent input = args.Input;
+        bool smooth = context.Workspace.IsSmoothScrollingEnabled;
+        if (_swipeMotion.IsCoasting && input.Type is ControlInputEventType.PointerDown or ControlInputEventType.PointerWheel or ControlInputEventType.KeyDown)
+            _swipeMotion = default;
+
         if (input.Type == ControlInputEventType.PointerCancel && _trackingSwipe && input.Pointer == _swipePointer)
         {
             CancelSwipe();
             return;
         }
 
-        if (!IsSwipeEnabled || input.PointerKind != ControlPointerKind.Touch)
+        if (!CanStartSwipe(input.PointerKind))
             return;
         if (input.Type == ControlInputEventType.PointerDown && input.Button == MouseButton.Left)
         {
@@ -1078,6 +1095,8 @@ public class ListBox : ContainerControl
             _swipeMoved = _yieldedSwipe = false;
             _swipePointer = input.Pointer;
             _swipeStart = _swipePrevious = input.Position;
+            if (smooth)
+                _swipeMotion.Begin(context.Workspace.ScrollInputTime);
             context.CapturePointer(args.Source);
             return;
         }
@@ -1110,18 +1129,30 @@ public class ListBox : ContainerControl
                     return;
                 context.CapturePointer(this);
                 SetNotify(ref _isSwiping, true, IsSwipingArgs);
-                incremental = movement;
+                incremental = smooth && !_yieldedSwipe
+                    ? ScrollGestureMotion.AfterThreshold(total, incremental, SwipeThreshold)
+                    : movement;
             }
 
-            Pan(incremental.Y);
+            float applied = Pan(incremental.Y);
+            if (smooth)
+                _swipeMotion.Track(new Vector2(0, applied), context.Workspace.ScrollInputTime);
             args.Handled = true;
         }
         else if (input.Type == ControlInputEventType.PointerUp && input.Button == MouseButton.Left)
         {
             if (_isSwiping)
             {
-                Pan(input.Position.Y - _swipePrevious.Y);
+                float applied = Pan(input.Position.Y - _swipePrevious.Y);
+                ScrollGestureMotion motion = _swipeMotion;
                 CancelSwipe();
+                if (smooth)
+                {
+                    motion.Track(new Vector2(0, applied), context.Workspace.ScrollInputTime);
+                    motion.Release(context.Workspace.ScrollInputTime);
+                    _swipeMotion = motion;
+                }
+
                 args.Handled = true;
             }
             else if (_swipeMoved)
@@ -1139,6 +1170,10 @@ public class ListBox : ContainerControl
         }
     }
 
+    /// <summary>Checks whether the pointer can start a list swipe.</summary>
+    private bool CanStartSwipe(ControlPointerKind kind) =>
+        IsSwipeEnabled && (kind == ControlPointerKind.Touch || Workspace?.IsMouseDragScrollingEnabled == true);
+
     /// <summary>Reports whether this pending list gesture can consume the proposed vertical movement.</summary>
     /// <param name = "pointer">The pointer moving the content.</param>
     /// <param name = "movement">The dominant-axis displacement in logical workspace units.</param>
@@ -1152,11 +1187,20 @@ public class ListBox : ContainerControl
 
     /// <summary>Scrolls opposite to the finger while retaining the existing scrollbar's clamping behavior.</summary>
     /// <param name = "movement">The incremental signed vertical displacement.</param>
-    private void Pan(float movement) => ScrollBar.Value = (float)Math.Clamp((double)ScrollBar.Value - movement, ScrollBar.Minimum, ScrollBar.Maximum);
+    /// <returns>The applied displacement after clamping the scroll range.</returns>
+    private float Pan(float movement)
+    {
+        ScrollBar bar = ScrollBar;
+        float previous = bar.Value;
+        if (movement != 0)
+            bar.Value = (float)Math.Clamp((double)previous - movement, bar.Minimum, bar.Maximum);
+        return previous - bar.Value;
+    }
 
     /// <summary>Clears tap/scroll state and releases capture only when it still belongs to this list.</summary>
     private void CancelSwipe()
     {
+        _swipeMotion = default;
         _trackingSwipe = _swipeMoved = _yieldedSwipe = false;
         _pressed = -1;
         SetNotify(ref _isSwiping, false, IsSwipingArgs);
