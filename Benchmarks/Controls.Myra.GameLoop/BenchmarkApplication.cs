@@ -30,20 +30,26 @@ internal sealed class BenchmarkApplication : GameApplicationBase
     private bool _measuring;
     /// <summary>Configures an uncapped game loop, including when the window is not focused.</summary>
     public BenchmarkApplication(BenchmarkOptions options)
+        : base(CreateGameConfiguration())
     {
         _options = options;
         IsFixedTimeStep = false;
         InactiveSleepTime = TimeSpan.Zero;
     }
-    /// <inheritdoc/>
-    protected override GraphicsDeviceManager ConfigureGraphicsDevice() => new(this)
+    private static GameConfiguration CreateGameConfiguration() => new()
     {
-        PreferredBackBufferWidth = 1200, PreferredBackBufferHeight = 800,
-        SynchronizeWithVerticalRetrace = false, GraphicsProfile = GraphicsProfile.Reach,
-        PreferredDepthStencilFormat = DepthFormat.None
+        Graphics = new GraphicsConfiguration
+        {
+            Width = 1200,
+            Height = 800,
+            SynchronizeWithVerticalRetrace = false,
+            Profile = GraphicsProfile.Reach,
+            DepthStencilFormat = DepthFormat.None
+        }
     };
     /// <inheritdoc/>
-    protected override ISceneManager CreateScenes(GameConfiguration configuration) => new SceneManager(this, new BenchmarkScene());
+    protected override void ConfigureApplication(ApplicationConfiguration configuration) =>
+        configuration.StartScene = static _ => new BenchmarkScene();
     /// <inheritdoc/>
     protected override void LoadContent()
     {
