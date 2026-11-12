@@ -16,7 +16,7 @@ internal static class CarouselStressBenchmark
     /// <param name="target">The off-screen target used for all draws.</param>
     /// <param name="font">The shared font used by the pages.</param>
     /// <param name="skin">The atlas skin used by the controls.</param>
-    internal static void Run(GameApplicationBase app, RenderTarget2D target, IControlFont font, ControlSkin skin)
+    internal static void Run(GameApplicationBase app, RenderTarget2D target, IFont font, ControlSkin skin)
     {
         const int pages = 5;
         const int repetitions = 4;

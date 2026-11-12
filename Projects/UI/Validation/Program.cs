@@ -1619,7 +1619,7 @@ internal static class Program
             if (args.Length == 2 && args[0] == "--font")
                 Run("Real engine font metrics", () =>
                 {
-                    using var font = new FontFaceControlFont(new Sachssoft.Engine.Graphics.Text.FontFace(System.IO.File.ReadAllBytes(args[1]), "Test"), 20);
+                    IFont font = new FontFace(System.IO.File.ReadAllBytes(args[1]), "Test").GetFont(20);
                     Check(font.Measure("Sasogine").Width > 0);
                 });
             Console.WriteLine($"PASS: {_groups} groups, {_checks} assertions; {System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription}");

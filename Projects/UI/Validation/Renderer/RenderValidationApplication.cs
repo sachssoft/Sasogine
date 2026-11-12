@@ -4,17 +4,18 @@ using Sachssoft.Engine;
 using Sachssoft.Engine.Controls.Drawing;
 using Sachssoft.Engine.Controls.Input;
 using Sachssoft.Engine.Graphics.Text;
+using Sachssoft.Engine.Input;
 using Sachssoft.Engine.Scenes;
 
 namespace Sachssoft.Engine.Controls.Examples;
 /// <summary>Compares native rendering against the retained SpriteBatch path on real GPU targets.</summary>
 internal sealed class RenderValidationApplication : GameApplicationBase
 {
-    private FontFaceControlFont? _font;
+    private IFont? _font;
     private ControlSkin? _skin;
     private RenderTarget2D? _target;
     private Texture2D? _image;
-    private SpriteFontControlFont? _spriteFont;
+    private SpriteFontAdapter? _spriteFont;
     private bool _done;
     internal static bool HalfPixelMode { get; set; }
     /// <summary>Runs the mixed-control carousel benchmark in place of the image comparison suite.</summary>
@@ -44,7 +45,7 @@ internal sealed class RenderValidationApplication : GameApplicationBase
         if (GraphicsDevice.UseHalfPixelOffset != HalfPixelMode)
             throw new InvalidOperationException("Pixel addressing option was not applied.");
         Console.WriteLine($"HALF PIXEL: {GraphicsDevice.UseHalfPixelOffset}");
-        _font = new FontFaceControlFont(new FontFace(File.ReadAllBytes(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "segoeui.ttf")), "Segoe"), 20);
+        _font = new FontFace(File.ReadAllBytes(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "segoeui.ttf")), "Segoe").GetFont(20);
         _skin = ControlSkin.LoadEmbedded(GraphicsDevice);
         _target = new RenderTarget2D(GraphicsDevice, 1160, 760, false, SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
         _image = new Texture2D(GraphicsDevice, 8, 8);
@@ -54,7 +55,7 @@ internal sealed class RenderValidationApplication : GameApplicationBase
                 data[y * 8 + x] = new Color(x * 30, y * 30, 180, 255);
         _image.SetData(data);
         var sprite = new SpriteFont(_image, new() { new(0, 0, 3, 7), new(3, 0, 3, 7), new(0, 0, 3, 7), new(0, 0, 1, 1) }, new() { new(0, 1, 3, 7), new(0, 0, 3, 7), new(0, 0, 3, 7), new(0, 0, 1, 1) }, new() { ' ', '?', 'A', 'B' }, 11, 2, new() { new(-1, 4, 1), new(1, 3, -1), new(0, 4, 1), new(0, 3, 0) }, '?');
-        _spriteFont = new SpriteFontControlFont(sprite);
+        _spriteFont = new SpriteFontAdapter(sprite);
         Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "Captures"));
     }
 
@@ -156,6 +157,7 @@ internal sealed class RenderValidationApplication : GameApplicationBase
             return;
         }
         CheckWorkspaceSkins();
+        CheckHostedWorkspace();
         var view = new ControlsExampleView();
         using (var root = view.Workspace)
         {
@@ -342,6 +344,40 @@ internal sealed class RenderValidationApplication : GameApplicationBase
         Exit();
     }
 
+    /// <summary>Checks that hosted input and drawing use the same offset viewport and DPI.</summary>
+    private void CheckHostedWorkspace()
+    {
+        using var workspace = new Workspace(new Button { Text = "Hosted workspace" }) { Dpi = 192 };
+        workspace.Initialize(this);
+        var frame = new GameContext(this);
+        var time = new GameTime(TimeSpan.Zero, TimeSpan.FromMilliseconds(16));
+        frame.SetFrameTime(time);
+        var viewport = new Rectangle(10, 20, 400, 300);
+        InputSnapshot input = default;
+        workspace.Update(frame, input, viewport, active: false);
+        if (!workspace.Size.Equals(new Size2(200, 150)))
+            throw new InvalidOperationException("The hosted workspace did not apply its DPI to the supplied viewport.");
+
+        RenderTargetBinding[] targets = GraphicsDevice.GetRenderTargets();
+        Viewport original = GraphicsDevice.Viewport;
+        try
+        {
+            GraphicsDevice.SetRenderTarget(_target);
+            Viewport targetViewport = GraphicsDevice.Viewport;
+            workspace.Draw(time);
+            if (!GraphicsDevice.Viewport.Equals(targetViewport))
+                throw new InvalidOperationException("The hosted workspace did not restore the render target viewport.");
+        }
+        finally
+        {
+            if (targets.Length == 0)
+                GraphicsDevice.SetRenderTarget(null);
+            else
+                GraphicsDevice.SetRenderTargets(targets);
+            GraphicsDevice.Viewport = original;
+        }
+    }
+
     /// <summary>Checks automatic selection, lazy factories, caching, and ownership on a graphics device.</summary>
     private void CheckWorkspaceSkins()
     {
@@ -441,7 +477,6 @@ internal sealed class RenderValidationApplication : GameApplicationBase
 
     protected override void UnloadContent()
     {
-        _font?.Dispose();
         _skin?.Dispose();
         _target?.Dispose();
         _image?.Dispose();

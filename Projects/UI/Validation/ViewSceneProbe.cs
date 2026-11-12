@@ -6,7 +6,7 @@ internal sealed class ViewSceneProbe : ViewSceneBase
 {
     /// <summary>Creates a probe with a caller-owned test font.</summary>
     /// <param name="font">The shared measurement and drawing font.</param>
-    internal ViewSceneProbe(IControlFont font) : base(font)
+    internal ViewSceneProbe(IFont font) : base(font)
     {
     }
 

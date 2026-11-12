@@ -25,13 +25,9 @@ internal static class FontControlChecks
         var both = Face("Bold Italic", FontWeight.Bold, FontStyle.Italic);
         var fonts = new FontRegistry();
         fonts.Register("Test", regular, bold, italic, both);
-        var created = new List<FontProbe>();
-        var registry = new UIRegistry(fonts, (face, size) =>
-        {
-            var adapter = new FontProbe(face, size);
-            created.Add(adapter);
-            return adapter;
-        });
+        using var backend = new FontProbeBackend(fonts);
+        var created = backend.Created;
+        var registry = new UIRegistry(fonts, backend);
         var root = new StackPanel
         {
             FontName = "Test",
@@ -138,10 +134,9 @@ internal static class FontControlChecks
         fonts.Remove("Test");
         fonts.Register("Test", replacement);
         inherited.Text = "New text during font replacement";
-        workspace.InvalidateFonts();
         Frame();
-        Check(((FontProbe)inherited.EffectiveFont!).Face == replacement, "Same-count replacement resolves after invalidation");
-        Check(created.Take(count).All(f => f.Disposals == 1), "Invalidated adapters disposed exactly once");
+        Check(((FontProbe)inherited.EffectiveFont!).Face == replacement, "Same-count replacement updates the registry revision");
+        Check(created.Take(count).All(f => f.Disposals == 0), "The workspace does not dispose backend-owned fonts on invalidation");
         root.FontName = "Missing";
         bool failed = false;
         try
@@ -156,13 +151,36 @@ internal static class FontControlChecks
         Check(failed, "Missing family fails clearly");
         fonts.Register("Missing", regular);
         Frame();
-        Check(((FontProbe)inherited.EffectiveFont!).Face == regular, "Failed resolution retries after family registration");
+        Check(((FontProbe)inherited.EffectiveFont!).Face.Name == "Noto Sans",
+            "Failed resolution retries after registration and missing styles fall back to a compatible built-in face");
         workspace.Dispose();
-        Check(created.All(f => f.Disposals == 1), "Workspace releases all created adapters once");
+        Check(created.All(f => f.Disposals == 0), "The workspace borrows the backend and its fonts");
+        backend.Dispose();
+        Check(created.All(f => f.Disposals == 1), "The backend releases its fonts exactly once");
         Check(fallback.Disposals == 0 && borrowed.Disposals == 0, "Caller-owned fonts remain borrowed");
         var converters = registry.Converters;
         Check(converters.Convert<FontWeight>("FontWeight", "700") == FontWeight.Bold, "Numeric weight converter");
         Check(converters.Convert<FontStyle?>("NullableFontStyle", "inherit")is null, "Inheritance converter");
+        IFont sans = BuiltInFonts.GetFont(BuiltInFont.Sans, BuiltInFonts.DefaultSize);
+        Check(ReferenceEquals(sans, BuiltInFonts.GetFont(BuiltInFont.Sans, BuiltInFonts.DefaultSize)),
+            "Equivalent built-in font requests reuse the font instance");
+        Check(BuiltInFonts.GetFont(BuiltInFont.Serif, 18.5f, FontStyle.Italic, FontWeight.Bold).Face?.StyleDefinition == FontStyle.Italic,
+            "The embedded Serif family includes Bold Italic");
+        IFont mono = BuiltInFonts.GetFont(BuiltInFont.Mono, 16);
+        Check(ReferenceEquals(mono, BuiltInFonts.GetFont(BuiltInFont.Mono, 16, FontStyle.Italic)),
+            "Mono preserves fixed-width metrics when italic is unavailable");
+        var automatic = new TextBlock { Text = "Å Ж Ω" };
+        using var automaticWorkspace = new Workspace(automatic);
+        automaticWorkspace.Update(frame);
+        Check(ReferenceEquals(automatic.EffectiveFont, sans) && sans.Measure("Å Ж Ω").Width > 0,
+            "Controls measure with the embedded default without an explicit font");
+        automatic.FontName = "Noto Serif";
+        automatic.Font = mono;
+        automaticWorkspace.Update(frame);
+        Check(ReferenceEquals(automatic.EffectiveFont, mono), "An explicit font wins over the family descriptor");
+        automatic.Font = null;
+        automaticWorkspace.Update(frame);
+        Check(automatic.EffectiveFont?.Face?.Name == "Noto Serif", "Clearing the explicit font restores family resolution");
         return checks;
     }
 }

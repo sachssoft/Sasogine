@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Engine.Controls.Drawing;
 namespace Sachssoft.Engine.Controls.Examples;
 /// <summary>Exercises overlap, alpha, rotated clipping, atlas crops, custom drawing, and font fallback.</summary>
-internal sealed class RendererGeometryControl(Texture2D image,IControlFont spriteFont,IControlFont legacyFont) : Control
+internal sealed class RendererGeometryControl(Texture2D image,IFont spriteFont,IFont legacyFont) : Control
 {
     protected override void OnDraw(ControlDrawContext c)
     {

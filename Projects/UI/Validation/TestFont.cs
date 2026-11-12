@@ -5,7 +5,7 @@ using Sachssoft.Engine;
 using Sachssoft.Engine.Input;
 using Sachssoft.Engine.Controls;
 
-internal sealed class TestFont : IControlFont
+internal sealed class TestFont : IFont
 {
     /// <summary>Performs measure using the current control state.</summary>
     public Size2 Measure(string text)

@@ -4,7 +4,7 @@ using Sachssoft.Engine;
 using Sachssoft.Engine.Controls.Drawing;
 
 /// <summary>Supplies deterministic text metrics without graphics resources.</summary>
-internal sealed class CanvasItemsTestFont : IControlFont
+internal sealed class CanvasItemsTestFont : IFont
 {
     /// <inheritdoc/>
     public Size2 Measure(string text) => new(text.Length * 8, 16);

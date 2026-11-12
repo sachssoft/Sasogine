@@ -5,7 +5,7 @@ using Sachssoft.Engine.Controls;
 using Sachssoft.Engine.Graphics.Text;
 
 /// <summary>A disposable font adapter for checking font identity and layout without graphics.</summary>
-internal sealed class FontProbe : IControlFont, IDisposable
+internal sealed class FontProbe : IFont, IDisposable
 {
     internal FontProbe(FontFace face, int size)
     {
@@ -15,6 +15,8 @@ internal sealed class FontProbe : IControlFont, IDisposable
 
     internal FontFace Face { get; }
     internal int Size { get; }
+    FontFace IFont.Face => Face;
+    float IFont.Size => Size;
     internal int Disposals { get; private set; }
 
     public Size2 Measure(string text)

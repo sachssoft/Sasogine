@@ -4,7 +4,7 @@ using Sachssoft.Engine;
 using Sachssoft.Engine.Controls;
 
 /// <summary>Counts text metric requests and supports explicit external font changes.</summary>
-internal sealed class CountingFont : IControlFont
+internal sealed class CountingFont : IFont
 {
     private readonly TestFont _font = new();
     /// <summary>Gets the number of measurement calls.</summary>

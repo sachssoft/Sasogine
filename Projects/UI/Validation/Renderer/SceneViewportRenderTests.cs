@@ -10,7 +10,7 @@ namespace Sachssoft.Engine.Controls.Examples;
 /// <summary>Compares direct viewports to images, including inherited clipping, nested targets and UI painter order.</summary>
 internal static class SceneViewportRenderTests
 {
-    internal static void Run(GameApplicationBase app, IControlFont font)
+    internal static void Run(GameApplicationBase app, IFont font)
     {
         var device = app.GraphicsDevice;
         if (device.UseHalfPixelOffset)

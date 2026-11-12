@@ -1,16 +1,15 @@
-using FontStashSharp;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Engine;
 using Sachssoft.Engine.Controls;
 using Sachssoft.Engine.Controls.Drawing;
 using Sachssoft.Engine.Controls.Input;
+using Sachssoft.Engine.Graphics.Text;
 using Sachssoft.Engine.Scenes;
 namespace LayoutCacheProbe;
 /// <summary>Checks that drawing never measures text or rebuilds its prepared placement.</summary>
 internal sealed class CacheApplication : GameApplicationBase
 {
-    private readonly FontSystem _fonts = new();
     private readonly TextBlock _text = new() { Text = "Cached text", Width = 500, Height = 150, Padding = new Insets2(16), Background = new Color(35,49,66), TextColor = Color.White };
     private Workspace? _workspace;
     private ProbeFont? _font;
@@ -36,8 +35,7 @@ internal sealed class CacheApplication : GameApplicationBase
     protected override void LoadContent()
     {
         base.LoadContent();
-        _fonts.AddFont(File.ReadAllBytes(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "segoeui.ttf")));
-        _font = new ProbeFont(_fonts.GetFont(24));
+        _font = new ProbeFont(BuiltInFonts.GetFont(BuiltInFont.Sans, 24));
         _layout = new ControlLayoutContext(_font);
         _draw = new ControlDrawContext(this, _font, new Rectangle(0,0,640,240));
         _target = new RenderTarget2D(GraphicsDevice,640,240);
@@ -78,6 +76,6 @@ internal sealed class CacheApplication : GameApplicationBase
     }
     protected override void UnloadContent()
     {
-        _workspace?.Dispose(); _draw?.Dispose(); _target?.Dispose(); _fonts.Dispose(); base.UnloadContent();
+        _workspace?.Dispose(); _draw?.Dispose(); _target?.Dispose(); base.UnloadContent();
     }
 }
