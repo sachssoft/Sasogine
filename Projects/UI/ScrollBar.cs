@@ -24,8 +24,19 @@ public sealed class ScrollBar : RangeControl
     /// <inheritdoc/>
     protected override string DefaultStyleName => "ScrollBar";
 
-    /// <summary>Gets whether scrollbar artwork is visible under the current workspace input policy.</summary>
-    /// <remarks>Custom artwork can use this property while retaining the native scrollbar's layout and hit area.</remarks>
+    /// <summary>Gets whether this automatic scrollbar overlays its viewport on mouse hover.</summary>
+    internal bool UsesHoverOverlay => Workspace?.ShowScrollBarsOnMouseHover == true && (Parent switch
+    {
+        ScrollViewer viewer when ReferenceEquals(this, viewer.HorizontalScrollBar) =>
+            viewer.HorizontalScrollBarVisibility == ScrollBarVisibility.Auto,
+        ScrollViewer viewer when ReferenceEquals(this, viewer.VerticalScrollBar) =>
+            viewer.VerticalScrollBarVisibility == ScrollBarVisibility.Auto,
+        ListBox => true,
+        _ => false
+    });
+
+    /// <summary>Gets whether the scrollbar artwork is visible for the current pointer.</summary>
+    /// <remarks>Custom artwork can use this property to match the native scrollbar.</remarks>
     public bool IsPresentationVisible
     {
         get
@@ -33,11 +44,10 @@ public sealed class ScrollBar : RangeControl
             if (!IsVisible)
                 return false;
 
-            if (Workspace is not { ShowScrollBarsOnMouseHover: true } workspace)
+            if (!UsesHoverOverlay || Workspace is not { } workspace)
                 return true;
 
-            Control hoverTarget = Parent is Control host && (host is ScrollViewer or ListBox) ? host : this;
-            return (workspace.HasMouseHover && hoverTarget.IsPointerOver) || ReferenceEquals(workspace.CapturedControl, this);
+            return (workspace.HasMouseHover && Parent?.IsPointerOver == true) || ReferenceEquals(workspace.CapturedControl, this);
         }
     }
     /// <summary>

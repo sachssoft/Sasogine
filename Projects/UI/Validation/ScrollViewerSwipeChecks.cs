@@ -236,6 +236,7 @@ internal static class ScrollViewerSwipeChecks
         CheckMenuInput(check, layout);
         CheckStationaryInput(check);
         CheckSmoothSwipe(check, layout);
+        CheckHoverOverlays(check, layout);
         ListBoxSwipeChecks.Run(check, layout);
     }
 
@@ -290,6 +291,57 @@ internal static class ScrollViewerSwipeChecks
         Sample(150, ButtonState.Released);
         check(viewer.VerticalScrollBar.Value == 140 && clicks == 0,
             "The menu can drag-scroll using a mouse-only device without activating the pressed child");
+    }
+
+    /// <summary>Checks overlay geometry, hit ordering, and reserved space for permanent scrollbars.</summary>
+    private static void CheckHoverOverlays(Action<bool, string> check, ControlLayoutContext layout)
+    {
+        var content = new Button { Width = 700, Height = 900, ZIndex = int.MaxValue };
+        var viewer = new ScrollViewer { Content = content };
+        using var workspace = new Workspace(viewer) { ShowScrollBarsOnMouseHover = true };
+        var size = new Size2(400, 300);
+        void Frame(params ControlInputEvent[] events) =>
+            workspace.Update(new ControlInputFrame(size, TimeSpan.Zero, events), layout);
+        static ControlInputEvent Touch(ControlInputEventType type, float x, float y) =>
+            new(type, new Vector2(x, y), PointerId: 1, PointerKind: ControlPointerKind.Touch);
+
+        Frame();
+        Bounds2 viewport = viewer.ViewportBounds;
+        check(viewport.Width == 400 && viewport.Height == 300 && !viewer.VerticalScrollBar.IsPresentationVisible,
+            "Hidden automatic bars leave the entire viewport available to content");
+        Frame(new ControlInputEvent(ControlInputEventType.PointerMove, new Vector2(200, 150)));
+        check(viewer.HorizontalScrollBar.IsPresentationVisible && viewer.VerticalScrollBar.IsPresentationVisible && viewer.ViewportBounds == viewport,
+            "Hovering the middle of the viewport shows both bars without moving content");
+        Bounds2 thumb = viewer.VerticalScrollBar.ThumbBounds;
+        Vector2 thumbCenter = new(thumb.X + thumb.Width / 2, thumb.Y + thumb.Height / 2);
+        Frame(new ControlInputEvent(ControlInputEventType.PointerDown, thumbCenter));
+        check(ReferenceEquals(workspace.CapturedControl, viewer.VerticalScrollBar),
+            "A visible overlay scrollbar receives mouse input above high-Z content");
+        Frame(new ControlInputEvent(ControlInputEventType.PointerUp, thumbCenter));
+
+        Frame(Touch(ControlInputEventType.PointerDown, 395, 180),
+            Touch(ControlInputEventType.PointerMove, 395, 120), Touch(ControlInputEventType.PointerUp, 395, 120));
+        check(viewer.VerticalScrollBar.Value == 60 && !viewer.VerticalScrollBar.IsPresentationVisible,
+            "The hidden overlay edge passes finger input to the scrollable content");
+
+        viewer.VerticalScrollBarVisibility = ScrollBarVisibility.Always;
+        Frame();
+        check(viewer.VerticalScrollBar.IsPresentationVisible && viewer.ViewportBounds.Width == 380 &&
+            viewer.ViewportBounds.Height == 300 && viewer.VerticalScrollBar.Bounds.Height == 300,
+            "The permanent bar reserves its own space and spans the full edge alongside a hover bar");
+        workspace.ShowScrollBarsOnMouseHover = false;
+        Frame();
+        check(viewer.HorizontalScrollBar.IsPresentationVisible && viewer.ViewportBounds.Height == 280,
+            "Changing the workspace overlay policy refreshes cached scrollbar geometry");
+
+        var list = new ListBox();
+        for (int i = 0; i < 30; i++)
+            list.Items.Add(new SelectorItem($"Item {i}"));
+        using var listWorkspace = new Workspace(list) { ShowScrollBarsOnMouseHover = true };
+        listWorkspace.Update(new ControlInputFrame(size, TimeSpan.Zero,
+            [Touch(ControlInputEventType.PointerDown, 395, 10), Touch(ControlInputEventType.PointerUp, 395, 10)]), layout);
+        check(list.SelectedIndex == 0 && !list.ScrollBar.IsPresentationVisible,
+            "Legacy list items remain touchable under the hidden scrollbar edge");
     }
 
     /// <summary>Checks the activation threshold, inertial release, and interruption in both scroll hosts.</summary>

@@ -137,6 +137,14 @@ public class ListBox : ContainerControl
     internal override void Prepare()
     {
         base.Prepare();
+        bool hoverOverlayEnabled = _legacyScrollBar.UsesHoverOverlay;
+        if (_hoverOverlayEnabled != hoverOverlayEnabled)
+        {
+            _hoverOverlayEnabled = hoverOverlayEnabled;
+            if (_templateHost is null)
+                InvalidateMeasure();
+        }
+
         SelectorItem? selected = SelectedItem;
         HashSet<SelectorItem>? selectedItems = null;
         if (MultiSelect && _dataItems is { NeedsSynchronization: true } && _selected.Count > 0)
@@ -340,6 +348,7 @@ public class ListBox : ContainerControl
 
     /// <summary>Tracks whether the arranged content exceeds its viewport.</summary>
     private bool _showBar;
+    private bool _hoverOverlayEnabled;
 
     /// <summary>Prevents activation after a movement exceeding the tap threshold.</summary>
     private bool _swipeMoved;
@@ -771,7 +780,8 @@ public class ListBox : ContainerControl
         _showBar = ContentHeight(GetColumnCount(available.Width)) > available.Height;
         // Visibility belongs to the final viewport, not an unbounded measurement.
         ScrollBar.Measure(context, available);
-        return new Size2(MathF.Min(available.Width, width + (_showBar ? ConfigScrollBarThickness : 0)), MathF.Min(available.Height, MathF.Max(ItemExtent, MathF.Min(8, Items.Count) * ItemExtent)));
+        float reservedWidth = _showBar && !_hoverOverlayEnabled ? ConfigScrollBarThickness : 0;
+        return new Size2(MathF.Min(available.Width, width + reservedWidth), MathF.Min(available.Height, MathF.Max(ItemExtent, MathF.Min(8, Items.Count) * ItemExtent)));
     }
 
     /// <inheritdoc/>
@@ -792,8 +802,9 @@ public class ListBox : ContainerControl
         }
         _columns = GetColumnCount(contentBounds.Width);
         _showBar = ContentHeight(_columns) > contentBounds.Height;
-        float t = _showBar ? ConfigScrollBarThickness : 0;
-        _viewport = new Bounds2(contentBounds.X, contentBounds.Y, MathF.Max(0, contentBounds.Width - t), contentBounds.Height);
+        float thickness = _showBar ? MathF.Min(contentBounds.Width, ConfigScrollBarThickness) : 0;
+        float reservedWidth = _hoverOverlayEnabled ? 0 : thickness;
+        _viewport = new Bounds2(contentBounds.X, contentBounds.Y, contentBounds.Width - reservedWidth, contentBounds.Height);
         _columns = GetColumnCount(_viewport.Width);
         ScrollBar.IsVisible = _showBar;
         if (_layout is not null)
@@ -802,7 +813,7 @@ public class ListBox : ContainerControl
         ScrollBar.ViewportSize = _viewport.Height;
         ScrollBar.SmallChange = ItemExtent + ItemSpacing;
         ScrollBar.LargeChange = _viewport.Height;
-        ScrollBar.Arrange(new Bounds2(_viewport.Right, contentBounds.Y, t, contentBounds.Height), true);
+        ScrollBar.Arrange(new Bounds2(contentBounds.Right - thickness, contentBounds.Y, thickness, contentBounds.Height), true);
         if (_ensureSelection)
         {
             EnsureVisible(SelectedIndex);

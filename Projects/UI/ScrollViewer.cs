@@ -108,6 +108,7 @@ public sealed class ScrollViewer : ContainerControl
 
     /// <summary>Stores the vertical scrollbar decision for the arranged viewport.</summary>
     private bool _vertical;
+    private bool _hoverOverlayEnabled;
 
     /// <summary>Records whether a descendant has consumed movement before this viewer takes over.</summary>
     private bool _yieldedSwipe;
@@ -267,17 +268,35 @@ public sealed class ScrollViewer : ContainerControl
     /// <param name = "available">The current content measurement constraints.</param>
     /// <param name = "thickness">The logical scrollbar thickness.</param>
     /// <returns>The desired size of the scroll viewer's content area.</returns>
-    private Size2 MeasuredViewport(Size2 available, float thickness) => new(MathF.Min(available.Width, _extent.Width + (_vertical ? thickness : 0)), MathF.Min(available.Height, _extent.Height + (_horizontal ? thickness : 0)));
+    private Size2 MeasuredViewport(Size2 available, float reservedWidth, float reservedHeight) =>
+        new(MathF.Min(available.Width, _extent.Width + (_vertical ? reservedWidth : 0)),
+            MathF.Min(available.Height, _extent.Height + (_horizontal ? reservedHeight : 0)));
 
     /// <inheritdoc/>
     internal override void Prepare()
     {
         base.Prepare();
+        bool hoverOverlayEnabled = Workspace?.ShowScrollBarsOnMouseHover == true;
+        if (_hoverOverlayEnabled != hoverOverlayEnabled)
+        {
+            _hoverOverlayEnabled = hoverOverlayEnabled;
+            _layoutCacheReady = false;
+            InvalidateMeasure();
+        }
+
         if (ReferenceEquals(_content, ConfigContent))
             return;
         if (ConfigContent is Control child)
             PresentOwnedChild(child, true);
         _content = ConfigContent;
+    }
+
+    /// <inheritdoc/>
+    internal override int CompareChildOrder(Control first, Control second)
+    {
+        bool firstIsBar = ReferenceEquals(first, HorizontalScrollBar) || ReferenceEquals(first, VerticalScrollBar);
+        bool secondIsBar = ReferenceEquals(second, HorizontalScrollBar) || ReferenceEquals(second, VerticalScrollBar);
+        return firstIsBar == secondIsBar ? base.CompareChildOrder(first, second) : firstIsBar ? 1 : -1;
     }
 
     /// <inheritdoc/>
@@ -300,14 +319,16 @@ public sealed class ScrollViewer : ContainerControl
         _layoutCacheReady = false;
         _content?.Measure(context, new Size2(HorizontalScrollBarVisibility == ScrollBarVisibility.Hidden ? available.Width : float.PositiveInfinity, VerticalScrollBarVisibility == ScrollBarVisibility.Hidden ? available.Height : float.PositiveInfinity));
         _extent = _content?.DesiredSize ?? Size2.Zero;
+        float reservedWidth = VerticalScrollBar.UsesHoverOverlay ? 0 : thickness;
+        float reservedHeight = HorizontalScrollBar.UsesHoverOverlay ? 0 : thickness;
         _horizontal = HorizontalScrollBarVisibility == ScrollBarVisibility.Always;
         _vertical = VerticalScrollBarVisibility == ScrollBarVisibility.Always;
         for (int i = 0; i < 3; i++)
         {
             if (HorizontalScrollBarVisibility == ScrollBarVisibility.Auto)
-                _horizontal = _extent.Width > MathF.Max(0, available.Width - (_vertical ? thickness : 0));
+                _horizontal = _extent.Width > MathF.Max(0, available.Width - (_vertical ? reservedWidth : 0));
             if (VerticalScrollBarVisibility == ScrollBarVisibility.Auto)
-                _vertical = _extent.Height > MathF.Max(0, available.Height - (_horizontal ? thickness : 0));
+                _vertical = _extent.Height > MathF.Max(0, available.Height - (_horizontal ? reservedHeight : 0));
         }
 
         // Measurement can be unbounded; publish visibility only for the arranged viewport.
@@ -316,14 +337,20 @@ public sealed class ScrollViewer : ContainerControl
         _lastAvailable = available;
         _lastDefaultFont = context.DefaultFont;
         _cachedContent = _content;
-        _cachedDesiredSize = MeasuredViewport(available, thickness);
+        _cachedDesiredSize = MeasuredViewport(available, reservedWidth, reservedHeight);
         return _cachedDesiredSize;
     }
 
     /// <inheritdoc/>
     protected override void ArrangeOverride(Bounds2 contentBounds)
     {
-        float t = ConfigScrollBarThickness;
+        float thickness = ConfigScrollBarThickness;
+        bool verticalOverlay = VerticalScrollBar.UsesHoverOverlay;
+        bool horizontalOverlay = HorizontalScrollBar.UsesHoverOverlay;
+        float barWidth = MathF.Min(contentBounds.Width, thickness);
+        float barHeight = MathF.Min(contentBounds.Height, thickness);
+        float reservedWidth = verticalOverlay ? 0 : barWidth;
+        float reservedHeight = horizontalOverlay ? 0 : barHeight;
         bool reuse = CanReuseGeometry && _lastArrangedSize.Width == contentBounds.Width && _lastArrangedSize.Height == contentBounds.Height;
         _layoutCacheReady = false;
         if (!reuse)
@@ -336,14 +363,16 @@ public sealed class ScrollViewer : ContainerControl
                 bool previousVertical = _vertical;
                 if (_layout is not null && _content is not null)
                 {
-                    _content.Measure(_layout, new Size2(HorizontalScrollBarVisibility == ScrollBarVisibility.Hidden ? MathF.Max(0, contentBounds.Width - (_vertical ? t : 0)) : float.PositiveInfinity, VerticalScrollBarVisibility == ScrollBarVisibility.Hidden ? MathF.Max(0, contentBounds.Height - (_horizontal ? t : 0)) : float.PositiveInfinity));
+                    _content.Measure(_layout, new Size2(
+                        HorizontalScrollBarVisibility == ScrollBarVisibility.Hidden ? contentBounds.Width - (_vertical ? reservedWidth : 0) : float.PositiveInfinity,
+                        VerticalScrollBarVisibility == ScrollBarVisibility.Hidden ? contentBounds.Height - (_horizontal ? reservedHeight : 0) : float.PositiveInfinity));
                     _extent = _content.DesiredSize;
                 }
 
                 if (HorizontalScrollBarVisibility == ScrollBarVisibility.Auto)
-                    _horizontal = _extent.Width > MathF.Max(0, contentBounds.Width - (_vertical ? t : 0));
+                    _horizontal = _extent.Width > contentBounds.Width - (_vertical ? reservedWidth : 0);
                 if (VerticalScrollBarVisibility == ScrollBarVisibility.Auto)
-                    _vertical = _extent.Height > MathF.Max(0, contentBounds.Height - (_horizontal ? t : 0));
+                    _vertical = _extent.Height > contentBounds.Height - (_horizontal ? reservedHeight : 0);
 
                 if (_horizontal == previousHorizontal && _vertical == previousVertical &&
                     (_content?.HasValidMeasure ?? true))
@@ -359,7 +388,9 @@ public sealed class ScrollViewer : ContainerControl
             VerticalScrollBar.Measure(_layout, new Size2(contentBounds.Width, contentBounds.Height));
         }
 
-        _viewport = new Bounds2(contentBounds.X, contentBounds.Y, MathF.Max(0, contentBounds.Width - (_vertical ? t : 0)), MathF.Max(0, contentBounds.Height - (_horizontal ? t : 0)));
+        _viewport = new Bounds2(contentBounds.X, contentBounds.Y,
+            contentBounds.Width - (_vertical ? reservedWidth : 0),
+            contentBounds.Height - (_horizontal ? reservedHeight : 0));
         HorizontalScrollBar.Maximum = MathF.Max(0, _extent.Width - _viewport.Width);
         HorizontalScrollBar.ViewportSize = _viewport.Width;
         HorizontalScrollBar.LargeChange = _viewport.Width;
@@ -368,8 +399,11 @@ public sealed class ScrollViewer : ContainerControl
         VerticalScrollBar.ViewportSize = _viewport.Height;
         VerticalScrollBar.LargeChange = _viewport.Height;
         VerticalScrollBar.SmallChange = 24;
-        HorizontalScrollBar.Arrange(new Bounds2(contentBounds.X, _viewport.Bottom, _viewport.Width, t), true);
-        VerticalScrollBar.Arrange(new Bounds2(_viewport.Right, contentBounds.Y, t, _viewport.Height), true);
+        // Reserved bars span the whole edge when the other axis uses a hover overlay.
+        float rightInset = _vertical && (!verticalOverlay || horizontalOverlay) ? barWidth : 0;
+        float bottomInset = _horizontal && (!horizontalOverlay || verticalOverlay) ? barHeight : 0;
+        HorizontalScrollBar.Arrange(new Bounds2(contentBounds.X, contentBounds.Bottom - barHeight, contentBounds.Width - rightInset, barHeight), true);
+        VerticalScrollBar.Arrange(new Bounds2(contentBounds.Right - barWidth, contentBounds.Y, barWidth, contentBounds.Height - bottomInset), true);
         ArrangeContent();
         _lastArrangedSize = new Size2(contentBounds.Width, contentBounds.Height);
         _layoutCacheReady = true;
@@ -638,8 +672,9 @@ public sealed class ScrollViewer : ContainerControl
     protected override void OnDraw(ControlDrawContext context)
     {
         base.OnDraw(context);
-        if (_horizontal && _vertical && HorizontalScrollBar.IsPresentationVisible && VerticalScrollBar.IsPresentationVisible)
-            context.DrawSkinPart(this, "Corner", new Bounds2(_viewport.Right - Bounds.X, _viewport.Bottom - Bounds.Y, ConfigScrollBarThickness, ConfigScrollBarThickness));
+        if (_horizontal && _vertical && !HorizontalScrollBar.UsesHoverOverlay && !VerticalScrollBar.UsesHoverOverlay)
+            context.DrawSkinPart(this, "Corner", new Bounds2(_viewport.Right - Bounds.X, _viewport.Bottom - Bounds.Y,
+                VerticalScrollBar.Bounds.Width, HorizontalScrollBar.Bounds.Height));
     }
 
     /// <summary>

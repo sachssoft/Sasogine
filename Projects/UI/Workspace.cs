@@ -104,9 +104,22 @@ public sealed class Workspace : Element, IDisposable
     /// <summary>Gets the elapsed time used to sample scroll gestures in this workspace.</summary>
     internal double ScrollInputTime { get; private set; }
 
-    /// <summary>Gets or sets whether scrollbars draw only while hovered or captured by the mouse.</summary>
-    /// <remarks>Hidden artwork preserves the viewport and its scroll range.</remarks>
-    public bool ShowScrollBarsOnMouseHover { get; set; }
+    /// <summary>Gets or sets whether automatic viewport scrollbars overlay the content on mouse hover.</summary>
+    /// <remarks>Always-visible scrollbars keep their own layout space.</remarks>
+    public bool ShowScrollBarsOnMouseHover
+    {
+        get => _showScrollBarsOnMouseHover;
+        set
+        {
+            if (_showScrollBarsOnMouseHover == value)
+                return;
+
+            _showScrollBarsOnMouseHover = value;
+            InvalidateLayout();
+        }
+    }
+
+    private bool _showScrollBarsOnMouseHover;
 
     /// <summary>Gets or sets whether sampled touch contacts take precedence over simultaneous mouse events.</summary>
     /// <remarks>Host sampling omits unchanged pointer positions in this mode.</remarks>
@@ -1198,9 +1211,6 @@ public sealed class Workspace : Element, IDisposable
             if (input.Type == ControlInputEventType.PointerDown && DismissOutsidePopup(_pointer))
                 return;
             target = GetCapturedControl(input.Pointer) ?? hit;
-            if (ShowScrollBarsOnMouseHover && input.PointerKind == ControlPointerKind.Touch && target is ScrollBar bar)
-                target = bar.Parent;
-
             // Older controls have one gesture state. Never let another contact steal it.
             if (CapturedByAnotherPointer(target, input.Pointer))
                 return;
@@ -1288,7 +1298,7 @@ public sealed class Workspace : Element, IDisposable
             if (capture is ScrollViewer { IsSwiping: true } or ListBox { IsSwiping: true })
                 hit = _hoverPointer.Kind == ControlPointerKind.Mouse ? capture : null;
             else
-                hit = HitTarget(_pointer);
+                hit = HitTarget(_pointer, allowHoverScrollBars: _hoverPointer.Kind == ControlPointerKind.Mouse);
         }
 
         _nextHoverPath.Clear();
@@ -1321,8 +1331,9 @@ public sealed class Workspace : Element, IDisposable
     /// <param name="clip">The ancestor clip in workspace coordinates.</param>
     /// <param name="point">The pointer in workspace coordinates.</param>
     /// <param name="parentTransform">The composed transform of the already visited ancestors.</param>
+    /// <param name="allowHoverScrollBars">Whether the input may hit a visible overlay scrollbar.</param>
     /// <returns>The hit control, if any.</returns>
-    private static Control? Hit(Control control, Bounds2 clip, Vector2 point, Matrix parentTransform)
+    private static Control? Hit(Control control, Bounds2 clip, Vector2 point, Matrix parentTransform, bool allowHoverScrollBars)
     {
         if (control.Workspace is null || !control.IsVisible || !control.IsEnabled || !control.IsHitTestVisible ||
             !Control.Contains(clip, point.X, point.Y))
@@ -1341,6 +1352,9 @@ public sealed class Workspace : Element, IDisposable
                 return null;
         }
 
+        if (control is ScrollBar { UsesHoverOverlay: true } bar && (!allowHoverScrollBars || !bar.IsPresentationVisible))
+            return null;
+
         if (control is ContainerControl container)
         {
             Control[] children = container.OrderedChildren;
@@ -1350,7 +1364,7 @@ public sealed class Workspace : Element, IDisposable
                 if (!ReferenceEquals(child.Parent, container))
                     continue;
                 Bounds2 childClip = Control.Intersect(visible, ControlTransforms.TransformBounds(control.GetChildClip(child), transform));
-                Control? hit = Hit(child, childClip, point, transform);
+                Control? hit = Hit(child, childClip, point, transform, allowHoverScrollBars);
                 if (hit is not null)
                     return hit;
             }
@@ -1625,20 +1639,20 @@ public sealed class Workspace : Element, IDisposable
         return true;
     }
 
-    private Control? HitTarget(Vector2 point)
+    private Control? HitTarget(Vector2 point, bool allowHoverScrollBars = true)
     {
         var bounds = new Bounds2(0, 0, Size.Width, Size.Height);
         for (int i = _overlays.Count - 1; i >= 0; i--)
         {
             ControlOverlay e = _overlays[i];
-            Control? hit = Hit(e.Control, bounds, point, Matrix.Identity);
+            Control? hit = Hit(e.Control, bounds, point, Matrix.Identity, allowHoverScrollBars);
             if (hit is not null)
                 return hit;
             if (e.Modal)
                 return null;
         }
 
-        return Hit(Content, bounds, point, Matrix.Identity);
+        return Hit(Content, bounds, point, Matrix.Identity, allowHoverScrollBars);
     }
 
     private void LayoutOverlays()

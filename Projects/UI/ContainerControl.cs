@@ -56,12 +56,18 @@ public abstract class ContainerControl : Control
     /// </remarks>
     public ControlCollection Children => _view;
 
+    /// <summary>Compares two children for drawing and hit testing.</summary>
+    /// <param name="first">The first child to order.</param>
+    /// <param name="second">The second child to order.</param>
+    /// <returns>A negative value when the first child draws before the second.</returns>
+    internal virtual int CompareChildOrder(Control first, Control second) => first.ZIndex.CompareTo(second.ZIndex);
+
     /// <summary>
-    /// Gets the committed child controls sorted by ascending Z-index.
+    /// Gets the committed child controls in drawing order.
     /// </summary>
     /// <remarks>
     /// The cached array is rebuilt when its ordering is invalidated.
-    /// Controls with equal Z-index values retain their committed insertion order.
+    /// Children that compare equal retain their committed insertion order.
     /// </remarks>
     internal Control[] OrderedChildren
     {
@@ -80,7 +86,7 @@ public abstract class ContainerControl : Control
                 var item = _ordered[i];
                 int j = i - 1;
 
-                while (j >= 0 && _ordered[j].ZIndex > item.ZIndex)
+                while (j >= 0 && CompareChildOrder(_ordered[j], item) > 0)
                 {
                     _ordered[j + 1] = _ordered[j];
                     j--;
