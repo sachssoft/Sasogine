@@ -93,20 +93,69 @@ public sealed class Workspace : Element, IDisposable
 
     /// <summary>Tracks committed membership and ordering changes separately from layout.</summary>
     private bool _controlsDirty = true;
+    private ControlPointer _hoverPointer;
+
+    /// <summary>Gets or sets whether pressing and dragging the mouse can pan scroll viewers and lists.</summary>
+    public bool IsMouseDragScrollingEnabled { get; set; }
+
+    /// <summary>Gets or sets whether scroll gestures start smoothly and decelerate after release.</summary>
+    public bool IsSmoothScrollingEnabled { get; set; }
+
+    /// <summary>Gets the elapsed time used to sample scroll gestures in this workspace.</summary>
+    internal double ScrollInputTime { get; private set; }
+
+    /// <summary>Gets or sets whether scrollbars draw only while hovered or captured by the mouse.</summary>
+    /// <remarks>Hidden artwork preserves the viewport and its scroll range.</remarks>
+    public bool ShowScrollBarsOnMouseHover { get; set; }
+
+    /// <summary>Gets or sets whether sampled touch contacts take precedence over simultaneous mouse events.</summary>
+    /// <remarks>Host sampling omits unchanged pointer positions in this mode.</remarks>
+    public bool PreferTouchInput { get; set; }
+
+    /// <summary>Gets whether the current hover path belongs to the mouse.</summary>
+    internal bool HasMouseHover => _hasPointer && _hoverPointer.Kind == ControlPointerKind.Mouse;
 
     private bool _layoutDirty = true;
 
     /// <summary>Tracks changes that require preparing controls before measurement.</summary>
     private bool _prepareDirty = true;
+    private bool _prepareAll = true;
+    private bool _measurePending = true;
+    private bool _layoutPassActive;
+    private ulong _layoutEpoch = 1;
+
+    /// <summary>Gets the epoch for coalescing requests outside an active layout pass.</summary>
+    // A control can invalidate an ancestor that has already started or completed its work in this pass.
+    internal ulong LayoutInvalidationEpoch => _layoutPassActive ? 0 : _layoutEpoch;
+
+    /// <summary>Gets the epoch for coalescing visual revisions between frame boundaries.</summary>
+    internal ulong VisualInvalidationEpoch { get; private set; } = 1;
+
+    /// <summary>Starts a new invalidation epoch when local layout consumes cached work.</summary>
+    internal void ObserveExternalLayout()
+    {
+        if (!_layoutPassActive)
+            _layoutEpoch = unchecked(_layoutEpoch + 1);
+    }
+
     private int _styleRevision = -1;
     private Size2 _previousSize;
     /// <summary>
     /// Invalidates layout after explicit property or tree changes.
     /// </summary>
-    /// <param name="prepare">Whether control preparation and measurement may have changed.</param>
-    internal void InvalidateLayout(bool prepare = true)
+    internal void InvalidateLayout()
+    {
+        _prepareAll = true;
+        ScheduleControlLayout(measure: true, prepare: true);
+    }
+
+    /// <summary>Schedules the work requested by a control for the next layout pass.</summary>
+    /// <param name="measure">Whether measurement is required.</param>
+    /// <param name="prepare">Whether preparation is required.</param>
+    internal void ScheduleControlLayout(bool measure, bool prepare)
     {
         _layoutDirty = true;
+        _measurePending |= measure;
         _prepareDirty |= prepare;
     }
 
@@ -114,6 +163,8 @@ public sealed class Workspace : Element, IDisposable
     internal void InvalidateControlTree()
     {
         _controlsDirty = true;
+        _layoutEpoch = unchecked(_layoutEpoch + 1);
+        VisualInvalidationEpoch = unchecked(VisualInvalidationEpoch + 1);
         InvalidateFontInheritance();
         InvalidateLayout();
     }
@@ -576,7 +627,7 @@ public sealed class Workspace : Element, IDisposable
         if (_busy)
             throw new InvalidOperationException("UI processing cannot be reentered.");
         float dpi = Dpi;
-        ControlInputFrame frame = sampler.SampleReusable(mouse, keyboard, touches, viewport, dpi / 96f, elapsed, active);
+        ControlInputFrame frame = sampler.SampleReusable(mouse, keyboard, touches, viewport, dpi / 96f, elapsed, active, PreferTouchInput);
         ProcessFrameCore(frame, layout, viewport, dpi);
     }
 
@@ -606,7 +657,10 @@ public sealed class Workspace : Element, IDisposable
         _hasFrame = false;
         _frameViewport = viewport;
         _frameDpi = frameDpi;
+        if (IsSmoothScrollingEnabled)
+            ScrollInputTime += frame.Elapsed.TotalSeconds;
         _busy = true;
+        VisualInvalidationEpoch = unchecked(VisualInvalidationEpoch + 1);
         try
         {
             while (_posted.TryDequeue(out Action? posted))
@@ -654,12 +708,13 @@ public sealed class Workspace : Element, IDisposable
             Commit();
             Layout();
             ValidateInteraction();
-            RefreshHover();
-            UpdateToolTip(frame.Elapsed);
+            Control? hover = RefreshHover();
+            UpdateToolTip(frame.Elapsed, hover);
             _hasFrame = true;
         }
         finally
         {
+            VisualInvalidationEpoch = unchecked(VisualInvalidationEpoch + 1);
             _busy = false;
         }
     }
@@ -732,6 +787,7 @@ public sealed class Workspace : Element, IDisposable
         if (!Size.Equals(context.LogicalSize) || !ReferenceEquals(_layout?.DefaultFont, context.DefaultFont))
             throw new InvalidOperationException("Drawing must use the processed viewport size and default font.");
         _busy = true;
+        VisualInvalidationEpoch = unchecked(VisualInvalidationEpoch + 1);
         _drawing = true;
         try
         {
@@ -755,6 +811,7 @@ public sealed class Workspace : Element, IDisposable
         finally
         {
             _drawing = false;
+            VisualInvalidationEpoch = unchecked(VisualInvalidationEpoch + 1);
             _busy = false;
         }
     }
@@ -787,6 +844,7 @@ public sealed class Workspace : Element, IDisposable
         if (_busy || !_hasFrame || !Size.Equals(context.LogicalSize) || !ReferenceEquals(_layout?.DefaultFont, context.DefaultFont))
             throw new InvalidOperationException("Process a matching UI frame before drawing the picking overlay.");
         _busy = true;
+        VisualInvalidationEpoch = unchecked(VisualInvalidationEpoch + 1);
         _drawing = true;
         try
         {
@@ -804,6 +862,7 @@ public sealed class Workspace : Element, IDisposable
         finally
         {
             _drawing = false;
+            VisualInvalidationEpoch = unchecked(VisualInvalidationEpoch + 1);
             _busy = false;
         }
     }
@@ -931,13 +990,22 @@ public sealed class Workspace : Element, IDisposable
         }
     }
 
-    internal static void PrepareTree(Control control)
+    /// <summary>Prepares a control tree or follows only branches with pending preparation.</summary>
+    /// <param name="control">The root of the subtree.</param>
+    /// <param name="dirtyOnly">Whether to skip branches without pending preparation.</param>
+    internal static void PrepareTree(Control control, bool dirtyOnly = false)
     {
+        if (!control.BeginPreparation(dirtyOnly))
+            return;
+
+#if LAYOUT_METRICS
+        LayoutMetrics.Prepared++;
+#endif
         control.Prepare();
         if (control is ContainerControl container)
             foreach (Control child in container.OrderedChildren)
                 if (ReferenceEquals(child.CommittedParent, container) && ReferenceEquals(child.Parent, container))
-                    PrepareTree(child);
+                    PrepareTree(child, dirtyOnly);
     }
 
     private void Layout()
@@ -963,20 +1031,52 @@ public sealed class Workspace : Element, IDisposable
         bool geometryChanged = _layoutDirty;
         if (_layoutDirty)
         {
+#if LAYOUT_METRICS
+            LayoutMetrics.Passes++;
+#endif
             _layoutDirty = false;
-            RebuildControls();
-            if (_prepareDirty)
+            _layoutEpoch = unchecked(_layoutEpoch + 1);
+            _layoutPassActive = true;
+            try
             {
-                _prepareDirty = false;
-                PrepareTree(Content);
-                foreach (ControlOverlay overlay in _overlays)
-                    PrepareTree(overlay.Control);
                 RebuildControls();
-            }
+                if (_prepareDirty)
+                {
+                    bool dirtyOnly = !_prepareAll;
+                    _prepareDirty = false;
+                    _prepareAll = false;
+                    try
+                    {
+                        PrepareTree(Content, dirtyOnly);
+                        foreach (ControlOverlay overlay in _overlays)
+                            PrepareTree(overlay.Control, dirtyOnly);
+                    }
+                    catch
+                    {
+                        _prepareDirty = true;
+                        _prepareAll = true;
+                        throw;
+                    }
+                    RebuildControls();
+                }
 
-            Content.Measure(_layout!, Size);
-            Content.Arrange(new Bounds2(0, 0, Size.Width, Size.Height));
-            LayoutOverlays();
+                bool measure = _measurePending || !Content.HasValidMeasure;
+                _measurePending = false;
+                if (measure)
+                    Content.Measure(_layout!, Size);
+
+                Content.Arrange(new Bounds2(0, 0, Size.Width, Size.Height));
+                LayoutOverlays();
+            }
+            catch
+            {
+                _layoutDirty = true;
+                throw;
+            }
+            finally
+            {
+                _layoutPassActive = false;
+            }
         }
 
         int scrollCount = _scrollViewers.Count;
@@ -1092,11 +1192,15 @@ public sealed class Workspace : Element, IDisposable
         if (pointer)
         {
             _pointer = input.Position;
+            _hoverPointer = input.Pointer;
             _hasPointer = true;
             Control? hit = RefreshHover();
             if (input.Type == ControlInputEventType.PointerDown && DismissOutsidePopup(_pointer))
                 return;
             target = GetCapturedControl(input.Pointer) ?? hit;
+            if (ShowScrollBarsOnMouseHover && input.PointerKind == ControlPointerKind.Touch && target is ScrollBar bar)
+                target = bar.Parent;
+
             // Older controls have one gesture state. Never let another contact steal it.
             if (CapturedByAnotherPointer(target, input.Pointer))
                 return;
@@ -1176,7 +1280,17 @@ public sealed class Workspace : Element, IDisposable
     /// <returns>The hit target used for hover and pointer dispatch.</returns>
     private Control? RefreshHover()
     {
-        Control? hit = _hasPointer ? HitTarget(_pointer) : null;
+        Control? hit = null;
+        if (_hasPointer)
+        {
+            // Once a scroll host owns the gesture, routing no longer needs the row beneath the pointer.
+            Control? capture = PreferTouchInput ? GetCapturedControl(_hoverPointer) : null;
+            if (capture is ScrollViewer { IsSwiping: true } or ListBox { IsSwiping: true })
+                hit = _hoverPointer.Kind == ControlPointerKind.Mouse ? capture : null;
+            else
+                hit = HitTarget(_pointer);
+        }
+
         _nextHoverPath.Clear();
         for (Control? node = hit; node is not null; node = node.Parent)
             _nextHoverPath.Add(node);
@@ -1270,7 +1384,7 @@ public sealed class Workspace : Element, IDisposable
     /// <param name="parentTransform">The composed transform of the ancestors.</param>
     private static void DrawTree(Control control, Bounds2 clip, float opacity, ControlDrawContext context, Matrix parentTransform)
     {
-        if (!control.IsVisible)
+        if (!control.IsVisible || control is ScrollBar { IsPresentationVisible: false })
             return;
         Matrix transform = ControlTransforms.Compose(control, parentTransform);
         clip = Control.Intersect(clip, ControlTransforms.TransformBounds(control.Bounds, transform));
@@ -1586,12 +1700,14 @@ public sealed class Workspace : Element, IDisposable
         _visibleToolTip = null;
     }
 
-    private void UpdateToolTip(TimeSpan elapsed)
+    private void UpdateToolTip(TimeSpan elapsed, Control? hover)
     {
-        Control? owner = _hasPointer && !_tipSuppressed && _captures.Count == 0 ? HitTarget(_pointer) : null;
+        Control? owner = null;
+        if (_hasPointer && !_tipSuppressed && _captures.Count == 0)
+            owner = PreferTouchInput ? hover : HitTarget(_pointer);
         while (owner is not null && owner.ToolTip.Length == 0 && owner.ToolTipContent is null)
             owner = owner.Parent;
-        if (owner is not null && !IsInActiveScope(owner))
+        if (owner is not null && (!IsInActiveScope(owner) || PreferTouchInput && !owner.IsAvailable(true)))
             owner = null;
         string text = owner?.ToolTip ?? string.Empty;
         Control? content = owner?.ToolTipContent;
