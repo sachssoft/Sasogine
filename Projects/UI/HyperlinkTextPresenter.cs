@@ -14,7 +14,7 @@ internal sealed class HyperlinkTextPresenter : TextBlock
     private readonly List<Bounds2> _underlines = new();
 
     /// <summary>Stores the font used for cached underline geometry.</summary>
-    private IControlFont? _underlineFont;
+    private IFont? _underlineFont;
 
     /// <summary>Whether all cached underline measurements completed successfully.</summary>
     private bool _underlinesValid;
@@ -36,7 +36,7 @@ internal sealed class HyperlinkTextPresenter : TextBlock
     protected override Size2 MeasureOverride(ControlLayoutContext context, Size2 available)
     {
         Size2 desired = base.MeasureOverride(context, available);
-        IControlFont font = GetFont(context);
+        IFont font = GetFont(context);
         if (!_underlinesValid || !ReferenceEquals(_underlineFont, font) || _underlineText != DisplayText)
         {
             _underlinesValid = false;

@@ -9,7 +9,7 @@ public class ScriptTextBox : TextBox
     private bool _highlightingDirty = true;
     private readonly List<SyntaxSpan> _spans = new();
     private static readonly System.ComponentModel.PropertyChangedEventArgs HighlighterArgs = new(nameof(Highlighter));
-    private IControlFont? _cachedFont;
+    private IFont? _cachedFont;
     private List<ScriptToken> _tokens = new();
     private IReadOnlyList<ScriptToken> _view = Array.Empty<ScriptToken>();
     private readonly List<(int Start, int Count)> _lines = new();
@@ -87,7 +87,7 @@ public class ScriptTextBox : TextBox
         base.OnFontChanged();
     }
 
-    private void Cache(IControlFont font)
+    private void Cache(IFont font)
     {
         ISyntaxHighlighter highlighter = Highlighter ?? ScriptSyntaxHighlighter.ForLanguage(Language);
         bool classify = _highlightingDirty || _cachedText != Text || !ReferenceEquals(_cachedHighlighter, highlighter);
@@ -185,7 +185,7 @@ public class ScriptTextBox : TextBox
     }
 
     /// <inheritdoc/>
-    protected override void DrawTextLine(ControlDrawContext context, IControlFont font, string line, int lineIndex, Vector2 position, Color color)
+    protected override void DrawTextLine(ControlDrawContext context, IFont font, string line, int lineIndex, Vector2 position, Color color)
     {
         if (IsPassword)
         {

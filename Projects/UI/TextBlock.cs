@@ -46,7 +46,7 @@ public class TextBlock : Control
 
     private string _displayText = string.Empty;
     private string? _measuredText;
-    private IControlFont? _measuredFont;
+    private IFont? _measuredFont;
     private Size2 _textSize;
     private Vector2 _textPosition;
     private float _wrapWidth;

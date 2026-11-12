@@ -116,7 +116,7 @@ public class TreeView : ContainerControl
     private Bounds2 _viewport;
     private float _extent;
     private bool _ensureVisible;
-    private IControlFont? _font;
+    private IFont? _font;
     /// <summary>
     /// Creates a tree.
     /// </summary>

@@ -55,7 +55,7 @@ public sealed class ScrollViewer : ContainerControl
     private ControlPointer _swipePointer;
 
     /// <summary>Retains the default font identity used by the last complete content measurement.</summary>
-    private IControlFont? _lastDefaultFont;
+    private IFont? _lastDefaultFont;
 
     /// <summary>Retains the desired size produced by the last successful measurement.</summary>
     private Size2 _cachedDesiredSize;

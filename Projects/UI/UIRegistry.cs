@@ -16,11 +16,11 @@ public sealed class UIRegistry
     /// Creates the standard styles and all built-in control factories.
     /// </summary>
     /// <param name = "fonts">The borrowed engine registry, or null to create a registry.</param>
-    /// <param name = "fontFactory">An optional adapter factory. Each workspace owns and disposes the returned adapters; never return caller-owned fonts.</param>
-    public UIRegistry(FontRegistry? fonts = null, Func<FontFace, int, IControlFont>? fontFactory = null)
+    /// <param name = "fontBackend">The optional caller-owned backend used to resolve fonts.</param>
+    public UIRegistry(FontRegistry? fonts = null, IFontBackend? fontBackend = null)
     {
         Fonts = fonts ?? new FontRegistry();
-        FontFactory = fontFactory;
+        FontBackend = fontBackend;
         Styles = CreateStandardStyles();
         Register("Panel", static () => new Panel());
         Register(nameof(ItemsControl), static () => new ItemsControl());
@@ -39,7 +39,8 @@ public sealed class UIRegistry
     /// Gets the existing engine registry borrowed by this UI. Register families before updating.
     /// </summary>
     public FontRegistry Fonts { get; }
-    internal Func<FontFace, int, IControlFont>? FontFactory { get; }
+    /// <summary>Gets the optional backend for this workspace's text.</summary>
+    public IFontBackend? FontBackend { get; }
     /// <summary>
     /// Gets the styles owned by this root.
     /// </summary>

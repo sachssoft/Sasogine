@@ -21,7 +21,7 @@ public class TextBox : Control
     private double _blink;
     private char? _pendingSurrogate;
     private string _observed = string.Empty;
-    private IControlFont? _font;
+    private IFont? _font;
     private float _lineHeight = 16, _scrollX, _scrollY;
     private readonly Stack<(string Text, int Caret, int Anchor)> _undo = new(), _redo = new();
     /// <summary>
@@ -594,7 +594,7 @@ public class TextBox : Control
     /// <summary>
     /// Draws a visible text line. Derived editors may use cached syntax runs.
     /// </summary>
-    protected virtual void DrawTextLine(ControlDrawContext context, IControlFont font, string line, int lineIndex, Vector2 position, Color color) => context.DrawText(font, line, position, color);
+    protected virtual void DrawTextLine(ControlDrawContext context, IFont font, string line, int lineIndex, Vector2 position, Color color) => context.DrawText(font, line, position, color);
     private StyleProperty<string> _styleText = new(string.Empty);
     private static readonly System.ComponentModel.PropertyChangedEventArgs TextChangedArgs = new(nameof(Text));
     internal string ConfigText

@@ -296,13 +296,13 @@ public class ListBox : ContainerControl
     private ElementCollection<SelectorItem>? _ownedItems;
 
     /// <summary>Stores the font used to measure the current item captions.</summary>
-    private IControlFont? _itemWidthFont;
+    private IFont? _itemWidthFont;
 
     /// <summary>Stores the preferred width of the current item captions.</summary>
     private float _itemWidth;
 
     /// <summary>Caches the font resolved during measurement for item rendering.</summary>
-    private IControlFont? _font;
+    private IFont? _font;
 
     /// <summary>Stores the styled touch-scroll policy.</summary>
     private StyleProperty<bool> _styleIsSwipeEnabled = new(true);
@@ -605,7 +605,7 @@ public class ListBox : ContainerControl
     /// </summary>
     /// <param name = "font">The font used to measure item labels.</param>
     /// <returns>The preferred logical list width.</returns>
-    protected virtual float MeasureItems(IControlFont font)
+    protected virtual float MeasureItems(IFont font)
     {
         if (ReferenceEquals(_itemWidthFont, font))
             return _itemWidth;
@@ -1196,7 +1196,7 @@ public class ListBox : ContainerControl
     /// <param name = "index">The source item index.</param>
     /// <param name = "row">The item bounds relative to this list.</param>
     /// <param name = "font">The resolved item font.</param>
-    protected virtual void DrawItem(ControlDrawContext context, int index, Bounds2 row, IControlFont font)
+    protected virtual void DrawItem(ControlDrawContext context, int index, Bounds2 row, IFont font)
     {
         SelectorItem item = Items[index];
         float x = row.X + 8;

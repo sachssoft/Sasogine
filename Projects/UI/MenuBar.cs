@@ -90,7 +90,7 @@ public class MenuBar : Control
     private ElementCollection<MenuEntry>? _ownedItems;
 
     /// <summary>Caches the font used to measure entry captions.</summary>
-    private IControlFont? _font;
+    private IFont? _font;
 
     /// <summary>Stores the styled command row height and optional local override.</summary>
     private StyleProperty<float> _styleItemHeight = new(30f);
