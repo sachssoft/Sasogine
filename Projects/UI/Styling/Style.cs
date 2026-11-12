@@ -476,9 +476,9 @@ public sealed class Style
     /// <summary>
     /// Typed shorthand for the string value Font.
     /// </summary>
-    public  IControlFont? Font
+    public  IFont? Font
     {
-        get => _values.TryGetValue("Font", out string? text) ? ShorthandConverters.Convert<IControlFont?>("Font", text) : null;
+        get => _values.TryGetValue("Font", out string? text) ? ShorthandConverters.Convert<IFont?>("Font", text) : null;
         set => this["Font"] = ShorthandConverters.Format("Font", value);
     }
     /// <summary>

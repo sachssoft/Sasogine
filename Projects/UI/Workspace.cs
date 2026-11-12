@@ -331,6 +331,11 @@ public sealed class Workspace : Element, IDisposable
     private bool _hasPointer;
     private Vector2 _pointer;
     private ControlLayoutContext? _layout;
+    private GameApplicationBase? _hostApplication;
+    private ControlLayoutContext? _hostLayout;
+    private ControlInputSampler? _hostInput;
+    private ControlDrawContext? _hostDraw;
+    private GraphicsDevice? _hostDrawDevice;
     /// <summary>
     /// Attaches an unowned control tree.
     /// </summary>
@@ -351,11 +356,46 @@ public sealed class Workspace : Element, IDisposable
         RebuildControls();
     }
 
-    private ControlFontCache? _fontCache;
+    /// <summary>Connects the workspace to an application for managed input, layout, and drawing.</summary>
+    /// <param name="application">The application supplying focus state, graphics, and services.</param>
+    /// <param name="defaultFont">The optional caller-owned default font.</param>
+    /// <exception cref="InvalidOperationException">The workspace is processing a frame or already has a host.</exception>
+    public void Initialize(GameApplicationBase application, IFont? defaultFont = null)
+    {
+        ArgumentNullException.ThrowIfNull(application);
+        Initialize(application, defaultFont, application.GetService<IFontBackend>());
+    }
+
+    internal void Initialize(GameApplicationBase application, IFont? defaultFont, IFontBackend? applicationBackend)
+    {
+        VerifyTreeMutation();
+        if (_busy || _hostApplication is not null)
+            throw new InvalidOperationException("Initialize the workspace once, outside frame processing.");
+
+        SetApplicationFontBackend(applicationBackend);
+        InitializeGraphics(application.GraphicsDevice);
+        _hostLayout = defaultFont is null ? ControlLayoutContext.Default : new ControlLayoutContext(defaultFont);
+        _hostApplication = application;
+        _hasFrame = false;
+    }
+
+    /// <summary>Queues a native text character for the next managed input update.</summary>
+    /// <param name="character">The character supplied by the host window.</param>
+    public void AddTextInput(char character)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        (_hostInput ??= new ControlInputSampler()).AddText(character);
+    }
+
+    internal void ResetInput() => _hostInput = null;
+
+    private IFontBackend? _applicationFontBackend;
+    private IFontBackend? _defaultLayoutBackend;
+    private ControlLayoutContext? _backendDefaultLayout;
     private bool _fontsDirty;
-    private int _fontRegistryCount = -1;
+    private int _fontRegistryRevision = -1;
     internal int FontRevision { get; private set; }
-    internal IControlFont? LayoutFont => _layout?.DefaultFont;
+    internal IFont? LayoutFont => _layout?.DefaultFont;
     /// <summary>
     /// Gets the borrowed Sasogine font registry used by this workspace.
     /// </summary>
@@ -364,16 +404,40 @@ public sealed class Workspace : Element, IDisposable
     /// <summary>
     /// Invalidates font adapters after replacing families or changing externally managed font resources.
     /// </summary>
-    /// <remarks>Adding or removing a family is detected automatically by count. Same-count replacement requires this method.</remarks>
+    /// <remarks>Registry edits are detected automatically. Call this when external font data changes.</remarks>
     public void InvalidateFonts()
     {
         VerifyTreeMutation();
         _fontsDirty = true;
         InvalidateLayout();
-        _fontRegistryCount = Fonts.Count;
+        _fontRegistryRevision = Fonts.Revision;
     }
 
-    internal IControlFont ResolveFont(ControlFontRequest request, IControlFont fallback) => (_fontCache ??= new ControlFontCache(Fonts, Registry.FontFactory)).Resolve(request, fallback);
+    internal void SetApplicationFontBackend(IFontBackend? backend)
+    {
+        if (ReferenceEquals(_applicationFontBackend, backend))
+            return;
+        _applicationFontBackend = backend;
+        InvalidateFonts();
+    }
+
+    internal IFont ResolveFont(ControlFontRequest request, IFont fallback) =>
+        Fonts.ResolveFont(request.Source ?? fallback, request.Name, request.Size, request.Weight, request.Style,
+            Registry.FontBackend ?? _applicationFontBackend);
+
+    private ControlLayoutContext ResolveDefaultLayout(ControlLayoutContext layout)
+    {
+        IFontBackend? backend = Registry.FontBackend ?? _applicationFontBackend;
+        if (!layout.UsesDefaultFont || backend is null)
+            return layout;
+        if (_backendDefaultLayout is null || !ReferenceEquals(_defaultLayoutBackend, backend))
+        {
+            _backendDefaultLayout = new ControlLayoutContext(
+                BuiltInFonts.GetFont(BuiltInFont.Sans, BuiltInFonts.DefaultSize, backend: backend));
+            _defaultLayoutBackend = backend;
+        }
+        return _backendDefaultLayout;
+    }
     internal Control? FontParent(Control control)
     {
         if (ReferenceEquals(control, Content))
@@ -418,8 +482,80 @@ public sealed class Workspace : Element, IDisposable
     public void Update(ControlUpdateContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
+        SetApplicationFontBackend(context.FontBackend);
         InitializeGraphics(context.GraphicsDevice);
         ProcessFrame(context.Input, context.Layout);
+    }
+
+    /// <summary>Polls mouse, keyboard, and touch once and updates the workspace.</summary>
+    /// <param name="context">The application frame context supplying timing and graphics.</param>
+    /// <param name="viewport">The physical viewport override. Defaults to the current device viewport.</param>
+    /// <param name="active">The focus override. Defaults to the application's active state.</param>
+    /// <returns>The sampled input, available to other consumers of the same frame.</returns>
+    /// <exception cref="InvalidOperationException">The workspace has no host or is already processing a frame.</exception>
+    public InputSnapshot Update(GameContext context, Rectangle? viewport = null, bool? active = null)
+    {
+        GameApplicationBase application = GetHost(context, out GraphicsDevice device);
+        return PollHost(application, device, context.GameTime, viewport, active);
+    }
+
+    /// <summary>Polls input and updates a workspace directly from the MonoGame update loop.</summary>
+    /// <param name="gameTime">The current game time.</param>
+    /// <param name="viewport">The physical viewport override. Defaults to the current device viewport.</param>
+    /// <param name="active">The focus override. Defaults to the application's active state.</param>
+    /// <returns>The sampled input for this update.</returns>
+    public InputSnapshot Update(GameTime gameTime, Rectangle? viewport = null, bool? active = null)
+    {
+        ArgumentNullException.ThrowIfNull(gameTime);
+        GameApplicationBase application = GetHost();
+        return PollHost(application, application.GraphicsDevice, gameTime, viewport, active);
+    }
+
+    private InputSnapshot PollHost(GameApplicationBase application, GraphicsDevice device, GameTime gameTime,
+        Rectangle? viewport, bool? active)
+    {
+        InputSnapshot input = InputSnapshot.Capture();
+        UpdateHost(application, device, gameTime, input, viewport, active);
+        return input;
+    }
+
+    /// <summary>Updates the workspace using a snapshot already captured by the caller.</summary>
+    /// <param name="context">The application frame context supplying timing and graphics.</param>
+    /// <param name="input">The mouse, keyboard, and touch states to consume.</param>
+    /// <param name="viewport">The physical viewport override. Defaults to the current device viewport.</param>
+    /// <param name="active">The focus override. Defaults to the application's active state.</param>
+    /// <exception cref="InvalidOperationException">The workspace has no host or is already processing a frame.</exception>
+    public void Update(GameContext context, in InputSnapshot input, Rectangle? viewport = null, bool? active = null)
+    {
+        GameApplicationBase application = GetHost(context, out GraphicsDevice device);
+        UpdateHost(application, device, context.GameTime, input, viewport, active);
+    }
+
+    private void UpdateHost(GameApplicationBase application, GraphicsDevice device, GameTime gameTime,
+        in InputSnapshot input, Rectangle? viewport, bool? active)
+    {
+        InitializeGraphics(device);
+        Update(_hostInput ??= new ControlInputSampler(), input.Mouse, input.Keyboard, input.Touches,
+            viewport ?? device.Viewport.Bounds, gameTime.ElapsedGameTime, _hostLayout!, active ?? application.IsActive);
+    }
+
+    private GameApplicationBase GetHost(GameContext context, out GraphicsDevice device)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        GameApplicationBase application = GetHost();
+        device = application.GraphicsDevice;
+        if (!ReferenceEquals(context.GraphicsDevice, device))
+            throw new ArgumentException("The frame context must use the workspace host's graphics device.", nameof(context));
+        return application;
+    }
+
+    private GameApplicationBase GetHost()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        if (_busy)
+            throw new InvalidOperationException("UI processing cannot be reentered.");
+        return _hostApplication ??
+            throw new InvalidOperationException("Initialize the workspace with an application before using managed updates or drawing.");
     }
 
     /// <summary>
@@ -445,6 +581,9 @@ public sealed class Workspace : Element, IDisposable
     /// Updates one frame using the supplied layout context.
     /// </summary>
     public void Update(ControlInputFrame frame, ControlLayoutContext layout) => ProcessFrame(frame, layout);
+    /// <summary>Updates one input frame using the configured or built-in default font.</summary>
+    /// <param name="frame">The input snapshot to process.</param>
+    public void Update(ControlInputFrame frame) => ProcessFrame(frame, _hostLayout ?? ControlLayoutContext.Default);
     /// <summary>
     /// Processes ordered input, updates controls once, commits mutations, and finalizes layout.
     /// </summary>
@@ -481,10 +620,11 @@ public sealed class Workspace : Element, IDisposable
             }
 
             Size = logicalSize;
+            layout = ResolveDefaultLayout(layout);
             if (!ReferenceEquals(_layout?.DefaultFont, layout.DefaultFont))
                 InvalidateLayout();
             _layout = layout;
-            if (_fontRegistryCount != Fonts.Count)
+            if (_fontRegistryRevision != Fonts.Revision)
                 InvalidateFonts();
             Layout();
             ValidateInteraction();
@@ -519,6 +659,57 @@ public sealed class Workspace : Element, IDisposable
         {
             _busy = false;
         }
+    }
+
+    /// <summary>Draws the last processed frame with the workspace-owned renderer.</summary>
+    /// <param name="context">The application draw context supplying timing and graphics.</param>
+    /// <param name="includePickingOverlay">Whether to draw the color-picking overlay with the tree.</param>
+    /// <exception cref="InvalidOperationException">The workspace has no host or matching processed frame.</exception>
+    public void Draw(GameContext context, bool includePickingOverlay = true)
+    {
+        if (GetHostDrawContext(context) is { } draw)
+            Draw(draw, includePickingOverlay);
+    }
+
+    /// <summary>Draws the last processed frame directly from the MonoGame draw loop.</summary>
+    /// <param name="gameTime">The current game time.</param>
+    /// <param name="includePickingOverlay">Whether to draw the color-picking overlay with the tree.</param>
+    public void Draw(GameTime gameTime, bool includePickingOverlay = true)
+    {
+        ArgumentNullException.ThrowIfNull(gameTime);
+        GameApplicationBase application = GetHost();
+        if (GetHostDrawContext(application, application.GraphicsDevice, gameTime) is { } draw)
+            Draw(draw, includePickingOverlay);
+    }
+
+    private ControlDrawContext? GetHostDrawContext(GameContext context)
+    {
+        GameApplicationBase application = GetHost(context, out GraphicsDevice device);
+        return GetHostDrawContext(application, device, context.GameTime);
+    }
+
+    private ControlDrawContext? GetHostDrawContext(GameApplicationBase application, GraphicsDevice device, GameTime gameTime)
+    {
+        if (!_hasFrame || !ReferenceEquals(device, _skinDevice))
+            throw new InvalidOperationException("Process a UI frame on the current graphics device before drawing.");
+
+        Rectangle viewport = _frameViewport ?? device.Viewport.Bounds;
+        if (viewport.Width <= 0 || viewport.Height <= 0)
+            return null;
+        float scale = _frameDpi / 96f;
+        if (_hostDraw is null || !ReferenceEquals(_hostDrawDevice, device))
+        {
+            _hostDraw?.Dispose();
+            _hostDraw = null;
+            _hostDraw = new ControlDrawContext(application, _layout!.DefaultFont, viewport, scale, useWorkspaceFont: true);
+            _hostDrawDevice = device;
+        }
+        else if (_frameViewport is null)
+        {
+            _hostDraw.SetViewport(viewport, scale);
+        }
+        _hostDraw.SetFrameTime(gameTime);
+        return _hostDraw;
     }
 
     /// <summary>
@@ -563,8 +754,18 @@ public sealed class Workspace : Element, IDisposable
 
     private void SynchronizeDrawing(ControlDrawContext context)
     {
+        if (_layout is { } layout)
+            context.UseLayoutFont(layout.DefaultFont);
         if (_frameViewport is Rectangle viewport)
             context.SetViewport(viewport, _frameDpi / 96f);
+    }
+
+    /// <summary>Draws the pipette overlay with the workspace-owned renderer.</summary>
+    /// <param name="context">The application draw context supplying timing and graphics.</param>
+    public void DrawColorPickingOverlay(GameContext context)
+    {
+        if (GetHostDrawContext(context) is { } draw)
+            DrawColorPickingOverlay(draw);
     }
 
     /// <summary>
@@ -737,7 +938,6 @@ public sealed class Workspace : Element, IDisposable
         Commit();
         if (_fontsDirty)
         {
-            _fontCache?.Clear();
             unchecked
             {
                 FontRevision++;
@@ -1442,7 +1642,7 @@ public sealed class Workspace : Element, IDisposable
 
     private bool _disposed;
     /// <summary>
-    /// Detaches the tree and releases subscriptions and internally loaded skins. Caller-owned fonts and skins remain borrowed.
+    /// Detaches the tree and releases subscriptions, the owned renderer, and internally loaded skins.
     /// </summary>
     public void Dispose()
     {
@@ -1477,7 +1677,12 @@ public sealed class Workspace : Element, IDisposable
                 pendingDialog.NotifyClosed();
         }
 
-        _fontCache?.Dispose();
+        _hostDraw?.Dispose();
+        _hostDraw = null;
+        _hostDrawDevice = null;
+        _hostInput = null;
+        _hostLayout = null;
+        _hostApplication = null;
         ReleaseOwnedSkins();
         _skins?.Clear();
         _controls.Clear();

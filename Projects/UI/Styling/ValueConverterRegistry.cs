@@ -322,7 +322,7 @@ public sealed class ValueConverterRegistry
             ScrollBarVisibility.Always => "Always",
             ScrollBarVisibility.Hidden => "Hidden",
             _ => throw InvalidEnum("ScrollBarVisibility")});
-        Register<IControlFont?>("Font", static s => Null(s) ? null : throw new KeyNotFoundException("Register the Font converter for named application fonts."), static v => v is null ? "null" : throw new NotSupportedException("Use a named font ID in the style."));
+        Register<IFont?>("Font", static s => Null(s) ? null : throw new KeyNotFoundException("Register the Font converter for named application fonts."), static v => v is null ? "null" : throw new NotSupportedException("Use a named font ID in the style."));
         Register<StretchMode>("StretchMode", static s => s switch
         {
             "None" => StretchMode.None,

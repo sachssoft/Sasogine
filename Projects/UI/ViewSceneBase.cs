@@ -1,8 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Input.Touch;
-using Sachssoft.Engine.Controls.Drawing;
 using Sachssoft.Engine.Controls.Input;
 using Sachssoft.Engine.Graphics.Cameras;
 using Sachssoft.Engine.Graphics.Materials;
@@ -14,8 +11,8 @@ namespace Sachssoft.Engine.Controls;
 
 /// <summary>Hosts a workspace as a scene without a world camera or material.</summary>
 /// <remarks>
-/// The scene owns its workspace and drawing resources. Constructor-supplied fonts and skins
-/// remain caller-owned; a default font created through the parameterless path belongs to the scene.
+/// The scene owns its workspace, which manages the drawing resources. Constructor-supplied fonts and skins
+/// remain caller-owned. The standard font is borrowed from the shared text backend.
 /// CreateWorkspace runs after Enter and before the first update.
 /// Unload releases the workspace; loading again creates a fresh tree. Use OnUpdate to poll controls
 /// after input has been processed. All lifecycle calls must run on the application thread.
@@ -23,25 +20,18 @@ namespace Sachssoft.Engine.Controls;
 public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
 {
     /// <summary>Retains an optional caller-owned font supplied at construction.</summary>
-    private readonly IControlFont? _defaultFont;
+    private readonly IFont? _defaultFont;
 
     /// <summary>Determines whether a font created at load time belongs to this scene.</summary>
     private readonly bool _ownsDefaultFont;
-
-    /// <summary>Owns the loaded workspace's drawing resources.</summary>
-    private ControlDrawContext? _draw;
-
-    /// <summary>Retains device history and queued native text for the active scene.</summary>
-    private ControlInputSampler _input = new();
-
-    /// <summary>Shares the loaded default font between measurement and rendering.</summary>
-    private ControlLayoutContext? _layout;
 
     /// <summary>Identifies the application supplied during activation.</summary>
     private GameApplicationBase? _application;
 
     /// <summary>Retains the default font for the current load cycle.</summary>
-    private IControlFont? _loadedFont;
+    private IFont? _loadedFont;
+    private IFont? _sharedDefaultFont;
+    private IFontBackend? _fontBackend;
 
     /// <summary>Contains the loaded control tree and its bindings.</summary>
     private Workspace? _workspace;
@@ -65,7 +55,7 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
     private bool _updating;
 
     /// <summary>Creates a scene that obtains its default font during Load.</summary>
-    /// <remarks>Override CreateDefaultFont. The scene disposes the returned font after unloading.</remarks>
+    /// <remarks>The built-in default is Noto Sans Regular. Overrides may supply a scene-owned font.</remarks>
     protected ViewSceneBase()
     {
         _ownsDefaultFont = true;
@@ -74,7 +64,7 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
     /// <summary>Creates a camera-free scene using a caller-owned default font.</summary>
     /// <param name="defaultFont">The font used for both measurement and rendering.</param>
     /// <exception cref="ArgumentNullException">The font is null.</exception>
-    protected ViewSceneBase(IControlFont defaultFont)
+    protected ViewSceneBase(IFont defaultFont)
     {
         _defaultFont = defaultFont ?? throw new ArgumentNullException(nameof(defaultFont));
     }
@@ -121,7 +111,7 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
             return;
 
         _application = eventArgs.Application;
-        _input = new ControlInputSampler();
+        _workspace?.ResetInput();
         _frameReady = false;
         if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
             SetDesktopTextInputSubscription(true);
@@ -142,7 +132,7 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
             _deactivatePending = true;
         else
             DeactivateWorkspace();
-        _input = new ControlInputSampler();
+        _workspace?.ResetInput();
     }
 
     /// <inheritdoc/>
@@ -156,14 +146,13 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
         Workspace? workspace = null;
         try
         {
-            _loadedFont = CreateDefaultFont() ??
-                throw new InvalidOperationException("CreateDefaultFont must return a font.");
-            _layout = new ControlLayoutContext(_loadedFont);
             workspace = CreateWorkspace() ??
                 throw new InvalidOperationException("CreateWorkspace must return a workspace.");
-            workspace.InitializeGraphics(application.GraphicsDevice);
-            _draw = new ControlDrawContext(application, _loadedFont,
-                application.GraphicsDevice.Viewport.Bounds);
+            IFontBackend? applicationBackend = application.GetService<IFontBackend>();
+            _fontBackend = workspace.Registry.FontBackend ?? applicationBackend;
+            _loadedFont = CreateDefaultFont() ??
+                throw new InvalidOperationException("CreateDefaultFont must return a font.");
+            workspace.Initialize(application, _loadedFont, applicationBackend);
             _workspace = workspace;
         }
         catch
@@ -174,7 +163,7 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
             }
             finally
             {
-                ReleaseRenderingResources();
+                ReleaseDefaultFont();
                 Exit();
             }
             throw;
@@ -200,7 +189,7 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
         finally
         {
             _workspace = null;
-            ReleaseRenderingResources();
+            ReleaseDefaultFont();
         }
     }
 
@@ -249,12 +238,11 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentNullException.ThrowIfNull(context);
-        if (!_frameReady || _draw is null || _workspace is null)
+        if (!_frameReady || _workspace is null)
             return;
 
         context.GraphicsDevice.Clear(BackgroundColor);
-        _draw.SetFrameTime(context.GameTime);
-        _workspace.Draw(_draw);
+        _workspace.Draw(context);
     }
 
     /// <summary>Unloads the scene and prevents subsequent activation.</summary>
@@ -281,12 +269,12 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
     /// <summary>Obtains the default font after activation and asset initialization.</summary>
     /// <returns>The font used for this load cycle.</returns>
     /// <remarks>
-    /// The parameterless constructor transfers ownership of the returned font to the scene.
-    /// The font-taking constructor retains caller ownership instead.
+    /// The default implementation borrows the font from the shared text backend.
+    /// An override that creates a disposable font transfers ownership to the scene when using the parameterless constructor.
     /// </remarks>
-    /// <exception cref="InvalidOperationException">No font was supplied and the factory was not overridden.</exception>
-    protected virtual IControlFont CreateDefaultFont() => _defaultFont ??
-        throw new InvalidOperationException("Override CreateDefaultFont or supply a default font.");
+    protected virtual IFont CreateDefaultFont() => _defaultFont ??
+        (_sharedDefaultFont = BuiltInFonts.GetFont(BuiltInFont.Sans, BuiltInFonts.DefaultSize,
+            backend: _fontBackend));
 
     /// <summary>Creates and configures the workspace, including styles and optional skin.</summary>
     /// <returns>A new workspace owned by this scene until Unload.</returns>
@@ -296,11 +284,8 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
     /// <param name="context">The current scene update and timing.</param>
     /// <param name="viewport">The physical viewport used for input and layout.</param>
     /// <remarks>Override to supply host snapshots or replay input instead of polling devices.</remarks>
-    protected virtual void UpdateWorkspace(SceneUpdateContext context, Rectangle viewport)
-    {
-        Workspace.Update(_input, Mouse.GetState(), Keyboard.GetState(), TouchPanel.GetState(),
-            viewport, context.GameTime.ElapsedGameTime, _layout!, Application.IsActive);
-    }
+    protected virtual void UpdateWorkspace(SceneUpdateContext context, Rectangle viewport) =>
+        Workspace.Update(context, viewport);
 
     /// <summary>Runs after workspace input, bindings and layout; frame flags can be polled here.</summary>
     /// <param name="context">The current scene update and timing.</param>
@@ -324,8 +309,8 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
     /// <param name="args">The native text character.</param>
     private void OnTextInput(object? sender, TextInputEventArgs args)
     {
-        if (_active && IsLoaded && Application.IsActive)
-            _input.AddText(args.Character);
+        if (_active && Application.IsActive)
+            _workspace?.AddTextInput(args.Character);
     }
 
     /// <summary>Cancels held input without reentering an active workspace traversal.</summary>
@@ -334,26 +319,20 @@ public abstract class ViewSceneBase : IScene, IDisposable, IApplicationExitAware
         if (_workspace is not null)
         {
             _workspace.Update(new ControlInputFrame(_workspace.Size, TimeSpan.Zero,
-                new[] { new ControlInputEvent(ControlInputEventType.Deactivate) }), _layout!);
+                new[] { new ControlInputEvent(ControlInputEventType.Deactivate) }));
         }
     }
 
-    /// <summary>Releases drawing resources before the optionally scene-owned font cache.</summary>
-    private void ReleaseRenderingResources()
+    /// <summary>Releases the scene-owned default font after the workspace has been released.</summary>
+    private void ReleaseDefaultFont()
     {
-        try
-        {
-            _draw?.Dispose();
-        }
-        finally
-        {
-            _draw = null;
-            _layout = null;
-            IControlFont? font = _loadedFont;
-            _loadedFont = null;
-            if (_ownsDefaultFont && font is IDisposable disposable)
-                disposable.Dispose();
-        }
+        IFont? font = _loadedFont;
+        bool ownsFont = _ownsDefaultFont && !ReferenceEquals(font, _sharedDefaultFont);
+        _loadedFont = null;
+        _sharedDefaultFont = null;
+        _fontBackend = null;
+        if (ownsFont && font is IDisposable disposable)
+            disposable.Dispose();
     }
 
     /// <summary>Rejects camera creation; the scene manager skips this factory.</summary>
