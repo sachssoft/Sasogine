@@ -5,7 +5,7 @@ using System.Text;
 namespace Sachssoft.Engine.Controls.Drawing;
 internal static class ControlTextLayout
 {
-    internal static string Wrap(IControlFont font, string text, float width)
+    internal static string Wrap(IFont font, string text, float width)
     {
         if (!float.IsFinite(width) || width <= 0)
             return text;

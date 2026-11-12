@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using MonoGame.Framework.Utilities;
-using FontStashSharp;
-using FontStashSharp.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -15,7 +13,7 @@ namespace Sachssoft.Engine.Controls.Drawing;
 /// Texture ownership stays with the caller. Overlapping items retain painter order;
 /// only disjoint items may move past another texture group. The batch uses premultiplied alpha.
 /// </remarks>
-public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
+public sealed class ControlFrameBatch : IFontGlyphSink, IDisposable
 {
     private readonly VertexPositionColorTexture[] _vertices;
     private readonly short[] _indices, _orderedIndices;
@@ -165,17 +163,6 @@ public sealed class ControlFrameBatch : IFontStashRenderer2, IDisposable
         var bl = new VertexPositionColorTexture(Point(left, bottom), color, new Vector2(u0, v1));
         var br = new VertexPositionColorTexture(Point(right, bottom), color, new Vector2(u1, v1));
         DrawQuad(texture, ref tl, ref tr, ref bl, ref br);
-    }
-
-    /// <summary>
-    /// Appends FontStashSharp glyphs directly to this frame batch.
-    /// </summary>
-    public void DrawText(SpriteFontBase font, string text, Vector2 position, Color color)
-    {
-        EnsureActive();
-        ArgumentNullException.ThrowIfNull(font);
-        ArgumentNullException.ThrowIfNull(text);
-        font.DrawText((IFontStashRenderer2)this, text, position, color);
     }
 
     /// <inheritdoc/>

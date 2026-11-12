@@ -51,17 +51,34 @@ public sealed class ControlDrawContext : GameContext, IDisposable
     private DepthStencilState? _previousDepth;
     private RasterizerState? _previousRasterizer;
     private SamplerState? _previousSampler;
+    private readonly bool _usesWorkspaceFont;
+
+    /// <summary>Creates persistent UI drawing resources using the built-in default font.</summary>
+    /// <param name="application">The application that owns the graphics device.</param>
+    /// <param name="viewport">The drawing viewport in pixels.</param>
+    /// <param name="scale">The physical pixels per logical unit.</param>
+    public ControlDrawContext(GameApplicationBase application, Rectangle viewport, float scale = 1)
+        : this(application, ControlLayoutContext.Default.DefaultFont, viewport, scale, useWorkspaceFont: true)
+    {
+    }
+
+    internal ControlDrawContext(GameApplicationBase application, IFont defaultFont, Rectangle viewport, float scale, bool useWorkspaceFont)
+        : this(application, defaultFont, viewport, scale)
+    {
+        _usesWorkspaceFont = useWorkspaceFont;
+    }
+
     /// <summary>
     /// Creates persistent UI drawing resources for the application graphics device.
     /// </summary>
-    public ControlDrawContext(GameApplicationBase application, IControlFont defaultFont, Rectangle viewport, float scale = 1) : this(application, defaultFont, viewport, scale, ControlRenderer.FrameBatch)
+    public ControlDrawContext(GameApplicationBase application, IFont defaultFont, Rectangle viewport, float scale = 1) : this(application, defaultFont, viewport, scale, ControlRenderer.FrameBatch)
     {
     }
 
     /// <summary>
     /// Creates a context with an explicit renderer for compatibility or controlled comparison.
     /// </summary>
-    public ControlDrawContext(GameApplicationBase application, IControlFont defaultFont, Rectangle viewport, float scale, ControlRenderer renderer) : base(application)
+    public ControlDrawContext(GameApplicationBase application, IFont defaultFont, Rectangle viewport, float scale, ControlRenderer renderer) : base(application)
     {
         if (renderer is not (ControlRenderer.FrameBatch or ControlRenderer.SpriteBatch))
             throw new ArgumentOutOfRangeException(nameof(renderer));
@@ -110,7 +127,13 @@ public sealed class ControlDrawContext : GameContext, IDisposable
     /// <summary>
     /// Gets the default caller-owned font, matching the layout context.
     /// </summary>
-    public IControlFont DefaultFont { get; }
+    public IFont DefaultFont { get; private set; }
+
+    internal void UseLayoutFont(IFont font)
+    {
+        if (_usesWorkspaceFont)
+            DefaultFont = font;
+    }
     /// <summary>
     /// Gets the logical viewport size.
     /// </summary>
@@ -412,16 +435,16 @@ public sealed class ControlDrawContext : GameContext, IDisposable
     /// <summary>
     /// Draws text using the current local origin and composed opacity.
     /// </summary>
-    public void DrawText(IControlFont font, string text, Vector2 position, Color color)
+    public void DrawText(IFont font, string text, Vector2 position, Color color)
     {
         EnsureDrawing();
         ArgumentNullException.ThrowIfNull(font);
         ArgumentNullException.ThrowIfNull(text);
         position = SnapDrawPosition(position);
-        if (_frameBatch is not null && !_legacyControl && font is IControlBatchFont batchedFont)
+        if (_frameBatch is not null && !_legacyControl && font.CanDrawGlyphs)
         {
             EndLegacy();
-            batchedFont.Draw(_frameBatch, text, position, color * _opacity);
+            font.DrawGlyphs(_frameBatch, text, new TextTransform(new Point2(position.X, position.Y)), color * _opacity);
         }
         else
         {
