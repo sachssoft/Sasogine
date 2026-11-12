@@ -1,55 +1,39 @@
-# Fonts
+# Schriften
 
-Controls verwenden Sasogines vorhandene `FontRegistry`, `FontFamily`, `FontFace`, `FontWeight` und `FontStyle`. Keine zweite Schriftverwaltung und keine Laufzeit-Reflection.
+Ein `TextBlock` oder `Button` verwendet ohne Font-Konfiguration **Noto Sans Regular, 16 logische Einheiten**. `ViewSceneBase` übernimmt die Standardschrift. Eigene Hosts können `workspace.Update(frame)` und `new ControlDrawContext(application, viewport)` verwenden. Der DrawContext übernimmt die beim Layout verwendete Schrift.
 
 ```csharp
+using Sachssoft.Engine.Controls;
 using Sachssoft.Engine.Graphics.Text;
 
-workspace.Fonts.Register("Noto Sans",
-    new FontFace(File.ReadAllBytes("NotoSans-Regular.ttf"), "Regular"),
-    new FontFace(File.ReadAllBytes("NotoSans-Bold.ttf"), "Bold", FontWeight.Bold),
-    new FontFace(File.ReadAllBytes("NotoSans-Italic.ttf"), "Italic",
-        FontWeight.Normal, FontStyle.Italic),
-    new FontFace(File.ReadAllBytes("NotoSans-BoldItalic.ttf"), "Bold Italic",
-        FontWeight.Bold, FontStyle.Italic));
-
-workspace.Content.FontName = "Noto Sans";
-workspace.Content.FontSize = 18;
-
-var heading = new TextBlock
+var title = new TextBlock
 {
     Text = "Sasogine",
-    FontSize = 28,
-    FontWeight = FontWeight.Bold
+    Font = BuiltInFonts.GetFont(BuiltInFont.Serif, 24f, FontStyle.Italic)
 };
 ```
 
-Registrierung und Grundeinstellung erfolgen vor dem ersten `Update`. Ein bestehendes Engine-Register kann mit `new UIRegistry(fonts)` übergeben werden. Die TTF-Dateien müssen zum Projekt passen und korrekt lizenziert sein.
+`BuiltInFonts` liefert auch `Sans` und `Mono`. Die eingebetteten Familien lassen sich per `FontName` als `Noto Sans`, `Noto Serif` und `Noto Sans Mono` auswählen. Mono verwendet bei fehlender Kursivvariante seine Regular-Schrift mit fester Zeichenbreite.
 
-## Vererbung und Styles
-
-- `FontName`, `FontSize`, `FontWeight` und `FontStyle` stehen auf jedem `Control` zur Verfügung. `null` bedeutet Vererbung vom Parent; Popup und Tooltip übernehmen die Schrift ihres Besitzers.
-- Lokale Werte überschreiben Styles. Eine lokale Zuweisung von `null` erzwingt Vererbung; `ResetStyleProperty("FontSize")` aktiviert wieder den Stylewert.
-- `Normal` ist ein expliziter Wert: Ein TextBlock kann damit das geerbte `Bold` überschreiben.
-- Styles unterstützen dieselben Properties als typisierte Kurzform oder Stringwerte, beispielsweise `style["FontWeight"] = "Bold"` und `style["FontSize"] = "inherit"`. Grundwerte am Root setzen, damit Kindstyles die Vererbung nicht unbeabsichtigt überschreiben.
+## Eigene Familien und Styles
 
 ```csharp
-registry.Styles.Register("App.Heading", new Style
-{
-    BasedOn = "TextBlock",
-    FontSize = 28,
-    FontWeight = FontWeight.Bold
-});
+workspace.Fonts.Register("App Text",
+    new FontFace(File.ReadAllBytes("App-Regular.ttf"), "App Regular"),
+    new FontFace(File.ReadAllBytes("App-Bold.ttf"), "App Bold", FontWeight.Bold));
+
+workspace.Content.FontName = "App Text";
+workspace.Content.FontSize = 18;
 ```
 
-Fehlende Varianten folgen dem vorhandenen `FontFamily.GetFace`-Fallback. Unbekannte Familien lösen beim Layout eine verständliche Exception aus. Ohne diese Properties funktioniert der bisherige `IControlFont` aus Layout- und DrawContext unverändert. Eine explizite `control.Font` beginnt einen eigenen, an Kinder vererbbaren Schriftbereich. Für Größen- oder Variantenwechsel bei Bitmapfonts und anderen eigenen Adaptern muss eine benannte Familie verwendet werden.
+`FontName`, `FontSize`, `FontWeight` und `FontStyle` können am Root, in Styles und an einzelnen Controls gesetzt werden. Popups und Tooltips erben vom Besitzer. Eine explizite `Font`-Zuweisung beginnt einen neuen Schriftbereich. `Font = null` stellt die normale Auflösung wieder her. Unbekannte Familien werden beim Layout mit ihrem Namen gemeldet.
 
-## Cache und Lebensdauer
+Eine fehlende Variante einer proportionalen Familie kann einen passenden Noto-Schnitt verwenden. Familien mit `FontFamily.IsMonospaced = true` behalten ihre feste Zeichenbreite. Die aufgelöste Schrift wird für Messung und Zeichnen verwendet.
 
-Jeder Workspace teilt Glyph-Systeme je FontFace und Adapter je FontFace/Größe. Layout und Zeichnen verwenden dieselbe aufgelöste Schrift; `Draw` sucht keine Familien und erstellt keine Adapter. `EffectiveFont` zeigt die zuletzt aufgelöste Schrift nach dem Layout. Eigene Textcontrols verwenden `GetFont(context)` und können abgeleitete Textmetriken in `OnFontChanged()` verwerfen.
+## Backend und Lebensdauer
 
-Unveränderte Frames verwenden den Layoutcache. Schriftwechsel invalidieren die betroffenen Layoutpfade. DPI bleibt einheitlich über `Workspace.Dpi`; `FontSize` ist eine logische Größe.
+Eigene Hosts können einen `IFontBackend` an `UIRegistry` übergeben. Anwendungen können ihn als Dienst registrieren, beispielsweise über `configuration.Services.AddSingleton<IFontBackend>(backend)`. Controls verwendet die gemeinsame Font-API, einschließlich der nativen Glyphenübergabe für den FrameBatch. Andere `IFont`-Implementierungen können über SpriteBatch zeichnen.
 
-Neue oder entfernte Familien erkennt der Workspace anhand der Anzahl. Nach Austausch einer Familie bei gleicher Anzahl `workspace.InvalidateFonts()` aufrufen. Der Cache wird am nächsten sicheren Layoutzeitpunkt erneuert. Der Workspace entsorgt seine erzeugten Adapter und Glyph-Systeme, aber keine über `Font` oder den Kontext geliehenen Schriften. Ein optionaler `UIRegistry`-Adapter-Factory überträgt die Lebensdauer der zurückgegebenen Adapter an den jeweiligen Workspace; dort keine extern besessenen Adapter zurückgeben.
+Font-Anfragen mit gleicher Größe und gleichem Schnitt verwenden dieselbe Instanz. Der Standard-Backend verwaltet Glyphenatlanten je Grafikgerät und gibt sie beim Reset oder Dispose des Geräts frei. Der Workspace leiht Fonts und Backends. Änderungen an registrierten Familien werden beim nächsten Layout erkannt.
 
-Das aktualisierte Beispiel `Beginner.09.Controls` besitzt eine Seite **Fonts** mit vier Schriftschnitten, Vererbung und interaktiver Größenwahl. Installierte Systemfonts werden zur Laufzeit gelesen und nicht mitgeliefert.
+Die eingebetteten Noto-Schriften stehen unter der SIL Open Font License 1.1. [Lizenz](../../Assets/Fonts/OFL-Noto.txt)
