@@ -456,6 +456,7 @@ A task is complete only when all applicable conditions are satisfied:
 
 ### Features
 - Implement requested features completely.
+- Modify example projects only when the user explicitly requests or approves those changes. Ask before migrating examples affected by an API change.
 - Reuse existing components and patterns.
 - Avoid unnecessary abstractions and dependencies.
 - Preserve Native AOT and trimming compatibility.
