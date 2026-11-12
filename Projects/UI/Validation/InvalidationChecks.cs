@@ -7,6 +7,79 @@ using System;
 /// <summary>Checks independent visual, arrangement and measurement invalidation.</summary>
 internal static class InvalidationChecks
 {
+    private static void CheckPendingWork(Action<bool, string> check, ControlLayoutContext layout, ControlInputFrame frame)
+    {
+        var root = new TextLayoutProbePanel();
+        var branch = new TextLayoutProbePanel();
+        var unrelated = new TextLayoutProbePanel();
+        var first = new MeasureProbe();
+        var second = new MeasureProbe();
+        branch.Add(first);
+        branch.Add(second);
+        root.Add(branch);
+        root.Add(unrelated);
+
+        using var workspace = new Workspace(root);
+        workspace.Update(frame, layout);
+        int unrelatedPreparations = unrelated.Preparations;
+        int firstMeasures = first.Measurements;
+        ulong visualRevision = root.VisualRevision;
+        for (int i = 0; i < 16; i++)
+        {
+            first.InvalidateMeasure();
+            first.InvalidateArrange();
+            first.InvalidateVisual();
+        }
+
+        check(root.VisualRevision == visualRevision + 1, "Repeated invalidations coalesce ancestor visual revisions");
+        workspace.Update(frame, layout);
+        check(first.Measurements == firstMeasures + 1 && unrelated.Preparations == unrelatedPreparations,
+            "Repeated measure invalidation executes once and skips preparing an unaffected branch");
+
+        firstMeasures = first.Measurements;
+        second.OnMeasure = () =>
+        {
+            second.OnMeasure = null;
+            first.Width = 75;
+            first.InvalidateMeasure();
+        };
+        first.InvalidateMeasure();
+        second.InvalidateMeasure();
+        workspace.Update(frame, layout);
+        check(first.Measurements == firstMeasures + 2 && first.DesiredSize.Width == 75,
+            "Measurement re-invalidated by a later sibling is processed after the current pass");
+
+        firstMeasures = first.Measurements;
+        int firstArranges = first.Arrangements;
+        second.OnArrange = () =>
+        {
+            second.OnArrange = null;
+            first.HorizontalAlignment = LayoutAlignment.End;
+            first.InvalidateArrange();
+        };
+        first.InvalidateArrange();
+        second.InvalidateArrange();
+        workspace.Update(frame, layout);
+        check(first.Arrangements == firstArranges + 2 && first.Measurements == firstMeasures && first.Bounds.Right == branch.Bounds.Right,
+            "Arrangement re-invalidated by a later sibling updates geometry without measuring");
+
+        firstMeasures = first.Measurements;
+        workspace.Update(new ControlInputFrame(new Size2(500, 300), TimeSpan.Zero), layout);
+        check(first.Measurements > firstMeasures && first.Bounds.Right == branch.Bounds.Right,
+            "A new available size invalidates cached layout constraints");
+
+        first.IsVisible = false;
+        workspace.Update(frame, layout);
+        check(first.DesiredSize == Size2.Zero && first.Bounds == Bounds2.Zero,
+            "Visibility changes clear cached size and bounds");
+        branch.Remove(first);
+        unrelated.Add(first);
+        first.IsVisible = true;
+        workspace.Update(frame, layout);
+        check(ReferenceEquals(first.Parent, unrelated) && first.Bounds.Right == unrelated.Bounds.Right && first.DesiredSize.Width == 75,
+            "Reparenting restores visible layout under the new owner");
+    }
+
     /// <summary>Runs ancestor propagation, alignment, failure recovery and allocation checks.</summary>
     /// <param name = "check">The assertion callback.</param>
     /// <param name = "layout">The fixed test layout context.</param>
@@ -129,6 +202,7 @@ internal static class InvalidationChecks
         branch.ZIndex = 2;
         workspace.Update(frame, layout);
         check(ReferenceEquals(root.OrderedChildren[^1], branch) && root.Measurements == rootMeasures, "Z-index updates drawing order without measuring the tree");
+        CheckPendingWork(check, layout, frame);
         var font = new CountingFont();
         var textLayout = new ControlLayoutContext(font);
         var text = new InvalidationTextProbe

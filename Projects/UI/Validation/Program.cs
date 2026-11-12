@@ -39,6 +39,12 @@ internal static class Program
     {
         try
         {
+            if (args.Contains("--layout-benchmark"))
+            {
+                LayoutBenchmark.Run(Layout);
+                return 0;
+            }
+
             if (args.Contains("--scroll-benchmark"))
             {
                 ScrollPerformanceProbe.Run(Layout);

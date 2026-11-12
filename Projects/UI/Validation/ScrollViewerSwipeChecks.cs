@@ -1,4 +1,6 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Input.Touch;
 using Sachssoft.Engine;
 using Sachssoft.Engine.Controls;
 using Sachssoft.Engine.Controls.Input;
@@ -231,6 +233,138 @@ internal static class ScrollViewerSwipeChecks
             .SetViewport(new Rectangle(0, 0, 800, 600), 1);
         dpiWorkspace.ProcessFrame(physical, layout);
         check(dpiViewer.VerticalScrollBar.Value == 50, "Physical touch movement is converted once to logical workspace coordinates at high DPI");
+        CheckMenuInput(check, layout);
+        CheckStationaryInput(check);
+        CheckSmoothSwipe(check, layout);
         ListBoxSwipeChecks.Run(check, layout);
+    }
+
+    /// <summary>Checks native touch precedence and mouse-only scrollbar artwork in a menu-style workspace.</summary>
+    private static void CheckMenuInput(Action<bool, string> check, ControlLayoutContext layout)
+    {
+        var button = new Button { Height = 900, Content = "Scrollable menu item" };
+        var viewer = new ScrollViewer
+        {
+            Content = button,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden
+        };
+        using var workspace = new Workspace(viewer)
+        {
+            ShowScrollBarsOnMouseHover = true,
+            IsMouseDragScrollingEnabled = true,
+            PreferTouchInput = true
+        };
+        var sampler = new ControlInputSampler();
+        var viewport = new Rectangle(0, 0, 400, 300);
+        int clicks = 0;
+        button.Clicked += (_, _) => clicks++;
+        void Sample(int y, ButtonState buttonState, TouchLocationState? touchState = null)
+        {
+            var mouse = new MouseState(100, y, 0, buttonState, ButtonState.Released,
+                ButtonState.Released, ButtonState.Released, ButtonState.Released);
+            TouchCollection touches = touchState is { } state
+                ? new TouchCollection([new TouchLocation(1, state, new Vector2(100, y))])
+                : default;
+            workspace.Update(sampler, mouse, default, touches, viewport, TimeSpan.Zero, layout);
+        }
+
+        Sample(220, ButtonState.Released);
+        Bounds2 bounds = viewer.ViewportBounds;
+        check(viewer.VerticalScrollBar.IsPresentationVisible, "Mouse hover shows scrollbar artwork in the menu");
+        Sample(220, ButtonState.Pressed, TouchLocationState.Pressed);
+        Sample(140, ButtonState.Pressed, TouchLocationState.Moved);
+        check(viewer.VerticalScrollBar.Value == 80 && viewer.IsSwiping && !viewer.VerticalScrollBar.IsPresentationVisible,
+            "Native touch pans even when the same contact also supplies a pressed mouse state");
+        check(!button.IsPointerOver, "Captured touch scrolling clears the hover path under the finger");
+        Sample(140, ButtonState.Released, TouchLocationState.Released);
+        Sample(140, ButtonState.Released);
+        check(clicks == 0 && !viewer.IsSwiping && !viewer.VerticalScrollBar.IsPresentationVisible && viewer.ViewportBounds == bounds,
+            "Touch release keeps artwork hidden and preserves layout without a synthetic click");
+
+        Sample(210, ButtonState.Released);
+        check(viewer.VerticalScrollBar.IsPresentationVisible, "New mouse activity restores hover artwork");
+        Sample(210, ButtonState.Pressed);
+        Sample(150, ButtonState.Pressed);
+        check(viewer.IsPointerOver && !button.IsPointerOver && viewer.VerticalScrollBar.IsPresentationVisible,
+            "Captured mouse scrolling keeps the scroll host hovered without hovering rows beneath it");
+        Sample(150, ButtonState.Released);
+        check(viewer.VerticalScrollBar.Value == 140 && clicks == 0,
+            "The menu can drag-scroll using a mouse-only device without activating the pressed child");
+    }
+
+    /// <summary>Checks the activation threshold, inertial release, and interruption in both scroll hosts.</summary>
+    private static void CheckSmoothSwipe(Action<bool, string> check, ControlLayoutContext layout)
+    {
+        var viewer = new ScrollViewer
+        {
+            Content = new Panel { Height = 900 },
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden
+        };
+        var list = new ListBox();
+        for (int i = 0; i < 40; i++)
+            list.Items.Add(new SelectorItem($"Item {i}"));
+
+        CheckHost(viewer, viewer.VerticalScrollBar);
+        CheckHost(list, list.ScrollBar);
+
+        void CheckHost(Control host, ScrollBar bar)
+        {
+            using var workspace = new Workspace(host) { IsSmoothScrollingEnabled = true };
+            var size = new Size2(400, 300);
+            var elapsed = TimeSpan.FromMilliseconds(16);
+            void Frame(params ControlInputEvent[] events) =>
+                workspace.Update(new ControlInputFrame(size, elapsed, events), layout);
+            static ControlInputEvent Touch(ControlInputEventType type, float y) =>
+                new(type, new Vector2(100, y), PointerId: 1, PointerKind: ControlPointerKind.Touch);
+
+            Frame();
+            Frame(Touch(ControlInputEventType.PointerDown, 220));
+            Frame(Touch(ControlInputEventType.PointerMove, 205));
+            check(MathF.Abs(bar.Value - 3) < 0.01f, "Only movement beyond the activation threshold scrolls on the first frame");
+            Frame(Touch(ControlInputEventType.PointerMove, 180));
+            float releaseOffset = bar.Value;
+            Frame(Touch(ControlInputEventType.PointerUp, 180));
+            check(bar.Value == releaseOffset, "Releasing does not jump the scroll offset");
+            Frame();
+            float first = bar.Value - releaseOffset;
+            float previous = bar.Value;
+            Frame();
+            float second = bar.Value - previous;
+            check(first > second && second > 0, "A moving release decelerates over subsequent frames");
+            Frame(Touch(ControlInputEventType.PointerDown, 180));
+            previous = bar.Value;
+            Frame();
+            check(bar.Value == previous, "A new contact stops inertial motion immediately");
+            Frame(Touch(ControlInputEventType.PointerUp, 180));
+
+            bar.Value = bar.Maximum - 4;
+            Frame();
+            Frame(Touch(ControlInputEventType.PointerDown, 220));
+            Frame(Touch(ControlInputEventType.PointerMove, 190));
+            Frame(Touch(ControlInputEventType.PointerUp, 190));
+            Frame();
+            check(bar.Value == bar.Maximum, "A released gesture stays within the scroll range");
+        }
+    }
+
+    /// <summary>Checks that menu input samples avoid redundant dispatch while preserving coordinate changes and release.</summary>
+    private static void CheckStationaryInput(Action<bool, string> check)
+    {
+        var sampler = new ControlInputSampler();
+        var viewport = new Rectangle(0, 0, 400, 300);
+        ControlInputFrame Sample(TouchCollection touches = default, float scale = 1) =>
+            sampler.SampleReusable(default, default, touches, viewport, scale, TimeSpan.Zero, true, preferTouchInput: true);
+        static TouchCollection Touch(TouchLocationState state, float y) =>
+            new([new TouchLocation(7, state, new Vector2(100, y))]);
+
+        check(Sample().Events.Count == 1 && Sample().Events.Count == 0, "A stationary mouse emits no repeated menu input");
+        viewport.X = 10;
+        check(Sample().Events.Count == 1, "A viewport change still updates the logical mouse position");
+        Sample(Touch(TouchLocationState.Pressed, 200));
+        check(Sample(Touch(TouchLocationState.Moved, 200)).Events.Count == 0, "A held finger emits no move at the same logical position");
+        ControlInputFrame moved = Sample(Touch(TouchLocationState.Moved, 170));
+        check(moved.Events.Count == 1 && moved.Events[0].Type == ControlInputEventType.PointerMove, "Real finger movement still dispatches");
+        ControlInputFrame released = Sample(Touch(TouchLocationState.Released, 170));
+        check(released.Events.Count == 1 && released.Events[0].Type == ControlInputEventType.PointerUp, "Releasing a stationary finger still dispatches");
     }
 }

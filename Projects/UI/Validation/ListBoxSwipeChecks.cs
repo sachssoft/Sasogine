@@ -67,6 +67,16 @@ internal static class ListBoxSwipeChecks
         check(list.SelectedIndex == 1, "Keyboard selection remains unchanged");
         Frame(new ControlInputEvent(ControlInputEventType.PointerWheel, new Vector2(50, 15), WheelDelta: -120));
         check(list.ScrollBar.Value > 0, "Mouse wheel scrolling remains unchanged");
+        root.IsMouseDragScrollingEnabled = true;
+        list.ScrollBar.Value = 0;
+        Frame();
+        int beforeMouseDrag = activations;
+        Frame(new ControlInputEvent(ControlInputEventType.PointerDown, new Vector2(50, 120)),
+            new ControlInputEvent(ControlInputEventType.PointerMove, new Vector2(50, 40)),
+            new ControlInputEvent(ControlInputEventType.PointerUp, new Vector2(50, 40)));
+        check(list.ScrollBar.Value == 80 && list.SelectedIndex == 1 && activations == beforeMouseDrag,
+            "The workspace mouse fallback drag-scrolls legacy lists without choosing a row");
+        root.IsMouseDragScrollingEnabled = false;
         var style = new Style { BasedOn = nameof(ListBox), IsSwipeEnabled = false, SwipeThreshold = 20 };
         root.Styles.Register("Test.ListSwipe", style);
         list.StyleId = "Test.ListSwipe";
