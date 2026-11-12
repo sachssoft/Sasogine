@@ -6,6 +6,7 @@ global using System.Windows.Input;
 global using Microsoft.Xna.Framework;
 global using Microsoft.Xna.Framework.Graphics;
 global using Sachssoft.Engine.Gameplay.Curves;
+global using Sachssoft.Engine.Graphics.Text;
 global using Sachssoft.Engine.Controls;
 global using Sachssoft.Engine.Controls.Styling;
 global using Sachssoft.Engine.Controls.Layouts;
