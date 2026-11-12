@@ -29,13 +29,17 @@ All notable changes to this project will be documented in this file.
 * [Feature] **Controls**: Added observable sources and templates to selectors, asset views, trees, tables, tabs, carousels, and menus.
 * [Feature] **Controls**: Embedded all five bundled skins and added typed loading via `ControlSkin.LoadEmbedded()` to simplify skin setup.
 * [Feature] **Controls**: Added automatic workspace skins, named registration, and cached runtime switching.
+* [Feature] **Controls**: Embedded three Noto families and enabled default UI text without font setup.
 * [Change] Renamed `FontAssetDefinition.WeightDefinition` and `StyleDefinition` to `Weight` and `Style` for improved API clarity and consistency.
 * [Change] Replaced application factory overrides with `ConfigureApplication()` and pre-device graphics configuration.
 * [Change] Made `MeshRenderer` internal and moved public mesh drawing to `RenderScope.DrawMesh()` to reduce rendering boilerplate.
+* [Change] **Controls**: Replaced Controls font adapters with the shared `IFont` API and isolated FontStashSharp in the engine.
+* [Change] **Controls**: Renamed `GridSplitter.Direction` to `GridSplitter.Orientation`.
 * [Improve] **Controls**: Improved nullable string support, along with various minor fixes and improvements.
 * [Improve] **Controls**: Isolated scrolling from workspace layout and reduced hover, hit-testing, and rendering traversal costs.
 * [Improve] **Controls**: Carousel slides now move page visuals without rearranging page content every frame.
 * [Improve] **Controls**: Reused font inheritance and text measurements to reduce layout spikes when opening dense pages.
+* [Improve] **Controls**: Reduced host setup with workspace-owned input sampling, layout, and drawing.
 * [Bug] **Controls**: Fixed `Grid.Place()` ignoring the `columnSpan` parameter.
 * [Bug] **Controls**: Fixed menu measurement, drawing, and access keys for entries without text.
 
