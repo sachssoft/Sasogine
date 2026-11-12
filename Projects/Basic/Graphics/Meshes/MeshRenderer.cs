@@ -10,7 +10,7 @@ namespace Sachssoft.Engine.Graphics.Rendering;
 /// <summary>
 /// Renders GPU meshes.
 /// </summary>
-public static class MeshRenderer
+internal static class MeshRenderer
 {
     /// <summary>
     /// Draws a mesh using the default material and optional camera and transform settings
@@ -43,7 +43,7 @@ public static class MeshRenderer
         Draw(context.GraphicsDevice,
              mesh,
              shader ?? context.DefaultMaterial.Shader,
-             camera ?? context.ViewCamera,
+             camera ?? (context.HasCamera ? context.ViewCamera : null),
              transform,
              primitiveType);
     }
@@ -75,6 +75,10 @@ public static class MeshRenderer
         ArgumentNullException.ThrowIfNull(mesh);
         ArgumentNullException.ThrowIfNull(shader);
 
+        int primitiveCount = GetPrimitiveCount(primitiveType, mesh.IndexCount);
+        if (primitiveCount <= 0)
+            return;
+
         graphicsDevice.SetVertexBuffer(mesh.VertexBuffer);
         graphicsDevice.Indices = mesh.IndexBuffer;
 
@@ -85,10 +89,6 @@ public static class MeshRenderer
         }
 
         shader.Apply();
-
-        int primitiveCount = GetPrimitiveCount(
-            primitiveType,
-            mesh.IndexCount);
 
         foreach (EffectPass pass in shader.CurrentTechnique.Passes)
         {

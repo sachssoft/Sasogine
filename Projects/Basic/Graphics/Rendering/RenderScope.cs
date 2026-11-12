@@ -2,6 +2,10 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Microsoft.Xna.Framework;
+using Sachssoft.Engine.Graphics.Cameras;
+using Sachssoft.Engine.Graphics.Meshes;
+using Sachssoft.Engine.Scenes;
 
 namespace Sachssoft.Engine.Graphics.Rendering
 {
@@ -19,16 +23,13 @@ namespace Sachssoft.Engine.Graphics.Rendering
         private static readonly Dictionary<DepthMode, DepthStencilState> _depthCache = new();
 
         private readonly GraphicsDevice _graphicsDevice;
-
-        private readonly RasterizerState _customRasterizer;
-        private readonly DepthStencilState _customDepthStencil;
-        private readonly SamplerState _customSampler;
-        private readonly BlendState _customBlend;
+        private readonly SceneDrawContext? _sceneContext;
 
         private readonly RasterizerState _prevRasterizer;
         private readonly DepthStencilState _prevDepthStencil;
         private readonly SamplerState _prevSampler;
         private readonly BlendState _prevBlend;
+        private readonly Rectangle? _prevScissor;
 
         private bool _disposed;
 
@@ -38,8 +39,18 @@ namespace Sachssoft.Engine.Graphics.Rendering
         /// <param name="context">The game context containing the graphics device.</param>
         /// <param name="options">The rendering options to apply, or the default options.</param>
         public RenderScope(GameContext context, RenderOptions? options = null)
-            : this(context.GraphicsDevice, options)
+            : this((context ?? throw new ArgumentNullException(nameof(context))).GraphicsDevice, options)
         {
+            _sceneContext = context as SceneDrawContext;
+        }
+
+        /// <summary>Creates a scope that can begin with the device's current rendering states.</summary>
+        /// <param name="context">The game context containing the graphics device.</param>
+        /// <param name="preserveCurrentState">Whether to keep the active states on entry. Otherwise, the default options apply.</param>
+        public RenderScope(GameContext context, bool preserveCurrentState)
+            : this((context ?? throw new ArgumentNullException(nameof(context))).GraphicsDevice, null, preserveCurrentState)
+        {
+            _sceneContext = context as SceneDrawContext;
         }
 
         /// <summary>
@@ -48,34 +59,64 @@ namespace Sachssoft.Engine.Graphics.Rendering
         /// <param name="graphicsDevice">The graphics device to configure.</param>
         /// <param name="options">The rendering options to apply, or the default options.</param>
         public RenderScope(GraphicsDevice graphicsDevice, RenderOptions? options = null)
+            : this(graphicsDevice, options, preserveCurrentState: false)
+        {
+        }
+
+        private RenderScope(GraphicsDevice graphicsDevice, RenderOptions? options, bool preserveCurrentState)
         {
             _graphicsDevice = graphicsDevice ?? throw new ArgumentNullException(nameof(graphicsDevice));
-            options ??= RenderOptions.Default;
-
             _prevRasterizer = _graphicsDevice.RasterizerState;
             _prevDepthStencil = _graphicsDevice.DepthStencilState;
             _prevSampler = _graphicsDevice.SamplerStates[0];
             _prevBlend = _graphicsDevice.BlendState;
 
-            _customRasterizer = GetRasterizer(_graphicsDevice, options);
-            if (options.ScissorRectangle.HasValue)
-                _graphicsDevice.ScissorRectangle = options.ScissorRectangle.Value;
+            if (preserveCurrentState)
+            {
+                _prevScissor = _graphicsDevice.ScissorRectangle;
+                return;
+            }
 
-            _graphicsDevice.RasterizerState = _customRasterizer;
-
-            _customDepthStencil = GetDepthStencil(options.Depth);
-            _graphicsDevice.DepthStencilState = _customDepthStencil;
-
-            _customSampler = options.SamplerState;
-            _graphicsDevice.SamplerStates[0] = _customSampler;
-
-            _customBlend = !options.AlphaBlend
+            options ??= RenderOptions.Default;
+            if (options.ScissorRectangle is { } scissor)
+            {
+                _prevScissor = _graphicsDevice.ScissorRectangle;
+                _graphicsDevice.ScissorRectangle = scissor;
+            }
+            _graphicsDevice.RasterizerState = GetRasterizer(_graphicsDevice, options);
+            _graphicsDevice.DepthStencilState = GetDepthStencil(options.Depth);
+            _graphicsDevice.SamplerStates[0] = options.SamplerState;
+            _graphicsDevice.BlendState = !options.AlphaBlend
                 ? BlendState.Opaque
                 : options.PremultipliedAlpha
                     ? BlendState.AlphaBlend
                     : BlendState.NonPremultiplied;
+        }
 
-            _graphicsDevice.BlendState = _customBlend;
+        /// <summary>Draws a mesh using the graphics state active in this scope.</summary>
+        /// <param name="mesh">The indexed mesh to draw.</param>
+        /// <param name="shader">The shader, or the scene's default material shader if available.</param>
+        /// <param name="transform">The mesh transform. Defaults to the identity matrix.</param>
+        /// <param name="camera">The camera override. Defaults to the scene view camera if available.</param>
+        /// <param name="primitiveType">The topology used to interpret the mesh indices.</param>
+        /// <exception cref="ObjectDisposedException">The scope has already been disposed.</exception>
+        /// <exception cref="InvalidOperationException">No shader was supplied and no scene material is available.</exception>
+        public void DrawMesh(
+            IMesh mesh,
+            IShader? shader = null,
+            Matrix? transform = null,
+            ICameraTransform? camera = null,
+            PrimitiveType primitiveType = PrimitiveType.TriangleList)
+        {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+            if (_sceneContext is { } context)
+            {
+                shader ??= context.DefaultMaterial.Shader;
+                camera ??= context.HasCamera ? context.ViewCamera : null;
+            }
+            MeshRenderer.Draw(_graphicsDevice, mesh,
+                shader ?? throw new InvalidOperationException("A render scope without a scene context requires an explicit shader."),
+                camera, transform, primitiveType);
         }
 
         private static RasterizerState GetRasterizer(GraphicsDevice device, RenderOptions options)
@@ -146,6 +187,8 @@ namespace Sachssoft.Engine.Graphics.Rendering
             _graphicsDevice.DepthStencilState = _prevDepthStencil;
             _graphicsDevice.SamplerStates[0] = _prevSampler;
             _graphicsDevice.BlendState = _prevBlend;
+            if (_prevScissor is { } scissor)
+                _graphicsDevice.ScissorRectangle = scissor;
         }
     }
 }
