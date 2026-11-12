@@ -227,7 +227,7 @@ public sealed class ComboBox : ContainerControl
     }
 
     private ListBox? _popup;
-    private IControlFont? _font;
+    private IFont? _font;
     private int _last = -1;
     /// <summary>
     /// Initializes a new combo box instance.

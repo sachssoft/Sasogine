@@ -223,7 +223,7 @@ public sealed class AssetView : ListBox
     protected override float GetItemWidth(float width) => ViewMode == AssetViewMode.List ? width : MathF.Min(width, TileSize.Width);
 
     /// <inheritdoc/>
-    protected override float MeasureItems(IControlFont font) => ViewMode == AssetViewMode.Tiles ? TileSize.Width * 3 + Spacing * 2 : 260;
+    protected override float MeasureItems(IFont font) => ViewMode == AssetViewMode.Tiles ? TileSize.Width * 3 + Spacing * 2 : 260;
 
     /// <inheritdoc/>
     protected override VirtualizingPanel CreateDefaultItemsPanel() => ViewMode == AssetViewMode.List
@@ -271,7 +271,7 @@ public sealed class AssetView : ListBox
     }
 
     /// <inheritdoc/>
-    protected override void DrawItem(ControlDrawContext context, int index, Bounds2 row, IControlFont font)
+    protected override void DrawItem(ControlDrawContext context, int index, Bounds2 row, IFont font)
     {
         if (Items[index].Value is not AssetItem asset)
         {
@@ -287,7 +287,7 @@ public sealed class AssetView : ListBox
     /// <param name="row">The local item bounds.</param>
     /// <param name="asset">The displayed asset.</param>
     /// <param name="font">The resolved caption font.</param>
-    internal void DrawAssetPresentation(ControlDrawContext context, Bounds2 row, AssetItem asset, IControlFont font)
+    internal void DrawAssetPresentation(ControlDrawContext context, Bounds2 row, AssetItem asset, IFont font)
     {
         using var clip = context.PushClipScope(row);
         bool tiles = ViewMode == AssetViewMode.Tiles;

@@ -21,7 +21,7 @@ internal sealed class AssetViewItem : Control
         if (IsItemSelected && !context.DrawSkinStylePart("ListBox", "Item", LocalBounds, "Selected"))
             context.FillRectangle(LocalBounds, new Color(33, 70, 84));
         object? data = DataContext is SelectorItem selector ? selector.Value : DataContext;
-        IControlFont font = GetFont(context);
+        IFont font = GetFont(context);
         if (data is AssetItem asset)
             _owner.DrawAssetPresentation(context, LocalBounds, asset, font);
         else

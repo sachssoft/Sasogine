@@ -228,7 +228,7 @@ public class DataTable : ContainerControl
     private bool _ensureVisible;
     private object? _notifiedItem;
     private double _time, _lastClickTime;
-    private IControlFont? _font;
+    private IFont? _font;
     /// <summary>
     /// Creates a table.
     /// </summary>
@@ -922,7 +922,7 @@ public class DataTable : ContainerControl
     protected override void OnDraw(ControlDrawContext context)
     {
         base.OnDraw(context);
-        IControlFont font = GetFont(context);
+        IFont font = GetFont(context);
         float rowHeight = RowHeight;
         Bounds2 Local(Bounds2 b) => new(b.X - Bounds.X, b.Y - Bounds.Y, b.Width, b.Height);
         if (_header.Height > 0)

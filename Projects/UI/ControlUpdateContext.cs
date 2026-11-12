@@ -9,11 +9,17 @@ public sealed class ControlUpdateContext : GameContext
     /// <summary>
     /// Initializes a UI update context. SetFrameTime is independent of the immutable input frame.
     /// </summary>
-    public ControlUpdateContext(GameApplicationBase application, ControlInputFrame input, ControlLayoutContext layout) : base(application)
+    /// <param name="application">The application that owns this workspace's services.</param>
+    /// <param name="input">The input snapshot for this update.</param>
+    /// <param name="layout">The optional layout context. The workspace resolves the standard font by default.</param>
+    public ControlUpdateContext(GameApplicationBase application, ControlInputFrame input, ControlLayoutContext? layout = null) : base(application)
     {
         Input = input ?? throw new ArgumentNullException(nameof(input));
-        Layout = layout ?? throw new ArgumentNullException(nameof(layout));
+        Layout = layout ?? ControlLayoutContext.Default;
+        FontBackend = application.GetService<IFontBackend>();
     }
+
+    internal IFontBackend? FontBackend { get; }
 
     /// <summary>
     /// Gets the immutable input and elapsed-time snapshot.

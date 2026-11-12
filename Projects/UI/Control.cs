@@ -68,9 +68,9 @@ public abstract class Control : Element
 
     private ControlFontRequest _fontRequest;
 
-    private IControlFont? _measureFont;
-    private IControlFont? _resolvedFallback;
-    private IControlFont? _resolvedFont;
+    private IFont? _measureFont;
+    private IFont? _resolvedFallback;
+    private IFont? _resolvedFont;
 
     private int _appliedConverters = -1;
     private int _appliedRevision = -1;
@@ -126,7 +126,7 @@ public abstract class Control : Element
 
     private StyleProperty<FontWeight?> _styleFontWeight = new(null);
 
-    private StyleProperty<IControlFont?> _styleFont = new(null);
+    private StyleProperty<IFont?> _styleFont = new(null);
 
     private StyleProperty<Insets2> _styleMargin = new(Insets2.Zero);
     private StyleProperty<Insets2> _stylePadding = new(Insets2.Zero);
@@ -701,7 +701,7 @@ public abstract class Control : Element
     /// <summary>
     /// Gets the font resolved by the last measurement. Null means no measurement has completed.
     /// </summary>
-    public IControlFont? EffectiveFont => _resolvedFont;
+    public IFont? EffectiveFont => _resolvedFont;
 
     /// <summary>
     /// Gets or sets the requested family name; null inherits from the parent.
@@ -770,12 +770,13 @@ public abstract class Control : Element
     /// <summary>
     /// Gets or sets config font.
     /// </summary>
-    internal IControlFont? ConfigFont
+    internal IFont? ConfigFont
     {
         get => _styleFont.Value;
         set
         {
-            if (_styleFont.SetLocal(value))
+            bool wasLocal = _styleFont.HasLocalValue;
+            if (_styleFont.SetLocal(value) || !wasLocal && value is not null)
                 NotifyPropertyChanged(FontChangedArgs);
         }
     }
@@ -783,7 +784,7 @@ public abstract class Control : Element
     /// <summary>
     /// Gets or sets Font; a local assignment overrides the style.
     /// </summary>
-    public IControlFont? Font
+    public IFont? Font
     {
         get => ConfigFont;
         set => ConfigFont = value;
@@ -1132,7 +1133,7 @@ public abstract class Control : Element
     {
         EnsureStyle();
         // Derived preparation must never reuse metrics from a retired workspace font cache.
-        if (Workspace?.LayoutFont is IControlFont fallback)
+        if (Workspace?.LayoutFont is IFont fallback)
         {
             try
             {
@@ -1601,7 +1602,7 @@ public abstract class Control : Element
     /// <summary>
     /// Gets the matching font for measuring text, resolving it only when its request changes.
     /// </summary>
-    protected internal IControlFont GetFont(ControlLayoutContext context)
+    protected internal IFont GetFont(ControlLayoutContext context)
     {
         EnsureFont(context.DefaultFont);
         return _resolvedFont!;
@@ -1610,7 +1611,7 @@ public abstract class Control : Element
     /// <summary>
     /// Gets the last measured font for drawing without performing registry or cache lookups.
     /// </summary>
-    protected internal IControlFont GetFont(ControlDrawContext context) => _resolvedFont ?? Font ?? context.DefaultFont;
+    protected internal IFont GetFont(ControlDrawContext context) => _resolvedFont ?? Font ?? context.DefaultFont;
 
     /// <summary>
     /// Invalidates derived text metrics when the resolved font request or font resources change.
@@ -1623,7 +1624,7 @@ public abstract class Control : Element
     /// Resolves the effective font when the font request changes.
     /// </summary>
     /// <param name="fallback">The fallback font.</param>
-    private void EnsureFont(IControlFont fallback)
+    private void EnsureFont(IFont fallback)
     {
         Workspace? workspace = Workspace;
         int revision = workspace?.FontRevision ?? 0;
@@ -1633,24 +1634,24 @@ public abstract class Control : Element
         if (workspace is not null && current && _resolvedFontInheritanceRevision == inheritanceRevision)
             return;
 
-        Control? parent = Parent ?? workspace?.FontParent(this);
+        IFont? configuredFont = Font;
         ControlFontRequest inherited = default;
-        if (parent is not null)
+        if (configuredFont is null && (Parent ?? workspace?.FontParent(this)) is { } parent)
         {
             parent.EnsureFont(fallback);
             inherited = parent._fontRequest;
         }
 
-        // An explicit renderer adapter starts a new font scope; descriptor properties can refine it.
-        if (Font is not null)
-            inherited = default;
-        var request = new ControlFontRequest(_styleFontName.Value ?? inherited.Name, _styleFontSize.Value ?? inherited.Size, _styleFontWeight.Value ?? inherited.Weight, _styleFontStyle.Value ?? inherited.Style, Font ?? inherited.Source);
+        var request = configuredFont is not null && _styleFont.HasLocalValue
+            ? new ControlFontRequest(null, null, null, null, configuredFont)
+            : new ControlFontRequest(_styleFontName.Value ?? inherited.Name, _styleFontSize.Value ?? inherited.Size,
+                _styleFontWeight.Value ?? inherited.Weight, _styleFontStyle.Value ?? inherited.Style, configuredFont ?? inherited.Source);
         if (current && _fontRequest == request)
         {
             _resolvedFontInheritanceRevision = inheritanceRevision;
             return;
         }
-        IControlFont font;
+        IFont font;
         if (!request.HasDescriptor)
             font = request.Source ?? fallback;
         else if (workspace is not null)
@@ -1792,7 +1793,7 @@ public abstract class Control : Element
                         NotifyPropertyChanged(FontStyleChangedArgs);
                     break;
                 case nameof(Font):
-                    if (_styleFont.Apply(Converters.Convert<IControlFont?>("Font", entry.Value)))
+                    if (_styleFont.Apply(Converters.Convert<IFont?>("Font", entry.Value)))
                         NotifyPropertyChanged(FontChangedArgs);
                     break;
                 case nameof(TextColor):
@@ -2025,7 +2026,8 @@ public abstract class Control : Element
                     NotifyPropertyChanged(FontStyleChangedArgs);
                 return;
             case nameof(Font):
-                if (_styleFont.ClearLocal())
+                bool wasLocal = _styleFont.HasLocalValue;
+                if (_styleFont.ClearLocal() || wasLocal && _styleFont.Value is not null)
                     NotifyPropertyChanged(FontChangedArgs);
                 return;
             case nameof(TextColor):
