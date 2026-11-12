@@ -45,6 +45,9 @@ public sealed class Workspace : Element, IDisposable
     /// </summary>
     public float DpiScale => _dpi / 96f;
 
+    internal float FrameScale => _frameDpi / 96f;
+    internal Point FrameOrigin => _frameViewport?.Location ?? Point.Zero;
+
     /// <inheritdoc/>
     protected override void OnPropertyChanged(PropertyChangedEventArgs notification)
     {
@@ -668,7 +671,11 @@ public sealed class Workspace : Element, IDisposable
     public void Draw(GameContext context, bool includePickingOverlay = true)
     {
         if (GetHostDrawContext(context) is { } draw)
-            Draw(draw, includePickingOverlay);
+        {
+            draw.SceneContext = context as Sachssoft.Engine.Scenes.SceneDrawContext;
+            try { Draw(draw, includePickingOverlay); }
+            finally { draw.SceneContext = null; }
+        }
     }
 
     /// <summary>Draws the last processed frame directly from the MonoGame draw loop.</summary>

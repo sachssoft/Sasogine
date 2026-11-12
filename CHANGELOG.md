@@ -40,6 +40,7 @@ All notable changes to this project will be documented in this file.
 * [Improve] **Controls**: Carousel slides now move page visuals without rearranging page content every frame.
 * [Improve] **Controls**: Reused font inheritance and text measurements to reduce layout spikes when opening dense pages.
 * [Improve] **Controls**: Reduced host setup with workspace-owned input sampling, layout, and drawing.
+* [Improve] **Controls**: Simplified `SceneViewport` with an owned render target, pixel mapping, and color picking.
 * [Bug] **Controls**: Fixed `Grid.Place()` ignoring the `columnSpan` parameter.
 * [Bug] **Controls**: Fixed menu measurement, drawing, and access keys for entries without text.
 

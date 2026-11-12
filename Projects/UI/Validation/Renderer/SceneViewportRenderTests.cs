@@ -13,6 +13,7 @@ internal static class SceneViewportRenderTests
     internal static void Run(GameApplicationBase app, IFont font)
     {
         var device = app.GraphicsDevice;
+        CheckOwnedTarget(app, font);
         if (device.UseHalfPixelOffset)
         {
             Console.WriteLine("SceneViewport: the editor retains its image path for half-pixel addressing.");
@@ -91,5 +92,49 @@ internal static class SceneViewportRenderTests
             device.SetRenderTarget(null);
         }
         Console.WriteLine("PASS: direct scene/image equality, DPI, partial clipping, nested targets, UI overlap and exception restoration.");
+    }
+
+    private static void CheckOwnedTarget(GameApplicationBase app, IFont font)
+    {
+        GraphicsDevice device = app.GraphicsDevice;
+        RenderTarget2D? first = null, last = null;
+        var view = new SceneViewport
+        {
+            Width = 160, Height = 100, RenderScale = .5f, ClearColor = Color.CornflowerBlue,
+            Padding = Insets2.Zero,
+            HorizontalAlignment = LayoutAlignment.Start, VerticalAlignment = LayoutAlignment.Start,
+            Render = pass =>
+            {
+                if (pass.Bounds != new Rectangle(0, 0, 100, 62) || pass.Opacity != 1)
+                    throw new InvalidOperationException("Unexpected offscreen scene viewport.");
+                last = (RenderTarget2D)device.GetRenderTargets()[0].RenderTarget;
+                first ??= last;
+            }
+        };
+        var panel = new Panel { Padding = Insets2.Zero };
+        panel.Add(view);
+        using var workspace = new Workspace(panel) { Dpi = 120 };
+        using var output = new RenderTarget2D(device, 300, 200, false, SurfaceFormat.Color, DepthFormat.None, 0,
+            RenderTargetUsage.PreserveContents);
+        using var draw = new ControlDrawContext(app, font, output.Bounds, 1.25f);
+        workspace.Update(new ControlInputFrame(new Size2(240, 160), TimeSpan.Zero), new ControlLayoutContext(font));
+        draw.SetFrameTime(new GameTime(TimeSpan.Zero, TimeSpan.Zero));
+        device.SetRenderTarget(output);
+        try
+        {
+            workspace.Draw(draw);
+            workspace.Draw(draw);
+            if (first is null || !ReferenceEquals(first, last) || !ReferenceEquals(output, device.GetRenderTargets()[0].RenderTarget) ||
+                !view.TryGetRenderPosition(new Point(100, 50), out Point pixel) || pixel != new Point(50, 24) ||
+                !view.TryPick(new Vector2(80, 40), out Color color) || color != Color.CornflowerBlue)
+                throw new InvalidOperationException("Owned viewport did not preserve its target, coordinate mapping, or sample.");
+        }
+        finally
+        {
+            device.SetRenderTarget(null);
+        }
+        workspace.Dispose();
+        if (first is not { IsDisposed: true })
+            throw new InvalidOperationException("The viewport retained its target after detaching.");
     }
 }

@@ -88,7 +88,7 @@ public sealed class ColorPickSession
     private bool Sample()
     {
         _pending = false;
-        if (_source is DeferredColorPickSource { Source: null })
+        if (IsWaitingForSource())
         {
             _pending = true;
             _hasSample = false;
@@ -159,13 +159,16 @@ public sealed class ColorPickSession
                         callback?.Invoke(color);
                     }
                     else
-                        _acceptPending = _source is DeferredColorPickSource { Source: null };
+                        _acceptPending = IsWaitingForSource();
                 }
             }
         }
 
         return true;
     }
+
+    private bool IsWaitingForSource() => _source is DeferredColorPickSource { Source: null } ||
+        _source is SceneViewport viewport && viewport.IsWaitingForColor(Position);
 
     internal void Draw(ControlDrawContext context, Size2 size)
     {
@@ -179,6 +182,7 @@ public sealed class ColorPickSession
         float y = Math.Clamp(Position.Y + 18, 0, MathF.Max(0, size.Height - 120));
         context.FillRectangle(new Bounds2(x, y, 380, 116), new Color(18, 23, 31));
         IColorPickSource? previewSource = _source is DeferredColorPickSource deferred ? deferred.Source : _source;
+        if (previewSource is SceneViewport viewport) previewSource = viewport.ColorSource;
         if (_hasSample && previewSource is RenderTargetColorSource source)
         {
             ReadOnlySpan<Color> pixels = source.MagnifierPixels;
