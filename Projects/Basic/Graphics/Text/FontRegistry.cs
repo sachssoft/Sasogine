@@ -1,4 +1,3 @@
-using Sachssoft.Engine.Graphics.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +26,9 @@ namespace Sachssoft.Engine.Graphics.Text
         /// Gets the number of registered font families.
         /// </summary>
         public int Count => _families.Count;
+
+        /// <summary>Gets the version of the registered family set.</summary>
+        public int Revision { get; private set; }
 
         /// <summary>
         /// Gets all registered font families.
@@ -60,6 +62,7 @@ namespace Sachssoft.Engine.Graphics.Text
                     $"A font family named '{fontFamily.Name}' is already registered.",
                     nameof(fontFamily));
             }
+            Revision = unchecked(Revision + 1);
         }
 
         /// <summary>
@@ -195,13 +198,7 @@ namespace Sachssoft.Engine.Graphics.Text
         {
             ArgumentNullException.ThrowIfNull(font);
 
-            FontFamily family = GetFamily(font.FontName) ??
-                throw new InvalidOperationException(
-                    $"Font family is not registered: {font.FontName}");
-
-            return family.GetFace(
-                font.Weight,
-                font.Style);
+            return Resolve(font.FontName, font.Weight, font.Style);
         }
 
         /// <summary>
@@ -230,13 +227,76 @@ namespace Sachssoft.Engine.Graphics.Text
         {
             ArgumentException.ThrowIfNullOrEmpty(familyName);
 
-            FontFamily family = GetFamily(familyName) ??
-                throw new InvalidOperationException(
-                    $"Font family is not registered: {familyName}");
+            return ResolveFace(GetFamily(familyName), familyName, weight, style);
+        }
 
-            return family.GetFace(
-                weight,
-                style);
+        internal static FontFace ResolveFace(FontFamily? family, string familyName, FontWeight weight, FontStyle style)
+        {
+            if (family is not null)
+            {
+                FontFace? exact = family.GetExactFace(weight, style);
+                if (exact is not null)
+                    return exact;
+                BuiltInFont? builtInFamily = BuiltInFonts.FindFamily(familyName);
+                if (!family.IsMonospaced && builtInFamily != BuiltInFont.Mono &&
+                    (style != FontStyle.Normal || weight != FontWeight.Normal))
+                    return BuiltInFonts.GetFace(builtInFamily ?? BuiltInFont.Sans, weight, style);
+                return family.GetFace(FontWeight.Normal, FontStyle.Normal);
+            }
+
+            if (BuiltInFonts.FindFamily(familyName) is { } builtIn)
+                return BuiltInFonts.GetFace(builtIn, weight, style);
+            throw new InvalidOperationException($"Font family is not registered: {familyName}");
+        }
+
+        /// <summary>Resolves a sized font from an inherited or explicit font and the requested family properties.</summary>
+        /// <param name="source">The source font and its default face and size.</param>
+        /// <param name="familyName">An optional explicit family name.</param>
+        /// <param name="size">An optional logical size.</param>
+        /// <param name="weight">An optional font weight.</param>
+        /// <param name="style">An optional font posture.</param>
+        /// <param name="backend">The optional backend used to resolve sized fonts.</param>
+        /// <returns>The resolved font with matching measurement and rendering metrics.</returns>
+        public IFont ResolveFont(IFont source, string? familyName, float? size, FontWeight? weight, FontStyle? style,
+            IFontBackend? backend = null)
+        {
+            ArgumentNullException.ThrowIfNull(source);
+            FontFace? sourceFace = source.Face;
+            float resolvedSize = size ?? (source.Size > 0 ? source.Size : BuiltInFonts.DefaultSize);
+            FontFace face;
+            if (familyName is not null)
+            {
+                face = ResolveFace(GetFamily(familyName) ?? backend?.GetFamily(familyName), familyName,
+                    weight ?? FontWeight.Normal, style ?? FontStyle.Normal);
+            }
+            else if (sourceFace is not null)
+            {
+                face = sourceFace;
+                if (weight.HasValue || style.HasValue)
+                {
+                    FontFamily? family = FindFamily(sourceFace);
+                    string name = family?.Name ?? sourceFace.Name;
+                    if (family is not null || BuiltInFonts.FindFamily(name).HasValue)
+                        face = ResolveFace(family, name, weight ?? sourceFace.WeightDefinition, style ?? sourceFace.StyleDefinition);
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException("A registered font family is required to resize or restyle this font.");
+            }
+
+            if (ReferenceEquals(face, sourceFace) && resolvedSize == source.Size)
+                return source;
+            return backend is null ? face.GetFont(resolvedSize) : backend.GetFont(face, resolvedSize);
+        }
+
+        private FontFamily? FindFamily(FontFace face)
+        {
+            foreach (FontFamily family in _families.Values)
+                foreach (FontFace candidate in family.Faces)
+                    if (ReferenceEquals(candidate, face))
+                        return family;
+            return null;
         }
 
         /// <summary>
@@ -253,7 +313,10 @@ namespace Sachssoft.Engine.Graphics.Text
         {
             ArgumentException.ThrowIfNullOrEmpty(name);
 
-            return _families.Remove(name);
+            if (!_families.Remove(name))
+                return false;
+            Revision = unchecked(Revision + 1);
+            return true;
         }
 
         /// <summary>
@@ -261,7 +324,10 @@ namespace Sachssoft.Engine.Graphics.Text
         /// </summary>
         public void Clear()
         {
+            if (_families.Count == 0)
+                return;
             _families.Clear();
+            Revision = unchecked(Revision + 1);
         }
 
         /// <summary>

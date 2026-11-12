@@ -84,10 +84,16 @@ namespace Sachssoft.Engine.Graphics.Text
         /// </summary>
         public string Name { get; }
 
+        /// <summary>Gets whether style fallback must retain fixed-width glyph metrics.</summary>
+        public bool IsMonospaced { get; init; }
+
         /// <summary>
         /// Gets the font faces contained in the family.
         /// </summary>
         public IReadOnlyList<FontFace> Faces => _faces;
+
+        internal FontFace? GetExactFace(FontWeight weight, FontStyle style) =>
+            _lookup.GetValueOrDefault(new FontKey(weight, style));
 
         /// <summary>
         /// Gets the font face that best matches the specified weight and style.

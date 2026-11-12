@@ -1,9 +1,7 @@
-using FontStashSharp;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Engine.Graphics.Cameras;
 using Sachssoft.Engine.Graphics.Text;
-using Sachssoft.Engine.Graphics.Text.Internal;
 using System;
 
 namespace Sachssoft.Engine.Graphics.Rendering.Batches
@@ -25,7 +23,7 @@ namespace Sachssoft.Engine.Graphics.Rendering.Batches
     public sealed class FontBatch : IDisposable
     {
         private readonly MultiFrameBatch _frameBatch;
-        private readonly FontStashSharpBackend _fontBackend;
+        private readonly IFontBackend _fontBackend;
         private readonly FontBatchRenderer _fontRenderer;
 
         private bool _isDrawing;
@@ -40,9 +38,10 @@ namespace Sachssoft.Engine.Graphics.Rendering.Batches
         /// <param name="fontRegistry">
         /// The registry containing the fonts available to the batch.
         /// </param>
+        /// <param name="fontBackend">An optional caller-owned backend that receives the registered families.</param>
         public FontBatch(
             GraphicsDevice graphicsDevice,
-            FontRegistry fontRegistry)
+            FontRegistry fontRegistry, IFontBackend? fontBackend = null)
         {
             ArgumentNullException.ThrowIfNull(graphicsDevice);
             ArgumentNullException.ThrowIfNull(fontRegistry);
@@ -50,10 +49,11 @@ namespace Sachssoft.Engine.Graphics.Rendering.Batches
             FontRegistry = fontRegistry;
 
             _frameBatch = new MultiFrameBatch(graphicsDevice);
-            _fontBackend = new FontStashSharpBackend();
+            _fontBackend = fontBackend ?? new FontStashSharpBackend(fontRegistry);
             _fontRenderer = new FontBatchRenderer(graphicsDevice, _frameBatch);
 
-            FontRegistry.RegisterTo(_fontBackend);
+            if (fontBackend is not null)
+                FontRegistry.RegisterTo(fontBackend);
         }
 
         /// <summary>
@@ -120,22 +120,8 @@ namespace Sachssoft.Engine.Graphics.Rendering.Batches
             ArgumentNullException.ThrowIfNull(text);
             ArgumentNullException.ThrowIfNull(font);
 
-            SpriteFontBase spriteFont = _fontBackend.GetOrCreateSpriteFont(font);
-
-            spriteFont.DrawText(
-                _fontRenderer,
-                text,
-                new Vector2(
-                    transform.Position.X,
-                    transform.Position.Y),
-                color,
-                rotation: transform.Rotation,
-                origin: new Vector2(
-                    transform.Pivot.X,
-                    transform.Pivot.Y),
-                scale: transform.Scale,
-                characterSpacing: layout?.CharacterSpacing ?? 0f,
-                lineSpacing: layout?.LineSpacing ?? 0f);
+            _fontBackend.GetFont(font.FontName, font.Size, font.Weight, font.Style)
+                .DrawGlyphs(_fontRenderer, text, transform, color, layout);
         }
 
         /// <summary>
@@ -178,22 +164,7 @@ namespace Sachssoft.Engine.Graphics.Rendering.Batches
             if (size <= 0)
                 throw new ArgumentOutOfRangeException(nameof(size));
 
-            SpriteFontBase spriteFont = _fontBackend.GetSpriteFont(fontFace, size);
-
-            spriteFont.DrawText(
-                _fontRenderer,
-                text,
-                new Vector2(
-                    transform.Position.X,
-                    transform.Position.Y),
-                color,
-                rotation: transform.Rotation,
-                origin: new Vector2(
-                    transform.Pivot.X,
-                    transform.Pivot.Y),
-                scale: transform.Scale,
-                characterSpacing: layout?.CharacterSpacing ?? 0f,
-                lineSpacing: layout?.LineSpacing ?? 0f);
+            _fontBackend.GetFont(fontFace, size).DrawGlyphs(_fontRenderer, text, transform, color, layout);
         }
 
         /// <summary>

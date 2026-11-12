@@ -57,5 +57,20 @@ namespace Sachssoft.Engine.Graphics.Text
         /// family is registered.
         /// </returns>
         FontFamily? GetFamily(string name);
+
+        /// <summary>Resolves a sized font for the specified source face.</summary>
+        /// <param name="face">The source font data and style.</param>
+        /// <param name="size">The positive logical font size.</param>
+        /// <returns>A font whose resources are owned by the backend.</returns>
+        IFont GetFont(FontFace face, float size);
+
+        /// <summary>Resolves a sized font by family, with built-in families available as defaults.</summary>
+        /// <param name="familyName">The family name.</param>
+        /// <param name="size">The positive logical font size.</param>
+        /// <param name="weight">The requested weight.</param>
+        /// <param name="style">The requested posture.</param>
+        /// <returns>A font whose resources are owned by the backend.</returns>
+        IFont GetFont(string familyName, float size, FontWeight weight = FontWeight.Normal, FontStyle style = FontStyle.Normal) =>
+            GetFont(FontRegistry.ResolveFace(GetFamily(familyName), familyName, weight, style), size);
     }
 }

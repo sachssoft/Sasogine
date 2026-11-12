@@ -13,6 +13,7 @@ namespace Sachssoft.Engine.Graphics.Text
     public sealed class FontFace
     {
         private readonly byte[] _data;
+        private System.Collections.Concurrent.ConcurrentDictionary<float, IFont>? _fonts;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FontFace"/> class.
@@ -67,5 +68,19 @@ namespace Sachssoft.Engine.Graphics.Text
         /// Gets the binary font data.
         /// </summary>
         public ReadOnlyMemory<byte> Data => _data;
+
+        internal byte[] FontBytes => _data;
+
+        /// <summary>Gets a cached font using the engine's default backend.</summary>
+        /// <param name="size">The positive logical font size.</param>
+        /// <returns>A font whose glyph textures are owned by the drawing device.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> is nonpositive or nonfinite.</exception>
+        public IFont GetFont(float size)
+        {
+            if (!float.IsFinite(size) || size <= 0)
+                throw new ArgumentOutOfRangeException(nameof(size));
+            var fonts = System.Threading.LazyInitializer.EnsureInitialized(ref _fonts);
+            return fonts.GetOrAdd(size, static (value, face) => new FontStashFont(face, value), this);
+        }
     }
 }

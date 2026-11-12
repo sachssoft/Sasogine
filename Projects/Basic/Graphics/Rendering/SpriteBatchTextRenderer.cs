@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Sachssoft.Engine.Graphics.Text;
-using Sachssoft.Engine.Graphics.Text.Internal;
 using System;
 
 namespace Sachssoft.Engine.Graphics.Rendering
@@ -17,7 +16,7 @@ namespace Sachssoft.Engine.Graphics.Rendering
     public sealed class SpriteBatchTextRenderer
     {
         private readonly SpriteBatch _spriteBatch;
-        private readonly FontStashSharpBackend _fontBackend;
+        private readonly IFontBackend _fontBackend;
 
         /// <summary>
         /// Initializes a new instance of the
@@ -26,15 +25,16 @@ namespace Sachssoft.Engine.Graphics.Rendering
         /// <param name="spriteBatch">
         /// The sprite batch used to render text.
         /// </param>
+        /// <param name="fontBackend">An optional caller-owned backend for resolving fonts.</param>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="spriteBatch"/> is <see langword="null"/>.
         /// </exception>
-        public SpriteBatchTextRenderer(SpriteBatch spriteBatch)
+        public SpriteBatchTextRenderer(SpriteBatch spriteBatch, IFontBackend? fontBackend = null)
         {
             ArgumentNullException.ThrowIfNull(spriteBatch);
 
             _spriteBatch = spriteBatch;
-            _fontBackend = new FontStashSharpBackend();
+            _fontBackend = fontBackend ?? new FontStashSharpBackend();
         }
 
         /// <summary>
@@ -84,15 +84,7 @@ namespace Sachssoft.Engine.Graphics.Rendering
             if (size <= 0)
                 throw new ArgumentOutOfRangeException(nameof(size));
 
-            var spriteFont = _fontBackend.GetSpriteFont(fontFace, size);
-
-            spriteFont.DrawText(
-                _spriteBatch,
-                text,
-                position,
-                color,
-                characterSpacing: characterLayoutOptions?.CharacterSpacing ?? 0f,
-                lineSpacing: characterLayoutOptions?.LineSpacing ?? 0f);
+            _fontBackend.GetFont(fontFace, size).Draw(_spriteBatch, text, position, color, characterLayoutOptions);
         }
 
         /// <summary>
@@ -127,15 +119,8 @@ namespace Sachssoft.Engine.Graphics.Rendering
             ArgumentNullException.ThrowIfNull(text);
             ArgumentNullException.ThrowIfNull(fontOptions);
 
-            var spriteFont = _fontBackend.GetOrCreateSpriteFont(fontOptions);
-
-            spriteFont.DrawText(
-                _spriteBatch,
-                text,
-                position,
-                color,
-                characterSpacing: characterLayoutOptions?.CharacterSpacing ?? 0f,
-                lineSpacing: characterLayoutOptions?.LineSpacing ?? 0f);
+            _fontBackend.GetFont(fontOptions.FontName, fontOptions.Size, fontOptions.Weight, fontOptions.Style)
+                .Draw(_spriteBatch, text, position, color, characterLayoutOptions);
         }
     }
 }
