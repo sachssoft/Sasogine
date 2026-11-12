@@ -1,11 +1,11 @@
 using FontStashSharp;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Sachssoft.Engine.Controls.Drawing;
+using Sachssoft.Engine.Graphics.Text;
 
 namespace Sachssoft.Engine.Controls.Benchmarks;
 /// <summary>Shares the exact FontStashSharp font instance between both renderers.</summary>
-internal sealed class SharedFont : IControlFont
+internal sealed class SharedFont : IFont
 {
     /// <summary>Initializes a new shared font instance.</summary>
     public SharedFont(SpriteFontBase font) => Font = font;
