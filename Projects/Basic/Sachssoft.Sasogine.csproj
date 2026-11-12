@@ -23,6 +23,7 @@
 
 	<ItemGroup>
 		<EmbeddedResource Include="..\..\Assets\Fonts\Noto_Sans\NotoSans-*.ttf;..\..\Assets\Fonts\Noto_Serif\NotoSerif-*.ttf;..\..\Assets\Fonts\Noto_Sans_Mono\NotoSansMono-*.ttf">
+			<Link>Assets\Fonts\%(Filename)%(Extension)</Link>
 			<LogicalName>Sachssoft.Engine.Graphics.Text.Fonts.%(Filename)%(Extension)</LogicalName>
 			<WithCulture>false</WithCulture>
 		</EmbeddedResource>
