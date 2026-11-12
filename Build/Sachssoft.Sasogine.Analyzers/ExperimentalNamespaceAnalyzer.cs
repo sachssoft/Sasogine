@@ -108,7 +108,7 @@ public sealed class ExperimentalAssemblyAnalyzer : DiagnosticAnalyzer
 
     private static bool IsExperimentalAssembly(string? assemblyName)
     {
-        if (string.IsNullOrEmpty(assemblyName))
+        if (assemblyName is null)
             return false;
 
         return assemblyName.Equals(

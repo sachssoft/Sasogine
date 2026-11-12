@@ -266,7 +266,8 @@ public sealed class ScrollViewer : ContainerControl
 
     /// <summary>Clamps the cached content extent and visible scrollbar reservations to the available size.</summary>
     /// <param name = "available">The current content measurement constraints.</param>
-    /// <param name = "thickness">The logical scrollbar thickness.</param>
+    /// <param name = "reservedWidth">The width reserved by a vertical scrollbar when present.</param>
+    /// <param name = "reservedHeight">The height reserved by a horizontal scrollbar when present.</param>
     /// <returns>The desired size of the scroll viewer's content area.</returns>
     private Size2 MeasuredViewport(Size2 available, float reservedWidth, float reservedHeight) =>
         new(MathF.Min(available.Width, _extent.Width + (_vertical ? reservedWidth : 0)),
