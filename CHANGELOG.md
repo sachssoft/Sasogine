@@ -25,9 +25,19 @@ All notable changes to this project will be documented in this file.
 ## [0.14.2-alpha] - 2026-11-23 (Planned)
 
 ## [0.14.1-alpha] - 2026-11-16 (Planned)
+* [Feature] **Controls**: Added recycling item templates and virtual stack, tile, and adaptive tile panels for `ItemsControl`.
+* [Feature] **Controls**: Added observable sources and templates to selectors, asset views, trees, tables, tabs, carousels, and menus.
+* [Feature] **Controls**: Embedded all five bundled skins and added typed loading via `ControlSkin.LoadEmbedded()` to simplify skin setup.
+* [Feature] **Controls**: Added automatic workspace skins, named registration, and cached runtime switching.
 * [Change] Renamed `FontAssetDefinition.WeightDefinition` and `StyleDefinition` to `Weight` and `Style` for improved API clarity and consistency.
+* [Change] Replaced application factory overrides with `ConfigureApplication()` and pre-device graphics configuration.
+* [Change] Made `MeshRenderer` internal and moved public mesh drawing to `RenderScope.DrawMesh()` to reduce rendering boilerplate.
 * [Improve] **Controls**: Improved nullable string support, along with various minor fixes and improvements.
+* [Improve] **Controls**: Isolated scrolling from workspace layout and reduced hover, hit-testing, and rendering traversal costs.
+* [Improve] **Controls**: Carousel slides now move page visuals without rearranging page content every frame.
+* [Improve] **Controls**: Reused font inheritance and text measurements to reduce layout spikes when opening dense pages.
 * [Bug] **Controls**: Fixed `Grid.Place()` ignoring the `columnSpan` parameter.
+* [Bug] **Controls**: Fixed menu measurement, drawing, and access keys for entries without text.
 
 ## [0.14.0-alpha] - 2026-11-09
 * [Feature] **Controls**: Added visible glyph bounds measurement to FontFaceControlFont for aligning text from different font families.
