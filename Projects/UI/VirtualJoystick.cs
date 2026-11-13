@@ -10,9 +10,13 @@ namespace Sachssoft.Engine.Controls;
 public class VirtualJoystick : Control
 {
     private ChangeTracker<VirtualJoystickSettings> _settings;
-    private Vector2 _center, _position, _raw, _value;
+    private Vector2 _center;
+    private Vector2 _position;
+    private Vector2 _raw;
+    private Vector2 _value;
     private ControlPointer? _pointer;
-    private float _radius, _thumb;
+    private float _radius;
+    private float _thumb;
     private bool _centerReady;
     /// <summary>
     /// Creates a joystick with a typed properties.
@@ -274,11 +278,13 @@ public class VirtualJoystick : Control
         {
             if (IsActive || _radius <= 0)
                 return;
+            context.CapturePointer(this);
+            if (context.Workspace.GetCapturedControl(input.Pointer) != this)
+                return;
             _pointer = input.Pointer;
             _position = input.Position;
             if (ConfigPlacementMode == JoystickPlacementMode.Floating)
                 _center = ClampCenter(input.Position);
-            context.CapturePointer(this);
             args.Handled = true;
             Started?.Invoke(this, EventArgs.Empty);
             if (IsActive)
@@ -360,10 +366,7 @@ public class VirtualJoystick : Control
         _pointer = null;
         Workspace?.ReleasePointer(this, pointer);
         if (cancelled || ConfigReturnToCenter)
-        {
-            _raw = Vector2.Zero;
-            UpdateOutput();
-        }
+            CenterOutput();
 
         if (cancelled)
             Cancelled?.Invoke(this, EventArgs.Empty);
@@ -376,10 +379,27 @@ public class VirtualJoystick : Control
     /// </summary>
     public void Reset()
     {
-        Stop(true);
-        _centerReady = false;
+        if (IsActive)
+            Stop(true);
+        else
+            CenterOutput();
+    }
+
+    /// <summary>Restores the arranged midpoint and clears the displacement and normalized output.</summary>
+    private void CenterOutput()
+    {
+        Bounds2 bounds = Bounds;
+        _center = new Vector2(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2);
+        _position = _center;
         _raw = Vector2.Zero;
         UpdateOutput();
+    }
+
+    /// <summary>Cancels active capture when the control leaves its workspace.</summary>
+    protected override void OnDetached()
+    {
+        Reset();
+        base.OnDetached();
     }
 
     /// <inheritdoc/>

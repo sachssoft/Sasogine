@@ -399,6 +399,8 @@ public sealed class Workspace : Element, IDisposable
     private Vector2 _pointer;
     private ControlLayoutContext? _layout;
     private GameApplicationBase? _hostApplication;
+    /// <summary>The optional native source of primary mouse edges for this workspace's host.</summary>
+    private Sachssoft.Engine.Services.Platform.IPrimaryMouseEvents? _hostPrimaryMouseEvents;
     private ControlLayoutContext? _hostLayout;
     private ControlInputSampler? _hostInput;
     private ControlDrawContext? _hostDraw;
@@ -443,6 +445,7 @@ public sealed class Workspace : Element, IDisposable
         InitializeGraphics(application.GraphicsDevice);
         _hostLayout = defaultFont is null ? ControlLayoutContext.Default : new ControlLayoutContext(defaultFont);
         _hostApplication = application;
+        _hostPrimaryMouseEvents = application.GetService<Sachssoft.Engine.Services.Platform.IPrimaryMouseEvents>();
         _hasFrame = false;
     }
 
@@ -602,8 +605,12 @@ public sealed class Workspace : Element, IDisposable
         in InputSnapshot input, Rectangle? viewport, bool? active)
     {
         InitializeGraphics(device);
-        Update(_hostInput ??= new ControlInputSampler(), input.Mouse, input.Keyboard, input.Touches,
-            viewport ?? device.Viewport.Bounds, gameTime.ElapsedGameTime, _hostLayout!, active ?? application.IsActive);
+        Rectangle bounds = viewport ?? device.Viewport.Bounds;
+        float dpi = Dpi;
+        ControlInputFrame frame = (_hostInput ??= new ControlInputSampler()).SampleReusable(
+            input.Mouse, input.Keyboard, input.Touches, bounds, dpi / 96f, gameTime.ElapsedGameTime,
+            active ?? application.IsActive, PreferTouchInput, _hostPrimaryMouseEvents);
+        ProcessFrameCore(frame, _hostLayout!, bounds, dpi);
     }
 
     private GameApplicationBase GetHost(GameContext context, out GraphicsDevice device)
@@ -1149,8 +1156,41 @@ public sealed class Workspace : Element, IDisposable
         return null;
     }
 
+    /// <summary>Routes a snapshot event and finishes its capture even when a session or preview consumes it.</summary>
+    /// <param name="input">The logical input event for this workspace.</param>
     private void Dispatch(ControlInputEvent input)
     {
+        bool endsCapture = input.Type == ControlInputEventType.PointerCancel ||
+            input.Type == ControlInputEventType.PointerUp && input.Button == MouseButton.Left;
+        if (!endsCapture)
+        {
+            RouteInput(input);
+            return;
+        }
+
+        try
+        {
+            RouteInput(input);
+        }
+        finally
+        {
+            if (GetCapturedControl(input.Pointer) is Control owner)
+                ReleasePointer(owner, input.Pointer);
+            if (_hasPointer && _hoverPointer == input.Pointer && input.PointerKind == ControlPointerKind.Touch)
+                _hasPointer = false;
+        }
+    }
+
+    /// <summary>Runs the active input session and delivers the event to the captured or hit control.</summary>
+    /// <param name="input">The event to route.</param>
+    private void RouteInput(ControlInputEvent input)
+    {
+        if (input.Type == ControlInputEventType.Deactivate)
+        {
+            CancelInput();
+            return;
+        }
+
         if (ColorPicking.Handle(input) || AssetDragging.Handle(this, input))
             return;
         _input.Pointer = input.Pointer;
@@ -1176,21 +1216,6 @@ public sealed class Workspace : Element, IDisposable
                     _route[i].PreviewInput(_input, cancelledArgs);
                 }
             }
-            if (GetCapturedControl(input.Pointer)is Control cancelled)
-                ReleasePointer(cancelled, input.Pointer);
-            if (input.PointerKind == ControlPointerKind.Touch)
-                _hasPointer = false;
-            return;
-        }
-
-        if (input.Type == ControlInputEventType.Deactivate)
-        {
-            Focus(null);
-            ReleasePointers(static _ => true);
-            foreach (Control control in EnumerateControls())
-                control.CancelInteraction();
-            _hasPointer = false;
-            RefreshHover();
             return;
         }
 
@@ -1263,13 +1288,21 @@ public sealed class Workspace : Element, IDisposable
             foreach (Control node in EnumerateControls())
                 if (node is MenuBar menu && IsInActiveScope(menu) && menu.HandleShortcut(input))
                     break;
-        if (input.Type == ControlInputEventType.PointerUp && input.Button == MouseButton.Left)
-        {
-            if (GetCapturedControl(input.Pointer)is Control owner)
-                ReleasePointer(owner, input.Pointer);
-            if (input.PointerKind == ControlPointerKind.Touch)
-                _hasPointer = false;
-        }
+    }
+
+    /// <summary>Ends active input immediately when the host loses focus or stops accepting input.</summary>
+    /// <remarks>Call on the workspace thread. Repeated calls leave controls in their idle state.</remarks>
+    public void CancelInput()
+    {
+        VerifyTreeMutation();
+        ColorPicking.Cancel();
+        AssetDragging.Cancel();
+        Focus(null);
+        ReleasePointers(static _ => true);
+        foreach (Control control in EnumerateControls())
+            control.CancelInteraction();
+        _hasPointer = false;
+        RefreshHover();
     }
 
     private void MoveFocus(bool reverse)
@@ -1820,6 +1853,7 @@ public sealed class Workspace : Element, IDisposable
         _hostInput = null;
         _hostLayout = null;
         _hostApplication = null;
+        _hostPrimaryMouseEvents = null;
         ReleaseOwnedSkins();
         _skins?.Clear();
         _controls.Clear();
