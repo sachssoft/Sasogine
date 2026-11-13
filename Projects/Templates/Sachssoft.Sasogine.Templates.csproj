@@ -1,38 +1,65 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Template packages only need the shared version and NuGet metadata. -->
+  <PropertyGroup>
+    <UseMonoGameNative>false</UseMonoGameNative>
+  </PropertyGroup>
+  <Import Project="..\..\Sachssoft.Sasogine.Package.props" />
 
-	<PropertyGroup>
-		<UseMonoGameNative>false</UseMonoGameNative>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks></TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDefaultItems>false</EnableDefaultItems>
 
-	<Import Project="..\Sasogine.Package.props" />
+    <PackageId>Sachssoft.Sasogine.Templates</PackageId>
+    <Title>Sasogine Templates</Title>
+    <Description>Project templates for the Sasogine game engine.</Description>
+    <PackageTags>dotnet-new;templates;MonoGame;Sasogine;GameEngine</PackageTags>
+    <PackageType>Template</PackageType>
+    <IsPackable>true</IsPackable>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <!-- NuGet must include .template.config/template.json in every template. -->
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+    <ContentTargetFolders>content</ContentTargetFolders>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
 
-	<PropertyGroup>
-		<TargetFrameworks></TargetFrameworks>
-		<TargetFramework>net10.0</TargetFramework>
+    <SasogineTemplateEngineVersion>$(VersionPrefix)</SasogineTemplateEngineVersion>
+    <SasogineTemplateEngineVersion Condition="'$(VersionSuffix)' != ''">$(VersionPrefix)-$(VersionSuffix)</SasogineTemplateEngineVersion>
+    <SasogineTemplateStagingDir>$(MSBuildProjectDirectory)\obj\SasogineTemplateContent\</SasogineTemplateStagingDir>
+  </PropertyGroup>
 
-		<PackageId>Sachssoft.Sasogine.Templates</PackageId>
-		<Title>Sasogine Templates</Title>
-		<Description>Project templates for the Sasogine game engine.</Description>
-		<PackageTags>dotnet-new;templates;MonoGame;Sasogine;GameEngine;Framework</PackageTags>
+  <ItemGroup>
+    <!-- Use the template-specific README, not the shared project README. -->
+    <None Remove="$([MSBuild]::NormalizePath('$(MSBuildProjectDirectory)', '..', '..', 'README.md'))" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
+    <TemplateSource Include="content\**\*"
+                    Exclude="content\**\bin\**;content\**\obj\**" />
+  </ItemGroup>
 
-		<!-- Template package configuration. -->
-		<PackageType>Template</PackageType>
-		<IsPackable>true</IsPackable>
-		<IncludeContentInPack>true</IncludeContentInPack>
-		<IncludeBuildOutput>false</IncludeBuildOutput>
-		<ContentTargetFolders>content</ContentTargetFolders>
-		<NoDefaultExcludes>true</NoDefaultExcludes>
-		<NoWarn>$(NoWarn);NU5128</NoWarn>
-		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-	</PropertyGroup>
+  <!-- Stage generated content; never modify tracked template sources. -->
+  <Target Name="PrepareSasogineTemplates" BeforeTargets="_GetPackageFiles">
+    <RemoveDir Directories="$(SasogineTemplateStagingDir)" />
+    <Copy SourceFiles="@(TemplateSource)"
+          DestinationFiles="@(TemplateSource->'$(SasogineTemplateStagingDir)%(RecursiveDir)%(Filename)%(Extension)')" />
 
-	<ItemGroup>
-		<Compile Remove="Sasogine.*/**/*.cs" />
+    <ItemGroup>
+      <TemplateVersionSnapshots Include="$(SasogineTemplateStagingDir)**\Sasogine.TemplateVersions.props" />
+    </ItemGroup>
+    <Error Condition="'@(TemplateVersionSnapshots)' == ''"
+           Text="No Sasogine.TemplateVersions.props files were found in the staged templates." />
+    <XmlPoke XmlInputPath="%(TemplateVersionSnapshots.FullPath)"
+             Query="/Project/PropertyGroup/SasogineDefaultVersion"
+             Value="$(SasogineTemplateEngineVersion)" />
+    <XmlPoke XmlInputPath="%(TemplateVersionSnapshots.FullPath)"
+             Query="/Project/PropertyGroup/SasogineMonoGameVersion"
+             Value="$(MonoGameVersion)" />
 
-		<Content Include="Sasogine.*/**/*"
-				 Exclude="Sasogine.*/**/bin/**;Sasogine.*/**/obj/**"
-				 Pack="true"
-				 PackagePath="content/%(Identity)" />
-	</ItemGroup>
-
+    <ItemGroup>
+      <Content Include="$(SasogineTemplateStagingDir)**\*"
+               Pack="true"
+               PackagePath="content\%(RecursiveDir)" />
+    </ItemGroup>
+  </Target>
 </Project>

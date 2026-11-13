@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="Sasogine.TemplateVersions.props" />
+  <Import Project="SasogineTemplate.props" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>SASOGINE_TARGET_FRAMEWORK</TargetFramework>
+    <AssemblyName>SasogineTemplate</AssemblyName>
+    <SasogineBackend>SASOGINE_BACKEND</SasogineBackend>
+    <MonoGamePlatform Condition="'$(SasogineBackend)' == 'WindowsDX'">Windows</MonoGamePlatform>
+    <MonoGamePlatform Condition="'$(SasogineBackend)' != 'WindowsDX'">$(SasogineBackend)</MonoGamePlatform>
+  </PropertyGroup>
+  <ItemGroup>
+
+    <PackageReference Include="Sachssoft.Sasogine.$(SasogineBackend)" Version="$(SasogineVersion)" />
+
+  </ItemGroup>
+</Project>

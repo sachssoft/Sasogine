@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <!-- Automatically updated in the template NuGet staging directory. -->
+    <SasogineDefaultVersion>0.14.1-alpha</SasogineDefaultVersion>
+    <SasogineMonoGameVersion>3.8.6</SasogineMonoGameVersion>
+  </PropertyGroup>
+</Project>

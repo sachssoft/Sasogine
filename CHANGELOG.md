@@ -22,10 +22,13 @@ All notable changes to this project will be documented in this file.
 
 ## [0.14.3-alpha] - 2026-11-30 (Planned)
 
+
 ## [0.14.2-alpha] - 2026-11-23 (Planned)
 * [Feature] Added a localization source generator that creates typed text and asset keys from `.xdlt` templates and validates `.xdl` translations.
+* [Feature] Added six project templates: Empty, Empty with Scene, Desktop, Editor Desktop, Crossplatform, and Mobile.
+* [Feature] **Templates**: Added configurable namespaces, target frameworks, graphics backends, and Sasogine version selection.
+* [Improve] **Templates**: Added automatic package version synchronization and simplified project generation for Visual Studio and .NET CLI.
 * [Change] Removed `LocalizedValue`, `Localized`, and `LocalizationBinding` from the localization API.
-
 
 ## [0.14.1-alpha] - 2026-11-12 (Boilerplate Reduction and Performance Optimization)
 * [Feature] **Controls**: Added recycling item templates and virtual stack, tile, and adaptive tile panels for `ItemsControl`.

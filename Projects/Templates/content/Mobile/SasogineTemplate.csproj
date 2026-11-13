@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="Sasogine.TemplateVersions.props" />
+  <Import Project="SasogineTemplate.props" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>SASOGINE_MOBILE_FRAMEWORKS</TargetFrameworks>
+    <AssemblyName>SasogineTemplate</AssemblyName>
+    <SasogineMobileGraphics>SASOGINE_MOBILE_GRAPHICS</SasogineMobileGraphics>
+    <SupportedOSPlatformVersion Condition="'$(TargetPlatformIdentifier)' == 'android'">23.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="'$(TargetPlatformIdentifier)' == 'ios'">12.2</SupportedOSPlatformVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Sachssoft.Sasogine" Version="$(SasogineVersion)" />
+    <PackageReference Include="MonoGame.Framework.Android" Version="$(SasogineMonoGameVersion)" Condition="'$(TargetPlatformIdentifier)' == 'android'" />
+    <PackageReference Include="MonoGame.Framework.iOS" Version="$(SasogineMonoGameVersion)" Condition="'$(TargetPlatformIdentifier)' == 'ios'" />
+  </ItemGroup>
+</Project>

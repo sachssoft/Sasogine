@@ -1,0 +1,18 @@
+<Project>
+  <PropertyGroup>
+    <Product>SasogineTemplate</Product>
+    <Title>SasogineTemplate</Title>
+    <RootNamespace>SASOGINE_ROOT_NAMESPACE</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+    <EnableAotAnalyzer>true</EnableAotAnalyzer>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <SasogineVersionSelection>SASOGINE_VERSION_SELECTION</SasogineVersionSelection>
+    <SasogineVersion Condition="'$(SasogineVersionSelection)' == 'current'">$(SasogineDefaultVersion)</SasogineVersion>
+    <SasogineVersion Condition="'$(SasogineVersionSelection)' != 'current'">$(SasogineVersionSelection)</SasogineVersion>
+  </PropertyGroup>
+</Project>

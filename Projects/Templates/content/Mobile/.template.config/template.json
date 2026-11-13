@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Sachssoft",
+  "name": "Sasogine Mobile",
+  "description": "Experimental mobile starter for Android and iOS.",
+  "identity": "Sachssoft.Sasogine.Templates.Mobile",
+  "shortName": "sasogine-mobile",
+  "sourceName": "SasogineTemplate",
+  "preferNameDirectory": true,
+  "classifications": [
+    "Sasogine",
+    "Mobile",
+    "Game"
+  ],
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "symbols": {
+    "RootNamespace": {
+      "type": "parameter",
+      "datatype": "text",
+      "displayName": "Root Namespace",
+      "description": "Optional C# namespace. Leave empty to use the project name.",
+      "defaultValue": ""
+    },
+    "SasogineVersion": {
+      "type": "parameter",
+      "datatype": "choice",
+      "displayName": "Sasogine Version",
+      "description": "Current alpha from the template package, or the minimum supported alpha.",
+      "defaultValue": "current",
+      "replaces": "SASOGINE_VERSION_SELECTION",
+      "choices": [
+        {
+          "choice": "current",
+          "description": "Current Sasogine alpha (imported automatically from Sachssoft.Sasogine.Package.props)"
+        },
+        {
+          "choice": "0.14.1-alpha",
+          "description": "Sasogine 0.14.1-alpha (minimum supported)"
+        }
+      ]
+    },
+    "MobilePlatform": {
+      "type": "parameter",
+      "datatype": "choice",
+      "displayName": "Mobile Platform",
+      "description": "Target Android, iOS, or both. iOS requires an Apple toolchain.",
+      "defaultValue": "net10.0-android",
+      "replaces": "SASOGINE_MOBILE_FRAMEWORKS",
+      "choices": [
+        {
+          "choice": "net10.0-android",
+          "description": "Android (.NET 10)"
+        },
+        {
+          "choice": "net10.0-ios",
+          "description": "iOS (.NET 10)"
+        },
+        {
+          "choice": "net10.0-android;net10.0-ios",
+          "description": "Android + iOS (.NET 10)"
+        }
+      ]
+    },
+    "DefaultRootNamespace": {
+      "type": "derived",
+      "valueSource": "name",
+      "valueTransform": "safe_namespace"
+    },
+    "ResolvedRootNamespace": {
+      "type": "generated",
+      "generator": "coalesce",
+      "parameters": {
+        "sourceVariableName": "RootNamespace",
+        "fallbackVariableName": "DefaultRootNamespace"
+      },
+      "replaces": "SASOGINE_ROOT_NAMESPACE"
+    },
+    "MobileGraphics": {
+      "type": "parameter",
+      "datatype": "choice",
+      "displayName": "Mobile Graphics",
+      "description": "Currently supported: OpenGL ES. Android Vulkan requires a new mobile backend.",
+      "defaultValue": "OpenGLES",
+      "replaces": "SASOGINE_MOBILE_GRAPHICS",
+      "choices": [
+        {
+          "choice": "OpenGLES",
+          "description": "OpenGL ES (Android and iOS)"
+        }
+      ]
+    }
+  },
+  "primaryOutputs": [
+    {
+      "path": "SasogineTemplate.csproj"
+    }
+  ]
+}

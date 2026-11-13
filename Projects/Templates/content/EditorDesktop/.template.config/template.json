@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Sachssoft",
+  "name": "Sasogine Editor Desktop",
+  "description": "Desktop editor starter with Sasogine Controls and SceneViewport.",
+  "identity": "Sachssoft.Sasogine.Templates.EditorDesktop",
+  "shortName": "sasogine-editor",
+  "sourceName": "SasogineTemplate",
+  "preferNameDirectory": true,
+  "classifications": [
+    "Sasogine",
+    "Desktop",
+    "Editor"
+  ],
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "symbols": {
+    "RootNamespace": {
+      "type": "parameter",
+      "datatype": "text",
+      "displayName": "Root Namespace",
+      "description": "Optional C# namespace. Leave empty to use the project name.",
+      "defaultValue": ""
+    },
+    "SasogineVersion": {
+      "type": "parameter",
+      "datatype": "choice",
+      "displayName": "Sasogine Version",
+      "description": "Current alpha from the template package, or the minimum supported alpha.",
+      "defaultValue": "current",
+      "replaces": "SASOGINE_VERSION_SELECTION",
+      "choices": [
+        {
+          "choice": "current",
+          "description": "Current Sasogine alpha (imported automatically from Sachssoft.Sasogine.Package.props)"
+        },
+        {
+          "choice": "0.14.1-alpha",
+          "description": "Sasogine 0.14.1-alpha (minimum supported)"
+        }
+      ]
+    },
+    "Framework": {
+      "type": "parameter",
+      "datatype": "choice",
+      "displayName": ".NET Version",
+      "description": "Target framework (matching Sasogine net8.0/net9.0/net10.0).",
+      "defaultValue": "net10.0",
+      "replaces": "SASOGINE_TARGET_FRAMEWORK",
+      "choices": [
+        {
+          "choice": "net8.0",
+          "description": ".NET 8"
+        },
+        {
+          "choice": "net9.0",
+          "description": ".NET 9"
+        },
+        {
+          "choice": "net10.0",
+          "description": ".NET 10 (recommended)"
+        }
+      ]
+    },
+    "Backend": {
+      "type": "parameter",
+      "datatype": "choice",
+      "displayName": "Graphics Backend",
+      "description": "Choose a rendering backend supported by the selected desktop platform.",
+      "defaultValue": "DesktopGL",
+      "replaces": "SASOGINE_BACKEND",
+      "choices": [
+        {
+          "choice": "DesktopGL",
+          "description": "OpenGL (Windows, Linux, macOS)"
+        },
+        {
+          "choice": "WindowsDX",
+          "description": "Direct3D 11 (Windows only)"
+        },
+        {
+          "choice": "WindowsDX12",
+          "description": "Direct3D 12 (Windows only)"
+        },
+        {
+          "choice": "DesktopVK",
+          "description": "Vulkan (desktop; experimental)"
+        }
+      ]
+    },
+    "DefaultRootNamespace": {
+      "type": "derived",
+      "valueSource": "name",
+      "valueTransform": "safe_namespace"
+    },
+    "ResolvedRootNamespace": {
+      "type": "generated",
+      "generator": "coalesce",
+      "parameters": {
+        "sourceVariableName": "RootNamespace",
+        "fallbackVariableName": "DefaultRootNamespace"
+      },
+      "replaces": "SASOGINE_ROOT_NAMESPACE"
+    }
+  },
+  "primaryOutputs": [
+    {
+      "path": "SasogineTemplate.csproj"
+    }
+  ]
+}
