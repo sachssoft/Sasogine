@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Sachssoft.Engine.Services.Platform;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using static Sachssoft.Engine.Platform.Windows.WindowsWindowNative;
@@ -16,11 +17,13 @@ namespace Sachssoft.Engine.Platform.Windows;
 /// Native destruction also removes the callback and its lifetime reservation.
 /// AllowClose governs native user requests and does not intercept Game.Exit or OS termination.
 /// </remarks>
-public sealed class WindowsWindow : IPlatformWindow, IPlatformInitializable, IDisposable
+public sealed class WindowsWindow : IPlatformWindow, IPrimaryMouseEvents, IPlatformInitializable, IDisposable
 {
     private Game? _game;
     private IntPtr _window;
     private readonly WindowsWindowProcedure _procedure;
+    /// <summary>Preserves button edges and their original client coordinates between updates.</summary>
+    private readonly Queue<(Point Position, bool Pressed)> _primaryMouseEvents = new(16);
 
     private bool _initialAltF4;
     private bool _initialResize;
@@ -214,6 +217,15 @@ public sealed class WindowsWindow : IPlatformWindow, IPlatformInitializable, IDi
     }
 
     /// <inheritdoc/>
+    public bool TryDequeuePrimaryMouseEvent(out Point position, out bool pressed)
+    {
+        VerifyAccess();
+        bool found = _primaryMouseEvents.TryDequeue(out var entry);
+        (position, pressed) = entry;
+        return found;
+    }
+
+    /// <inheritdoc/>
     public void Maximize()
     {
         VerifyAccess();
@@ -291,6 +303,21 @@ public sealed class WindowsWindow : IPlatformWindow, IPlatformInitializable, IDi
     private IntPtr ProcessMessage(IntPtr window, uint message, UIntPtr wParam, IntPtr lParam,
         UIntPtr subclassId, UIntPtr referenceData)
     {
+        const uint KillFocus = 0x0008;
+        const uint LeftDown = 0x0201;
+        const uint LeftUp = 0x0202;
+        const uint LeftDoubleClick = 0x0203;
+        if (message is LeftDown or LeftUp or LeftDoubleClick)
+        {
+            int coordinates = unchecked((int)lParam.ToInt64());
+            var position = new Point(unchecked((short)coordinates), unchecked((short)(coordinates >> 16)));
+            if (_primaryMouseEvents.Count == 256)
+                _primaryMouseEvents.Dequeue();
+            _primaryMouseEvents.Enqueue((position, message != LeftUp));
+        }
+        else if (message == KillFocus)
+            _primaryMouseEvents.Clear();
+
         if (message == WmClose && !AllowClose)
             return IntPtr.Zero;
 
