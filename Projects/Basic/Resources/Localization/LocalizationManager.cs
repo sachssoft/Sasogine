@@ -220,6 +220,11 @@ public sealed class LocalizationManager
             ?? defaultValue;
     }
 
+    /// <summary>Gets the translated text for a typed entry or its invariant fallback.</summary>
+    /// <param name="entry">The keyed text entry to resolve.</param>
+    /// <returns>The resolved translation or the entry's invariant fallback.</returns>
+    public string GetValue(LocalizedTextEntry entry) => GetValue(entry.Key) ?? entry.Fallback;
+
     /// <summary>
     /// Gets a pluralized string using the rules of the language that supplies the translation.
     /// </summary>

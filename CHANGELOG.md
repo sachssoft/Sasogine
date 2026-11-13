@@ -23,6 +23,8 @@ All notable changes to this project will be documented in this file.
 ## [0.14.3-alpha] - 2026-11-30 (Planned)
 
 ## [0.14.2-alpha] - 2026-11-23 (Planned)
+* [Feature] Added a localization source generator that creates typed text and asset keys from `.xdlt` templates and validates `.xdl` translations.
+* [Change] Removed `LocalizedValue`, `Localized`, and `LocalizationBinding` from the localization API.
 
 
 ## [0.14.1-alpha] - 2026-11-12 (Boilerplate Reduction and Performance Optimization)

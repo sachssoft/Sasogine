@@ -8,6 +8,7 @@ namespace Sachssoft.Engine.Resources.Sources
     /// <summary>
     /// Provides access to resources stored in the local file system.
     /// </summary>
+    [ResourceSource("file")]
     public sealed class LocalFileSource : ResourceSourceBase, IFileSource
     {
         /// <summary>
