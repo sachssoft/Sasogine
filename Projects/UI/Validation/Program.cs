@@ -51,6 +51,7 @@ internal static class Program
                 return 0;
             }
 
+            Run("Joystick pointer capture and neutral output", () => JoystickCaptureChecks.Run(Check, Layout));
             Run("Exact rotated and nested clip geometry", () => ClipPlanesChecks.Run(Check));
             Run("Items, panel templates and editable canvas transforms", CanvasItemsChecks.Run);
             Run("Camera-free view scene contracts", () => ViewSceneChecks.Run(Check, Layout));
