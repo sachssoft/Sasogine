@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
 using Sachssoft.Engine.Input;
+using Sachssoft.Engine.Services.Platform;
 using System;
 using System.Collections.Generic;
 
@@ -61,11 +62,14 @@ public sealed class ControlInputSampler
     /// <param name="elapsed">The time elapsed since the previous frame.</param>
     /// <param name="active">Whether the workspace is accepting input.</param>
     /// <param name="preferTouchInput">Whether native touch suppresses concurrent mouse events.</param>
+    /// <param name="primaryMouseEvents">The optional ordered native button edge source.</param>
     /// <returns>A borrowed frame that remains valid until the next reusable sample.</returns>
-    internal ControlInputFrame SampleReusable(MouseState mouse, KeyboardState keyboard, TouchCollection touches, Rectangle viewport, float scale, TimeSpan elapsed, bool active, bool preferTouchInput) =>
-        SampleCore(mouse, keyboard, touches, viewport, scale, elapsed, active, true, preferTouchInput);
+    internal ControlInputFrame SampleReusable(MouseState mouse, KeyboardState keyboard, TouchCollection touches, Rectangle viewport, float scale, TimeSpan elapsed, bool active, bool preferTouchInput,
+        IPrimaryMouseEvents? primaryMouseEvents = null) =>
+        SampleCore(mouse, keyboard, touches, viewport, scale, elapsed, active, true, preferTouchInput, primaryMouseEvents);
 
-    private ControlInputFrame SampleCore(MouseState mouse, KeyboardState keyboard, TouchCollection touches, Rectangle viewport, float scale, TimeSpan elapsed, bool active, bool reuse, bool preferTouchInput = false)
+    private ControlInputFrame SampleCore(MouseState mouse, KeyboardState keyboard, TouchCollection touches, Rectangle viewport, float scale, TimeSpan elapsed, bool active, bool reuse, bool preferTouchInput = false,
+        IPrimaryMouseEvents? primaryMouseEvents = null)
     {
         if (!float.IsFinite(scale) || scale <= 0)
             throw new ArgumentOutOfRangeException(nameof(scale));
@@ -79,13 +83,24 @@ public sealed class ControlInputSampler
             events.Add(new ControlInputEvent(ControlInputEventType.Deactivate));
             _touches.Clear();
             _sampledMousePosition = null;
+            if (primaryMouseEvents is not null)
+                while (primaryMouseEvents.TryDequeuePrimaryMouseEvent(out _, out _)) { }
         }
         else
         {
             bool shift = keyboard.IsKeyDown(Keys.LeftShift) || keyboard.IsKeyDown(Keys.RightShift);
             bool control = keyboard.IsKeyDown(Keys.LeftControl) || keyboard.IsKeyDown(Keys.RightControl);
             bool alt = keyboard.IsKeyDown(Keys.LeftAlt) || keyboard.IsKeyDown(Keys.RightAlt);
-            if (ShouldSampleMouse(mouse, touches, preferTouchInput, position, events))
+            bool sampleMouse = ShouldSampleMouse(mouse, touches, preferTouchInput, position, events);
+            if (primaryMouseEvents is not null)
+                while (primaryMouseEvents.TryDequeuePrimaryMouseEvent(out Point edge, out bool pressed))
+                    if (sampleMouse)
+                    {
+                        Vector2 edgePosition = new(((float)edge.X - viewport.X) / scale, ((float)edge.Y - viewport.Y) / scale);
+                        events.Add(new ControlInputEvent(pressed ? ControlInputEventType.PointerDown : ControlInputEventType.PointerUp,
+                            edgePosition, MouseButton.Left, Shift: shift, Control: control, Alt: alt));
+                    }
+            if (sampleMouse)
             {
                 // Compare logical positions so resize or DPI changes can still produce a move.
                 if (!preferTouchInput || _sampledMousePosition != position)
@@ -93,6 +108,7 @@ public sealed class ControlInputSampler
                 _sampledMousePosition = position;
                 foreach (MouseButton button in PointerButtons)
                 {
+                    if (button == MouseButton.Left && primaryMouseEvents is not null) continue;
                     bool wasDown = Down(_mouse, button), isDown = Down(mouse, button);
                     if (wasDown != isDown)
                         events.Add(new ControlInputEvent(isDown ? ControlInputEventType.PointerDown : ControlInputEventType.PointerUp, position, button, Shift: shift, Control: control, Alt: alt));
