@@ -29,6 +29,8 @@ All notable changes to this project will be documented in this file.
 * [Feature] **Templates**: Added configurable namespaces, target frameworks, graphics backends, and Sasogine version selection.
 * [Improve] **Templates**: Added automatic package version synchronization and simplified project generation for Visual Studio and .NET CLI.
 * [Change] Removed `LocalizedValue`, `Localized`, and `LocalizationBinding` from the localization API.
+* [Bug] **Controls**: Fixed virtual joysticks staying deflected after release outside the control, touch cancellation, capture loss, or window focus loss. The stick and its output reset immediately.
+* [Bug] **Controls**: Preserved rapid primary mouse presses and releases between frames on Windows when native mouse events are available, so fast joystick drags start at the original press position.
 
 ## [0.14.1-alpha] - 2026-11-12 (Boilerplate Reduction and Performance Optimization)
 * [Feature] **Controls**: Added recycling item templates and virtual stack, tile, and adaptive tile panels for `ItemsControl`.
