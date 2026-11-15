@@ -24,6 +24,8 @@ All notable changes to this project will be documented in this file.
 
 
 ## [0.14.2-alpha] - 2026-11-23 (Planned)
+* [Feature] Added `IHttpService` for asynchronous HTTP communication and API requests.
+* [Feature] Added `IDownloadService` for asynchronous file downloads with progress reporting and cancellation support.
 * [Feature] Added a localization source generator that creates typed text and asset keys from `.xdlt` templates and validates `.xdl` translations.
 * [Feature] Added six project templates: Empty, Empty with Scene, Desktop, Editor Desktop, Crossplatform, and Mobile.
 * [Feature] **Templates**: Added configurable namespaces, target frameworks, graphics backends, and Sasogine version selection.
